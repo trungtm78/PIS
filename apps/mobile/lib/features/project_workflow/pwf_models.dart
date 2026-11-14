@@ -170,9 +170,24 @@ PwfTaskRow? parsePwfTaskRow(Object? raw) {
   );
 }
 
+/// Where a stage stands on the strip (kernel `phaseStandings`): exactly one stage is [current], the earliest with required work left; a later stage
+/// in which work has begun in parallel has [started]; the others are [done] or still [upcoming].
+enum PwfPhaseStanding { done, current, started, upcoming }
+
+PwfPhaseStanding? _standingOf(Object? raw) => switch (raw) {
+      'DONE' => PwfPhaseStanding.done,
+      'CURRENT' => PwfPhaseStanding.current,
+      'STARTED' => PwfPhaseStanding.started,
+      'UPCOMING' => PwfPhaseStanding.upcoming,
+      _ => null,
+    };
+
 /// A stage of the workflow: the phases are the strip of MOB-78.
 final class PwfPhase {
-  const PwfPhase({required this.code, required this.name, required this.order, required this.requiredTotal, required this.requiredDone, required this.open});
+  const PwfPhase({required this.code, required this.name, required this.order, required this.requiredTotal, required this.requiredDone, required this.open, this.standing = PwfPhaseStanding.upcoming});
+
+  /// Where the stage stands. `open` alone never says "here": several stages are open at once.
+  final PwfPhaseStanding standing;
 
   final String code;
   final String name;
@@ -189,7 +204,36 @@ PwfPhase? parsePwfPhase(Object? raw) {
   final String? name = filled(record['name']);
   final int? order = whole(record['order']);
   if (code == null || name == null || order == null) return null;
-  return PwfPhase(code: code, name: name, order: order, requiredTotal: count(record['required_total']), requiredDone: count(record['required_done']), open: record['open'] == true);
+  return _RawPhase(code: code, name: name, order: order, requiredTotal: count(record['required_total']), requiredDone: count(record['required_done']), open: record['open'] == true, said: _standingOf(record['standing']));
+}
+
+/// A stage as it was read, before the stages of an answer that does not say where each stands are worked out together ([_withStandings]).
+final class _RawPhase extends PwfPhase {
+  const _RawPhase({required super.code, required super.name, required super.order, required super.requiredTotal, required super.requiredDone, required super.open, required this.said});
+
+  final PwfPhaseStanding? said;
+}
+
+/// The stages with where each stands: what the server says, else (an answer kept from before it said so) the same rule as far as it can be read:
+/// the earliest stage that is still open is the current one, the ones before it are done, the ones after it are still to come.
+List<PwfPhase> _withStandings(List<PwfPhase> phases, String? openPhase) {
+  final int first = phases.indexWhere((PwfPhase phase) => phase.open || phase.code == openPhase);
+  return <PwfPhase>[
+    for (int index = 0; index < phases.length; index += 1)
+      PwfPhase(
+        code: phases[index].code,
+        name: phases[index].name,
+        order: phases[index].order,
+        requiredTotal: phases[index].requiredTotal,
+        requiredDone: phases[index].requiredDone,
+        open: phases[index].open,
+        standing: switch (phases[index]) {
+          _RawPhase(:final PwfPhaseStanding said) => said,
+          _RawPhase() => first < 0 || index < first ? PwfPhaseStanding.done : (index == first ? PwfPhaseStanding.current : PwfPhaseStanding.upcoming),
+          final PwfPhase read => read.standing,
+        },
+      ),
+  ];
 }
 
 /// The workflow of one project as `getProjectWorkflow` answers.
@@ -254,7 +298,7 @@ final class PwfWorkflow {
   /// The place of the open phase on the strip, 1-based; the last when every phase is finished, 0 when there is no phase.
   int get currentIndex {
     if (phases.isEmpty) return 0;
-    final int index = phases.indexWhere((PwfPhase phase) => phase.open || phase.code == openPhase);
+    final int index = phases.indexWhere((PwfPhase phase) => phase.standing == PwfPhaseStanding.current);
     return index < 0 ? phases.length : index + 1;
   }
 
@@ -308,7 +352,7 @@ PwfWorkflowView? parsePwfWorkflowView(Object? raw) {
       status: status,
       templateCode: template,
       unverified: record['unverified'] == true,
-      phases: phases,
+      phases: _withStandings(phases, filled(record['open_phase'])),
       tasks: tasks,
       asOf: asOf,
       openPhase: filled(record['open_phase']),
@@ -429,9 +473,12 @@ final class PwfChecklistItem {
 
 /// A legal document type or a form the task needs, and whether it is already attached.
 final class PwfRequirement {
-  const PwfRequirement({required this.code, required this.satisfied});
+  const PwfRequirement({required this.code, required this.satisfied, this.name});
 
   final String code;
+
+  /// What the edition calls the type of document; null for a code no edition names (the screen then uses its own table, and the code last).
+  final String? name;
   final bool satisfied;
 }
 
@@ -527,6 +574,8 @@ final class PwfTaskDetail {
     required this.canResume,
     this.responsibleRole,
     this.approverRole,
+    this.responsibleRoleName,
+    this.approverRoleName,
     this.assignee,
     this.plannedStart,
     this.plannedFinish,
@@ -583,6 +632,10 @@ final class PwfTaskDetail {
   final bool canResume;
   final String? responsibleRole;
   final String? approverRole;
+
+  /// What the template of the workflow calls the two roles (a role a tenant made up itself); null when it does not name them.
+  final String? responsibleRoleName;
+  final String? approverRoleName;
   final String? assignee;
   final String? plannedStart;
   final String? plannedFinish;
@@ -636,7 +689,7 @@ PwfTaskDetail? parsePwfTaskDetail(Object? raw) {
   }
   List<PwfRequirement> requirements(Object? value) => <PwfRequirement>[
         for (final Object? entry in listOf(value))
-          if (asRecord(entry) case final Json item when filled(item['code']) != null) PwfRequirement(code: filled(item['code'])!, satisfied: item['satisfied'] == true),
+          if (asRecord(entry) case final Json item when filled(item['code']) != null) PwfRequirement(code: filled(item['code'])!, satisfied: item['satisfied'] == true, name: filled(item['name'])),
       ];
   final Json completion = asRecord(record['completion']) ?? const <String, Object?>{};
   return PwfTaskDetail(
@@ -706,6 +759,8 @@ PwfTaskDetail? parsePwfTaskDetail(Object? raw) {
     canResume: record['can_resume'] == true,
     responsibleRole: filled(record['responsible_role']),
     approverRole: filled(record['approver_role']),
+    responsibleRoleName: filled(record['responsible_role_name']),
+    approverRoleName: filled(record['approver_role_name']),
     assignee: filled(asRecord(record['assignee'])?['display_name']),
     plannedStart: day(record['planned_start']),
     plannedFinish: day(record['planned_finish']),
@@ -772,8 +827,10 @@ PwfPreference? parsePwfPreference(Object? raw) {
 // ---- My score (MOB-81) -----------------------------------------------------------------------------------------------------------
 
 final class PwfScoreContribution {
-  const PwfScoreContribution({required this.taskCode, required this.name, required this.fraction, required this.weight, required this.score});
+  const PwfScoreContribution({required this.taskCode, required this.name, required this.fraction, required this.weight, required this.score, this.project});
 
+  /// The project the task belongs to, as people name it (its name, else its code): two tasks of the same name are told apart by it. Null when the answer does not say.
+  final String? project;
   final String taskCode;
   final String name;
   final num fraction;
@@ -892,7 +949,7 @@ PwfMyScores? parsePwfMyScores(Object? raw) {
         contributions: <PwfScoreContribution>[
           for (final Object? c in listOf(line['contributions']))
             if (asRecord(c) case final Json row when filled(row['task_code']) != null && _number(row['score']) != null)
-              PwfScoreContribution(taskCode: filled(row['task_code'])!, name: text(row['name']) ?? '', fraction: _number(row['fraction']) ?? 0, weight: _number(row['weight']) ?? 0, score: _number(row['score'])!),
+              PwfScoreContribution(taskCode: filled(row['task_code'])!, name: text(row['name']) ?? '', project: filled(row['project_name']) ?? filled(row['project_code']), fraction: _number(row['fraction']) ?? 0, weight: _number(row['weight']) ?? 0, score: _number(row['score'])!),
         ],
         excluded: <({String taskCode, String reason})>[
           for (final Object? e in listOf(line['excluded']))

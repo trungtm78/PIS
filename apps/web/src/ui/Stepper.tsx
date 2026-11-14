@@ -3,7 +3,8 @@ import type { Translator } from '../i18n';
 import { toneClass } from './types';
 import type { Tone } from './types';
 
-export type StepperStatus = 'done' | 'current' | 'upcoming' | 'skipped' | 'hold' | 'late';
+/** `started`: work has begun on the step in parallel while the thing is still at an earlier step (it is never the step the thing is at). */
+export type StepperStatus = 'done' | 'current' | 'started' | 'upcoming' | 'skipped' | 'hold' | 'late';
 
 export interface StepperStep {
   code: string;
@@ -26,8 +27,8 @@ export interface StepperProps {
   label: string;
 }
 
-const ICON: Readonly<Record<StepperStatus, string>> = { done: '✓', current: '●', upcoming: '', skipped: '⤼', hold: '⏸', late: '⛔' };
-const TONE: Readonly<Record<StepperStatus, Tone>> = { done: 'success', current: 'default', upcoming: 'neutral', skipped: 'neutral', hold: 'neutral', late: 'danger' };
+const ICON: Readonly<Record<StepperStatus, string>> = { done: '✓', current: '●', started: '◔', upcoming: '', skipped: '⤼', hold: '⏸', late: '⛔' };
+const TONE: Readonly<Record<StepperStatus, Tone>> = { done: 'success', current: 'default', started: 'info', upcoming: 'neutral', skipped: 'neutral', hold: 'neutral', late: 'danger' };
 
 function word(t: Translator['t'], status: StepperStatus): string {
   switch (status) {
@@ -35,6 +36,8 @@ function word(t: Translator['t'], status: StepperStatus): string {
       return t('ui.stepper.status.done');
     case 'current':
       return t('ui.stepper.status.current');
+    case 'started':
+      return t('ui.stepper.status.started');
     case 'upcoming':
       return t('ui.stepper.status.upcoming');
     case 'skipped':

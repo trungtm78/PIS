@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { SectionCard } from '../../../ui';
+import { SectionCard, Tabs, useTabParam } from '../../../ui';
 import { AdjustmentList, ContributionsTable, ExcludedList, PeriodStatusPill, PolicyBasis, ResponseList, ScoreFigure, ScoreInfo, SupportNotice } from './components';
 import { ResponseForm } from './forms';
 import { useMyScores, useReloadScores, useScoreCacheGuard, useScoreIdentity, useSubmitResponse } from './hooks';
@@ -30,6 +31,7 @@ function MyScoreContent({ route }: ScreenProps) {
   const items = (mine.data?.pages ?? []).flatMap((page) => page.items);
   const state = useScreenState({ isLoading: mine.isLoading, error: mine.error, data: mine.data, isEmpty: () => items.length === 0 });
   const screenState = !mayRead ? 'denied' : state;
+  const [view, setView] = useTabParam('view', MY_VIEWS);
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -40,15 +42,32 @@ function MyScoreContent({ route }: ScreenProps) {
       </div>
       <SupportNotice />
       <StateBoundary state={screenState} onRetry={() => void mine.refetch()}>
-        {items.map((item) => (
-          <PeriodCard key={item.line.id} item={item} onReload={() => void reload()} />
-        ))}
-        {mine.hasNextPage ? (
-          <button type="button" className="ui-button ui-button--outline" data-action="more-scores" disabled={mine.isFetchingNextPage} onClick={() => void mine.fetchNextPage()}>
-            {t('pwfs.my.more.action')}
-          </button>
-        ) : null}
-        <Comparison membershipId={tenant?.membershipId} enabled={mayRead && items.length > 0} />
+        <Tabs
+          label={t('fix8.score.tabs.label')}
+          testId="my"
+          value={view}
+          onChange={setView}
+          tabs={[
+            {
+              id: 'periods',
+              label: t('fix8.score.tab.periods'),
+              count: items.length,
+              panel: (
+                <>
+                  {items.map((item) => (
+                    <PeriodCard key={item.line.id} item={item} onReload={() => void reload()} />
+                  ))}
+                  {mine.hasNextPage ? (
+                    <button type="button" className="ui-button ui-button--outline" data-action="more-scores" disabled={mine.isFetchingNextPage} onClick={() => void mine.fetchNextPage()}>
+                      {t('pwfs.my.more.action')}
+                    </button>
+                  ) : null}
+                </>
+              ),
+            },
+            { id: 'compare', label: t('fix8.score.tab.compare'), panel: <Comparison membershipId={tenant?.membershipId} enabled={mayRead && items.length > 0} /> },
+          ]}
+        />
       </StateBoundary>
       <p className="adm-kit-foot" data-testid="footer">
         {t('gova1.footer.reference', { id: route.id, req: route.req ?? '' })}
@@ -57,15 +76,18 @@ function MyScoreContent({ route }: ScreenProps) {
   );
 }
 
+const MY_VIEWS = ['periods', 'compare'] as const;
+type PeriodPart = 'score' | 'tasks' | 'review';
+
 function PeriodCard({ item, onReload }: { item: MyScore; onReload: () => void }) {
   const { t } = useTranslation();
   const { mode } = useSession();
   const respond = useSubmitResponse();
   const { period, line } = item;
   const closed = !line.can_respond;
-  return (
-    <SectionCard title={t('pwfs.my.period.title', { range: rangeText(period.period_from, period.period_to) })} status={<PeriodStatusPill status={period.status} />}>
-      <div data-testid="my-period" data-period={period.id}>
+  // One purpose a tab inside the card of a period (the card was one long column): the tab stays where the person left it while the page is open.
+  const [part, setPart] = useState<PeriodPart>('score');
+  const figure = (
         <div className="pwf-grid">
           <div>
             <ScoreFigure line={line} />
@@ -81,21 +103,52 @@ function PeriodCard({ item, onReload }: { item: MyScore; onReload: () => void })
             <dd data-testid="hash">{period.snapshot_hash === null ? '–' : period.snapshot_hash.slice(0, 16)}</dd>
           </dl>
         </div>
-        <h3>{t('pwfs.my.trace.title')}</h3>
-        <ContributionsTable contributions={line.contributions} />
-        <h3>{t('pwfs.my.excluded.title')}</h3>
-        <ExcludedList excluded={line.excluded} />
-        <h3>{t('pwfs.my.adjustments.title')}</h3>
-        <AdjustmentList adjustments={line.adjustments} />
-        <h3>{t('pwfs.my.responses.title')}</h3>
-        <ResponseList responses={line.responses} />
-        {closed || mode === 'READ_ONLY' ? (
-          <p className="callout" role="status" data-testid="response-closed">
-            {t('pwfs.my.responseClosed.note')}
-          </p>
-        ) : (
-          <ResponseForm onSend={(body) => respond.mutateAsync({ id: line.id, body })} onReload={onReload} />
-        )}
+  );
+  return (
+    <SectionCard title={t('pwfs.my.period.title', { range: rangeText(period.period_from, period.period_to) })} status={<PeriodStatusPill status={period.status} />}>
+      <div data-testid="my-period" data-period={period.id}>
+        <Tabs
+          label={t('fix8.score.tabs.label')}
+          testId="period"
+          value={part}
+          onChange={setPart}
+          tabs={[
+            { id: 'score', label: t('fix8.score.tab.score'), panel: figure },
+            {
+              id: 'tasks',
+              label: t('fix8.score.tab.tasks'),
+              count: line.contributions.length === 0 ? undefined : line.contributions.length,
+              panel: (
+                <>
+                  <h3>{t('pwfs.my.trace.title')}</h3>
+                  <ContributionsTable contributions={line.contributions} />
+                  <h3>{t('pwfs.my.excluded.title')}</h3>
+                  <ExcludedList excluded={line.excluded} />
+                </>
+              ),
+            },
+            {
+              id: 'review',
+              label: t('fix8.score.tab.review'),
+              count: line.adjustments.length + line.responses.length === 0 ? undefined : line.adjustments.length + line.responses.length,
+              panel: (
+                <>
+                  <h3>{t('pwfs.my.adjustments.title')}</h3>
+                  <AdjustmentList adjustments={line.adjustments} />
+                  <h3>{t('pwfs.my.responses.title')}</h3>
+                  <ResponseList responses={line.responses} />
+                  {closed || mode === 'READ_ONLY' ? (
+                    <p className="callout" role="status" data-testid="response-closed">
+                      {t('pwfs.my.responseClosed.note')}
+                    </p>
+                  ) : (
+                    <ResponseForm onSend={(body) => respond.mutateAsync({ id: line.id, body })} onReload={onReload} />
+                  )}
+                </>
+              ),
+            },
+          ]}
+        />
       </div>
     </SectionCard>
   );

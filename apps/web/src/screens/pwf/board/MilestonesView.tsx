@@ -8,6 +8,7 @@ import type { MilestoneList } from '../model';
 import { slipText } from './labels';
 import { MILESTONE_DAYS } from './model';
 import type { Milestone } from './model';
+import { TaskName } from '../codes';
 
 /** The milestones of the next 30 days: the forecast and the baseline date, the difference in words, and the risk with an icon (the colour is never the only cue). */
 export function MilestonesView({ milestones }: { milestones: MilestoneList }) {
@@ -17,10 +18,9 @@ export function MilestonesView({ milestones }: { milestones: MilestoneList }) {
       key: 'milestone',
       header: t('pwf.board.milestones.col.milestone'),
       render: (item) => (
-        <span className="pwf-cellstack">
+        <TaskName name={item.name} code={item.task_code}>
           <Link to={taskLink(item.task_id, item.project_id)}>{item.name}</Link>
-          <span className="pwf-code">{item.task_code}</span>
-        </span>
+        </TaskName>
       ),
     },
     { key: 'project', header: t('pwf.board.col.project.header'), render: (item) => <Link className="pwf-nowrap" to={workflowLink(item.project_id)}>{item.project_code}</Link> },

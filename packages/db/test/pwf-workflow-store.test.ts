@@ -842,6 +842,14 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       const detail = (await as((tx) => reads.detail(tx, everything, p.id, now(), { manage: true, proposeReschedule: true, work: true, approve: true, assign: true }))) as Record<string, unknown>;
       expect(detail).toMatchObject({ template_code: 'TESTFLOW', status: 'ACTIVE', unverified: false, open_phase: 'P1', schedule_version: 1 });
       expect((detail.phases as Array<{ code: string; required_total: number }>).map((one) => [one.code, one.required_total])).toEqual([['P1', 2], ['P2', 1]]);
+      // One phase is where the project is; a later phase in which a task has begun in parallel has started, and is never a second "here".
+      expect((detail.phases as Array<Record<string, unknown>>).map((one) => [one.code, one.standing, one.current, one.open])).toEqual([['P1', 'CURRENT', true, true], ['P2', 'UPCOMING', false, true]]);
+      await owner("update machvon.project_task set status = 'IN_PROGRESS', actual_start = current_date where workflow_id = $1::uuid and task_code = 'TC'", [wf.id]);
+      const parallel = (await as((tx) => reads.detail(tx, everything, p.id, now(), { manage: true, proposeReschedule: true, work: true, approve: true, assign: true }))) as Record<string, unknown>;
+      expect((parallel.phases as Array<Record<string, unknown>>).map((one) => [one.code, one.standing, one.current])).toEqual([['P1', 'CURRENT', true], ['P2', 'STARTED', false]]);
+      expect(parallel.open_phase).toBe('P1');
+      await owner("update machvon.project_task set status = 'NOT_STARTED', actual_start = null where workflow_id = $1::uuid and task_code = 'TC'", [wf.id]);
+      expect(detail.roles).toEqual([]);
       expect((detail.gates as Array<{ target: string; open: boolean; missing_count: number }>).find((one) => one.target === 'completeProject')).toMatchObject({ open: false, missing_count: 1 });
       const page = await as((tx) => reads.listTasks(tx, everything, p.id, { phase: 'P1' }, { limit: 1 }, now()));
       expect(page.total).toBe(2);

@@ -1,10 +1,18 @@
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, configure, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { describeViolations, seriousViolations } from '../../../test/axe';
 import { mount } from '../../sas/test-support';
 import type { Answer } from '../test/fixtures';
 import ScoreDetailScreen from './ScoreDetailScreen';
-import { LINE_ID, ME, OTHER, OWN_ONLY, SCORE_ALL, adjustment, effective, kpiResult, line, refusal, response, routeOf, serve, text, uuid } from './test/fixtures';
+import { LINE_ID, ME, OTHER, OWN_ONLY, SCORE_ALL, adjustment, contribution, effective, kpiResult, line, refusal, response, routeOf, serve, text, uuid } from './test/fixtures';
+
+// The screen is a set of tabs and every panel stays in the page (hidden when not chosen): the checks of what a panel holds reach it by role whether or not its tab is the open one. Which tab is open is checked on its own.
+beforeAll(() => {
+  configure({ defaultHidden: true });
+});
+afterAll(() => {
+  configure({ defaultHidden: false });
+});
 
 afterEach(() => {
   cleanup();
@@ -58,7 +66,23 @@ describe('PWF-13: the detail of a score', () => {
     const restricted = screen.getByTestId('restricted');
     expect(restricted.textContent).toContain(text('pwfs.contribution.restricted.text'));
     expect(within(restricted).queryByRole('link')).toBeNull();
-    expect(screen.getByRole('link', { name: /T1/ }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${uuid(1001)}`);
+    // The link is the NAME of the task; its code is a small note under it and never part of the link.
+    const link = screen.getByRole('link', { name: 'Công việc 1' });
+    expect(link.getAttribute('href')).toBe(`/pwf/pwf-04?id=${uuid(1001)}`);
+    expect(link.textContent).not.toContain('T1');
+    expect(screen.getAllByTestId('task-code').map((one) => one.textContent)).toEqual(['T1']);
+  });
+
+  it('tells two tasks of the same name apart by the project each belongs to, named under the task', async () => {
+    open({ line: line({ contributions: [contribution(1, { name: 'Lập hồ sơ', project_code: 'DA-01', project_name: 'Đường tỉnh 207' }), contribution(2, { name: 'Lập hồ sơ', project_code: 'DA-02', project_name: 'Trường THPT Nà Giàng' })] }) });
+    await screen.findByRole('table');
+    expect(screen.getAllByRole('link', { name: 'Lập hồ sơ' })).toHaveLength(2);
+    expect(screen.getAllByTestId('contribution-project').map((one) => one.textContent)).toEqual(['Đường tỉnh 207', 'Trường THPT Nà Giàng']);
+    // An answer kept from before the read named the project shows no empty line.
+    cleanup();
+    open({ line: line({ contributions: [contribution(1)] }) });
+    await screen.findByRole('table');
+    expect(screen.queryByTestId('contribution-project')).toBeNull();
   });
 
   it('shows the flags to a reviewer who is not the person scored, and says they change nothing', async () => {
@@ -260,5 +284,35 @@ describe('PWF-13: the states', () => {
     await screen.findByTestId('adjustment-form');
     await screen.findByTestId(`handle-${response(1).id}`);
     expect(describeViolations(await seriousViolations(document.body))).toEqual([]);
+  });
+});
+
+describe('PWF-13: one purpose a tab (owner review of 14/11/2026)', () => {
+  it('splits the long page into four tabs: the score, the tasks behind it, the adjustments with the responses, and the periods compared', async () => {
+    open();
+    await screen.findByTestId('detail');
+    expect(screen.getAllByRole('tab').map((one) => one.getAttribute('data-testid'))).toEqual(['score', 'tasks', 'review', 'compare'].map((id) => `score-tab-${id}`));
+    expect(screen.getByTestId('score-tab-score').textContent).toBe(text('fix8.score.tab.score'));
+    expect(screen.getByTestId('score-panel-score').contains(screen.getByTestId('detail'))).toBe(true);
+    expect(screen.getByTestId('score-panel-score').hidden).toBe(false);
+    const tasks = screen.getByTestId('score-panel-tasks');
+    expect(tasks.hidden).toBe(true);
+    expect(tasks.querySelector('table')).not.toBeNull();
+    expect(tasks.contains(screen.getByTestId('excluded'))).toBe(true);
+    fireEvent.click(screen.getByTestId('score-tab-tasks'));
+    expect(tasks.hidden).toBe(false);
+    expect(screen.getByTestId('score-panel-score').hidden).toBe(true);
+    // The requests that wait are counted on the tab, so nobody opens it to find out.
+    cleanup();
+    open({ line: theirs({ adjustments: [adjustment(1, { status: 'REQUESTED' })], responses: [response(1, { status: 'OPEN' })] }) });
+    await screen.findByTestId('detail');
+    expect(screen.getByTestId('score-tab-review').textContent).toBe(`${text('fix8.score.tab.review')}2`);
+  });
+
+  it('opens the tab the address names, so a link to the adjustments lands on them', async () => {
+    open({ path: `/pwf/pwf-13?id=${LINE_ID}&view=review` });
+    await screen.findByTestId('detail');
+    expect(screen.getByTestId('score-panel-review').hidden).toBe(false);
+    expect(screen.getByTestId('score-tab-review').getAttribute('aria-selected')).toBe('true');
   });
 });

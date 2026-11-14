@@ -48912,6 +48912,11 @@ export interface components {
         PwfTemplateParams: {
             name: string;
             project_type: string | null;
+            /** @description Tên các vai trò do đơn vị tự đặt cho mẫu này: mã dùng ở bước và công việc, và tên để hiển thị. Bỏ trống: băm của mẫu không đổi */
+            roles?: {
+                code: string;
+                name: string;
+            }[];
             phases: {
                 code: string;
                 name: string;
@@ -49169,6 +49174,13 @@ export interface components {
                 required_total: number;
                 required_done: number;
                 open: boolean;
+                /** @description Giai đoạn dự án đang ở: giai đoạn sớm nhất còn việc bắt buộc chưa xong. Đúng ở nhiều nhất một giai đoạn; không giai đoạn nào khi mọi giai đoạn đã xong */
+                current?: boolean;
+                /**
+                 * @description Vị thế của giai đoạn trên dải giai đoạn: DONE đã xong việc bắt buộc; CURRENT giai đoạn hiện tại (duy nhất); STARTED giai đoạn sau đã có việc làm song song; UPCOMING chưa bắt đầu
+                 * @enum {string}
+                 */
+                standing?: "DONE" | "CURRENT" | "STARTED" | "UPCOMING";
             }[];
             tasks: {
                 /** Format: uuid */
@@ -49283,6 +49295,8 @@ export interface components {
                 checklist_total: number;
                 checklist_done: number;
                 legal_basis: components["schemas"]["PwfLegalBasisView"][];
+                /** @description Tên vai trò phụ trách bước theo danh mục vai trò của mẫu; null khi mẫu không khai tên cho mã này */
+                responsible_role_name?: string | null;
             }[];
             standard_working_days?: number;
             /** @description Mã văn bản mà workflow viện dẫn đã hết hiệu lực hoặc bị thay thế hôm nay (R45) */
@@ -49297,6 +49311,11 @@ export interface components {
                 proposed_by?: string;
                 proposed_by_name?: string | null;
             } | null;
+            /** @description Tên các vai trò do mẫu tự đặt (mẫu đã chốt của workflow); rỗng khi mẫu không khai tên */
+            roles?: {
+                code: string;
+                name: string;
+            }[];
         };
         PwfTaskPage: {
             items: {
@@ -49555,6 +49574,8 @@ export interface components {
             legal_doc_types: {
                 code: string;
                 satisfied: boolean;
+                /** @description Tên loại văn bản theo ấn bản (danh mục loại văn bản pháp lý); null khi không ấn bản nào biết mã này */
+                name?: string | null;
             }[];
             form_templates: {
                 code: string;
@@ -49719,6 +49740,8 @@ export interface components {
                 order: number;
                 implicit: boolean;
                 responsible_role: string | null;
+                /** @description Tên vai trò phụ trách bước theo danh mục vai trò của mẫu; null khi mẫu không khai tên cho mã này */
+                responsible_role_name?: string | null;
             } | null;
             legal_basis?: components["schemas"]["PwfLegalBasisView"][];
             step_legal_basis?: components["schemas"]["PwfLegalBasisView"][];
@@ -49732,6 +49755,10 @@ export interface components {
              * @description Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)
              */
             forecast_finish?: string | null;
+            /** @description Tên vai trò thực hiện theo danh mục vai trò của mẫu; null khi mẫu không khai tên cho mã này */
+            responsible_role_name?: string | null;
+            /** @description Tên vai trò duyệt theo danh mục vai trò của mẫu; null khi không có vai trò duyệt hoặc mẫu không khai tên */
+            approver_role_name?: string | null;
         };
         PwfTaskStart: {
             /** @description Bắt buộc khi bắt đầu trước khi tiền nhiệm đủ điều kiện theo loại liên kết (quản lý cho phép bắt đầu sớm) */
@@ -50311,6 +50338,10 @@ export interface components {
                     valid_to: string | null;
                     share_pct: number;
                 }[];
+                /** @description Mã dự án của công việc; null khi người đọc không được đọc dự án */
+                project_code?: string | null;
+                /** @description Tên dự án của công việc, để phân biệt hai việc trùng tên của hai dự án; null khi người đọc không được đọc dự án */
+                project_name?: string | null;
             }[];
             excluded: {
                 task_code: string;
@@ -50537,6 +50568,8 @@ export interface components {
              * @enum {string}
              */
             state: "NOT_YET_IN_FORCE" | "IN_FORCE" | "EXPIRED" | "SUPERSEDED" | "UNKNOWN";
+            /** @description Số, ký hiệu của văn bản thay thế theo danh mục LEGAL_DOCUMENT; null khi không bị thay thế hoặc danh mục không có văn bản thay thế */
+            superseded_by_number?: string | null;
         };
         /** @description Loại quy trình được chọn thế nào: đề xuất của quy tắc PROJECT_WORKFLOW_ASSIGNMENT, lựa chọn, cách chọn và lý do (R47) */
         PwfWorkflowSelection: {

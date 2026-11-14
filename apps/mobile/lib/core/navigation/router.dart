@@ -58,7 +58,8 @@ GoRouter buildRouter({
     routes: <RouteBase>[
       for (final MobileRoute route in table.outsideShell) routeOf(route, '/${route.segment}${suffixOf(route)}'),
       StatefulShellRoute.indexedStack(
-        builder: (BuildContext context, GoRouterState state, StatefulNavigationShell shell) => AppShell(navigationShell: shell),
+        // A location that names a record (`/projects/mob-10/<id>`) is a detail screen: the five tabs are hidden there.
+        builder: (BuildContext context, GoRouterState state, StatefulNavigationShell shell) => AppShell(navigationShell: shell, detail: state.pathParameters.isNotEmpty),
         branches: <StatefulShellBranch>[
           for (final AppTab tab in AppTab.values)
             StatefulShellBranch(

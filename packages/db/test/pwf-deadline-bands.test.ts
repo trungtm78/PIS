@@ -186,7 +186,7 @@ beforeAll(async () => {
     await seedSql([
       [
         `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group, planned_start_date)
-         values ($1, $2, $3, $3, $4, $5, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B', date '${YEAR}-01-05')`,
+         values ($1, $2, $3, 'Project ' || $3, $4, $5, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B', date '${YEAR}-01-05')`,
         [TENANT_A, project, `PRJ-${code}`, unitId(unit), randomUUID()],
       ],
       [
@@ -235,6 +235,14 @@ describe('the source PROJECT_TASK of the alert centre', () => {
     expect(first.dueOn).toBe(day(5));
     expect(first.alertType?.owner).toBe('TASK_ASSIGNEE');
     expect(first.consequence).toContain('đỏ');
+    // The words a phone shows (owner review of 14/11/2026): a short title of the NAME of the task and what its deadline says, the name of the project on the second line, and no code of a task, a phase or a project in either.
+    const words = (key: keyof typeof ids): [string, string | null] => [(byId.get(`${ids[key]}:1`)?.title ?? '').replace(/^Task \d+/, 'Task'), byId.get(`${ids[key]}:1`)?.subtitle ?? null];
+    expect(words('green')[0]).toBe('Task: còn 5 ngày làm việc');
+    expect(words('red')[0]).toBe('Task: đến hạn hôm nay');
+    expect(words('late')[0]).toBe('Task: quá hạn 1 ngày làm việc');
+    expect(words('later')[0]).toBe('Task: quá hạn 3 ngày làm việc, đã báo cấp quản lý');
+    expect(words('green')[1]).toMatch(/^Project PRJ-/);
+    for (const row of rows) expect(`${row.title} ${row.subtitle}`).not.toMatch(/\bT\d{4}\b|\bP1\b/);
     expect(first.lifecycle).toBe('NEW');
     // The points of the rule remind, not the cadence of the severity: the item never says a reminder is due by the cadence.
     expect(rows.filter((row) => row.kind !== 'PWF_MILESTONE_AT_RISK').every((row) => row.reminders?.due === false && row.reminders.nextAt === null)).toBe(true);

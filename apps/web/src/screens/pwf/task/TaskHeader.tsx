@@ -21,8 +21,11 @@ export function TaskHeader({ task, children }: { task: TaskDetail; children?: Re
   const banded = hasBand(task);
   const done = task.checklist.filter((item) => item.done).length;
   const tone = banded ? BAND_TONE[task.band.band] : undefined;
+  const due = missing ? null : task.status === 'DONE' && task.actual_finish !== null ? dayText(task.actual_finish) : task.planned_finish === null ? null : dayText(task.planned_finish);
+  // Two siblings of the page (the wrapper has no box of its own): the short summary sticks for the whole length of the tabs below, the facts scroll away.
   return (
-    <header className="pwf-taskhead" data-testid="task-head">
+    <div className="pwf-taskhead-frame" data-testid="task-head">
+    <header className="pwf-taskhead pwf-taskhead--sticky" data-testid="task-sticky">
       <div className="heading pwf-taskhead__title">
         <h1 id="screen-title">{task.name}</h1>
         <p className="pwf-taskhead__where" data-testid="task-where">
@@ -56,7 +59,15 @@ export function TaskHeader({ task, children }: { task: TaskDetail; children?: Re
         <StatusPill tone="neutral">{task.required ? t('pwf.task.required.yes') : t('pwf.task.required.no')}</StatusPill>
         {task.priority === 'NORMAL' ? null : <StatusPill tone={task.priority === 'LOW' ? 'neutral' : 'warning'}>{t('pwf6.task.priority.text', { priority: priorityWord(t, task.priority) })}</StatusPill>}
         {task.return_count > 0 ? <StatusPill tone="warning">{t('pwf6.task.returned.text', { count: task.return_count })}</StatusPill> : null}
+        {due === null ? null : (
+          <span className="pwf-taskhead__due" data-tone={tone} data-testid="task-sticky-due">
+            {task.status === 'DONE' ? t('pwf6.task.finished.label') : t('pwf6.task.due.label')} <strong>{due}</strong>
+          </span>
+        )}
       </p>
+      {children}
+    </header>
+    <div className="pwf-taskhead pwf-taskhead__rest">
       <dl className="pwf-stats pwf-taskhead__facts" data-testid="task-facts">
         <div className="pwf-stats__item" data-tone={tone}>
           <dt>{task.status === 'DONE' ? t('pwf6.task.finished.label') : t('pwf6.task.due.label')}</dt>
@@ -68,13 +79,13 @@ export function TaskHeader({ task, children }: { task: TaskDetail; children?: Re
           <dd data-testid="task-doer">
             {task.assignee?.display_name ?? t('pwf.task.assignee.none')}
             <span className="pwf-code">
-              <RoleName code={task.responsible_role} />
+              <RoleName code={task.responsible_role} name={task.responsible_role_name} />
             </span>
           </dd>
         </div>
         <div className="pwf-stats__item">
           <dt>{t('pwf6.task.approver.label')}</dt>
-          <dd data-testid="task-approver">{task.approver_role === null ? t('pwf.task.approver.none') : <RoleName code={task.approver_role} />}</dd>
+          <dd data-testid="task-approver">{task.approver_role === null ? t('pwf.task.approver.none') : <RoleName code={task.approver_role} name={task.approver_role_name} />}</dd>
         </div>
         {task.checklist.length === 0 ? null : (
           <div className="pwf-stats__item">
@@ -85,7 +96,7 @@ export function TaskHeader({ task, children }: { task: TaskDetail; children?: Re
           </div>
         )}
       </dl>
-      {children}
-    </header>
+    </div>
+    </div>
   );
 }

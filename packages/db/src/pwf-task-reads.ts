@@ -161,7 +161,9 @@ export class PwfTaskReads {
     return {
       ...taskItemOf(task, resolver.of(bandSubjectOf(task), unit), assignee),
       responsible_role: task.responsibleRole,
+      responsible_role_name: pwfWorkflow.roleNameOf(template, task.responsibleRole),
       approver_role: task.approverRole,
+      approver_role_name: pwfWorkflow.roleNameOf(template, task.approverRole),
       duration_working_days: task.durationWorkingDays,
       baseline_start: task.baselineStart,
       finish_variance_days: variance,
@@ -178,9 +180,10 @@ export class PwfTaskReads {
       milestone_id: task.milestoneId,
       predecessors: links.map((one) => ({ task: one.task, kind: one.kind, lag_working_days: one.lag_working_days })),
       checklist: checklist.map((one) => ({ item_code: one.item_code, name: one.name, required: one.required, evidence_kinds: one.evidence_kinds, done: one.done, done_by: one.done_by, done_by_name: one.done_by_name, done_at: one.done_at })),
-      legal_doc_types: (definition?.legalDocTypes ?? []).map((code) => ({ code, satisfied: evidence.some((one) => one.legal_doc_type === code) })),
+      // The name of a type of legal document is the one its edition registered (kernel `resolveLegalDocType`); null for a code no edition knows.
+      legal_doc_types: (definition?.legalDocTypes ?? []).map((code) => ({ code, name: pwfWorkflow.resolveLegalDocType(code)?.label ?? null, satisfied: evidence.some((one) => one.legal_doc_type === code) })),
       form_templates: forms,
-      step: step === undefined ? null : { code: step.code, name: step.name, phase_code: step.phase, order: step.order, implicit: step.implicit, responsible_role: step.responsibleRole },
+      step: step === undefined ? null : { code: step.code, name: step.name, phase_code: step.phase, order: step.order, implicit: step.implicit, responsible_role: step.responsibleRole, responsible_role_name: pwfWorkflow.roleNameOf(template, step.responsibleRole) },
       legal_basis: (definition?.legalBasis ?? []).map((basis) => legalBasisView(basis, catalogue)),
       step_legal_basis: (step?.legalBasis ?? []).map((basis) => legalBasisView(basis, catalogue)),
       evidence: evidence.map((one) => ({ id: one.id, item_code: one.item_code, evidence_kind: one.evidence_kind, document_id: one.document_id, legal_doc_type: one.legal_doc_type, form_template_code: one.form_template_code, form_template_revision: one.form_template_revision, form_template_sha256: one.form_template_sha256?.trim() ?? null, external_ref: one.external_ref, note: one.note, attached_by: one.attached_by, attached_by_name: one.attached_by_name, attached_at: one.attached_at, document_title: one.document_title, document_symbol: one.document_symbol })),

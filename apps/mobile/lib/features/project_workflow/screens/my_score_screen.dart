@@ -161,10 +161,15 @@ class _PwfScoreViewState extends State<PwfScoreView> {
 
   Widget _contribution(BuildContext context, PwfScoreContribution row, bool divider, String language) => WorkRow(
         title: row.name.isEmpty ? row.taskCode : row.name,
-        subtitle: context.t('mob.pwf.score.contribution.line', <String, Object>{'code': row.taskCode, 'weight': formatNumber(row.weight.toString(), language), 'share': formatNumber(row.fraction.toString(), language)}),
+        // The project of the task first: two tasks of the same name are told apart by it.
+        subtitle: <String>[
+          ?row.project,
+          context.t('mob.pwf.score.contribution.line', <String, Object>{'code': row.taskCode, 'weight': formatNumber(row.weight.toString(), language), 'share': formatNumber(row.fraction.toString(), language)}),
+        ].join(' · '),
+        subtitleMaxLines: 3,
         trailing: Text(formatNumber(row.score.toString(), language), style: context.v2text.bodyStrong),
         leading: const Icon(Icons.calculate_outlined),
-        semanticLabel: context.t('mob.pwf.score.contribution.spoken', <String, Object>{'name': row.name.isEmpty ? row.taskCode : row.name, 'score': formatNumber(row.score.toString(), language), 'weight': formatNumber(row.weight.toString(), language)}),
+        semanticLabel: context.t('mob.pwf.score.contribution.spoken', <String, Object>{'name': <String>[row.name.isEmpty ? row.taskCode : row.name, ?row.project].join(', '), 'score': formatNumber(row.score.toString(), language), 'weight': formatNumber(row.weight.toString(), language)}),
         dividerAbove: divider,
       );
 

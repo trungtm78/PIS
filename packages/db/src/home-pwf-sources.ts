@@ -52,8 +52,8 @@ export class HomePwfSources {
     const params = new Params();
     const codes = params.add(lapsed.map((document) => document.code));
     const visible = reach(params, context, { source: 'PROJECT_TASK', id: `(w.id::text || ':' || d.code)`, tenant: 'w', responsible: [], unit: false });
-    const rows = await context.tx.query<{ workflow_id: string; code: string; project_id: string; project_code: string }>(
-      `select w.id as workflow_id, d.code, p.id as project_id, p.code as project_code
+    const rows = await context.tx.query<{ workflow_id: string; code: string; project_id: string; project_code: string; project_name: string | null }>(
+      `select w.id as workflow_id, d.code, p.id as project_id, p.code as project_code, p.name as project_name
          from machvon.project_workflow w
          cross join lateral (select distinct cited as code from unnest(w.cited_legal_documents) as cited) d
          ${PROJECT_JOINS('w', 'w.project_id')}
@@ -69,11 +69,12 @@ export class HomePwfSources {
         id: `${row.workflow_id}:${row.code}`,
         dueOn: since,
         originalDueOn: since,
-        title: message('home.source.pwf.legal.title', { document: document.number, project: row.project_code }),
+        // The words a person reads carry names only (the number of the document, the name of the project): no code of a document or of a project.
+        title: message('home.source.pwf.legal.title', { document: document.number }),
         subtitle:
           document.supersededBy === null
-            ? message('home.source.pwf.legal.detail', { number: document.number, date: since })
-            : message('home.source.pwf.legal.detail.replaced', { number: document.number, replacement: catalogue.get(document.supersededBy)?.number ?? document.supersededBy }),
+            ? message('home.source.pwf.legal.detail', { project: projectNamed(row), date: since })
+            : message('home.source.pwf.legal.detail.replaced', { project: projectNamed(row), replacement: catalogue.get(document.supersededBy)?.number ?? document.supersededBy }),
         status: 'AT_RISK',
         severity: severityOf('PROJECT_TASK', 'LEGAL_BASIS_LAPSED', context.rules),
         lifecycle: 'NEW',
@@ -107,7 +108,7 @@ export class HomePwfSources {
     const until = horizon === null ? '' : `and t.committed_finish <= ${params.add(horizon)}::date`;
     const past = after === null ? '' : `and (t.committed_finish, t.id) > (${params.add(after.day)}::date, ${params.add(after.id)}::uuid)`;
     return context.tx.query<TaskSql>(
-      `select t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.committed_finish::text as due_on, t.baseline_finish::text as baseline_on, p.id as project_id, p.code as project_code, ou.path as unit_path
+      `select t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.committed_finish::text as due_on, t.baseline_finish::text as baseline_on, p.id as project_id, p.code as project_code, p.name as project_name, ou.path as unit_path
          from machvon.project_task t
          join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
          ${PROJECT_JOINS('t', 't.project_id')}
@@ -157,7 +158,8 @@ export class HomePwfSources {
     const kind: WorkKind = overdue ? 'PWF_TASK_OVERDUE' : 'PWF_TASK_DUE_SOON';
     const facet = overdue ? (escalated ? 'OVERDUE_ESCALATED' : 'OVERDUE') : band;
     const days = wording.days ?? 0;
-    const named = { task: row.name, project: row.project_code };
+    // A short title a phone shows whole: the NAME of the task and what its deadline says; the project is the second line, by its name. No code of a task, of a phase or of a project is in the words (owner review of 14/11/2026).
+    const named = { task: row.name };
     const title =
       wording.kind === 'OVERDUE_DAYS'
         ? message(escalated ? 'home.source.pwf.overdue.escalated.title' : 'home.source.pwf.overdue.title', { ...named, days })
@@ -174,7 +176,7 @@ export class HomePwfSources {
       dueOn: row.due_on,
       originalDueOn: row.baseline_on ?? row.due_on,
       title,
-      subtitle: message(row.critical ? 'home.source.pwf.detail.critical' : 'home.source.pwf.detail', { code: row.task_code, phase: row.phase_code, date: row.due_on }),
+      subtitle: message(row.critical ? 'home.source.pwf.detail.critical' : 'home.source.pwf.detail', { project: projectNamed(row) }),
       status: overdue ? 'OVERDUE' : band === 'RED' ? 'DUE_TODAY' : 'DUE_SOON',
       severity: severityOf('PROJECT_TASK', facet, context.rules),
       lifecycle: 'NEW',
@@ -191,7 +193,7 @@ export class HomePwfSources {
     const today = params.add(context.today);
     const visible = reach(params, context, { source: 'PROJECT_TASK', id: `(t.id::text || ':' || t.schedule_version::text || ':risk')`, tenant: 't', responsible: [], unit: false });
     const rows = await context.tx.query<TaskSql & { slip: number; forecast_on: string }>(
-      `select t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.committed_finish::text as due_on, t.baseline_finish::text as baseline_on, t.planned_finish::text as forecast_on, p.id as project_id, p.code as project_code, ou.path as unit_path,
+      `select t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.committed_finish::text as due_on, t.baseline_finish::text as baseline_on, t.planned_finish::text as forecast_on, p.id as project_id, p.code as project_code, p.name as project_name, ou.path as unit_path,
               (t.planned_finish - t.baseline_finish) as slip
          from machvon.project_task t
          join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
@@ -207,8 +209,8 @@ export class HomePwfSources {
         id: `${row.id}:${row.schedule_version}:risk`,
         dueOn: row.due_on,
         originalDueOn: row.baseline_on ?? row.due_on,
-        title: message('home.source.pwf.milestone.title', { task: row.name, project: row.project_code, days: Math.max(0, Number(row.slip)) }),
-        subtitle: message('home.source.pwf.milestone.detail', { code: row.task_code, baseline: row.baseline_on ?? row.due_on, date: row.forecast_on }),
+        title: message('home.source.pwf.milestone.title', { task: row.name, days: Math.max(0, Number(row.slip)) }),
+        subtitle: message('home.source.pwf.milestone.detail', { project: projectNamed(row), baseline: row.baseline_on ?? row.due_on, date: row.forecast_on }),
         status: 'AT_RISK',
         severity: severityOf('PROJECT_TASK', 'MILESTONE_AT_RISK', context.rules),
         lifecycle: 'NEW',
@@ -234,5 +236,12 @@ interface TaskSql {
   baseline_on: string | null;
   project_id: string;
   project_code: string;
+  project_name: string | null;
   unit_path: string | null;
+}
+
+/** The project as a person names it: its name, and its code only when it has no name to show. */
+function projectNamed(row: { project_name: string | null; project_code: string }): string {
+  const name = row.project_name?.trim() ?? '';
+  return name === '' ? row.project_code : name;
 }

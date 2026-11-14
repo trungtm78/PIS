@@ -4,6 +4,7 @@ import { dayText } from '../model';
 import type { WorkflowPhase } from '../model';
 import { ganttAt, ganttDayWidth, ganttGroups, ganttScale } from './model';
 import type { GanttRow, GanttScale } from './model';
+import { TaskName } from '../codes';
 
 interface Props {
   rows: readonly GanttRow[];
@@ -150,7 +151,7 @@ export function GanttChart({ rows, phases, today }: Props) {
               {rows.map((row) => (
                 <tr key={row.code}>
                   <th scope="row">
-                    {row.name} <span className="pwf-code">{row.code}</span>
+                    <TaskName name={row.name} code={row.code} />
                   </th>
                   <td>{row.actual === null ? t('pwf.flow.gantt.noDate.mark') : dayText(row.actual.from)}</td>
                   <td>{row.actual === null ? t('pwf.flow.gantt.noDate.mark') : dayText(row.actual.to)}</td>

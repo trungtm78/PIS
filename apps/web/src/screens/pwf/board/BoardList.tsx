@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { DataTable } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
-import { phaseName } from '../codes';
+import { phaseName, TaskName } from '../codes';
 import { BandBadge, Forecast } from '../components';
 import { dayText, taskLink, workflowLink } from '../model';
 import type { DeadlineBoard } from '../model';
@@ -41,13 +41,9 @@ export function BoardList({ rows, total, truncated, hasMore, loadingMore, onMore
       header: t('pwf.board.col.task.header'),
       pinned: true,
       render: (row) => (
-        <span className="pwf-cellstack">
+        <TaskName name={row.name} code={row.task_code} note={row.critical ? ` · ${t('pwf6.flow.critical.mark')}` : ''}>
           <Link to={taskLink(row.task_id, row.project_id)}>{row.name}</Link>
-          <span className="pwf-code">
-            {row.task_code}
-            {row.critical ? ` · ${t('pwf6.flow.critical.mark')}` : ''}
-          </span>
-        </span>
+        </TaskName>
       ),
     },
     {

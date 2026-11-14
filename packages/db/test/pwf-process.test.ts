@@ -83,6 +83,8 @@ const PHASES = [
 const STEPPED = {
   name: 'Stepped flow',
   project_type: 'STEPPED_KIND',
+  // A role the tenant named itself: the template says what it is called, so the reads carry the name beside the code.
+  roles: [{ code: 'LEAD_ROLE', name: 'Team lead of the province' }],
   phases: PHASES,
   steps: [
     { code: 'S_PREPARE', name: 'Prepare', phase: 'P1', responsible_role: 'LEAD_ROLE', legal_basis: [cite('LAW_58_2024_QH15'), cite('TEST_DECREE_OLD', 'Article 9')] },
@@ -296,7 +298,11 @@ describe('the processing workflow of a project (PWF-4)', () => {
         ['P1', 'S_REVIEW', 2, false, 'NOT_STARTED', 2, 1, 0],
         ['P2', 'S_CLOSE', 1, false, 'NOT_STARTED', 2, 1, 0],
       ]);
-      expect(steps[0]).toMatchObject({ responsible_role: 'LEAD_ROLE', planned_start: START, required_total: 2, required_done: 0, checklist_done: 0 });
+      expect(steps[0]).toMatchObject({ responsible_role: 'LEAD_ROLE', responsible_role_name: 'Team lead of the province', planned_start: START, required_total: 2, required_done: 0, checklist_done: 0 });
+      expect(steps[1]).toMatchObject({ responsible_role: null, responsible_role_name: null });
+      expect(view.roles).toEqual([{ code: 'LEAD_ROLE', name: 'Team lead of the province' }]);
+      // The strip of phases says "here" of one phase only.
+      expect((view.phases as Array<Record<string, unknown>>).map((phase) => [phase.code, phase.standing, phase.current])).toEqual([['P1', 'CURRENT', true], ['P2', 'UPCOMING', false]]);
       expect(view.standard_working_days).toBe(8);
       const items = view.tasks as Array<Record<string, unknown>>;
       expect(items.map((item) => [item.task_code, item.step_code, item.checklist_total, item.checklist_done])).toEqual([['TA', 'S_PREPARE', 2, 0], ['TB', 'S_PREPARE', 0, 0], ['TC', 'S_REVIEW', 0, 0], ['TD', 'S_CLOSE', 0, 0]]);
@@ -307,7 +313,9 @@ describe('the processing workflow of a project (PWF-4)', () => {
       const after = ((await detail(p.id)).steps as Array<Record<string, unknown>>)[0];
       expect(after).toMatchObject({ status: 'IN_PROGRESS', checklist_total: 2, checklist_done: 1, task_done: 0 });
       const task = await taskDetail(taskId);
-      expect(task.step).toEqual({ code: 'S_PREPARE', name: 'Prepare', phase_code: 'P1', order: 1, implicit: false, responsible_role: 'LEAD_ROLE' });
+      expect(task.step).toEqual({ code: 'S_PREPARE', name: 'Prepare', phase_code: 'P1', order: 1, implicit: false, responsible_role: 'LEAD_ROLE', responsible_role_name: 'Team lead of the province' });
+      // A role the template does not name has no name of the template: the screen falls back to the shipped catalogue of roles.
+      expect(task).toMatchObject({ responsible_role: 'WORKER_ROLE', responsible_role_name: null });
     });
 
     it('AC-ST-PWF-021-3: still refuses the completion of a task while a required item of its checklist is open, and not for an optional one', async () => {
@@ -355,7 +363,8 @@ describe('the processing workflow of a project (PWF-4)', () => {
       await approveRule('LEGAL_DOCUMENT', 'TEST_DECREE_OLD', { doc_kind: 'DECREE', number: '1/2020/ND-CP', title: 'An old decree', issuer: 'Government', effective_from: '2020-01-01', effective_to: '2026-01-01', superseded_by: 'TEST_DECREE_NEW', verification: 'VERIFIED' }, null, 2, TODAY);
       const view = await detail(p.id);
       expect(view.lapsed_legal_documents).toEqual(['TEST_DECREE_OLD']);
-      expect((view.steps as Array<{ legal_basis: Array<Record<string, unknown>> }>)[0]?.legal_basis[1]).toMatchObject({ state: 'SUPERSEDED', superseded_by: 'TEST_DECREE_NEW', effective_to: '2026-01-01' });
+      // The document that replaced it is named by its number (the catalogue has it), so that no screen shows the code of a document as its name.
+      expect((view.steps as Array<{ legal_basis: Array<Record<string, unknown>> }>)[0]?.legal_basis[1]).toMatchObject({ state: 'SUPERSEDED', superseded_by: 'TEST_DECREE_NEW', superseded_by_number: '2/2026/ND-CP', effective_to: '2026-01-01' });
       const [frozen] = await owner<{ template_hash: string }>('select template_hash from machvon.project_workflow where id = $1::uuid', [done.id]);
       expect(frozen?.template_hash).toBe(done.templateHash);
     });
@@ -370,9 +379,9 @@ describe('the processing workflow of a project (PWF-4)', () => {
       const mine = rows.filter((row) => row.id.startsWith(done.id));
       expect(mine).toHaveLength(1);
       expect(mine[0]).toMatchObject({ id: `${done.id}:TEST_DECREE_OLD`, source: 'PROJECT_TASK', severity: 'WATCH', status: 'AT_RISK', target: { screen: 'PWF-03', id: p.id }, dueOn: '2026-01-01' });
-      expect(mine[0]?.title).toContain('1/2020/ND-CP');
-      expect(mine[0]?.title).toContain(p.code);
-      expect(mine[0]?.subtitle).toContain('2/2026/ND-CP');
+      // The words name the document by its number and the project by its name; no code of the document is in them.
+      expect(mine[0]?.title).toBe('Căn cứ pháp lý 1/2020/ND-CP đã hết hiệu lực');
+      expect(mine[0]?.subtitle).toBe(`Project ${p.code} · được thay bằng 2/2026/ND-CP`);
       expect(mine[0]?.consequence).toBeTruthy();
       // One item per workflow and document, whatever the number of steps and tasks that cite it; a workflow that cites nothing lapsed has none.
       expect(new Set(rows.map((row) => row.id)).size).toBe(rows.length);

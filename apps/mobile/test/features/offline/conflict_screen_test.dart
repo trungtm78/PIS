@@ -84,7 +84,10 @@ void main() {
       final ProviderContainer container = await openOfflineApp(tester, setup.rig, location: '/account/mob-41');
       await press(tester, find.text('Xem và chọn'));
       expect(currentLocation(container), '/account/mob-42/${setup.command.id}');
-      expect(tester.widget<AppBottomNav>(find.byType(AppBottomNav)).selectedIndex, AppTab.account.index, reason: 'the conflict opens in the Cá nhân tab, where the queue is');
+      // The conflict opens in the Cá nhân tab, where the queue is (its address is under /account). It is the screen of one command, so the five tabs are hidden
+      // while it is open (design-system-v2, section 7) and are back, on Cá nhân, when it is left.
+      expect(currentLocation(container), startsWith('/account/'));
+      expect(find.byType(AppBottomNav), findsNothing);
       await press(tester, find.byKey(const ValueKey<String>('construction_vnd:server')));
       await press(tester, find.byKey(const ValueKey<String>('funding_lines[CARRYOVER|LOCAL|].cumulative_vnd:mine')));
       await press(tester, find.text('Giữ bản máy cho các mục không phải tiền'));

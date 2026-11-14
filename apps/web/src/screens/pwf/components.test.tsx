@@ -7,6 +7,7 @@ import { bandWord, blockerWord, dependencyWord, exceptionWord, formProblemText, 
 import { BANDS, describeProblem } from './model';
 import type { BlockerCode, DependencyKind, ExceptionKind, FormProblem, GateTarget, Priority, ProblemKind, TaskKind, TaskStatus } from './model';
 import { band, refusal, text } from './test/fixtures';
+import { RoleName, TaskName } from './codes';
 
 afterEach(cleanup);
 
@@ -196,5 +197,36 @@ describe('PWF labels', () => {
     expect(remainingText(t, band('YELLOW', { remaining_days: 1, overdue: false, due_today: false }))).toBe(text('pwf.band.remaining.text', { days: 1, unit: text('pwf.unit.working.word') }));
     // A band that does not say whether the deadline is today (the example of a ladder) reads as before.
     expect(remainingText(t, band('RED', { remaining_days: 0, overdue: false }))).toBe(text('pwf.band.today.text'));
+  });
+});
+
+describe('PWF codes: a name first, its code as a small note (owner review of 14/11/2026)', () => {
+  it('puts the code of a task on a line of its own under the name, outside the link, and leaves it out when it is the name', () => {
+    render(
+      <TaskName name="Lập báo cáo" code="PREP_DONE" note=" · găng">
+        <a href="/x">Lập báo cáo</a>
+      </TaskName>,
+    );
+    const code = screen.getByTestId('task-code');
+    expect(code.textContent).toBe('PREP_DONE · găng');
+    expect(code.className).toContain('pwf-taskname__code');
+    expect(screen.getByRole('link').textContent).toBe('Lập báo cáo');
+    expect(screen.getByRole('link').contains(code)).toBe(false);
+    cleanup();
+    render(<TaskName name="T1" code="T1" />);
+    expect(screen.queryByTestId('task-code')).toBeNull();
+  });
+
+  it('shows a role by the name its template gives it, then by the catalogue, and only then by its code', () => {
+    render(<RoleName code="PROVINCE_CLERK" name="Văn thư của tỉnh" />);
+    const named = document.querySelector('[data-role="PROVINCE_CLERK"]') as HTMLElement;
+    expect(named.textContent).toBe('Văn thư của tỉnh');
+    expect(named.className).not.toContain('pwf-code');
+    expect(named.getAttribute('title')).toBe('PROVINCE_CLERK');
+    cleanup();
+    render(<RoleName code="PROVINCE_CLERK" name={null} />);
+    const bare = document.querySelector('[data-role="PROVINCE_CLERK"]') as HTMLElement;
+    expect(bare.textContent).toBe('PROVINCE_CLERK');
+    expect(bare.className).toContain('pwf-code');
   });
 });

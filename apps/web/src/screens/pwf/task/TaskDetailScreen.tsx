@@ -14,7 +14,7 @@ import type { Problem, TaskDetail } from '../model';
 import { ActionsBar } from './ActionsBar';
 import { ExceptionsSection } from './ExceptionsSection';
 import { useTask } from './hooks';
-import { HistorySection, KpiSection } from './InsightSections';
+import { HistorySection, KpiDenied, KpiSection } from './InsightSections';
 import { actionsOf } from './model';
 import { RequirementsSection } from './RequirementsSection';
 import { ScheduleSection } from './ScheduleSection';
@@ -140,7 +140,8 @@ function TaskBody({ task }: { task: TaskDetail }) {
             panel: <ExceptionsSection task={task} canRequest={actions.requestException} canDecide={actions.decideException} prefill={prefill} onDecide={(exception, decision) => setDialog({ kind: 'decide', exception, decision })} onResult={onResult} />,
           },
           { id: 'history', label: t('pwf6.task.tab.history'), panel: <HistorySection task={task} open /> },
-          ...(task.kpi_results === undefined ? [] : [{ id: 'kpi' as const, label: t('pwf6.task.tab.kpi'), panel: <KpiSection task={task} /> }]),
+          // The tab is always there: a person who may not see the KPI of the task is told the scope is hidden (design.md, the state "denied"), never left to think the task has no KPI.
+          { id: 'kpi', label: t('pwf6.task.tab.kpi'), panel: task.kpi_results === undefined ? <KpiDenied /> : <KpiSection task={task} /> },
         ]}
       />
       <TaskDialogs task={task} dialog={dialog} onClose={() => setDialog(null)} onResult={onResult} />

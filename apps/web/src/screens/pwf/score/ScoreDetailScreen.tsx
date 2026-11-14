@@ -4,7 +4,8 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { SectionCard } from '../../../ui';
+import { SectionCard, Tabs, useTabParam } from '../../../ui';
+import { Comparison } from './Comparison';
 import { AdjustmentList, ContributionsTable, ExcludedList, FlagList, FlagsNote, LineStatePill, PeriodStatusPill, PolicyBasis, ResponseList, ScoreFigure, ScoreInfo, SupportNotice } from './components';
 import { AdjustmentRequestForm, DecisionForm, HandleResponseForm, ResponseForm } from './forms';
 import { useDecideAdjustment, useHandleResponse, usePolicyLimits, useReloadScores, useRequestAdjustment, useScoreCacheGuard, useScoreIdentity, useScoreLine, useSubmitResponse } from './hooks';
@@ -13,6 +14,9 @@ import type { ScoreLine } from './model';
 import { UnitName } from './units';
 import '../pwf.css';
 import './score.css';
+
+/** The tabs of PWF-13, in the address as `?view=`: the score, the tasks behind it, the adjustments with the responses, the periods of the person compared. */
+export const SCORE_VIEWS = ['score', 'tasks', 'review', 'compare'] as const;
 
 /** PWF-13: the detail of one score with the drill-through to tasks and facts, the adjustments, the responses and the flags. A line that is not there and a line the caller may not see are answered alike. */
 export default function ScoreDetailScreen({ route }: ScreenProps) {
@@ -67,7 +71,9 @@ function Detail({ line }: { line: ScoreLine }) {
   const respond = useSubmitResponse();
   const onReload = (): void => void reload();
   const flags = line.flags ?? [];
-  return (
+  const [view, setView] = useTabParam('view', SCORE_VIEWS);
+  const waiting = line.adjustments.filter((one) => one.status === 'REQUESTED').length + line.responses.filter((one) => one.status === 'OPEN').length;
+  const score = (
     <>
       <SectionCard title={t('pwfs.detail.score.title')} status={<PeriodStatusPill status={line.period_status} />}>
         <div className="pwf-grid" data-testid="detail">
@@ -100,11 +106,17 @@ function Detail({ line }: { line: ScoreLine }) {
           <FlagList flags={flags.map((code) => ({ code }))} />
         </SectionCard>
       ) : null}
-      <SectionCard title={t('pwfs.detail.trace.title')}>
-        <ContributionsTable contributions={line.contributions} />
-        <h3>{t('pwfs.my.excluded.title')}</h3>
-        <ExcludedList excluded={line.excluded} />
-      </SectionCard>
+    </>
+  );
+  const tasks = (
+    <SectionCard title={t('pwfs.detail.trace.title')}>
+      <ContributionsTable contributions={line.contributions} />
+      <h3>{t('pwfs.my.excluded.title')}</h3>
+      <ExcludedList excluded={line.excluded} />
+    </SectionCard>
+  );
+  const review = (
+    <>
       <SectionCard title={t('pwfs.detail.adjustments.title')}>
         <AdjustmentList
           adjustments={line.adjustments}
@@ -123,6 +135,23 @@ function Detail({ line }: { line: ScoreLine }) {
         />
         {actions.respond ? <ResponseForm onReload={onReload} onSend={(body) => respond.mutateAsync({ id: line.id, body })} /> : null}
       </SectionCard>
+    </>
+  );
+  return (
+    <>
+      <Tabs
+        label={t('fix8.score.tabs.label')}
+        testId="score"
+        value={view}
+        onChange={setView}
+        tabs={[
+          { id: 'score', label: t('fix8.score.tab.score'), panel: score },
+          { id: 'tasks', label: t('fix8.score.tab.tasks'), count: line.contributions.length === 0 ? undefined : line.contributions.length, panel: tasks },
+          { id: 'review', label: t('fix8.score.tab.review'), count: waiting === 0 ? undefined : waiting, panel: review },
+          // The periods are read when the tab is first opened: nobody who came for one score pays for the comparison.
+          { id: 'compare', label: t('fix8.score.tab.compare'), panel: <Comparison membershipId={line.membership_id} enabled={view === 'compare'} /> },
+        ]}
+      />
       <p className="adm-kit-sub">
         <Link to={SCORE_PATHS.mine}>{t('pwfs.detail.mine.link')}</Link>
       </p>

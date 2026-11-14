@@ -7,7 +7,7 @@ import { gateWord, kindWord, priorityWord } from '../labels';
 import type { GateTarget, Priority, TaskKind } from '../model';
 import { compareStructured } from './compare-model';
 import type { ChangeKind, CompareTotals, DiffValue, FieldDiff, ItemDiff, Tier } from './compare-model';
-import { stepsOf } from './template-model';
+import { stepsOf, templateRoleName } from './template-model';
 import type { Template } from './template-model';
 
 type T = Translator['t'];
@@ -39,6 +39,8 @@ function tierText(t: T, tier: Tier): string {
 }
 
 interface Names {
+  /** A role by the name one of the two templates gives it, else by the shipped catalogue, else its code. */
+  role: (code: string) => string;
   phase: (code: string) => string;
   step: (code: string | null) => string;
 }
@@ -51,7 +53,7 @@ function valueText(t: T, value: DiffValue | undefined, names: Names): string {
     case 'days':
       return t('pwf6.cmp.days.text', { days: value.days });
     case 'role':
-      return value.code === null ? t('pwf6.cmp.none.text') : roleName(t, value.code);
+      return value.code === null ? t('pwf6.cmp.none.text') : names.role(value.code);
     case 'phase':
       return names.phase(value.code);
     case 'step':
@@ -156,7 +158,7 @@ export function TemplateCompare({ before, after, left, right }: { before: Templa
   const result = compareStructured(before, after);
   const phaseNames = new Map([...before.phases, ...after.phases].map((phase) => [phase.code, phase.name]));
   const stepNames = new Map([...stepsOf(before), ...stepsOf(after)].map((step) => [step.code, step.name]));
-  const names: Names = { phase: (code) => phaseNames.get(code) ?? code, step: (code) => (code === null ? t('pwf6.cmp.none.text') : (stepNames.get(code) ?? code)) };
+  const names: Names = { role: (code) => templateRoleName(after, code) ?? templateRoleName(before, code) ?? roleName(t, code), phase: (code) => phaseNames.get(code) ?? code, step: (code) => (code === null ? t('pwf6.cmp.none.text') : (stepNames.get(code) ?? code)) };
   const phases = [...new Set(result.items.map((item) => item.phase))];
   return (
     <div className="pwf-cmp" data-testid="compare-structured">

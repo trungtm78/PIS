@@ -38,6 +38,22 @@ M2=0 · FP=0 · risk=HIGH
 | COV-ST-PWF-022 | AC/Requirement | ST-PWF-022: Căn cứ pháp lý của bước và công việc theo danh mục văn bản dùng chung | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-PRC-04, TC-UAT-PWF-PRC-05 | ✅ |
 | COV-ST-PWF-023 | AC/Requirement | ST-PWF-023: Phiên bản biểu mẫu: mới nhất đã duyệt hoặc ghim, ghi vào bằng chứng | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-PRC-06 | ✅ |
 | COV-ST-PWF-024 | AC/Requirement | ST-PWF-024: Chọn loại quy trình khi đăng ký dự án theo quy tắc ánh xạ | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-PRC-07, TC-UAT-PWF-PRC-08, TC-UAT-PWF-PRC-09, TC-UAT-PWF-PRC-10 | ✅ |
+| COV-FR-PWF-01 | AC/Requirement | FR-PWF-01: Thư viện mẫu workflow | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-01) | TC-UI-PWF-01 | ✅ |
+| COV-FR-PWF-02 | AC/Requirement | FR-PWF-02: Soạn mẫu workflow | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-02) | TC-UI-PWF-02 | ✅ |
+| COV-FR-PWF-03 | AC/Requirement | FR-PWF-03: Workflow của dự án | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-03) | TC-UI-PWF-03 | ✅ |
+| COV-FR-PWF-04 | AC/Requirement | FR-PWF-04: Chi tiết công việc | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-04) | TC-UI-PWF-04 | ✅ |
+| COV-FR-PWF-05 | AC/Requirement | FR-PWF-05: Khởi tạo và tiếp nhận workflow | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-05) | TC-UI-PWF-05 | ✅ |
+| COV-FR-PWF-06 | AC/Requirement | FR-PWF-06: Xem trước và duyệt dời lịch | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-06) | TC-UI-PWF-06 | ✅ |
+| COV-FR-PWF-07 | AC/Requirement | FR-PWF-07: Bảng deadline toàn danh mục | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-07) | TC-UI-PWF-07 | ✅ |
+| COV-FR-PWF-08 | AC/Requirement | FR-PWF-08: Chính sách ba màu | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-08) | TC-UI-PWF-08 | ✅ |
+| COV-FR-PWF-09 | AC/Requirement | FR-PWF-09: Bộ KPI workflow | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-09) | TC-UI-PWF-09 | ✅ |
+| COV-FR-PWF-10 | AC/Requirement | FR-PWF-10: Chính sách chấm điểm | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-10) | TC-UI-PWF-10 | ✅ |
+| COV-FR-PWF-11 | AC/Requirement | FR-PWF-11: Bảng điểm của tôi | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-11) | TC-UI-PWF-11 | ✅ |
+| COV-FR-PWF-12 | AC/Requirement | FR-PWF-12: Bảng điểm đơn vị | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-12) | TC-UI-PWF-12 | ✅ |
+| COV-FR-PWF-13 | AC/Requirement | FR-PWF-13: Chi tiết điểm | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-13) | TC-UI-PWF-13 | ✅ |
+| COV-FR-PWF-14 | AC/Requirement | FR-PWF-14: Kỳ chấm điểm | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-14) | TC-UI-PWF-14 | ✅ |
+| COV-FR-PWF-15 | AC/Requirement | FR-PWF-15: Nhắc hạn của tôi | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-15) | TC-UI-PWF-15 | ✅ |
+| COV-FR-PWF-16 | AC/Requirement | FR-PWF-16: Sổ phân công | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-16) | TC-UI-PWF-16 | ✅ |
 
 ## Tiêu chí nghiệm thu (mục 11) và ca phủ
 

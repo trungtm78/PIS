@@ -14,6 +14,8 @@ import {
   citedLegalDocuments,
   formPolicyOf,
   parseProjectWorkflowTemplate,
+  phaseStandings,
+  roleNameOf,
   stepCodeOf,
   stepSpans,
   stepsOf,
@@ -386,5 +388,83 @@ describe('PROJECT_WORKFLOW_ASSIGNMENT: which kind of workflow a project takes (R
     expect(selectionModeOf('PUBLIC_INVESTMENT', 'PUBLIC_INVESTMENT')).toBe('CONFIRMED');
     expect(selectionModeOf('PUBLIC_INVESTMENT', 'PUBLIC_REPAIR')).toBe('OVERRIDE');
     expect(selectionModeOf(null, 'PUBLIC_REPAIR')).toBe('MANUAL');
+  });
+});
+
+/** The one phase a project is at (owner review of 14/11/2026): the strip of phases says "here" once, whatever runs in parallel behind it. */
+describe('the standing of each phase of a running workflow', () => {
+  const three = parseProjectWorkflowTemplate({
+    name: 'Three',
+    phases: [...PHASES, { code: 'P3', name: 'Phase three', gates: [] }, { code: 'P4', name: 'Phase four', gates: [] }],
+    tasks: [task('A'), task('B'), task('C', { phase: 'P2' }), task('D', { phase: 'P3' }), task('E', { phase: 'P3', required: false }), task('F', { phase: 'P4', required: false })],
+  });
+  const rows = (status: Record<string, string>, over: Record<string, Params> = {}) =>
+    three.tasks.map((one) => ({ phase: one.phase, required: one.required, excluded: false, tracked: true, status: status[one.code] ?? 'NOT_STARTED', ...(over[one.code] ?? {}) }));
+  const standings = (status: Record<string, string>, over: Record<string, Params> = {}): string[] => phaseStandings(three, rows(status, over)).map((one) => one.standing);
+
+  it('names exactly one current phase: the earliest with a required task that is not through; later phases with work under way have started, the others are to come', () => {
+    expect(standings({})).toEqual(['CURRENT', 'UPCOMING', 'UPCOMING', 'UPCOMING']);
+    // Work runs in three phases at once: only the earliest is where the project is.
+    expect(standings({ A: 'DONE', B: 'IN_PROGRESS', C: 'IN_PROGRESS', D: 'AWAITING_APPROVAL' })).toEqual(['CURRENT', 'STARTED', 'STARTED', 'UPCOMING']);
+    expect(standings({ A: 'DONE', B: 'CANCELLED', C: 'ON_HOLD' })).toEqual(['DONE', 'CURRENT', 'UPCOMING', 'UPCOMING']);
+    // A later phase whose required tasks are through before its turn is done; a task that is not required starts its phase and never makes it current.
+    expect(standings({ A: 'IN_PROGRESS', C: 'DONE', E: 'IN_PROGRESS', F: 'DONE' })).toEqual(['CURRENT', 'DONE', 'STARTED', 'STARTED']);
+    const cases: Array<Record<string, string>> = [{}, { A: 'DONE', B: 'IN_PROGRESS', C: 'IN_PROGRESS', D: 'IN_PROGRESS' }, { A: 'DONE', B: 'DONE' }];
+    for (const status of cases) expect(standings(status).filter((one) => one === 'CURRENT')).toHaveLength(1);
+  });
+
+  it('has no current phase once every phase is through, and a phase with nothing required is done when the project has passed it', () => {
+    expect(standings({ A: 'DONE', B: 'DONE', C: 'DONE', D: 'CANCELLED' })).toEqual(['DONE', 'DONE', 'DONE', 'DONE']);
+    expect(phaseStandings(three, rows({ A: 'DONE', B: 'DONE', C: 'DONE', D: 'DONE' })).every((one) => !one.current)).toBe(true);
+  });
+
+  it('counts only the tasks that belong to the project and are tracked, and says `current` on the same phase as the standing', () => {
+    const found = phaseStandings(three, rows({ C: 'IN_PROGRESS' }, { A: { excluded: true }, B: { tracked: false }, C: { excluded: true } }));
+    expect(found.map((one) => [one.code, one.standing, one.current])).toEqual([
+      ['P1', 'DONE', false],
+      ['P2', 'DONE', false],
+      ['P3', 'CURRENT', true],
+      ['P4', 'UPCOMING', false],
+    ]);
+  });
+});
+
+/** The roles a tenant names itself (owner review of 14/11/2026): a template may say what its own role codes are called, so no screen shows the code as the name. */
+describe('the catalogue of roles of a template', () => {
+  const roles = [
+    { code: 'PROVINCE_CLERK', name: 'Văn thư của tỉnh' },
+    { code: 'LEAD', name: 'Trưởng nhóm thẩm định' },
+  ];
+
+  it('keeps the names a template gives its roles, gives them back in its params, and answers the name of a code', () => {
+    const template = parseProjectWorkflowTemplate(stepped({ roles }));
+    expect(template.roles).toEqual(roles);
+    expect(templateParamsOf(template).roles).toEqual(roles);
+    expect(roleNameOf(template, 'PROVINCE_CLERK')).toBe('Văn thư của tỉnh');
+    expect(roleNameOf(template, 'PLANNER')).toBeNull();
+    expect(roleNameOf(template, null)).toBeNull();
+    validateRuleParams(PROJECT_WORKFLOW_RULE_TYPE, stepped({ roles }));
+  });
+
+  it('leaves the params and the hash of a template without roles as they always were', () => {
+    const before = parseProjectWorkflowTemplate(stepped());
+    expect('roles' in templateParamsOf(before)).toBe(false);
+    expect(templateHash(parseProjectWorkflowTemplate(stepped({ roles: [] })))).toBe(templateHash(before));
+    expect(templateHash(parseProjectWorkflowTemplate(stepped({ roles })))).not.toBe(templateHash(before));
+  });
+
+  it('refuses a role named twice, a name left empty and a code that is not a code', () => {
+    expect(templateDefect(stepped({ roles: [...roles, { code: 'LEAD', name: 'Again' }] }))).toBe('roles[2].code');
+    const refused = (value: unknown): boolean => {
+      try {
+        validateRuleParams(PROJECT_WORKFLOW_RULE_TYPE, stepped({ roles: value }));
+        return false;
+      } catch {
+        return true;
+      }
+    };
+    expect(refused([{ code: 'LEAD', name: '' }])).toBe(true);
+    expect(refused([{ code: 'lead', name: 'Lead' }])).toBe(true);
+    expect(refused([{ code: 'LEAD' }])).toBe(true);
   });
 });

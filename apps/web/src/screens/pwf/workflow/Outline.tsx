@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n';
 import { SectionCard, StatusPill } from '../../../ui';
 import type { Tone } from '../../../ui';
 import { ScrollRegion } from '../../scroll-region';
-import { RoleName, Named } from '../codes';
+import { RoleName, Named, TaskName } from '../codes';
 import { BandBadge, CalendarMissingCell, Forecast, Meter } from '../components';
 import { statusWord } from '../labels';
 import { calendarMissing, dayText, hasBand, taskLink } from '../model';
@@ -40,8 +40,9 @@ function TaskRow({ task, projectId }: { task: WorkflowTask; projectId: string })
     <tr className="pwf-outline__task" data-level="3" data-task={task.task_code} data-health={healthOf(task)}>
       <th scope="row">
         <span className="pwf-outline__name">
-          <Link to={taskLink(task.id, projectId)}>{task.name}</Link>
-          <span className="pwf-code">{task.task_code}</span>
+          <TaskName name={task.name} code={task.task_code}>
+            <Link to={taskLink(task.id, projectId)}>{task.name}</Link>
+          </TaskName>
           {task.critical ? <span className="pwf-outline__critical">{t('pwf6.flow.critical.mark')}</span> : null}
         </span>
       </th>
@@ -155,7 +156,7 @@ export function WorkflowOutline({ detail, projectId, selectedPhase, onPhase }: P
                               </StatusPill>
                             </td>
                             <td className="pwf-num">{step.planned_finish === null ? null : dayText(step.planned_finish)}</td>
-                            <td>{step.responsible_role === null ? null : <RoleName code={step.responsible_role} />}</td>
+                            <td>{step.responsible_role === null ? null : <RoleName code={step.responsible_role} name={step.responsible_role_name} />}</td>
                             <td>
                               <Meter done={step.task_done} total={step.task_total} label={t('pwf.process.progress.tasks.label')} />
                             </td>

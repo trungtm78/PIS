@@ -144,7 +144,6 @@ class _PwfWorkflowPanelState extends State<PwfWorkflowPanel> {
     final MachvonV2 v2 = context.v2;
     final List<PwfTaskRow> urgent = <PwfTaskRow>[for (final PwfTaskRow task in workflow.visibleTasks) if (!task.status.isFinal && task.band.kind == PwfBandKind.red) task]..sort(_byUrgency);
     final List<PwfTaskRow> shown = urgent.take(3).toList();
-    final String? currentCode = workflow.currentPhase?.code;
     return <Widget>[
       ..._figures(context, workflow, counts),
       if (shown.isNotEmpty) ...<Widget>[
@@ -156,18 +155,25 @@ class _PwfWorkflowPanelState extends State<PwfWorkflowPanel> {
         for (int index = 0; index < workflow.phases.length; index += 1)
           (() {
             final PwfPhase phase = workflow.phases[index];
-            final bool done = phase.requiredTotal > 0 && phase.requiredDone >= phase.requiredTotal;
-            final bool current = phase.code == currentCode;
-            final String state = done ? context.t('mob.pwf7.stage.done') : (current ? context.t('mob.pwf7.stage.current') : context.t('mob.pwf7.stage.ahead'));
+            // One stage is where the project is (the server names it); a later stage with work in parallel has started, and is never a second "here".
+            final bool done = phase.standing == PwfPhaseStanding.done;
+            final bool current = phase.standing == PwfPhaseStanding.current;
+            final bool started = phase.standing == PwfPhaseStanding.started;
+            final String state = switch (phase.standing) {
+              PwfPhaseStanding.done => context.t('mob.pwf7.stage.done'),
+              PwfPhaseStanding.current => context.t('mob.pwf7.stage.current'),
+              PwfPhaseStanding.started => context.t('mob.pwf8.stage.started'),
+              PwfPhaseStanding.upcoming => context.t('mob.pwf7.stage.ahead'),
+            };
             final String progress = context.t('mob.pwf.panel.phaseDone', <String, Object>{'done': phase.requiredDone, 'total': phase.requiredTotal});
             return WorkRow(
               title: phase.name,
               titleMaxLines: 3,
               subtitle: '$state · $progress',
-              leading: Icon(done ? Icons.check_circle : (current ? Icons.timelapse : Icons.radio_button_unchecked), color: current ? v2.palette.primary : v2.palette.ink2),
+              leading: Icon(done ? Icons.check_circle : (current ? Icons.timelapse : (started ? Icons.pending_outlined : Icons.radio_button_unchecked)), color: current ? v2.palette.primary : v2.palette.ink2),
               semanticLabel: '${phase.name}, $state, $progress',
               dividerAbove: index > 0,
-              quiet: !current && !done,
+              quiet: !current && !done && !started,
             );
           })(),
       ],

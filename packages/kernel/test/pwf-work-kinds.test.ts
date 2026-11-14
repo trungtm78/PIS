@@ -37,13 +37,19 @@ describe('the kinds of work of the tasks of a workflow', () => {
     const sentences = PWF_KINDS.map((kind) => message(`home.consequence.${kind.toLowerCase()}`));
     expect(new Set(sentences).size).toBe(sentences.length);
     for (const sentence of sentences) expect(sentence.length).toBeGreaterThan(20);
-    expect(message('home.source.pwf.due_soon.title', { task: 'Lập báo cáo', project: 'P-1', days: 3 })).toContain('3 ngày làm việc');
-    expect(message('home.source.pwf.due_today.title', { task: 'Lập báo cáo', project: 'P-1' })).toContain('hôm nay');
-    expect(message('home.source.pwf.overdue.title', { task: 'Lập báo cáo', project: 'P-1', days: 2 })).toContain('quá hạn 2');
-    expect(message('home.source.pwf.overdue.escalated.title', { task: 'Lập báo cáo', project: 'P-1', days: 3 })).toContain('cấp quản lý');
-    expect(message('home.source.pwf.milestone.title', { task: 'Mốc A', project: 'P-1', days: 6 })).toContain('trễ 6 ngày');
-    expect(message('home.source.pwf.detail', { code: 'T1', phase: 'P1', date: '2027-01-02' })).toContain('02/01/2027');
-    expect(message('home.source.pwf.detail.critical', { code: 'T1', phase: 'P1', date: '2027-01-02' })).toContain('đường găng');
-    expect(message('home.source.pwf.milestone.detail', { code: 'T1', baseline: '2027-01-02', date: '2027-01-09' })).toContain('dự báo 09/01/2027');
+    expect(message('home.source.pwf.due_soon.title', { task: 'Lập báo cáo', days: 3 })).toBe('Lập báo cáo: còn 3 ngày làm việc');
+    expect(message('home.source.pwf.due_today.title', { task: 'Lập báo cáo' })).toBe('Lập báo cáo: đến hạn hôm nay');
+    expect(message('home.source.pwf.overdue.title', { task: 'Lập báo cáo', days: 2 })).toBe('Lập báo cáo: quá hạn 2 ngày làm việc');
+    expect(message('home.source.pwf.overdue_now.title', { task: 'Lập báo cáo' })).toBe('Lập báo cáo: đã quá hạn');
+    expect(message('home.source.pwf.no_day_left.title', { task: 'Lập báo cáo' })).toBe('Lập báo cáo: hết ngày làm việc trước hạn');
+    expect(message('home.source.pwf.overdue.escalated.title', { task: 'Lập báo cáo', days: 3 })).toBe('Lập báo cáo: quá hạn 3 ngày làm việc, đã báo cấp quản lý');
+    expect(message('home.source.pwf.milestone.title', { task: 'Mốc A', days: 6 })).toBe('Mốc A: dự báo trễ 6 ngày');
+    // The second line names the project by its NAME; no code of a task, of a phase or of a project is in the words a person reads (the day is a field of its own on the item).
+    expect(message('home.source.pwf.detail', { project: 'Đường tỉnh 12' })).toBe('Đường tỉnh 12');
+    expect(message('home.source.pwf.detail.critical', { project: 'Đường tỉnh 12' })).toBe('Đường tỉnh 12 · trên đường găng');
+    expect(message('home.source.pwf.milestone.detail', { project: 'Đường tỉnh 12', baseline: '2027-01-02', date: '2027-01-09' })).toBe('Đường tỉnh 12 · hạn cơ sở 02/01/2027, dự báo 09/01/2027');
+    expect(message('home.source.pwf.legal.title', { document: '1/2020/ND-CP' })).toBe('Căn cứ pháp lý 1/2020/ND-CP đã hết hiệu lực');
+    expect(message('home.source.pwf.legal.detail', { project: 'Đường tỉnh 12', date: '2026-01-01' })).toBe('Đường tỉnh 12 · hết hiệu lực từ 01/01/2026');
+    expect(message('home.source.pwf.legal.detail.replaced', { project: 'Đường tỉnh 12', replacement: '2/2026/ND-CP' })).toBe('Đường tỉnh 12 · được thay bằng 2/2026/ND-CP');
   });
 });

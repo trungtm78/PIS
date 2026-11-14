@@ -72,6 +72,7 @@ export interface LegalBasisView {
   effective_from: string | null;
   effective_to: string | null;
   superseded_by: string | null;
+  superseded_by_number: string | null;
   document_verification: string | null;
   document_id: string | null;
   url: string | null;
@@ -92,6 +93,8 @@ export const legalBasisView = (basis: pwfWorkflow.TemplateLegalBasis, catalogue:
     effective_from: document?.effectiveFrom ?? null,
     effective_to: document?.effectiveTo ?? null,
     superseded_by: document?.supersededBy ?? null,
+    // The document that replaced it, as people cite it (its number in the catalogue); null when nothing replaced it or the catalogue does not have the replacement.
+    superseded_by_number: document?.supersededBy === null || document?.supersededBy === undefined ? null : (catalogue.get(document.supersededBy)?.number ?? null),
     document_verification: document?.verification ?? null,
     document_id: document?.documentId ?? null,
     url: document?.url ?? null,

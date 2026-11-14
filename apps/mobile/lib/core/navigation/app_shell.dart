@@ -16,13 +16,7 @@ const Map<AppTab, IconData> _icons = <AppTab, IconData>{
   AppTab.account: Icons.person_outline,
 };
 
-const Map<AppTab, IconData> _selectedIcons = <AppTab, IconData>{
-  AppTab.home: Icons.home,
-  AppTab.projects: Icons.apartment,
-  AppTab.approval: Icons.fact_check,
-  AppTab.inbox: Icons.notifications,
-  AppTab.account: Icons.person,
-};
+const Map<AppTab, IconData> _selectedIcons = <AppTab, IconData>{AppTab.home: Icons.home, AppTab.projects: Icons.apartment, AppTab.approval: Icons.fact_check, AppTab.inbox: Icons.notifications, AppTab.account: Icons.person};
 
 /// The frame of the five tabs: the status banners on top, the active tab, the bottom navigation.
 ///
@@ -30,9 +24,13 @@ const Map<AppTab, IconData> _selectedIcons = <AppTab, IconData>{
 /// popping a detail screen) finds the scroll position and the filter where they were left. The system back button pops
 /// the screen of the tab first; on the root of another tab it goes to Home, and only on the Home root does it leave.
 class AppShell extends ConsumerWidget {
-  const AppShell({required this.navigationShell, super.key});
+  const AppShell({required this.navigationShell, this.detail = false, super.key});
 
   final StatefulNavigationShell navigationShell;
+
+  /// The screen on top is the screen of ONE record (its address names the record): a detail screen has its own action bar at the bottom and
+  /// hides the five tabs (design-system-v2, section 7), so the bar of actions is the only thing under the thumb and nothing sits below it.
+  final bool detail;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,20 +55,22 @@ class AppShell extends ConsumerWidget {
           ),
         ),
         // The bottom navigation of the phone design: 64 high, the labels always shown, a bar at the top of the chosen tab, a count in a pill.
-        bottomNavigationBar: AppBottomNav(
-          selectedIndex: navigationShell.currentIndex,
-          onSelected: (int index) => navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex),
-          items: <NavItem>[
-            for (final AppTab tab in AppTab.values)
-              NavItem(
-                icon: _icons[tab]!,
-                selectedIcon: _selectedIcons[tab]!,
-                label: _labelOf(context, tab),
-                badge: badges[tab] ?? 0,
-                badgeHint: (badges[tab] ?? 0) > 0 ? context.t('mob.shell.badge.pending', <String, Object>{'count': badges[tab]!}) : null,
+        bottomNavigationBar: detail
+            ? null
+            : AppBottomNav(
+                selectedIndex: navigationShell.currentIndex,
+                onSelected: (int index) => navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex),
+                items: <NavItem>[
+                  for (final AppTab tab in AppTab.values)
+                    NavItem(
+                      icon: _icons[tab]!,
+                      selectedIcon: _selectedIcons[tab]!,
+                      label: _labelOf(context, tab),
+                      badge: badges[tab] ?? 0,
+                      badgeHint: (badges[tab] ?? 0) > 0 ? context.t('mob.shell.badge.pending', <String, Object>{'count': badges[tab]!}) : null,
+                    ),
+                ],
               ),
-          ],
-        ),
       ),
     );
   }

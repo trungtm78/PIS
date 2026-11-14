@@ -1,10 +1,18 @@
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, configure, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { describeViolations, seriousViolations } from '../../../test/axe';
 import { mount } from '../../sas/test-support';
 import type { Answer } from '../test/fixtures';
 import MyScoreScreen from './MyScoreScreen';
 import { LINE_ID, OWN_ONLY, adjustment, comparison, contribution, kpiResult, line, myScore, refusal, response, routeOf, serve, text, uuid } from './test/fixtures';
+
+// The screen is a set of tabs and every panel stays in the page (hidden when not chosen): the checks of what a panel holds reach it by role whether or not its tab is the open one. Which tab is open is checked on its own.
+beforeAll(() => {
+  configure({ defaultHidden: true });
+});
+afterAll(() => {
+  configure({ defaultHidden: false });
+});
 
 afterEach(() => {
   cleanup();
@@ -59,7 +67,7 @@ describe('PWF-11: my score', () => {
   it('traces the score to tasks: the share, the weight, the score, the assignment span, and says "restricted" for a task it may not open', async () => {
     open();
     const card = await screen.findByTestId('my-period');
-    const link = within(card).getByRole('link', { name: /T1/ });
+    const link = within(card).getByRole('link', { name: 'Công việc 1' });
     expect(link.getAttribute('href')).toBe(`/pwf/pwf-04?id=${uuid(1001)}`);
     expect(within(card).getAllByText(text('pwfs.contribution.span.text', { role: text('pwf.role.responsible.word'), from: '01/10/2026', to: text('pwfs.contribution.open.text'), share: 50 })).length).toBeGreaterThan(0);
     expect(within(card).getAllByText('50%')).toHaveLength(2);
@@ -208,3 +216,21 @@ describe('PWF-11: the states', () => {
   });
 });
 
+
+describe('PWF-11: one purpose a tab (owner review of 14/11/2026)', () => {
+  it('shows each period as three short tabs (score, tasks, adjustments and responses) and compares the periods on a tab of the screen', async () => {
+    open();
+    const card = await screen.findByTestId('my-period');
+    expect(within(card).getAllByRole('tab').map((one) => one.getAttribute('data-testid'))).toEqual(['score', 'tasks', 'review'].map((id) => `period-tab-${id}`));
+    expect(within(card).getByTestId('period-panel-score').hidden).toBe(false);
+    expect(within(card).getByTestId('period-panel-tasks').hidden).toBe(true);
+    fireEvent.click(within(card).getByTestId('period-tab-tasks'));
+    expect(within(card).getByTestId('period-panel-tasks').hidden).toBe(false);
+    expect(within(within(card).getByTestId('period-panel-tasks')).getByRole('table')).toBeTruthy();
+    // The comparison of the periods is a tab of the screen, not the tail of a long page.
+    expect(screen.getByTestId('my-tab-periods').getAttribute('aria-selected')).toBe('true');
+    fireEvent.click(screen.getByTestId('my-tab-compare'));
+    expect(screen.getByTestId('my-panel-compare').hidden).toBe(false);
+    expect(screen.getByTestId('my-panel-compare').contains(await screen.findByTestId('comparison'))).toBe(true);
+  });
+});

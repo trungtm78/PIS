@@ -3232,6 +3232,134 @@
     "expected": "Cài đặt thông báo đẩy: hiển thị đúng 3 nhóm trường, áp quy tắc \"Thông báo chỉ mang tiêu đề chung và đường dẫn; thông báo thử chỉ gửi cho chính người dùng; đăng ký bắt đầu từ thao tác chạm của người dùng\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu"
   },
   {
+    "id": "UI-PWF-01",
+    "tc": "TC-UI-PWF-01",
+    "screen": "PWF-01",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-02",
+    "tc": "TC-UI-PWF-02",
+    "screen": "PWF-02",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-03",
+    "tc": "TC-UI-PWF-03",
+    "screen": "PWF-03",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-04",
+    "tc": "TC-UI-PWF-04",
+    "screen": "PWF-04",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-05",
+    "tc": "TC-UI-PWF-05",
+    "screen": "PWF-05",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-06",
+    "tc": "TC-UI-PWF-06",
+    "screen": "PWF-06",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-07",
+    "tc": "TC-UI-PWF-07",
+    "screen": "PWF-07",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-08",
+    "tc": "TC-UI-PWF-08",
+    "screen": "PWF-08",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-09",
+    "tc": "TC-UI-PWF-09",
+    "screen": "PWF-09",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-10",
+    "tc": "TC-UI-PWF-10",
+    "screen": "PWF-10",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-11",
+    "tc": "TC-UI-PWF-11",
+    "screen": "PWF-11",
+    "module": "PWF",
+    "priority": "P0",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-12",
+    "tc": "TC-UI-PWF-12",
+    "screen": "PWF-12",
+    "module": "PWF",
+    "priority": "P0",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-13",
+    "tc": "TC-UI-PWF-13",
+    "screen": "PWF-13",
+    "module": "PWF",
+    "priority": "P0",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-14",
+    "tc": "TC-UI-PWF-14",
+    "screen": "PWF-14",
+    "module": "PWF",
+    "priority": "P0",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-15",
+    "tc": "TC-UI-PWF-15",
+    "screen": "PWF-15",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
+    "id": "UI-PWF-16",
+    "tc": "TC-UI-PWF-16",
+    "screen": "PWF-16",
+    "module": "PWF",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors"
+  },
+  {
     "id": "UI-QMS-01",
     "tc": "TC-UI-QMS-01",
     "screen": "QMS-01",

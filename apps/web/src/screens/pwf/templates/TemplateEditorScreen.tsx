@@ -12,7 +12,7 @@ import { UnverifiedLabel } from '../components';
 import { PATHS, PERMISSIONS, RULE_PERMISSIONS, TEMPLATE_RULE_TYPE, editorLink, holds } from '../model';
 import type { SchedulePreview, TemplateValidation } from '../model';
 import { StepsEditor } from './editor-steps';
-import { PhasesPanel, TasksPanel } from './editor-panels';
+import { PhasesPanel, RolesPanel, TasksPanel } from './editor-panels';
 import { PreviewPanel, ValidationPanel } from './editor-checks';
 import { TextField, problemMapOf } from './editor-fields';
 import { useDebouncedValue, usePreviewTemplate, useValidateTemplate } from './hooks';
@@ -26,7 +26,7 @@ import './templates.css';
 export const VALIDATE_DELAY_MS = 500;
 
 /** The tabs of the editor, in the address as `?view=`: the structure (phases and tasks), the steps with their legal basis, the checks and the schedule preview. */
-export const EDITOR_VIEWS = ['structure', 'steps', 'checks'] as const;
+export const EDITOR_VIEWS = ['structure', 'steps', 'roles', 'checks'] as const;
 
 /**
  * PWF-02: the editor of a workflow template. Phases with the commands of the project they hold shut, the task tree, links of four kinds with a lag, branches by the facts of the project, documents, forms, checklist and
@@ -179,6 +179,12 @@ function EditorContent({ route }: ScreenProps) {
                   <StepsEditor template={template} onChange={setEdited} problems={problems} show={attempted} disabled={!canEdit} />
                 </>
               ),
+            },
+            {
+              id: 'roles',
+              label: t('fix8.editor.tab.roles'),
+              count: (template.roles ?? []).length === 0 ? undefined : (template.roles ?? []).length,
+              panel: <RolesPanel template={template} onChange={setEdited} problems={problems} show={attempted} disabled={!canEdit} />,
             },
             {
               id: 'checks',

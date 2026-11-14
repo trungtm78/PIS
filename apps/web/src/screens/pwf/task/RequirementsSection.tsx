@@ -145,7 +145,7 @@ export function RequirementsSection({ task, canWork, onTick, onResult }: Require
               {task.legal_doc_types.map((item) => (
                 <li key={`legal:${item.code}`} className="pwf-docs__item" data-legal={item.code}>
                   <span className="pwf-docs__kind">{t('pwf6.task.documents.legal')}</span>
-                  <Named name={docTypeName(t, item.code)} code={docTypeKnown(item.code) ? item.code : undefined} />
+                  <Named name={item.name ?? docTypeName(t, item.code)} code={(item.name ?? null) !== null || docTypeKnown(item.code) ? item.code : undefined} />
                   <Satisfied satisfied={item.satisfied} />
                 </li>
               ))}
@@ -239,7 +239,7 @@ function EvidenceAttachForm({ task, onResult }: { task: TaskDetail; onResult: (e
             <option value="">{t('pwf.task.attach.legal.none')}</option>
             {task.legal_doc_types.map((item) => (
               <option key={item.code} value={item.code}>
-                {docTypeName(t, item.code)}
+                {item.name ?? docTypeName(t, item.code)}
               </option>
             ))}
           </select>

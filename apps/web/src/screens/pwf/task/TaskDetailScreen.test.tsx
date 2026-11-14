@@ -123,10 +123,31 @@ describe('PWF-04: one purpose a tab', () => {
     expect((screen.getByTestId('history') as HTMLDetailsElement).open).toBe(true);
   });
 
-  it('has no KPI tab for a person who may not see the KPI of the task', async () => {
+  it('keeps the KPI tab for a person who may not see the KPI of the task, and says the scope is hidden instead of leaving the tab out', async () => {
     open();
     await ready();
-    expect(screen.queryByTestId('task-tab-kpi')).toBeNull();
+    // design.md, the state "denied": say the scope is hidden, leak no names. A tab that silently disappears reads as "this task has no KPI".
+    tab('kpi');
+    const denied = screen.getByTestId('kpi-denied');
+    expect(denied.getAttribute('role')).toBe('status');
+    expect(denied.textContent).toContain(text('fix8.task.kpi.denied.title'));
+    expect(denied.textContent).toContain(text('fix8.task.kpi.denied.body'));
+    expect(screen.queryByTestId('kpi')).toBeNull();
+    expect(denied.querySelector('table')).toBeNull();
+  });
+
+  it('keeps the summary of the task (name, state, colour, deadline, actions) in a head that sticks while the page scrolls, with the facts below it', async () => {
+    open();
+    await ready();
+    const sticky = screen.getByTestId('task-sticky');
+    expect(sticky.className).toContain('pwf-taskhead--sticky');
+    expect(sticky.querySelector('h1')?.textContent).toBe(detail({}).name);
+    expect(sticky.contains(screen.getByTestId('task-pills'))).toBe(true);
+    expect(sticky.contains(screen.getByTestId('task-sticky-due'))).toBe(true);
+    // The long facts (who, the checklist meter) scroll with the page: the head that sticks stays short.
+    expect(sticky.contains(screen.getByTestId('task-facts'))).toBe(false);
+    // The head that sticks and the facts are siblings in the page, so the head sticks for the whole length of the tabs and not only inside its own card.
+    expect(sticky.parentElement).toBe(screen.getByTestId('task-facts').closest('.pwf-taskhead__rest')?.parentElement);
   });
 });
 

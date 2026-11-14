@@ -8,6 +8,51 @@
   border: 1px solid var(--mv-color-border);
   border-radius: 14px;
 }
+/* The wrapper of the head has no box: the summary that sticks and the facts are laid out as children of the screen, so the summary sticks for the whole length of the page. */
+.pwf-taskhead-frame {
+  display: contents;
+}
+/* The summary of the task stays in sight while the tabs below scroll. The top bar of the shell is in the flow and scrolls away, so the top of the window is free; above the sticky heads of the tables (2), below the bar of actions of a form (5). */
+.pwf-taskhead--sticky {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  margin: 0 0 8px;
+  padding: 12px 24px;
+  gap: 8px;
+  background: var(--mv-color-surface);
+  box-shadow: 0 1px 0 var(--mv-color-border);
+}
+.pwf-taskhead__rest {
+  padding: 4px 24px;
+}
+.pwf-taskhead__rest .pwf-taskhead__facts {
+  border: 0;
+}
+.pwf-taskhead__due {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-taskhead__due strong {
+  color: var(--mv-color-ink);
+  font-variant-numeric: tabular-nums;
+}
+.pwf-taskhead__due[data-tone='danger'] strong {
+  color: var(--mv-color-danger);
+}
+@media (max-width: 720px) {
+  .pwf-taskhead--sticky {
+    position: static;
+  }
+}
+@media print {
+  .pwf-taskhead--sticky {
+    position: static;
+  }
+}
 .pwf-taskhead__title {
   margin: 0;
 }

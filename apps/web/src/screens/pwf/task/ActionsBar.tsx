@@ -29,7 +29,7 @@ export function ActionsBar({ task, actions, onOpen, onWaive }: ActionsBarProps) 
   const shown = buttons.filter(([allowed]) => allowed);
   // What a blocker is about, by its name: the item of the checklist, the legal document type or the form; the code stays the fallback.
   const subjectName = (row: BlockerRow): string => {
-    if (row.code === 'LEGAL_DOC_MISSING') return docTypeName(t, row.subject);
+    if (row.code === 'LEGAL_DOC_MISSING') return task.legal_doc_types.find((one) => one.code === row.subject)?.name ?? docTypeName(t, row.subject);
     if (row.code === 'FORM_MISSING') return task.form_templates.find((form) => form.code === row.subject)?.current_title ?? row.subject;
     if (row.code === 'CHECKLIST_ITEM_OPEN' || row.code === 'EVIDENCE_MISSING') return task.checklist.find((item) => item.item_code === row.subject)?.name ?? row.subject;
     return row.subject;

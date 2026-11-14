@@ -21,6 +21,15 @@ describe('Stepper', () => {
     expect(within(list).getAllByRole('listitem')).toHaveLength(5);
   });
 
+  it('says "started" of a step with work in parallel, and never marks it as the step the thing is at', () => {
+    render(<Stepper steps={[{ code: 'A', label: 'Chuẩn bị', status: 'current' }, { code: 'B', label: 'Thực hiện', status: 'started' }, { code: 'C', label: 'Kết thúc', status: 'upcoming' }]} label="c" />);
+    const item = (code: string): HTMLElement => document.querySelector(`[data-step="${code}"]`) as HTMLElement;
+    expect(within(item('B')).getByText('Đã bắt đầu')).toBeInTheDocument();
+    expect(item('B').getAttribute('aria-current')).toBeNull();
+    expect(document.querySelectorAll('[aria-current="step"]')).toHaveLength(1);
+    expect(item('B').className).toContain('ui-stepper__step--started');
+  });
+
   it('says every status with a word as well as an icon, and the days of the standard against the days it took', () => {
     render(<Stepper steps={STEPS} label="c" />);
     const item = (code: string): HTMLElement => document.querySelector(`[data-step="${code}"]`) as HTMLElement;

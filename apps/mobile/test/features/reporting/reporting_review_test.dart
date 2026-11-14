@@ -57,10 +57,15 @@ void main() {
       expect(find.text('Rà soát và gửi báo cáo'), findsOneWidget);
       expect(find.text('Không có.'), findsAtLeastNWidgets(2));
       expect(find.text('Bước 8/8'), findsOneWidget);
+      // One purpose a tab: the checks first, then the figures, then the notes and the files.
+      await tester.tap(find.bySemanticsLabel(RegExp('^Số liệu')).first);
+      await tester.pumpAndSettle();
       expect(fact('Tổng lũy kế sáu ô', '420 triệu đồng'), findsOneWidget);
       expect(fact('Trong đó CTMTQG (không cộng vào tổng)', '40 triệu đồng'), findsOneWidget);
       expect(fact('Tổng đăng ký tháng sau', '300 triệu đồng'), findsOneWidget);
       expect(find.text('Chưa có kỳ trước để so sánh.'), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel(RegExp('^Thuyết minh, tệp')).first);
+      await tester.pumpAndSettle();
       expect(find.text('Chưa có thuyết minh.'), findsOneWidget);
       expect(find.text('Chưa có tệp đính kèm.'), findsOneWidget);
       expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Nộp báo cáo')).onPressed, isNotNull);
@@ -103,10 +108,14 @@ void main() {
         shape: (ReportForm f) => completeForm().copyWith(planVersionId: f.planVersionId, explanation: 'Điều chỉnh sau đối chiếu', construction: '2000000000'),
       );
       await app.open(tester, location: '/projects/mob-20/$id');
+      await tester.tap(find.bySemanticsLabel(RegExp('^Số liệu')).first);
+      await tester.pumpAndSettle();
 
       expect(fact('Vốn năm NSTW', '-30 triệu đồng · giảm so với kỳ trước'), findsOneWidget);
       expect(fact('Vốn năm NSĐP', '+50 triệu đồng'), findsOneWidget);
       expect(fact('Kéo dài NSTW', 'Chưa có'), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel(RegExp('^Kiểm tra')).first);
+      await tester.pumpAndSettle();
       expect(find.textContaining('Khối lượng thi công 2.000.000.000 đồng bằng 200.0% vốn đã giao'), findsOneWidget);
       expect(find.textContaining('tổng giảm -30.000.000 đồng; đã có giải trình'), findsOneWidget);
       expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Nộp báo cáo')).onPressed, isNotNull);
@@ -157,6 +166,8 @@ void main() {
         ..upsert(upload('e.pdf', UploadState.clean, ref: 'another-draft'))
         ..upsert(upload('f.pdf', UploadState.clean, owner: 'issue'));
       await app.open(tester, location: '/projects/mob-20/$id', overrides: idleRunners);
+      await tester.tap(find.bySemanticsLabel(RegExp('^Thuyết minh, tệp')).first);
+      await tester.pumpAndSettle();
       expect(find.text('1 tệp đã tải lên và quét sạch · 1 đang chờ · 1 lỗi'), findsOneWidget);
       expect(find.textContaining('chưa gắn vào nội dung báo cáo được nộp'), findsOneWidget);
       await press(tester, 'Quản lý tệp đính kèm');
@@ -471,6 +482,8 @@ void main() {
         tester,
         open: (WidgetTester t, ScriptedServer server) => open(t, server),
         healthy: (ScriptedServer server) => server.on('GET', '/reports/:id', (HttpCall call) => serverReport(status: 'SUBMITTED', submittedAt: '2026-11-03T03:20:00.000Z', form: completeForm())),
+        // The screen of one report has no row of five tabs under it any more, and on the 390 by 844 phone the bottom edge now cuts the heading "Tiếp theo".
+        contrastOnWholeScreen: true,
       );
     });
   });

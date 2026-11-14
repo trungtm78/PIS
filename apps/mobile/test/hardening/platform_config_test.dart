@@ -147,7 +147,9 @@ void main() {
         expect(overlays.hasMatch(file.readAsStringSync()), isFalse, reason: file.path);
       }
       final Iterable<String> guarded = sources.where((File f) => RegExp(r'\bk(Debug|Profile)Mode\b').hasMatch(f.readAsStringSync())).map((File f) => f.path.replaceAll(r'\', '/'));
-      expect(guarded.toList(), <String>['lib/app/app_config.dart'], reason: 'the one place that behaves differently in a debug build; a new one needs a review');
+      // Two places behave differently in a debug build, each reviewed: the address of the API (a loopback address is allowed), and the window of a protected
+      // screen, which a debug build made with MACHVON_ALLOW_SCREENSHOTS lets be captured for a design review (a release build never does: secure_window_test).
+      expect(guarded.toList()..sort(), <String>['lib/app/app_config.dart', 'lib/core/security/secure_window.dart'], reason: 'the places that behave differently in a debug build; a new one needs a review');
     });
 
     test('the CI builds the release iOS application and a debug Android one, and no workflow signs with a key from the repository', () {

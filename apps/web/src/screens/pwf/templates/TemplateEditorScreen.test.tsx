@@ -461,3 +461,88 @@ describe('PWF-02: accessibility', () => {
     expect(describeViolations(await seriousViolations(document.body))).toEqual([]);
   });
 });
+
+describe('PWF-02: one task in short tabs (owner review of 14/11/2026)', () => {
+  const TASK_TABS = ['info', 'schedule', 'docs', 'checklist', 'kpi', 'legal'] as const;
+  const panel = (id: string) => screen.getByTestId(`task-parts-panel-${id}`);
+
+  it('splits the form of a task into six tabs, one purpose each, and keeps every field in the page so nothing typed is lost', async () => {
+    open();
+    await ready();
+    fireEvent.click(screen.getByTestId('pick-0'));
+    const tabs = within(screen.getByTestId('task-parts')).getAllByRole('tab');
+    expect(tabs.map((tab) => tab.getAttribute('data-testid'))).toEqual(TASK_TABS.map((id) => `task-parts-tab-${id}`));
+    expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
+    // Each field sits in the tab of its purpose.
+    expect(panel('info').contains(field('tasks[0].name'))).toBe(true);
+    expect(panel('info').contains(field('tasks[0].responsible_role'))).toBe(true);
+    expect(panel('schedule').contains(field('tasks[0].duration_working_days'))).toBe(true);
+    expect(panel('schedule').contains(field('tasks[0].constraint.kind'))).toBe(true);
+    expect(panel('schedule').contains(screen.getByTestId('predecessors'))).toBe(true);
+    expect(panel('docs').contains(field('tasks[0].legal_doc_types'))).toBe(true);
+    expect(panel('docs').contains(field('tasks[0].form_templates'))).toBe(true);
+    expect(panel('checklist').contains(screen.getByTestId('checklist'))).toBe(true);
+    expect(panel('kpi').contains(field('tasks[0].kpi_codes'))).toBe(true);
+    expect(panel('legal').contains(screen.getByTestId('legal-fold-tasks[0]'))).toBe(true);
+    // Only the chosen tab is shown; the others stay in the page, hidden.
+    expect(panel('info').hidden).toBe(false);
+    expect(TASK_TABS.slice(1).every((id) => panel(id).hidden)).toBe(true);
+    change('tasks[0].name', 'Tên đang gõ');
+    fireEvent.click(screen.getByTestId('task-parts-tab-checklist'));
+    expect(panel('checklist').hidden).toBe(false);
+    expect(panel('info').hidden).toBe(true);
+    fireEvent.click(screen.getByTestId('task-parts-tab-info'));
+    expect(field('tasks[0].name').value).toBe('Tên đang gõ');
+  });
+
+  it('keeps the chosen tab when another task is picked, and counts the problems of a tab on the tab once they are shown', async () => {
+    open();
+    await ready();
+    fireEvent.click(screen.getByTestId('pick-0'));
+    fireEvent.click(screen.getByTestId('task-parts-tab-schedule'));
+    fireEvent.click(screen.getByTestId('pick-1'));
+    expect(panel('schedule').hidden).toBe(false);
+    expect(panel('schedule').contains(field('tasks[1].duration_working_days'))).toBe(true);
+    // A problem in a hidden tab is said on the tab, so nobody has to open every tab to find it.
+    fireEvent.click(screen.getByTestId('pick-0'));
+    change('tasks[0].name', '');
+    click('add-item');
+    fireEvent.click(screen.getByTestId('editor-tab-checks'));
+    click('validate');
+    fireEvent.click(screen.getByTestId('editor-tab-structure'));
+    expect(screen.getByTestId('task-parts-tab-info').textContent).toContain('1');
+    expect(screen.getByTestId('task-parts-tab-checklist').textContent).toContain('2');
+    expect(screen.getByTestId('task-parts-tab-kpi').textContent).toBe(text('fix8.editor.part.kpi'));
+  });
+});
+
+describe('PWF-02: the names of the roles a tenant made up itself', () => {
+  it('lists the role codes the template uses, takes a name for each, and stores the names with the template', async () => {
+    const h = open();
+    await ready();
+    fireEvent.click(screen.getByTestId('editor-tab-roles'));
+    const roles = screen.getByTestId('roles');
+    // Every code a step or a task uses has a row; a code the shipped catalogue names says so, and a name typed here wins.
+    const first = within(roles).getAllByRole('listitem')[0] as HTMLElement;
+    const code = first.getAttribute('data-role') as string;
+    expect(code).not.toBe('');
+    fireEvent.change(within(first).getByTestId(`role-name-${code}`), { target: { value: 'Văn thư của tỉnh' } });
+    change('code', 'PUBLIC_TEST');
+    fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Đặt tên cho vai trò của tỉnh' } });
+    fireEvent.click(screen.getByTestId('save'));
+    await waitFor(() => expect(h.command).toHaveBeenCalledWith('createGovernanceRuleDraft', expect.anything()));
+    const body = lastBody(h, 'createGovernanceRuleDraft') as { params: { roles?: unknown } };
+    expect(body.params.roles).toEqual([{ code, name: 'Văn thư của tỉnh' }]);
+  });
+
+  it('stores no role list while no name is typed, so a template that names none keeps its hash', async () => {
+    const h = open();
+    await ready();
+    change('name', 'Mẫu thử không đặt tên vai trò');
+    change('code', 'PUBLIC_TEST');
+    fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Lưu mẫu mà không đặt tên cho vai trò nào' } });
+    fireEvent.click(screen.getByTestId('save'));
+    await waitFor(() => expect(h.command).toHaveBeenCalledWith('createGovernanceRuleDraft', expect.anything()));
+    expect('roles' in (lastBody(h, 'createGovernanceRuleDraft') as { params: Record<string, unknown> }).params).toBe(false);
+  });
+});

@@ -10,6 +10,7 @@ import { bandWord } from '../labels';
 import { weekdayWord } from './labels';
 import { bareBand, calendarGrid } from './model';
 import type { CalendarTask, GridCell } from './model';
+import { TaskName } from '../codes';
 
 export interface CalendarViewProps {
   month: string;
@@ -57,10 +58,9 @@ export function CalendarView({ month, calendar }: CalendarViewProps) {
       key: 'task',
       header: t('pwf.board.col.task.header'),
       render: (task) => (
-        <span className="pwf-cellstack">
+        <TaskName name={task.name} code={task.task_code}>
           <Link to={taskLink(task.task_id, task.project_id)}>{task.name}</Link>
-          <span className="pwf-code">{task.task_code}</span>
-        </span>
+        </TaskName>
       ),
     },
     { key: 'project', header: t('pwf.board.col.project.header'), render: (task) => <Link to={workflowLink(task.project_id)}>{task.project_code}</Link> },

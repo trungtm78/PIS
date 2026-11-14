@@ -132,6 +132,8 @@ export function lineDto(line: StaffScoreLineDetail, now: Date): Schemas['StaffSc
       task_code: one.taskCode,
       task_id: one.taskId,
       name: one.name,
+      project_code: one.projectCode,
+      project_name: one.projectName,
       fraction: one.fraction,
       weight: one.weight,
       score: one.score,

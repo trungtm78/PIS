@@ -64,9 +64,18 @@ export type EditorTask = Omit<TemplateTask, 'constraint' | 'legal_doc_types' | '
   when: Condition[];
 };
 
+/** A role the template names itself: the code its steps and tasks use and what people call it (a role a tenant made up has no name in the shipped catalogue). */
+export interface TemplateRole {
+  code: string;
+  name: string;
+}
+export const MAX_ROLES = 60;
+
 export interface Template {
   name: string;
   project_type: string | null;
+  /** The names the template gives its own roles; absent or empty in a template that names none (its params and its hash are then what they always were). */
+  roles?: TemplateRole[];
   phases: TemplatePhase[];
   /** The steps the template names (R44); absent or empty in a template without steps, where every phase is one step. */
   steps?: EditorStep[];
@@ -75,6 +84,27 @@ export interface Template {
 
 export const stepsOf = (template: Template): EditorStep[] => template.steps ?? [];
 export const hasSteps = (template: Template): boolean => stepsOf(template).length > 0;
+
+/** Every role code the steps and the tasks of the template use (who does, who approves, who answers for a step), each once, in the order they first appear. */
+export function usedRoleCodes(template: Template): string[] {
+  const codes = [...stepsOf(template).map((step) => step.responsible_role), ...template.tasks.flatMap((task) => [task.responsible_role, task.approver_role])];
+  return [...new Set(codes.map((code) => (code ?? '').trim()).filter((code) => code !== ''))];
+}
+
+/** What the template calls a role, or undefined when it does not name it. */
+export const templateRoleName = (template: Pick<Template, 'roles'>, code: string | null | undefined): string | undefined => {
+  const name = (template.roles ?? []).find((role) => role.code === code)?.name.trim() ?? '';
+  return name === '' ? undefined : name;
+};
+
+/** The template with the name of a role set; an empty name takes the role off the list (the screen then falls back to the shipped catalogue of roles). */
+export function nameRole(template: Template, code: string, name: string): Template {
+  const others = (template.roles ?? []).filter((role) => role.code !== code);
+  const at = (template.roles ?? []).findIndex((role) => role.code === code);
+  if (name.trim() === '') return { ...template, roles: others };
+  if (at < 0) return { ...template, roles: [...others, { code, name }] };
+  return { ...template, roles: (template.roles ?? []).map((role, index) => (index === at ? { code, name } : role)) };
+}
 
 export const blankTemplate = (): Template => ({ name: '', project_type: null, phases: [], tasks: [] });
 
@@ -138,6 +168,7 @@ export function readTemplate(params: unknown): Template {
   return {
     name: text(params.name),
     project_type: typeof params.project_type === 'string' && params.project_type !== '' ? params.project_type : null,
+    ...(records(params.roles).length === 0 ? {} : { roles: records(params.roles).map((item) => ({ code: text(item.code), name: text(item.name) })) }),
     phases: records(params.phases).map((item) => ({ code: text(item.code), name: text(item.name), gates: GATE_TARGETS.filter((target) => strings(item.gates).includes(target)) })),
     ...(records(params.steps).length === 0
       ? {}
@@ -159,6 +190,7 @@ export function paramsOfTemplate(template: Template): TemplateParams & Params {
   return {
     name: template.name.trim(),
     project_type: template.project_type === null || template.project_type.trim() === '' ? null : template.project_type.trim(),
+    ...((template.roles ?? []).length === 0 ? {} : { roles: (template.roles ?? []).map((role) => ({ code: role.code, name: role.name.trim() })) }),
     phases: template.phases.map((phase) => ({ code: phase.code, name: phase.name.trim(), gates: [...phase.gates] })),
     ...(hasSteps(template)
       ? {
@@ -532,6 +564,16 @@ export function localProblems(template: Template): TemplateProblem[] {
     if (code !== undefined) out.push(code);
     phaseCodes.add(phase.code);
     const label = nameProblem(`phases[${index}].name`, phase.name, 120);
+    if (label !== undefined) out.push(label);
+  });
+  const roles = template.roles ?? [];
+  if (roles.length > MAX_ROLES) out.push({ path: 'roles', problem: 'limit' });
+  const roleCodes = new Set<string>();
+  roles.forEach((role, index) => {
+    const code = codeProblem(`roles[${index}].code`, role.code, roleCodes);
+    if (code !== undefined) out.push(code);
+    roleCodes.add(role.code);
+    const label = nameProblem(`roles[${index}].name`, role.name, 120);
     if (label !== undefined) out.push(label);
   });
   const steps = stepsOf(template);

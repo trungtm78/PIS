@@ -7,7 +7,7 @@ import { CalendarMissingCell, CalendarMissingNote, FigureInfo, ProblemBanner } f
 import { describeProblem, dayProblem, dayText, missingYears, todayInVietnam } from '../model';
 import type { ProjectFacts, SchedulePreview, ScheduleTask, TemplateValidation } from '../model';
 import { formProblemText } from '../labels';
-import { factName } from '../codes';
+import { factName, TaskName } from '../codes';
 import { FUNDING_SOURCES, PROJECT_GROUPS } from '../process/model';
 import { problemWord } from './editor-fields';
 import type { PreviewInput } from './hooks';
@@ -260,7 +260,7 @@ function PreviewResult({ result, current }: { result: SchedulePreview; current: 
       header: t('pwf.templates.preview.col.task'),
       render: (row) => (
         <>
-          <code>{row.task_code}</code> {row.name}
+          <TaskName name={row.name} code={row.task_code} />
         </>
       ),
     },

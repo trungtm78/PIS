@@ -55,6 +55,20 @@ export function HistorySection({ task, open = false }: { task: TaskDetail; open?
   );
 }
 
+/** The KPI of a task for a person who may not see it (design.md, the state "denied"): the card says the scope is hidden and names nothing of what is behind it (no KPI, no figure, no person). */
+export function KpiDenied() {
+  const { t } = useTranslation();
+  return (
+    <div className="card statecard" role="status" data-testid="kpi-denied">
+      <div className="stateicon" aria-hidden="true">
+        ⌁
+      </div>
+      <h3>{t('fix8.task.kpi.denied.title')}</h3>
+      <p>{t('fix8.task.kpi.denied.body')}</p>
+    </div>
+  );
+}
+
 /** The KPI results of the task, each with the "i" that says the formula, the source and the facts it was computed from; absent when the caller may not see them. */
 export function KpiSection({ task }: { task: TaskDetail }) {
   const { t } = useTranslation();

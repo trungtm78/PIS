@@ -18,7 +18,9 @@ import {
   renameTask,
   splitCodes,
   summaryOf,
+  templateRoleName,
   updateTask,
+  usedRoleCodes,
 } from './template-model';
 
 describe('template model: reading a rule', () => {
@@ -208,5 +210,35 @@ describe('template model: comparing two versions', () => {
 
   it('reports a phase removed', () => {
     expect(compareTemplates(a, { ...a, phases: [] }).filter((change) => change.scope === 'phase')).toEqual([{ scope: 'phase', code: 'PREPARATION', kind: 'removed', fields: [] }]);
+  });
+});
+
+describe('template model: the names of the roles a tenant made up itself', () => {
+  const base = { name: 'A', project_type: null, phases: [{ code: 'P1', name: 'Giai đoạn', gates: [] }], tasks: [] };
+
+  it('reads the roles a template names and writes them back, leaving them out of a template that names none', () => {
+    const read = readTemplate({ ...base, roles: [{ code: 'PROVINCE_CLERK', name: 'Văn thư của tỉnh' }] });
+    expect(read.roles).toEqual([{ code: 'PROVINCE_CLERK', name: 'Văn thư của tỉnh' }]);
+    expect(paramsOfTemplate({ ...read, roles: [{ code: 'PROVINCE_CLERK', name: '  Văn thư của tỉnh ' }] }).roles).toEqual([{ code: 'PROVINCE_CLERK', name: 'Văn thư của tỉnh' }]);
+    expect('roles' in paramsOfTemplate(readTemplate(base))).toBe(false);
+    expect('roles' in paramsOfTemplate({ ...read, roles: [] })).toBe(false);
+  });
+
+  it('finds a role without a code or a name, a code that is not a code and a role named twice', () => {
+    const problems = (roles: Array<{ code: string; name: string }>) => localProblems({ ...readTemplate(base), roles }).filter((one) => one.path.startsWith('roles')).map((one) => [one.path, one.problem]);
+    expect(problems([{ code: 'LEAD', name: 'Trưởng nhóm' }])).toEqual([]);
+    expect(problems([{ code: '', name: '' }])).toEqual([['roles[0].code', 'required'], ['roles[0].name', 'required']]);
+    expect(problems([{ code: 'lead', name: 'Trưởng nhóm' }])).toEqual([['roles[0].code', 'pattern']]);
+    expect(problems([{ code: 'LEAD', name: 'Một' }, { code: 'LEAD', name: 'Hai' }])).toEqual([['roles[1].code', 'duplicate']]);
+  });
+
+  it('lists every role code the steps and tasks use, and answers the name the template gives a code', () => {
+    const template = readTemplate(templateParams());
+    const used = usedRoleCodes({ ...template, steps: [{ code: 'S1', name: 'Bước', phase: template.phases[0]?.code ?? '', responsible_role: 'STEP_LEAD' }] });
+    expect(used).toContain('STEP_LEAD');
+    expect(used).toContain(template.tasks[0]?.responsible_role);
+    expect(new Set(used).size).toBe(used.length);
+    expect(templateRoleName({ ...template, roles: [{ code: 'STEP_LEAD', name: 'Trưởng bước' }] }, 'STEP_LEAD')).toBe('Trưởng bước');
+    expect(templateRoleName(template, 'STEP_LEAD')).toBeUndefined();
   });
 });

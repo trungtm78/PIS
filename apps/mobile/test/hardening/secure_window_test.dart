@@ -48,6 +48,45 @@ Widget _projectDetail(BuildContext context, ScreenContext screen) => const Scaff
 String _read(String path) => File(path).readAsStringSync();
 
 void main() {
+  group('the review build that may be captured (MACHVON_ALLOW_SCREENSHOTS, owner review of 14/11/2026)', () {
+    test('a release build always protects the window, whatever the flag says', () {
+      expect(screenCaptureAllowed(define: true, debugBuild: false), isFalse);
+      expect(screenCaptureAllowed(define: false, debugBuild: false), isFalse);
+      expect(secureWindowPlatformFor(allowCapture: screenCaptureAllowed(define: true, debugBuild: false)), isA<MethodChannelSecureWindow>());
+    });
+
+    test('a debug build protects the window by default, and lets it be captured only when the flag is set at build time', () {
+      expect(screenCaptureAllowed(define: false, debugBuild: true), isFalse, reason: 'the default of a debug build is still to block');
+      expect(screenCaptureAllowed(define: true, debugBuild: true), isTrue);
+      expect(secureWindowPlatformFor(allowCapture: false), isA<MethodChannelSecureWindow>());
+    });
+
+    test('with the flag in force the platform is never asked to protect the window, and the controller says the window is not protected', () async {
+      final List<MethodCall> seen = <MethodCall>[];
+      const MethodChannel channel = MethodChannel(kSecureWindowChannel);
+      TestWidgetsFlutterBinding.ensureInitialized();
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, (MethodCall call) async {
+        seen.add(call);
+        return null;
+      });
+      final SecureWindowController controller = SecureWindowController(secureWindowPlatformFor(allowCapture: true));
+      final void Function() release = controller.acquire();
+      await controller.settled;
+      expect(seen, isEmpty, reason: 'FLAG_SECURE is never set, so the screen can be captured for the review');
+      expect(controller.applied, isFalse, reason: 'the application does not pretend the window is protected');
+      release();
+      await controller.settled;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+    });
+
+    test('the flag is read from the build, is off unless it is set, and is tied to the debug build in the source', () {
+      final String source = _read('lib/core/security/secure_window.dart');
+      expect(source, contains("bool.fromEnvironment('MACHVON_ALLOW_SCREENSHOTS')"));
+      expect(source, contains('screenCaptureAllowed(define: _allowScreenshotsDefine, debugBuild: kDebugMode)'));
+      expect(kScreenCaptureAllowed, isFalse, reason: 'the tests are built without the flag');
+    });
+  });
+
   group('AC-ST-MOB-041-1 SEC-04 D-SEC-03 the channel to the platform', () {
     const MethodChannel channel = MethodChannel(kSecureWindowChannel);
 
