@@ -874,7 +874,10 @@
       },
       "module": "HPM",
       "access": {
-        "url": "/hpm/pushes/{id}/receipt",
+        "url": "/hpm/pushes/${id}/receipt",
+        "resolve": {
+          "id": "SELECT id FROM machvon.hpm_push WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hpm-receiver"
@@ -1506,7 +1509,10 @@
       },
       "module": "HPM",
       "access": {
-        "url": "/hpm/pushes/{id}/retry",
+        "url": "/hpm/pushes/${id}/retry",
+        "resolve": {
+          "id": "SELECT id FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hpm-admin",
@@ -1564,7 +1570,10 @@
       },
       "module": "HPM",
       "access": {
-        "url": "/hpm/pushes/{id}/receipt",
+        "url": "/hpm/pushes/${id}/receipt",
+        "resolve": {
+          "id": "SELECT id FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hpm-admin",
@@ -1742,7 +1751,10 @@
       },
       "module": "HPM",
       "access": {
-        "url": "/hpm/corrections/{id}/decision",
+        "url": "/hpm/corrections/${id}/decision",
+        "resolve": {
+          "id": "SELECT id FROM machvon.hpm_correction WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hpm-admin",

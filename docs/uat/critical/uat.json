@@ -40,7 +40,10 @@
       ],
       "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
       "access": {
-        "url": "/api/projects/{project_b_id}",
+        "url": "/api/resources/project/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.project WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "chuyen-vien-tinh-b"
@@ -356,7 +359,10 @@
       ],
       "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
       "access": {
-        "url": "/api/notifications/{notification_b_id}",
+        "url": "/api/resources/notification_instance/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.notification_instance WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "chuyen-vien-tinh-b"
@@ -535,7 +541,10 @@
       ],
       "design_evidence": "Báo cáo quét operation (CSV status theo operationId) + diff số dòng audit/outbox",
       "access": {
-        "url": "/api/projects/{project_b_id}",
+        "url": "/api/resources/project/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.project WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "chuyen-vien-tinh-b"
@@ -618,7 +627,7 @@
       ],
       "design_evidence": "Response JSON hai lần gọi + danh sách khóa Redis (đã che giá trị)",
       "access": {
-        "url": "/api/theme",
+        "url": "/api/me/tenant/theme",
         "method": "GET",
         "allow": [
           "quan-tri-tenant-a"
@@ -664,7 +673,7 @@
       ],
       "design_evidence": "Danh sách id kết quả + tenant_id, log truy vấn có điều kiện tenant",
       "access": {
-        "url": "/api/search/documents",
+        "url": "/api/search?q=TNT-B",
         "method": "GET",
         "allow": [
           "chuyen-vien-tinh-a"
@@ -711,7 +720,10 @@
       ],
       "design_evidence": "Log request + phản hồi storage + bản ghi FileObject",
       "access": {
-        "url": "/api/files/{file_b_id}",
+        "url": "/api/document-versions/${id}/download",
+        "resolve": {
+          "id": "SELECT id FROM machvon.document_version WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "chuyen-vien-tinh-b"
@@ -835,9 +847,9 @@
       ],
       "design_evidence": "Lịch sử workflow + log cảnh báo + diff bảng TNT-B",
       "db_assert": {
-        "query": "SELECT count(*) AS n FROM machvon.audit_event WHERE action LIKE '%tenant_context%'",
+        "query": "SELECT i.id FROM machvon.workflow_instance i JOIN machvon.workflow_version v ON v.id = i.workflow_version_id WHERE v.tenant_id <> i.tenant_id UNION ALL SELECT i.id FROM machvon.workflow_instance i JOIN machvon.audit_event a ON a.resource_type = 'workflow_instance' AND a.resource_id = i.id WHERE a.tenant_id <> i.tenant_id",
         "expect": {
-          "min_rows": 1
+          "rows": 0
         }
       }
     },

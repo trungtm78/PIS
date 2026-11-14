@@ -1192,7 +1192,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/directives/{id}",
+        "url": "/directives/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.directive WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "dir-reader",
@@ -1627,7 +1630,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/steering-meetings/{id}",
+        "url": "/steering-meetings/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.steering_meeting WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "dir-secretary",
@@ -1688,7 +1694,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/steering-meetings/{id}/minutes",
+        "url": "/steering-meetings/${id}/minutes",
+        "resolve": {
+          "id": "SELECT id FROM machvon.steering_meeting WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "dir-secretary"
@@ -1745,7 +1754,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/steering-meetings/{id}/directives",
+        "url": "/steering-meetings/${id}/directives",
+        "resolve": {
+          "id": "SELECT id FROM machvon.steering_meeting WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "dir-secretary"
@@ -2107,7 +2119,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/directives/{id}",
+        "url": "/directives/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.directive WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "dir-secretary",
@@ -2168,7 +2183,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/projects/{id}/directives",
+        "url": "/projects/${id}/directives",
+        "resolve": {
+          "id": "SELECT id FROM machvon.project WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "dir-secretary",
@@ -2229,7 +2247,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/directives/{id}/assignment",
+        "url": "/directives/${id}/assignment",
+        "resolve": {
+          "id": "SELECT id FROM machvon.directive WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "dir-secretary"
@@ -2286,7 +2307,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/directives/{id}/progress",
+        "url": "/directives/${id}/progress",
+        "resolve": {
+          "id": "SELECT id FROM machvon.directive WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "dir-assignee"
@@ -2343,7 +2367,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/directives/{id}/extension-requests",
+        "url": "/directives/${id}/extension-requests",
+        "resolve": {
+          "id": "SELECT id FROM machvon.directive WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "dir-assignee"
@@ -2400,7 +2427,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/directive-extensions/{id}/decision",
+        "url": "/directive-extensions/${id}/decision",
+        "resolve": {
+          "id": "SELECT id FROM machvon.directive_extension WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "dir-decider"
@@ -2457,7 +2487,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/directives/{id}/closure",
+        "url": "/directives/${id}/closure",
+        "resolve": {
+          "id": "SELECT id FROM machvon.directive WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "dir-secretary",
@@ -2515,7 +2548,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/directives/{id}/cancellation",
+        "url": "/directives/${id}/cancellation",
+        "resolve": {
+          "id": "SELECT id FROM machvon.directive WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "dir-secretary"
@@ -2572,7 +2608,10 @@
       },
       "module": "DIR",
       "access": {
-        "url": "/directives/{id}/reopening",
+        "url": "/directives/${id}/reopening",
+        "resolve": {
+          "id": "SELECT id FROM machvon.directive WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "dir-secretary"

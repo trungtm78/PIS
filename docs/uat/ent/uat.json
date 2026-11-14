@@ -1626,7 +1626,10 @@
       },
       "module": "ENT",
       "access": {
-        "url": "/enterprise-snapshots/{id}",
+        "url": "/enterprise-snapshots/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.period_snapshot WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "ent-reader",
@@ -1688,7 +1691,10 @@
       },
       "module": "ENT",
       "access": {
-        "url": "/enterprise-snapshots/{id}",
+        "url": "/enterprise-snapshots/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.period_snapshot WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "ent-reader"
@@ -1931,7 +1937,10 @@
       },
       "module": "ENT",
       "access": {
-        "url": "/me/sessions/{sessionId}/revoke",
+        "url": "/me/sessions/${id}/revoke",
+        "resolve": {
+          "id": "SELECT id FROM machvon.user_session WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "ent-leader"
@@ -2421,7 +2430,10 @@
       },
       "module": "ENT",
       "access": {
-        "url": "/enterprise-snapshots/{id}/freeze",
+        "url": "/enterprise-snapshots/${id}/freeze",
+        "resolve": {
+          "id": "SELECT id FROM machvon.period_snapshot WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "ent-freezer",
@@ -2479,7 +2491,10 @@
       },
       "module": "ENT",
       "access": {
-        "url": "/enterprise-snapshots/{id}",
+        "url": "/enterprise-snapshots/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.period_snapshot WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "ent-builder",
@@ -2825,7 +2840,10 @@
       },
       "module": "ENT",
       "access": {
-        "url": "/equipment-procurement/{id}",
+        "url": "/equipment-procurement/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.equipment_procurement_item WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "ent-equipment"
@@ -2882,7 +2900,10 @@
       },
       "module": "ENT",
       "access": {
-        "url": "/equipment-procurement/{id}",
+        "url": "/equipment-procurement/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.equipment_procurement_item WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "PATCH",
         "allow": [
           "ent-equipment"
@@ -2939,7 +2960,10 @@
       },
       "module": "ENT",
       "access": {
-        "url": "/reports/{id}/narrative-context",
+        "url": "/reports/${id}/narrative-context",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_revision WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "ent-report-editor"
@@ -2996,7 +3020,10 @@
       },
       "module": "ENT",
       "access": {
-        "url": "/reports/{id}/narrative-inheritance",
+        "url": "/reports/${id}/narrative-inheritance",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_revision WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "ent-report-editor"
@@ -3380,7 +3407,10 @@
       },
       "module": "ENT",
       "access": {
-        "url": "/projects/{id}/investment-profile",
+        "url": "/projects/${id}/investment-profile",
+        "resolve": {
+          "id": "SELECT id FROM machvon.project WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "ent-investment-profile"

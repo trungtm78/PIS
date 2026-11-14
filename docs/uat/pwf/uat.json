@@ -875,7 +875,10 @@
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
       },
       "access": {
-        "url": "/staff-score-lines/{line_id}",
+        "url": "/staff-score-lines/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.staff_score_line WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "nhan-vien-duoc-danh-gia",
@@ -3290,7 +3293,10 @@
         "suite": "apps/api/test/pwf/project-workflow.test.ts"
       },
       "access": {
-        "url": "/project-tasks/{task_id}",
+        "url": "/project-tasks/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.project_task WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "nguoi-thuc-hien",
@@ -3371,7 +3377,10 @@
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
       },
       "access": {
-        "url": "/staff-score-periods/{period_id}",
+        "url": "/staff-score-periods/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.staff_score_period WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "bo-phan-nhan-su",
@@ -3450,7 +3459,10 @@
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
       },
       "access": {
-        "url": "/staff-score-lines/{line_id}",
+        "url": "/staff-score-lines/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.staff_score_line WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "nhan-vien-duoc-danh-gia",
@@ -3534,7 +3546,10 @@
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
       },
       "access": {
-        "url": "/staff-score-lines/{line_id}",
+        "url": "/staff-score-lines/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.staff_score_line WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "nhan-vien-duoc-danh-gia",
@@ -3615,7 +3630,10 @@
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
       },
       "access": {
-        "url": "/staff-score-periods/{period_id}/export",
+        "url": "/staff-score-periods/${id}/export",
+        "resolve": {
+          "id": "SELECT id FROM machvon.staff_score_period WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "bo-phan-nhan-su",
@@ -3692,7 +3710,10 @@
         "suite": "packages/db/test/pwf-workflow-store.test.ts"
       },
       "access": {
-        "url": "/project-tasks/{task_id}/approve-completion",
+        "url": "/project-tasks/${id}/approve-completion",
+        "resolve": {
+          "id": "SELECT id FROM machvon.project_task WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "nguoi-duyet-hoan-thanh"
@@ -3776,7 +3797,10 @@
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
       },
       "access": {
-        "url": "/project-reschedules/{id}/decide",
+        "url": "/project-reschedules/${id}/decide",
+        "resolve": {
+          "id": "SELECT id FROM machvon.project_reschedule_proposal WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "nguoi-duyet-hoan-thanh"
@@ -3853,7 +3877,10 @@
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
       },
       "access": {
-        "url": "/staff-score-adjustments/{id}/decide",
+        "url": "/staff-score-adjustments/${id}/decide",
+        "resolve": {
+          "id": "SELECT id FROM machvon.staff_score_adjustment WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "bo-phan-nhan-su"
@@ -3938,7 +3965,10 @@
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
       },
       "access": {
-        "url": "/project-tasks/{task_id}/start",
+        "url": "/project-tasks/${id}/start",
+        "resolve": {
+          "id": "SELECT id FROM machvon.project_task WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "nguoi-thuc-hien"
@@ -4017,7 +4047,10 @@
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
       },
       "access": {
-        "url": "/staff-score-periods/{period_id}/signals",
+        "url": "/staff-score-periods/${id}/signals",
+        "resolve": {
+          "id": "SELECT id FROM machvon.staff_score_period WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "nguoi-ra-soat-tin-hieu"

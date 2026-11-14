@@ -1,0 +1,698 @@
+{
+  "purpose": "Maps the personas of the `access` blocks (the role matrix and the IDOR rows of docs/uat/*/uat.json) to the fixture users of the e2e stack (apps/web/e2e/support/e2e-fixtures.json, `?devUser=<key>` on the web, the development session token of scripts/dev-session-token.mjs at the API). A persona with `fixture_user: null` has no person in the stack: its rows stay NOT RUN in a run against the stack, and are measured by the jest UAT tests of apps/api/test/uat, which make a membership with exactly the rights of the persona (world.as).",
+  "generated_from": [
+    "docs/uat/_domain-pack.md (the rights of each persona)",
+    "apps/web/e2e/support/e2e-fixtures.json (the rights of each fixture user)"
+  ],
+  "tenant": {
+    "A": "00000000-0000-4000-8000-00000000000a",
+    "B": "00000000-0000-4000-8000-00000000000b"
+  },
+  "anonymous_row": "A request without a credential is answered 401 whatever the case declares in deny_status: deny_status says what a persona that is signed in and not allowed gets (403, or 404 where the record must not be told to exist).",
+  "urls": "A URL of an access block names its record as ${id} (or ${code}) and its `resolve` reads one from the measured database: a row of the measured tenant, or of another tenant for the isolation cases. node scripts/uat-db-cases.mjs fills them; where the environment holds no such row the row of the case is NOT RUN with that reason.",
+  "unresolved_access": [
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-09",
+      "url": "/api/projects/{project_ban_qlda_gt_id}",
+      "reason": "needs a project of one unit and a persona whose grant is on a sibling unit (chuyen-vien-so-nn); the stack has no user with such a grant, so no read can pick the right project for the right person"
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-20",
+      "url": "/int/project-codes/{id}/decision",
+      "reason": "the id is a proposed code mapping that waits for a decision; the seeds make none, and the table that holds them was not confirmed in this lane"
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-21",
+      "url": "/int/project-codes/{id}/retire",
+      "reason": "the id is an approved code mapping; the seeds make none, and the table that holds them was not confirmed in this lane"
+    }
+  ],
+  "personas": {
+    "bo-phan-nhan-su": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "chuyen-vien-ban-qlda-gt": {
+      "modules": [
+        "nfr"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "chuyen-vien-so-nn": {
+      "modules": [
+        "nfr"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "chuyen-vien-so-x": {
+      "modules": [
+        "bi",
+        "nfr"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "chuyen-vien-tinh-a": {
+      "modules": [
+        "nfr"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "chuyen-vien-tinh-b": {
+      "modules": [
+        "nfr"
+      ],
+      "fixture_user": null,
+      "reason": "the fixture users of e2e-fixtures.json are all members of tenant A; tenant B of the stack has units and data but no user the development session can sign in as"
+    },
+    "dir-assignee": {
+      "modules": [
+        "dir"
+      ],
+      "permissions": [
+        "directive.progress",
+        "directive.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "dir-closer": {
+      "modules": [
+        "dir"
+      ],
+      "permissions": [
+        "directive.close",
+        "directive.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "dir-decider": {
+      "modules": [
+        "dir"
+      ],
+      "permissions": [
+        "directive.extension.decide",
+        "directive.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "dir-reader": {
+      "modules": [
+        "dir"
+      ],
+      "permissions": [
+        "directive.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "dir-secretary": {
+      "modules": [
+        "dir"
+      ],
+      "permissions": [
+        "directive.meeting.manage",
+        "directive.manage",
+        "directive.close",
+        "directive.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ebs-admin": {
+      "modules": [
+        "ebs"
+      ],
+      "permissions": [
+        "ebs.read",
+        "ebs.admin",
+        "ebs.import",
+        "ebs.import.preview",
+        "ebs.reconcile"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ebs-owner": {
+      "modules": [
+        "ebs"
+      ],
+      "permissions": [
+        "ebs.read",
+        "ebs.reconcile"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ebs-previewer": {
+      "modules": [
+        "ebs"
+      ],
+      "permissions": [
+        "ebs.read",
+        "ebs.import.preview"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ebs-reader": {
+      "modules": [
+        "ebs"
+      ],
+      "permissions": [
+        "ebs.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ebs-reconciler": {
+      "modules": [
+        "ebs"
+      ],
+      "permissions": [
+        "ebs.read",
+        "ebs.reconcile"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ent-both": {
+      "modules": [
+        "ent"
+      ],
+      "permissions": [
+        "funding.snapshot.build",
+        "funding.snapshot.freeze",
+        "funding.snapshot.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ent-builder": {
+      "modules": [
+        "ent"
+      ],
+      "permissions": [
+        "funding.snapshot.build",
+        "funding.snapshot.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ent-equipment": {
+      "modules": [
+        "ent"
+      ],
+      "permissions": [
+        "bid.read",
+        "bid.plan.manage"
+      ],
+      "fixture_user": null,
+      "nearest_fixture_user": "bidPlanner",
+      "reason": "no fixture user holds exactly these rights; bidPlanner holds them and also procurement_package.read, project.read, allocation_line.read, so a refusal by right would not be measured with that user"
+    },
+    "ent-freezer": {
+      "modules": [
+        "ent"
+      ],
+      "permissions": [
+        "funding.snapshot.freeze",
+        "funding.snapshot.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ent-investment-profile": {
+      "modules": [
+        "ent"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "ent-leader": {
+      "modules": [
+        "ent"
+      ],
+      "permissions": [
+        "home.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ent-org-admin": {
+      "modules": [
+        "ent"
+      ],
+      "permissions": [
+        "adm.migration.read",
+        "adm.migration.approve"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ent-reader": {
+      "modules": [
+        "ent"
+      ],
+      "permissions": [
+        "funding.snapshot.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ent-report-editor": {
+      "modules": [
+        "ent"
+      ],
+      "permissions": [
+        "report.read",
+        "report.edit",
+        "report.import"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "hpm-admin": {
+      "modules": [
+        "hpm"
+      ],
+      "permissions": [
+        "hpm.read",
+        "hpm.admin",
+        "hpm.push",
+        "hpm.receipt",
+        "hpm.correction.propose",
+        "hpm.correction.decide"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "hpm-decider": {
+      "modules": [
+        "hpm"
+      ],
+      "permissions": [
+        "hpm.read",
+        "hpm.correction.decide"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "hpm-proposer": {
+      "modules": [
+        "hpm"
+      ],
+      "permissions": [
+        "hpm.read",
+        "hpm.correction.propose"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "hpm-pusher": {
+      "modules": [
+        "hpm"
+      ],
+      "permissions": [
+        "hpm.read",
+        "hpm.push"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "hpm-reader": {
+      "modules": [
+        "hpm"
+      ],
+      "permissions": [
+        "hpm.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "hpm-receiver": {
+      "modules": [
+        "hpm"
+      ],
+      "permissions": [
+        "hpm.read",
+        "hpm.receipt"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "hub-admin": {
+      "modules": [
+        "hub"
+      ],
+      "permissions": [
+        "hub.read",
+        "hub.state.manage",
+        "hub.run.record",
+        "hub.incident.manage",
+        "hub.snapshot.capture",
+        "hub.reject.manage",
+        "hub.agent.manage",
+        "hub.agent.heartbeat"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "hub-approver": {
+      "modules": [
+        "hub"
+      ],
+      "permissions": [
+        "hub.read",
+        "hub.mapping.approve"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "hub-both": {
+      "modules": [
+        "hub"
+      ],
+      "permissions": [
+        "hub.read",
+        "hub.mapping.propose",
+        "hub.mapping.approve"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "hub-proposer": {
+      "modules": [
+        "hub"
+      ],
+      "permissions": [
+        "hub.read",
+        "hub.mapping.propose"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "hub-reader": {
+      "modules": [
+        "hub"
+      ],
+      "permissions": [
+        "hub.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ind-admin": {
+      "modules": [
+        "ind"
+      ],
+      "permissions": [
+        "ind.read",
+        "ind.entry",
+        "ind.import.preview",
+        "ind.import"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "ind-reader": {
+      "modules": [
+        "ind"
+      ],
+      "permissions": [
+        "ind.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "int-admin": {
+      "modules": [
+        "int"
+      ],
+      "permissions": [
+        "int.account.read",
+        "int.account.manage",
+        "int.access.read",
+        "int.dataset.read",
+        "int.dataset.manage",
+        "int.bi.read",
+        "int.bi.manage",
+        "int.codes.read",
+        "int.codes.propose",
+        "int.codes.approve",
+        "int.system.manage"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "int-checker": {
+      "modules": [
+        "int"
+      ],
+      "permissions": [
+        "int.codes.read",
+        "int.codes.approve"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "int-reader": {
+      "modules": [
+        "int"
+      ],
+      "permissions": [
+        "int.account.read",
+        "int.access.read",
+        "int.dataset.read",
+        "int.bi.read",
+        "int.codes.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "lanh-dao-giam-sat": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "may-doc-bi": {
+      "modules": [
+        "int"
+      ],
+      "permissions": [
+        "open.projects.read",
+        "open.disbursement.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "nguoi-duyet-hoan-thanh": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "nguoi-ra-soat-tin-hieu": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "nguoi-thuc-hien": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": "owner",
+      "basis": "the clip seed gives the tasks of the project workflow to the owner (group clip-public-phone-work / clip-ent-phone-work); no fixture user holds pwf.task.work alone, so a refusal by right cannot be measured with this user"
+    },
+    "nhan-vien-duoc-danh-gia": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "nhan-vien-khac": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": "nobody",
+      "basis": "a member of tenant A without any right and without a score line"
+    },
+    "quan-ly-cu-sau-chuyen-don-vi": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "quan-ly-don-vi-khac": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "quan-ly-du-an": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": "projectManager",
+      "basis": "holds project.read, project.create, project.update, pwf.read and pwf.workflow.manage (role E2E_PROJECT_MANAGER of the stack)"
+    },
+    "quan-ly-truc-tiep": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": null,
+      "reason": "the persona is a situation (a unit, a past assignment, a relation to the person scored), not a set of rights: the stack has no user in that situation"
+    },
+    "quan-tri-tenant-a": {
+      "modules": [
+        "nfr"
+      ],
+      "fixture_user": "owner",
+      "basis": "the owner of tenant A holds every right of the tenant (e2e-fixtures.json: permissions null means all)"
+    },
+    "quan-tri-tenant-b": {
+      "modules": [
+        "pwf"
+      ],
+      "fixture_user": null,
+      "reason": "the fixture users of e2e-fixtures.json are all members of tenant A; tenant B of the stack has units and data but no user the development session can sign in as"
+    },
+    "rpt-all": {
+      "modules": [
+        "rpt"
+      ],
+      "permissions": [
+        "rpt.read",
+        "rpt.generate",
+        "rpt.check",
+        "rpt.approve",
+        "rpt.issue",
+        "rpt.deliver",
+        "rpt.answer",
+        "home.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "rpt-approver": {
+      "modules": [
+        "rpt"
+      ],
+      "permissions": [
+        "rpt.read",
+        "rpt.approve",
+        "rpt.issue"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "rpt-checker": {
+      "modules": [
+        "rpt"
+      ],
+      "permissions": [
+        "rpt.read",
+        "rpt.check"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "rpt-crosschecker": {
+      "modules": [
+        "rpt"
+      ],
+      "permissions": [
+        "rpt.read",
+        "rpt.crosscheck.read",
+        "rpt.crosscheck.explain"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "rpt-locker": {
+      "modules": [
+        "rpt"
+      ],
+      "permissions": [
+        "rpt.read",
+        "rpt.lock.read",
+        "rpt.lock.unlock"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "rpt-mailer": {
+      "modules": [
+        "rpt"
+      ],
+      "permissions": [
+        "rpt.read",
+        "rpt.mail.read",
+        "rpt.mail.manage"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "rpt-preparer": {
+      "modules": [
+        "rpt"
+      ],
+      "permissions": [
+        "rpt.read",
+        "rpt.generate",
+        "home.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "rpt-reader": {
+      "modules": [
+        "rpt"
+      ],
+      "permissions": [
+        "rpt.read"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "rpt-sender": {
+      "modules": [
+        "rpt"
+      ],
+      "permissions": [
+        "rpt.read",
+        "rpt.deliver",
+        "rpt.answer"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    },
+    "rpt-signer": {
+      "modules": [
+        "rpt"
+      ],
+      "permissions": [
+        "rpt.read",
+        "rpt.sign"
+      ],
+      "fixture_user": null,
+      "reason": "no fixture user of the e2e stack holds these rights (the modules IND, RPT, DIR, HPM, EBS, HUB, INT and ENT have no person in e2e-fixtures.json); the jest UAT tests of apps/api/test/uat make the membership with world.as"
+    }
+  }
+}

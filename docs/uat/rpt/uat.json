@@ -1270,7 +1270,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/issues/{id}/files/XLSX",
+        "url": "/report-engine/issues/${id}/files/XLSX",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_issue WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "rpt-reader",
@@ -1857,7 +1860,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/drafts/{id}",
+        "url": "/report-engine/drafts/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_draft WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "rpt-preparer",
@@ -1923,7 +1929,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/drafts/{id}/files/{format}",
+        "url": "/report-engine/drafts/${id}/files/XLSX",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_draft WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "rpt-preparer",
@@ -1989,7 +1998,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/drafts/{id}/check",
+        "url": "/report-engine/drafts/${id}/check",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_draft WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "rpt-checker",
@@ -2047,7 +2059,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/drafts/{id}/approve",
+        "url": "/report-engine/drafts/${id}/approve",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_draft WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "rpt-approver",
@@ -2105,7 +2120,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/drafts/{id}/issue",
+        "url": "/report-engine/drafts/${id}/issue",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_draft WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "rpt-approver",
@@ -2229,7 +2247,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/issues/{id}",
+        "url": "/report-engine/issues/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_issue WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "rpt-preparer",
@@ -2295,7 +2316,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/issues/{id}/files/{format}",
+        "url": "/report-engine/issues/${id}/files/XLSX",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_issue WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "rpt-preparer",
@@ -2361,7 +2385,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/issues/{id}/deliveries",
+        "url": "/report-engine/issues/${id}/deliveries",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_issue WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "rpt-sender",
@@ -2419,7 +2446,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/issues/{id}/answers",
+        "url": "/report-engine/issues/${id}/answers",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_issue WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "rpt-sender",
@@ -2600,7 +2630,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/period-locks/{id}/unlock",
+        "url": "/report-engine/period-locks/${id}/unlock",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_period_lock WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "rpt-locker"
@@ -2657,7 +2690,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/issues/{id}/signature",
+        "url": "/report-engine/issues/${id}/signature",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_issue WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "rpt-signer"
@@ -2714,7 +2750,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/issues/{id}/signature",
+        "url": "/report-engine/issues/${id}/signature",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_issue WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "rpt-preparer",
@@ -2780,7 +2819,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/signature-sessions/{id}/completion",
+        "url": "/report-engine/signature-sessions/${id}/completion",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_signature_session WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "rpt-signer"
@@ -3066,7 +3108,10 @@
       },
       "module": "RPT",
       "access": {
-        "url": "/report-engine/mail-schedules/{id}/retire",
+        "url": "/report-engine/mail-schedules/${id}/retire",
+        "resolve": {
+          "id": "SELECT id FROM machvon.report_mail_schedule WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "rpt-mailer"

@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { MACROS, firstCell, guardSql, main, resolveCases, substitute } from './uat-db-cases.mjs';
 
 /** A read of the database that answers by the text of the statement. */
@@ -181,4 +182,83 @@ test('main without the files or the DSN, or with an unknown option, says how it 
   assert.equal(await main(['--bogus'], { env: {}, log }), 2);
   assert.equal(lines.length, 3);
   assert.ok(lines.every((line) => line.startsWith('usage:')));
+});
+
+// ---- the role matrix (`access`): its URL is resolved like the other blocks (UAT 2026-11-15 run 3: placeholder URLs were never measured) ----
+
+test('an access block reads the id of its URL from the measured environment: the measured tenant for a role case, another tenant for an isolation case', async () => {
+  const seen = [];
+  const run = async (sql) => {
+    seen.push(sql);
+    return sql.includes('<>') ? [['id-of-b']] : [['id-of-a']];
+  };
+  const cases = [
+    { tc_id: 'ROLE', access: { url: '/directives/${id}/closure', method: 'POST', resolve: { id: "SELECT id FROM machvon.directive WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1" }, allow: ['dir-closer'], deny_status: [403] } },
+    { tc_id: 'ISO', access: { url: '/api/resources/project/${id}', method: 'GET', resolve: { id: "SELECT id FROM machvon.project WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1" }, allow: ['b'], deny_status: [404] } },
+  ];
+  const { cases: resolved, unresolved } = await resolveCases(cases, run, { tenantId: 'T-A', stamp: '1' });
+  assert.deepEqual(unresolved, []);
+  assert.deepEqual(resolved[0].access, { url: '/directives/id-of-a/closure', method: 'POST', allow: ['dir-closer'], deny_status: [403] });
+  assert.equal(resolved[1].access.url, '/api/resources/project/id-of-b');
+  assert.deepEqual(seen, ["SELECT id FROM machvon.directive WHERE tenant_id = 'T-A' ORDER BY id LIMIT 1", "SELECT id FROM machvon.project WHERE tenant_id <> 'T-A' ORDER BY id LIMIT 1"]);
+});
+
+test('an access block whose record the environment does not hold is removed and reported: the row is NOT RUN, never sent with a hole', async () => {
+  const cases = [{ tc_id: 'EMPTY', access: { url: '/hpm/pushes/${id}/retry', method: 'POST', resolve: { id: "SELECT id FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1" } } }];
+  const { cases: resolved, unresolved } = await resolveCases(cases, async () => [], { tenantId: 'T-A' });
+  assert.equal(resolved[0].access, undefined);
+  assert.deepEqual(unresolved, [{ tc_id: 'EMPTY', block: 'access', reason: 'id: the environment holds no row for it' }]);
+});
+
+test('the access blocks of the committed catalogue name an operation of the contract, and every id they need is read by a statement the guard lets through', () => {
+  const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+  const openapi = JSON.parse(readFileSync(join(root, 'Design', 'MACHVON_Design', '03_Engineering', 'openapi.json'), 'utf8'));
+  const contract = Object.keys(openapi.paths).map((path) => ({ pattern: new RegExp(`^${path.replace(/\{[^}]+\}/gu, '[^/]+')}$`, 'u'), methods: Object.keys(openapi.paths[path]) }));
+  // What is left with a placeholder on purpose, each with its reason in docs/uat/_personas.json (`unresolved_access`).
+  const left = new Set(JSON.parse(readFileSync(join(root, 'docs', 'uat', '_personas.json'), 'utf8')).unresolved_access.map((one) => one.tc_id));
+  const problems = [];
+  let blocks = 0;
+  let resolvedByRead = 0;
+  for (const folder of readdirSync(join(root, 'docs', 'uat'), { withFileTypes: true }).filter((one) => one.isDirectory())) {
+    const file = join(root, 'docs', 'uat', folder.name, 'uat.json');
+    if (!existsSync(file)) continue;
+    for (const one of JSON.parse(readFileSync(file, 'utf8')).test_cases) {
+      const access = one.access;
+      if (access === undefined || access === null) continue;
+      blocks += 1;
+      if (/[{<]/u.test(access.url.replace(/\$\{\w+\}/gu, ''))) {
+        if (!left.has(one.tc_id)) problems.push(`${folder.name} ${one.tc_id}: the URL ${access.url} holds a placeholder`);
+        continue;
+      }
+      const path = access.url.replace(/^\/api/u, '').split('?')[0].replace(/\$\{\w+\}/gu, 'x');
+      if (!contract.some((entry) => entry.pattern.test(path) && entry.methods.includes(String(access.method ?? 'GET').toLowerCase()))) problems.push(`${folder.name} ${one.tc_id}: ${access.method} ${access.url} is no operation of the contract`);
+      const used = [...access.url.matchAll(/\$\{(\w+)\}/gu)].map((found) => found[1]);
+      for (const name of used) if (access.resolve?.[name] === undefined) problems.push(`${folder.name} ${one.tc_id}: \${${name}} of the URL has no read`);
+      for (const [name, sql] of Object.entries(access.resolve ?? {})) {
+        resolvedByRead += 1;
+        const refused = guardSql(sql.replace(/\$\{tenant_id\}/gu, 'T'));
+        if (refused !== null) problems.push(`${folder.name} ${one.tc_id}: the read of ${name} is refused (${refused})`);
+        if (sql.includes('%')) problems.push(`${folder.name} ${one.tc_id}: the read of ${name} holds a percent sign, which the tool that runs it takes for a parameter`);
+      }
+    }
+  }
+  assert.deepEqual(problems, []);
+  assert.ok(blocks > 150 && resolvedByRead > 80, `${blocks} access blocks, ${resolvedByRead} reads`);
+});
+
+test('no read of the committed catalogue holds a percent sign: the tool that runs it passes the statement through a driver that takes % for a parameter', () => {
+  // TC-UAT-NFR-TENANCY-08 was written with LIKE '%tenant_context%' and the tool answered "IndexError: list index out of range" (UAT 2026-11-15 run 3); only the key parameter %s of a count is allowed.
+  const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+  const problems = [];
+  for (const folder of readdirSync(join(root, 'docs', 'uat'), { withFileTypes: true }).filter((one) => one.isDirectory())) {
+    const file = join(root, 'docs', 'uat', folder.name, 'uat.json');
+    if (!existsSync(file)) continue;
+    for (const one of JSON.parse(readFileSync(file, 'utf8')).test_cases) {
+      for (const [block, key] of [['db_assert', 'query'], ['audit_assert', 'query'], ['idempotency', 'count_query']]) {
+        const sql = one[block]?.[key];
+        if (typeof sql === 'string' && sql.replace(/%s/gu, '').includes('%')) problems.push(`${folder.name} ${one.tc_id} ${block}.${key}`);
+      }
+    }
+  }
+  assert.deepEqual(problems, []);
 });

@@ -797,7 +797,10 @@
       },
       "module": "EBS",
       "access": {
-        "url": "/ebs/differences/{id}/resolution",
+        "url": "/ebs/differences/${id}/resolution",
+        "resolve": {
+          "id": "SELECT id FROM machvon.ebs_reconciliation_item WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "ebs-owner"
@@ -1507,7 +1510,10 @@
       },
       "module": "EBS",
       "access": {
-        "url": "/ebs/differences/{id}/resolution",
+        "url": "/ebs/differences/${id}/resolution",
+        "resolve": {
+          "id": "SELECT id FROM machvon.ebs_reconciliation_item WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "ebs-admin",
@@ -1566,7 +1572,10 @@
       },
       "module": "EBS",
       "access": {
-        "url": "/ebs/differences/{id}/owner",
+        "url": "/ebs/differences/${id}/owner",
+        "resolve": {
+          "id": "SELECT id FROM machvon.ebs_reconciliation_item WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "ebs-admin",

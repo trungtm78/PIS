@@ -1,4 +1,4 @@
-// Resolves the variables of the DB-tier cases (`db_assert`, `audit_assert`, `idempotency`) of docs/uat/*/uat.json against the environment that is measured.
+// Resolves the variables of the DB-tier cases (`db_assert`, `audit_assert`, `idempotency`) and of the role-matrix cases (`access`) of docs/uat/*/uat.json against the environment that is measured.
 //
 // Why it exists (UAT run r6, R6-ENT-07): the cases of the data tier were written with placeholders (`<hôm qua>`, `<id kỳ>`, `{appropriation_id}`) and counted rows by a content that an earlier run of the
 // same case had left, so against a shared demo database 13 idempotency cases sent bodies the API refuses (400) and 15 audit/db cases named a table the product does not have. A case now carries, next to
@@ -15,7 +15,10 @@ import { resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
-export const BLOCKS = ['db_assert', 'audit_assert', 'idempotency'];
+// `access` (the role matrix and the IDOR rows) is resolved the same way since UAT 2026-11-15 run 3: 16 URLs of the public edition and 85 of the enterprise edition held a placeholder (`/directives/{id}`)
+// and were not measured at all. Its URL now names the id as `${id}` and its `resolve` reads one from the measured database (a row of the measured tenant, or of another tenant for an isolation case);
+// where the environment holds no such row the block is removed and the case is NOT RUN with that reason, as for the other blocks.
+export const BLOCKS = ['db_assert', 'audit_assert', 'idempotency', 'access'];
 
 /** Text a case may use in any of its strings as `$[name]`. The query parameter `%s` is the Idempotency-Key the tool sends. */
 export const MACROS = {

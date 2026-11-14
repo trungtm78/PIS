@@ -801,7 +801,10 @@
       },
       "module": "INT",
       "access": {
-        "url": "/int/machine-accounts/{id}",
+        "url": "/int/machine-accounts/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.int_machine_account WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "int-reader",
@@ -958,7 +961,10 @@
       },
       "module": "INT",
       "access": {
-        "url": "/int/bi-readers/{id}",
+        "url": "/int/bi-readers/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.int_bi_reader WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "int-admin",
@@ -1238,7 +1244,10 @@
       },
       "module": "INT",
       "access": {
-        "url": "/int/machine-accounts/{id}",
+        "url": "/int/machine-accounts/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.int_machine_account WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "int-admin",
@@ -1296,7 +1305,10 @@
       },
       "module": "INT",
       "access": {
-        "url": "/int/machine-accounts/{id}/update",
+        "url": "/int/machine-accounts/${id}/update",
+        "resolve": {
+          "id": "SELECT id FROM machvon.int_machine_account WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "int-admin"
@@ -1353,7 +1365,10 @@
       },
       "module": "INT",
       "access": {
-        "url": "/int/machine-accounts/{id}/decision",
+        "url": "/int/machine-accounts/${id}/decision",
+        "resolve": {
+          "id": "SELECT id FROM machvon.int_machine_account WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "int-admin"
@@ -1410,7 +1425,10 @@
       },
       "module": "INT",
       "access": {
-        "url": "/int/machine-accounts/{id}/rotate",
+        "url": "/int/machine-accounts/${id}/rotate",
+        "resolve": {
+          "id": "SELECT id FROM machvon.int_machine_account WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "int-admin"
@@ -1755,7 +1773,10 @@
       },
       "module": "INT",
       "access": {
-        "url": "/int/bi-readers/{id}",
+        "url": "/int/bi-readers/${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.int_bi_reader WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "int-admin",
@@ -1813,7 +1834,10 @@
       },
       "module": "INT",
       "access": {
-        "url": "/int/bi-readers/{id}/password",
+        "url": "/int/bi-readers/${id}/password",
+        "resolve": {
+          "id": "SELECT id FROM machvon.int_bi_reader WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "int-admin"
@@ -1870,7 +1894,10 @@
       },
       "module": "INT",
       "access": {
-        "url": "/int/bi-readers/{id}/decision",
+        "url": "/int/bi-readers/${id}/decision",
+        "resolve": {
+          "id": "SELECT id FROM machvon.int_bi_reader WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "int-admin"
@@ -2043,7 +2070,10 @@
       },
       "module": "INT",
       "access": {
-        "url": "/int/source-systems/{id}/retire",
+        "url": "/int/source-systems/${id}/retire",
+        "resolve": {
+          "id": "SELECT id FROM machvon.int_source_system WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "int-admin"

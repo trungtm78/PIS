@@ -4,6 +4,14 @@ Sinh bởi một bộ quy tắc cố định từ 1097 ca thiết kế (26 phân
 `docs/uat/<phân hệ>/uat.json` (hợp đồng handoff, `validate_uat_json.py` đạt) và `_coverage-ledger.md`. Kết quả mong đợi là của thiết kế, không lấy từ mã.
 `docs/uat/critical/` là lát cắt 28 ca then chốt (tiền, cách ly, khôi phục), các ca ấy cũng nằm trong thư mục phân hệ của chúng.
 
+## Persona và người dùng fixture, URL của khối `access` (lane fix9, 2026-11-14)
+
+- `docs/uat/_personas.json` ánh xạ từng persona của các khối `access` (ma trận quyền, IDOR) sang người dùng fixture của stack e2e (`apps/web/e2e/support/e2e-fixtures.json`: `?devUser=<key>` trên web, token phiên phát triển của `scripts/dev-session-token.mjs` ở API). Persona có `fixture_user: null` không có người trong stack (lý do ghi cạnh nó): các hàng của persona ấy là KHÔNG CHẠY khi đo trên stack và được đo bằng bộ jest `apps/api/test/uat` (ở đó `world.as` tạo membership đúng bộ quyền của persona). Hiện 4 trên 64 persona có người dùng fixture.
+- URL của khối `access` gọi bản ghi bằng `${id}` (hoặc `${code}`), và `resolve` của khối là câu SELECT chỉ đọc tìm một bản ghi trong cơ sở dữ liệu đang đo: của tenant đang đo cho ca ma trận quyền, của tenant khác cho ca cách ly. `node scripts/uat-db-cases.mjs --cases <cases.json> --out <resolved.json>` điền chúng cùng lúc với các khối dữ liệu; môi trường không có bản ghi thì khối bị bỏ và ca là KHÔNG CHẠY kèm lý do. Mọi URL đều là một operation của `openapi.json` (kiểm bởi `scripts/uat-db-cases.test.mjs`).
+- Ba ca còn giữ placeholder, lý do ghi ở `unresolved_access` của `_personas.json`: TC-UAT-NFR-TENANCY-09, TC-UAT-INT-SEC-20, TC-UAT-INT-SEC-21.
+- Hàng "không đăng nhập" luôn nhận 401; `deny_status` của ca nói về persona đã đăng nhập mà không được phép (403, hoặc 404 khi không được lộ là bản ghi có tồn tại).
+- Căn cứ của hai ca cách ly sửa trong lane này: TC-UAT-NFR-TENANCY-03 đọc theme qua `GET /me/tenant/theme` (`getMyPublishedTheme`, `x-permission: tenant.theme.read`, 401 và 403 trong hợp đồng; ST-SAS-005, BR-SAS-17: theme không công khai, thành viên đọc bản đã phát hành của chính tenant mình); đường `/api/theme` trước đây không có trong hợp đồng nên trả 404. TC-UAT-NFR-TENANCY-08 khẳng định bằng dữ liệu rằng không dòng nào của một lượt workflow (`workflow_instance`, dòng audit của nó) nằm ở tenant khác với tenant của phiên bản workflow và của lượt chạy; câu cũ đếm audit có action chứa `tenant_context` (sản phẩm không ghi action nào như vậy, `count(*)` luôn trả một dòng nên luôn "đạt", và dấu `%` làm công cụ báo IndexError). Việc từ chối task bị sửa tenant (TENANT_CONTEXT_INVALID) được đo ở `apps/api/test/orchestration/in-process-orchestrator.test.ts` và `apps/api/test/cap/plan-approval-workflow.test.ts`.
+
 ## Kết quả cổng của writer (máy tính, không tự điền)
 
 | Phân hệ | Ca | Coverage item | Phủ | M1 | M4 (rủi ro) | TC_min | Đạt sàn |

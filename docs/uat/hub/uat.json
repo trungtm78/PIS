@@ -744,7 +744,10 @@
       },
       "module": "HUB",
       "access": {
-        "url": "/integration-hub/incidents/{id}/decision",
+        "url": "/integration-hub/incidents/${id}/decision",
+        "resolve": {
+          "id": "SELECT id FROM machvon.hub_incident WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hub-admin"
@@ -1072,7 +1075,10 @@
       },
       "module": "HUB",
       "access": {
-        "url": "/integration-hub/connectors/{code}",
+        "url": "/integration-hub/connectors/${code}",
+        "resolve": {
+          "code": "SELECT connector_code FROM machvon.integration_connector WHERE tenant_id = '${tenant_id}' ORDER BY connector_code LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "hub-admin",
@@ -1133,7 +1139,10 @@
       },
       "module": "HUB",
       "access": {
-        "url": "/integration-hub/connectors/{code}/runs",
+        "url": "/integration-hub/connectors/${code}/runs",
+        "resolve": {
+          "code": "SELECT connector_code FROM machvon.integration_connector WHERE tenant_id = '${tenant_id}' ORDER BY connector_code LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "hub-admin",
@@ -1194,7 +1203,10 @@
       },
       "module": "HUB",
       "access": {
-        "url": "/integration-hub/connectors/{code}/runs",
+        "url": "/integration-hub/connectors/${code}/runs",
+        "resolve": {
+          "code": "SELECT connector_code FROM machvon.integration_connector WHERE tenant_id = '${tenant_id}' ORDER BY connector_code LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hub-admin"
@@ -1251,7 +1263,10 @@
       },
       "module": "HUB",
       "access": {
-        "url": "/integration-hub/connectors/{code}/rejects",
+        "url": "/integration-hub/connectors/${code}/rejects",
+        "resolve": {
+          "code": "SELECT connector_code FROM machvon.integration_connector WHERE tenant_id = '${tenant_id}' ORDER BY connector_code LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "hub-admin",
@@ -1609,7 +1624,10 @@
       },
       "module": "HUB",
       "access": {
-        "url": "/integration-hub/connectors/{code}/state",
+        "url": "/integration-hub/connectors/${code}/state",
+        "resolve": {
+          "code": "SELECT connector_code FROM machvon.integration_connector WHERE tenant_id = '${tenant_id}' ORDER BY connector_code LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hub-admin"
@@ -1666,7 +1684,10 @@
       },
       "module": "HUB",
       "access": {
-        "url": "/integration-hub/incidents/{id}/decision",
+        "url": "/integration-hub/incidents/${id}/decision",
+        "resolve": {
+          "id": "SELECT id FROM machvon.hub_incident WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hub-admin"
@@ -1780,7 +1801,10 @@
       },
       "module": "HUB",
       "access": {
-        "url": "/integration-hub/connectors/{code}/mappings",
+        "url": "/integration-hub/connectors/${code}/mappings",
+        "resolve": {
+          "code": "SELECT connector_code FROM machvon.integration_connector WHERE tenant_id = '${tenant_id}' ORDER BY connector_code LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hub-proposer",
@@ -1838,7 +1862,10 @@
       },
       "module": "HUB",
       "access": {
-        "url": "/integration-hub/mappings/{id}/decision",
+        "url": "/integration-hub/mappings/${id}/decision",
+        "resolve": {
+          "id": "SELECT id FROM machvon.hub_pipeline_mapping WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hub-both",
@@ -1896,7 +1923,10 @@
       },
       "module": "HUB",
       "access": {
-        "url": "/integration-hub/rejects/{id}/decision",
+        "url": "/integration-hub/rejects/${id}/decision",
+        "resolve": {
+          "id": "SELECT id FROM machvon.hub_pipeline_reject WHERE tenant_id = '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hub-admin"
@@ -1953,7 +1983,10 @@
       },
       "module": "HUB",
       "access": {
-        "url": "/integration-hub/agents/{code}/heartbeat",
+        "url": "/integration-hub/agents/${code}/heartbeat",
+        "resolve": {
+          "code": "SELECT agent_code FROM machvon.hub_collector_agent WHERE tenant_id = '${tenant_id}' ORDER BY agent_code LIMIT 1"
+        },
         "method": "POST",
         "allow": [
           "hub-admin"

@@ -16,6 +16,8 @@ Quy tắc oracle: kết quả mong đợi của ca là của thiết kế. Mã �
 
 ## Persona (người dùng thật)
 
+Ánh xạ persona sang người dùng fixture của stack e2e: `docs/uat/_personas.json` (persona nào không có người trong stack thì ghi rõ lý do ở đó).
+
 | Persona | Vai | Tenant | Ghi chú |
 | --- | --- | --- | --- |
 | chuyen-vien-tinh-a / chuyen-vien-tinh-b | chuyên viên có grant theo cây đơn vị | A / B | cặp dùng để thử cách ly tenant |

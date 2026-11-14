@@ -671,7 +671,10 @@
       },
       "module": "IND",
       "access": {
-        "url": "/indicator-figures?project_id={id}",
+        "url": "/indicator-figures?project_id=${id}",
+        "resolve": {
+          "id": "SELECT id FROM machvon.project WHERE tenant_id <> '${tenant_id}' ORDER BY id LIMIT 1"
+        },
         "method": "GET",
         "allow": [
           "ind-reader",
