@@ -16,6 +16,8 @@ import { problemText } from './approval-problem';
 import { DecisionSheet } from './DecisionSheet';
 import { PwaBackLink } from './PwaBackLink';
 import { summaryPeriodText } from './ApprovalRecordSummary';
+import { PendingDecisionsSection } from './PendingDecisionsSection';
+import { usePendingDecisions } from './pending-hooks';
 import './pwa.css';
 
 /** How old the list may be before the screen says so (the list is read again when the page comes back to the front). */
@@ -51,6 +53,9 @@ function QueueContent() {
   const mayDecideAtAll = permissions === undefined || permissions.includes(DECIDE_PERMISSION);
   const readOnly = mode === 'READ_ONLY';
   const queue = useApprovalQueue(mayRead);
+  // The records of PWF that wait for the person outside the engine (PWF 20.9) join the same inbox and the same counts.
+  const pendingInbox = usePendingDecisions(mayRead);
+  const pendingItems = pendingInbox.data?.items ?? [];
   const units = useOrgUnits();
   const decide = useDecideTask();
   const [filter, setFilter] = useState<QueueFilter>(NO_FILTER);
@@ -77,7 +82,8 @@ function QueueContent() {
     const name = names.get(task.resourceId);
     return name === undefined ? task.resourceType : `${name.project} · ${name.period}`;
   };
-  const late = tasks.filter((task) => task.overdue).length;
+  const late = tasks.filter((task) => task.overdue).length + pendingItems.filter((item) => item.overdue).length;
+  const waiting = tasks.length + pendingItems.length;
   const today = todayOf(new Date(now));
   const staleList = queue.data !== undefined && (queue.isError || now - queue.dataUpdatedAt > STALE_AFTER_MS);
   const unitName = (id: string | null): string | undefined => (id === null ? undefined : units.data?.find((unit) => unit.id === id)?.name);
@@ -200,11 +206,19 @@ function QueueContent() {
           </label>
         </div>
         <p className="sub" data-testid="counts">
-          {t('pwa.approvals.counts.line', { open: tasks.length, late })}
+          {t('pwa.approvals.counts.line', { open: waiting, late })}
           {' · '}
           {t('pwa.approvals.counts.updated', { time: clock(new Date(queue.dataUpdatedAt)) })}
         </p>
-        {shown.length === 0 ? (
+        {pendingInbox.data?.unavailable.length ? (
+          <p className="callout warning" role="status" data-testid="pending-unavailable">
+            {t('fix12.inbox.unavailable')}{' '}
+            <button type="button" className="ui-button ui-button--outline ui-button--small pwa-touch" onClick={() => void pendingInbox.refetch()}>
+              {t('states.retry.action')}
+            </button>
+          </p>
+        ) : null}
+        {shown.length === 0 && pendingItems.length > 0 && tasks.length === 0 ? null : shown.length === 0 ? (
           <div className="card statecard pwa-empty" role="status" data-testid="empty" data-kind={tasks.length === 0 ? 'none' : 'filtered'}>
             <h2>{tasks.length === 0 ? t('pwa.approvals.empty.none.title') : t('pwa.approvals.empty.filtered.title')}</h2>
             <p className="muted">{tasks.length === 0 ? t('pwa.approvals.empty.none.body') : t('pwa.approvals.empty.filtered.body')}</p>
@@ -294,6 +308,7 @@ function QueueContent() {
             })}
           </ul>
         )}
+        <PendingDecisionsSection items={pendingItems} mayAct={!readOnly} onDecided={() => void pendingInbox.refetch()} />
       </StateBoundary>
       {acting === undefined ? null : (
         <DecisionSheet
