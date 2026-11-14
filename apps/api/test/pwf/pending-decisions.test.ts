@@ -37,7 +37,7 @@ const READER = 4; // pwf.read only
 const NOBODY = 5;
 const OUTSIDE_CHECKER = 6; // the rights of the checker, over a unit that owns no project
 const SIBLING = 3;
-const STAFFER = 7; // only the role STAFF_MEMBER of the system, on the department
+const STAFFER = 7; // only the role STAFF_MEMBER of the system
 const B_MANAGER = 1;
 const ROOT = 1;
 const DEPARTMENT = 2;
@@ -126,7 +126,7 @@ describe('the unified approval inbox reads what waits in PWF for the reader (PWF
       { n: 3, member: CHECKER, role: 3, kind: 'TENANT' },
       { n: 4, member: READER, role: 4, kind: 'TENANT' },
       { n: 5, member: OUTSIDE_CHECKER, role: 3, kind: 'UNIT_SUBTREE', refs: [unitId(SIBLING)] },
-      { n: 6, member: STAFFER, role: 6, kind: 'UNIT_ONLY', refs: [unitId(DEPARTMENT)] },
+      { n: 6, member: STAFFER, role: 6, kind: 'TENANT' },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_MANAGER, role: 1, kind: 'TENANT' }]);
     const recordId = randomUUID();

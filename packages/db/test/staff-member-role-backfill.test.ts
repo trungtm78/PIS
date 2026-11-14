@@ -45,8 +45,8 @@ describe('every person of the staff reads and does what concerns themselves (PWF
   afterAll(() => harness.stop(), 60_000);
 
   const grantsOf = (tenant: string) =>
-    privileged<{ membership_id: string; scope_kind: string; unit: string; version: string }>(
-      `select g.membership_id, g.scope_kind, g.scope_ref_ids[1] as unit, m.scope_version::text as version
+    privileged<{ membership_id: string; scope_kind: string; version: string }>(
+      `select g.membership_id, g.scope_kind, m.scope_version::text as version
          from machvon.role_grant g join machvon.role_definition r on r.id = g.role_id join machvon.membership m on m.id = g.membership_id
         where g.tenant_id = $1 and r.code = 'STAFF_MEMBER' and g.status = 'Active' order by g.membership_id`,
       [tenant],
@@ -62,12 +62,12 @@ describe('every person of the staff reads and does what concerns themselves (PWF
     expect(SYSTEM_ROLES.find((candidate) => candidate.code === 'MEMBER')?.permissions).not.toContain('pwf.task.work');
   });
 
-  it('adds the role to a tenant seeded before it, and gives it on their unit to the staff who are invited, active or suspended: once, to nobody else', async () => {
+  it('adds the role to a tenant seeded before it, and gives it over the tenant to the staff who are invited, active or suspended: once, to nobody else', async () => {
     await privileged(
       `insert into machvon.role_grant (tenant_id, id, membership_id, role_id, scope_json, effective_from, scope_kind, scope_ref_ids, status, granted_by, grant_reason)
-       select $1, gen_random_uuid(), $2, r.id, '{}'::jsonb, now(), 'UNIT_ONLY', ARRAY[$3::uuid], 'Active', $2, 'earlier'
+       select $1, gen_random_uuid(), $2, r.id, '{}'::jsonb, now(), 'TENANT', '{}'::uuid[], 'Active', $2, 'earlier'
          from machvon.role_definition r where r.code = 'TENANT_OWNER' and r.tenant_id = $1`,
-      [TENANT_A, memberId(OWNER), unitId(2)],
+      [TENANT_A, memberId(OWNER)],
     );
     await privileged(MIGRATION);
     const roles = await privileged<{ tenant_id: string; permissions: string[]; rank: number; guest_allowed: boolean; is_system: boolean }>("select tenant_id, permissions, rank, guest_allowed, is_system from machvon.role_definition where code = 'STAFF_MEMBER' order by tenant_id");
@@ -77,7 +77,7 @@ describe('every person of the staff reads and does what concerns themselves (PWF
     const grants = await grantsOf(TENANT_A);
     expect(grants.map((grant) => grant.membership_id).sort()).toEqual([memberId(OWNER), memberId(STAFF), memberId(SUSPENDED_STAFF)]
       .sort());
-    for (const grant of grants) expect(grant).toMatchObject({ scope_kind: 'UNIT_ONLY', unit: unitId(2) });
+    for (const grant of grants) expect(grant).toMatchObject({ scope_kind: 'TENANT' });
     // A member of the other tenant gets the role of that tenant; the ended staff and a service account get nothing.
     expect((await grantsOf(TENANT_B)).map((grant) => grant.membership_id)).toEqual([memberId(B_STAFF)]);
     const given = new Set([...grants, ...(await grantsOf(TENANT_B))].map((grant) => grant.membership_id));
