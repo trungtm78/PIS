@@ -35,7 +35,8 @@ class UnderlineTabs extends StatelessWidget {
         child: Row(
           children: <Widget>[
             for (int position = 0; position < tabs.length; position += 1) ...<Widget>[
-              if (position > 0) const SizedBox(width: 20),
+              // 16 between two tabs: four tabs with a count each fit a phone 360 wide without the last one being cut.
+              if (position > 0) const SizedBox(width: MachvonV2Space.s16),
               TapTarget(
                 onTap: () => onChanged(position),
                 selected: position == index,

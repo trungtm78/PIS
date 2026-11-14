@@ -18,13 +18,14 @@ appId: vn.machvon.app
 ---
 - launchApp
 - tapOn: 'Cá nhân.*'
-# MOB-80 and MOB-81 open from the group "Công cụ" of the tab Cá nhân, below the profile, the reminders and the appearance.
+# MOB-80 and MOB-81 open from the first group of the tab Cá nhân, "Công việc của tôi", right under the profile (lane mob7; not run with Maestro since).
 - scrollUntilVisible:
-    element: 'Việc của tôi theo hạn'
+    element: 'Việc của tôi'
     centerElement: true
-- tapOn: 'Việc của tôi theo hạn'
+- tapOn: 'Việc của tôi'
+# The screen opens on its tab "Cần làm" (the others: "Chờ duyệt", "Đã xong").
 - extendedWaitUntil:
-    visible: 'Việc của tôi'
+    visible: 'Cần làm.*'
     timeout: 20000
 # The colours are the person's own: the screen says so and every row carries its real day.
 - assertVisible: '.*Theo cài đặt của bạn.*'

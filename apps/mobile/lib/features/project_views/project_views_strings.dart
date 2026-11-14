@@ -5,6 +5,10 @@ import '../../core/l10n/string_table.dart';
 /// (PRJ-01, PRJ-03, CAP-03, DIS-15, ISS-06); no text says the data is the newest.
 const StringTable projectViewsStrings = StringTable(
   vi: <String, String>{
+    'mob.prj.detail.overview.scale': 'Quy mô',
+    'mob.prj.detail.overview.who': 'Đơn vị và người phụ trách',
+    'mob.prj.detail.overview.class': 'Phân loại',
+    'mob.prj.detail.milestones.title': 'Mốc của dự án',
     'mob.prj.list.title': 'Dự án',
     'mob.prj.list.search.label': 'Tìm theo mã, tên, đơn vị hoặc người phụ trách',
     'mob.prj.list.stage.label': 'Trạng thái',
@@ -135,6 +139,10 @@ const StringTable projectViewsStrings = StringTable(
     'mob.prj.issues.group.none': 'Chưa phân nhóm',
   },
   en: <String, String>{
+    'mob.prj.detail.overview.scale': 'Scale',
+    'mob.prj.detail.overview.who': 'Unit and leader',
+    'mob.prj.detail.overview.class': 'Classification',
+    'mob.prj.detail.milestones.title': 'Milestones of the project',
     'mob.prj.list.title': 'Projects',
     'mob.prj.list.search.label': 'Search by code, name, unit or leader',
     'mob.prj.list.stage.label': 'Stage',

@@ -12,8 +12,8 @@ import '../../../core/theme/typography.dart';
 import '../../../core/widgets/action_bar.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/section_tabs.dart';
 import '../../../core/widgets/state_view.dart';
-import '../../../core/widgets/work_row.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../approval_models.dart';
@@ -118,18 +118,25 @@ class _DetailBody extends StatelessWidget {
                   ],
                 ),
               ),
-              GroupHeader(title: context.t('mob.apv.detail.content.title')),
-              InfoRow(label: context.t('mob.apv.detail.content.type'), value: businessTypeLabel(context, task.businessType), divider: false),
-              InfoRow(label: context.t('mob.apv.detail.content.step'), value: task.stepName),
-              InfoRow(label: context.t('mob.apv.detail.content.unit'), value: detail.unitName),
-              InfoRow(label: context.t('mob.apv.detail.content.due'), value: formatMoment(task.dueAt)),
-              InfoRow(label: context.t('mob.apv.detail.content.status'), value: taskStatusLabel(context, task.status)),
-              if (detail.report != null)
-                InfoRow(label: context.t('mob.apv.detail.content.record'), value: '${detail.report!.projectCode} · ${detail.report!.projectName} · ${detail.report!.periodCode}'),
-              GroupHeader(title: context.t('mob.apv.detail.compare.title')),
-              _Comparison(detail: detail),
-              GroupHeader(title: context.t('mob.apv.detail.evidence.title'), count: detail.report?.evidence.length),
-              _Evidence(report: detail.report),
+              // One purpose a tab: what is asked, what changed against the revision before, and the files that prove it. The decision stays in the bar below on every tab.
+              SectionTabs(
+                tabs: <SectionTab>[
+                  SectionTab(
+                    label: context.t('mob.apv.detail.content.title'),
+                    children: <Widget>[
+                      InfoRow(label: context.t('mob.apv.detail.content.type'), value: businessTypeLabel(context, task.businessType), divider: false),
+                      InfoRow(label: context.t('mob.apv.detail.content.step'), value: task.stepName),
+                      InfoRow(label: context.t('mob.apv.detail.content.unit'), value: detail.unitName),
+                      InfoRow(label: context.t('mob.apv.detail.content.due'), value: formatMoment(task.dueAt)),
+                      InfoRow(label: context.t('mob.apv.detail.content.status'), value: taskStatusLabel(context, task.status)),
+                      if (detail.report != null)
+                        InfoRow(label: context.t('mob.apv.detail.content.record'), value: '${detail.report!.projectCode} · ${detail.report!.projectName} · ${detail.report!.periodCode}'),
+                    ],
+                  ),
+                  SectionTab(label: context.t('mob.apv.detail.compare.title'), children: <Widget>[_Comparison(detail: detail)]),
+                  SectionTab(label: context.t('mob.apv.detail.evidence.title'), count: detail.report?.evidence.length, children: <Widget>[_Evidence(report: detail.report)]),
+                ],
+              ),
               const SizedBox(height: MachvonV2Space.s16),
             ],
           ),

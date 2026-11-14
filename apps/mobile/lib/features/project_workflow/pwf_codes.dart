@@ -2,9 +2,9 @@ import 'package:flutter/widgets.dart';
 
 import '../../core/l10n/app_strings.dart';
 
-/// The names people read for the codes a workflow carries (roles, kinds of evidence, legal document types, grades). Each code is looked up with its own literal key,
-/// so the table of words can be checked against the code that uses it (a key built from parts is refused by the registry test). A template of a province may use a
-/// code this table has no name for: the code itself is then shown, never a guessed name.
+/// The names people read for the codes a workflow carries (roles, kinds of evidence, legal document types, grades, the events of the log, the stages of the shipped
+/// templates, the part a person has in a task). Each code is looked up with its own literal key, so the table of words can be checked against the code that uses it.
+/// A template of a province may use a code this table has no name for: the code itself is then shown, never a guessed name.
 
 String pwfRoleName(BuildContext context, String code) => switch (code.trim().toUpperCase()) {
       'INVESTOR_REP' => context.t('mob.pwf6.role.investorRep'),
@@ -59,6 +59,48 @@ String pwfGradeName(BuildContext context, String code) => switch (code.trim().to
       'WEAK' => context.t('mob.pwf6.grade.weak'),
       'POOR' => context.t('mob.pwf6.grade.poor'),
       _ => code,
+    };
+
+/// What happened to a task, in words. A kind of event this table has no word for is "Cập nhật": the log is the server's and its codes are not shown.
+String pwfHistoryName(BuildContext context, String kind) => switch (kind.trim().toUpperCase()) {
+      'START' => context.t('mob.pwf7.history.start'),
+      'STARTED' => context.t('mob.pwf7.history.started'),
+      'COMPLETE_REQUESTED' => context.t('mob.pwf7.history.completeRequested'),
+      'COMPLETED' => context.t('mob.pwf7.history.completed'),
+      'APPROVED' => context.t('mob.pwf7.history.approved'),
+      'RETURNED' => context.t('mob.pwf7.history.returned'),
+      'CANCELLED' => context.t('mob.pwf7.history.cancelled'),
+      'CHECKLIST_DONE' => context.t('mob.pwf7.history.checklistDone'),
+      'EVIDENCE_ATTACHED' => context.t('mob.pwf7.history.evidenceAttached'),
+      'EXCEPTION_REQUESTED' => context.t('mob.pwf7.history.exceptionRequested'),
+      'EXCEPTION_DECIDED' => context.t('mob.pwf7.history.exceptionDecided'),
+      'ASSIGNED' => context.t('mob.pwf7.history.assigned'),
+      'PAUSE_APPROVED' => context.t('mob.pwf7.history.pauseApproved'),
+      'PROGRESS' => context.t('mob.pwf7.history.progress'),
+      'RESUMED' => context.t('mob.pwf7.history.resumed'),
+      'RESCHEDULED' => context.t('mob.pwf7.history.rescheduled'),
+      _ => context.t('mob.pwf7.history.other'),
+    };
+
+/// The name of a stage of the shipped templates, for a screen that has only its code (MOB-79). A stage a province named itself keeps its code.
+String pwfPhaseName(BuildContext context, String code) => switch (code.trim().toUpperCase()) {
+      'PREPARATION' => context.t('mob.pwf7.phase.preparation'),
+      'FEASIBILITY' => context.t('mob.pwf7.phase.feasibility'),
+      'APPROVAL' => context.t('mob.pwf7.phase.approval'),
+      'IMPLEMENTATION' => context.t('mob.pwf7.phase.implementation'),
+      'ACCEPTANCE' => context.t('mob.pwf7.phase.acceptance'),
+      'SETTLEMENT' => context.t('mob.pwf7.phase.settlement'),
+      'ENDED' => context.t('mob.pwf7.phase.ended'),
+      _ => code,
+    };
+
+/// The part a person has in a task (responsible, accountable, consulted, informed), in words.
+String pwfPartName(BuildContext context, String role) => switch (role.trim().toUpperCase()) {
+      'RESPONSIBLE' => context.t('mob.pwf7.part.responsible'),
+      'ACCOUNTABLE' => context.t('mob.pwf7.part.accountable'),
+      'CONSULTED' => context.t('mob.pwf7.part.consulted'),
+      'INFORMED' => context.t('mob.pwf7.part.informed'),
+      _ => context.t('mob.pwf7.part.other'),
     };
 
 /// "System default" for version 0 of a rule (the shipped default has no version of the tenant), else "version N".

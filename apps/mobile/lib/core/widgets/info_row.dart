@@ -8,7 +8,8 @@ import '../theme/typography.dart';
 /// there is no value: a field that is not known is left out, not shown as "None yet", and a 0 appears only when it is really 0 (the caller
 /// passes null for "not known" and "0" for zero). The label and the value are one semantic node, read "label: value".
 ///
-/// The value takes the width it needs and the label wraps, so a long value or a large text scale never cuts either.
+/// The label has two fifths of the row and the value three, both wrap, and every value ends at the edge of the row: the values of a group line up on the right
+/// whatever their length, and a long value or a large text scale never cuts either.
 class InfoRow extends StatelessWidget {
   const InfoRow({required this.label, required this.value, this.divider = true, this.valueWidget, super.key});
 
@@ -39,9 +40,10 @@ class InfoRow extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Flexible(flex: 2, child: Text(label, style: text.body.copyWith(color: v2.palette.ink2))),
+              Expanded(flex: 2, child: Text(label, style: text.body.copyWith(color: v2.palette.ink2))),
               const SizedBox(width: MachvonV2Space.s16),
-              Flexible(flex: 3, child: Align(alignment: Alignment.topRight, child: valueWidget ?? Text(value!, textAlign: TextAlign.end, style: text.bodyStrong))),
+              // The value column always ends at the edge of the row, so the values of a group line up on the right whatever their length.
+              Expanded(flex: 3, child: Align(alignment: Alignment.topRight, child: valueWidget ?? Text(value!, textAlign: TextAlign.end, style: text.bodyStrong))),
             ],
           ),
         ),

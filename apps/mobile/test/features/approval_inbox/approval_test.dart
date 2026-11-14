@@ -189,6 +189,10 @@ void main() {
       await _open(tester, server, '/approval/mob-24/t-1');
 
       final SemanticsHandle semantics = tester.ensureSemantics();
+      // The detail is in tabs: what is asked, the comparison with the revision before, the files. The comparison is the second.
+      expect(find.text('Bản 2, so với bản 1'), findsNothing);
+      await tester.tap(find.textContaining('So sánh').first);
+      await tester.pumpAndSettle();
       expect(find.text('Bản 2, so với bản 1'), findsOneWidget);
       // A figure is read as one sentence by a screen reader; the screen shows the same facts as a figure with its previous value and change.
       expect(find.bySemanticsLabel('Vốn năm, ngân sách trung ương: bản trước 100 triệu đồng, bản này 90 triệu đồng, thay đổi -10 triệu đồng'), findsOneWidget);
@@ -200,9 +204,14 @@ void main() {
       expect(find.text('trong đó CTMTQG 40 triệu đồng (đã nằm trong các ô, không cộng thêm)'), findsOneWidget);
       expect(find.textContaining('460'), findsNothing);
       expect(find.text('Lý do chỉnh sửa: Điều chỉnh số liệu vốn năm'), findsOneWidget);
+      // The files that prove it are the third tab.
+      await tester.tap(find.textContaining('Bằng chứng').first);
+      await tester.pumpAndSettle();
       expect(find.text('bao-cao-tuan-44.pdf'), findsOneWidget);
       expect(find.text('application/pdf, 200 KB'), findsOneWidget);
       expect(find.textContaining('SHA-256: a3f5c2d1e4b69788'), findsOneWidget);
+      await tester.tap(find.textContaining('Nội dung').first);
+      await tester.pumpAndSettle();
       expect(find.text('Ban QLDA giao thông'), findsOneWidget);
       expect(find.textContaining('420.000.000 đồng'), findsOneWidget, reason: 'the head of the detail states the amount in full');
       semantics.dispose();
@@ -214,12 +223,18 @@ void main() {
       _reads(server);
       server.on('GET', '/reports/rep-2', (_) => reportRevision('rep-2', 1, firstRevision));
       await _open(tester, server, '/approval/mob-24/t-1');
+      await tester.tap(find.textContaining('So sánh').first);
+      await tester.pumpAndSettle();
       expect(find.text('Đây là bản đầu tiên, chưa có bản trước để so sánh.'), findsOneWidget);
+      await tester.tap(find.textContaining('Bằng chứng').first);
+      await tester.pumpAndSettle();
       expect(find.text('Hồ sơ không có tệp đính kèm.'), findsOneWidget);
 
       final ScriptedServer other = ScriptedServer();
       _reads(other, task: approvalTask('t-1', businessType: 'payment.approve'));
       await _open(tester, other, '/approval/mob-24/t-1');
+      await tester.tap(find.textContaining('So sánh').first);
+      await tester.pumpAndSettle();
       expect(find.text('Loại hồ sơ này chưa có so sánh với bản trước trên điện thoại.'), findsOneWidget);
       expect(other.callsTo('GET', '/reports/rep-2'), isEmpty);
     });

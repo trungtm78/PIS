@@ -24,6 +24,9 @@ class WorkRow extends StatelessWidget {
     this.semanticLabel,
     this.dividerAbove = false,
     this.quiet = false,
+    this.titleMaxLines = 2,
+    this.subtitleMaxLines = 1,
+    this.footer,
     super.key,
   });
 
@@ -74,17 +77,30 @@ class WorkRow extends StatelessWidget {
   /// stands out without a colour.
   final bool quiet;
 
+  /// How many lines the title and the context may take before they are cut (a large text scale never cuts). A row whose name is the thing the person
+  /// came for (a task, a legal ground) asks for more than the two and one of a plain list.
+  final int titleMaxLines;
+  final int subtitleMaxLines;
+
+  /// A line under the context, across the width of the text: the deadline of a task with its day. It replaces a narrow end column where the words of
+  /// the deadline would break into several lines.
+  final Widget? footer;
+
   @override
   Widget build(BuildContext context) {
     final MachvonV2 v2 = context.v2;
     final MachvonV2Text text = context.v2text;
     final bool large = largeText(context);
+    // An icon given without a colour takes the secondary ink of the theme: the default of the framework is near black, which is lost on the dark surface.
+    final Widget? leading = this.leading == null ? null : IconTheme.merge(data: IconThemeData(color: v2.palette.ink2), child: this.leading!);
+    final Widget? trailing = this.trailing == null ? null : IconTheme.merge(data: IconThemeData(color: v2.palette.ink2), child: this.trailing!);
     final Widget main = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Text(title, style: quiet ? text.body.copyWith(color: v2.palette.ink2) : text.bodyStrong, maxLines: large ? null : 2, overflow: large ? TextOverflow.visible : TextOverflow.ellipsis),
-        if (subtitle != null) Text(subtitle!, style: text.caption, maxLines: large ? null : 1, overflow: large ? TextOverflow.visible : TextOverflow.ellipsis),
+        Text(title, style: quiet ? text.body.copyWith(color: v2.palette.ink2) : text.bodyStrong, maxLines: large ? null : titleMaxLines, overflow: large ? TextOverflow.visible : TextOverflow.ellipsis),
+        if (subtitle != null) Text(subtitle!, style: text.caption, maxLines: large ? null : subtitleMaxLines, overflow: large ? TextOverflow.visible : TextOverflow.ellipsis),
+        if (footer != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: footer),
       ],
     );
     final double inset = leading == null ? MachvonV2Space.s16 : MachvonV2Space.s16 + MachvonV2Size.glyph + MachvonV2Space.s12;
@@ -95,7 +111,7 @@ class WorkRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Row(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                  if (leading != null) ...<Widget>[leading!, const SizedBox(width: MachvonV2Space.s12)],
+                  if (leading != null) ...<Widget>[leading, const SizedBox(width: MachvonV2Space.s12)],
                   Expanded(child: main),
                 ]),
                 Padding(
@@ -107,7 +123,7 @@ class WorkRow extends StatelessWidget {
           : Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                if (leading != null) ...<Widget>[leading!, const SizedBox(width: MachvonV2Space.s12)],
+                if (leading != null) ...<Widget>[leading, const SizedBox(width: MachvonV2Space.s12)],
                 Expanded(child: main),
                 if (trailing != null) ...<Widget>[
                   const SizedBox(width: MachvonV2Space.s12),

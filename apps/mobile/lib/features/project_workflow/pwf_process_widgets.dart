@@ -4,7 +4,6 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../core/theme/colors.dart';
-import '../../core/theme/typography.dart';
 import '../../core/widgets/sheets.dart';
 import '../../core/widgets/work_row.dart';
 import 'pwf_process_models.dart';
@@ -77,11 +76,14 @@ class PwfStepHeader extends StatelessWidget {
         : (step.attention > 0
             ? context.t('mob.pwf.process.step.legalAttention', <String, Object>{'count': step.legalBasis.length, 'attention': step.attention})
             : context.t('mob.pwf.process.step.legal', <String, Object>{'count': step.legalBasis.length}));
+    // The legal grounds are a fact of the step on its line of facts (and the row opens them): as an end column they squeezed the line to "Việc 1/2 · ...".
     return WorkRow(
       title: title,
-      subtitle: facts.join(' · '),
+      titleMaxLines: 3,
+      subtitle: <String>[...facts, ?legal].join(' · '),
+      subtitleMaxLines: 3,
       leading: Icon(_stepIcon(step.status), color: context.v2.palette.ink2),
-      trailing: legal == null ? null : Text(legal, style: context.v2text.label, textAlign: TextAlign.end),
+      trailing: onLegal == null ? null : Icon(Icons.gavel_outlined, size: 20, color: context.v2.palette.ink2),
       onTap: onLegal,
       semanticLabel: <String>[title, ...facts, if (legal != null) legal].join(', '),
       dividerAbove: true,
@@ -112,9 +114,10 @@ class PwfLegalBasisRow extends StatelessWidget {
     ];
     return WorkRow(
       title: title,
-      subtitle: facts.join(' · '),
+      titleMaxLines: 3,
+      subtitle: <String>[state, ...facts].join(' · '),
+      subtitleMaxLines: 5,
       leading: Icon(_legalIcon(basis.state), color: context.v2.palette.ink2),
-      trailing: Text(state, style: context.v2text.label, textAlign: TextAlign.end),
       semanticLabel: <String>[title, state, ...facts].join(', '),
       dividerAbove: dividerAbove,
     );
@@ -155,9 +158,10 @@ class PwfFormRevisionRow extends StatelessWidget {
     final String title = form.title ?? form.code;
     return WorkRow(
       title: title,
-      subtitle: facts.join(' · '),
+      titleMaxLines: 3,
+      subtitle: <String>[?warning, ...facts].join(' · '),
+      subtitleMaxLines: 3,
       leading: Icon(form.newerAvailable ? Icons.warning_amber_outlined : Icons.description_outlined, color: context.v2.palette.ink2),
-      trailing: warning == null ? null : Text(warning, style: context.v2text.label, textAlign: TextAlign.end),
       semanticLabel: <String>[title, ...facts, if (warning != null) warning].join(', '),
       dividerAbove: dividerAbove,
     );

@@ -104,7 +104,7 @@ void main() {
       expect(find.text('Đang làm'), findsOneWidget);
       expect(find.text('Trần Văn B'), findsOneWidget);
       expect(find.text('Còn thiếu để hoàn thành'), findsOneWidget);
-      expect(find.text('Mục danh mục kiểm chưa xong: C1'), findsOneWidget);
+      expect(find.text('Mục danh mục kiểm chưa xong: Dự thảo hồ sơ mời thầu'), findsOneWidget, reason: 'a blocker names the item, not its code');
       expect(find.text('Thiếu biểu mẫu FORM_BID'), findsOneWidget);
       expect(find.text('Dự thảo hồ sơ mời thầu'), findsOneWidget);
       expect(find.text('Chứng từ pháp lý'), findsWidgets);
@@ -114,7 +114,7 @@ void main() {
       await tester.scrollUntilVisible(find.textContaining('Diễn biến'), -200, scrollable: find.byType(Scrollable).first);
       await tester.tap(find.textContaining('Diễn biến').first);
       await tester.pump();
-      expect(find.text('Trả lại'), findsOneWidget, reason: 'the history says it was returned');
+      expect(find.text('Trả lại công việc'), findsOneWidget, reason: 'the history says it was returned');
       expect(find.textContaining('Thiếu phụ lục kỹ thuật'), findsOneWidget);
       // The completion is locked while the checklist is open, and says why.
       expect(find.text('Còn 2 điều kiện chưa đủ để hoàn thành.'), findsOneWidget);
@@ -123,10 +123,10 @@ void main() {
 
     final List<({String name, TaskState Function() state, List<String> shown, List<String> hidden})> bars = <({String name, TaskState Function() state, List<String> shown, List<String> hidden})>[
       (name: 'a task that is not started: start it', state: () => TaskState(status: 'NOT_STARTED'), shown: <String>['Bắt đầu việc'], hidden: <String>['Hoàn thành việc']),
-      (name: 'a task in progress: complete it or ask for more time', state: TaskState.new, shown: <String>['Hoàn thành việc', 'Xin dời hạn'], hidden: <String>['Bắt đầu việc', 'Duyệt hoàn thành']),
+      (name: 'a task in progress: complete it or ask for more time', state: TaskState.new, shown: <String>['Hoàn thành việc', 'Dời hạn'], hidden: <String>['Bắt đầu việc', 'Duyệt hoàn thành']),
       (name: 'a task that waits for approval: approve or return it', state: () => TaskState(status: 'AWAITING_APPROVAL', canApprove: true, assignee: false), shown: <String>['Duyệt hoàn thành', 'Trả lại'], hidden: <String>['Hoàn thành việc']),
       (name: 'a task on hold: resume it', state: () => TaskState(status: 'ON_HOLD'), shown: <String>['Tiếp tục việc'], hidden: <String>['Hoàn thành việc']),
-      (name: 'a task that is done: nothing', state: () => TaskState(status: 'DONE'), shown: <String>[], hidden: <String>['Hoàn thành việc', 'Bắt đầu việc', 'Duyệt hoàn thành', 'Tiếp tục việc', 'Xin dời hạn']),
+      (name: 'a task that is done: nothing', state: () => TaskState(status: 'DONE'), shown: <String>[], hidden: <String>['Hoàn thành việc', 'Bắt đầu việc', 'Duyệt hoàn thành', 'Tiếp tục việc', 'Dời hạn']),
     ];
     for (final ({String name, TaskState Function() state, List<String> shown, List<String> hidden}) bar in bars) {
       testWidgets('the bar offers what the server says the person can do: ${bar.name}', (WidgetTester tester) async {
@@ -207,7 +207,7 @@ void main() {
     testWidgets('a request for more time is kept with its reason and its days, and a reason that is too short is refused before anything is kept', (WidgetTester tester) async {
       final _Phone phone = await _open(tester, TaskState());
       await phone.goOffline();
-      await phone.bar('Xin dời hạn');
+      await phone.bar('Dời hạn');
       await phone.typeInSheet('Lý do', 'Chờ Sở');
       await phone.sheet('Gửi đề nghị');
       expect(find.text('Cần ít nhất 20 ký tự.'), findsWidgets);
@@ -227,7 +227,7 @@ void main() {
       await phone.goOnline();
       await phone.flush();
       expect(phone.server.state.exceptions, hasLength(1));
-      // The requests of the task are on the tab "Diễn biến" (the screen opens on its first tab): the row there reads "Xin dời hạn · Chờ quyết định".
+      // The requests of the task are on the tab "Diễn biến" (the screen opens on "Cần làm"): the row there reads "Xin dời hạn · Chờ quyết định".
       // Not run on the machine this was written on (Smart App Control blocks sqlite3mc.dll, which this file needs): CI confirms it.
       await tester.scrollUntilVisible(find.textContaining('Diễn biến'), -200, scrollable: find.byType(Scrollable).first);
       await tester.tap(find.textContaining('Diễn biến').first);

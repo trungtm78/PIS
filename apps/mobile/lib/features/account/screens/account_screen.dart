@@ -183,6 +183,26 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   ],
                 ),
               ),
+              // Groups with a heading each, the person's own work first: a long flat list of fourteen rows was hard to scan.
+              GroupHeader(title: context.t('mob.account.work.title')),
+              NavRow(
+                icon: Icons.event_available_outlined,
+                label: context.t('mob.pwf.entry.tasks'),
+                onTap: () => context.push(location('MOB-80')),
+              ),
+              NavRow(
+                icon: Icons.insights_outlined,
+                label: context.t('mob.pwf.entry.score'),
+                dividerAbove: true,
+                onTap: () => context.push(location('MOB-81')),
+              ),
+              NavRow(
+                icon: Icons.swap_horiz_outlined,
+                label: context.t('mob.reads.entry.delegations'),
+                dividerAbove: true,
+                onTap: () => context.push(location('MOB-75')),
+              ),
+              // The three deadline bands as the person's reminders draw them, and the way to change them (key flow 8: two taps to the setting).
               GroupHeader(title: context.t('mob.account.deadline.title')),
               DeadlinePreview(
                 thresholds: ref.watch(deadlineThresholdsProvider),
@@ -192,7 +212,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 label: context.t('mob.pwf.entry.reminders'),
                 onTap: () => context.push(location('MOB-82')),
               ),
-              GroupHeader(title: context.t('mob.account.appearance.title')),
+              GroupHeader(title: context.t('mob.account.settings.title')),
               _Choice(
                 label: context.t('mob.account.appearance.mode.label'),
                 child: FilterChips<ThemeMode>(
@@ -293,40 +313,16 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 onTap: () => context.go(location('MOB-43')),
               ),
               NavRow(
-                icon: Icons.swap_horiz_outlined,
-                label: context.t('mob.reads.entry.delegations'),
-                dividerAbove: true,
-                onTap: () => context.push(location('MOB-75')),
-              ),
-              NavRow(
                 icon: Icons.fact_check_outlined,
                 label: context.t('mob.reads.entry.kpi'),
                 dividerAbove: true,
                 onTap: () => context.push(location('MOB-76')),
               ),
               NavRow(
-                icon: Icons.event_available_outlined,
-                label: context.t('mob.pwf.entry.tasks'),
-                dividerAbove: true,
-                onTap: () => context.push(location('MOB-80')),
-              ),
-              NavRow(
-                icon: Icons.insights_outlined,
-                label: context.t('mob.pwf.entry.score'),
-                dividerAbove: true,
-                onTap: () => context.push(location('MOB-81')),
-              ),
-              NavRow(
                 icon: Icons.description_outlined,
                 label: context.t('mob.reads.entry.reports'),
                 dividerAbove: true,
                 onTap: () => context.push(location('MOB-77')),
-              ),
-              NavRow(
-                icon: Icons.help_outline,
-                label: context.t('mob.account.help.action'),
-                dividerAbove: true,
-                onTap: () => context.push(location('MOB-50')),
               ),
               GroupHeader(title: context.t('mob.account.organisation.title')),
               NavRow(
@@ -339,6 +335,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 label: context.t('mob.account.devices.action'),
                 dividerAbove: true,
                 onTap: () => context.push(location('MOB-49')),
+              ),
+              GroupHeader(title: context.t('mob.account.support.title')),
+              NavRow(
+                icon: Icons.help_outline,
+                label: context.t('mob.account.help.action'),
+                onTap: () => context.push(location('MOB-50')),
               ),
               if (info.asData != null)
                 Padding(

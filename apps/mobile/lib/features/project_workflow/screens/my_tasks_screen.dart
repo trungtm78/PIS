@@ -7,10 +7,13 @@ import '../../../core/api/problem.dart';
 import '../../../core/di/providers.dart' show apiClientProvider;
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/filter_chips.dart';
-import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/nav_row.dart';
+import '../../../core/widgets/stat_strip.dart';
+import '../../../core/widgets/underline_tabs.dart';
 import '../../../core/widgets/work_row.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
@@ -80,6 +83,7 @@ class PwfMyTasksList extends ConsumerStatefulWidget {
 
 class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
   PwfColourMode _mode = PwfColourMode.personal;
+  int _tab = 0;
   final List<PwfMyTask> _more = <PwfMyTask>[];
   String? _cursor;
   bool _loading = false;
@@ -145,24 +149,65 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
       members.sort((PwfMyTask a, PwfMyTask b) => (a.dueDate ?? '9999-99-99').compareTo(b.dueDate ?? '9999-99-99'));
     }
     final bool personal = _mode == PwfColourMode.personal;
+    // One purpose a tab: what the person still has to do (by deadline), what waits for another person's approval, and what is over.
+    final List<PwfMyTask> waiting = <PwfMyTask>[for (final PwfMyTask task in all) if (task.status == PwfTaskStatus.awaitingApproval) task];
+    final List<PwfMyTask> over = groups[PwfGroup.done]!;
+    final int todoCount = all.length - waiting.length - over.length;
+    int inGroups(List<PwfGroup> which) => which.fold<int>(0, (int sum, PwfGroup group) => sum + groups[group]!.where((PwfMyTask task) => task.status != PwfTaskStatus.awaitingApproval).length);
+    final int tab = _tab.clamp(0, 2);
     return ListView(
       padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + MachvonV2Size.rowMinHeight + MachvonV2Space.s32),
       children: <Widget>[
-        FilterChips<PwfColourMode>(
-          options: <ChipOption<PwfColourMode>>[
-            ChipOption<PwfColourMode>(value: PwfColourMode.personal, label: context.t('mob.pwf.mine.mode.personal')),
-            ChipOption<PwfColourMode>(value: PwfColourMode.official, label: context.t('mob.pwf.mine.mode.official')),
+        // The main figures first: what is still to do, by band.
+        StatStrip(
+          cells: <StatCell>[
+            StatCell(value: '${inGroups(const <PwfGroup>[PwfGroup.late, PwfGroup.due])}', label: context.t('mob.pwf6.home.red'), band: DeadlineBand.late, bandInline: true),
+            StatCell(value: '${inGroups(const <PwfGroup>[PwfGroup.soon])}', label: context.t('mob.pwf6.home.yellow'), band: DeadlineBand.soon, bandInline: true),
+            StatCell(value: '${inGroups(const <PwfGroup>[PwfGroup.ok])}', label: context.t('mob.pwf6.home.green'), band: DeadlineBand.ok, bandInline: true),
           ],
-          selected: _mode,
-          onChanged: (PwfColourMode next) => setState(() => _mode = next),
         ),
-        StatusBanner(text: personal ? context.t('mob.pwf.mine.note.personal') : context.t('mob.pwf.mine.note.official'), icon: Icons.info_outline),
-        if (personal) WorkRow(title: context.t('mob.pwf.mine.settings'), leading: const Icon(Icons.tune), trailing: const Icon(Icons.chevron_right), onTap: widget.onSettings, semanticLabel: context.t('mob.pwf.mine.settings')),
-        for (final PwfGroup group in PwfGroup.values)
-          if (groups[group]!.isNotEmpty) ...<Widget>[
-            GroupHeader(title: _groupTitle(context, group), count: groups[group]!.length),
-            for (int index = 0; index < groups[group]!.length; index += 1) _row(context, groups[group]![index], personal, index > 0),
+        UnderlineTabs(
+          index: tab,
+          onChanged: (int next) => setState(() => _tab = next),
+          tabs: <TabOption>[
+            TabOption(label: context.t('mob.pwf7.mine.tab.todo'), count: todoCount == 0 ? null : todoCount),
+            TabOption(label: context.t('mob.pwf7.mine.tab.waiting'), count: waiting.isEmpty ? null : waiting.length),
+            TabOption(label: context.t('mob.pwf7.mine.tab.over'), count: over.isEmpty ? null : over.length),
           ],
+        ),
+        if (tab == 0) ...<Widget>[
+          FilterChips<PwfColourMode>(
+            options: <ChipOption<PwfColourMode>>[
+              ChipOption<PwfColourMode>(value: PwfColourMode.personal, label: context.t('mob.pwf.mine.mode.personal')),
+              ChipOption<PwfColourMode>(value: PwfColourMode.official, label: context.t('mob.pwf.mine.mode.official')),
+            ],
+            selected: _mode,
+            onChanged: (PwfColourMode next) => setState(() => _mode = next),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12),
+            child: Semantics(container: true, child: Text(personal ? context.t('mob.pwf.mine.note.personal') : context.t('mob.pwf.mine.note.official'), style: text.caption)),
+          ),
+          for (final PwfGroup group in PwfGroup.values)
+            if (group != PwfGroup.done)
+              ...(() {
+                final List<PwfMyTask> members = <PwfMyTask>[for (final PwfMyTask task in groups[group]!) if (task.status != PwfTaskStatus.awaitingApproval) task];
+                if (members.isEmpty) return const <Widget>[];
+                return <Widget>[
+                  GroupHeader(title: _groupTitle(context, group), count: members.length),
+                  for (int index = 0; index < members.length; index += 1) _row(context, members[index], personal, index > 0),
+                ];
+              })(),
+          if (todoCount == 0) _none(context),
+        ],
+        if (tab == 1) ...<Widget>[
+          for (int index = 0; index < waiting.length; index += 1) _row(context, waiting[index], false, index > 0),
+          if (waiting.isEmpty) _none(context),
+        ],
+        if (tab == 2) ...<Widget>[
+          for (int index = 0; index < over.length; index += 1) _row(context, over[index], false, index > 0),
+          if (over.isEmpty) _none(context),
+        ],
         Padding(
           padding: const EdgeInsets.all(MachvonV2Space.s16),
           child: Column(
@@ -174,9 +219,12 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
             ],
           ),
         ),
+        NavRow(label: context.t('mob.pwf.mine.settings'), icon: Icons.tune, dividerAbove: true, onTap: widget.onSettings),
       ],
     );
   }
+
+  Widget _none(BuildContext context) => Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf7.mine.none'), style: context.v2text.body));
 
   String _groupTitle(BuildContext context, PwfGroup group) => switch (group) {
         PwfGroup.late => context.t('mob.pwf.group.late'),
@@ -196,29 +244,27 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
         : (task.personalDiffers
             ? context.t('mob.pwf6.mine.note', <String, Object>{'personal': context.t('mob.pwf.mine.row.personal'), 'official': context.t('mob.pwf.mine.row.official', <String, Object>{'words': pwfDeadlineWords(context, task.official)})})
             : context.t('mob.pwf.mine.row.personal'));
-    // The note of a personal colour is a line of its own under the row, across its whole width: in the narrow end column it broke into five lines and squeezed the name of the task.
-    final Widget row = WorkRow(
+    // The deadline is a line of its own under the name, across the width of the row, and the note of a personal colour a line under it: in a narrow end column they
+    // broke into five lines and squeezed the name of the task. The code of the task is not on the row (it is among the facts of the task).
+    final String? forecast = pwfForecastWords(context, status: task.status, dueDay: task.dueDate, forecastDay: task.forecastFinish);
+    final List<String> facts = <String>[task.projectCode, if (task.critical) context.t('mob.pwf.mine.row.critical')].where((String part) => part.isNotEmpty).toList();
+    return WorkRow(
       title: task.name,
-      subtitle: <String>[task.projectCode, task.code, if (task.critical) context.t('mob.pwf.mine.row.critical')].where((String part) => part.isNotEmpty).join(' · '),
+      titleMaxLines: 3,
+      subtitle: facts.isEmpty ? null : facts.join(' · '),
       leading: PwfGlyph(band: band, status: task.status),
-      trailing: PwfDeadlineColumn(band: band, status: task.status, dueDay: task.status.isFinal ? null : task.dueDate),
+      footer: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          PwfDeadlineLine(band: band, status: task.status, dueDay: task.dueDate, forecastDay: task.forecastFinish),
+          if (note != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(note, style: context.v2text.caption)),
+        ],
+      ),
+      trailing: Icon(Icons.chevron_right, color: context.v2.palette.ink3),
       onTap: () => widget.onOpenTask(task),
-      semanticLabel: pwfSpokenRow(context, title: task.name, facts: <String>[task.projectCode, task.code].where((String part) => part.isNotEmpty).toList(), band: band, status: task.status, dueDay: task.dueDate, note: note),
+      semanticLabel: pwfSpokenRow(context, title: task.name, facts: facts, band: band, status: task.status, dueDay: task.dueDate, note: <String>[?forecast, ?note].isEmpty ? null : <String>[?forecast, ?note].join(', ')),
       dividerAbove: divider,
-    );
-    if (note == null) return row;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        row,
-        ExcludeSemantics(
-          child: Padding(
-            padding: const EdgeInsets.only(left: MachvonV2Space.s16 + MachvonV2Size.glyph + MachvonV2Space.s12, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12),
-            child: Text(note, style: context.v2text.caption),
-          ),
-        ),
-      ],
     );
   }
 }

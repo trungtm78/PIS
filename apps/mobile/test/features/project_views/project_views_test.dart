@@ -447,7 +447,7 @@ void main() {
       expect(find.text('Nộp báo cáo khả thi'), findsOneWidget);
       expect(find.text('Còn 8 ngày làm việc'), findsOneWidget);
       expect(tester.getTopLeft(find.text('Hoàn thiện hồ sơ thiết kế')).dy, lessThan(tester.getTopLeft(find.text('Nộp báo cáo khả thi')).dy), reason: 'late first');
-      expect(find.text('Mốc sắp tới'), findsNothing, reason: 'the project lists its milestones above; the panel does not list them twice');
+      expect(find.text('Mốc chưa xong'), findsNothing, reason: 'the project lists its own milestones; the panel does not list those of the workflow in this tab');
     });
 
     testWidgets('a project that was rejected has its status and no strip', (WidgetTester tester) async {

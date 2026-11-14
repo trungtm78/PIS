@@ -14,6 +14,7 @@ import '../../../core/theme/typography.dart';
 import '../../../core/widgets/action_bar.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/section_panel.dart';
 import '../../../core/widgets/sheets.dart';
 import '../../../core/widgets/state_view.dart';
 import '../../../core/widgets/timeline.dart';
@@ -395,19 +396,32 @@ class _TaskBody extends StatelessWidget {
       if (_canWork) WorkRow(title: context.t('mob.pwf.evidence.add'), leading: const Icon(Icons.add_circle_outline), onTap: locked ? null : () => onEvidence(detail), dividerAbove: detail.evidence.isNotEmpty),
       WorkRow(title: context.t('mob.pwf.evidence.files.open'), subtitle: context.t('mob.pwf.evidence.files.hint'), leading: const Icon(Icons.attach_file), trailing: const Icon(Icons.chevron_right), onTap: onFiles, dividerAbove: true),
     ];
+    String? dayOf(String? value) => value == null ? null : formatDay(value, language: language);
+    // The facts in three short groups, each with its heading: who, when, and where the task sits in the procedure. A fact that is not known is left out, and a group with none is left out with its heading.
+    final String? forecast = detail.status.isFinal || detail.forecastFinish == detail.plannedFinish ? null : dayOf(detail.forecastFinish);
     final List<Widget> facts = <Widget>[
-      if (detail.responsibleRole != null) InfoRow(label: context.t('mob.pwf.fact.role'), value: pwfRoleName(context, detail.responsibleRole!)),
-      if (detail.approverRole != null) InfoRow(label: context.t('mob.pwf.fact.approver'), value: pwfRoleName(context, detail.approverRole!)),
-      if (detail.plannedStart != null) InfoRow(label: context.t('mob.pwf.fact.plannedStart'), value: formatDay(detail.plannedStart!, language: language)),
-      if (detail.plannedFinish != null) InfoRow(label: context.t('mob.pwf.fact.plannedFinish'), value: formatDay(detail.plannedFinish!, language: language)),
-      if (detail.baselineFinish != null) InfoRow(label: context.t('mob.pwf.fact.baselineFinish'), value: formatDay(detail.baselineFinish!, language: language)),
-      if (detail.finishVarianceDays != null && detail.finishVarianceDays != 0) InfoRow(label: context.t('mob.pwf.fact.variance'), value: context.t('mob.pwf.fact.variance.days', <String, Object>{'days': detail.finishVarianceDays!})),
-      if (detail.actualStart != null) InfoRow(label: context.t('mob.pwf.fact.actualStart'), value: formatDay(detail.actualStart!, language: language)),
-      if (detail.actualFinish != null) InfoRow(label: context.t('mob.pwf.fact.actualFinish'), value: formatDay(detail.actualFinish!, language: language)),
-      if (detail.critical) InfoRow(label: context.t('mob.pwf.fact.critical'), value: context.t('mob.pwf.fact.critical.value')),
-      if (detail.returnCount > 0) InfoRow(label: context.t('mob.pwf.fact.returns'), value: '${detail.returnCount}'),
-      if (detail.step != null) InfoRow(label: context.t('mob.pwf.process.fact.step'), value: context.t('mob.pwf.process.fact.stepValue', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name})),
-      if (detail.step?.responsibleRole != null) InfoRow(label: context.t('mob.pwf.process.fact.stepRole'), value: pwfRoleName(context, detail.step!.responsibleRole!)),
+      ..._group(context.t('mob.pwf7.group.people'), <(String, String?)>[
+        for (final PwfTaskPerson person in detail.people) if (!(person.role == 'RESPONSIBLE' && person.name == detail.assignee)) (pwfPartName(context, person.role), person.name),
+        (context.t('mob.pwf.fact.role'), detail.responsibleRole == null ? null : pwfRoleName(context, detail.responsibleRole!)),
+        (context.t('mob.pwf.fact.approver'), detail.approverRole == null ? null : pwfRoleName(context, detail.approverRole!)),
+      ]),
+      ..._group(context.t('mob.pwf7.group.schedule'), <(String, String?)>[
+        (context.t('mob.pwf.fact.plannedStart'), dayOf(detail.plannedStart)),
+        (context.t('mob.pwf.fact.plannedFinish'), dayOf(detail.plannedFinish)),
+        (context.t('mob.pwf7.fact.forecast'), forecast),
+        (context.t('mob.pwf.fact.baselineFinish'), dayOf(detail.baselineFinish)),
+        (context.t('mob.pwf.fact.variance'), detail.finishVarianceDays == null || detail.finishVarianceDays == 0 ? null : context.t('mob.pwf.fact.variance.days', <String, Object>{'days': detail.finishVarianceDays!})),
+        (context.t('mob.pwf.fact.actualStart'), dayOf(detail.actualStart)),
+        (context.t('mob.pwf.fact.actualFinish'), dayOf(detail.actualFinish)),
+      ]),
+      ..._group(context.t('mob.pwf7.group.place'), <(String, String?)>[
+        (context.t('mob.pwf7.fact.phase'), pwfPhaseName(context, detail.phaseCode)),
+        (context.t('mob.pwf.process.fact.step'), detail.step == null ? null : context.t('mob.pwf.process.fact.stepValue', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name})),
+        (context.t('mob.pwf.process.fact.stepRole'), detail.step?.responsibleRole == null ? null : pwfRoleName(context, detail.step!.responsibleRole!)),
+        (context.t('mob.pwf.fact.critical'), detail.critical ? context.t('mob.pwf.fact.critical.value') : null),
+        (context.t('mob.pwf.fact.returns'), detail.returnCount > 0 ? '${detail.returnCount}' : null),
+        (context.t('mob.pwf7.fact.code'), detail.code),
+      ]),
     ];
     final List<Widget> grounds = <Widget>[
       // PWF-4: the legal grounds of the task and of its step (read only), and the revision of each form with a warning when the form was revised since.
@@ -432,7 +446,7 @@ class _TaskBody extends StatelessWidget {
           padding: const EdgeInsets.all(MachvonV2Space.s16),
           child: TimelineList(
             entries: <TimelineEntry>[
-              for (final PwfHistoryEntry entry in detail.history) TimelineEntry(title: _historyKind(context, entry.kind), when: formatMoment(entry.at, language: language), detail: entry.reason),
+              for (final PwfHistoryEntry entry in detail.history) TimelineEntry(title: pwfHistoryName(context, entry.kind), when: formatMoment(entry.at, language: language), detail: <String>[?entry.actorName, ?entry.reason].isEmpty ? null : <String>[?entry.actorName, ?entry.reason].join(' · ')),
             ],
           ),
         ),
@@ -507,6 +521,7 @@ class _TaskBody extends StatelessWidget {
 
   Widget _blocker(BuildContext context, PwfBlocker blocker, bool divider) => WorkRow(
         title: _blockerText(context, blocker),
+        titleMaxLines: 4,
         leading: const Icon(Icons.error_outline),
         dividerAbove: divider,
       );
@@ -518,7 +533,13 @@ class _TaskBody extends StatelessWidget {
     final String state = done ? context.t('mob.pwf.checklist.done') : (pending ? context.t('mob.pwf.checklist.pending') : context.t('mob.pwf.checklist.open'));
     return WorkRow(
       title: item.name,
-      subtitle: item.mandatory ? context.t('mob.pwf.checklist.required') : context.t('mob.pwf.checklist.optional'),
+      titleMaxLines: 4,
+      subtitle: <String>[
+        item.mandatory ? context.t('mob.pwf.checklist.required') : context.t('mob.pwf.checklist.optional'),
+        if (done && item.doneByName != null) item.doneByName!,
+        if (done && item.doneAt != null) formatMoment(item.doneAt!, language: AppStrings.of(context).language),
+      ].join(' · '),
+      subtitleMaxLines: 2,
       leading: Icon(done ? Icons.check_circle : (pending ? Icons.schedule : Icons.radio_button_unchecked)),
       trailing: Text(state, style: context.v2text.label),
       onTap: actionable && !busy ? () => onItem(detail, item) : null,
@@ -529,21 +550,29 @@ class _TaskBody extends StatelessWidget {
 
   Widget _requirement(BuildContext context, PwfRequirement requirement, String kind, bool divider) => WorkRow(
         title: pwfDocTypeName(context, requirement.code),
-        subtitle: pwfDocTypeName(context, requirement.code) == requirement.code ? kind : '$kind · ${requirement.code}',
+        titleMaxLines: 3,
+        subtitle: kind,
         leading: Icon(requirement.satisfied ? Icons.check_circle : Icons.radio_button_unchecked),
         trailing: Text(requirement.satisfied ? context.t('mob.pwf.requirements.satisfied') : context.t('mob.pwf.requirements.missing'), style: context.v2text.label),
         dividerAbove: divider,
       );
 
   Widget _evidenceRow(BuildContext context, PwfEvidence evidence, bool divider, String language) {
-    final List<String> facts = <String>[
-      if (evidence.formTemplateCode != null) evidence.formTemplateCode!,
-      formatMoment(evidence.attachedAt, language: language),
-    ];
-    // What the evidence is, by name: the legal document it answers, else the reference typed with it, else the kind of evidence in words (never a bare code as the title).
+    // What the evidence is, by name: the title of the document of the store, else the legal document it answers, else the reference typed with it, else the kind of evidence
+    // in words (never a bare code as the title). Then who gave it, by name, and when.
     final String kind = pwfEvidenceKindName(context, evidence.kind);
-    final String title = evidence.legalDocType != null ? pwfDocTypeName(context, evidence.legalDocType!) : (evidence.externalRef ?? kind);
-    return WorkRow(title: title, subtitle: <String>[if (title != kind) kind, ...facts, if (evidence.note != null) evidence.note!].join(' · '), leading: const Icon(Icons.description_outlined), dividerAbove: divider);
+    final String? docType = evidence.legalDocType == null ? null : pwfDocTypeName(context, evidence.legalDocType!);
+    final String title = evidence.documentTitle ?? docType ?? evidence.externalRef ?? kind;
+    final String? form = evidence.formTemplateCode == null ? null : detail.formRevisions.where((PwfFormRevision one) => one.code == evidence.formTemplateCode).firstOrNull?.title;
+    final List<String> facts = <String>[
+      if (docType != null && docType != title) docType else if (title != kind) kind,
+      ?evidence.documentSymbol,
+      ?form,
+      ?evidence.attachedByName,
+      formatMoment(evidence.attachedAt, language: language),
+      ?evidence.note,
+    ];
+    return WorkRow(title: title, titleMaxLines: 3, subtitle: facts.join(' · '), subtitleMaxLines: 3, leading: const Icon(Icons.description_outlined), dividerAbove: divider);
   }
 
   Widget _exceptionRow(BuildContext context, PwfException exception, bool divider, String language) {
@@ -559,29 +588,37 @@ class _TaskBody extends StatelessWidget {
       _ => context.t('mob.pwf.exception.status.requested'),
     };
     final String range = exception.validFrom == null ? '' : ' · ${formatDay(exception.validFrom!, language: language)}${exception.validTo == null ? '' : ' - ${formatDay(exception.validTo!, language: language)}'}';
-    return WorkRow(title: '$kind · $status', subtitle: '${exception.reason}$range', leading: const Icon(Icons.pending_actions_outlined), dividerAbove: divider);
+    final List<String> who = <String>[
+      if (exception.requestedByName != null) context.t('mob.pwf7.exception.by', <String, Object>{'name': exception.requestedByName!}),
+      if (exception.decidedByName != null) context.t('mob.pwf7.exception.decidedBy', <String, Object>{'name': exception.decidedByName!}),
+      ?exception.decisionNote,
+    ];
+    return WorkRow(title: '$kind · $status', titleMaxLines: 3, subtitle: <String>['${exception.reason}$range', ...who].join(' · '), subtitleMaxLines: 8, leading: const Icon(Icons.pending_actions_outlined), dividerAbove: divider);
   }
 
+  /// What a blocker is about, by name: the item of the checklist, the legal document, the form. The server names them by code; a person reads the name.
+  String _itemName(String code) => detail.checklist.where((PwfChecklistItem item) => item.code == code).firstOrNull?.name ?? code;
+
+  String _formName(String code) => detail.formRevisions.where((PwfFormRevision form) => form.code == code).firstOrNull?.title ?? code;
+
   String _blockerText(BuildContext context, PwfBlocker blocker) => switch (blocker.code) {
-        'CHECKLIST_ITEM_OPEN' => context.t('mob.pwf.blocker.item', <String, Object>{'subject': blocker.subject}),
-        'EVIDENCE_MISSING' => context.t('mob.pwf.blocker.evidence', <String, Object>{'subject': blocker.subject}),
-        'LEGAL_DOC_MISSING' => context.t('mob.pwf.blocker.legal', <String, Object>{'subject': blocker.subject}),
-        'FORM_MISSING' => context.t('mob.pwf.blocker.form', <String, Object>{'subject': blocker.subject}),
+        'CHECKLIST_ITEM_OPEN' => context.t('mob.pwf.blocker.item', <String, Object>{'subject': _itemName(blocker.subject)}),
+        'EVIDENCE_MISSING' => context.t('mob.pwf.blocker.evidence', <String, Object>{'subject': _itemName(blocker.subject)}),
+        'LEGAL_DOC_MISSING' => context.t('mob.pwf.blocker.legal', <String, Object>{'subject': pwfDocTypeName(context, blocker.subject)}),
+        'FORM_MISSING' => context.t('mob.pwf.blocker.form', <String, Object>{'subject': _formName(blocker.subject)}),
         'APPROVER_REQUIRED' => context.t('mob.pwf.blocker.approver'),
         'MAKER_IS_APPROVER' => context.t('mob.pwf.blocker.maker'),
         _ => context.t('mob.pwf.blocker.other', <String, Object>{'code': blocker.code}),
       };
 
-  String _historyKind(BuildContext context, String kind) => switch (kind) {
-        'START' || 'STARTED' => context.t('mob.pwf.history.started'),
-        'COMPLETE_REQUESTED' => context.t('mob.pwf.history.completeRequested'),
-        'COMPLETED' => context.t('mob.pwf.history.completed'),
-        'APPROVED' => context.t('mob.pwf.history.approved'),
-        'RETURNED' => context.t('mob.pwf.history.returned'),
-        'EVIDENCE_ATTACHED' => context.t('mob.pwf.history.evidence'),
-        'CHECKLIST_DONE' => context.t('mob.pwf.history.checklist'),
-        _ => context.t('mob.pwf.history.other', <String, Object>{'kind': kind}),
-      };
+  /// A group of facts with its heading; nothing at all when none of its facts is known.
+  List<Widget> _group(String title, List<(String, String?)> facts) {
+    final List<(String, String?)> known = <(String, String?)>[for (final (String, String?) fact in facts) if (fact.$2 != null && fact.$2!.isNotEmpty) fact];
+    if (known.isEmpty) return const <Widget>[];
+    return <Widget>[
+      SectionPanel(title: title, padded: false, children: <Widget>[for (int index = 0; index < known.length; index += 1) InfoRow(label: known[index].$1, value: known[index].$2, divider: index > 0)]),
+    ];
+  }
 }
 
 /// The command a person made, in words, for the lines that say what is waiting.
@@ -614,8 +651,13 @@ class _Header extends StatelessWidget {
         children: <Widget>[
           Semantics(container: true, header: true, child: Text(detail.name, style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
           const SizedBox(height: MachvonV2Space.s4),
+          // Where the task sits, in the words of the procedure (its step, else its stage): the code of the task is one of the facts, not a headline.
           Text(
-            <String>[detail.code, if (detail.isMilestone) context.t('mob.pwf.header.milestone'), if (detail.mandatory) context.t('mob.pwf.header.required')].join(' · '),
+            <String>[
+              detail.step == null ? pwfPhaseName(context, detail.phaseCode) : context.t('mob.pwf.process.fact.stepValue', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name}),
+              if (detail.isMilestone) context.t('mob.pwf.header.milestone'),
+              if (detail.mandatory) context.t('mob.pwf.header.required'),
+            ].join(' · '),
             style: text.caption,
           ),
           const SizedBox(height: MachvonV2Space.s12),
@@ -625,9 +667,13 @@ class _Header extends StatelessWidget {
               PwfGlyph(band: detail.band, status: detail.status),
               const SizedBox(width: MachvonV2Space.s12),
               Expanded(
-                child: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: PwfDeadlineColumn(band: detail.band, status: detail.status, dueDay: detail.status.isFinal ? null : detail.plannedFinish, missingYear: detail.missingYear, note: detail.status.isFinal ? null : context.t('mob.pwf.header.official')),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    PwfDeadlineLine(band: detail.band, status: detail.status, dueDay: detail.plannedFinish, forecastDay: detail.forecastFinish, missingYear: detail.missingYear),
+                    if (!detail.status.isFinal) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(context.t('mob.pwf.header.official'), style: text.caption)),
+                  ],
                 ),
               ),
             ],

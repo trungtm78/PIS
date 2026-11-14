@@ -83,19 +83,14 @@ class _PwfScoreViewState extends State<PwfScoreView> {
         StatStrip(
           cells: <StatCell>[
             StatCell(value: line.shownScore == null ? context.t('mob.pwf.score.none') : formatNumber(line.shownScore.toString(), language), label: context.t('mob.pwf.score.label')),
-            StatCell(value: _rating(context, line), label: context.t('mob.pwf.score.rating')),
             StatCell(value: '${line.ratedTaskCount}', label: context.t('mob.pwf.score.tasks')),
           ],
         ),
+        // The grade is words, not a figure: as a fact under the figures it is read on one line (as a figure of the strip it broke in two).
+        InfoRow(label: context.t('mob.pwf.score.rating'), value: _rating(context, line), divider: false),
         if (line.state == 'SMALL_SAMPLE') Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf.score.small', <String, Object>{'count': line.ratedTaskCount}), style: text.body)),
         if (line.state == 'NOT_RATED') Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf.score.notRated'), style: text.body)),
-        if (line.scoreAdjusted != null && line.scoreComputed != null) InfoRow(label: context.t('mob.pwf.score.computed'), value: formatNumber(line.scoreComputed.toString(), language)),
-        if (line.policyCode != null)
-          InfoRow(
-            label: context.t('mob.pwf.score.basis'),
-            value: line.policyVersion == null ? line.policyCode : context.t('mob.pwf6.score.basis', <String, Object>{'version': pwfVersionText(context, line.policyVersion!)}),
-          ),
-        // One purpose a tab: how the score was worked out task by task, and what was changed or said about it afterwards.
+        // One purpose a tab: the score task by task, what was changed or said about it afterwards, and how it was worked out.
         PwfTabs(
           tabs: <PwfTab>[
             PwfTab(
@@ -103,7 +98,8 @@ class _PwfScoreViewState extends State<PwfScoreView> {
               count: line.contributions.length,
               children: <Widget>[
                 if (line.contributions.isNotEmpty) ...<Widget>[
-                  GroupHeader(title: context.t('mob.pwf.score.contributions'), count: line.contributions.length),
+                  // The tab already says what the list is and how long; a heading is only needed when a second group (the tasks left out) follows.
+                  if (line.excluded.isNotEmpty) GroupHeader(title: context.t('mob.pwf.score.contributions'), count: line.contributions.length),
                   for (int index = 0; index < line.contributions.length; index += 1) _contribution(context, line.contributions[index], index > 0, language),
                 ],
                 if (line.excluded.isNotEmpty) ...<Widget>[
@@ -143,6 +139,18 @@ class _PwfScoreViewState extends State<PwfScoreView> {
                     child: Text(line.responseUntil == null ? context.t('mob.pwf.score.respond') : context.t('mob.pwf.score.respond.until', <String, Object>{'date': formatDay(line.responseUntil!, language: language)}), style: text.caption),
                   ),
                 if (line.adjustments.isEmpty && line.responses.isEmpty && !line.canRespond) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.score.changes.none'), style: text.body)),
+              ],
+            ),
+            PwfTab(
+              label: context.t('mob.pwf7.score.tab.how'),
+              children: <Widget>[
+                InfoRow(label: context.t('mob.pwf.score.label'), value: line.shownScore == null ? null : formatNumber(line.shownScore.toString(), language), divider: false),
+                if (line.scoreAdjusted != null && line.scoreComputed != null) InfoRow(label: context.t('mob.pwf.score.computed'), value: formatNumber(line.scoreComputed.toString(), language)),
+                if (line.policyCode != null)
+                  InfoRow(
+                    label: context.t('mob.pwf.score.basis'),
+                    value: line.policyVersion == null ? line.policyCode : context.t('mob.pwf6.score.basis', <String, Object>{'version': pwfVersionText(context, line.policyVersion!)}),
+                  ),
               ],
             ),
           ],
