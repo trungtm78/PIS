@@ -21,6 +21,7 @@ import '../../../core/theme/typography.dart';
 import '../../../core/widgets/action_bar.dart';
 import '../../../core/widgets/info_row.dart';
 import '../../../core/widgets/notice_panel.dart';
+import '../../../core/widgets/section_tabs.dart';
 import '../../../core/widgets/tap_target.dart';
 import '../../../core/widgets/work_row.dart';
 import '../../command_support/field_widgets.dart';
@@ -350,23 +351,45 @@ class ReviewList extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: MachvonV2Space.s16),
       children: <Widget>[
         ...outcome,
-        GroupHeader(title: context.t('mob.rep.review.errors.title'), count: errors.length),
-        ..._findingRows(context, errors, error: true),
-        GroupHeader(title: context.t('mob.rep.review.warnings.title'), count: warnings.length),
-        ..._findingRows(context, warnings, error: false),
-        if (serverFindings != null) ...<Widget>[
-          GroupHeader(title: context.t('mob.rep.review.server.title')),
-          if (serverAsOf != null) StepNote(context.t('mob.rep.review.serverNote.body', <String, Object>{'time': asOfLabel(serverAsOf!)}), small: true),
-          ..._findingRows(context, serverFindings!, error: serverFindings!.any((Finding f) => f.isError)),
-        ],
-        GroupHeader(title: context.t('mob.rep.review.diff.title')),
-        ..._differences(context),
-        GroupHeader(title: context.t('mob.rep.totals.title')),
-        ..._totals(context),
-        GroupHeader(title: context.t('mob.rep.review.notes.title')),
-        ..._notes(context),
-        GroupHeader(title: context.t('mob.rep.files.title')),
-        ..._files(context),
+        // One purpose a tab (the review was seven groups on one page): what has to be put right before sending, the figures against the period before,
+        // and the words and files that go with them. The first tab counts what is found, so a clean report says so without being opened.
+        SectionTabs(
+          tabs: <SectionTab>[
+            SectionTab(
+              label: context.t('mob.rep8.tab.checks'),
+              count: errors.length + warnings.length + (serverFindings?.length ?? 0),
+              children: <Widget>[
+                GroupHeader(title: context.t('mob.rep.review.errors.title'), count: errors.length),
+                ..._findingRows(context, errors, error: true),
+                GroupHeader(title: context.t('mob.rep.review.warnings.title'), count: warnings.length),
+                ..._findingRows(context, warnings, error: false),
+                if (serverFindings != null) ...<Widget>[
+                  GroupHeader(title: context.t('mob.rep.review.server.title')),
+                  if (serverAsOf != null) StepNote(context.t('mob.rep.review.serverNote.body', <String, Object>{'time': asOfLabel(serverAsOf!)}), small: true),
+                  ..._findingRows(context, serverFindings!, error: serverFindings!.any((Finding f) => f.isError)),
+                ],
+              ],
+            ),
+            SectionTab(
+              label: context.t('mob.rep8.tab.figures'),
+              children: <Widget>[
+                GroupHeader(title: context.t('mob.rep.review.diff.title')),
+                ..._differences(context),
+                GroupHeader(title: context.t('mob.rep.totals.title')),
+                ..._totals(context),
+              ],
+            ),
+            SectionTab(
+              label: context.t('mob.rep8.tab.notes'),
+              children: <Widget>[
+                GroupHeader(title: context.t('mob.rep.review.notes.title')),
+                ..._notes(context),
+                GroupHeader(title: context.t('mob.rep.files.title')),
+                ..._files(context),
+              ],
+            ),
+          ],
+        ),
       ],
     );
   }

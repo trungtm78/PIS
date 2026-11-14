@@ -158,3 +158,23 @@ Riêng điện thoại (làn mob7):
 - Tab Phê duyệt không chụp được (cờ chặn chụp).
 
 Golden Windows của điện thoại đổi trong làn mob7 (90 tệp, không thêm tệp mới): danh sách ở `mobile-goldens-changed.txt`; bản Linux (`goldens-linux`) của đúng các tệp đó cần CI dựng lại.
+
+## Sau làn `fix8` (14/11/2026): ảnh ở trên CHƯA được chụp lại
+
+Các ảnh trong thư mục này là của `lane/pwf6` và `lane/mob7`. Làn `fix8` sửa các khiếm khuyết đã ghi ở trên bằng mã và test đơn vị (không dựng stack, không chạy trình duyệt, không chạy máy ảo); chưa màn nào của làn này được nhìn trên ứng dụng chạy thật. Cần chụp lại để xác nhận:
+
+| Ảnh cần chụp lại | Điều cần thấy |
+|---|---|
+| `web/20`, `mobile/43`, `mobile/50`, `mobile/51` | Dải giai đoạn chỉ ghi "Đang ở đây" (điện thoại: "Đang thực hiện") cho MỘT giai đoạn; giai đoạn sau có việc làm song song ghi "Đã bắt đầu". |
+| `web/12`, `web/13`, `web/14` và tab mới "Vai trò" của PWF-02 | Khung soạn một việc chia sáu tab con; tab "Vai trò" liệt kê mã vai trò và ô đặt tên; ô chọn văn bản hiện loại và số. |
+| `web/21`, `web/23`, `web/24`, `web/25`, `web/40` đến `web/46` | Mã việc là dòng nhỏ dưới tên việc ở mọi bảng, danh sách, thẻ. |
+| `web/30` đến `web/36` | Đầu trang tóm tắt của PWF-04 dính khi cuộn (cần cuộn rồi chụp); tab KPI của người không có quyền hiện thẻ "Bạn không có quyền xem KPI của công việc này". |
+| `web/52`, `web/53`, `web/55`, `mobile/30` | Bảng điểm chia tab; tên dự án nằm dưới tên việc. |
+| `mobile/01`, `mobile/02`, `mobile/61` | Câu cảnh báo workflow ngắn (tên việc và trạng thái hạn), dòng phụ là tên dự án, không còn mã; nhãn "Quá, đến hạn" một dòng. |
+| `mobile/20` đến `mobile/27`, `mobile/41` đến `mobile/54` | Thanh tab dính ở đầu màn khi cuộn; màn chi tiết không còn thanh điều hướng năm tab; việc chờ duyệt chỉ ghi trạng thái một lần; "Tổng mức đầu tư" một dòng. |
+| MOB-20 (rà soát báo cáo hiện trường), chi tiết văn bản đến | Chia ba tab; chưa có ảnh nào ở thư mục này. |
+| MOB-23, MOB-24 (Phê duyệt) | Chưa từng chụp được vì cờ chặn chụp. Dựng bản debug với `--dart-define=MACHVON_ALLOW_SCREENSHOTS=true` thì chụp được (xem dưới). |
+
+**Chụp màn Phê duyệt.** `flutter build apk --debug --dart-define=MACHVON_ALLOW_SCREENSHOTS=true` (kèm các `--dart-define` khác của lượt chụp). Cờ chỉ có hiệu lực ở bản debug: bản release luôn đặt `FLAG_SECURE` dù có cờ hay không (`screenCaptureAllowed`, test ở `apps/mobile/test/hardening/secure_window_test.dart`); bản debug không có cờ vẫn chặn chụp như trước.
+
+Golden Windows của điện thoại đổi trong làn `fix8`: danh sách ở `mobile-goldens-changed.txt` (ghi đè danh sách của làn mob7); bản Linux (`goldens-linux`) của đúng các tệp đó cần CI dựng lại.

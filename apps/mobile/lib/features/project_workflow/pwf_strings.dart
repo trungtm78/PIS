@@ -103,7 +103,7 @@ const StringTable pwfStrings = StringTable(
     'mob.pwf6.grade.poor': 'Cần cải thiện',
     'mob.pwf6.version.default': 'Mặc định của hệ thống',
     'mob.pwf6.home.title': 'Việc theo hạn của tôi',
-    'mob.pwf6.home.red': 'Quá hạn, đến hạn',
+    'mob.pwf6.home.red': 'Quá, đến hạn',
     'mob.pwf6.home.yellow': 'Sắp đến hạn',
     'mob.pwf6.home.green': 'Còn thời gian',
     'mob.pwf6.score.tab.tasks': 'Theo việc',

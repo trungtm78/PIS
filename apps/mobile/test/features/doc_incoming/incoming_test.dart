@@ -109,8 +109,11 @@ void main() {
       expect(find.text('100/UBND'), findsOneWidget);
       expect(find.text('Phòng Quản lý dự án'), findsOneWidget);
       expect(find.text('Quá hạn 2 ngày (hạn 27/10/2026)'), findsOneWidget);
+      // One purpose a tab: the facts of the letter first, then its file, then what happened to it.
+      await _tab(tester, 'Diễn biến');
       expect(find.text('Phòng Quản lý dự án · Lê Chuyên Viên'), findsOneWidget, reason: 'the entry of the history');
       expect(find.text('21/10/2026 09:00'), findsOneWidget, reason: 'when it was assigned');
+      await _tab(tester, 'Tệp');
       expect(find.text('Mã băm của tệp gốc: ab12cd34ef56'), findsOneWidget);
       expect(find.textContaining('Điện thoại không tải tệp của văn bản đến'), findsOneWidget);
       expect(server.calls.where((HttpCall call) => call.url.path.contains('download')), isEmpty, reason: 'the file of a letter is not read on the phone');
@@ -122,8 +125,10 @@ void main() {
       answerLetters(server, <Map<String, Object?>>[letter(1, status: 'RESOLVED', summary: 'Đã trả lời bằng văn bản', act: actions(), fileHash: null)]);
       await _open(tester, server, _detail);
 
+      await _tab(tester, 'Diễn biến');
       expect(find.text('Đã giải quyết lúc 28/10/2026 15:00: Đã trả lời bằng văn bản'), findsOneWidget);
       expect(find.text('Giải quyết trễ 1 ngày làm việc.'), findsOneWidget);
+      await _tab(tester, 'Tệp');
       expect(find.text('Văn bản này chưa có tệp.'), findsOneWidget);
       expect(find.text('Văn bản này không còn chờ xử lý.'), findsOneWidget);
       expect(_start(), findsNothing);
@@ -186,6 +191,7 @@ void main() {
       expect(calls.single.body, contains('"resolution_summary":"Đã trả lời bằng văn bản"'));
       expect(find.text('Đã ghi nhận'), findsOneWidget);
       expect(reads, 2, reason: 'the letter is read again from the server');
+      await _tab(tester, 'Diễn biến');
       expect(find.text('Đã giải quyết lúc 28/10/2026 15:00: Đã trả lời bằng văn bản'), findsOneWidget);
       expect(_resolve(), findsNothing);
     });
@@ -598,4 +604,12 @@ void main() {
       expect(list.more, isFalse);
     });
   });
+}
+
+/// Opens a tab of the letter by its name (the tab of the history carries its count after the name).
+Future<void> _tab(WidgetTester tester, String label) async {
+  final Finder tab = find.bySemanticsLabel(RegExp('^$label')).first;
+  await tester.ensureVisible(tab);
+  await tester.tap(tab);
+  await tester.pumpAndSettle();
 }

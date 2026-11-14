@@ -78,9 +78,9 @@ void main() {
       await pumpV2(
         tester,
         ListView(
-          children: <Widget>[
-            SectionTabs(tabs: const <SectionTab>[SectionTab(label: 'Cần làm', children: <Widget>[SizedBox(height: 120, child: Text('Một việc'))])]),
-            const SizedBox(height: 2000, child: Text('Phần sau')),
+          children: const <Widget>[
+            SectionTabs(tabs: <SectionTab>[SectionTab(label: 'Cần làm', children: <Widget>[SizedBox(height: 120, child: Text('Một việc'))])]),
+            SizedBox(height: 2000, child: Text('Phần sau')),
           ],
         ),
       );
@@ -104,6 +104,23 @@ void main() {
       expect(title.maxLines, 3);
       expect(tester.getTopLeft(find.text('Còn 1 ngày làm việc · hạn 16/11')).dy, greaterThan(tester.getTopLeft(find.text('Nguyễn Văn An')).dy));
       expect(tester.getTopLeft(find.text('Còn 1 ngày làm việc · hạn 16/11')).dx, tester.getTopLeft(find.text('Nguyễn Văn An')).dx);
+    });
+
+    testWidgets('a label that needs a little more than two fifths of the row is not broken in two beside a short value (the case of "Tổng mức đầu tư")', (WidgetTester tester) async {
+      // The font of the tests draws every character one em wide, so the label here is the length that falls between two fifths of the row (where it used to
+      // wrap) and 55 percent of it (the room it has now) on a phone 360 wide.
+      await pumpV2(
+        tester,
+        ListView(children: const <Widget>[InfoRow(label: 'Nhóm', value: 'B', divider: false), InfoRow(label: 'Mức đầu tư', value: '1,25 nghìn')]),
+        size: const Size(360, 640),
+      );
+      final double oneLine = tester.getSize(find.text('Nhóm')).height;
+      const double row = 360 - 2 * 16 - 16;
+      expect(tester.getSize(find.text('Mức đầu tư')).width, greaterThan(row * 0.4), reason: 'the label is wider than the two fifths it used to have');
+      expect(tester.getSize(find.text('Mức đầu tư')).height, oneLine, reason: 'and it has the room it needs, up to 55 percent of the row');
+      expect(tester.getSize(find.text('1,25 nghìn')).height, oneLine);
+      // The values still end on the same edge, and a short label keeps its two fifths.
+      expect(tester.getTopRight(find.text('B')).dx, tester.getTopRight(find.text('1,25 nghìn')).dx);
     });
 
     testWidgets('the values of a group of facts end on the same edge whatever their length', (WidgetTester tester) async {

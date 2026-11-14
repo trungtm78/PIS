@@ -77,7 +77,11 @@ Future<void> expectEveryState(WidgetTester tester, {required OpenScreen open, re
 
 /// The screen contract checks: no layout exception at the three devices and at 200 percent text, every tap target large
 /// enough on both platforms and labelled, and the text readable.
-Future<void> expectScreenContract(WidgetTester tester, {required OpenScreen open, required void Function(ScriptedServer server) healthy}) async {
+///
+/// [contrastOnWholeScreen]: the contrast is read on the screen laid out three device heights tall, so that no line of text is cut by the bottom edge. The
+/// guideline reads the pixels of what is visible of a text: a heading of which only the top few pixels show above the bar of actions has no ink in them and
+/// reads as "no contrast", which says nothing of its colours. A screen whose fold happens to cut a line of text asks for this.
+Future<void> expectScreenContract(WidgetTester tester, {required OpenScreen open, required void Function(ScriptedServer server) healthy, bool contrastOnWholeScreen = false}) async {
   for (final Size size in kDeviceSizes) {
     for (final double scale in <double>[1.0, 2.0]) {
       useDevice(tester, size, textScale: scale);
@@ -96,6 +100,12 @@ Future<void> expectScreenContract(WidgetTester tester, {required OpenScreen open
         debugDefaultTargetPlatformOverride = null;
       }
       await expectLater(tester, meetsGuideline(labeledTapTargetGuideline), reason: where);
+      if (contrastOnWholeScreen) {
+        useDevice(tester, Size(size.width, size.height * 3), textScale: scale);
+        final ScriptedServer whole = ScriptedServer();
+        healthy(whole);
+        await open(tester, whole);
+      }
       await expectLater(tester, meetsGuideline(textContrastGuideline), reason: where);
       semantics.dispose();
     }

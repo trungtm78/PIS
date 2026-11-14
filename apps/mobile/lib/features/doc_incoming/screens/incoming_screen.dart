@@ -14,6 +14,7 @@ import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/deadline.dart';
 import '../../../core/widgets/filter_chips.dart';
 import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/section_tabs.dart';
 import '../../../core/widgets/state_view.dart';
 import '../../../core/widgets/status_pill.dart';
 import '../../../core/widgets/timeline.dart';
@@ -371,10 +372,24 @@ class _LetterBodyState extends ConsumerState<_LetterBody> with CommandFlow<_Lett
                   ),
                 if (gate != IncomingGate.open && !actionable) StatusBanner(text: gateText(context, gate)),
                 _LetterHead(letter: letter),
-                _FileBlock(letter: letter),
-                if (letter.assignments.isNotEmpty) _HistoryBlock(letter: letter),
-                if (letter.resolutionSummary != null) _ResolutionBlock(letter: letter),
+                // The summary is typed right under the head, above the tabs: it is what the person is doing now, whatever tab is open.
                 if (actionable && letter.canResolve && _resolving) _summaryForm(context),
+                // One purpose a tab (the letter was one long page): what the letter is and who has it, its file, and what happened to it.
+                SectionTabs(
+                  tabs: <SectionTab>[
+                    SectionTab(label: context.t('mob.docin8.tab.facts'), children: <Widget>[_LetterFacts(letter: letter)]),
+                    SectionTab(label: context.t('mob.docin8.tab.file'), children: <Widget>[_FileBlock(letter: letter)]),
+                    SectionTab(
+                      label: context.t('mob.docin8.tab.log'),
+                      count: letter.assignments.length,
+                      children: <Widget>[
+                        if (letter.assignments.isNotEmpty) _HistoryBlock(letter: letter),
+                        if (letter.resolutionSummary != null) _ResolutionBlock(letter: letter),
+                        if (letter.assignments.isEmpty && letter.resolutionSummary == null) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.docin8.log.none'), style: context.v2text.body)),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -446,17 +461,38 @@ class _LetterHead extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s8),
           child: Semantics(container: true, header: true, child: Text(letter.title, style: text.heading)),
         ),
+        // What every reader wants first stays above the tabs: where the letter stands, how urgent it is, and its deadline.
         InfoRow(label: context.t('mob.docin.letter.status'), value: statusLabel(context, letter.status), divider: false),
         InfoRow(label: context.t('mob.docin.letter.urgency'), value: urgencyLabel(context, letter.urgency)),
-        InfoRow(label: context.t('mob.docin.letter.number'), value: letter.numberLabel),
-        InfoRow(label: context.t('mob.docin.letter.directive'), value: letter.leaderDirective),
         InfoRow(label: context.t('mob.docin.letter.due'), value: letter.dueOn == null ? null : formatDay(letter.dueOn!)),
+      ],
+    );
+  }
+}
+
+/// The facts of the letter in two short groups, each under its heading: how it is being handled (what the leader asked, which unit and who has it) and
+/// the letter itself (its number, when it came, who sent it, its type and its own symbol).
+class _LetterFacts extends StatelessWidget {
+  const _LetterFacts({required this.letter});
+
+  final IncomingLetter letter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        GroupHeader(title: context.t('mob.docin8.group.handling')),
+        InfoRow(label: context.t('mob.docin.letter.directive'), value: letter.leaderDirective, divider: false),
+        InfoRow(label: context.t('mob.docin.letter.unit'), value: letter.assignedUnitName),
+        InfoRow(label: context.t('mob.docin.letter.assignee'), value: letter.assigneeName),
+        GroupHeader(title: context.t('mob.docin8.group.letter')),
+        InfoRow(label: context.t('mob.docin.letter.number'), value: letter.numberLabel, divider: false),
         InfoRow(label: context.t('mob.docin.letter.received'), value: letter.receivedAt.isEmpty ? null : formatDay(letter.receivedAt)),
         InfoRow(label: context.t('mob.docin.letter.sender'), value: letter.senderName),
         InfoRow(label: context.t('mob.docin.letter.type'), value: letter.docTypeCode),
         InfoRow(label: context.t('mob.docin.letter.symbol'), value: letter.originalSymbol),
-        InfoRow(label: context.t('mob.docin.letter.unit'), value: letter.assignedUnitName),
-        InfoRow(label: context.t('mob.docin.letter.assignee'), value: letter.assigneeName),
       ],
     );
   }

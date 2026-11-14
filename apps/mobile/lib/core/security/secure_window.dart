@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -76,8 +77,32 @@ final class SecureWindowController {
   Future<void> get settled => _tail;
 }
 
+/// `--dart-define=MACHVON_ALLOW_SCREENSHOTS=true`: the build of a design review, whose protected screens (the approvals) have to be photographed.
+/// Off unless it is set at build time.
+const bool _allowScreenshotsDefine = bool.fromEnvironment('MACHVON_ALLOW_SCREENSHOTS');
+
+/// Whether the protected screens of this build may be captured: only a DEBUG build that was built with the flag. A release build protects its
+/// window whatever the flag says (the flag cannot weaken what a person installs), and a debug build without the flag protects it too.
+bool screenCaptureAllowed({required bool define, required bool debugBuild}) => define && debugBuild;
+
+/// What this build does (see [screenCaptureAllowed]).
+const bool kScreenCaptureAllowed = _allowScreenshotsDefine && kDebugMode;
+
+/// The platform side of a build whose protected screens may be captured: the platform is never asked to protect the window, and the answer is
+/// "not applied", so nothing in the application believes the window is protected.
+final class CapturableWindow implements SecureWindowPlatform {
+  const CapturableWindow();
+
+  @override
+  Future<bool> setSecure({required bool enabled}) async => false;
+}
+
+/// The platform side of a build: the real one, or the one that lets the window be captured when [allowCapture] is in force.
+SecureWindowPlatform secureWindowPlatformFor({required bool allowCapture}) => allowCapture ? const CapturableWindow() : const MethodChannelSecureWindow();
+
 /// The platform side. A test overrides it with a recording one; the host has none and answers "not applied".
-final Provider<SecureWindowPlatform> secureWindowPlatformProvider = Provider<SecureWindowPlatform>((Ref ref) => const MethodChannelSecureWindow());
+final Provider<SecureWindowPlatform> secureWindowPlatformProvider =
+    Provider<SecureWindowPlatform>((Ref ref) => secureWindowPlatformFor(allowCapture: screenCaptureAllowed(define: _allowScreenshotsDefine, debugBuild: kDebugMode)));
 
 final Provider<SecureWindowController> secureWindowControllerProvider =
     Provider<SecureWindowController>((Ref ref) => SecureWindowController(ref.watch(secureWindowPlatformProvider)));

@@ -170,6 +170,9 @@ const StringTable reportingStrings = StringTable(
 
     // MOB-20: the review and the sending.
     'mob.rep.review.title': 'Rà soát và gửi báo cáo',
+    'mob.rep8.tab.checks': 'Kiểm tra',
+    'mob.rep8.tab.figures': 'Số liệu',
+    'mob.rep8.tab.notes': 'Thuyết minh, tệp',
     'mob.rep.review.errors.title': 'Lỗi phải sửa trước khi gửi',
     'mob.rep.review.warnings.title': 'Cảnh báo, vẫn gửi được',
     'mob.rep.review.none.body': 'Không có.',
@@ -434,6 +437,9 @@ const StringTable reportingStrings = StringTable(
     'mob.rep.drafts.start.action': 'Start a report',
 
     'mob.rep.review.title': 'Review and send the report',
+    'mob.rep8.tab.checks': 'Checks',
+    'mob.rep8.tab.figures': 'Figures',
+    'mob.rep8.tab.notes': 'Notes, files',
     'mob.rep.review.errors.title': 'Errors to fix before sending',
     'mob.rep.review.warnings.title': 'Warnings, it can still be sent',
     'mob.rep.review.none.body': 'None.',

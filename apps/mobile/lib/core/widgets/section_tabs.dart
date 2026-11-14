@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../theme/colors.dart';
 import 'underline_tabs.dart';
 
 /// One tab of [SectionTabs]: its name, the number it counts (left out when zero) and the short groups it shows.
@@ -39,7 +38,7 @@ class _SectionTabsState extends State<SectionTabs> {
     return PinnedHeader(
       // An opaque surface: the groups scroll under the row once it is pinned.
       header: ColoredBox(
-        color: context.v2.palette.bg,
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: UnderlineTabs(
           tabs: <TabOption>[for (final SectionTab tab in widget.tabs) TabOption(label: tab.label, count: tab.count == null || tab.count == 0 ? null : tab.count)],
           index: index,

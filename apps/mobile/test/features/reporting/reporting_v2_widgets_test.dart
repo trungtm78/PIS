@@ -192,7 +192,15 @@ void main() {
     testWidgets('a good report says "none" under both headings; an error is a row that opens its step', (WidgetTester tester) async {
       await pumpV2(tester, list(), size: const Size(390, 3000), tables: _tables);
       expect(find.text('Không có.'), findsNWidgets(2));
+      // The review is three tabs: the checks, the figures, the notes with the files. The tab of the checks counts what was found, and none is no number.
+      expect(find.bySemanticsLabel('Kiểm tra'), findsOneWidget);
+      expect(find.text('Chưa có tệp đính kèm.'), findsNothing);
+      await tester.tap(find.bySemanticsLabel(RegExp('^Thuyết minh, tệp')).first);
+      await tester.pumpAndSettle();
       expect(find.text('Chưa có tệp đính kèm.'), findsOneWidget);
+      expect(find.text('Không có.'), findsNothing);
+      await tester.tap(find.bySemanticsLabel(RegExp('^Kiểm tra')).first);
+      await tester.pumpAndSettle();
 
       final List<Finding> errors = reviewForm(completeForm().copyWith(preparing: ''), chosenOnly).where((Finding f) => f.isError).toList();
       expect(errors, isNotEmpty);
@@ -209,6 +217,11 @@ void main() {
       for (final double scale in <double>[1.0, 2.0]) {
         await pumpV2(tester, list(errors: errors, files: const ReviewFiles(total: 3, clean: 1, waiting: 1, failed: 1)), scale: scale, size: const Size(360, 5000), tables: _tables);
         expect(tester.takeException(), isNull, reason: 'at $scale');
+        expect(find.bySemanticsLabel('Kiểm tra ${errors.length}'), findsOneWidget, reason: 'the tab counts the findings');
+        // At 200 percent the row of tabs scrolls sideways: the tab is brought into view before it is tapped.
+        await tester.ensureVisible(find.bySemanticsLabel(RegExp('^Thuyết minh, tệp')).first);
+        await tester.tap(find.bySemanticsLabel(RegExp('^Thuyết minh, tệp')).first);
+        await tester.pumpAndSettle();
         expect(find.textContaining('1 tệp đã tải lên và quét sạch · 1 đang chờ · 1 lỗi'), findsOneWidget);
         await expectLater(tester, meetsGuideline(androidTapTargetGuideline), reason: 'at $scale');
         await expectLater(tester, meetsGuideline(labeledTapTargetGuideline), reason: 'at $scale');
