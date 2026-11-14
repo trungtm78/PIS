@@ -100,8 +100,8 @@ if (ENTERPRISE) {
       await expect(suggestion).toContainText(SUGGESTED);
       await expect(suggestion).toContainText(vi['pwf.process.basis.default.text']);
       // The rule behind the suggestion is named with its version, or as the system default when the tenant has no version of its own.
-      await expect(suggestion).toContainText(part['pwf6.kind.rule.label']);
-      await expect(suggestion).toContainText(new RegExp(`phiên bản \\d+|${part['pwf6.version.default.text']}`));
+      await expect(suggestion).toContainText(part['pwf6.kind.rule.label'] ?? '');
+      await expect(suggestion).toContainText(new RegExp(`phiên bản \\d+|${part['pwf6.version.default.text'] ?? ''}`));
       await expect(page.getByTestId('kind-template')).toHaveValue('');
 
       // The planned start, and the two facts the branches of this kind read: the preview tells the finish, the working days and the steps.
@@ -120,7 +120,7 @@ if (ENTERPRISE) {
       const done = page.getByTestId('created');
       await expect(done).toBeVisible();
       // The link that opens the workflow that was made with the project.
-      await expect(page.getByTestId('created-workflow').getByRole('link', { name: part['pwf6.kind.created.open'] })).toBeVisible();
+      await expect(page.getByTestId('created-workflow').getByRole('link', { name: part['pwf6.kind.created.open'] ?? '' })).toBeVisible();
       // The form is closed after the save: a second press of the button sends nothing.
       await expect(page.getByTestId('kind-start')).toBeDisabled();
 
@@ -162,7 +162,7 @@ if (ENTERPRISE) {
       await page.getByTestId('kind-reason').fill(REASON);
       await save(page);
       await expect(page.getByTestId('created')).toBeVisible();
-      await expect(page.getByTestId('created-workflow').getByRole('link', { name: part['pwf6.kind.created.open'] })).toBeVisible();
+      await expect(page.getByTestId('created-workflow').getByRole('link', { name: part['pwf6.kind.created.open'] ?? '' })).toBeVisible();
       const workflows = await workflowsOf(code);
       expect(workflows).toHaveLength(1);
       expect(workflows[0]).toMatchObject({ template_code: OTHER, selection: { mode: 'OVERRIDE', chosen_template_code: OTHER, suggested_template_code: SUGGESTED, reason: REASON } });
