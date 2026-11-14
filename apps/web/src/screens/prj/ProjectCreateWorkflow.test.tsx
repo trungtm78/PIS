@@ -16,7 +16,7 @@ const text = (key: string, params: Record<string, string | number> = {}): string
 afterEach(cleanup);
 
 /** PRJ-02 over a client that also answers `suggestProjectWorkflow`; the queries it was asked are kept. */
-function open(answer: (query: Record<string, string>) => Suggestion | Error = () => suggestion(), permissions: readonly string[] = WITH_WORKFLOWS, command: (operation: string, input: unknown) => unknown = () => ({ operation_id: 'o', status: 'CONCEPT', resource_version: 1, resource_id: CREATED.id })) {
+function open(answer: (query: Record<string, string>) => Suggestion | Error = () => suggestion(), permissions: readonly string[] | null = WITH_WORKFLOWS, command: (operation: string, input: unknown) => unknown = () => ({ operation_id: 'o', status: 'CONCEPT', resource_version: 1, resource_id: CREATED.id })) {
   const h = client(world({ details: [CREATED] }), command);
   const asked: Record<string, string>[] = [];
   const base = h.read.getMockImplementation() as (operation: string, input?: unknown) => Promise<unknown>;
@@ -27,7 +27,8 @@ function open(answer: (query: Record<string, string>) => Suggestion | Error = ()
     const reply = answer(query);
     return reply instanceof Error ? Promise.reject(reply) : Promise.resolve(reply);
   });
-  mount(<ProjectCreateScreen route={ROUTE} />, h, { permissions });
+  // `null` stands for a session that lists no permissions at all (the development session of a demo build): unknown, the server decides.
+  mount(<ProjectCreateScreen route={ROUTE} />, h, { permissions: permissions ?? undefined });
   return { h, asked };
 }
 
@@ -165,6 +166,14 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
     await fill();
     expect(screen.queryByTestId('process-kind')).toBeNull();
     expect(asked).toEqual([]);
+  });
+
+  it('shows the section to a session that lists no permissions (unknown is not none): the read of the suggestion, which the server judges, decides', async () => {
+    const { asked } = open(() => suggestion(), null);
+    await fill();
+    expect(await screen.findByTestId('process-kind')).toBeTruthy();
+    await waitFor(() => expect(asked.length).toBeGreaterThan(0));
+    expect(asked[0]).toMatchObject({ owner_unit_id: UNIT_DEPARTMENT });
   });
 
   it('says what the server refused when the workflow could not start with the registration', async () => {

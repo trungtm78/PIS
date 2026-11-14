@@ -626,7 +626,7 @@ async function grantMembers(ctx: SeedContext): Promise<void> {
     if (member === undefined) throw new Error('the system role MEMBER does not exist in the tenant');
     const grants = await ctx.list(OWNER, '/resources/role_grant');
     let granted = 0;
-    for (const person of Object.values(ctx.people)) {
+    for (const person of ctx.members) {
       if (person.key === OWNER) continue;
       const holds = grants.some((grant) => grant.membership_id === person.membershipId && grant.role_id === member.id && (grant.status === undefined || grant.status === 'Active'));
       if (holds) continue;

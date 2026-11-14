@@ -51,6 +51,9 @@
         },
         "clip-public-contractor-portal": {
           "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-public-phone-work": {
+          "proof": "RUN_VERIFIED"
         }
       },
       "chapters": {
@@ -521,6 +524,9 @@
           "proof": "RUN_VERIFIED"
         },
         "clip-ent-contractor-portal": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-phone-work": {
           "proof": "RUN_VERIFIED"
         },
         "clip-ent-execution": {

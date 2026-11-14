@@ -215,10 +215,13 @@ function holidaysOf(year: number): Array<{ date: string; name: string; legal_bas
   return [...fixed, ...lunar].map((holiday) => ({ ...holiday, legal_basis_ref: basis })).filter((holiday) => new Date(`${holiday.date}T00:00:00Z`).getUTCDay() % 6 !== 0);
 }
 
-/** The calendar WORKDAY_VN (Monday to Friday) for the year of today and the next, published: the SLAs of the issues are counted on it. */
-export async function ensureWorkCalendar(ctx: SeedContext): Promise<void> {
+/**
+ * The calendar WORKDAY_VN (Monday to Friday) for the year of today and the next, published: the SLAs of the issues are counted on it. `years` names other years (the schedule of a project workflow is laid
+ * on the published calendars to its last day, which may be years ahead).
+ */
+export async function ensureWorkCalendar(ctx: SeedContext, years: readonly number[] = [ctx.year, ctx.year + 1]): Promise<void> {
   const versions = await ctx.list(MAKER, '/resources/work_calendar_version');
-  for (const year of [ctx.year, ctx.year + 1]) {
+  for (const year of years) {
     const mine = versions.filter((row) => row.calendar_code === 'WORKDAY_VN' && Number(row.year) === year);
     if (mine.some((row) => ['Published', 'PUBLISHED'].includes(asString(row.status)))) continue;
     let draft = mine[0];

@@ -128,6 +128,30 @@ describe('ProcurementPlanEditorScreen (BID-16): drafting and revising a procurem
     expect((h.command.mock.calls[0]?.[1] as { body: { packages: unknown[] } }).body.packages).toHaveLength(2);
   });
 
+  it('offers the form of a revision only once the plan it revises has been read, so nothing a person does is lost to the plan arriving; a plan that is not there is said in words', async () => {
+    const base = plan(1, { status: 'APPROVED' });
+    const h = client(world({ plans: [base], packages: [pack(1, 1), pack(2, 1)] }), () => OK);
+    // The packages of the plan arrive late: until then there is no form to type in and no row to add to.
+    let arrive: (rows: unknown[]) => void = () => undefined;
+    const readAll = (h.client as unknown as { readAll: (operation: string) => Promise<unknown[]> }).readAll;
+    (h.client as unknown as { readAll: (operation: string) => Promise<unknown[]> }).readAll = (operation: string) =>
+      operation === 'get_resources_procurement_package' ? new Promise<unknown[]>((resolve) => (arrive = resolve)) : readAll(operation);
+    mount(<ProcurementPlanEditorScreen route={ROUTE} />, h, { permissions: PLANNER, path: `/bid/bid-16?revise=${planId(1)}` });
+    expect(await screen.findByTestId('revise-reading')).toBeTruthy();
+    expect(screen.queryByTestId('plan-form')).toBeNull();
+    expect(screen.queryByRole('button', { name: vi_['bid.editor.row.add'] })).toBeNull();
+    arrive([pack(1, 1), pack(2, 1)]);
+    await form();
+    expect(screen.getAllByTestId('package-row')).toHaveLength(2);
+    await userEvent.click(screen.getByRole('button', { name: vi_['bid.editor.row.add'] }));
+    expect(screen.getAllByTestId('package-row')).toHaveLength(3);
+    cleanup();
+
+    mount(<ProcurementPlanEditorScreen route={ROUTE} />, client(world({ plans: [], packages: [] })), { permissions: PLANNER, path: `/bid/bid-16?revise=${planId(9)}` });
+    expect((await screen.findByTestId('revise-missing')).textContent).toBe(vi_['bid.plans.missing.notice']);
+    expect(screen.queryByTestId('plan-form')).toBeNull();
+  });
+
   it('offers the projects and the published lines of the project as suggestions, and still works when the caller may not read them', async () => {
     mount(<ProcurementPlanEditorScreen route={ROUTE} />, client(world()), { permissions: PLANNER });
     await form();

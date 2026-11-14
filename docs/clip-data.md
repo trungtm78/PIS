@@ -46,6 +46,7 @@ Enterprise groups: `clip-ent-projects`, `clip-ent-funding`, `clip-ent-directives
 - Alerts: early-warning rules published before the snapshots are frozen; the warnings are made by the platform when a snapshot is frozen. Nothing is inserted into an alert table.
 - e-GP, Treasury statement, frozen snapshots, finance feed, committee roster, directives (some overdue), BI (the metric bundle of the repository synced inline, two dashboards published by the leader).
 - Public portal account: `clip-public-contractor-portal` (also run on the enterprise stack as `clip-ent-contractor-portal`), see Accounts.
+- Work on the phone: `clip-public-phone-work` (on the enterprise stack `clip-ent-phone-work`), the last group of both datasets. One project gets the project workflow the rule suggests (`suggestProjectWorkflow`, then `startProjectWorkflow`; the calendars its schedule needs are published first) and the owner, the person the test identity provider signs in on the phone, is given two of its first tasks and starts them (`assignProjectTask`, `startProjectTask`), so that MOB-80, MOB-81 and the Maestro flow `40_project_workflow.yaml` have a task in progress. Applied again, it tops the number back up to two.
 - Enterprise: 6 investment and 6 equipment-purchase projects; equity and loan year plans; directives; the accounting file imported and reconciled; the PVN and HPM demo forms issued by three people, and the HPM push log.
 
 ## The phone conflict (MOB-42)

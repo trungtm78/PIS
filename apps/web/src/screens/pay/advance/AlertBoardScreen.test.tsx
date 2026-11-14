@@ -39,7 +39,8 @@ describe('AlertBoardScreen (PAY-12): overdue advances and recovery alerts', () =
           alerted(1, 3),
           alerted(2, 1, { overdue_days: null, recovery_deadline: '2026-11-07', kind: 'CONTRACT' }),
           advance(3),
-          alerted(4, 4, { acknowledgement: { note: 'Hoàn trả từ kỳ thanh toán tới', action_plan_due_on: '2999-01-31', acknowledged_by: advanceId(9), acknowledged_at: '2026-10-30T01:00:00.000Z' } }),
+          alerted(4, 4, { acknowledgement: { note: 'Hoàn trả từ kỳ thanh toán tới', action_plan_due_on: '2999-01-31', acknowledged_by: advanceId(9), acknowledged_by_name: 'Trần Thị Kế Toán', acknowledged_at: '2026-10-30T01:00:00.000Z' } }),
+          alerted(5, 3, { acknowledgement: { note: 'Đã gửi công văn', action_plan_due_on: '2999-02-28', acknowledged_by: advanceId(8), acknowledged_at: '2026-10-30T01:00:00.000Z' } }),
         ],
       }),
     );
@@ -56,6 +57,13 @@ describe('AlertBoardScreen (PAY-12): overdue advances and recovery alerts', () =
     expect(within(overdue).getByTestId('level').textContent).toBe(vi_['pay.alert.level.overdue']);
     expect(within(overdue).getByTestId('level').className).toContain('warning');
     expect(within(overdue).getByTestId('plan').textContent).toBe(vi_['pay.alert.noPlan']);
+    // The person who answers for the advance (the catalogue field "Người xử lý"): nobody yet, the name of the one who gave the plan, or the words for a membership the directory no longer names.
+    expect(screen.getByRole('columnheader', { name: text('pay.alert.column.handler') })).toBeTruthy();
+    expect(within(overdue).getByTestId('handler').textContent).toBe(text('pay.alert.handler.none'));
+    expect(within(rowOf(advanceId(4))).getByTestId('handler').textContent).toBe('Trần Thị Kế Toán');
+    expect(within(rowOf(advanceId(5))).getByTestId('handler').textContent).toBe(text('pay.alert.handler.unnamed'));
+    // The wide table scrolls inside its own named region, never the page.
+    expect(screen.getByRole('region', { name: text('pay.alert.table.label') }).contains(screen.getByTestId('alerts'))).toBe(true);
     const warning = rowOf(advanceId(2));
     expect(within(warning).getByTestId('level').textContent).toBe(vi_['pay.alert.level.warning']);
     expect(within(warning).getByTestId('level').className).not.toContain('warning');
@@ -94,6 +102,17 @@ describe('AlertBoardScreen (PAY-12): overdue advances and recovery alerts', () =
     open(world({ advances: [alerted(1, 3, { actions: { cancel: false, record_recovery: false, acknowledge_alert: false } })] }), { permissions: READER });
     await screen.findByTestId('alerts');
     expect(screen.queryByRole('button', { name: vi_['pay.alert.action.acknowledge'] })).toBeNull();
+    expect(screen.queryByRole('button', { name: vi_['pay.advance.action.recover'] })).toBeNull();
+    cleanup();
+    // The server answers for the membership; the session of a person who holds only the right to read offers no button whatever the server says of the row.
+    open(world({ advances: [alerted(1, 3)] }), { permissions: READER });
+    await screen.findByTestId('alerts');
+    expect(screen.queryByRole('button', { name: vi_['pay.alert.action.acknowledge'] })).toBeNull();
+    expect(screen.queryByRole('button', { name: vi_['pay.advance.action.recover'] })).toBeNull();
+    cleanup();
+    open(world({ advances: [alerted(1, 3)] }), { permissions: ['advance.read', 'advance.alert.ack'] });
+    await screen.findByTestId('alerts');
+    expect(screen.getByRole('button', { name: vi_['pay.alert.action.acknowledge'] })).toBeTruthy();
     expect(screen.queryByRole('button', { name: vi_['pay.advance.action.recover'] })).toBeNull();
     cleanup();
     open(world({ advances: [alerted(1, 3)] }), { mode: 'READ_ONLY' });

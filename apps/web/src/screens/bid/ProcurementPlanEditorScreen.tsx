@@ -4,6 +4,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
+import { StateBoundary } from '../../states/StateBoundary';
+import { useScreenState } from '../../states/useScreenState';
 import { BackLink, Field } from './components';
 import { PlanRefusal } from './plan-components';
 import { useCreatePlan, useLineChoices, usePackages, usePlans, useProjectChoices } from './plan-hooks';
@@ -53,6 +55,8 @@ function EditorContent({ route }: ScreenProps) {
   const [errors, setErrors] = useState<PlanErrors>({ packages: {} });
   const [seeded, setSeeded] = useState(false);
   const refused = create.isError ? describeProblem(create.error) : undefined;
+  // What the reads of a revision say while its form is not there yet: loading, or why the plan could not be read.
+  const reading = useScreenState({ isLoading: true, error: plans.error ?? packages.error, data: undefined });
 
   // A revision starts from the plan it revises: its project, its text and its packages, once they have been read.
   const base = (plans.data ?? []).find((plan) => plan.id === reviseId);
@@ -99,6 +103,35 @@ function EditorContent({ route }: ScreenProps) {
         <p className="callout warning" role="status" data-testid="read-only">
           {t('bid.editor.readOnly.notice')}
         </p>
+      </section>
+    );
+  }
+
+  // The form of a revision is offered once the plan it revises has been read. Drawn before that it was an empty form that took what the person did (a row added, a field typed) and lost it when the plan arrived and
+  // replaced the form; a plan that is not there, or not for this person, is said in words and no empty form stands in for it.
+  if (reviseId !== undefined && !seeded) {
+    const absent = plans.data !== undefined && packages.data !== undefined && base === undefined;
+    return (
+      <section data-screen-id={route.id} aria-labelledby="screen-title">
+        <BackLink to={PLANS_PATH}>{t('bid.back.plans.link')}</BackLink>
+        <div className="heading">
+          <h1 id="screen-title">{t('bid.editor.revise.title')}</h1>
+        </div>
+        {absent ? (
+          <p className="callout warning" role="status" data-testid="revise-missing">
+            {t('bid.plans.missing.notice')}
+          </p>
+        ) : (
+          <div data-testid="revise-reading">
+            <StateBoundary
+              state={reading}
+              onRetry={() => {
+                void plans.refetch();
+                void packages.refetch();
+              }}
+            />
+          </div>
+        )}
       </section>
     );
   }

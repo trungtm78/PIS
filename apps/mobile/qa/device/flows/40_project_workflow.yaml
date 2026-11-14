@@ -3,10 +3,14 @@
 # (uat/run/uat-2026-11-13-merge/public/mobile/diag-after-40.png). This version scrolls to it; it has not been run since.
 # Written against the screens MOB-78 to MOB-82 (lane pwfmob).
 # Supports: AC-ST-MOB-040-3 (the work of the person offline), TC-UAT-PWF-15 (my tasks by deadline, the task, my score) and TC-UAT-PWF-OFF-01 (a command sent again after the task changed).
+# UAT 2026-11-14 (both editions): NOT RUN to the end, it stopped at '.*Theo cài đặt của bạn.*': the list was empty, because the stack had no project workflow and so no task of the person.
+# The clip seed now makes that data with the commands of the product (group clip-public-phone-work / clip-ent-phone-work, apps/web/e2e/hdsd/seed/clip/phone-work.ts):
+# a project gets the workflow the rule suggests and the person who signs in with 06_sign_in_test_idp.yaml (the owner, the first person of the test identity provider) holds two tasks IN PROGRESS.
 # Needs: a build installed on the device, a signed-in session (05_sign_in.yaml, or 06_sign_in_test_idp.yaml on the e2e stack), Vietnamese interface, and a tenant
-# with a project that has a workflow and a task assigned to the user that is IN PROGRESS (the bar of a task not started offers "Bắt đầu", not "Hoàn thành việc").
-# The e2e stack and the clip seed create no project workflow (apps/api/test/e2e-stack/serve.stack.ts, scripts/clip-seed.mjs): start the workflow and
-# the task on the web first. The offline half needs the airplane mode, which Maestro sets with the commands below.
+# with a project that has a workflow and a task assigned to the user that is IN PROGRESS (the bar of a task not started offers "Bắt đầu", not "Hoàn thành việc"):
+#   node scripts/clip-seed.mjs apply --dataset public|enterprise --api <url> --stack-info <file>      (the whole dataset; or --groups clip-public-phone-work / clip-ent-phone-work on a seeded stack)
+# The flow completes one task in each run; the seed keeps two in progress and starts more when it is applied again. On a stack without the clip seed, start the workflow and the task on the web first.
+# The offline half needs the airplane mode, which Maestro sets with the commands below.
 # Matching: Maestro matches a regex against the whole text of a node, and a row of a list is one node whose text is its spoken label
 # ("<task>, <project>, <code>, <deadline words>, hạn dd/mm/yyyy, Theo cài đặt của bạn"), so the row texts are matched with ".*" around them.
 # Run:   maestro test --format junit --output results/<device>/40_workflow.xml flows/40_project_workflow.yaml

@@ -36,6 +36,8 @@ export interface Person {
   unit: number;
   role: string;
   membershipId: string;
+  /** `control`: a person of the control plane (the platform operator), who has an account and no membership in the tenant. `guest`: a vendor portal account. Absent for a member of a unit. */
+  plane?: 'control' | 'guest';
 }
 
 export interface CallOptions {
@@ -224,7 +226,7 @@ export class SeedContext {
     this.asOf = options.asOf ?? new Date();
     this.today = vietnamDate(this.asOf);
     this.people = Object.fromEntries(
-      (people as Array<{ key: string; name: string; initials: string; unit: number; role: string }>).map((person) => {
+      (people as Array<{ key: string; name: string; initials: string; unit: number; role: string; plane?: 'control' | 'guest' }>).map((person) => {
         const fixture = fixtures.users.find((user) => user.key === person.key);
         if (fixture === undefined) throw new SeedError(`the person ${person.key} has no fixture account (e2e-fixtures.json)`);
         return [person.key, { ...person, membershipId: fixture.membershipId }];
@@ -239,6 +241,14 @@ export class SeedContext {
     const id = this.info.units.A[code];
     if (id === undefined) throw new SeedError(`unit ${code} does not exist (known: ${Object.keys(this.info.units.A).join(', ')})`);
     return id;
+  }
+
+  /**
+   * The people who hold a membership in the tenant: everyone of docs-people.json but the people of the control plane (the stack gives the platform operator an account and no membership, so a
+   * command of the tenant that names that person answers 404).
+   */
+  get members(): Person[] {
+    return Object.values(this.people).filter((person) => person.plane !== 'control');
   }
 
   nameOf(person: string): string {

@@ -1,0 +1,6 @@
+{
+  "pay.alert.table.label": "Bảng các tạm ứng bị cảnh báo",
+  "pay.alert.column.handler": "Người xử lý",
+  "pay.alert.handler.none": "Chưa có người nhận xử lý",
+  "pay.alert.handler.unnamed": "Người dùng không còn trong danh bạ"
+}

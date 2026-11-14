@@ -86,17 +86,24 @@ describe('one tenant at ten times its quota does not slow another down (ST-KERNE
     return { b: await Promise.all(sent), other: await other };
   };
 
-  /** Tenant A at ten times its quota for the time tenant B's requests last. */
+  /**
+   * Tenant A at ten times its quota for the time tenant B's requests last. `seconds` is the time over which the requests were SENT (up to the last tick that sent what was due), which is what a rate is
+   * counted over and what the limiter sees: the requests are counted when they arrive. The wait for the last answers is not part of it. It was, and the check of the rate below then compared what three
+   * seconds of sending give (600 requests at most) with nine tenths of the rate over three seconds and the wait (0.3 s of service at least, more on a busy machine: 600.3 and up), a bound that the
+   * arithmetic alone put within one tick of failing whatever the product did (UAT 2026-11-14: 596 sent, 600.35 asked).
+   */
   const flood = (app: RunningApp): (() => Promise<{ answers: Answer[]; seconds: number }>) => async () => {
     const answers: Array<Promise<Answer>> = [];
     const started = performance.now();
+    let sentUntil = 0;
     // The rate is kept by the clock, not by the number of ticks: a timer that fires late is made up for in the next tick.
     while (performance.now() - started < B_REQUESTS * B_INTERVAL_MS) {
-      const due = Math.floor(((performance.now() - started) / 1000 / WINDOW_SECONDS) * FLOOD_PER_WINDOW);
+      sentUntil = performance.now() - started;
+      const due = Math.floor((sentUntil / 1000 / WINDOW_SECONDS) * FLOOD_PER_WINDOW);
       while (answers.length < due) answers.push(hit(app, TENANT_A));
       await sleep(FLOOD_TICK_MS);
     }
-    return { answers: await Promise.all(answers), seconds: (performance.now() - started) / 1000 };
+    return { answers: await Promise.all(answers), seconds: sentUntil / 1000 };
   };
 
   beforeAll(async () => {
@@ -136,7 +143,9 @@ describe('one tenant at ten times its quota does not slow another down (ST-KERNE
     const { answers, seconds } = loaded.other as { answers: Answer[]; seconds: number };
     const served = answers.filter((answer) => answer.status === 200).length;
     const refused = answers.filter((answer) => answer.status === 429);
-    expect(answers.length).toBeGreaterThanOrEqual(FLOOD_PER_WINDOW * seconds * 0.9);
+    // The flood was a flood: it ran beside B for nine tenths of B's run at least, and over that time it sent nine tenths of ten times the quota at least.
+    expect(seconds).toBeGreaterThanOrEqual(((B_REQUESTS * B_INTERVAL_MS) / 1000) * 0.9);
+    expect(answers.length).toBeGreaterThanOrEqual(FLOOD_PER_WINDOW * (seconds / WINDOW_SECONDS) * 0.9);
     expect(served).toBeGreaterThan(0);
     expect(served).toBeLessThanOrEqual(QUOTA * (Math.ceil(seconds / WINDOW_SECONDS) + 1));
     expect(served + refused.length).toBe(answers.length);

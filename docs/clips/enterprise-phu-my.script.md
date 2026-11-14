@@ -78,6 +78,7 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `clip-ent-project-docs` | RUN_VERIFIED |
 | `clip-ent-narrative` | RUN_VERIFIED |
 | `clip-ent-contractor-portal` | RUN_VERIFIED |
+| `clip-ent-phone-work` | RUN_VERIFIED |
 | `clip-ent-execution` | WRITTEN_NOT_RUN |
 | `clip-ent-issues` | WRITTEN_NOT_RUN |
 | `clip-ent-lifecycle` | WRITTEN_NOT_RUN |

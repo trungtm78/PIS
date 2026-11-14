@@ -13,6 +13,7 @@ import { seedClipContracts } from './clip/public-contracts.ts';
 import { seedClipAlerts } from './clip/public-alerts.ts';
 import { seedClipEnterpriseAlertTriage, seedClipEnterpriseAlerts } from './clip/enterprise-alerts.ts';
 import { seedClipContractorPortal } from './clip/contractor-portal.ts';
+import { seedClipPhoneWork } from './clip/phone-work.ts';
 import { seedClipEnterpriseAppraisal } from './clip/enterprise-appraisal.ts';
 import { seedClipEnterpriseNarrative, seedClipEnterpriseProjectDocs } from './clip/enterprise-records.ts';
 import { seedClipEnterpriseEquipment } from './clip/enterprise-equipment.ts';
@@ -75,6 +76,7 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-public-committee', seed: seedClipCommittee },
   { name: 'clip-public-extras', seed: seedClipExtras },
   { name: 'clip-public-contractor-portal', seed: seedClipContractorPortal },
+  { name: 'clip-public-phone-work', seed: seedClipPhoneWork },
   { name: 'clip-ent-projects', seed: seedClipEnterpriseProjects },
   { name: 'clip-ent-capital', seed: seedClipEnterpriseCapital },
   { name: 'clip-ent-funding', seed: seedClipEnterpriseFunding },
@@ -113,6 +115,7 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-ent-project-docs', seed: seedClipEnterpriseProjectDocs },
   { name: 'clip-ent-narrative', seed: seedClipEnterpriseNarrative },
   { name: 'clip-ent-contractor-portal', seed: seedClipContractorPortal },
+  { name: 'clip-ent-phone-work', seed: seedClipPhoneWork },
 ];
 
 export interface SeedSummary {

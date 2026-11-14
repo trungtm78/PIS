@@ -159,7 +159,8 @@ describe('the advance on the screens', () => {
       actions: { acknowledgeAlert: true },
     });
     expect(toAdvance(advance(1, { last_alert_level: 'x', acknowledgement: { note: 'only' } }))).toMatchObject({ lastAlertLevel: 0, acknowledgement: null });
-    expect(toAdvance(advance(1, { acknowledgement: { note: 'n', action_plan_due_on: 'd' } }))?.acknowledgement).toEqual({ note: 'n', planDueOn: 'd', by: '', at: '' });
+    expect(toAdvance(advance(1, { acknowledgement: { note: 'n', action_plan_due_on: 'd' } }))?.acknowledgement).toEqual({ note: 'n', planDueOn: 'd', by: '', byName: null, at: '' });
+    expect(toAdvance(advance(1, { acknowledgement: { ...plan, acknowledged_by_name: 'Trần Thị B' } }))?.acknowledgement?.byName).toBe('Trần Thị B');
     expect(ALERT_LEVELS).toEqual([1, 2, 3, 4]);
   });
 
