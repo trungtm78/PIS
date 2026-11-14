@@ -1,3 +1,4 @@
+import { inflateRawSync } from 'node:zlib';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { Client } from 'pg';
@@ -15,6 +16,21 @@ import { seedRow } from '../../../../packages/db/test/support/seed-rows';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
+
+/** The parts of a zip as text (stored or deflated), enough to look into a workbook. */
+function inflatedParts(bytes: Buffer): string[] {
+  const parts: string[] = [];
+  let at = 0;
+  while (at + 30 <= bytes.length && bytes.readUInt32LE(at) === 0x04034b50) {
+    const method = bytes.readUInt16LE(at + 8);
+    const size = bytes.readUInt32LE(at + 18);
+    const start = at + 30 + bytes.readUInt16LE(at + 26) + bytes.readUInt16LE(at + 28);
+    const data = bytes.subarray(start, start + size);
+    parts.push((method === 8 ? inflateRawSync(data) : data).toString('utf8'));
+    at = start + size;
+  }
+  return parts;
+}
 
 jest.setTimeout(300_000);
 
@@ -248,14 +264,20 @@ describe('the personal deadline preference, my tasks and the reminders of the ta
       expect(String(file.json.file_name)).toMatch(/^bang-deadline-\d{4}-\d{2}-\d{2}\.csv$/);
       const csv = Buffer.from(String(file.json.content_base64), 'base64').toString('utf8');
       expect(csv.split(/\r?\n/).filter((line) => /^[^,]*,[^,]*,Task \d+,T\d{4},/.test(line))).toHaveLength(4);
-      expect(csv).toContain('project_code,project,task,task_code,person,status,due,forecast,band,remaining,critical');
+      // Lane fix11: the file is made for a person: the heading of the table is the names of the columns in their language (Vietnamese unless they read in English), never the keys.
+      expect(csv).toContain('Mã dự án,Dự án,Công việc,Mã việc,Người thực hiện,Trạng thái,Hạn chính thức,Dự báo xong,Màu hạn,Số ngày còn lại,Đường găng');
+      expect(csv).not.toContain('project_code');
+      const english = await fetch(`${app.baseUrl}/pwf/deadlines/export?format=csv`, { headers: { [TENANT_HEADER]: tokenOf(MANAGER), 'accept-language': 'en' } });
+      expect(Buffer.from(String(((await english.json()) as { content_base64: string }).content_base64), 'base64').toString('utf8')).toContain('Project code,Project,Task,Task code,Assignee,Status,Official deadline,Forecast finish,Deadline colour,Days remaining,Critical path');
       expect(csv).not.toMatch(/personal|cá nhân/i);
       const red = (portfolio.json.counts_by_band as { RED: number }).RED;
       const workbook = await call('GET', '/pwf/deadlines/export?band=RED', { member: MANAGER });
       expect(workbook).toMatchObject({ status: 200, json: { row_count: red, content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' } });
       expect(Buffer.from(String(workbook.json.content_base64), 'base64').subarray(0, 2).toString('latin1')).toBe('PK');
+      // The sheet is named in the language of the person, not "DIS-export" (the name is stored as text in the part of the workbook, which is small enough not to be compressed away from a search of the bytes of the zip).
+      expect(inflatedParts(Buffer.from(String(workbook.json.content_base64), 'base64')).some((part) => part.includes('<sheet name="Bảng deadline"'))).toBe(true);
       const audits = await rows<{ diff: { rows: number; format: string; sha256: string } }>("select safe_diff as diff from machvon.audit_event where action = 'pwf.deadlines_exported' and actor_id = $1 order by occurred_at", [memberId(MANAGER)]);
-      expect(audits.map((one) => [one.diff.rows, one.diff.format])).toEqual([[4, 'csv'], [red, 'xlsx']]);
+      expect(audits.map((one) => [one.diff.rows, one.diff.format])).toEqual([[4, 'csv'], [4, 'csv'], [red, 'xlsx']]);
       expect(audits[0]?.diff.sha256).toBe(file.json.sha256);
       expect((await call('GET', '/pwf/deadlines/export?format=pdf', { member: MANAGER })).status).toBe(422);
       // The file is for who may read the board: the same answer as the board itself gives the caller.

@@ -1,5 +1,5 @@
 import { inflateRawSync } from 'node:zlib';
-import { EXPORT_COLUMNS, EXPORT_ROW_CAP, PDF_ROW_CAP, buildExportDocument, csvOf, scaledMoney, selectColumns, signOffNotice, xlsxOf } from '../src/dis-export.ts';
+import { EXPORT_COLUMNS, EXPORT_ROW_CAP, PDF_ROW_CAP, buildExportDocument, csvLine, csvOf, scaledMoney, selectColumns, sheetNameOf, signOffNotice, xlsxOf } from '../src/dis-export.ts';
 import type { ExportDocument, ExportInput, ExportLine } from '../src/dis-export.ts';
 
 const LINE: ExportLine = {
@@ -101,6 +101,41 @@ describe('the export of a frozen snapshot (ST-DIS-016, DIS 3 F9)', () => {
     expect(sheet).toContain('1250000000');
     expect(sheet).toContain('D03');
     expect(parts['xl/workbook.xml']).toContain('<sheet name="');
+  });
+
+  it('keeps the file as it has always been when no layout is asked for: the sheet DIS-export, the keys of the columns as the heading of the table', () => {
+    const document = buildExportDocument(input());
+    const parts = unzip(xlsxOf(document));
+    expect(parts['xl/workbook.xml']).toContain('<sheet name="DIS-export"');
+    expect(parts['xl/worksheets/sheet1.xml']).toContain('>key<');
+    expect(parts['xl/worksheets/sheet1.xml']).toContain(`>${document.columns[0]?.key}<`);
+    expect(csvOf(document)).toBe(csvOf(document, {}));
+    expect(csvOf(document).split('\r\n')[0]).toBe('\uFEFFkey,label,value');
+  });
+
+  it('lays a file out for a person when asked: the sheet named in their language, the labels of the columns as the heading, the header block as label and value (lane fix11)', () => {
+    const document = buildExportDocument(input());
+    const layout = { sheetName: 'Bảng deadline', headings: 'LABEL' as const };
+    const parts = unzip(xlsxOf(document, layout));
+    expect(parts['xl/workbook.xml']).toContain('<sheet name="Bảng deadline"');
+    const sheet = parts['xl/worksheets/sheet1.xml'] as string;
+    expect(sheet).not.toContain('>key<');
+    expect(sheet).toContain(`>${document.columns[0]?.label}<`);
+    expect(sheet).not.toContain(`>${document.columns[0]?.key}<`);
+    expect(sheet).toContain(`>${document.header[0]?.label}<`);
+    const lines = csvOf(document, layout).split('\r\n');
+    expect(lines[0]).toBe(`\uFEFF${csvLine([document.header[0]?.label ?? '', document.header[0]?.value ?? ''])}`);
+    expect(lines).toContain(csvLine(document.columns.map((column) => column.label)));
+    expect(lines).not.toContain(csvLine(document.columns.map((column) => column.key)));
+  });
+
+  it('makes any name a valid name of a sheet: the forbidden characters go, 31 characters at most, and never empty', () => {
+    expect(sheetNameOf('Bảng deadline')).toBe('Bảng deadline');
+    expect(sheetNameOf("'a[b]:c*d?e/f\\g'")).toBe('a b c d e f g');
+    expect(sheetNameOf('x'.repeat(40))).toBe('x'.repeat(31));
+    expect(sheetNameOf('')).toBe('DIS-export');
+    expect(sheetNameOf(undefined)).toBe('DIS-export');
+    expect(sheetNameOf('[]')).toBe('DIS-export');
   });
 
   it('escapes what XML does not allow in a cell and leaves out characters it cannot hold', () => {

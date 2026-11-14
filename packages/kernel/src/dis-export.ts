@@ -189,13 +189,39 @@ function csvCell(value: string): string {
 
 export const csvLine = (cells: readonly string[]): string => cells.map(csvCell).join(',');
 
+/**
+ * How a document is laid out as a file (lane fix11). By default the file is what it has always been: the header block as `key, label, value`, the heading of the table as the KEYS of the columns (a file a program
+ * reads back), and the sheet named `DIS-export`. A file made for a person to open asks for `headings: 'LABEL'`: the heading of the table is the labels of the columns, in the language of the document, the header block
+ * is `label, value`, and `sheetName` names the sheet in that language. An exporter that passes nothing is unchanged.
+ */
+export interface ExportLayout {
+  /** The name of the sheet of the workbook; made valid for a spreadsheet (31 characters, none of `[]:*?/\`). `DIS-export` when not given. */
+  sheetName?: string | undefined;
+  /** What heads the table: the keys of the columns (the default) or their labels. */
+  headings?: 'KEY' | 'LABEL' | undefined;
+}
+
+/** The rows of the file in the layout asked for: the header block, a blank row, the heading of the table, the table, and the notice last. */
+function layoutRows(document: ExportDocument, layout: ExportLayout): string[][] {
+  const labels = layout.headings === 'LABEL';
+  const rows: string[][] = labels
+    ? [...document.header.map((entry) => [entry.label, entry.value]), [], document.columns.map((column) => column.label)]
+    : [['key', 'label', 'value'], ...document.header.map((entry) => [entry.key, entry.label, entry.value]), [], document.columns.map((column) => column.key)];
+  for (const row of document.rows) rows.push(row.map((value, index) => guarded(value, document.columns[index]?.numeric === true)));
+  if (document.notice !== null) rows.push(...(labels ? [[], [message('dis.export.notice.label'), document.notice]] : [['notice', message('dis.export.notice.label'), document.notice]]));
+  return rows;
+}
+
 /** UTF-8 with a byte-order mark (so that a spreadsheet reads the Vietnamese), CRLF lines: the header block, a blank line, the table, and the notice last. */
-export function csvOf(document: ExportDocument): string {
-  const lines = [csvLine(['key', 'label', 'value']), ...document.header.map((entry) => csvLine([entry.key, entry.label, entry.value])), ''];
-  lines.push(csvLine(document.columns.map((column) => column.key)));
-  for (const row of document.rows) lines.push(csvLine(row.map((value, index) => guarded(value, document.columns[index]?.numeric === true))));
-  if (document.notice !== null) lines.push(csvLine(['notice', message('dis.export.notice.label'), document.notice]));
-  return `\uFEFF${lines.join('\r\n')}\r\n`;
+export function csvOf(document: ExportDocument, layout: ExportLayout = {}): string {
+  if (layout.headings !== 'LABEL') {
+    const lines = [csvLine(['key', 'label', 'value']), ...document.header.map((entry) => csvLine([entry.key, entry.label, entry.value])), ''];
+    lines.push(csvLine(document.columns.map((column) => column.key)));
+    for (const row of document.rows) lines.push(csvLine(row.map((value, index) => guarded(value, document.columns[index]?.numeric === true))));
+    if (document.notice !== null) lines.push(csvLine(['notice', message('dis.export.notice.label'), document.notice]));
+    return `\uFEFF${lines.join('\r\n')}\r\n`;
+  }
+  return `\uFEFF${layoutRows(document, layout).map((cells) => (cells.length === 0 ? '' : csvLine(cells))).join('\r\n')}\r\n`;
 }
 
 // ---- XLSX -----------------------------------------------------------------------------------------------------------------------
@@ -209,9 +235,11 @@ function columnName(index: number): string {
 }
 
 /** Money and rates are written as text: a whole dong has up to 24 digits, which a spreadsheet number (15 digits) would round. */
-function sheetOf(document: ExportDocument): string {
-  const rows: string[][] = [['key', 'label', 'value'], ...document.header.map((entry) => [entry.key, entry.label, entry.value]), [], document.columns.map((column) => column.key), ...document.rows];
-  if (document.notice !== null) rows.push([], ['notice', message('dis.export.notice.label'), document.notice]);
+function sheetOf(document: ExportDocument, layout: ExportLayout): string {
+  const rows: string[][] =
+    layout.headings === 'LABEL'
+      ? [...document.header.map((entry) => [entry.label, entry.value]), [], document.columns.map((column) => column.label), ...document.rows, ...(document.notice === null ? [] : [[], [message('dis.export.notice.label'), document.notice]])]
+      : [['key', 'label', 'value'], ...document.header.map((entry) => [entry.key, entry.label, entry.value]), [], document.columns.map((column) => column.key), ...document.rows, ...(document.notice === null ? [] : [[], ['notice', message('dis.export.notice.label'), document.notice]])];
   const body = rows
     .map((cells, r) => {
       const refs = cells.map((value, c) => `<c r="${columnName(c)}${r + 1}" t="inlineStr"><is><t xml:space="preserve">${xmlText(value)}</t></is></c>`);
@@ -222,6 +250,13 @@ function sheetOf(document: ExportDocument): string {
 }
 
 const SHEET_NAME = 'DIS-export';
+const SHEET_NAME_MAX = 31;
+
+/** A name a spreadsheet accepts for a sheet: none of `[ ] : * ? / \`, no quote at either end, at most 31 characters, never empty (the default name then). */
+export function sheetNameOf(name: string | undefined): string {
+  const cleaned = (name ?? '').replace(/[\[\]:*?/\\]/g, ' ').replace(/\s+/g, ' ').trim().replace(/^'+|'+$/g, '').slice(0, SHEET_NAME_MAX).trim();
+  return cleaned === '' ? SHEET_NAME : cleaned;
+}
 
 interface ZipEntry {
   name: string;
@@ -277,7 +312,7 @@ function zipOf(entries: readonly ZipEntry[]): Uint8Array {
 }
 
 /** The workbook: one sheet with the header block, the table and the notice. */
-export function xlsxOf(document: ExportDocument): Uint8Array {
+export function xlsxOf(document: ExportDocument, layout: ExportLayout = {}): Uint8Array {
   const text = (value: string): Buffer => Buffer.from(value, 'utf8');
   return zipOf([
     {
@@ -292,12 +327,12 @@ export function xlsxOf(document: ExportDocument): Uint8Array {
     },
     {
       name: 'xl/workbook.xml',
-      data: text(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${SHEET_NAME}" sheetId="1" r:id="rId1"/></sheets></workbook>`),
+      data: text(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${xmlText(sheetNameOf(layout.sheetName))}" sheetId="1" r:id="rId1"/></sheets></workbook>`),
     },
     {
       name: 'xl/_rels/workbook.xml.rels',
       data: text('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'),
     },
-    { name: 'xl/worksheets/sheet1.xml', data: text(sheetOf(document)) },
+    { name: 'xl/worksheets/sheet1.xml', data: text(sheetOf(document, layout)) },
   ]);
 }

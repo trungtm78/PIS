@@ -3335,4 +3335,4 @@ export * as pwfDeadlineBand from './deadline-band.ts';
 export * as pwfKpi from './workflow-kpi.ts';
 export * as processCore from './process-core.ts';
 export { PWF_SCORE_TEXT } from './messages/pwf-score-texts.ts';
-export { PWF_BOARD_TEXT } from './messages/pwf-board-texts.ts';
+export { PWF_BOARD_TEXT, PWF_BOARD_TEXT_EN, pwfBoardText } from './messages/pwf-board-texts.ts';

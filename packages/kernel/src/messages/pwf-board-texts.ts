@@ -1,6 +1,7 @@
 /** The words of the file of the deadline board (PWF-07): a module (not the JSON catalogue) so that the web build never reads a file. The colour in the file is the official one only (R40). */
 export const PWF_BOARD_TEXT = {
   export_title: 'Bảng deadline công việc dự án',
+  sheet_name: 'Bảng deadline',
   header_as_of: 'Ngày xuất',
   header_rows: 'Số việc',
   header_filters: 'Bộ lọc',
@@ -38,3 +39,50 @@ export const PWF_BOARD_TEXT = {
   },
   overdue: 'quá hạn',
 } as const;
+
+/** The same words in English, for a person who reads the application in English (lane fix11). */
+export const PWF_BOARD_TEXT_EN: { readonly [K in keyof typeof PWF_BOARD_TEXT]: (typeof PWF_BOARD_TEXT)[K] extends string ? string : Readonly<Record<string, string>> } = {
+  export_title: 'Deadline board of project tasks',
+  sheet_name: 'Deadline board',
+  header_as_of: 'Exported on',
+  header_rows: 'Tasks',
+  header_filters: 'Filters',
+  header_basis: 'Deadline colour',
+  value_basis: 'The official colour by the three-colour policy of the unit; the deadline is the latest released schedule.',
+  no_filters: 'No filter',
+  column_project_code: 'Project code',
+  column_project: 'Project',
+  column_task: 'Task',
+  column_task_code: 'Task code',
+  column_person: 'Assignee',
+  column_status: 'Status',
+  column_due: 'Official deadline',
+  column_forecast: 'Forecast finish',
+  column_band: 'Deadline colour',
+  column_remaining: 'Days remaining',
+  column_critical: 'Critical path',
+  unassigned: 'Unassigned',
+  yes: 'yes',
+  no: 'no',
+  status: {
+    NOT_STARTED: 'Not started',
+    IN_PROGRESS: 'In progress',
+    AWAITING_APPROVAL: 'Awaiting approval',
+    DONE: 'Done',
+    ON_HOLD: 'On hold',
+    CANCELLED: 'Cancelled',
+  },
+  band: {
+    RED: 'Red',
+    YELLOW: 'Yellow',
+    GREEN: 'Green',
+    NONE: 'Not in range yet',
+    UNKNOWN: 'Cannot be counted (no working calendar)',
+  },
+  overdue: 'overdue',
+};
+
+/** The words of the file in the language the person reads the application in (`accept-language` of the request): English for `en`, Vietnamese for anything else. */
+export function pwfBoardText(language: string | undefined): typeof PWF_BOARD_TEXT_EN {
+  return (language ?? '').trim().toLowerCase().startsWith('en') ? PWF_BOARD_TEXT_EN : PWF_BOARD_TEXT;
+}

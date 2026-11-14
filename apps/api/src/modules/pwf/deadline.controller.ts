@@ -1,8 +1,8 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { Controller, Get, Header, Inject, Query } from '@nestjs/common';
+import { Controller, Get, Header, Headers, Inject, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { AuditWriter, PwfDeadlineReads, TenantDatabase, projectScope } from '@machvon/db';
-import { DomainError, PWF_BOARD_TEXT, csvOf, vietnamDateOf, xlsxOf } from '@machvon/kernel';
+import { DomainError, csvOf, pwfBoardText, vietnamDateOf, xlsxOf } from '@machvon/kernel';
 import type { EffectiveAccess, ExportDocument, TenantContext } from '@machvon/kernel';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
@@ -32,10 +32,10 @@ interface BoardItem {
   name: string;
   project_code: string;
   project_name: string;
-  status: keyof typeof PWF_BOARD_TEXT.status;
+  status: string;
   due_date: string | null;
   forecast_finish: string | null;
-  band: { band: keyof typeof PWF_BOARD_TEXT.band; remaining_days: number | null; overdue: boolean };
+  band: { band: string; remaining_days: number | null; overdue: boolean };
   critical: boolean;
   assignee: { display_name: string } | null;
 }
@@ -81,7 +81,7 @@ export class PwfDeadlineReadsController {
   @Get('pwf/deadlines/export')
   @Header('Cache-Control', 'no-store')
   @OperationId('exportDeadlineBoard')
-  async export(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Query() query: Record<string, unknown>): Promise<Schemas['PwfDeadlineExport']> {
+  async export(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Query() query: Record<string, unknown>, @Headers('accept-language') language?: string): Promise<Schemas['PwfDeadlineExport']> {
     const now = new Date();
     const format = queryText(query.format, 'format') ?? 'xlsx';
     if (format !== 'xlsx' && format !== 'csv') throw new DomainError('VALIDATION_FAILED', 422, 'format');
@@ -97,7 +97,8 @@ export class PwfDeadlineReadsController {
         if (page.next === null) break;
         after = page.next;
       }
-      const T = PWF_BOARD_TEXT;
+      // The file is made for a person to open (lane fix11): its words, the name of its sheet and the heading of its table are in the language the person reads the application in.
+      const T = pwfBoardText(language);
       const applied = Object.entries(filter).filter(([, value]) => value !== undefined).map(([name, value]) => `${name}=${String(value)}`);
       const document: ExportDocument = {
         title: T.export_title,
@@ -135,7 +136,8 @@ export class PwfDeadlineReadsController {
         ]),
         notice: null,
       };
-      const bytes = format === 'csv' ? Buffer.from(csvOf(document), 'utf8') : Buffer.from(xlsxOf(document));
+      const layout = { sheetName: T.sheet_name, headings: 'LABEL' as const };
+      const bytes = format === 'csv' ? Buffer.from(csvOf(document, layout), 'utf8') : Buffer.from(xlsxOf(document, layout));
       const sha256 = createHash('sha256').update(bytes).digest('hex');
       await this.audit.recordInTx(tx, tenant.membershipId, {
         action: 'pwf.deadlines_exported',
