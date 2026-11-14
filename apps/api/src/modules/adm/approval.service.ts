@@ -3,6 +3,7 @@ import type { OnApplicationBootstrap } from '@nestjs/common';
 import { ApprovalStore } from '@machvon/db';
 import type { ApprovalEffects, ApprovalStartInput, FinalCommand, TenantTx, WorkflowInstanceRecord } from '@machvon/db';
 import { BUSINESS_TYPES, DomainError, enabledBusinessTypes, testDoublesAllowed } from '@machvon/kernel';
+import type { EffectiveAccess } from '@machvon/kernel';
 import type { CommandScope } from '../../command-scope';
 import { ADM_MOUNTED_MODULES } from './tokens';
 
@@ -31,6 +32,49 @@ export interface ApprovalRecordSummary {
 
 export type ApprovalSummaryReader = (tx: TenantTx, task: ApprovalSummarySubject) => Promise<ApprovalRecordSummary | undefined>;
 
+/** One way of deciding a pending record: the decision the screen offers and the operation of the owning module that carries it out. */
+export interface PendingDecisionAction {
+  decision: 'approve' | 'return' | 'reject';
+  /** The operation of the contract the screen calls: the command of the owning module, with its own permission, scope, idempotency and audit. */
+  operationId: string;
+  /** Whether the command refuses the decision without words of the person (a return says why). */
+  reasonRequired: boolean;
+  /** The fewest and the most characters the command keeps of those words. */
+  reasonMin: number;
+  reasonMax: number;
+}
+
+/**
+ * A record of a module that waits for the reader to decide it and is not a task of the engine (`PendingDecision` of openapi.json, PWF 20.9): nobody was assigned, whoever holds the permission of the command in the
+ * scope of the record decides. The inbox lists it beside the tasks of the engine; the decision is the command of the owning module, never a second way of approving.
+ */
+export interface PendingDecision {
+  id: string;
+  kind: string;
+  resource: { type: string; id: string };
+  /** The version the command is sent under (`If-Match`). */
+  version: number;
+  submittedAt: string;
+  initiatorName: string | null;
+  /** The moment the decision is due, when the kind runs a clock; null when it has none. */
+  dueAt: string | null;
+  overdue: boolean;
+  summary: ApprovalRecordSummary;
+  actions: PendingDecisionAction[];
+}
+
+export interface PendingDecisionViewer {
+  membershipId: string;
+  access: EffectiveAccess;
+  now: Date;
+}
+
+/** What a module answers for one reader: the records that wait for them, the oldest first, at most `limit`. */
+export type PendingDecisionSource = (tx: TenantTx, viewer: PendingDecisionViewer, limit: number) => Promise<PendingDecision[]>;
+
+/** The most records one source gives the inbox; a source that reaches it makes the answer say it is cut. */
+export const PENDING_DECISION_LIMIT = 100;
+
 /** The commands the owning modules register for a business type: the end of a workflow calls one of them. */
 export const APPROVAL_FINAL_COMMANDS = Symbol('APPROVAL_FINAL_COMMANDS');
 
@@ -50,6 +94,7 @@ export class FinalCommandRegistry {
   private readonly handlers = new Map<string, FinalCommand>();
   private readonly real = new Set<string>();
   private readonly summaries = new Map<string, ApprovalSummaryReader>();
+  private readonly pending = new Map<string, PendingDecisionSource>();
 
   constructor(options: FinalCommandRegistryOptions = {}) {
     const variables = options.variables ?? process.env;
@@ -79,6 +124,39 @@ export class FinalCommandRegistry {
     const reader = this.summaries.get(task.businessType);
     if (reader === undefined) return null;
     return (await reader(tx, task)) ?? null;
+  }
+
+  /**
+   * Binds the reader of the records of a module that wait for a decision outside the engine (PWF 20.9): the module says which of its records wait for this reader, as it says the final command of its business types.
+   * The code names the source in `unavailable_sources` when its read fails.
+   */
+  registerPendingSource(code: string, source: PendingDecisionSource): void {
+    this.pending.set(code, source);
+  }
+
+  /**
+   * What waits for the reader across the registered sources, the oldest first. A source that fails does not take the inbox with it: its statement is rolled back to a savepoint and the source is named, never shown
+   * as "nothing waits".
+   */
+  async pendingOf(tx: TenantTx, viewer: PendingDecisionViewer, limit = PENDING_DECISION_LIMIT): Promise<{ items: PendingDecision[]; unavailableSources: string[]; truncated: boolean }> {
+    const items: PendingDecision[] = [];
+    const unavailableSources: string[] = [];
+    let truncated = false;
+    for (const [code, source] of this.pending) {
+      await tx.query('savepoint adm_pending_source');
+      try {
+        const found = await source(tx, viewer, limit);
+        await tx.query('release savepoint adm_pending_source');
+        if (found.length >= limit) truncated = true;
+        items.push(...found);
+      } catch {
+        await tx.query('rollback to savepoint adm_pending_source');
+        await tx.query('release savepoint adm_pending_source');
+        unavailableSources.push(code);
+      }
+    }
+    items.sort((a, b) => a.submittedAt.localeCompare(b.submittedAt) || a.id.localeCompare(b.id));
+    return { items, unavailableSources, truncated };
   }
 
   /** Whether the owning module bound its own handler (a double does not count). */

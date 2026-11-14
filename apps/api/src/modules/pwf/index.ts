@@ -4,6 +4,7 @@ import { PwfKpiReadsController } from './kpi.controller';
 import { PwfPreferenceController } from './preference.controller';
 import { ProjectRescheduleController } from './reschedule.controller';
 import { StaffScoreReadsController } from './score-reads.controller';
+import { PwfPendingDecisionsBinding } from './pending-decisions.binding';
 import { PwfScoreResponseBinding } from './score-response.binding';
 import { StaffScoreController } from './score.controller';
 import { ProjectTaskController, ProjectTaskReadsController } from './task.controller';
@@ -16,6 +17,6 @@ import { ProjectWorkflowController, ProjectWorkflowReadsController } from './wor
  */
 export const pwfModule = defineModule({
   code: 'PWF',
-  providers: [PwfScoreResponseBinding],
+  providers: [PwfScoreResponseBinding, PwfPendingDecisionsBinding],
   controllers: [ProjectWorkflowController, ProjectWorkflowReadsController, ProjectTaskController, ProjectTaskReadsController, ProjectRescheduleController, PwfDeadlineReadsController, PwfPreferenceController, PwfKpiReadsController, StaffScoreController, StaffScoreReadsController],
 });

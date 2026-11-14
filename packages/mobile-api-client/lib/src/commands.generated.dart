@@ -3211,6 +3211,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> listMyNotifications({Map<String, Object?>? query}) =>
       execute('listMyNotifications', query: query);
 
+  Future<Object?> listMyPendingDecisions({Map<String, Object?>? query}) =>
+      execute('listMyPendingDecisions', query: query);
+
   Future<Object?> listMySessions({Map<String, Object?>? query}) =>
       execute('listMySessions', query: query);
 

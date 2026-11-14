@@ -1796,7 +1796,7 @@ export type { Conclusion, ReviewEventRow, ReviewListFilter, ReviewListRow, Revie
 export { registerConnectorAlertReader } from './home-connector-sources.ts';
 export type { ConnectorAlertReader } from './home-connector-sources.ts';
 export { base as workSourceBase } from './home-work-sources.ts';
-export type { SourceContext as WorkSourceContext, SourceRow as WorkSourceRow } from './home-work-sources.ts';
+export type { SourceContext as WorkSourceContext, SourceRow as WorkSourceRow, WorkDecisionScopes } from './home-work-sources.ts';
 export { timestampKey } from './keyset.ts';
 // CA-3: the registers of the contract reports and the proposals of a rating of the contractor (docs/ctr-analytics-registers.md).
 export { CtrRegisterReader, REGISTER_ROW_CAP, ratingInputsOf } from './ctr-register-reader.ts';
@@ -1943,6 +1943,8 @@ export type { LinkInput, ProposalView, RescheduleInput } from './pwf-reschedule-
 export { PwfWorkflowReads, bandResolver, taskItemOf } from './pwf-workflow-reads.ts';
 export type { BandResolver, BandView, Can as PwfCan, TaskFilter, TaskListItem } from './pwf-workflow-reads.ts';
 export { PwfTaskReads } from './pwf-task-reads.ts';
+export { PwfPendingDecisionReads } from './pwf-pending-decisions.ts';
+export type { PwfPendingDecision, PwfPendingKind, PwfPendingViewer } from './pwf-pending-decisions.ts';
 export { logWorkflow, milestoneCodeOf, publishSchedule, resultHashOf, syncMilestones } from './pwf-publish.ts';
 export { loadPinnedCalendars, pinPublishedCalendars } from './pwf-schedule-support.ts';
 export { PwfDeadlineReads } from './pwf-deadline-reads.ts';

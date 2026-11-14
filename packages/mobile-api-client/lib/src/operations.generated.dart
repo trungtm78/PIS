@@ -1071,6 +1071,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listMyConsents': OperationDescriptor(method: 'GET', path: '/me/consents', versioned: false, stepUp: null, permission: 'notification.self'),
   'listMyDevices': OperationDescriptor(method: 'GET', path: '/me/devices', versioned: false, stepUp: null, permission: 'session.self'),
   'listMyNotifications': OperationDescriptor(method: 'GET', path: '/me/notifications', versioned: false, stepUp: null, permission: 'notification.self'),
+  'listMyPendingDecisions': OperationDescriptor(method: 'GET', path: '/me/pending-decisions', versioned: false, stepUp: null, permission: 'session.self'),
   'listMySessions': OperationDescriptor(method: 'GET', path: '/me/sessions', versioned: false, stepUp: null, permission: 'session.self'),
   'listNotificationEventTypes': OperationDescriptor(method: 'GET', path: '/notification-event-types', versioned: false, stepUp: null, permission: 'notification.publish'),
   'listNotificationTestRecipients': OperationDescriptor(method: 'GET', path: '/notification-test-recipients', versioned: false, stepUp: null, permission: 'notification.template.manage'),

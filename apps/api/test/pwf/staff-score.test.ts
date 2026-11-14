@@ -7,7 +7,9 @@ import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { APPROVAL_FINAL_COMMANDS, FinalCommandRegistry } from '../../src/modules/adm/approval.service';
+import { MyPendingDecisionsController } from '../../src/modules/adm/approval.controller';
 import { PwfKpiReadsController } from '../../src/modules/pwf/kpi.controller';
+import { PwfPendingDecisionsBinding } from '../../src/modules/pwf/pending-decisions.binding';
 import { StaffScoreReadsController } from '../../src/modules/pwf/score-reads.controller';
 import { PwfScoreResponseBinding } from '../../src/modules/pwf/score-response.binding';
 import { StaffScoreController } from '../../src/modules/pwf/score.controller';
@@ -87,14 +89,14 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
     await harness.seedMembership(TENANT_A, SIBLING_MANAGER, SIBLING);
     await harness.seedMembership(TENANT_A, HR_OF_UNIT, PROVINCE);
     await harness.seedMembership(TENANT_B, B_HR, PROVINCE);
-    const hrPermissions = ['staff_score.read_own', 'staff_score.read_unit', 'staff_score.read_hr', 'staff_score.export', 'staff_score.manage', 'staff_score.approve', 'staff_score.review', 'pwf.read'];
+    const hrPermissions = ['session.self', 'staff_score.read_own', 'staff_score.read_unit', 'staff_score.read_hr', 'staff_score.export', 'staff_score.manage', 'staff_score.approve', 'staff_score.review', 'pwf.read'];
     await harness.seedRole(TENANT_A, 1, 'SCORE_HR', hrPermissions, 50);
-    await harness.seedRole(TENANT_A, 2, 'SCORE_STAFF', ['staff_score.read_own'], 10);
-    await harness.seedRole(TENANT_A, 3, 'SCORE_MANAGER', ['staff_score.read_own', 'staff_score.read_unit', 'staff_score.adjust', 'pwf.read'], 30);
-    await harness.seedRole(TENANT_A, 4, 'SCORE_EXPORTER', ['staff_score.read_own', 'staff_score.read_unit', 'staff_score.export'], 30);
-    await harness.seedRole(TENANT_A, 5, 'SCORE_SIBLING', ['staff_score.read_own', 'staff_score.read_unit', 'staff_score.adjust', 'staff_score.export'], 30);
-    await harness.seedRole(TENANT_A, 6, 'SCORE_APPROVER', ['staff_score.read_own', 'staff_score.read_unit', 'staff_score.approve'], 30);
-    await harness.seedRole(TENANT_A, 7, 'SCORE_BOTH', ['staff_score.read_own', 'staff_score.read_unit', 'staff_score.adjust', 'staff_score.approve'], 30);
+    await harness.seedRole(TENANT_A, 2, 'SCORE_STAFF', ['session.self', 'staff_score.read_own'], 10);
+    await harness.seedRole(TENANT_A, 3, 'SCORE_MANAGER', ['session.self', 'staff_score.read_own', 'staff_score.read_unit', 'staff_score.adjust', 'pwf.read'], 30);
+    await harness.seedRole(TENANT_A, 4, 'SCORE_EXPORTER', ['session.self', 'staff_score.read_own', 'staff_score.read_unit', 'staff_score.export'], 30);
+    await harness.seedRole(TENANT_A, 5, 'SCORE_SIBLING', ['session.self', 'staff_score.read_own', 'staff_score.read_unit', 'staff_score.adjust', 'staff_score.export'], 30);
+    await harness.seedRole(TENANT_A, 6, 'SCORE_APPROVER', ['session.self', 'staff_score.read_own', 'staff_score.read_unit', 'staff_score.approve'], 30);
+    await harness.seedRole(TENANT_A, 7, 'SCORE_BOTH', ['session.self', 'staff_score.read_own', 'staff_score.read_unit', 'staff_score.adjust', 'staff_score.approve'], 30);
     await harness.seedRole(TENANT_A, 8, 'SCORE_HR_UNIT', ['staff_score.read_hr'], 30);
     await harness.seedRole(TENANT_A, 9, 'SCORE_TENANT_READER', ['staff_score.read_unit'], 30);
     await harness.seedRole(TENANT_B, 1, 'SCORE_HR', hrPermissions, 50);
@@ -129,8 +131,8 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [StaffScoreController, StaffScoreReadsController, PwfKpiReadsController],
-      providers: [{ provide: TenantDatabase, useValue: tenants }, { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) }, { provide: APPROVAL_FINAL_COMMANDS, useValue: registry }, PwfScoreResponseBinding],
+      controllers: [StaffScoreController, StaffScoreReadsController, PwfKpiReadsController, MyPendingDecisionsController],
+      providers: [{ provide: TenantDatabase, useValue: tenants }, { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) }, { provide: APPROVAL_FINAL_COMMANDS, useValue: registry }, PwfScoreResponseBinding, PwfPendingDecisionsBinding],
     });
   }, 300_000);
 
@@ -343,9 +345,27 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       const asked = await ask({ points: 5, reason: 'The other agency answered late and the letter proves it.', evidence_ref: 'Letter 12/2025' });
       expect(asked).toMatchObject({ status: 200, json: { status: 'REQUESTED', resource_version: 1 } });
       const id = asked.json.resource_id as string;
+      // PWF 20.9: the adjustment waits in the unified inbox of the one who may decide it in that unit, and of nobody else: not the one who asked, not the person scored, not an approver of another unit.
+      const inbox = async (member: number) => ((await call('GET', '/me/pending-decisions', { member })).json.items as Array<Record<string, unknown>>).filter((one) => one.kind === 'pwf.score.adjustment');
+      const waiting = await inbox(APPROVER);
+      expect(waiting).toHaveLength(1);
+      expect(waiting[0]).toMatchObject({
+        id: `pwf.score.adjustment:${id}`,
+        resource: { type: 'staff_score_adjustment', id },
+        version: 1,
+        due_at: null,
+        overdue: false,
+        summary: { kind: 'pwf.score.adjustment', project: null, period: { from: FROM, to: TO }, body: 'The other agency answered late and the letter proves it.', target: { screen: 'PWF-13', id: workerLine } },
+      });
+      expect((waiting[0]?.summary as { facts: Array<{ code: string; value: unknown }> }).facts).toEqual(expect.arrayContaining([{ code: 'POINTS', value: 5 }]));
+      expect((waiting[0]?.actions as Array<{ decision: string; operation_id: string }>).map((one) => [one.decision, one.operation_id])).toEqual([['approve', 'decideStaffScoreAdjustment'], ['reject', 'decideStaffScoreAdjustment']]);
+      for (const member of [UNIT_MANAGER, WORKER, SIBLING_MANAGER, OTHER_STAFF]) expect(await inbox(member)).toEqual([]);
+      expect((await call('GET', '/me/pending-decisions', { member: B_HR, tenantId: TENANT_B })).json.items).toEqual([]);
       expect((await call('POST', `/staff-score-adjustments/${id}/decide`, { member: UNIT_MANAGER, body: { decision: 'APPROVE' }, ifMatch: '"1"' })).status).toBe(403);
       expect((await call('POST', `/staff-score-adjustments/${id}/decide`, { member: APPROVER, body: { decision: 'APPROVE', note: 'Evidence read' }, ifMatch: '"4"' })).status).toBe(409);
       const decided = await call('POST', `/staff-score-adjustments/${id}/decide`, { member: APPROVER, body: { decision: 'APPROVE', note: 'Evidence read' }, ifMatch: '"1"' });
+      // Decided through its own command, it has left the inbox.
+      expect(await inbox(APPROVER)).toEqual([]);
       expect(decided).toMatchObject({ status: 200, json: { status: 'APPROVED', resource_version: 2 } });
       const line = await call('GET', `/staff-score-lines/${workerLine}`, { member: WORKER });
       expect(line.json).toMatchObject({ score_computed: 71.88, score_adjusted: 76.88 });

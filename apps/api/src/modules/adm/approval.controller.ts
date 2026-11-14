@@ -14,7 +14,7 @@ import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { ApprovalHoldService } from './approval-hold.service';
 import { APPROVAL_FINAL_COMMANDS, effectsOf } from './approval.service';
-import type { FinalCommandRegistry } from './approval.service';
+import type { FinalCommandRegistry, PendingDecision } from './approval.service';
 import { holdsOnWholeTenant } from './tenant-authority';
 import { ADM_METRICS } from './tokens';
 
@@ -364,5 +364,43 @@ export class ApprovalTaskReadsController {
     });
     if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return { ...taskView(found.task, tenant.membershipId, all), ...found.summary, as_of: new Date().toISOString() };
+  }
+}
+
+function pendingView(row: PendingDecision): Record<string, unknown> {
+  return {
+    id: row.id,
+    kind: row.kind,
+    resource: row.resource,
+    version: row.version,
+    submitted_at: row.submittedAt,
+    initiator: { name: row.initiatorName },
+    due_at: row.dueAt,
+    overdue: row.overdue,
+    summary: row.summary,
+    actions: row.actions.map((action) => ({ decision: action.decision, operation_id: action.operationId, reason_required: action.reasonRequired, reason_min: action.reasonMin, reason_max: action.reasonMax })),
+  };
+}
+
+/**
+ * The unified approval inbox, the part that is not a task of the engine (PWF 20.9, lane fix12): the records of the modules that wait for THIS person to decide them, each with the summary the decider reads and the
+ * operations of the owning module that decide it. One read for the web queue, the PWA and the phone; the decision itself is the command of the module (its permission, its scope, its rule that nobody approves their
+ * own request, its idempotency key and its audit row), so there is one way of approving and not two. Each source judges the permission of its own command in the scope of each record, so a person who holds none of
+ * them reads an empty list.
+ */
+@Controller('me/pending-decisions')
+export class MyPendingDecisionsController {
+  constructor(
+    @Inject(TenantDatabase) private readonly database: TenantDatabase,
+    @Optional() @Inject(APPROVAL_FINAL_COMMANDS) private readonly commands?: FinalCommandRegistry,
+  ) {}
+
+  @Get()
+  @OperationId('listMyPendingDecisions')
+  async list(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess): Promise<Record<string, unknown>> {
+    const now = new Date();
+    const registry = this.commands;
+    const found = registry === undefined ? { items: [], unavailableSources: [], truncated: false } : await this.database.withTenant(tenant, (tx) => registry.pendingOf(tx, { membershipId: tenant.membershipId, access, now }));
+    return { items: found.items.map(pendingView), unavailable_sources: found.unavailableSources, truncated: found.truncated, as_of: now.toISOString() };
   }
 }

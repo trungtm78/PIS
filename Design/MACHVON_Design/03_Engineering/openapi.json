@@ -240953,6 +240953,115 @@
           "VALIDATION_FAILED"
         ]
       }
+    },
+    "/me/pending-decisions": {
+      "get": {
+        "operationId": "listMyPendingDecisions",
+        "summary": "Hộp phê duyệt hợp nhất: hồ sơ của các phân hệ đang chờ tôi quyết định ngoài bộ máy phê duyệt (PWF 20.9)",
+        "tags": [
+          "ADM"
+        ],
+        "x-permission": "session.self",
+        "parameters": [],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingDecisionList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
     }
   },
   "components": {
@@ -333096,6 +333205,156 @@
                 "type": "string"
               }
             }
+          }
+        }
+      },
+      "PendingDecision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "resource",
+          "version",
+          "submitted_at",
+          "initiator",
+          "due_at",
+          "overdue",
+          "summary",
+          "actions"
+        ],
+        "description": "Một hồ sơ của phân hệ đang chờ NGƯỜI ĐỌC quyết định mà không phải là việc của bộ máy phê duyệt (PWF 20.9): không ai được giao, người có quyền của lệnh trong phạm vi của hồ sơ thì quyết. Quyết định là lệnh nghiệp vụ nêu trong actions (quyền, phạm vi, luật không tự duyệt, khóa idempotency và audit của chính lệnh đó), gửi kèm If-Match = version.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "<kind>:<id của hồ sơ>"
+          },
+          "kind": {
+            "type": "string",
+            "description": "pwf.task.completion, pwf.task.exception, pwf.reschedule hoặc pwf.score.adjustment"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id"
+            ],
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          "version": {
+            "type": "integer",
+            "description": "Phiên bản gửi kèm lệnh quyết định (If-Match)"
+          },
+          "submitted_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "initiator": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "due_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Hạn xử lý khi loại hồ sơ có đồng hồ; null khi không có"
+          },
+          "overdue": {
+            "type": "boolean"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ApprovalRecordSummary"
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "decision",
+                "operation_id",
+                "reason_required",
+                "reason_min",
+                "reason_max"
+              ],
+              "properties": {
+                "decision": {
+                  "type": "string",
+                  "enum": [
+                    "approve",
+                    "return",
+                    "reject"
+                  ]
+                },
+                "operation_id": {
+                  "type": "string",
+                  "description": "operationId của lệnh nghiệp vụ thực hiện quyết định"
+                },
+                "reason_required": {
+                  "type": "boolean"
+                },
+                "reason_min": {
+                  "type": "integer"
+                },
+                "reason_max": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      },
+      "PendingDecisionList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "unavailable_sources",
+          "truncated",
+          "as_of"
+        ],
+        "description": "Các hồ sơ chờ người đọc quyết định ngoài bộ máy phê duyệt, cũ nhất trước. Nguồn không đọc được nêu tên trong unavailable_sources (không bao giờ hiện thành 'không có gì chờ'); truncated là true khi một nguồn chạm giới hạn.",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingDecision"
+            }
+          },
+          "unavailable_sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

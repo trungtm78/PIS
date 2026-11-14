@@ -1,4 +1,4 @@
-import { EXISTING_CLOCKS, itemClocks, reminderState, workBucket } from '@machvon/kernel';
+import { EXISTING_CLOCKS, itemClocks, message, reminderState, workBucket } from '@machvon/kernel';
 import type { ExistingClock, ItemClocks, PauseSpan, ReminderKind, ReminderState, WorkItem, WorkKind } from '@machvon/kernel';
 import { HomeWorkActionStore, NO_ACTION_STATE, actionKey, freshActionState } from './home-work-action-store.ts';
 import type { SnoozeDetail, WorkActionState } from './home-work-action-store.ts';
@@ -9,6 +9,7 @@ import { HomeWorkReminderStore } from './home-work-reminder-store.ts';
 import { CONSEQUENCES, DEFAULT_SEVERITY_RULES, SEVERITY_RANK, SOURCE_OF_KIND, furtherLifecycle, severityOf } from './home-work-rules.ts';
 import type { SeverityRules, WorkEscalation, WorkLifecycle, WorkSeverity, WorkSource } from './home-work-rules.ts';
 import { HomeConnectorSources } from './home-connector-sources.ts';
+import { PwfPendingDecisionReads } from './pwf-pending-decisions.ts';
 import { HomeEgpPostingSources } from './home-egp-posting-sources.ts';
 import { HomeVendorSources } from './home-vendor-sources.ts';
 import { HomeContractRegisterSources } from './home-contract-register-sources.ts';
@@ -28,7 +29,7 @@ import { HomeAlertSources, applyPromotions, overlayEscalation } from './home-ale
 import { applyAlertTypes } from './home-work-alert-types.ts';
 import type { AlertTypeReading } from './home-work-alert-types.ts';
 import { HomeCrossSources, Params, SOURCE_LIMIT, VIETNAM_DAY } from './home-work-sources.ts';
-import type { SourceContext, SourceRow } from './home-work-sources.ts';
+import type { SourceContext, SourceRow, WorkDecisionScopes } from './home-work-sources.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -96,6 +97,8 @@ export interface WorkInput {
   includeHidden?: boolean;
   /** Whether the reader holds a grant that carries a permission (on the whole tenant when asked): what the sources that are for a role (the auditors, the administrator of the duties, the data steward) judge their audience by. */
   holds?: (permission: string, wholeTenant?: boolean) => boolean;
+  /** The reach of the reader over the decisions of PWF that wait outside the approval engine (PWF 20.9): they are listed with the approvals that wait for the person. */
+  decisionScopes?: WorkDecisionScopes;
 }
 
 export interface WorkCollection {
@@ -160,6 +163,7 @@ export class HomeWorkStore {
   private readonly gov11 = new HomeGov11Sources();
   private readonly riskCommittee = new HomeRiskCommitteeSources();
   private readonly pwfTasks = new HomePwfSources();
+  private readonly decisions = new PwfPendingDecisionReads();
   private readonly clocks = new HomeClockSources();
   private readonly actions = new HomeWorkActionStore();
   private readonly policies = new WorkPolicyReader();
@@ -181,6 +185,7 @@ export class HomeWorkStore {
       rules: input.rules ?? DEFAULT_SEVERITY_RULES,
       counting: input.mode === 'count',
       ...(input.holds === undefined ? {} : { holds: input.holds }),
+      ...(input.decisionScopes === undefined ? {} : { decisionScopes: input.decisionScopes }),
     };
     const readers: Array<[WorkSource, () => Promise<SourceRow[]>]> = [
       ['APPROVAL', () => this.approvals(context)],
@@ -370,7 +375,30 @@ export class HomeWorkStore {
         order by a.due_at, a.id limit ${LIMIT}`,
       params.values,
     );
-    return rows.map((row) => this.legacy(context, 'APPROVAL', { id: row.id, dueOn: row.due_on, originalDueOn: row.due_on, title: row.resource_type, subtitle: null, status: 'PENDING', target: { screen: 'ADM-06', id: row.id } }));
+    const tasks = rows.map((row) => this.legacy(context, 'APPROVAL', { id: row.id, dueOn: row.due_on, originalDueOn: row.due_on, title: row.resource_type, subtitle: null, status: 'PENDING', target: { screen: 'ADM-06', id: row.id } }));
+    return [...tasks, ...(await this.pendingDecisions(context))];
+  }
+
+  /**
+   * The decisions of the project workflow that wait for the person and are not tasks of the engine (PWF 20.9): the completion of a task, an exception, a proposal of a new schedule, an adjustment of a score. They are
+   * approvals that wait for the person like the tasks above, read by the reach of the command that decides each; none runs a clock, so none has a day (it is never shown as late). Only in the view of one's own work.
+   */
+  private async pendingDecisions(context: SourceContext): Promise<SourceRow[]> {
+    const scopes = context.decisionScopes;
+    if (context.view !== 'mine' || scopes === undefined) return [];
+    const found = await this.decisions.list(context.tx, { membershipId: context.membershipId, taskApprove: scopes.taskApprove, scheduleApprove: scopes.scheduleApprove, scoreUnits: await scopes.scoreUnits(context.tx) }, LIMIT);
+    return found.map((one) => {
+      const fact = (code: string): string => String(one.facts.find((entry) => entry.code === code)?.value ?? '');
+      const title =
+        one.kind === 'pwf.task.completion'
+          ? message('home.source.pwf.decision.completion.title', { task: fact('TASK') })
+          : one.kind === 'pwf.task.exception'
+            ? message('home.source.pwf.decision.exception.title', { task: fact('TASK') })
+            : one.kind === 'pwf.reschedule'
+              ? message('home.source.pwf.decision.reschedule.title', { project: one.project?.name ?? '' })
+              : message('home.source.pwf.decision.adjustment.title', { person: one.subjectName ?? '' });
+      return this.legacy(context, 'APPROVAL', { id: `${one.kind}:${one.resourceId}`, dueOn: null, originalDueOn: null, title, subtitle: one.project?.name ?? one.unit?.name ?? null, status: 'PENDING', target: one.target });
+    });
   }
 
   /** The explanations that were asked of the person and are not answered: asked, sent back, or late; in the view `scope`, the late ones of the places they may read. */
