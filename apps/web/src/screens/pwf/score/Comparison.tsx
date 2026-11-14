@@ -2,7 +2,7 @@ import { useTranslation } from '../../../i18n';
 import { DataTable, SectionCard } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { lineStateWord } from './labels';
-import { LineStatePill, PeriodStatusPill } from './components';
+import { LineStatePill, PeriodStatusPill, RatingPill } from './components';
 import { useComparison } from './hooks';
 import { changeBetween, effectiveScore, rangeText, scoreText } from './model';
 import type { ComparisonPoint } from './model';
@@ -21,7 +21,8 @@ export function Comparison({ membershipId, enabled }: { membershipId: string | u
     {
       key: 'rating',
       header: t('pwfs.compare.col.rating'),
-      render: (row) => (row.state === 'RATED' && row.rating !== null ? row.rating : <LineStatePill state={row.state} />),
+      // The rating in words, as everywhere else on the score screens (the code of the band, WEAK, used to show here).
+      render: (row) => (row.state === 'RATED' && row.rating !== null ? <RatingPill rating={row.rating} /> : <LineStatePill state={row.state} />),
     },
     { key: 'sample', header: t('pwfs.compare.col.sample'), align: 'right', render: (row) => t('pwfs.compare.sample.text', { count: row.rated_task_count, weight: row.effective_weight }) },
     {

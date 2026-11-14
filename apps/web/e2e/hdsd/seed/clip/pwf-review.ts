@@ -14,6 +14,9 @@ import { ensureWorkCalendar, masterRecord, paper, tolerate } from '../field-assu
  *     document store, a legal document, a document of a form with its revision), with an exception asked (one decided, one waiting);
  *   - a reschedule proposed and waiting (PWF-06) and one approved;
  *   - the reminders of the person of the phone (PWF-15, MOB-82);
+ *   - around each task its working group (PWF-16): the leader who answers for it (ACCOUNTABLE) and one officer who is asked (CONSULTED), so that the scoreboard of the unit (PWF-12) is of a group
+ *     of people and not of the two who do the work; one task is handed over two days before its deadline, which is what the reviewer of a period is warned of (a signal of PWF-14);
+ *   - the KPI set and the scoring policy as versions of the tenant, written by the owner and approved by the leader (PWF-09, PWF-10);
  *   - a scoring period of the tenant computed and locked (PWF-11 to PWF-14, MOB-81), with an adjustment decided by a second person and a response of the person scored.
  *
  * Idempotent: every part reads what exists first (the rules by type and code, the projects by code, the tasks by status, the periods by their dates) and only tops up what is missing. A refusal of the
@@ -26,13 +29,25 @@ const CHECKER = 'capApprover';
 /** The people who hold tasks: the person of the phone, the officer of the project board and the leader who also works on some. */
 const WORKERS = [OWNER, MAKER] as const;
 
+/**
+ * The working group of a task besides the person who does it. Both roles carry a part of the score of the task (the role factors of the scoring policy), and neither needs a right of the project
+ * workflow: the leader answers for the result, one officer of another desk (the accountant, the head of the office, the administrator of the department) is asked for an opinion.
+ */
+const ACCOUNTABLE = CHECKER;
+const CONSULTED = ['treasuryMaker', 'docHead', 'unitAdmin'] as const;
+
 const TEMPLATE_TYPE = 'PROJECT_WORKFLOW_TEMPLATE';
 const ASSIGNMENT_TYPE = 'PROJECT_WORKFLOW_ASSIGNMENT';
 const BAND_TYPE = 'DEADLINE_BAND_POLICY';
+const KPI_SET_TYPE = 'WORKFLOW_KPI_SET';
+const KPI_SET_CODE = 'DEFAULT_PROJECT_WORKFLOW';
+const SCORING_TYPE = 'STAFF_SCORING_POLICY';
 const TENANT_TEMPLATE = 'CB_ROAD_REPAIR';
 const DRAFT_TEMPLATE = 'CB_SCHOOL_EQUIPMENT';
 
 const str = (value: unknown): string => (typeof value === 'string' ? value : String(value ?? ''));
+/** The words a paper is named with on the screens: the name the product gives (of a form, of a checklist item), the code only when there is none. A reference a person reads never carries a code when a name exists. */
+const wordsOf = (name: string | null | undefined, code: string): string => (typeof name === 'string' && name.trim() !== '' ? name.trim() : code);
 const arr = <T = Obj>(value: unknown): T[] => (Array.isArray(value) ? (value as T[]) : []);
 
 // ---- the rules (library, mapping, three colours) -----------------------------------------------------------------------------------------
@@ -280,6 +295,17 @@ async function bandPolicy(ctx: SeedContext): Promise<void> {
   await rule(ctx, { type: BAND_TYPE, code: 'PROJECT_TASK', params: base, reason: 'Xác nhận ngưỡng ba màu áp dụng cho công việc của dự án trong toàn tỉnh', upTo: 'APPROVED' });
 }
 
+/**
+ * The KPI set of a workflow and the scoring policy, taken as versions of the tenant (written by the owner, approved by the leader) with the figures the product ships: PWF-09 and PWF-10 then show a
+ * version in force with the people who wrote and approved it, and the period computed afterwards names the version of the policy it was computed with.
+ */
+async function scoringRules(ctx: SeedContext): Promise<void> {
+  const set = await tolerate(ctx, 'the KPI set in force', () => effectiveParams(ctx, KPI_SET_TYPE, KPI_SET_CODE));
+  if (set !== undefined) await rule(ctx, { type: KPI_SET_TYPE, code: KPI_SET_CODE, params: set, reason: 'Xác nhận bộ KPI áp dụng cho công việc của dự án đầu tư công trong toàn tỉnh', upTo: 'APPROVED' });
+  const policy = await tolerate(ctx, 'the scoring policy in force', () => effectiveParams(ctx, SCORING_TYPE, 'DEFAULT'));
+  if (policy !== undefined) await rule(ctx, { type: SCORING_TYPE, code: 'DEFAULT', params: policy, reason: 'Xác nhận chính sách chấm điểm cán bộ theo công việc của dự án trong toàn tỉnh', upTo: 'APPROVED' });
+}
+
 // ---- the projects and their workflows -----------------------------------------------------------------------------------------------------
 
 interface ProjectSpec {
@@ -341,9 +367,9 @@ interface TaskRow extends Obj {
 
 interface TaskDetail extends TaskRow {
   approver_role: string | null;
-  checklist: Array<{ item_code: string; required: boolean; done: boolean; evidence_kinds: string[] }>;
-  legal_doc_types: Array<{ code: string; satisfied: boolean }>;
-  form_templates: Array<{ code: string; satisfied?: boolean }>;
+  checklist: Array<{ item_code: string; name?: string; required: boolean; done: boolean; evidence_kinds: string[] }>;
+  legal_doc_types: Array<{ code: string; name?: string; satisfied: boolean }>;
+  form_templates: Array<{ code: string; current_title?: string | null; satisfied?: boolean }>;
   evidence: Obj[];
   exceptions: Obj[];
 }
@@ -387,6 +413,55 @@ const tasksOf = async (ctx: SeedContext, projectId: string): Promise<TaskRow[]> 
 const detailOf = (ctx: SeedContext, person: string, taskId: string): Promise<TaskDetail> => ctx.get<TaskDetail>(person, `/project-tasks/${taskId}`);
 
 /**
+ * The working group of the task, from the day the person who does it holds it: the leader ACCOUNTABLE and one officer CONSULTED (which one follows from the task, so a rerun asks the same person).
+ * A line the ledger already holds is not given twice; a task that is closed takes no new line (the ledger refuses it), so the group is named while the task is open.
+ */
+async function team(ctx: SeedContext, taskId: string): Promise<void> {
+  const held = await ctx.list<Obj>(OWNER, `/project-tasks/${taskId}/assignments`);
+  const from = str(held.find((line) => line.role === 'RESPONSIBLE')?.valid_from ?? ctx.today);
+  const asked = CONSULTED[[...taskId].reduce((sum, letter) => sum + letter.charCodeAt(0), 0) % CONSULTED.length] as string;
+  for (const [person, role, reason] of [
+    [ACCOUNTABLE, 'ACCOUNTABLE', 'Lãnh đạo phụ trách chịu trách nhiệm về kết quả của việc theo phân công của dự án'],
+    [asked, 'CONSULTED', 'Tham gia ý kiến chuyên môn theo quyết định thành lập tổ công tác của dự án'],
+  ] as const) {
+    if (held.some((line) => line.role === role)) continue;
+    await ctx.attempt(OWNER, 'POST', `/project-tasks/${taskId}/assignments`, { membership_id: ctx.person(person).membershipId, role, valid_from: from, share_pct: 100, reason });
+  }
+}
+
+/** The working group of every task that is open, for a stack whose workflows were played before the groups existed (a rerun; on a first run every task has its group from `begin`). */
+async function teams(ctx: SeedContext, ids: Record<string, string>): Promise<void> {
+  for (const projectId of Object.values(ids)) {
+    for (const task of await tasksOf(ctx, projectId)) if (['IN_PROGRESS', 'AWAITING_APPROVAL', 'ON_HOLD'].includes(task.status)) await team(ctx, task.id);
+  }
+}
+
+/**
+ * One task changes hands two days before its deadline: the officer of the project board hands the first task of a workflow that only began over to the owner (the ledger closes the period of the
+ * officer the day before, PWF-16 shows both lines). A hand-over this close to the deadline of a task that is not finished is what the reviewer of a scoring period is warned of
+ * (ASSIGNEE_CHANGED_NEAR_DUE, the list of signals of PWF-14); nothing in the score depends on it.
+ */
+async function handover(ctx: SeedContext, ids: Record<string, string>): Promise<void> {
+  const from = ctx.person(MAKER).membershipId;
+  const to = ctx.person(OWNER).membershipId;
+  for (const spec of PROJECTS.filter((one) => one.fresh === true)) {
+    const projectId = ids[spec.code];
+    if (projectId === undefined) continue;
+    for (const task of (await tasksOf(ctx, projectId)).filter((one) => one.status === 'IN_PROGRESS' && one.planned_finish !== null && str(one.planned_finish) >= ctx.today)) {
+      const lines = (await ctx.list<Obj>(OWNER, `/project-tasks/${task.id}/assignments`)).filter((line) => line.role === 'RESPONSIBLE');
+      // Handed over by an earlier run: one such task is enough.
+      if (lines.some((line) => line.membership_id === from && line.valid_to !== null) && lines.some((line) => line.membership_id === to)) return;
+      if (lines.length !== 1 || lines[0]?.membership_id !== from || str(lines[0]?.valid_from) >= ctx.today) continue;
+      const given = await ctx.attempt<CommandReply>(OWNER, 'POST', `/project-tasks/${task.id}/assignments`, { membership_id: to, role: 'RESPONSIBLE', valid_from: ctx.today, share_pct: 100, reason: 'Chuyển việc cho người khác do cán bộ đang phụ trách được điều động sang dự án khác' });
+      if (!given.ok) continue;
+      ctx.record({ module: 'PWF', kind: 'project-task', id: task.id, code: `${spec.code}/${task.task_code}`, note: `handed over from ${ctx.nameOf(MAKER)} to ${ctx.nameOf(OWNER)} before its deadline`, screen: 'PWF-16' });
+      return;
+    }
+  }
+  ctx.warn('no task of a workflow that only began is held by the officer with its deadline ahead: nothing was handed over, the period will show no signal');
+}
+
+/**
  * Gives the task to the person and starts it. `on` is the day the work really began (its planned start: the workflow was started in the past and its first tasks were done then); a task whose
  * predecessors are not done is started early, with the reason the command asks for.
  */
@@ -394,6 +469,7 @@ async function begin(ctx: SeedContext, task: TaskRow, person: string, on?: strin
   if (task.status !== 'NOT_STARTED') return task.status === 'IN_PROGRESS';
   const give = (from: string): Promise<{ ok: boolean }> => ctx.call(OWNER, 'POST', `/project-tasks/${task.id}/assignments`, { membership_id: ctx.person(person).membershipId, role: 'RESPONSIBLE', valid_from: from, share_pct: 100, reason: 'Giao việc cho người phụ trách trực tiếp theo phân công của dự án' });
   if (on === undefined || !(await give(on)).ok) await give(ctx.today);
+  await team(ctx, task.id);
   const EARLY = 'Làm song song với việc đứng trước để kịp tiến độ chung của dự án, đã báo cáo lãnh đạo Ban';
   const bodies: Obj[] = [...(on === undefined ? [] : [{ actual_start: on }, { actual_start: on, early_start_reason: EARLY }]), {}, { early_start_reason: EARLY }];
   for (const [index, body] of bodies.entries()) {
@@ -419,7 +495,7 @@ async function work(ctx: SeedContext, taskId: string, person: string, how: 'ALL'
     await give({ evidence_kind: 'DECISION_DOCUMENT', legal_doc_type: doc.code, external_ref: `Văn bản số ${task.task_code.length}${taskId.slice(0, 2)}/${doc.code.slice(0, 2)}-UBND ngày ${ctx.day(-1).split('-').reverse().join('/')}`, note: 'Văn bản đã ký, bản gốc lưu tại văn thư' });
   }
   for (const form of (how === 'ALL' ? task.form_templates : task.form_templates.slice(0, 1)).filter((one) => !given.has(one.code))) {
-    await give({ evidence_kind: 'DOCUMENT', form_template_code: form.code, external_ref: `Văn bản lập theo biểu mẫu ${form.code}`, note: 'Lập từ biểu mẫu của kho văn bản, phiên bản đang hiệu lực' });
+    await give({ evidence_kind: 'DOCUMENT', form_template_code: form.code, external_ref: `Văn bản lập theo biểu mẫu "${wordsOf(form.current_title, form.code)}"`, note: 'Lập từ biểu mẫu của kho văn bản, phiên bản đang hiệu lực' });
   }
   task = await detailOf(ctx, person, taskId);
   const open = task.checklist.filter((item) => !item.done);
@@ -427,7 +503,7 @@ async function work(ctx: SeedContext, taskId: string, person: string, how: 'ALL'
   for (const item of toTick) {
     // An item that asks for evidence of a kind is ticked with that evidence (the command names it).
     const kind = item.evidence_kinds[0];
-    const proof = kind === undefined ? undefined : await ctx.attempt<CommandReply>(person, 'POST', `/project-tasks/${taskId}/evidence`, { evidence_kind: kind, item_code: item.item_code, external_ref: `Hồ sơ kèm mục ${item.item_code}, lưu tại Ban quản lý dự án`, note: 'Bằng chứng của mục danh mục kiểm' });
+    const proof = kind === undefined ? undefined : await ctx.attempt<CommandReply>(person, 'POST', `/project-tasks/${taskId}/evidence`, { evidence_kind: kind, item_code: item.item_code, external_ref: `Hồ sơ kèm mục "${wordsOf(item.name, item.item_code)}", lưu tại Ban quản lý dự án`, note: 'Bằng chứng của mục danh mục kiểm' });
     const now = await detailOf(ctx, person, taskId);
     await ctx.attempt(person, 'POST', `/project-tasks/${taskId}/checklist/${item.item_code}/complete`, { note: 'Đã kiểm tra, đủ theo yêu cầu', ...(proof?.ok === true ? { evidence_id: proof.json.resource_id } : {}) }, { version: Number(now.version) });
   }
@@ -626,6 +702,7 @@ export async function seedClipPwfReview(ctx: SeedContext): Promise<void> {
     await mapping(ctx);
     await bandPolicy(ctx);
   });
+  await ctx.step('PWF', 'the KPI set and the scoring policy as versions of the tenant (PWF-09, PWF-10)', () => scoringRules(ctx));
   const ids: Record<string, string> = {};
   await ctx.step('PWF', `${PROJECTS.length} projects registered with their workflow (PRJ-02)`, async () => {
     for (const spec of PROJECTS) {
@@ -638,6 +715,8 @@ export async function seedClipPwfReview(ctx: SeedContext): Promise<void> {
     if (id === undefined) continue;
     await ctx.step('PWF', `tasks done, waiting for approval, sent back, late and under way in the workflow of ${spec.code}`, () => play(ctx, spec, id, turn));
   }
+  await ctx.step('PWF', 'the working group of every open task: a leader who answers for it, an officer who is asked (PWF-16, PWF-12)', () => teams(ctx, ids));
+  await ctx.step('PWF', 'a task handed over two days before its deadline (PWF-16, a signal of PWF-14)', () => handover(ctx, ids));
   await ctx.step('PWF', 'a reschedule waiting and one approved (PWF-06)', () => reschedules(ctx, ids));
   // After the evidence was made from revision 1: the form is revised, and the task says a newer revision exists.
   await ctx.step('DOC', `a second revision of the form ${FORMS[0].code}`, () => publishForm(ctx, FORMS[0], 2));
