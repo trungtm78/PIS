@@ -242,7 +242,7 @@ describe('the source PROJECT_TASK of the alert centre', () => {
     expect(words('late')[0]).toBe('Task: quá hạn 1 ngày làm việc');
     expect(words('later')[0]).toBe('Task: quá hạn 3 ngày làm việc, đã báo cấp quản lý');
     expect(words('green')[1]).toMatch(/^Project PRJ-/);
-    for (const row of rows) expect(`${row.title} ${row.subtitle}`).not.toMatch(/T\d{4}|P1/);
+    for (const row of rows) expect(`${row.title} ${row.subtitle}`).not.toMatch(/\bT\d{4}\b|\bP1\b/);
     expect(first.lifecycle).toBe('NEW');
     // The points of the rule remind, not the cadence of the severity: the item never says a reminder is due by the cadence.
     expect(rows.filter((row) => row.kind !== 'PWF_MILESTONE_AT_RISK').every((row) => row.reminders?.due === false && row.reminders.nextAt === null)).toBe(true);

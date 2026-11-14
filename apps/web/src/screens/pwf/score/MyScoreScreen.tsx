@@ -77,7 +77,7 @@ function MyScoreContent({ route }: ScreenProps) {
 }
 
 const MY_VIEWS = ['periods', 'compare'] as const;
-const PERIOD_PARTS = ['score', 'tasks', 'review'] as const;
+type PeriodPart = 'score' | 'tasks' | 'review';
 
 function PeriodCard({ item, onReload }: { item: MyScore; onReload: () => void }) {
   const { t } = useTranslation();
@@ -86,7 +86,7 @@ function PeriodCard({ item, onReload }: { item: MyScore; onReload: () => void })
   const { period, line } = item;
   const closed = !line.can_respond;
   // One purpose a tab inside the card of a period (the card was one long column): the tab stays where the person left it while the page is open.
-  const [part, setPart] = useState<(typeof PERIOD_PARTS)[number]>('score');
+  const [part, setPart] = useState<PeriodPart>('score');
   const figure = (
         <div className="pwf-grid">
           <div>
