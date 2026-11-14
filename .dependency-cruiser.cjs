@@ -9,8 +9,9 @@ const WEB_FORBIDDEN = '^(packages/(kernel|db)/|apps/api/|@machvon/(kernel|db|api
 const WEB_ALLOWED_KERNEL_FILE = '^(packages/kernel/src/(edition|fin-defaults|delay-cause|log-capacity|equipment-procurement)\\.ts|@machvon/kernel/src/(edition|fin-defaults|delay-cause|log-capacity|equipment-procurement)\\.ts)$';
 // delay-cause.ts, log-capacity.ts and equipment-procurement.ts (ENT-4e) are pure rule modules the screens read so that the choice, the capacity state and the stage are computed by the one rule the server uses; they reach only other kernel files (and a type) and no node module.
 // fin-defaults.ts (FIN-1) is the same kind of file: data only, no run-time import. The formula module itself (fin-analysis.ts) is read by exactly two web files, the test fixtures that build a report the way the server does.
-const WEB_KERNEL_TEST_READERS = '^apps/web/src/screens/prj/fin/(fixtures\\.ts|model\\.test\\.ts)$';
-const WEB_TEST_ALLOWED_KERNEL_FILE = '^(packages/kernel/src/(edition|fin-defaults|fin-analysis)\\.ts|@machvon/kernel/src/(edition|fin-defaults|fin-analysis)\\.ts)$';
+// Tests that build their expectations from the defaults and the pure rules of the kernel the way the server does (the KPI sets, the BI dataset adapters, the funding packs): each reads one pure file, none of the screens does.
+const WEB_KERNEL_TEST_READERS = '^apps/web/src/screens/(prj/fin/(fixtures\.ts|model\.test\.ts)|bi/serving\.test\.ts|cap/enterprise-origin\.test\.ts|pwf/score/policy/[A-Za-z-]+\.test\.tsx?)$';
+const WEB_TEST_ALLOWED_KERNEL_FILE = '^(packages/kernel/src/(edition|fin-defaults|fin-analysis|workflow-kpi|bi-query|fnd-taxonomy)\.ts|@machvon/kernel/src/(edition|fin-defaults|fin-analysis|workflow-kpi|bi-query|fnd-taxonomy)\.ts)$';
 // What belongs to the enterprise edition only (ENT-0, structure B): its package and the enterprise folders of the web and the phone.
 const ENTERPRISE_CODE = '^(packages/edition-enterprise/|apps/web/src/editions/enterprise/|apps/mobile/lib/editions/enterprise/|apps/api/src/editions/enterprise/|@machvon/edition-enterprise(/|$))';
 // The only files that may import it: the enterprise code itself, one loader per process (the composition seams) and the tests named *.enterprise.test.

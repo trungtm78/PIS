@@ -254,7 +254,7 @@ const SHEET_NAME_MAX = 31;
 
 /** A name a spreadsheet accepts for a sheet: none of `[ ] : * ? / \`, no quote at either end, at most 31 characters, never empty (the default name then). */
 export function sheetNameOf(name: string | undefined): string {
-  const cleaned = (name ?? '').replace(/[\[\]:*?/\\]/g, ' ').replace(/\s+/g, ' ').trim().replace(/^'+|'+$/g, '').slice(0, SHEET_NAME_MAX).trim();
+  const cleaned = (name ?? '').replace(/[[\]:*?/\\]/g, ' ').replace(/\s+/g, ' ').trim().replace(/^'+|'+$/g, '').slice(0, SHEET_NAME_MAX).trim();
   return cleaned === '' ? SHEET_NAME : cleaned;
 }
 

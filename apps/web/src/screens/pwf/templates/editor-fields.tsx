@@ -34,7 +34,7 @@ export function problemWord(t: Translator['t'], kind: TemplateProblemKind): stri
 
 /**
  * What a role code is called, as the hint under the field that holds the code (PWF-02): the name this template gives it, else the name of the shipped catalogue; a code nobody named says where to name it. A person
- * reads "Kỹ sư hiện trường" under the box, never the code alone (lane fix11: the role of a step said nothing of its name).
+ * reads the Vietnamese name of the role under the box, never the code alone (lane fix11: the role of a step said nothing of its name).
  */
 export function roleHintOf(t: Translator['t'], template: Template, code: string): string | undefined {
   if (code.trim() === '') return undefined;
