@@ -8,5 +8,8 @@
   "fix10.score.cutoff.notDueCount": "{count} tasks still inside their deadline are not scored and stay out of the denominator.",
   "fix10.score.lock.reason": "Reason for the early lock",
   "fix10.score.lock.reasonHint": "At least {min} characters. The reason is written to the audit trail.",
-  "fix10.score.lock.early": "This period ends on {day}. Locking it before it ends is an early lock: the figures are cut today and tasks still inside their deadline are not scored."
+  "fix10.score.lock.early": "This period ends on {day}. Locking it before it ends is an early lock: the figures are cut today and tasks still inside their deadline are not scored.",
+  "fix10.task.kpi.none": "No KPI result yet. Results are computed when the task is done or cancelled.",
+  "fix10.task.kpi.failed": "The KPI results of the task could not be loaded.",
+  "fix10.task.kpi.loading": "Loading the KPI results…"
 }

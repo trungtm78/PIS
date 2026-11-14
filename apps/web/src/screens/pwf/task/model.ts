@@ -7,7 +7,9 @@ type Schemas = components['schemas'];
 
 export type TaskException = TaskDetail['exceptions'][number];
 export type HistoryEntry = TaskDetail['history'][number];
-export type KpiResult = NonNullable<TaskDetail['kpi_results']>[number];
+/** A result of a KPI of the task, as its own read (`listTaskKpiResults`) gives it. */
+export type KpiResultPage = Schemas['PwfKpiResultPage'];
+export type KpiResult = KpiResultPage['items'][number];
 export type EvidenceRow = TaskDetail['evidence'][number];
 
 // ---- which buttons show ---------------------------------------------------------------------------------------------------------------------------------------------

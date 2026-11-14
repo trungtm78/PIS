@@ -4,6 +4,7 @@ import { useApiClient } from '../../../api/ApiClientContext';
 import { usePwfCommand, usePwfKey } from '../hooks';
 import type { VersionedInput } from '../hooks';
 import type { TaskDetail } from '../model';
+import type { KpiResultPage } from './model';
 
 type Schemas = components['schemas'];
 
@@ -15,6 +16,24 @@ export function useTask(taskId: string | null) {
     queryKey: [...key, 'task', taskId ?? ''],
     queryFn: () => client.read('getProjectTask', { path: { task_id: taskId ?? '' } }),
     enabled: key[1] !== undefined && taskId !== null,
+    retry: false,
+  });
+}
+
+/** How many results of the KPI of a task one read asks for: a set holds at most twenty KPIs, and the corrections of one are few. */
+export const KPI_RESULTS_LIMIT = 100;
+
+/**
+ * The results of the KPI of one task, from the read that owns them (`listTaskKpiResults`): the detail of a task does not carry them, so the tab asks when it is opened. A 403 is "may not see", an empty page is "no
+ * result yet"; the two are never the same answer.
+ */
+export function useTaskKpiResults(taskId: string, enabled: boolean) {
+  const client = useApiClient();
+  const key = usePwfKey();
+  return useQuery<KpiResultPage>({
+    queryKey: [...key, 'task-kpi', taskId],
+    queryFn: () => client.read('listTaskKpiResults', { path: { task_id: taskId }, query: { limit: KPI_RESULTS_LIMIT } }),
+    enabled: enabled && key[1] !== undefined,
     retry: false,
   });
 }

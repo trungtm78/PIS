@@ -23,15 +23,23 @@ const ReadOnly = ({ children }: { children: ReactNode }) => {
   return <SessionContext.Provider value={{ ...session, mode: 'READ_ONLY' }}>{children}</SessionContext.Provider>;
 };
 
+const kpiPage = (items: unknown[] = []) => ({ items, next_cursor: null, as_of: '2026-11-12T03:00:00.000Z' });
+const kpiRow = (n: number, over: Record<string, unknown> = {}) => ({
+  id: uuid(700 + n), kpi_code: 'ON_TIME', operation: 'DAYS_DEVIATION', kpi_set_rule_id: null, kpi_set_version: 2, state: 'OK', value: 3, score: 90, weight: 1, inputs_hash: 'c'.repeat(64), inputs: { due: '2026-12-10' },
+  computed_at: '2026-12-11T02:00:00.000Z', supersedes_id: null, ...over,
+});
+
 interface Setup {
   task?: unknown;
+  /** What `listTaskKpiResults` answers: the results of the KPI of the task come from their own read (the detail of the task does not carry them). */
+  kpi?: unknown;
   commands?: Record<string, unknown>;
   readOnly?: boolean;
   path?: string;
 }
 
 const open = (setup: Setup = {}) => {
-  const h = serve({ getProjectTask: setup.task ?? taskDetail(), listProjectTaskAssignments: ledger }, setup.commands ?? {});
+  const h = serve({ getProjectTask: setup.task ?? taskDetail(), listProjectTaskAssignments: ledger, listTaskKpiResults: setup.kpi ?? kpiPage() }, setup.commands ?? {});
   (h.client.readAll as ReturnType<typeof vi.fn>).mockResolvedValue([]);
   const screenNode = <TaskDetailScreen route={routeOf('PWF-04')} />;
   mount(setup.readOnly === true ? <ReadOnly>{screenNode}</ReadOnly> : screenNode, h, ALL_PERMISSIONS, setup.path ?? `/pwf/pwf-04?id=${TASK}&project=${PROJECT}`);
@@ -110,9 +118,11 @@ describe('PWF-04: the head of the task', () => {
 
 describe('PWF-04: one purpose a tab', () => {
   it('keeps the head above the tabs, opens on what there is to do, counts what is open, and keeps the tab in the address', async () => {
-    open({ task: detail({ kpi_results: [] }) });
+    const h = open();
     await ready();
     expect(screen.getAllByRole('tab').map((one) => one.getAttribute('data-testid'))).toEqual(['todo', 'legal', 'schedule', 'exceptions', 'history', 'kpi'].map((id) => `task-tab-${id}`));
+    // The results of the KPI are read when their tab is opened, not with every task.
+    expect(h.read).not.toHaveBeenCalledWith('listTaskKpiResults', expect.anything());
     expect(screen.getByTestId('task-tab-todo').getAttribute('aria-selected')).toBe('true');
     expect(screen.getByTestId('task-tab-todo').textContent).toContain('1');
     expect(screen.getByTestId('task-head')).toBeTruthy();
@@ -124,11 +134,13 @@ describe('PWF-04: one purpose a tab', () => {
   });
 
   it('keeps the KPI tab for a person who may not see the KPI of the task, and says the scope is hidden instead of leaving the tab out', async () => {
-    open();
+    // The detail of a task does not carry its KPI results: only the refusal of their own read (403) says the person may not see them.
+    const h = open({ kpi: refusal('SCOPE_DENIED', 403) });
     await ready();
     // design.md, the state "denied": say the scope is hidden, leak no names. A tab that silently disappears reads as "this task has no KPI".
     tab('kpi');
-    const denied = screen.getByTestId('kpi-denied');
+    const denied = await screen.findByTestId('kpi-denied');
+    expect(h.read).toHaveBeenCalledWith('listTaskKpiResults', { path: { task_id: TASK }, query: { limit: 100 } });
     expect(denied.getAttribute('role')).toBe('status');
     expect(denied.textContent).toContain(text('fix8.task.kpi.denied.title'));
     expect(denied.textContent).toContain(text('fix8.task.kpi.denied.body'));
@@ -554,10 +566,12 @@ describe('PWF-04: ledger, history and KPI', () => {
   });
 
   it('shows the KPI results with the "i" of each and the facts they were computed from', async () => {
-    open({ task: detail({ kpi_results: [{ id: uuid(7), kpi_code: 'ON_TIME', operation: 'DAYS_DEVIATION', kpi_set_rule_id: null, kpi_set_version: 2, state: 'OK', value: 3, score: 90, weight: 1, inputs_hash: 'c'.repeat(64), inputs: { due: '2026-12-10', waived: null }, computed_at: '2026-12-11T01:00:00.000Z', supersedes_id: null }, { id: uuid(8), kpi_code: 'RET', operation: 'RETURN_COUNT', kpi_set_rule_id: null, kpi_set_version: 2, state: 'MISSING_FACT', value: null, score: null, weight: 1, inputs_hash: 'd'.repeat(64), inputs: {}, computed_at: '2026-12-11T01:00:00.000Z', supersedes_id: null }] }) });
+    open({ kpi: kpiPage([kpiRow(1, { value: 3.25 }), kpiRow(2, { kpi_code: 'AMOUNT', operation: 'AMOUNT_VARIANCE_PCT', state: 'MISSING_FACT', value: null, score: null, inputs: {} })]), task: detail({ kpi_results: [{ id: uuid(7), kpi_code: 'ON_TIME', operation: 'DAYS_DEVIATION', kpi_set_rule_id: null, kpi_set_version: 2, state: 'OK', value: 3, score: 90, weight: 1, inputs_hash: 'c'.repeat(64), inputs: { due: '2026-12-10', waived: null }, computed_at: '2026-12-11T01:00:00.000Z', supersedes_id: null }, { id: uuid(8), kpi_code: 'RET', operation: 'RETURN_COUNT', kpi_set_rule_id: null, kpi_set_version: 2, state: 'MISSING_FACT', value: null, score: null, weight: 1, inputs_hash: 'd'.repeat(64), inputs: {}, computed_at: '2026-12-11T01:00:00.000Z', supersedes_id: null }] }) });
     await ready();
     tab('kpi');
-    const kpi = within(screen.getByTestId('kpi'));
+    const kpi = within(await screen.findByTestId('kpi'));
+    // The figure is written in the decimal mark of the language, as every score is.
+    expect(kpi.getByText('3,25')).toBeTruthy();
     expect(kpi.getByText(text('pwf.task.kpi.state.ok'))).toBeTruthy();
     expect(kpi.getByText(text('pwf.task.kpi.state.missingFact'))).toBeTruthy();
     expect(kpi.getByText('2026-12-10')).toBeTruthy();
@@ -566,14 +580,30 @@ describe('PWF-04: ledger, history and KPI', () => {
     expect(screen.getByRole('dialog').textContent).toContain(text('pwf.task.kpi.source.text', { hash: 'c'.repeat(12) }));
   });
 
-  it('says the KPI is hidden when the caller may not see it, and empty when there is none', async () => {
-    // A person who may not see the KPI gets no empty card about it.
+  it('tells apart "may not see the KPI", "no result yet" and a read that failed: the owner of a task with no result is never told they lack the right', async () => {
+    // No result yet (a task that is not closed has none): the tab says so, and never that the person may not see it.
     open();
     await ready();
-    expect(screen.queryByTestId('kpi')).toBeNull();
+    tab('kpi');
+    expect((await screen.findByTestId('kpi-empty')).textContent).toBe(text('fix10.task.kpi.none'));
+    expect(screen.queryByTestId('kpi-denied')).toBeNull();
     cleanup();
-    open({ task: detail({ kpi_results: [] }) });
+    // Refused: the scope is hidden, nothing else is said.
+    open({ kpi: refusal('PERMISSION_DENIED', 403) });
     await ready();
-    expect(screen.getByTestId('kpi-empty')).toBeTruthy();
+    tab('kpi');
+    expect(await screen.findByTestId('kpi-denied')).toBeTruthy();
+    expect(screen.queryByTestId('kpi-empty')).toBeNull();
+    cleanup();
+    // A read that failed for another reason is an error with a way to try again, not a missing right.
+    const h = open({ kpi: refusal('INTERNAL_ERROR', 500) });
+    await ready();
+    tab('kpi');
+    const failed = await screen.findByTestId('kpi-error');
+    expect(failed.getAttribute('role')).toBe('alert');
+    expect(screen.queryByTestId('kpi-denied')).toBeNull();
+    const before = (h.read as ReturnType<typeof vi.fn>).mock.calls.filter(([operation]) => operation === 'listTaskKpiResults').length;
+    fireEvent.click(within(failed).getByRole('button', { name: text('ui.common.retry') }));
+    await waitFor(() => expect((h.read as ReturnType<typeof vi.fn>).mock.calls.filter(([operation]) => operation === 'listTaskKpiResults').length).toBeGreaterThan(before));
   });
 });

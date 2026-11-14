@@ -1,10 +1,13 @@
+import { ApiError } from '@machvon/api-client';
 import { useTranslation } from '../../../i18n';
+import { decimalText } from '../../../i18n/format';
 import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { FigureInfo } from '../components';
 import { Named, kpiName } from '../codes';
 import { dayText, stampText } from '../model';
 import type { TaskDetail } from '../model';
+import { useTaskKpiResults } from './hooks';
 import { historyWord, kpiFormula, kpiStateWord } from './labels';
 import { historyGroups, kpiInputs } from './model';
 import type { KpiResult } from './model';
@@ -69,10 +72,38 @@ export function KpiDenied() {
   );
 }
 
-/** The KPI results of the task, each with the "i" that says the formula, the source and the facts it was computed from; absent when the caller may not see them. */
-export function KpiSection({ task }: { task: TaskDetail }) {
+/**
+ * The KPI tab of a task. Its results come from their own read, asked when the tab is opened, and the three answers are kept apart: a refusal (403) is "you may not see this", an empty page is "no result yet"
+ * (a task has results once it is closed), and anything else that fails is an error with a way to try again. A person who owns the task is never told they lack the right because nothing was computed yet.
+ */
+export function KpiPanel({ taskId, active }: { taskId: string; active: boolean }) {
   const { t } = useTranslation();
-  const results = task.kpi_results;
+  const results = useTaskKpiResults(taskId, active);
+  if (!active && results.data === undefined && results.error === null) return null;
+  if (results.error !== null && results.error !== undefined) {
+    if (results.error instanceof ApiError && results.error.status === 403) return <KpiDenied />;
+    return (
+      <div className="callout danger" role="alert" data-testid="kpi-error">
+        <span>{t('fix10.task.kpi.failed')}</span>{' '}
+        <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => void results.refetch()}>
+          {t('ui.common.retry')}
+        </button>
+      </div>
+    );
+  }
+  if (results.data === undefined) {
+    return (
+      <p className="pwf-hint" role="status" aria-busy="true" data-testid="kpi-loading">
+        {t('fix10.task.kpi.loading')}
+      </p>
+    );
+  }
+  return <KpiSection results={results.data.items} />;
+}
+
+/** The KPI results of the task, each with the "i" that says the formula, the source and the facts it was computed from. */
+export function KpiSection({ results }: { results: readonly KpiResult[] }) {
+  const { t } = useTranslation();
   const columns: DataTableColumn<KpiResult>[] = [
     { key: 'kpi', header: t('pwf.task.kpi.col.kpi'), render: (item) => <Named name={kpiName(t, item.kpi_code)} code={item.kpi_code} /> },
     {
@@ -81,13 +112,13 @@ export function KpiSection({ task }: { task: TaskDetail }) {
       align: 'right',
       render: (item) => (
         <span className="pwf-figure">
-          {item.value === null ? '–' : item.value}
+          {item.value === null ? '–' : decimalText(item.value)}
           <FigureInfo name={kpiName(t, item.kpi_code)} formula={kpiFormula(t, item.operation)} source={t('pwf.task.kpi.source.text', { hash: item.inputs_hash.slice(0, 12) })} asOf={item.computed_at} version={t('pwf.task.kpi.version.text', { version: item.kpi_set_version })} />
         </span>
       ),
     },
-    { key: 'score', header: t('pwf.task.kpi.col.score'), align: 'right', render: (item) => (item.score === null ? '–' : item.score) },
-    { key: 'weight', header: t('pwf.task.kpi.col.weight'), align: 'right', render: (item) => item.weight },
+    { key: 'score', header: t('pwf.task.kpi.col.score'), align: 'right', render: (item) => (item.score === null ? '–' : decimalText(item.score)) },
+    { key: 'weight', header: t('pwf.task.kpi.col.weight'), align: 'right', render: (item) => decimalText(item.weight) },
     {
       key: 'state',
       header: t('pwf.task.kpi.col.state'),
@@ -112,20 +143,21 @@ export function KpiSection({ task }: { task: TaskDetail }) {
       ),
     },
   ];
-  // A person who may not see the KPI of the task is shown no empty card about it: the block is simply not there.
-  if (results === undefined) return null;
+  if (results.length === 0) {
+    return (
+      <SectionCard title={t('pwf.task.kpi.title')}>
+        <p className="callout" role="status" data-testid="kpi-empty">
+          {t('fix10.task.kpi.none')}
+        </p>
+      </SectionCard>
+    );
+  }
   return (
     <SectionCard title={t('pwf.task.kpi.title')}>
       <div data-testid="kpi">
-        {results.length === 0 ? (
-          <p className="callout" role="status" data-testid="kpi-empty">
-            {t('pwf.task.kpi.empty')}
-          </p>
-        ) : (
-          <div className="pwf-free">
-            <DataTable columns={columns} rows={[...results]} rowKey={(item) => item.id} caption={t('pwf.task.kpi.caption')} />
-          </div>
-        )}
+        <div className="pwf-free">
+          <DataTable columns={columns} rows={[...results]} rowKey={(item) => item.id} caption={t('pwf.task.kpi.caption')} />
+        </div>
       </div>
     </SectionCard>
   );

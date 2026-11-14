@@ -8,5 +8,8 @@
   "fix10.score.cutoff.notDueCount": "{count} việc còn trong hạn chưa được chấm và nằm ngoài mẫu số.",
   "fix10.score.lock.reason": "Lý do chốt sớm",
   "fix10.score.lock.reasonHint": "Ít nhất {min} ký tự. Lý do được ghi vào nhật ký.",
-  "fix10.score.lock.early": "Kỳ này kết thúc ngày {day}. Chốt trước khi kỳ kết thúc là chốt sớm: số liệu cắt tại hôm nay, việc còn trong hạn không được chấm."
+  "fix10.score.lock.early": "Kỳ này kết thúc ngày {day}. Chốt trước khi kỳ kết thúc là chốt sớm: số liệu cắt tại hôm nay, việc còn trong hạn không được chấm.",
+  "fix10.task.kpi.none": "Chưa có kết quả KPI. Kết quả được tính khi công việc hoàn thành hoặc bị hủy.",
+  "fix10.task.kpi.failed": "Chưa tải được kết quả KPI của công việc.",
+  "fix10.task.kpi.loading": "Đang tải kết quả KPI…"
 }
