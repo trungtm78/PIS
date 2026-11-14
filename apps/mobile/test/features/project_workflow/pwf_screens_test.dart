@@ -217,7 +217,9 @@ void main() {
         return doneTasksJson(items: <Map<String, Object?>>[doneTask('7f3a0000-0000-4000-8000-000000000052', 'Thẩm định hồ sơ mời thầu', due: '2026-11-03', finished: '2026-11-06')], total: 2);
       });
       await _open(tester, server, 'MOB-80');
-      expect(asked, isEmpty, reason: 'the done list is read when its tab is opened, not with the open list');
+      // Lane fix11: the done list is read WITH the screen, once, so that its tab says its count before it is opened.
+      expect(asked.single['status'], 'DONE');
+      expect(find.text('Lập tờ trình phê duyệt dự toán'), findsNothing, reason: 'its rows are on its own tab');
       await tester.tap(find.textContaining('Đã xong').first);
       await tester.pumpAndSettle();
       expect(asked.single['status'], 'DONE');
@@ -290,6 +292,7 @@ void main() {
       final ScriptedServer server = ScriptedServer();
       int reads = 0;
       server.on('GET', '/me/project-tasks', (call) {
+        if (call.url.queryParameters['status'] == 'DONE') return doneTasksJson(items: <Map<String, Object?>>[]);
         reads += 1;
         if (call.url.queryParameters['cursor'] == null) return myTasksJson(items: <Map<String, Object?>>[myTask('7f3a0000-0000-4000-8000-000000000041', 'Việc trang một')], next: 'c2', total: 2);
         return myTasksJson(items: <Map<String, Object?>>[myTask('7f3a0000-0000-4000-8000-000000000042', 'Việc trang hai')], total: 2);

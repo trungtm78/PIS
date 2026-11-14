@@ -175,7 +175,7 @@ void main() {
       expect(find.textContaining('Một đơn vị · 2 dự án · Số liệu tại 31/10/2026'), findsOneWidget, reason: 'the scope and the day are one line of context, said once');
       expect(find.text('3f2b6c1e…00a1'), findsOneWidget);
       expect(find.text('1 dự án chưa có dữ liệu'), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp(r'^3 Cảnh báo đang mở')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp(r'^3 Cảnh báo mở')), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp(r'^2 Điều chuyển chờ duyệt')), findsOneWidget);
       semantics.dispose();
       expect(server.callsTo('GET', '/home/command-center'), hasLength(1));

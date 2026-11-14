@@ -244,7 +244,7 @@ const StringTable dashboardStrings = StringTable(
     'mob.home.band.rate.line': '{label}: {value}',
     'mob.home.band.progress': 'Đã giải ngân {value} so với tổng kế hoạch vốn',
     'mob.home.decide.title': 'Cần bạn quyết định',
-    'mob.home.stat.warnings.label': 'Cảnh báo đang mở',
+    'mob.home.stat.warnings.label': 'Cảnh báo mở',
     'mob.home.stat.explanations.label': 'Giải trình quá hạn',
     'mob.home.stat.reallocations.label': 'Điều chuyển chờ duyệt',
     'mob.home.stat.watch.text': 'Cần theo dõi',

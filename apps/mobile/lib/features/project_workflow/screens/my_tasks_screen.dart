@@ -110,6 +110,8 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
   void initState() {
     super.initState();
     _cursor = widget.first.nextCursor;
+    // Lane fix11: what the person finished is read with the screen, when the server can be asked, so that the tab says its count before it is opened (it used to have a count only once opened).
+    if (widget.canLoadMore) WidgetsBinding.instance.addPostFrameCallback((_) => _loadDone());
   }
 
   @override
@@ -126,7 +128,7 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
       _doneCursor = null;
       _doneFailure = null;
       _doneLoading = false;
-      if (_tab == _doneTab) WidgetsBinding.instance.addPostFrameCallback((_) => _loadDone());
+      if (_tab == _doneTab || widget.canLoadMore) WidgetsBinding.instance.addPostFrameCallback((_) => _loadDone());
     }
   }
 
