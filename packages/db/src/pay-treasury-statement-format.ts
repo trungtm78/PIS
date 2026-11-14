@@ -200,7 +200,8 @@ export function createTreasuryStatementFormat(options: TreasuryFormatOptions = {
       const projectCode = keyPart(values.project_code);
       const keyed = documentNo !== undefined && documentDate !== undefined && projectCode !== undefined;
       const key = keyed ? treasuryBusinessKey(TREASURY_FILE_PROVIDER, documentNo, documentDate, projectCode) : undefined;
-      if (documentNo === undefined) return reject('DOCUMENT_NO_INVALID', 'document_no');
+      // A row with no voucher number at all says so (MISSING_DOCUMENT_NO, FR-PAY-13); a number that is there but cannot be part of a key is DOCUMENT_NO_INVALID.
+      if (documentNo === undefined) return reject(String(values.document_no ?? '').trim() === '' ? 'MISSING_DOCUMENT_NO' : 'DOCUMENT_NO_INVALID', 'document_no');
       if (documentDate === undefined) return reject('DOCUMENT_DATE_INVALID', 'document_date');
       if (projectCode === undefined) return reject('PROJECT_CODE_INVALID', 'project_code');
       const officeCode = keyPart(values.treasury_office_code);

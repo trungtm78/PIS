@@ -174,6 +174,25 @@ describe('importTreasuryStatement and getTreasuryImport (ST-PAY-006)', () => {
       expect(await pay.rows<{ action: string }>('select action from machvon.audit_event where resource_id = $1', [reply.json.resource_id])).toEqual([{ action: 'pay.treasury_import_applied' }]);
     });
 
+    it('UAT-AC334: of four rows the repeat is DUPLICATE and makes no transaction, the same voucher with another amount is CONFLICT with an item DUPLICATE_CONFLICT and the original untouched, the row without a voucher number is ERROR MISSING_DOCUMENT_NO, the new one is NEW; the import is PARTIALLY_APPLIED 1/1/1/1 of 4 and shows no account number', async () => {
+      const seeded = await importFile(csv(line('A334-CT-0001', 1000), line('A334-CT-0002', 2000)));
+      expect(seeded.json).toMatchObject({ status: 'APPLIED', row_new: 2 });
+      const reply = await importFile(csv(line('A334-CT-0001', 1000), line('A334-CT-0002', 2500), line('', 3000), line('A334-CT-0003', 4000)));
+      expect(reply.json).toMatchObject({ status: 'PARTIALLY_APPLIED', row_total: 4, row_new: 1, row_duplicate: 1, row_conflict: 1, row_error: 1 });
+      const view = await importOf(reply.json.resource_id);
+      const rows = view.json.rows as Array<Record<string, unknown>>;
+      expect(rows.map((row) => [row.outcome, row.error_code])).toEqual([['DUPLICATE', null], ['CONFLICT', null], ['ERROR', 'MISSING_DOCUMENT_NO'], ['NEW', null]]);
+      expect(rows[0]?.treasury_transaction_id === null || typeof rows[0]?.treasury_transaction_id === 'string').toBe(true);
+      // One transaction per voucher: the repeat and the conflict made none, the original of the conflict keeps its amount, the row in error made none.
+      expect(await pay.rows("select external_id, amount_vnd::text as amount from machvon.treasury_transaction where external_id like 'KBNN_FILE|A334-%' order by external_id")).toEqual([
+        expect.objectContaining({ amount: '1000' }),
+        expect.objectContaining({ amount: '2000' }),
+        expect.objectContaining({ amount: '4000' }),
+      ]);
+      expect(view.json.differences).toEqual([expect.objectContaining({ code: 'DUPLICATE_CONFLICT', expected: '2000', actual: '2500', status: 'OPEN' })]);
+      expect(JSON.stringify(view.json)).not.toContain(ACCOUNT);
+    });
+
     it('quarantines a code with no mapping as CROSSWALK_MISSING and creates no master entry (crosswalk TREASURY/AGENCY_CODE)', async () => {
       const masters = await pay.count("select count(*)::text as n from machvon.master_record where master_type = 'TREASURY_OFFICE'");
       const reply = await importFile(csv(line('A2U-1', 100, { office: 'KB-UNKNOWN' }), line('A2U-2', 100)));

@@ -50,6 +50,7 @@ describe('the words of the Treasury import screen (UI-PAY-13)', () => {
 
   it('gives every reason a row can be quarantined for its own sentence, and the unknown one the code', () => {
     const codes = [
+      'MISSING_DOCUMENT_NO',
       'DOCUMENT_NO_INVALID',
       'DOCUMENT_DATE_INVALID',
       'PROJECT_CODE_INVALID',

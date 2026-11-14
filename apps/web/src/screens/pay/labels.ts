@@ -60,6 +60,8 @@ export function itemStatusLabel(t: Translate, status: 'OPEN' | 'RESOLVED'): stri
 /** Why a row went to the quarantine, in words; a code the screen does not know is shown with the code. */
 export function rowErrorLabel(t: Translate, code: string | null): string {
   switch (code) {
+    case 'MISSING_DOCUMENT_NO':
+      return t('pay.import.rowError.documentNoMissing.text');
     case 'DOCUMENT_NO_INVALID':
       return t('pay.import.rowError.documentNoInvalid.text');
     case 'DOCUMENT_DATE_INVALID':

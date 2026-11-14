@@ -94,7 +94,7 @@ describe('the Treasury statement layout (a working assumption, ST-PAY-006)', () 
     });
 
     it.each([
-      ['a missing voucher number', ',2026-10-15,PRJ-A,KB-1,1000,2026-10-16,', 'DOCUMENT_NO_INVALID', 'document_no', null],
+      ['a missing voucher number (UAT-AC334)', ',2026-10-15,PRJ-A,KB-1,1000,2026-10-16,', 'MISSING_DOCUMENT_NO', 'document_no', null],
       ['a voucher number with the key separator', 'CT|1,2026-10-15,PRJ-A,KB-1,1000,2026-10-16,', 'DOCUMENT_NO_INVALID', 'document_no', null],
       ['a voucher date that does not exist', 'CT-1,2026-02-30,PRJ-A,KB-1,1000,2026-10-16,', 'DOCUMENT_DATE_INVALID', 'document_date', null],
       ['a missing project code', 'CT-1,2026-10-15,,KB-1,1000,2026-10-16,', 'PROJECT_CODE_INVALID', 'project_code', null],
