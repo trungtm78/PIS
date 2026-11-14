@@ -233,7 +233,7 @@ export function ContributionsTable({ contributions }: { contributions: readonly 
   ];
   return (
     <div className="pwf-free">
-      <DataTable columns={columns} rows={[...contributions]} rowKey={(row) => `${row.task_code}:${row.task_id ?? 'restricted'}`} caption={t('pwfs.contribution.caption.text')} state={contributions.length === 0 ? 'empty' : 'ready'} />
+      <DataTable columns={columns} rows={[...contributions]} rowKey={(row) => `${row.task_code}:${row.task_id ?? 'restricted'}`} caption={t('pwfs.contribution.caption.text')} stacked state={contributions.length === 0 ? 'empty' : 'ready'} />
     </div>
   );;
 }

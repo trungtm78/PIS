@@ -44,7 +44,7 @@ export function Comparison({ membershipId, enabled }: { membershipId: string | u
           </p>
         ) : null}
         <div className="pwf-free">
-          <DataTable columns={columns} rows={points} rowKey={(row) => row.period_id} caption={t('pwfs.compare.caption.text')} state={points.length === 0 ? 'empty' : 'ready'} />
+          <DataTable columns={columns} rows={points} rowKey={(row) => row.period_id} caption={t('pwfs.compare.caption.text')} stacked state={points.length === 0 ? 'empty' : 'ready'} />
         </div>
       </div>
     </SectionCard>

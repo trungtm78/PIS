@@ -46,7 +46,7 @@ function TaskRow({ task, projectId }: { task: WorkflowTask; projectId: string })
           {task.critical ? <span className="pwf-outline__critical">{t('pwf6.flow.critical.mark')}</span> : null}
         </span>
       </th>
-      <td>
+      <td data-label={t('pwf6.outline.col.state')}>
         <span className="pwf-pills">
           <StatusPill tone={statusTone(task)} icon={statusIcon(task)}>
             {task.excluded ? t('pwf.process.task.excluded.word') : statusWord(t, task.status)}
@@ -54,12 +54,12 @@ function TaskRow({ task, projectId }: { task: WorkflowTask; projectId: string })
           {hasBand(task) && task.band.band !== 'NONE' ? <BandBadge band={task.band} /> : null}
         </span>
       </td>
-      <td className="pwf-num">
+      <td className="pwf-num" data-label={t('pwf6.outline.col.due')}>
         {missing ? <CalendarMissingCell year={task.missing_year} /> : task.planned_finish === null ? null : dayText(task.planned_finish)}
         {missing ? null : <Forecast task={task} />}
       </td>
-      <td>{task.assignee === null ? <span className="pwf-hint">{t('pwf.flow.board.unassigned.text')}</span> : task.assignee.display_name}</td>
-      <td>{(task.checklist_total ?? 0) > 0 ? <Meter done={task.checklist_done ?? 0} total={task.checklist_total ?? 0} label={t('pwf6.outline.checklist.label')} testId={`checklist-${task.task_code}`} /> : null}</td>
+      <td data-label={t('pwf6.outline.col.owner')}>{task.assignee === null ? <span className="pwf-hint">{t('pwf.flow.board.unassigned.text')}</span> : task.assignee.display_name}</td>
+      <td data-label={t('pwf6.outline.col.progress')}>{(task.checklist_total ?? 0) > 0 ? <Meter done={task.checklist_done ?? 0} total={task.checklist_total ?? 0} label={t('pwf6.outline.checklist.label')} testId={`checklist-${task.task_code}`} /> : null}</td>
     </tr>
   );
 }
@@ -150,14 +150,14 @@ export function WorkflowOutline({ detail, projectId, selectedPhase, onPhase }: P
                                 {phase.order}.{step.order} {step.name}
                               </span>
                             </th>
-                            <td>
+                            <td data-label={t('pwf6.outline.col.state')}>
                               <StatusPill tone={stepTone(step.status)} icon={stepIcon(step.status)}>
                                 {stepStatusWord(t, step.status)}
                               </StatusPill>
                             </td>
-                            <td className="pwf-num">{step.planned_finish === null ? null : dayText(step.planned_finish)}</td>
-                            <td>{step.responsible_role === null ? null : <RoleName code={step.responsible_role} name={step.responsible_role_name} />}</td>
-                            <td>
+                            <td className="pwf-num" data-label={t('pwf6.outline.col.due')}>{step.planned_finish === null ? null : dayText(step.planned_finish)}</td>
+                            <td data-label={t('pwf6.outline.col.owner')}>{step.responsible_role === null ? null : <RoleName code={step.responsible_role} name={step.responsible_role_name} />}</td>
+                            <td data-label={t('pwf6.outline.col.progress')}>
                               <Meter done={step.task_done} total={step.task_total} label={t('pwf.process.progress.tasks.label')} />
                             </td>
                           </tr>,

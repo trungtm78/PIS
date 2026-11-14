@@ -202,7 +202,7 @@ function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit:
   ];
   return (
     <div className="pwf-free pwf-lib">
-      <DataTable columns={columns} rows={[...rows]} rowKey={(row) => row.code} caption={t('pwf.templates.lib.table.caption')} />
+      <DataTable columns={columns} rows={[...rows]} rowKey={(row) => row.code} caption={t('pwf.templates.lib.table.caption')} stacked />
     </div>
   );
 

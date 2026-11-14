@@ -95,6 +95,7 @@ export function BoardList({ rows, total, hasMore, loadingMore, onMore, filtered,
           rowKey={(row) => row.task_id}
           rowAttrs={(row) => ({ 'data-task-id': row.task_id, 'data-band': row.band.band })}
           caption={t('fix9.pwf07.list.caption')}
+          stacked
           state="ready"
           emptyKind={filtered ? 'filtered' : 'none'}
           onClearFilters={onClearFilters}

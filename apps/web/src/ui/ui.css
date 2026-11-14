@@ -494,3 +494,20 @@ code {
 .ui-tabs__tab:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: -2px; }
 .ui-tabs__count { min-width: 20px; padding: 0 var(--mv-space-4); border-radius: 999px; font-size: 12px; font-weight: 700; text-align: center; background: var(--mv-color-neutral-soft); color: var(--mv-color-neutral); font-variant-numeric: tabular-nums; }
 .ui-tabs__panel[hidden] { display: none; }
+
+/* DataTable, stacked (opt in): at 640 px and less a row is a card. The head is kept for assistive technology and taken out of sight; the first cell is the title of the card and each other cell a line "label: value"
+   (the label is the header of its column, from data-label). Nothing scrolls sideways and no word is squeezed to a column of one. */
+@media (max-width: 640px) {
+  .ui-table--stacked, .ui-table--stacked tbody, .ui-table--stacked tfoot, .ui-table--stacked .ui-table__row, .ui-table--stacked .ui-table__cell { display: block; width: 100%; }
+  .ui-table--stacked thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ui-table--stacked .ui-table__row { padding: var(--mv-space-12); border-bottom: 1px solid var(--mv-color-border); }
+  .ui-table--stacked .ui-table__row:hover .ui-table__cell { background: transparent; }
+  .ui-table--stacked .ui-table__cell { min-height: 0; padding: var(--mv-space-4) 0; border-bottom: 0; background: transparent; text-align: left; position: static; box-shadow: none; overflow-wrap: anywhere; }
+  .ui-table--stacked .ui-table__cell[data-label] { display: grid; grid-template-columns: minmax(96px, 38%) minmax(0, 1fr); gap: var(--mv-space-8); align-items: start; }
+  .ui-table--stacked .ui-table__cell[data-label]::before { content: attr(data-label); font-size: 12px; font-weight: 700; color: var(--mv-color-text-secondary); }
+  .ui-table--stacked .ui-table__cell:first-child { font-weight: 700; padding-bottom: var(--mv-space-8); }
+  .ui-table--stacked .ui-table__row[data-severity] > .ui-table__cell:first-child { box-shadow: none; padding-left: var(--mv-space-8); border-left: 4px solid var(--mv-color-info); }
+  .ui-table--stacked .ui-table__row[data-severity='URGENT'] > .ui-table__cell:first-child { border-left-color: var(--mv-color-danger); }
+  .ui-table--stacked .ui-table__row[data-severity='ACTION'] > .ui-table__cell:first-child { border-left-color: var(--mv-color-warning); }
+  .ui-table-scroll:has(> .ui-table--stacked) { max-height: none; overflow: visible; }
+}

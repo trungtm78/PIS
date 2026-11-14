@@ -38,6 +38,11 @@ export interface DataTableProps<T> {
   onClearFilters?: () => void;
   onRetry?: () => void;
   caption: string;
+  /**
+   * On a narrow screen (640 px and less) each row becomes a card: the first column is its title and every other cell a line "label: value" under it, so a table of many columns is read down the page and its words
+   * are never squeezed one to a line or pushed off to the side. Wide screens are not changed. A table of figures that is compared across its rows (totals, grouped heads) should stay a table and leave this off.
+   */
+  stacked?: boolean;
 }
 
 const SKELETON_ROWS = 5;
@@ -78,7 +83,7 @@ function headRows<T>(columns: DataTableColumn<T>[]): { top: HeadCell[]; bottom: 
 }
 
 /** The table of every list: two-tier sticky head, right-aligned numbers, a pinned first column, a totals row, a severity stripe and the pager. */
-export function DataTable<T>({ columns, rows, rowKey, totals, totalsLabel, severity, rowAttrs, page, state = 'ready', emptyKind = 'none', onClearFilters, onRetry, caption }: DataTableProps<T>) {
+export function DataTable<T>({ columns, rows, rowKey, totals, totalsLabel, severity, rowAttrs, page, state = 'ready', emptyKind = 'none', onClearFilters, onRetry, caption, stacked = false }: DataTableProps<T>) {
   const { t } = useTranslation();
   const { top, bottom } = headRows(columns);
   const count = columns.length;
@@ -100,7 +105,7 @@ export function DataTable<T>({ columns, rows, rowKey, totals, totalsLabel, sever
   return (
     <div className="ui-table-wrap">
       <div className="ui-table-scroll" role="region" aria-label={caption} tabIndex={0}>
-        <table className="ui-table" aria-busy={state === 'loading' ? true : undefined}>
+        <table className={stacked ? 'ui-table ui-table--stacked' : 'ui-table'} aria-busy={state === 'loading' ? true : undefined}>
           <caption className="ui-sr-only">{caption}</caption>
           <thead>
             <tr>{top.map((cell) => headCell(cell, 'top'))}</tr>
@@ -151,7 +156,7 @@ export function DataTable<T>({ columns, rows, rowKey, totals, totalsLabel, sever
                 return (
                   <tr {...rowAttrs?.(row)} className="ui-table__row" key={rowKey(row)} data-severity={level ?? undefined}>
                     {columns.map((column, position) => (
-                      <td className={cellClass(column, 'ui-table__cell')} key={column.key}>
+                      <td className={cellClass(column, 'ui-table__cell')} key={column.key} data-label={stacked && position > 0 ? column.header : undefined}>
                         {position === 0 && level !== null && <span className="ui-sr-only">{t('ui.dataTable.severityPrefix', { label: severityLabel(level) })}. </span>}
                         {column.render(row)}
                       </td>

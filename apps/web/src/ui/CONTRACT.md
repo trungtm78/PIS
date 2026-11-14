@@ -19,7 +19,8 @@ FilterPanel  { children: ReactNode; unitLabel?: string; updatedAt?: string; acti
 DataTable<T> { columns: { key: string; header: string; group?: string; align?: 'left' | 'right'; pinned?: boolean; render: (row: T) => ReactNode }[]; rows: T[]; rowKey: (row: T) => string;
                totals?: Record<string, ReactNode>; totalsLabel?: string; severity?: (row: T) => Severity | null;
                page?: { from: number; to: number; total: number; size: number; index: number; onPage: (index: number) => void; onSize: (size: number) => void };
-               state?; emptyKind?: 'none' | 'filtered' | 'noPeriod'; onClearFilters?: () => void; caption: string }
+               state?; emptyKind?: 'none' | 'filtered' | 'noPeriod'; onClearFilters?: () => void; caption: string;
+               stacked?: boolean }   // at 640 px and less each row is a card: first column the title, every other cell a line "header: value"; wide screens unchanged
 FundMatrix   { groups: { title: string; total?: string; cells: { label: string; control: ReactNode }[]; programme?: { title: string; cells: { label: string; control: ReactNode }[] } | 'na' }[] }   // stacks per source at ≤ 360 px
 StickyActions { primary: ReactNode; secondary?: ReactNode[]; overflow?: ReactNode[] }   // at ≤ 360 px only `primary` stays, the rest go in an overflow menu
 AuditLine    { items: { label: string; value: string }[] }

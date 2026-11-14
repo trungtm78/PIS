@@ -47,6 +47,20 @@ describe('DataTable', () => {
     expect(screen.getByRole('columnheader', { name: 'Tên dự án' })).toHaveAttribute('rowspan', '2');
   });
 
+  it('stacked: marks the table and gives every cell but the first the header of its column as its label, so a narrow screen shows each row as a card of "label: value" lines; a table that did not ask stays as it is', () => {
+    const { unmount } = render(<DataTable {...baseProps} stacked />);
+    const table = screen.getByRole('table');
+    expect(table.className).toContain('ui-table--stacked');
+    const cells = within(screen.getAllByRole('row')[2] as HTMLElement).getAllByRole('cell');
+    expect(cells.map((cell) => cell.getAttribute('data-label'))).toEqual([null, 'Kế hoạch', 'Đã giải ngân']);
+    // The head stays in the table for assistive technology (the style sheet takes it out of sight on a narrow screen).
+    expect(within(table).getAllByRole('columnheader').length).toBeGreaterThan(0);
+    unmount();
+    render(<DataTable {...baseProps} />);
+    expect(screen.getByRole('table').className).toBe('ui-table');
+    expect(screen.getByRole('table').querySelector('[data-label]')).toBeNull();
+  });
+
   it('has a single head row when no column has a group', () => {
     render(<DataTable {...baseProps} columns={COLUMNS.map((column) => ({ ...column, group: undefined }))} />);
     expect(screen.getAllByRole('row')).toHaveLength(1 + ROWS.length);

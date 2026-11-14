@@ -164,7 +164,7 @@ function BoardContent({ route }: ScreenProps) {
           </div>
           <StateBoundary state={lineState} onRetry={() => void lines.refetch()}>
             <div className="pwf-free">
-              <DataTable columns={columns} rows={ordered} rowKey={({ row }) => row.id} caption={t('pwfs.board.caption.text')} />
+              <DataTable columns={columns} rows={ordered} rowKey={({ row }) => row.id} caption={t('pwfs.board.caption.text')} stacked />
             </div>
             {lines.hasNextPage ? (
               <button type="button" className="ui-button ui-button--outline" data-action="more-lines" disabled={lines.isFetchingNextPage} onClick={() => void lines.fetchNextPage()}>

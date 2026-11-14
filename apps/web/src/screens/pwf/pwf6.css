@@ -815,3 +815,20 @@ section[data-screen-id^='PWF-'] label:has(> input[type='radio']) {
     inset-inline-end: 0;
   }
 }
+
+/* The task table of a workflow on a narrow screen (640 px and less): each row is a card, the same way the stacked DataTable of the kit does it. The name is the title; the state, the deadline, who does it and the
+   progress are lines "label: value" under it (the label is the header of the column, from data-label); a cell with nothing to say is left out. The head stays for assistive technology, out of sight. */
+@media (max-width: 640px) {
+  .pwf-outline, .pwf-outline tbody, .pwf-outline tr, .pwf-outline tbody th, .pwf-outline tbody td { display: block; width: 100%; }
+  .pwf-outline thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .pwf-outline tbody tr { padding: var(--mv-space-8) var(--mv-space-12); border-bottom: 1px solid var(--mv-color-border); }
+  .pwf-outline tbody th, .pwf-outline tbody td { padding: var(--mv-space-4) 0; border: 0; text-align: left; overflow-wrap: anywhere; }
+  .pwf-outline tbody tr[data-level='2'] th, .pwf-outline tbody tr[data-level='3'] th { padding-left: 0; }
+  .pwf-outline tbody tr[data-level='3'] { border-left: 4px solid transparent; }
+  .pwf-outline tbody tr[data-level='3'][data-health='late'] { border-left-color: var(--mv-color-danger); }
+  .pwf-outline tbody tr[data-level='3'][data-health='attention'] { border-left-color: var(--mv-color-warning); }
+  .pwf-outline tbody tr[data-level='3'][data-health] th { box-shadow: none; }
+  .pwf-outline tbody td[data-label] { display: grid; grid-template-columns: minmax(96px, 38%) minmax(0, 1fr); gap: var(--mv-space-8); align-items: start; }
+  .pwf-outline tbody td[data-label]::before { content: attr(data-label); font-size: 12px; font-weight: 700; color: var(--mv-color-text-secondary); }
+  .pwf-outline tbody td:empty { display: none; }
+}
