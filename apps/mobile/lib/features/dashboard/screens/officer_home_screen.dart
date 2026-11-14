@@ -9,6 +9,7 @@ import '../../../core/theme/colors.dart';
 import '../../../core/widgets/nav_row.dart';
 import '../../../core/widgets/stat_strip.dart';
 import '../../../core/widgets/state_view.dart';
+import '../../project_workflow/pwf_home_card.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
@@ -155,6 +156,8 @@ class _WorkBody extends StatelessWidget {
             stale: loaded.fromCache && loaded.stale,
             fetchedAt: loaded.fetchedAt,
           ),
+        // The person's own workflow tasks by official colour; the block reads for itself and draws nothing when there is none.
+        const PwfHomeDeadlines(),
         const EditionHomeCards(),
         if (!done)
           NavRow(
