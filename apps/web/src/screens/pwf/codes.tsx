@@ -16,22 +16,21 @@ export const codeKey = (code: string): string =>
     .replace(/[^a-z0-9]+([a-z0-9])/g, (_match, next: string) => next.toUpperCase())
     .replace(/[^a-zA-Z0-9]/g, '');
 
-const named = (t: T, key: string, fallback: string): string => (translator.has(key) ? t(key) : fallback);
 
 /** Whether the catalogue has a name for the role (a role of a province's own template may have none). */
 export const roleKnown = (code: string): boolean => translator.has(`pwf6.role.${codeKey(code)}.word`);
-export const roleName = (t: T, code: string): string => named(t, `pwf6.role.${codeKey(code)}.word`, code);
+export const roleName = (t: T, code: string): string => (translator.has(`pwf6.role.${codeKey(code)}.word`) ? t(`pwf6.role.${codeKey(code)}.word`) : code);
 /** The name of a phase: what the workflow or the template says first, else the name of the shipped phases, else the code. */
-export const phaseName = (t: T, code: string, phases?: readonly { code: string; name: string }[]): string => phases?.find((phase) => phase.code === code)?.name ?? named(t, `pwf6.phase.${codeKey(code)}.word`, code);
-export const evidenceKindName = (t: T, code: string): string => named(t, `pwf6.evidence.${codeKey(code)}.word`, code);
-export const docTypeName = (t: T, code: string): string => named(t, `pwf6.doc.${codeKey(code)}.word`, code);
+export const phaseName = (t: T, code: string, phases?: readonly { code: string; name: string }[]): string => phases?.find((phase) => phase.code === code)?.name ?? (translator.has(`pwf6.phase.${codeKey(code)}.word`) ? t(`pwf6.phase.${codeKey(code)}.word`) : code);
+export const evidenceKindName = (t: T, code: string): string => (translator.has(`pwf6.evidence.${codeKey(code)}.word`) ? t(`pwf6.evidence.${codeKey(code)}.word`) : code);
+export const docTypeName = (t: T, code: string): string => (translator.has(`pwf6.doc.${codeKey(code)}.word`) ? t(`pwf6.doc.${codeKey(code)}.word`) : code);
 export const docTypeKnown = (code: string): boolean => translator.has(`pwf6.doc.${codeKey(code)}.word`);
-export const historyName = (t: T, kind: string): string => named(t, `pwf6.history.${codeKey(kind)}.word`, kind);
-export const gradeName = (t: T, code: string): string => named(t, `pwf6.grade.${codeKey(code)}.word`, code);
-export const templateName = (t: T, code: string): string => named(t, `pwf6.template.${codeKey(code)}.word`, code);
+export const historyName = (t: T, kind: string): string => (translator.has(`pwf6.history.${codeKey(kind)}.word`) ? t(`pwf6.history.${codeKey(kind)}.word`) : kind);
+export const gradeName = (t: T, code: string): string => (translator.has(`pwf6.grade.${codeKey(code)}.word`) ? t(`pwf6.grade.${codeKey(code)}.word`) : code);
+export const templateName = (t: T, code: string): string => (translator.has(`pwf6.template.${codeKey(code)}.word`) ? t(`pwf6.template.${codeKey(code)}.word`) : code);
 export const templateKnown = (code: string): boolean => translator.has(`pwf6.template.${codeKey(code)}.word`);
-export const kpiName = (t: T, code: string): string => named(t, `pwf6.kpi.${codeKey(code)}.word`, code);
-export const factName = (t: T, code: string): string => named(t, `pwf6.fact.${codeKey(code)}.word`, code);
+export const kpiName = (t: T, code: string): string => (translator.has(`pwf6.kpi.${codeKey(code)}.word`) ? t(`pwf6.kpi.${codeKey(code)}.word`) : code);
+export const factName = (t: T, code: string): string => (translator.has(`pwf6.fact.${codeKey(code)}.word`) ? t(`pwf6.fact.${codeKey(code)}.word`) : code);
 
 /** "System default" for version 0 of a rule (the shipped default has no version of the tenant), else "version N". */
 export const versionText = (t: T, version: number | null | undefined): string => (version === null || version === undefined || version === 0 ? t('pwf6.version.default.text') : t('pwf6.version.numbered.text', { version }));

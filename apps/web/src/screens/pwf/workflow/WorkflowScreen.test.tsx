@@ -284,7 +284,7 @@ describe('PWF-03: the board and its filters', () => {
     expect(within(board).getByRole('heading', { name: 'Chuẩn bị đầu tư' })).toBeTruthy();
     const card = within(board).getByTestId('card-T2');
     expect(card.getAttribute('data-critical')).toBe('true');
-    expect(card.textContent).toContain(text('pwf.flow.critical.word'));
+    expect(card.textContent).toContain(text('pwf6.flow.critical.mark'));
     expect(card.textContent).toContain(text('pwf.band.red.word'));
     expect(card.textContent).toContain('Nguyễn Văn An');
     expect(within(board).getByTestId('card-T3').textContent).toContain(text('pwf.flow.board.unassigned.text'));

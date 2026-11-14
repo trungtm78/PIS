@@ -71,7 +71,7 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
     submit();
     await screen.findByTestId('created');
     expect(bodyOf(h).workflow).toEqual({ planned_start_date: '2026-12-01', facts: { project_group: 'B', funding_source: 'STATE_BUDGET' } });
-    expect(screen.getByTestId('created-workflow').textContent).toBe(text('pwf.process.kind.created.started'));
+    expect(screen.getByTestId('created-workflow').textContent).toBe(`${text('pwf6.kind.created.text')} ${text('pwf6.kind.created.open')}`);
     expect(within(screen.getByTestId('created-workflow')).getByRole('link').getAttribute('href')).toContain('tab=workflow');
   });
 
