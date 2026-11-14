@@ -322,6 +322,23 @@ describe('license commands over HTTP (ST-SAS-003)', () => {
       expect((await entitlements.current(context)).licenseMode).toBe('REVOKED');
     });
 
+    it('UAT-AC44: revoking leaves the license Revoked, one audit row license.revoked with the reason, one event sas.license.revoked.v1 and one sas.entitlement.changed.v1, drops the cached entitlements of the tenant, and every feature is denied from then on', async () => {
+      const { tenantId, id } = await issued();
+      dropped.entitlements.length = 0;
+      const changedBefore = await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.entitlement.changed.v1'", [tenantId]);
+      const reply = await revoke(id, { ifMatch: '"1"' });
+      expect(reply.status).toBe(200);
+      expect(await licenseRow(id)).toMatchObject({ status: 'Revoked', status_reason: REASON });
+      expect(await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and action = 'license.revoked' and outcome = 'SUCCESS' and reason = $2", [tenantId, REASON])).toBe(1);
+      expect(await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.license.revoked.v1'", [tenantId])).toBe(1);
+      expect((await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.entitlement.changed.v1'", [tenantId])) - changedBefore).toBe(1);
+      // The cache entry of the entitlements of the tenant is dropped with the answer, so no process waits for it to expire.
+      expect(dropped.entitlements).toEqual([tenantId]);
+      const context = { tenantId, membershipId: CONTROL_MEMBER, scopeVersion: 1 };
+      for (const [feature, action] of [['reporting', 'read'], ['reporting', 'write']] as const) expect((await entitlements.allowedFromDatabase(context, feature, action)).allowed).toBe(false);
+      expect((await entitlements.current(context)).licenseMode).toBe('REVOKED');
+    });
+
     it('answers 409 LICENSE_STATE_INVALID for a second revocation', async () => {
       const { id } = await issued();
       await revoke(id, { ifMatch: '"1"' });

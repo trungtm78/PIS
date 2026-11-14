@@ -211,6 +211,31 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       expect(await views('score.line_viewed', WORKER)).toBe(0);
     });
 
+    it('UAT-PWF-10: the locked period carries its hash and does not change when an assignment changes afterwards; the person reads their own score down to each task with its share, what was left out and the day the response window ends, with the basis the figure rests on', async () => {
+      const period = (await call('GET', `/staff-score-periods/${periodId}`, { member: HR })).json;
+      expect(period).toMatchObject({ status: 'LOCKED', period_kind: 'QUARTER' });
+      expect(period.snapshot_hash).toMatch(/^[0-9a-f]{64}$/);
+      expect(String(period.response_until)).toMatch(/^\d{4}-\d{2}-\d{2}/);
+      const read = async (): Promise<Record<string, unknown>> => ((await call('GET', '/me/staff-scores', { member: WORKER })).json.items as Array<{ line: Record<string, unknown> }>)[0]!.line;
+      const before = await read();
+      // An assignment changes after the lock: the late task is also given to somebody else from the day after the period.
+      await rows(`insert into machvon.project_task_assignment (tenant_id, task_id, membership_id, role, valid_from, share_pct, reason, assigned_by) values ($1, $2, $3, 'CONSULTED', $4::date, 50, 'Changed after the lock', $5)`, [TENANT_A, lateTask, memberId(OTHER_STAFF), `${Y}-10-01`, memberId(MAKER)]);
+      const after = await read();
+      expect([after.score_computed, after.score_adjusted, after.rating, after.contributions]).toEqual([before.score_computed, before.score_adjusted, before.rating, before.contributions]);
+      expect((await call('GET', `/staff-score-periods/${periodId}`, { member: HR })).json).toMatchObject({ status: 'LOCKED', snapshot_hash: period.snapshot_hash });
+      // A period that is locked is not computed again in place.
+      const again = await call('POST', '/staff-score-periods', { member: HR, body: { scope_unit_id: unitId(DEPARTMENT), period_from: FROM, period_to: TO, policy_code: 'TESTPOL' } });
+      expect(again.status).toBe(409);
+      expect(['STAFF_SCORE_PERIOD_LOCKED', 'STAFF_SCORE_PERIOD_OVERLAP']).toContain(again.json.code);
+      // The person: the score, every task with the share and the range held, what was excluded, and the basis.
+      expect(after).toMatchObject({ state: 'RATED', score_computed: 71.88, can_respond: true, basis: { policy_code: 'TESTPOL', policy_version: 1 } });
+      const contributions = after.contributions as Array<{ task_id: string | null; spans: Array<Record<string, unknown>> }>;
+      expect(contributions.length).toBe(2);
+      for (const one of contributions) expect(one.spans.length).toBeGreaterThan(0);
+      expect(contributions.map((one) => one.task_id)).toContain(lateTask);
+      expect(Array.isArray(after.excluded)).toBe(true);
+    });
+
     it('UAT-PWF-SEC-02, UAT-PWF-SEC-03, UAT-PWF-SEC-04: answers 404 for the line of another person to a colleague, to the manager of a sibling unit and to someone who reads no scores of the unit, and never a 403 that tells it is there', async () => {
       for (const member of [OTHER_STAFF, SIBLING_MANAGER, APPROVER]) expect([member, (await call('GET', `/staff-score-lines/${workerLine}`, { member })).status]).toEqual([member, member === APPROVER ? 200 : 404]);
       expect((await call('GET', `/staff-score-periods/${periodId}/lines`, { member: SIBLING_MANAGER })).status).toBe(404);
@@ -334,6 +359,29 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       expect(denied).toMatchObject({ status: 403 });
       expect(JSON.stringify(denied.json)).toContain('SELF_APPROVAL_DENIED');
     });
+
+    it('UAT-PWF-12: the manager asks +5 points with a reason and evidence and cannot approve it (SELF_APPROVAL_DENIED); a second person approves; the person scored reads the computed score, the adjusted one and the reason; beyond the bound it is STAFF_SCORE_ADJUSTMENT_INVALID and the person scored cannot ask', async () => {
+      const reason = 'Chậm do cơ quan khác trả lời muộn';
+      expect(reason.length).toBeGreaterThanOrEqual(30);
+      const computed = (await call('GET', `/staff-score-lines/${otherLine}`, { member: OTHER_STAFF })).json.score_computed as number;
+      const asked = await call('POST', `/staff-score-lines/${otherLine}/adjustments`, { member: UNIT_MANAGER, body: { points: 5, reason, evidence_ref: 'Công văn 45/2025' } });
+      expect(asked).toMatchObject({ status: 200, json: { status: 'REQUESTED' } });
+      const id = asked.json.resource_id as string;
+      const own = await call('POST', `/staff-score-adjustments/${id}/decide`, { member: UNIT_MANAGER, body: { decision: 'APPROVE' }, ifMatch: '"1"' });
+      expect(own.status).toBe(403);
+      expect((await rows<{ status: string }>('select status from machvon.staff_score_adjustment where id = $1::uuid', [id]))[0]?.status).toBe('REQUESTED');
+      expect(await call('POST', `/staff-score-adjustments/${id}/decide`, { member: APPROVER, body: { decision: 'APPROVE', note: 'Đã đọc công văn' }, ifMatch: '"1"' })).toMatchObject({ status: 200, json: { status: 'APPROVED' } });
+      const seen = (await call('GET', `/staff-score-lines/${otherLine}`, { member: OTHER_STAFF })).json;
+      // Both figures are kept: the computed one as it was, the adjusted one 5 points above it and never outside 0..100.
+      expect(seen.score_computed).toBe(computed);
+      expect(seen.score_adjusted).toBe(Math.min(100, Math.round((computed + 5) * 100) / 100));
+      expect((seen.adjustments as Array<{ status: string; points: number; reason: string }>).filter((one) => one.status === 'APPROVED').map((one) => [one.points, one.reason])).toEqual([[5, reason]]);
+      const beyond = await call('POST', `/staff-score-lines/${otherLine}/adjustments`, { member: UNIT_MANAGER, body: { points: 11, reason } });
+      expect(beyond).toMatchObject({ status: 422, json: { code: 'STAFF_SCORE_ADJUSTMENT_INVALID' } });
+      const self = await call('POST', `/staff-score-lines/${otherLine}/adjustments`, { member: OTHER_STAFF, body: { points: 5, reason } });
+      expect([403, 422]).toContain(self.status);
+      expect((await rows('select 1 from machvon.staff_score_adjustment where line_id = $1::uuid and requested_by = $2::uuid', [otherLine, memberId(OTHER_STAFF)])).length).toBe(0);
+    });
   });
 
   describe('the response of the person scored and the end of the window (BR-PWF-39, R43)', () => {
@@ -353,7 +401,8 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       expect(JSON.stringify(event?.payload)).not.toContain('letter');
     });
 
-    it('keeps the period from becoming official while the response is open, then handles it by someone else and makes the period official', async () => {
+    it('UAT-PWF-11: keeps the period from becoming official while the response is open, then handles it by someone else and makes the period official, and an official period does not go back', async () => {
+      expect((await rows<{ status: string }>('select status from machvon.staff_score_response where id = $1::uuid', [responseId]))[0]?.status).toBe('OPEN');
       expect((await call('POST', `/staff-score-periods/${periodId}/officialize`, { member: HR, ifMatch: `"${periodVersion}"` })).status).toBe(409);
       const line = await call('GET', `/staff-score-lines/${workerLine}`, { member: APPROVER });
       const version = line.json.version as number;
@@ -369,6 +418,11 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       expect((await call('POST', `/staff-score-lines/${workerLine}/responses`, { member: WORKER, body: { body: 'A new answer after the period became official.' } })).status).toBe(409);
       const [event] = await rows<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where aggregate_id = $1 and type = $2', [periodId, 'pwf.score.period.officialized.v1']);
       expect(event?.payload).toMatchObject({ status: 'OFFICIAL' });
+      // The response went OPEN -> HANDLED, and the official period takes no lock again: it never returns to LOCKED or DRAFT.
+      expect((await rows<{ status: string }>('select status from machvon.staff_score_response where id = $1::uuid', [responseId]))[0]?.status).toBe('HANDLED');
+      const officialVersion = (await call('GET', `/staff-score-periods/${periodId}`, { member: HR })).json.version as number;
+      expect((await call('POST', `/staff-score-periods/${periodId}/lock`, { member: HR, ifMatch: `"${officialVersion}"` })).status).toBe(409);
+      expect((await call('GET', `/staff-score-periods/${periodId}`, { member: HR })).json.status).toBe('OFFICIAL');
     });
   });
 });

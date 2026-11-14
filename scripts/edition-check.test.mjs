@@ -464,3 +464,10 @@ describe('the code name in the surfaces of the public edition', () => {
     assert.match(lines.join('\n'), /ENT_CODE_NAME_IN_PUBLIC_SURFACE: apps\/web\/src\/shell\/Brand\.tsx: line 1 /);
   });
 });
+
+describe('the repository itself', () => {
+  it('UAT-PWF-EDN-01: edition:check is green on the repository: no public file imports the enterprise homes and no public string carries the product name', async () => {
+    const { findings } = await checkEdition({ root: fileURLToPath(new URL('..', import.meta.url)) });
+    assert.deepEqual(findings, []);
+  });
+});
