@@ -1,6 +1,6 @@
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { useLocation } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { describeViolations, seriousViolations } from '../../../test/axe';
 import { mount } from '../../prj/test-support';
 import { ALL_PERMISSIONS, PROJECT_ID, READ_ONLY, refusal, routeOf, text, workflowTask } from '../test/fixtures';
@@ -167,11 +167,31 @@ describe('PWF-03: the states', () => {
     expect(screen.getByTestId('gate-submitProjectForAppraisal').textContent).toContain(text('pwf.flow.gate.summary.text', { count: 1 }));
   });
 
-  it('says the figures may be out of date when the server computed them long before they were read', async () => {
-    show({ workflow: () => detail({ as_of: '2020-01-01T00:00:00.000Z' }) });
-    const stale = await screen.findByTestId('stale');
-    expect(stale.textContent).toContain(text('shots3.flow.stale.text', { time: '01/01/2020 07:00' }));
-    expect(screen.queryByTestId('partial')).toBeNull();
+  it('does not call a fresh read out of date because the clock of the server is far from the clock of the browser (lane fix11)', async () => {
+    // `as_of` is the instant of the request on the clock of the SERVER. A server (or a browser) whose clock is 20 minutes off, or years off, answers figures that are as fresh as any.
+    for (const asOf of ['2020-01-01T00:00:00.000Z', new Date(Date.now() - 20 * 60_000).toISOString(), new Date(Date.now() + 20 * 60_000).toISOString()]) {
+      show({ workflow: () => detail({ as_of: asOf }) });
+      await ready();
+      expect(screen.queryByTestId('stale')).toBeNull();
+      cleanup();
+    }
+  });
+
+  it('says the figures may be out of date once the screen has held them for more than fifteen minutes, with the instant the server computed them', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] });
+    try {
+      show({ workflow: () => detail({ as_of: '2020-01-01T00:00:00.000Z' }) });
+      await ready();
+      expect(screen.queryByTestId('stale')).toBeNull();
+      act(() => {
+        vi.advanceTimersByTime(16 * 60_000);
+      });
+      const stale = await screen.findByTestId('stale');
+      expect(stale.textContent).toContain(text('shots3.flow.stale.text', { time: '01/01/2020 07:00' }));
+      expect(screen.queryByTestId('partial')).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('asks for a project when the address names none', () => {

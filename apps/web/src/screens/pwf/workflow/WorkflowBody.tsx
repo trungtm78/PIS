@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { useSession } from '../../../session/SessionContext';
@@ -47,6 +47,18 @@ interface LoadedProps {
   onReload: () => void;
 }
 
+const CLOCK_MS = 60_000;
+
+/** The clock of this browser, moved on every minute, so that figures held for long are said to be so while the screen stays open. */
+function useNow(): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), CLOCK_MS);
+    return () => clearInterval(timer);
+  }, []);
+  return now;
+}
+
 function Loaded({ detail, projectId, readAt, refetchFailed, frozen, onReload }: LoadedProps) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState<TaskFilter>(NO_FILTER);
@@ -63,7 +75,9 @@ function Loaded({ detail, projectId, readAt, refetchFailed, frozen, onReload }: 
   const items = pages.data?.pages.flatMap((page) => page.items) ?? [];
   const total = pages.data?.pages[pages.data.pages.length - 1]?.total;
   const partial = schedule.isError || pages.isError || gates.some((gate) => gate.isError);
-  const stale = refetchFailed || isStale(detail.as_of, readAt);
+  // One clock: how long this browser has held the answer. The clock of the server (`as_of`) is shown in the banner and never compared with this one.
+  const now = useNow();
+  const stale = refetchFailed || isStale(readAt, now);
   const version = t('pwf.flow.info.scheduleVersion.text', { version: detail.schedule_version });
   const retryAll = (): void => {
     if (schedule.isError) void schedule.refetch();

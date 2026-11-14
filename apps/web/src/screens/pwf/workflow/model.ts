@@ -7,14 +7,17 @@ import type { Band, GateAssessment, GateTarget, Schedule, TaskPage, WorkflowDeta
 type T = Translator['t'];
 export type Health = 'late' | 'attention' | 'hold' | 'ok' | 'none';
 
-/** What the server computed is read again when it is older than this by the time the screen read it (the figures of a cache that stopped refreshing are not today's). */
+/** The figures are read again when the screen has held them for longer than this (a screen left open, or a refresh that stopped: the figures are not today's). */
 export const STALE_AFTER_MS = 15 * 60_000;
 export const PAGE_SIZE = 50;
 
-/** The numbers of a workflow are stale when the instant the server computed them is much older than the moment the screen read them. */
-export function isStale(asOf: string, readAt: number, limit: number = STALE_AFTER_MS): boolean {
-  const at = Date.parse(asOf);
-  return !Number.isNaN(at) && readAt - at > limit;
+/**
+ * The numbers of a workflow are stale when the screen has held them for long: `readAt` (the moment the answer arrived) and `now` are both the clock of this browser. The instant the server says it computed them
+ * (`as_of`) is the clock of the SERVER and is never compared with the clock of the browser: the answer is computed at the request, so that difference measured only how far apart the two clocks are, and a server
+ * or a computer more than fifteen minutes off showed the banner on every fresh read (lane fix11). `as_of` is what the banner SHOWS, not what it is judged by.
+ */
+export function isStale(readAt: number, now: number, limit: number = STALE_AFTER_MS): boolean {
+  return readAt > 0 && now - readAt > limit;
 }
 
 // ---- health: how the tree, the board and the stepper say "late", "needs attention", "fine" --------------------------------------------------------------------------------

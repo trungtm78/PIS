@@ -51,11 +51,15 @@ describe('PWF-03 model: health', () => {
 });
 
 describe('PWF-03 model: freshness', () => {
-  it('says the figures are old when the server computed them long before they were read', () => {
-    expect(isStale('2026-11-12T03:00:00.000Z', Date.parse('2026-11-12T03:10:00.000Z'))).toBe(false);
-    expect(isStale('2026-11-12T03:00:00.000Z', Date.parse('2026-11-12T03:30:00.000Z'))).toBe(true);
-    expect(isStale('2026-11-12T03:00:00.000Z', Date.parse('2026-11-12T03:30:00.000Z'), 60 * 60_000)).toBe(false);
-    expect(isStale('not a date', Date.now())).toBe(false);
+  it('says the figures are old when the screen has held them for long, on the clock of the browser alone', () => {
+    const read = Date.parse('2026-11-12T03:00:00.000Z');
+    expect(isStale(read, read)).toBe(false);
+    expect(isStale(read, read + 10 * 60_000)).toBe(false);
+    expect(isStale(read, read + 30 * 60_000)).toBe(true);
+    expect(isStale(read, read + 30 * 60_000, 60 * 60_000)).toBe(false);
+    // Nothing was read yet (no moment of a read): nothing is said, and a clock that went back says nothing either.
+    expect(isStale(0, read)).toBe(false);
+    expect(isStale(read, read - 60 * 60_000)).toBe(false);
   });
 });
 
