@@ -12,7 +12,7 @@ import { PwfDeadlineReads } from '../src/pwf-deadline-reads';
 import { PwfRescheduleStore } from '../src/pwf-reschedule-store';
 import { pinPublishedCalendars } from '../src/pwf-schedule-support';
 import { PwfTaskReads } from '../src/pwf-task-reads';
-import { PwfTaskStore } from '../src/pwf-task-store';
+import { PwfTaskStore, refreshSchedule } from '../src/pwf-task-store';
 import { PwfWorkflowReads } from '../src/pwf-workflow-reads';
 import { PwfWorkflowStore } from '../src/pwf-workflow-store';
 import type { ScopeBuilder } from '../src/scope-version';
@@ -266,6 +266,36 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       const far = await start(p.id, { plannedStartDate: `${YEAR + 6}-03-02` });
       const rows = await owner<{ task_code: string; state: string; planned_start: string | null; missing_year: number | null }>('select task_code, state, planned_start::text as planned_start, missing_year from machvon.project_task where workflow_id = $1::uuid and not excluded', [far.id]);
       expect(rows.every((r) => r.state === 'CALENDAR_UNAVAILABLE' && r.planned_start === null && r.missing_year === YEAR + 6)).toBe(true);
+    });
+
+    it('R52: lays the days of a year that was published after the schedule was pinned at the next recomputation, keeps the pinned years at their versions, and stops saying the year is missing', async () => {
+      const p = await project();
+      const begin = `${YEAR + 2}-12-21`;
+      const late = await start(p.id, { plannedStartDate: begin });
+      const read = () => owner<{ task_code: string; state: string; planned_finish: string | null; missing_year: number | null }>('select task_code, state, planned_finish::text as planned_finish, missing_year from machvon.project_task where workflow_id = $1::uuid and not excluded', [late.id]);
+      const before = await read();
+      // The flow runs past the last published year: the tasks of the next year say which year is missing.
+      expect(before.some((row) => row.state === 'CALENDAR_UNAVAILABLE' && row.missing_year === YEAR + 3)).toBe(true);
+      const stored = async (): Promise<{ plannedStartDate: string; scheduleVersion: number; version: number; calendarPins: Array<{ year: number; version: number }> }> => {
+        const [row] = await owner<{ planned_start_date: string; schedule_version: number; version: number; calendar_pins: Array<{ year: number; version: number }> }>('select planned_start_date::text as planned_start_date, schedule_version, version, calendar_pins from machvon.project_workflow where id = $1::uuid', [late.id]);
+        return { plannedStartDate: row?.planned_start_date as string, scheduleVersion: Number(row?.schedule_version), version: Number(row?.version), calendarPins: row?.calendar_pins ?? [] };
+      };
+      expect((await stored()).calendarPins).toEqual([{ year: YEAR + 2, version: 1 }]);
+      await harness.owner(TENANT_A, [[
+        `insert into machvon.work_calendar_version (tenant_id, id, calendar_code, year, revision, working_days, holidays, compensated_workdays, legal_basis_ref, status, created_by, published_by, published_at)
+         values ($1, gen_random_uuid(), 'WORKDAY_VN', $2, 1, '[1,2,3,4,5]'::jsonb, '[]'::jsonb, '[]'::jsonb, 'Labour Code 2019', 'Published', $3, $3, now())`,
+        [TENANT_A, YEAR + 3, memberId(MANAGER)],
+      ]]);
+      try {
+        const workflow = await stored();
+        expect(await as((tx) => refreshSchedule(tx, { id: late.id, ...workflow }, p.id, memberId(MANAGER), begin))).toBe(true);
+        const after = await read();
+        expect(after.filter((row) => row.state === 'CALENDAR_UNAVAILABLE' || row.missing_year !== null)).toEqual([]);
+        expect(after.some((row) => row.planned_finish !== null && row.planned_finish.startsWith(String(YEAR + 3)))).toBe(true);
+        expect((await stored()).calendarPins).toEqual([{ year: YEAR + 2, version: 1 }, { year: YEAR + 3, version: 1 }]);
+      } finally {
+        await owner("delete from machvon.work_calendar_version where calendar_code = 'WORKDAY_VN' and year = $1", [YEAR + 3]);
+      }
     });
 
     it('keeps the workflow of a project as it was frozen when the template is approved again later (BR-PWF-02)', async () => {

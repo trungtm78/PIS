@@ -49,6 +49,27 @@ export async function pinPublishedCalendars(tx: TenantTx, fromYear: number): Pro
   return pinned;
 }
 
+/**
+ * The calendars a schedule that already has pins is computed on again (R32, R52): each pinned year at the version it was pinned at, whatever was published for that year since, and after the last pinned year the
+ * published calendars of the years that follow it without a gap. A year nobody had published when the schedule was pinned has no pin to keep: once it is published, the days of a long project that reach it are laid
+ * on it at the next recomputation instead of saying for ever that the year is missing. When the pins do not reach back to `fromYear` the years are pinned afresh from there.
+ */
+export async function pinnedThenPublished(tx: TenantTx, pins: readonly CalendarPin[], fromYear: number): Promise<PinnedCalendar[]> {
+  if (pins.length === 0 || (pins[0] as CalendarPin).year > fromYear) return pinPublishedCalendars(tx, fromYear);
+  const pinned = await loadPinnedCalendars(tx, pins);
+  const last = pinned[pinned.length - 1];
+  if (last === undefined || pinned.length >= MAX_CALENDAR_YEARS + 1) return pinned;
+  const later = await tx.query<CalendarSql>(
+    `select ${CALENDAR_COLUMNS} from machvon.work_calendar_version where calendar_code = $1 and status = 'Published' and year between $2::int and $3::int order by year`,
+    [WORK_CALENDAR_CODE, last.year + 1, (pinned[0] as PinnedCalendar).year + MAX_CALENDAR_YEARS],
+  );
+  for (const row of later) {
+    if (row.year !== (pinned[pinned.length - 1] as PinnedCalendar).year + 1) break;
+    pinned.push(toPinned(row));
+  }
+  return pinned;
+}
+
 /** The calendar versions a published schedule was computed on, whatever has been published since. */
 export async function loadPinnedCalendars(tx: TenantTx, pins: readonly CalendarPin[]): Promise<PinnedCalendar[]> {
   if (pins.length === 0) return [];
