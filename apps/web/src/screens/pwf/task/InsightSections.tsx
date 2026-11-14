@@ -9,12 +9,6 @@ import { historyWord, kpiFormula, kpiStateWord } from './labels';
 import { historyGroups, kpiInputs } from './model';
 import type { KpiResult } from './model';
 
-/** The first letters of the first and the last word of a name, for the mark beside an entry of the history. */
-export const initialsOf = (name: string): string => {
-  const words = name.trim().split(/\s+/).filter((word) => word !== '');
-  return ((words[0]?.[0] ?? '') + (words.length > 1 ? (words[words.length - 1]?.[0] ?? '') : '')).toUpperCase();
-};
-
 /** The log of the task, newest first: when, what happened in words, and the reason given with it. Closed until asked for. */
 export function HistorySection({ task }: { task: TaskDetail }) {
   const { t } = useTranslation();
