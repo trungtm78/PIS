@@ -5,6 +5,7 @@
 #   flow needs another mark of the loaded home, or to scroll). On the enterprise edition the heading is on the first screen and the sample was simply not within the budget on this emulator.
 # UAT 2026-11-13 (same AVD, software graphics, debug build of the merge of PR 2): 2 runs, 2 failed the wait. That was not only time: the heading below merged with the
 # texts of the alerts into one node, so this whole-text wait could match at no speed (fixed in the application: a heading is a node of its own). Not re-run; no verdict for a phone.
+# Lane fix11 (2026-11-15): the wait now matches the first block of the loaded home (its title), which is on the first screen for a leader and for an officer on both editions.
 # Supports: AC-ST-MOB-040-2 / UAT-NFR-PERFORMANCE-02, the 2.5 s budget of the main content after a cold start.
 # One run of this flow is ONE sample: it fails when the loaded content of the home screen is not visible within the budget, so a pass says "this sample
 # was within 2.5 s as seen by Maestro" (the polling of Maestro adds up to a few hundred ms: the verdict is made from the
@@ -16,9 +17,9 @@ appId: vn.machvon.app
 - launchApp:
     clearState: false
     stopApp: true
-# The heading "Cần bạn quyết định" of the alerts of the loaded home, not the tab label: the tab bar is drawn before the dashboard has its answer,
-# and the body of the home (context line, alerts, command block) is built only once it has. The figures below the alerts are not used: they can
-# be below the fold when three alert cards are shown.
+# The FIRST block of the loaded home, as the budget defines the mark ("the first frame of the main content of the home screen", docs/qa/perf-budget.json mobile.coldStart): the title of the
+# home, "Tổng quan" for a leader and "Việc hôm nay" for an officer (R53). Neither is the tab label: the tab bar is drawn before the home has its answer, and the title is drawn with the content, once the
+# answer came (on no loading and no failed screen). The heading "Cần bạn quyết định" was the mark before lane fix11: the block of the person's workflow tasks pushed it below the first screen.
 - extendedWaitUntil:
-    visible: 'Cần bạn quyết định'
+    visible: 'Tổng quan|Việc hôm nay'
     timeout: 2500

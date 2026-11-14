@@ -8,8 +8,8 @@
 #   dart run tool/device/perf_verdict.dart results/pixel-8a-android14/cold_start.csv
 #
 # For each run the application is force-stopped (a cold start: no process), started, and the screen is read with uiautomator until
-# the content of the loaded home screen is on it: the heading "Cần bạn quyết định" of the alerts on it, which is drawn only when the dashboard has its
-# answer (the tab label "Trang chủ" is on screen before that and would time the shell, not the main content). The time is
+# the first block of the loaded home screen is on it: its title, "Tổng quan" for a leader and "Việc hôm nay" for an officer (R53), which is drawn with the content, only when
+# the home has its answer (the tab label "Trang chủ" is on screen before that and would time the shell, not the main content). The time is
 # measured on this computer from the moment `am start` is issued to the moment the dump that contains the card was TAKEN, so the
 # sample includes the cost of one hierarchy dump (about 0.3 to 1 s on a phone): the figure is an UPPER bound on "cold start to the
 # main content". Each attempt deletes the dump of the attempt before it, in the same adb call that takes the new one, and reads the file
@@ -30,8 +30,9 @@ activity="vn.machvon.machvon_mobile.MainActivity"
 dump_path="/sdcard/machvon_cold.xml"
 # the pause after the force-stop, so the process is really gone before the start (the seconds can be shortened only to test this script)
 settle="${COLD_START_SETTLE_SECONDS:-3}"
-# the heading at the top of the loaded home (mob.alert.list.title.label): on no loading, empty or failed screen; a test keeps it equal to the string table
-marker="Cần bạn quyết định"
+# the title at the top of the loaded home (mob.home.leader.title for a leader, mob.home.officer.title for an officer): on no loading and no failed screen; a test keeps both equal to the string table.
+# An extended regular expression: either title is the mark.
+marker="Tổng quan|Việc hôm nay"
 adb_cmd=(adb)
 [ -n "$serial" ] && adb_cmd=(adb -s "$serial")
 
@@ -50,7 +51,7 @@ for run in $(seq 1 "$runs"); do
     "${adb_cmd[@]}" shell "rm -f $dump_path; uiautomator dump $dump_path" >/dev/null 2>&1 && dumped=1
     taken=$(now_ms)
     [ "$dumped" = 1 ] && screen=$("${adb_cmd[@]}" shell cat "$dump_path" 2>/dev/null || true)
-    if [ -n "$screen" ] && grep -q -- "$marker" <<<"$screen"; then
+    if [ -n "$screen" ] && grep -qE -- "$marker" <<<"$screen"; then
       echo "cold_start_main_content_ms,$label,$run,$((taken - start))"
       break
     fi
