@@ -280,3 +280,41 @@ Thuc te: Measured on the enterprise stack (MACHVON_EDITION=enterprise, devUser=o
 - TC-UAT-IND-A11-01: Found and fixed: the wrong-number errors of the figure entry (FiguresPanel) and the trial run (TryNumbers) were role=alert text beside the field with aria-invalid but NOT tied to it by aria-describedby (expected 'lỗi gắn aria-describedby'). Fixed in apps/web/src/screens/ind/FiguresPanel.tsx and TryNumbers.tsx (error ids + aria-describedby on the field, including the project and period ids); the vitest file asserts the description text of each field.
 - TC-UAT-INT-A11-01: Found and fixed: INT-02 call example <pre class=int-snippet> scrolls but was not keyboard focusable: axe scrollable-region-focusable (serious) on INT-02 at 1280 and 360 px in the real browser. Fixed in apps/web/src/screens/int/accounts/ScopesKeysScreen.tsx (tabIndex 0, role region, named by its heading); vitest regression in apps/web/src/screens/int/uatcase-a11y.test.tsx.
 
+
+## Xu ly tiep cac phat hien (lane cov1, 2026-11-14)
+
+Da sua san pham, ca nay mang ma tren test:
+
+| Ca | Da lam |
+| --- | --- |
+| TC-UAT-AC206 | Lenh chuyen giai doan o che do WARN tra `warnings: [{ code: NATIONAL_CODE_MISSING, detail: national_project_code }]`, cung dang voi PayPaymentWarning cua PAY (truoc day la chuoi NATIONAL_CODE_REQUIRED, ngoai hop dong, khong man nao doc). apps/api/test/prj/national-code.test.ts. Hop dong openapi cua lenh van la CommandResult (chua khai truong warnings): can them bang contract-patch. |
+| TC-UAT-AC334 | Dong sao ke khong co so chung tu la MISSING_DOCUMENT_NO (so sai dang van la DOCUMENT_NO_INVALID); nhan web va khoa dich them. apps/api/test/pay/treasury-import.test.ts. |
+| TC-UAT-PWF-01 | Vong phu thuoc trong kiem mau tra ma PWF_DEPENDENCY_CYCLE tai tasks[n].predecessors (luu quy tac van la GOVERNANCE_RULE_PARAMS_INVALID cung truong). |
+| TC-UAT-PWF-BND-12 | Nam danh sach hop dong khai tuy chon (legal_doc_types, form_templates, checklist, kpi_codes, when) vang mat la danh sach rong; bam cua mau khong doi. |
+| TC-UAT-PWF-03 | Viec khong tinh duoc ngay vi thieu lich nam co mau UNKNOWN (truoc day NONE/NO_DUE) o workflow, danh sach viec va bang deadline. |
+
+Da sua ca (ky vong cu trai so ma loi hoac hop dong), can cu ghi o `oracle_source` cua ca:
+
+| Ca | Sua |
+| --- | --- |
+| TC-UAT-ENT-NAR-01 | Lan hai la 409 NARRATIVE_NOTHING_TO_INHERIT (error_codes.json: 409, statusBasis spec), khong phai 422. |
+| TC-UAT-HUB-AGT-01 | Bo ket noi la trong than lenh la 422 VALIDATION_FAILED neu connectors (openapi registerHubAgent); 404 chi cho tac tu tren duong dan. |
+
+Can chu nghiep vu quyet dinh (khong sua, khong gan ma):
+
+| Ca | Viec can quyet |
+| --- | --- |
+| TC-UAT-AC108 | Khach nha thau co duoc doc danh sach du an cua hop dong minh khong (hien 403: vai GUEST_CONTRACTOR khong co project.read). Doi mo hinh quyen. |
+| TC-UAT-AC148 | Chi tiet cua 409 TENANT_STATE_INVALID la chuyen trang thai ("Active->Archived") hay chi trang thai hien tai ("Active"). De nghi sua ca theo san pham. |
+| TC-UAT-AC159, TC-UAT-AC204 | Vi pham schema cua than lenh la 422 VALIDATION_FAILED neu truong tren toan API (request-validation.ts); ca doi 400 INVALID_REQUEST (AC159) va 422 SCORE_OUT_OF_RANGE scores[0].score (AC204). De nghi sua ca; hoac bo maximum khoi schema de quy tac nghiep vu tra ma rieng. |
+| TC-UAT-AC174 | Danh sach tenant thieu governing_body_type (chi co o chi tiet). Sua nho nhung doi schema TenantSummary cua hop dong: can contract-patch. |
+| TC-UAT-AC10 | Su kien khac ma cung chung tu VA cung noi dung: san pham tra ket qua lan dau (AC-ST-PAY-006-3: dedupe theo khoa nghiep vu), ca ghi 409. Test do nhanh "noi dung khac" (409). Can chot nhanh "cung noi dung". |
+| TC-UAT-AC187, TC-UAT-PLAN-49 | San pham khong co buoc nha cung cap duyet mau (ZNS) va khong luu provider_template_id: buoc 4 cua AC187 va toan bo PLAN-49 la tinh nang thieu. |
+| TC-UAT-NFR-SECURITY-01 | Ba lenh bi tu choi bang ma rieng (422 SYSTEM_PERMISSION_NOT_GRANTABLE, 403 SELF_GRANT_DENIED, 403 SELF_APPROVAL_DENIED), ca doi ca ba 403 SCOPE_DENIED. De nghi sua ca. |
+| TC-UAT-NFR-SECURITY-02 | publishSystemTenantTheme khong nam trong danh sach step-up MFA. Lo hong so voi dac ta: can them x-step-up vao hop dong (contract-patch) roi sinh lai permissions. |
+| TC-UAT-NFR-SECURITY-08 | 400 FIELD_NOT_ALLOWED (quy uoc cua API) so voi 400 INVALID_REQUEST; khong co PATCH du an. De nghi sua ca. |
+| TC-UAT-NFR-PRIVACY-03 | Khong co doi tuong yeu cau cua chu the du lieu (RECEIVED, IN_PROGRESS, COMPLETED_PARTIAL): tinh nang thieu. |
+| TC-UAT-NFR-PRIVACY-04 | Ma hien la D07_APPROVAL_REQUIRED, ca ghi TRANSFER_ASSESSMENT_REQUIRED (co trong so ma loi, khong ai dung). Chon mot ma. |
+| TC-UAT-NFR-RETENTION-03 | Khong co thao tac xoa tenant va chung nhan xoa (R1 lam tay): tinh nang thieu. |
+| TC-UAT-IND-BND-01 | Kiem bien 0..100 cua chi tieu chi chay khi tenant da duyet DATA_ENTRY_RULE; mac dinh co nen chan khong. |
+| TC-UAT-ENT-A11-01 | Dau trang cua vo PWA co muc tieu cham 34-36 px (duoi 44 px). Sua giao dien, can do lai bang trinh duyet. |
