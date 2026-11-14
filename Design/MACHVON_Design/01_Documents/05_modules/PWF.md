@@ -526,3 +526,49 @@ Căn cứ: lượt chụp màn hình `docs/pwf-screens/README.md` (khiếm khuy�
 - **PWF-02.** Khung soạn một việc chia sáu tab con: Thông tin · Thời hạn và phụ thuộc · Chứng từ và biểu mẫu · Danh mục kiểm · KPI · Căn cứ. Lỗi của tab đang ẩn được đếm trên tab. Tab cấp màn là Cấu trúc · Bước và căn cứ pháp lý · Vai trò · Kiểm tra và xem trước. **Lý do không đặt Căn cứ pháp lý, Biểu mẫu, KPI thành tab cấp màn:** ba loại dữ liệu này khai theo TỪNG việc (căn cứ của bước đã có tab riêng); tab cấp màn sẽ tách chúng khỏi việc mà chúng mô tả và buộc người soạn chọn lại việc ở mỗi tab. Đặt thành tab con của việc thì người soạn chọn việc một lần và tab đang mở được giữ khi chuyển sang việc khác.
 - **PWF-04.** Phần tóm tắt (tên, vị trí, trạng thái, màu hạn, hạn, nút hành động) dính ở đầu trang khi cuộn (`position: sticky; top: 0`); thanh trên của shell nằm trong luồng trang và cuộn đi nên không chồng lên nhau; từ 720 px trở xuống và khi in thì không dính. Tab KPI luôn có: người không có quyền thấy thẻ "Bạn không có quyền xem KPI của công việc này" (trạng thái `denied` của `design.md`), không nêu tên hay số liệu nào.
 - **PWF-11, PWF-13.** Bảng điểm chia tab: Điểm · Theo việc · Điều chỉnh và phản hồi · So sánh kỳ (PWF-11: mỗi kỳ có ba tab đầu, "So sánh kỳ" là tab cấp màn).
+
+## 19. Sửa sau lượt chụp ảnh thật lần hai (làn `fix10`, 14/11/2026)
+
+Nguồn: mục "Khiếm khuyết còn lại" của `docs/pwf-screens/README.md` (lượt chụp của làn `shots2`). Mọi thay đổi là mở rộng tương thích ngược; ảnh chụp (snapshot) và băm của kỳ đã chốt không đổi.
+
+### 19.1 R50: bản nháp chấm điểm cắt tại ngày tính; việc còn trong hạn không bị chấm
+
+- **Vấn đề.** Kỳ tính giữa quý đọc mọi việc còn mở tại NGÀY CUỐI kỳ (một ngày chưa tới), nên việc chưa đến hạn bị coi là trễ và nhận 0 điểm; cả đơn vị 3 đến 14 điểm trên 100.
+- **Căn cứ.** `docs/pwf-research.md` Phần B: OKR chấm theo kết quả đã có tại thời điểm rà soát, không chấm phần chưa đến hạn; SAP SuccessFactors và Workday tách bản nháp trong kỳ (số tạm tính) với bản chốt cuối kỳ, và việc chốt là một bước riêng có người chịu trách nhiệm.
+- **Quy tắc.** Mốc cắt của số liệu = min(ngày tính, ngày cuối kỳ) theo giờ Việt Nam (`cutoffOf`). Tại mốc cắt: việc đã xong đọc theo kết quả KPI đã ghi; việc đã trình chờ duyệt đọc như đã xong vào ngày trình; việc còn mở mà mốc cắt ĐÃ QUA hạn được chấm như đang trễ; việc còn mở mà mốc cắt CHƯA QUA hạn (cả đường cơ sở đầu và đường cơ sở hiện hành; đúng ngày hạn chưa phải là trễ) mang trạng thái `NOT_DUE`: không KPI nào được tính, không vào tử số, không vào mẫu số, và được nêu tên ở từng người giữ việc với lý do "Chưa đến hạn, chưa chấm". Người chỉ có việc `NOT_DUE` là `NOT_RATED`, không có điểm. Tín hiệu "chuyển người sát hạn" không xét việc `NOT_DUE`.
+- **Kỳ chưa bắt đầu** (ngày tính trước ngày đầu kỳ): từ chối 422 `VALIDATION_FAILED` (`period_from`).
+- **Chốt kỳ.** Chốt SAU ngày cuối kỳ: mốc cắt là ngày cuối kỳ, không cần lý do. Chốt khi kỳ chưa hết (kể cả đúng ngày cuối kỳ): 409 `STAFF_SCORE_PERIOD_NOT_ENDED` (kèm `period_to`), trừ khi người chốt nêu `early_reason` đủ độ dài tối thiểu của chính sách (`calibration.min_reason_length`; thiếu thì 422 `early_reason`). Chốt sớm cắt tại ngày chốt, việc còn trong hạn giữ `NOT_DUE`, lý do vào dòng audit (`reason`) và KHÔNG vào sự kiện (sự kiện chỉ có mã, ngày, trạng thái, thêm `as_of` và `early`).
+- **Dữ liệu.** Không thêm cột. `staff_score_period.summary` (jsonb, ngoài băm) thêm `as_of`, `not_due_tasks`, `early_lock`. Đầu vào của ảnh chụp không đổi hình dạng: việc `NOT_DUE` là một `SnapshotTask` có `state = NOT_DUE`, `kpi = []`; kỳ chốt sau ngày cuối kỳ không có việc nào như vậy nên ảnh chụp và băm giống trước. `verify` tái lập được cả kỳ chốt sớm.
+- **API.** `StaffScorePeriod` thêm `computed_as_of`, `provisional`, `not_due_task_count`, `early_lock`; `StaffScorePeriodPreview` thêm `not_due_task_count`; `lockStaffScorePeriod` nhận thân tùy chọn `StaffScorePeriodLockRequest {early_reason}`; mã lỗi mới `STAFF_SCORE_PERIOD_NOT_ENDED` (409).
+- **Giao diện.** PWF-14 và PWF-12: dòng "Tạm tính đến ngày dd/mm/yyyy" kèm số việc còn trong hạn chưa chấm; kỳ chốt sớm ghi "Kỳ được chốt sớm, số liệu tính đến ngày…"; hộp xác nhận chốt sớm bắt buộc lý do (từ 20 ký tự). Lý do loại trừ `NOT_DUE` đọc là "Chưa đến hạn, chưa chấm".
+- **Seed.** `clip-public-pwf-review` và hai nhóm `phone-work` chốt kỳ của quý đang chạy bằng chốt sớm có lý do.
+- **Kiểm thử.** `workflow-kpi.test.ts` (NOT_DUE ngoài mẫu số, tín hiệu); `pwf-score-store.test.ts` nhóm R50 (giữa kỳ, cuối kỳ, việc trong hạn, người chỉ có việc trong hạn, chốt sớm, tái lập); `staff-score.test.ts` nhóm R50 (HTTP, audit, sự kiện); `PeriodScreen.test.tsx`.
+
+### 19.2 R51: "Việc của tôi" liệt kê việc đã xong gần đây
+
+`getMyTasks?status=DONE` trả việc người gọi đã HOÀN THÀNH: việc `DONE` mà sổ phân công giao cho người đó (RESPONSIBLE hoặc ACCOUNTABLE) VÀO NGÀY hoàn thành (việc đã chuyển người trước đó thuộc về người hoàn thành), trong `done_window_days` = 90 ngày gần đây, mới nhất trước, phân trang theo con trỏ (ngày hoàn thành, id), `total` là số đếm chính xác. Mỗi dòng có `finished_on`; việc đã xong không có màu (`band = NONE`, `personal_band = null`); lọc màu cùng `status=DONE` là 422. Danh sách việc còn mở không đổi. Điện thoại (MOB-80, tab "Đã xong") và web (PWF-15, nút "Đã xong gần đây") đọc đúng nguồn này khi mở tab, ghi "Hoàn thành dd/mm/yyyy · đúng hạn / trễ hạn".
+
+### 19.3 R52: năm lịch được công bố sau khi lịch dự án đã ghim
+
+- **Nguyên nhân của "thiếu lịch làm việc năm 2029" ở PWF-06 dù ADM-07 có lịch 2029.** Khi tính lại lịch theo tiến độ (`refreshSchedule`), hệ thống chỉ nạp các phiên bản lịch ĐÃ GHIM của workflow. Năm chưa được công bố lúc ghim thì không có ghim; sau này năm đó được công bố, lần tính lại vẫn không thấy và việc rơi vào năm đó mãi báo `CALENDAR_UNAVAILABLE`.
+- **Quy tắc (bổ sung R32).** Lịch ghim theo từng năm: năm đã ghim giữ nguyên phiên bản đã ghim, dù năm đó có bản công bố mới; các năm liền sau năm ghim cuối cùng được nối thêm bằng bản đang công bố (`pinnedThenPublished`), và bộ ghim mới được lưu cùng phiên bản lịch. Khoảng trống năm vẫn dừng dãy (không đoán ngày). Đề nghị dời lịch vốn đã ghim lại từ đầu.
+- **Giới hạn đã biết.** Việc nối năm xảy ra ở lần tính lại kế tiếp (bắt đầu hoặc hoàn thành một việc, hoặc dời lịch); một workflow không có sự kiện nào sau khi năm được công bố giữ trạng thái cũ cho đến sự kiện kế tiếp. Chưa có bộ tiêu thụ sự kiện `adm.work_calendar.published.v1` để tính lại ngay.
+- **Seed.** `clip-public-pwf-review` công bố lịch của bốn năm (năm nay đến +3) trước khi lập workflow.
+
+### 19.4 Các quyết định khác
+
+- **KPI của một việc (PWF-04).** Bản đọc chi tiết việc không mang kết quả KPI; tab KPI gọi `listTaskKpiResults` khi được mở và phân biệt ba câu trả lời: 403 là "không có quyền", trang rỗng là "chưa có kết quả" (kết quả có khi việc xong hoặc bị hủy), lỗi khác là lỗi kèm nút thử lại.
+- **Bảng deadline (PWF-07).** Danh sách theo trang: luôn ghi "Đang hiện N trên M", nút "Xem thêm" nạp trang kế theo con trỏ và nói còn bao nhiêu việc chưa hiện; bỏ băng cảnh báo "Danh sách bị cắt". `exportDeadlineBoard` (`GET /pwf/deadlines/export`, quyền `pwf.read`, xlsx hoặc csv) xuất ĐỦ M việc theo bộ lọc, chỉ màu chính thức, ghi audit `pwf.deadlines_exported` (số dòng, định dạng, băm); trên 10.000 việc thì 422 (lọc hẹp hơn), không cắt âm thầm.
+- **Tên thay cho mã.** Loại dự án của mẫu (PWF-01) đọc tên từ danh mục dùng chung `PROJECT_TYPE`, mã là chú thích; tiêu đề khung soạn việc (PWF-02) và sổ phân công (PWF-16) là TÊN việc, mã ở dòng phụ; tín hiệu của kỳ (PWF-14) có `flags[].tasks[] {code, name}` (tên tra theo việc người đó giữ; ảnh chụp không đổi); tab Kế hoạch của PRJ-03 ghi tên mốc trước, mã ở dòng phụ, ngày dạng dd/mm/yyyy.
+- **Bộ định dạng chung của web** (`apps/web/src/i18n/format.ts`): `decimalText` (dấu thập phân theo ngôn ngữ: 8,06) và `dayMonthYear`; điểm ở mọi màn PWF dùng `decimalText`, trùng cách viết của điện thoại.
+- **PWF-09** chia bốn tab (Danh mục KPI · Thang điểm · Áp dụng cho mẫu và việc · Phiên bản), có ô tìm KPI theo tên hoặc mã và dòng "Đang hiện n trên m KPI"; lỗi ở tab đang ẩn được đếm trên tab.
+- **Bảng ở màn hẹp.** `DataTable` có thuộc tính `stacked`: từ 640 px trở xuống mỗi hàng là một thẻ (cột đầu là tiêu đề, các ô còn lại là dòng "nhãn: giá trị"). Bật cho PWF-01, PWF-07, PWF-11, PWF-12, PWF-13; bảng công việc của workflow (PRJ-03, PWF-03) xếp thẻ theo cùng cách.
+- **Hộp "i" của số liệu** cao tối đa 70% khung nhìn, phần nội dung cuộn bên trong, nút Đóng luôn thấy.
+- **R53: trang chủ điện thoại theo thẩm quyền.** Tab Trang chủ đọc `getMyEffectiveAccess` trước: người có quyền quyết định cho một phạm vi (`approval.decide` hoặc `committee.read`, qua vai trò hoặc ủy quyền đang hiệu lực) nhận bố cục lãnh đạo; người không có nhận "Việc hôm nay" (MOB-08: việc của chính mình, xếp theo hạn) và không đọc số liệu toàn phạm vi. Không đọc được thẩm quyền thì giữ bố cục cũ.
+- **Hộp Phê duyệt.** Mỗi việc chờ duyệt mang `initiator.name` và `submitted_at`; hàng trên điện thoại thêm dòng "Người trình: … · trình ngày …". Câu trạng thái rỗng của Phê duyệt và Thông báo là câu riêng. Chi tiết văn bản đến (`?doc=`) ẩn thanh đáy như mọi màn chi tiết. Nhãn tab đáy luôn một dòng.
+- **Seed phê duyệt bản công.** Nhóm `clip-public-approvals` công bố quy trình duyệt của loại nghiệp vụ `score.response` (một bước, chủ sở hữu quyết định) và một phản hồi về điểm của cán bộ, để hộp Phê duyệt của điện thoại có hồ sơ chờ; không đổi quy tắc của kịch bản nào khác.
+
+### 19.5 Chưa làm trong làn này
+
+- Yêu cầu hoàn thành việc workflow, đề nghị dời lịch và điều chỉnh điểm vẫn được duyệt ở màn riêng của PWF; chúng CHƯA vào hộp Phê duyệt chung (MOB-23/24 và web). Trong PWF chỉ phản hồi về điểm (`score.response`) đi qua bộ máy duyệt chung.
+- Hàng Phê duyệt chưa nêu "kỳ" của hồ sơ (bộ máy duyệt chưa có nhãn chủ đề theo từng loại tài nguyên); hiện phân biệt bằng người trình, ngày trình và đơn vị.
