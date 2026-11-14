@@ -7,12 +7,18 @@ import 'package:machvon_api_client/machvon_api_client.dart' show HttpCall;
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/widgets/bottom_nav.dart' show AppBottomNav;
 import 'package:machvon_mobile/core/widgets/work_row.dart' show GroupHeader;
+import 'package:machvon_mobile/features/approval_inbox/approval_strings.dart';
 import 'package:machvon_mobile/features/dashboard/dashboard_feature.dart' as dashboard;
+import 'package:machvon_mobile/features/notification_inbox/notification_strings.dart';
+import 'package:machvon_mobile/features/project_workflow/pwf_strings.dart';
 import 'package:machvon_mobile/features/dashboard/screens/leader_home_screen.dart';
 
 import '../../support/harness.dart';
 import '../support/screen_contract.dart';
 import '../support/scripted_server.dart';
+import '../approval_inbox/approval_fixtures.dart' as apv show approvalTask, page;
+import '../notification_inbox/notification_fixtures.dart' show idRead, idUnread, notification, notificationsPage;
+import '../project_workflow/pwf_fixtures.dart' show band, myTask, myTasksJson;
 import 'dashboard_fixtures.dart';
 
 /// The approval detail is another story's screen here: a stub that takes the task id, so the link can be followed.
@@ -20,16 +26,25 @@ const MobileFeature _approvalStub = MobileFeature(id: 'stub', screens: <ScreenSp
 
 Widget _stub(BuildContext context, ScreenContext screen) => Text('task ${screen.pathParameters['taskId']}');
 
+/// The words of the parts the home of an officer shows from other features (their tasks, their approvals, their notifications); the screens of those features are not mounted here.
+const List<MobileFeature> _words = <MobileFeature>[
+  MobileFeature(id: 'words-pwf', strings: pwfStrings),
+  MobileFeature(id: 'words-apv', strings: approvalStrings),
+  MobileFeature(id: 'words-ntf', strings: notificationStrings),
+];
+
 Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, String location, {Locale locale = const Locale('vi')}) =>
-    pumpWithServer(tester, features: <MobileFeature>[dashboard.feature, _approvalStub], server: server, location: location, locale: locale);
+    pumpWithServer(tester, features: <MobileFeature>[dashboard.feature, _approvalStub, ..._words], server: server, location: location, locale: locale);
 
 void _healthyCenter(ScriptedServer server) => server.on('GET', '/home/command-center', (_) => commandCenter());
 
 void main() {
-  group('AC-ST-MOB-040-2 UAT-NFR-PERFORMANCE-02 the marker the cold start is timed to is on the home screen only once its content is loaded', () {
-    const String marker = 'Số liệu và công thức';
+  group('AC-ST-MOB-040-2 UAT-NFR-PERFORMANCE-02 the marker the cold start is timed to is the first block of the home screen, drawn only once its content is loaded', () {
+    // The title of the home of a leader and of the home of an officer: each is the first thing of the loaded content, at the top of the first screen (docs/qa/perf-budget.json, mobile.coldStart).
+    const String leaderMarker = 'Tổng quan';
+    const String officerMarker = 'Việc hôm nay';
 
-    testWidgets('not while the answer is awaited, not when it failed, and there when it came', (WidgetTester tester) async {
+    testWidgets('the home of a leader: not while the answer is awaited, and there, at the top, when it came', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final Completer<void> slow = Completer<void>();
       final ScriptedServer waiting = ScriptedServer()
@@ -38,18 +53,38 @@ void main() {
           return FakeTransport.json(200, commandCenter());
         });
       await _open(tester, waiting, '/home');
-      expect(find.text(marker), findsNothing, reason: 'the screen is on its loading state');
+      expect(find.text(leaderMarker), findsNothing, reason: 'the screen is on its loading state');
 
       slow.complete();
       await tester.pumpAndSettle();
-      expect(find.text(marker), findsOneWidget);
+      expect(find.text(leaderMarker), findsOneWidget);
+      expect(tester.getTopLeft(find.text(leaderMarker)).dy, lessThan(400), reason: 'on the first screen whatever blocks follow it');
     });
 
     testWidgets('a server that refuses leaves the marker out', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer refusing = ScriptedServer()..refuse('GET', '/home/command-center', 500, 'INTERNAL_ERROR');
       await _open(tester, refusing, '/home');
-      expect(find.text(marker), findsNothing);
+      expect(find.text(leaderMarker), findsNothing);
+      expect(find.text(officerMarker), findsNothing);
+    });
+
+    testWidgets('the home of an officer: the title comes with the content, not while its parts are awaited', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final Completer<void> slow = Completer<void>();
+      final ScriptedServer waiting = ScriptedServer()
+        ..on('GET', '/me/effective-access', (_) => <String, Object?>{'membership_id': 'm', 'scope_version': 1, 'grants': <Object?>[], 'home_audience': 'OFFICER'})
+        ..answer('GET', '/me/project-tasks', (HttpCall call) async {
+          await slow.future;
+          return FakeTransport.json(200, myTasksJson());
+        });
+      await _open(tester, waiting, '/home');
+      expect(find.text(officerMarker), findsNothing, reason: 'the parts are still being read');
+
+      slow.complete();
+      await tester.pumpAndSettle();
+      expect(find.text(officerMarker), findsOneWidget);
+      expect(tester.getTopLeft(find.text(officerMarker)).dy, lessThan(400));
     });
   });
 
@@ -326,50 +361,96 @@ void main() {
     });
   });
 
-  group('R53 the home tab is laid out for who is signed in: by the authority the server says they hold', () {
-    Map<String, Object?> access(List<String> permissions, {String state = 'ACTIVE', List<Map<String, Object?>> delegations = const <Map<String, Object?>>[]}) => <String, Object?>{
+  group('R53 the home tab is laid out for who is signed in: the server says who (lane fix11)', () {
+    Map<String, Object?> access(List<String> permissions, {String? audience, String state = 'ACTIVE', String scope = 'TENANT', List<Map<String, Object?>> delegations = const <Map<String, Object?>>[]}) => <String, Object?>{
           'membership_id': '7f3a0000-0000-4000-8000-000000000001',
           'scope_version': 3,
           'grants': <Map<String, Object?>>[
-            <String, Object?>{'id': 'g1', 'role_code': 'X', 'permissions': permissions, 'state': state},
+            <String, Object?>{'id': 'g1', 'role_code': 'X', 'permissions': permissions, 'state': state, 'scope_kind': scope},
           ],
           'delegations_in': delegations,
+          'home_audience': ?audience,
         };
     ScriptedServer serverFor(Map<String, Object?> body) => ScriptedServer()
       ..on('GET', '/me/effective-access', (_) => body)
       ..on('GET', '/home/command-center', (_) => commandCenter())
-      ..on('GET', '/home/my-work', (_) => myWork(<Map<String, Object?>>[workItem('w-own', 'REPORT_DRAFT_OVERDUE', 'OVERDUE', late: 2, title: 'Nháp tuần 43')]));
+      ..on('GET', '/home/my-work', (_) => myWork(<Map<String, Object?>>[workItem('w-own', 'REPORT_DRAFT_OVERDUE', 'OVERDUE', late: 2, title: 'Nháp tuần 43')]))
+      ..on('GET', '/me/project-tasks', (_) => <String, Object?>{
+            ...myTasksJson(items: <Map<String, Object?>>[myTask('7f3a0000-0000-4000-8000-000000000032', 'Nộp báo cáo giải ngân tháng 10', official: band('RED', days: -1), due: '2026-11-11')]),
+            'counts_by_band': <String, Object?>{'RED': 1, 'YELLOW': 0, 'GREEN': 0},
+          })
+      ..on('GET', '/resources/approval_task', (_) => apv.page(<Object?>[apv.approvalTask('t-1', businessType: 'score.response', step: 'Xem xét phản hồi', initiator: 'Phạm Quốc Dũng')]))
+      ..on('GET', '/me/notifications', (_) => notificationsPage(<Map<String, Object?>>[notification(idUnread, ack: true), notification(idRead, readAt: '2026-10-31T09:00:00Z')]));
+    Iterable<String> paths(ScriptedServer server) => server.calls.map((HttpCall call) => call.url.path.replaceFirst('/v1', ''));
 
-    testWidgets('an officer (reads the home, decides nothing) gets "Việc hôm nay" with their own work by deadline, and neither the province-wide band nor what waits for a leader', (WidgetTester tester) async {
+    testWidgets('an officer of the project board who READS the committee and the home, and decides nothing, gets "Việc hôm nay": their tasks, the approvals that wait for them and their unread notifications', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
-      final ScriptedServer server = serverFor(access(<String>['home.read', 'pwf.task.work', 'rpt.read']));
+      final ScriptedServer server = serverFor(access(<String>['home.read', 'committee.read', 'pwf.task.work', 'rpt.read'], audience: 'OFFICER'));
       await _open(tester, server, '/home');
-      expect(find.text('Việc hôm nay'), findsWidgets);
-      expect(find.text('Nháp tuần 43'), findsOneWidget);
+      expect(find.text('Việc hôm nay'), findsOneWidget);
+      expect(find.text('Nộp báo cáo giải ngân tháng 10'), findsOneWidget);
+      expect(find.text('Chờ bạn phê duyệt'), findsOneWidget);
+      expect(find.text('Phản hồi về điểm đánh giá'), findsOneWidget);
+      expect(find.textContaining('Người trình: Phạm Quốc Dũng'), findsOneWidget);
+      expect(find.text('Thông báo chưa đọc'), findsWidgets);
       expect(find.text('Cần bạn quyết định'), findsNothing);
-      expect(find.text('Số liệu và công thức'), findsNothing);
-      expect(server.calls.where((call) => call.url.path.replaceFirst('/v1', '') == '/home/command-center'), isEmpty, reason: 'the figures of the whole scope are not even read for an officer');
-      expect(server.calls.where((call) => call.url.path.replaceFirst('/v1', '') == '/home/my-work').first.url.queryParameters['view'], 'mine');
+      expect(find.text('Tổng quan'), findsNothing);
+      // The count of the Notifications tab is the shell's own read (it draws no badge when refused); the screen itself asks for nothing that needs home.read.
+      expect(paths(server).where((String path) => path.startsWith('/home/') && path != '/home/my-work/counts'), isEmpty, reason: 'neither the figures of the scope nor the alerts are read');
+      expect(server.callsTo('GET', '/resources/approval_task').single.url.queryParameters, containsPair('mine', 'true'));
     });
 
-    testWidgets('a person who may decide approvals, by a grant, a pattern or a delegation in force, gets the leader home', (WidgetTester tester) async {
+    testWidgets('a person the server refuses every part to gets the title and "nothing waits", never an error for the whole screen', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer()
+        ..on('GET', '/me/effective-access', (_) => access(<String>['treasury.confirm_manual'], audience: 'OFFICER'))
+        ..refuse('GET', '/me/project-tasks', 403, 'SCOPE_DENIED')
+        ..refuse('GET', '/resources/approval_task', 403, 'SCOPE_DENIED')
+        ..refuse('GET', '/me/notifications', 403, 'SCOPE_DENIED');
+      await _open(tester, server, '/home');
+      expect(find.text('Việc hôm nay'), findsOneWidget);
+      expect(find.text('Hôm nay bạn đã xong việc'), findsOneWidget);
+      expect(find.textContaining('SCOPE_DENIED'), findsNothing);
+      expect(find.text('Việc theo hạn của tôi'), findsNothing, reason: 'a part the person has no right to is not drawn at all');
+      expect(find.text('Chờ bạn phê duyệt'), findsNothing);
+    });
+
+    testWidgets('a part that fails is named with its own retry and the other parts stay', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = serverFor(access(<String>['pwf.task.work'], audience: 'OFFICER'))..refuse('GET', '/resources/approval_task', 500, 'INTERNAL_ERROR');
+      await _open(tester, server, '/home');
+      expect(find.text('Nộp báo cáo giải ngân tháng 10'), findsOneWidget);
+      expect(find.text('Chờ bạn phê duyệt'), findsOneWidget);
+      expect(find.text('Chưa đọc được phần này. Các phần khác vẫn đúng.'), findsOneWidget);
+      expect(find.text('Hôm nay bạn đã xong việc'), findsNothing);
+    });
+
+    testWidgets('the leader home is for who the server says leads; a server that does not say it yet is judged by approval.decide over a unit or wider, never by committee.read', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       for (final Map<String, Object?> body in <Map<String, Object?>>[
+        access(<String>['home.read'], audience: 'LEADER'),
         access(<String>['home.read', 'approval.decide']),
-        access(<String>['home.*', 'approval.*']),
-        access(<String>['home.read'], delegations: <Map<String, Object?>>[<String, Object?>{'id': 'd1', 'permissions': <String>['approval.decide'], 'state': 'ACTIVE'}]),
-        access(<String>['home.read', 'committee.read']),
+        access(<String>['home.*', 'approval.*'], scope: 'UNIT_SUBTREE'),
+        access(<String>['home.read'], delegations: <Map<String, Object?>>[<String, Object?>{'id': 'd1', 'permissions': <String>['approval.decide'], 'state': 'ACTIVE', 'scope_kind': 'UNIT_ONLY'}]),
       ]) {
         await _open(tester, serverFor(body), '/home');
         expect(find.text('Số liệu và công thức'), findsOneWidget);
         expect(find.text('Việc hôm nay'), findsNothing);
       }
+      for (final Map<String, Object?> body in <Map<String, Object?>>[
+        access(<String>['home.read', 'committee.read']),
+        access(<String>['home.read', 'approval.decide'], scope: 'PROJECT'),
+        access(<String>['approval.decide'], state: 'EXPIRED'),
+        access(<String>['home.read', 'approval.decide'], audience: 'OFFICER'),
+      ]) {
+        await _open(tester, serverFor(body), '/home');
+        expect(find.text('Việc hôm nay'), findsOneWidget);
+        expect(find.text('Số liệu và công thức'), findsNothing);
+      }
     });
 
-    testWidgets('a grant that is not in force gives no authority, and an answer that cannot be read keeps the layout the tab always had', (WidgetTester tester) async {
+    testWidgets('an answer that cannot be read keeps the layout the tab always had', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
-      await _open(tester, serverFor(access(<String>['approval.decide'], state: 'EXPIRED')), '/home');
-      expect(find.text('Việc hôm nay'), findsWidgets);
       final ScriptedServer broken = ScriptedServer()
         ..refuse('GET', '/me/effective-access', 500, 'INTERNAL_ERROR')
         ..on('GET', '/home/command-center', (_) => commandCenter());

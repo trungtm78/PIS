@@ -246740,6 +246740,14 @@
               "type": "object"
             }
           },
+          "home_audience": {
+            "type": "string",
+            "enum": [
+              "LEADER",
+              "OFFICER"
+            ],
+            "description": "Who the home is laid out for (R53): LEADER when the person decides approvals for a unit or wider, or is the head or a deputy of the steering committee; OFFICER otherwise. A right to read never makes a leader."
+          },
           "entitlement_hash": {
             "type": "string"
           }

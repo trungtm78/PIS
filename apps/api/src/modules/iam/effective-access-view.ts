@@ -1,4 +1,6 @@
 import type { MyDelegation, MyGrant, ScopeUnit } from '@machvon/db';
+import { homeAudienceOf } from '@machvon/kernel';
+import type { HomeAudience } from '@machvon/kernel';
 
 export type GrantState = 'ACTIVE' | 'EXPIRED' | 'FUTURE';
 
@@ -38,6 +40,8 @@ export interface EffectiveAccessDto {
   scope_version: number;
   grants: GrantDto[];
   delegations_in: DelegationDto[];
+  /** Who the home is laid out for (R53): judged here from the authorities in force and the place in the steering committee, never by a screen. */
+  home_audience: HomeAudience;
   entitlement_hash?: string;
 }
 
@@ -47,6 +51,8 @@ export interface EffectiveAccessInput {
   grants: readonly MyGrant[];
   delegations: readonly MyDelegation[];
   entitlementHash?: string;
+  /** The place the person holds in the steering committee today (HEAD, DEPUTY, MEMBER, SECRETARIAT), or null. */
+  committeeRole?: string | null;
   now: Date;
 }
 
@@ -69,6 +75,13 @@ export function stateOf(grant: Pick<MyGrant, 'view' | 'storedStatus'>, now: Date
 export function effectiveAccessView(input: EffectiveAccessInput): EffectiveAccessDto {
   const { now } = input;
   const at = now.getTime();
+  const home_audience = homeAudienceOf({
+    authorities: [
+      ...input.grants.filter((grant) => stateOf(grant, now) === 'ACTIVE').map((grant) => ({ permissions: grant.view.permissions, scopeKind: grant.scopeKind })),
+      ...input.delegations.filter((delegation) => delegation.validFrom.getTime() <= at && at < delegation.validUntil.getTime()).map((delegation) => ({ permissions: delegation.permissions, scopeKind: delegation.scopeKind })),
+    ],
+    committeeRole: input.committeeRole ?? null,
+  });
   return {
     membership_id: input.membershipId,
     scope_version: input.scopeVersion,
@@ -95,6 +108,7 @@ export function effectiveAccessView(input: EffectiveAccessInput): EffectiveAcces
       valid_until: delegation.validUntil.toISOString(),
       state: delegation.validFrom.getTime() > at ? 'FUTURE' : 'ACTIVE',
     })),
+    home_audience,
     ...(input.entitlementHash === undefined ? {} : { entitlement_hash: input.entitlementHash }),
   };
 }

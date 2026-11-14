@@ -1,5 +1,6 @@
 import { Controller, Get, Inject, Optional } from '@nestjs/common';
-import { EntitlementStore, MyAccessStore, TenantDatabase } from '@machvon/db';
+import { CommitteeRosterStore, EntitlementStore, MyAccessStore, TenantDatabase } from '@machvon/db';
+import { vietnamDateOf } from '@machvon/kernel';
 import type { TenantContext } from '@machvon/kernel';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
@@ -14,6 +15,7 @@ import type { EffectiveAccessDto } from './effective-access-view';
 @Controller('me')
 export class EffectiveAccessController {
   private readonly store = new MyAccessStore();
+  private readonly committee = new CommitteeRosterStore();
 
   constructor(
     @Inject(TenantDatabase) private readonly database: TenantDatabase,
@@ -28,6 +30,8 @@ export class EffectiveAccessController {
       scopeVersion: await this.store.scopeVersionOf(tx, tenant.membershipId),
       grants: await this.store.grants(tx, tenant.membershipId),
       delegations: await this.store.delegationsTo(tx, tenant.membershipId),
+      // R53: the place in the steering committee is part of who the home is laid out for (the head and the deputy lead; a member reads).
+      committeeRole: (await this.committee.placeOf(tx, tenant.membershipId, vietnamDateOf(now)))?.role ?? null,
     }));
     const snapshot = await this.entitlements?.current(tenant);
     return effectiveAccessView({ membershipId: tenant.membershipId, ...found, entitlementHash: snapshot?.hash, now });

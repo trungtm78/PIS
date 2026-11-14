@@ -26730,6 +26730,7 @@ final class EffectiveAccessResponse implements ResponseModel {
     required this.scopeVersion,
     required this.grants,
     this.delegationsIn,
+    this.homeAudience,
     this.entitlementHash,
     this.extra = const <String, Object?>{},
   });
@@ -26741,8 +26742,9 @@ final class EffectiveAccessResponse implements ResponseModel {
       scopeVersion: requiredField(map, path, 'scope_version', asInt),
       grants: requiredField(map, path, 'grants', asList(asObject)),
       delegationsIn: optionalField(map, path, 'delegations_in', asList(asObject)),
+      homeAudience: optionalField(map, path, 'home_audience', asString),
       entitlementHash: optionalField(map, path, 'entitlement_hash', asString),
-      extra: unknownFields(map, path, const <String>{'membership_id', 'scope_version', 'grants', 'delegations_in', 'entitlement_hash'}, strict: true),
+      extra: unknownFields(map, path, const <String>{'membership_id', 'scope_version', 'grants', 'delegations_in', 'home_audience', 'entitlement_hash'}, strict: true),
     );
   }
 
@@ -26750,6 +26752,7 @@ final class EffectiveAccessResponse implements ResponseModel {
   final int scopeVersion;
   final List<Map<String, Object?>> grants;
   final List<Map<String, Object?>>? delegationsIn;
+  final String? homeAudience;
   final String? entitlementHash;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
@@ -26761,6 +26764,7 @@ final class EffectiveAccessResponse implements ResponseModel {
         'scope_version': scopeVersion,
         'grants': grants,
         if (delegationsIn != null) 'delegations_in': delegationsIn,
+        if (homeAudience != null) 'home_audience': homeAudience,
         if (entitlementHash != null) 'entitlement_hash': entitlementHash,
         ...extra,
       };

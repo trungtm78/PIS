@@ -51,6 +51,8 @@ export { scopeContains, scopeCovers } from './scope.ts';
 export type { ResourceRef, Scope } from './scope.ts';
 export { activeGrants, effectivePermissions, holdsPermission, maxRank } from './effective-access.ts';
 export type { EffectiveAccess, GrantView } from './effective-access.ts';
+export { HOME_AUDIENCES, HOME_DECISION_PERMISSION, HOME_LEADING_COMMITTEE_ROLES, HOME_UNIT_SCOPES, homeAudienceOf } from './home-audience.ts';
+export type { HomeAudience, HomeAudienceInput, HomeAuthority } from './home-audience.ts';
 export { STEP_UP_WINDOW_MINUTES, decide } from './decision.ts';
 export type { DecideInput, Decision, Plane } from './decision.ts';
 export { checkGrant, checkRoleDefinition, permissionCovered } from './anti-escalation.ts';

@@ -28892,6 +28892,11 @@ export interface components {
             scope_version: number;
             grants: Record<string, never>[];
             delegations_in?: Record<string, never>[];
+            /**
+             * @description Who the home is laid out for (R53): LEADER when the person decides approvals for a unit or wider, or is the head or a deputy of the steering committee; OFFICER otherwise. A right to read never makes a leader.
+             * @enum {string}
+             */
+            home_audience?: "LEADER" | "OFFICER";
             entitlement_hash?: string;
         };
         SearchPage: {

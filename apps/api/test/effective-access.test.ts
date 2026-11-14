@@ -221,6 +221,33 @@ describe('getMyEffectiveAccess (ST-IAM-005, IAM-09)', () => {
     });
   });
 
+  describe('who the home is laid out for (R53, lane fix11)', () => {
+    it('a delegation in force to decide approvals for a unit makes the caller a leader', async () => {
+      expect(((await mine(ME)).json as unknown as EffectiveAccessDto).home_audience).toBe('LEADER');
+    });
+
+    it('an administrator who decides no approval is an officer, as a member of the committee too; the deputy of the committee leads', async () => {
+      expect(((await mine(OTHER)).json as unknown as EffectiveAccessDto).home_audience).toBe('OFFICER');
+      const [committee] = await admin<{ id: string }>(`insert into machvon.committee (tenant_id, code, name, legal_basis, created_by) values ($1, 'BCD', 'Steering committee', 'QD 1', $2) returning id`, [TENANT_A, memberId(ME)]);
+      const appoint = async (role: string): Promise<string> => {
+        const [row] = await admin<{ id: string }>(
+          `insert into machvon.committee_member (tenant_id, committee_id, membership_id, committee_role, agency_code, agency_name, decision_ref, valid_from, valid_until, mfa_required, appointed_by)
+           values ($1, $2, $3, $4, 'A', 'Agency', 'QD 2', date '2026-01-01', null, false, $5) returning id`,
+          [TENANT_A, committee?.id, memberId(OTHER), role, memberId(ME)],
+        );
+        return row?.id ?? '';
+      };
+      const end = (place: string): Promise<unknown> => admin(`update machvon.committee_member set status = 'ENDED', ended_by = $2, ended_at = now(), end_reason = 'left the committee', version = version + 1 where id = $1`, [place, memberId(ME)]);
+      const asMember = await appoint('MEMBER');
+      expect(((await mine(OTHER)).json as unknown as EffectiveAccessDto).home_audience).toBe('OFFICER');
+      await end(asMember);
+      const asDeputy = await appoint('DEPUTY');
+      expect(((await mine(OTHER)).json as unknown as EffectiveAccessDto).home_audience).toBe('LEADER');
+      await end(asDeputy);
+      expect(((await mine(OTHER)).json as unknown as EffectiveAccessDto).home_audience).toBe('OFFICER');
+    });
+  });
+
   describe('the permissions are the ones the PDP computes', () => {
     it('the union of the permissions of the ACTIVE grants equals effectivePermissions of the same member, now', async () => {
       const store = new EffectiveAccessStore(harness.tenants, new InMemoryAuthzCache());
@@ -318,6 +345,24 @@ describe('effectiveAccessView, against the pure PDP', () => {
     };
     return { id: `g-${index}`, roleName: spec.roleCode, view, scopeKind: view.scope.kind, scopeRefIds: [], storedStatus: spec.storedStatus as 'Active' | 'Expired', units: [], projects: [], contracts: [] };
   }
+
+  it('lays the home out for a leader only on an authority in force to decide approvals for a unit or wider, or a leading place in the committee', () => {
+    const spec = (overrides: Partial<GrantSpec>): GrantSpec => ({ roleCode: 'A', rank: 40, permissions: ['approval.decide'], kind: 'UNIT_ONLY', fromDays: -10, lengthDays: null, storedStatus: 'Active', ...overrides });
+    const audience = (grants: GrantSpec[], committeeRole: string | null = null): string =>
+      effectiveAccessView({ membershipId: 'm', scopeVersion: 1, grants: grants.map(toMyGrant), delegations: [], committeeRole, now: NOW }).home_audience;
+    expect(audience([spec({})])).toBe('LEADER');
+    expect(audience([spec({ kind: 'TENANT', permissions: ['approval.*'] })])).toBe('LEADER');
+    expect(audience([spec({ kind: 'PROJECT' })])).toBe('OFFICER');
+    expect(audience([spec({ permissions: ['committee.read', 'home.read', 'pwf.task.work'], kind: 'TENANT' })])).toBe('OFFICER');
+    expect(audience([spec({ fromDays: -40, lengthDays: 10 })])).toBe('OFFICER');
+    expect(audience([spec({ fromDays: 5 })])).toBe('OFFICER');
+    expect(audience([spec({ storedStatus: 'Expired' })])).toBe('OFFICER');
+    expect(audience([], 'HEAD')).toBe('LEADER');
+    expect(audience([spec({ permissions: ['committee.read'] })], 'SECRETARIAT')).toBe('OFFICER');
+    const future = { id: 'd', delegatorMembershipId: 'x', permissions: ['approval.decide'], scopeKind: 'UNIT_SUBTREE', scopeRefIds: [], validFrom: new Date(NOW.getTime() + DAY), validUntil: new Date(NOW.getTime() + 5 * DAY), status: 'Scheduled' as const };
+    expect(effectiveAccessView({ membershipId: 'm', scopeVersion: 1, grants: [], delegations: [future], now: NOW }).home_audience).toBe('OFFICER');
+    expect(effectiveAccessView({ membershipId: 'm', scopeVersion: 1, grants: [], delegations: [{ ...future, validFrom: new Date(NOW.getTime() - DAY), status: 'Active' as const }], now: NOW }).home_audience).toBe('LEADER');
+  });
 
   it('property: the permissions of the ACTIVE grants are exactly effectivePermissions, for any grants, windows and statuses', () => {
     fc.assert(

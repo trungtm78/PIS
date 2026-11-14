@@ -1202,6 +1202,9 @@ const DOCS_PEOPLE: DocsPerson[] = JSON.parse(readFileSync(resolve(REPO_ROOT, 'ap
 /** The people who are members of tenant A: everyone but the operator of the platform. */
 const TENANT_PEOPLE = DOCS_PEOPLE.filter((person) => person.plane !== 'control');
 
+/** What every member of staff reads about themselves (lane fix11, R53): the parts of "Việc hôm nay". None of them reads a scope. */
+const STAFF_OWN_READS: readonly string[] = ['session.self', 'profile.self', 'notification.self', 'pwf.task.work', 'pwf.preference.own', 'approval_task.read'];
+
 /** The roles of a unit made from the permissions the tests use: the staff of the project board do the work, the leader decides, the accountant pays. */
 function docsRoles(): Array<{ n: number; code: string; permissions: string[]; rank: number }> {
   const unique = (roles: ReadonlyArray<{ permissions: readonly string[] }>): string[] => [...new Set(roles.flatMap((role) => role.permissions))];
@@ -1213,7 +1216,9 @@ function docsRoles(): Array<{ n: number; code: string; permissions: string[]; ra
   return [
     { n: 901, code: 'CAN_BO_BAN_QLDA', permissions: everything.filter((permission) => !deciding(permission)), rank: 45 },
     { n: 902, code: 'LANH_DAO_SO', permissions: everything.filter((permission) => deciding(permission) || permission.endsWith('.read')), rank: 65 },
-    { n: 903, code: 'KE_TOAN_THANH_TOAN', permissions: unique([...PAY_ROLES, ...PAYMENT_ROLES, ...LEDGER_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES]), rank: 40 },
+    // Lane fix11 (R53): a member of staff who decides nothing reads what is THEIRS on the home of the phone: their workflow tasks, the approvals that wait for them, their notifications and their own reminder levels.
+    // The accountant holds the payment rights and these reads of her own, and nothing of the scope (no `home.read`): her home is "Việc hôm nay" with her own parts, never a refusal.
+    { n: 903, code: 'KE_TOAN_THANH_TOAN', permissions: unique([...PAY_ROLES, ...PAYMENT_ROLES, ...LEDGER_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, { permissions: STAFF_OWN_READS }]), rank: 40 },
     // Persona grants of the clip stack (the system roles AUDITOR and SECURITY_ADMIN hold none of these): the auditor reads the inspections, recommendations, red flags, gifts and the ranking of investors (AUD-02, 06, 11, 14, 16, 17);
     // the security administrator reads the permanent delegations, the acting grants and the period scopes (ADM-25, 26, 27) and asks for them; the second person who approves is the owner. Reading and asking only.
     { n: 904, code: 'THANH_TRA_KIEM_TOAN', permissions: everything.filter((permission) => /^aud.(read|standing.read|redflag.read|gift.read|sod.read|whistle.read)$/.test(permission) || permission === 'project.read' || permission === 'audit_event.read'), rank: 28 },

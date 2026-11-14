@@ -30,7 +30,7 @@ import '../widgets/changes_block.dart';
 import '../widgets/committee_card.dart';
 import '../widgets/edition_cards.dart';
 import '../widgets/rag_card.dart';
-import 'officer_home_screen.dart';
+import 'officer_today.dart';
 
 /// MOB-07: the home of a leader, work before figures. From the top: the command band (the amount disbursed, one bar for the rate on the
 /// total plan, the two rates in two notes); one line of context (scope, closing day, freshness); three figures that wait for someone;
@@ -69,7 +69,7 @@ class _LeaderHomeScreenState extends ConsumerState<LeaderHomeScreen> {
         reloadKey: (_retry, ref.watch(alertsChangedProvider)),
         read: readLeaderHome,
         parse: parseLeaderHome,
-        // R53: for an officer the tab is "today's work": the list reads for itself, so this read has no day of its own to say.
+        // R53: for an officer the tab is "today's work": its parts read for themselves, so this read has no day of its own to say.
         asOf: (LeaderHomeData home) => home.center?.asOfDate ?? home.alerts?.asOf,
         emptyOnCodes: const <String>{'RESOURCE_NOT_FOUND'},
         contextParts: (Loaded<LeaderHomeData> loaded) {
@@ -82,15 +82,8 @@ class _LeaderHomeScreenState extends ConsumerState<LeaderHomeScreen> {
           ];
         },
         contextBuilder: (BuildContext context, Loaded<LeaderHomeData> loaded, Widget contextLine) => loaded.value.officer
-            // A person who decides nothing for a scope gets their own work by deadline (MOB-08) as the home, never the province-wide band and what waits for other people.
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  const AppTopBar(showBack: false),
-                  LargeTitleHeader(title: context.t('mob.home.officer.title')),
-                  const Expanded(child: OfficerHomeBody()),
-                ],
-              )
+            // A person who decides nothing for a unit gets "today's work" as the home: their own tasks, the approvals that wait for them and their unread notifications, never the province-wide band and what waits for other people.
+            ? const OfficerTodayBody()
             : _HomeBody(loaded: loaded, contextLine: contextLine, onRetry: () => setState(() => _retry += 1)),
       ),
     );
