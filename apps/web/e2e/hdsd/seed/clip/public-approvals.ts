@@ -50,8 +50,9 @@ async function ensureWorkflow(ctx: SeedContext): Promise<boolean> {
 
 /** The officer answers their score of a locked period, once: the answer waits for the owner in the approval inbox. */
 async function respond(ctx: SeedContext): Promise<void> {
-  const mine = await ctx.get<{ items: Obj[] }>(OFFICER, '/me/staff-scores', { limit: 5 });
-  const line = mine.items.find((item) => item.period_status === 'LOCKED');
+  // Each entry is a period with the line of the person in it (`MyStaffScorePage`: {period, line}); only a locked period takes a response.
+  const mine = await ctx.get<{ items: Array<{ period?: Obj; line?: Obj }> }>(OFFICER, '/me/staff-scores', { limit: 5 });
+  const line = mine.items.find((item) => item.period?.status === 'LOCKED')?.line;
   if (line === undefined) {
     ctx.warn(`${OFFICER} has no line in a locked scoring period: nothing to answer, the approval inbox of the phone stays empty`);
     return;
