@@ -34,5 +34,9 @@
   "fix10.kpiset.find.label": "Find a KPI",
   "fix10.kpiset.find.placeholder": "Type a KPI name or code",
   "fix10.kpiset.find.count": "Showing {shown} of {total} KPIs",
-  "fix10.kpiset.problems.text": "{count} fields still need fixing; the number beside a tab says where they are."
+  "fix10.kpiset.problems.text": "{count} fields still need fixing; the number beside a tab says where they are.",
+  "fix10.pref.levels.legend": "Personal thresholds: green, yellow, red",
+  "fix10.pref.raised.label": "Warning when a threshold is raised to the official level",
+  "fix10.pref.raised.none": "none of your thresholds is raised now.",
+  "fix10.pref.raised.some": "your threshold {levels} is later than the official level, so it was raised to it."
 }

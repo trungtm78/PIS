@@ -1,4 +1,4 @@
-import type { CommandReply, Obj, SeedContext } from '../context.ts';
+import type { Obj, SeedContext } from '../context.ts';
 import { tolerate } from '../field-assurance/shared.ts';
 
 /**
@@ -36,14 +36,14 @@ async function ensureWorkflow(ctx: SeedContext): Promise<boolean> {
   };
   let draft = versions.find((row) => row.business_type === BUSINESS_TYPE && row.status === 'Draft');
   if (draft === undefined) {
-    const made = await ctx.attempt<CommandReply>(OWNER, 'POST', '/workflow-definitions', { business_type: BUSINESS_TYPE, definition });
+    const made = await ctx.attempt<Obj>(OWNER, 'POST', '/workflow-definitions', { business_type: BUSINESS_TYPE, definition });
     if (!made.ok) {
       ctx.warn(`the approval workflow of ${BUSINESS_TYPE} could not be drafted (HTTP ${made.status} ${String(made.json.code ?? '')}): the approval inbox of the phone stays empty`);
       return false;
     }
     draft = { id: made.json.resource_id, version: made.json.resource_version };
   }
-  const published = await ctx.attempt<CommandReply>(PUBLISHER, 'POST', `/workflow-definitions/${String(draft.id)}/publish`, { reason: 'Phản hồi về điểm đánh giá do lãnh đạo đơn vị xem xét qua quy trình duyệt' }, { version: Number(draft.version) });
+  const published = await ctx.attempt<Obj>(PUBLISHER, 'POST', `/workflow-definitions/${String(draft.id)}/publish`, { reason: 'Phản hồi về điểm đánh giá do lãnh đạo đơn vị xem xét qua quy trình duyệt' }, { version: Number(draft.version) });
   if (!published.ok) ctx.warn(`the approval workflow of ${BUSINESS_TYPE} could not be published (HTTP ${published.status} ${String(published.json.code ?? '')}): the approval inbox of the phone stays empty`);
   return published.ok;
 }
@@ -59,7 +59,7 @@ async function respond(ctx: SeedContext): Promise<void> {
   const detail = await ctx.get<Obj>(OFFICER, `/staff-score-lines/${String(line.id)}`);
   const responses = Array.isArray(detail.responses) ? (detail.responses as Obj[]) : [];
   if (responses.some((one) => one.status === 'OPEN')) return;
-  const sent = await ctx.attempt<CommandReply>(OFFICER, 'POST', `/staff-score-lines/${String(line.id)}/responses`, {
+  const sent = await ctx.attempt<Obj>(OFFICER, 'POST', `/staff-score-lines/${String(line.id)}/responses`, {
     body: 'Đề nghị xem xét lại điểm của việc lập hồ sơ: việc bị trả lại do thay đổi mẫu biểu giữa kỳ, không do chất lượng hồ sơ của người thực hiện.',
   });
   if (!sent.ok) {

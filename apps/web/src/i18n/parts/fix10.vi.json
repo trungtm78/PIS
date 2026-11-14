@@ -34,5 +34,9 @@
   "fix10.kpiset.find.label": "Tìm KPI",
   "fix10.kpiset.find.placeholder": "Nhập tên hoặc mã KPI",
   "fix10.kpiset.find.count": "Đang hiện {shown} trên {total} KPI",
-  "fix10.kpiset.problems.text": "Còn {count} chỗ cần sửa; số bên cạnh tên tab cho biết chỗ sai nằm ở tab nào."
+  "fix10.kpiset.problems.text": "Còn {count} chỗ cần sửa; số bên cạnh tên tab cho biết chỗ sai nằm ở tab nào.",
+  "fix10.pref.levels.legend": "Ngưỡng cá nhân xanh, vàng, đỏ",
+  "fix10.pref.raised.label": "Cảnh báo khi ngưỡng bị nâng bằng mức chính thức",
+  "fix10.pref.raised.none": "hiện không có ngưỡng nào của bạn bị nâng.",
+  "fix10.pref.raised.some": "ngưỡng {levels} của bạn đang muộn hơn mức chính thức nên đã được nâng bằng mức chính thức."
 }

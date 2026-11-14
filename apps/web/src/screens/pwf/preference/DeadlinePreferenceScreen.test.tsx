@@ -364,6 +364,21 @@ describe('PWF-15: my coming tasks (R40)', () => {
     expect(h.read.mock.calls.filter((call) => call[0] === 'getMyTasks').map((call) => (call[1] as { query: Record<string, unknown> }).query)).toEqual([{ limit: 20 }, { limit: 20, cursor: 'c2' }]);
   });
 
+  it('carries the fields of the screen catalogue: the three thresholds are one named group, and the line on a threshold raised to the official level is always there', async () => {
+    open();
+    await screen.findByTestId('my-tasks');
+    expect(screen.getByRole('group', { name: text('fix10.pref.levels.legend') })).toBeTruthy();
+    const raised = screen.getByTestId('raised-state');
+    expect(raised.textContent).toContain(text('fix10.pref.raised.label'));
+    expect(raised.textContent).toContain(text('fix10.pref.raised.none'));
+    expect(raised.getAttribute('data-raised')).toBe('false');
+    cleanup();
+    open({ preference: preferenceBody({ clamped: ['yellow_days'] }) });
+    await screen.findByTestId('my-tasks');
+    expect(screen.getByTestId('raised-state').getAttribute('data-raised')).toBe('true');
+    expect(screen.getByTestId('raised-state').textContent).toContain(text('fix10.pref.raised.some', { levels: text('pwf.pref.level.yellow.word') }));
+  });
+
   it('R51: lists what the person finished lately on request: the same read asked for DONE, with the day each was finished, on time or late, and no colour', async () => {
     const { h } = open({
       tasks: (input: Record<string, unknown>) => {

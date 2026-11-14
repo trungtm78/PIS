@@ -51,7 +51,9 @@ type QueryPart<K extends OperationName> = [QueryParams<K>] extends [never]
   : QueryRequired<K> extends true
     ? { query: QueryParams<K> }
     : { query?: QueryParams<K> };
-type BodyPart<K extends OperationName> = [BodyOf<K>] extends [never] ? { body?: undefined } : { body: BodyOf<K> };
+/** The JSON body of a command whose contract takes one but does not require it (the lock of a scoring period takes a reason only for an early lock). */
+type OptionalBodyOf<K extends OperationName> = Shape<K> extends { requestBody?: infer R } ? (NonNullable<R> extends { content: { 'application/json': infer B } } ? B : never) : never;
+type BodyPart<K extends OperationName> = [BodyOf<K>] extends [never] ? ([OptionalBodyOf<K>] extends [never] ? { body?: undefined } : { body?: OptionalBodyOf<K> | undefined }) : { body: BodyOf<K> };
 type VersionPart<K extends OperationName> = Descriptor<K>['versioned'] extends true ? { ifMatchVersion: number } : { ifMatchVersion?: undefined };
 
 /** What a read takes: the path parameters the route has and the query (required when the contract requires a parameter). */

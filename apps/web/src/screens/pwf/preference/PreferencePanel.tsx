@@ -125,20 +125,29 @@ function PreferenceEditor({ view, compact, readOnly, save, notice, setNotice, on
         </p>
       ) : null}
       <p className="pwfp-rule">{t('pwf.pref.rule.text')}</p>
-      <div className="pwfp-levels">
-        {LEVELS.map((level) => (
-          <NumberField
-            key={level}
-            path={level}
-            label={levelLabel(t, level)}
-            hint={officialText(t, level, view.official)}
-            value={textOfLevel(draft.form, level)}
-            disabled={readOnly}
-            problem={problemOf(level)}
-            onChange={(text) => draft.setLevel(level, text)}
-          />
-        ))}
-      </div>
+      {/* The three levels are one group with its name (the field of the screen catalogue), so a screen reader says what the three numbers are. */}
+      <fieldset className="pwfp-levelgroup">
+        <legend>{t('fix10.pref.levels.legend')}</legend>
+        <div className="pwfp-levels">
+          {LEVELS.map((level) => (
+            <NumberField
+              key={level}
+              path={level}
+              label={levelLabel(t, level)}
+              hint={officialText(t, level, view.official)}
+              value={textOfLevel(draft.form, level)}
+              disabled={readOnly}
+              problem={problemOf(level)}
+              onChange={(text) => draft.setLevel(level, text)}
+            />
+          ))}
+        </div>
+        {/* Always said, with or without a level raised: whether a level of the person is now later than the official one and was raised to it (the warning above says which). */}
+        <p className="pwfp-raised" role="status" data-testid="raised-state" data-raised={view.clamped.length === 0 ? 'false' : 'true'}>
+          <strong>{t('fix10.pref.raised.label')}:</strong>{' '}
+          {view.clamped.length === 0 ? t('fix10.pref.raised.none') : t('fix10.pref.raised.some', { levels: view.clamped.map((level) => levelWord(t, level)).join(', ') })}
+        </p>
+      </fieldset>
       <NumberField
         path="reminder_days"
         label={t('pwf.pref.reminders.label')}

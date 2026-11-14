@@ -70,3 +70,8 @@
 
 /* The two lists of "my tasks" (open, finished lately): a pair of buttons above the table. */
 .pwfp-views { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); margin-bottom: var(--mv-space-8); }
+
+/* The three levels as one named group, and the line that says whether a level was raised to the official one. */
+.pwfp-levelgroup { border: 0; margin: 0; padding: 0; min-width: 0; }
+.pwfp-levelgroup > legend { padding: 0; margin-bottom: var(--mv-space-8); font-weight: 700; }
+.pwfp-raised { margin: var(--mv-space-8) 0 0; font-size: 13px; color: var(--mv-color-text-secondary); }

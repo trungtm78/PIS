@@ -230,7 +230,8 @@ export function useComputePeriod() {
 export function useLockPeriod() {
   const client = useApiClient();
   return useScoreCommand<{ id: string; version: number; earlyReason?: string | undefined }>((input, attempt) =>
-    client.command('lockStaffScorePeriod', { path: { id: input.id }, ...(input.earlyReason === undefined ? {} : { body: { early_reason: input.earlyReason } }), ifMatchVersion: input.version, attempt }),
+    // R50: the reason of an early lock goes with the command; a lock after the last day of the period sends none.
+    client.command('lockStaffScorePeriod', { path: { id: input.id }, body: input.earlyReason === undefined ? undefined : { early_reason: input.earlyReason }, ifMatchVersion: input.version, attempt }),
   );
 }
 

@@ -71,6 +71,7 @@ Bộ dữ liệu: `public` (docs/clip-data.md)
 | `clip-public-extras` | RUN_VERIFIED |
 | `clip-public-contractor-portal` | WRITTEN_NOT_RUN |
 | `clip-public-pwf-review` | RUN_VERIFIED |
+| `clip-public-approvals` | WRITTEN_NOT_RUN |
 | `clip-public-phone-work` | RUN_VERIFIED |
 
 **Nhóm dữ liệu cần viết thêm (chưa có trong bộ dữ liệu)**
