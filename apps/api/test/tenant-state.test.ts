@@ -273,6 +273,38 @@ describe('suspending and resuming a tenant over HTTP (ST-SAS-004)', () => {
       expect(events.rows[0]?.payload).toEqual({ tenant_id: tenantId, from: 'Suspended', to: 'Active' });
     });
 
+    it('UAT-AC149: a suspended tenant is read-only when the answer arrives: a read passes, a write of a live session is 403 TENANT_SUSPENDED; after the resume it is Active and writes again; each transition leaves one audit row with its reason and one status event', async () => {
+      const { tenantId, version } = await activeTenant();
+      const guard = new ReadOnlyModeGuard(new Reflector(), runtime);
+      const contextOf = (method: string): ExecutionContext =>
+        ({
+          getHandler: () => () => undefined,
+          getClass: () => class Probe {},
+          switchToHttp: () => ({
+            getRequest: () => ({
+              method,
+              [AUTH_TOKEN_REQUEST_KEY]: { audience: 'tenant', roles: [], mode: 'FULL' },
+              [PRINCIPAL_REQUEST_KEY]: { tenant: { tenantId, membershipId: tenantId, scopeVersion: 0 }, audience: 'tenant', assurance: 'aal1', sessionId: 's' },
+            }),
+          }),
+        }) as unknown as ExecutionContext;
+      const suspended = await suspend(tenantId, { ifMatch: `"${version}"` });
+      expect(suspended.status).toBe(200);
+      expect(suspended.json).toMatchObject({ tenant_id: tenantId, status: 'Suspended' });
+      // No wait of 60 seconds is needed: the state every process reads is already the suspended one.
+      expect(await runtime.of(tenantId)).toMatchObject({ status: 'Suspended', accessPolicy: 'READ_ONLY_EXPORT' });
+      expect(await guard.canActivate(contextOf('GET'))).toBe(true);
+      await expect(guard.canActivate(contextOf('POST'))).rejects.toMatchObject({ code: 'TENANT_SUSPENDED', status: 403 });
+      const resumed = await resume(tenantId, { ifMatch: `"${version + 1}"` });
+      expect(resumed.json).toMatchObject({ tenant_id: tenantId, status: 'Active' });
+      expect(await guard.canActivate(contextOf('POST'))).toBe(true);
+      for (const action of ['tenant.suspended', 'tenant.resumed']) {
+        expect(await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and action = $2 and outcome = 'SUCCESS' and reason is not null and length(reason) > 0", [tenantId, action])).toBe(1);
+      }
+      const events = await harness.admin((client) => client.query<{ to: string }>("select payload->>'to' as to from machvon.outbox_event where tenant_id = $1 and type = 'sas.tenant.status_changed.v1'", [tenantId]));
+      expect(events.rows.map((row) => row.to).sort()).toEqual(['Active', 'Suspended']);
+    });
+
     it('answers 428 without If-Match, 409 VERSION_CONFLICT for a stale one, 409 TENANT_STATE_INVALID for an Active tenant and 404 for an unknown one (AC-ST-SAS-004-2)', async () => {
       const { tenantId, version } = await suspendedTenant();
       expect((await resume(tenantId)).status).toBe(428);

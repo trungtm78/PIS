@@ -344,7 +344,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
   });
 
   describe('the legal grounds of a step and of a task (R45)', () => {
-    it('AC-ST-PWF-022-1: shows each ground with the document of the catalogue it cites, and tells when a document is replaced after the project froze its template', async () => {
+    it('AC-ST-PWF-022-1, UAT-PWF-PRC-05: shows each ground with the document of the catalogue it cites, and tells when a document is replaced after the project froze its template', async () => {
       const p = await project();
       const done = await start(p.id);
       const first = ((await detail(p.id)).steps as Array<{ legal_basis: Array<Record<string, unknown>> }>)[0];
@@ -369,7 +369,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
       expect(frozen?.template_hash).toBe(done.templateHash);
     });
 
-    it('AC-ST-PWF-022-2: tells the alert centre once per workflow and document that a legal ground lapsed, to whoever reads the project, and nothing while every document is in force', async () => {
+    it('AC-ST-PWF-022-2, UAT-PWF-PRC-05: tells the alert centre once per workflow and document that a legal ground lapsed, to whoever reads the project, and nothing while every document is in force', async () => {
       const input = (over: Partial<WorkInput> = {}): WorkInput => ({ membershipId: memberId(MANAGER), now: now(), today: TODAY, unitScope: everything, projectScope: everything, mode: 'rows', view: 'scope', ...over });
       const lapsed = async (over: Partial<WorkInput> = {}) => (await as((tx) => work.collect(tx, input(over)))).rows.filter((row) => row.kind === 'PWF_LEGAL_BASIS_LAPSED');
       // The test before this one replaced TEST_DECREE_OLD: every running workflow of the stepped template cites it on its first step.
@@ -406,7 +406,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
   });
 
   describe('the revision of a form (R46)', () => {
-    it('AC-ST-PWF-023-1, AC-ST-PWF-023-2: records the newest approved revision and its hash with the evidence, and says when the form was revised since', async () => {
+    it('AC-ST-PWF-023-1, AC-ST-PWF-023-2, UAT-PWF-PRC-06: records the newest approved revision and its hash with the evidence, and says when the form was revised since', async () => {
       const p = await project();
       const done = await start(p.id);
       const taskId = await working(done.id, 'TA');
@@ -429,7 +429,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
       expect(((await taskDetail(taskId)).form_templates as Array<Record<string, unknown>>).find((form) => form.code === 'FORM_LATEST')).toMatchObject({ used_revision: 2, newer_available: false });
     });
 
-    it('AC-ST-PWF-023-3: keeps a pinned form on its revision whatever is published later, and refuses a pin that names no approved revision', async () => {
+    it('AC-ST-PWF-023-3, UAT-PWF-PRC-06: keeps a pinned form on its revision whatever is published later, and refuses a pin that names no approved revision', async () => {
       await owner(`update machvon.document_template set status = 'SUPERSEDED', effective_until = $2::date where template_code = 'FORM_PINNED' and revision = 1 and tenant_id = $1`, [TENANT_A, TODAY]);
       await formRevision('FORM_PINNED', 2, 'PUBLISHED', TODAY, null);
       const p = await project();
