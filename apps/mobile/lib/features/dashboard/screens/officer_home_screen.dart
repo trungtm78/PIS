@@ -47,14 +47,26 @@ OfficerHome? parseOfficerHome(Object? raw) {
       : OfficerHome(work: work, alerts: alerts);
 }
 
-class OfficerHomeScreen extends ConsumerStatefulWidget {
+class OfficerHomeScreen extends StatelessWidget {
   const OfficerHomeScreen({super.key});
 
   @override
-  ConsumerState<OfficerHomeScreen> createState() => _OfficerHomeScreenState();
+  Widget build(BuildContext context) => ScreenFrame(
+    title: context.t('mob.home.officer.title'),
+    body: const OfficerHomeBody(),
+  );
 }
 
-class _OfficerHomeScreenState extends ConsumerState<OfficerHomeScreen> {
+/// The list of "today's work" without its frame: the screen MOB-08 shows it under its title, and the home tab shows it as the home of a
+/// person who decides nothing for a scope (R53).
+class OfficerHomeBody extends ConsumerStatefulWidget {
+  const OfficerHomeBody({super.key});
+
+  @override
+  ConsumerState<OfficerHomeBody> createState() => _OfficerHomeBodyState();
+}
+
+class _OfficerHomeBodyState extends ConsumerState<OfficerHomeBody> {
   int _retry = 0;
 
   @override
@@ -65,25 +77,22 @@ class _OfficerHomeScreenState extends ConsumerState<OfficerHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
-      title: context.t('mob.home.officer.title'),
-      body: DataView<OfficerHome>(
-        cacheKey: 'home.work',
-        reloadKey: (_retry, ref.watch(alertsChangedProvider)),
-        read: (MachvonApiClient client) => readMerged(
-          client,
-          'getMyWork',
-          query: <String, Object?>{'view': 'mine', 'limit': workPageSize},
-        ),
-        parse: parseOfficerHome,
-        asOf: (OfficerHome home) => home.alerts.asOf,
-        builder: (BuildContext context, Loaded<OfficerHome> loaded) =>
-            _WorkBody(
-              home: loaded.value,
-              loaded: loaded,
-              onRetry: () => setState(() => _retry += 1),
-            ),
+    return DataView<OfficerHome>(
+      cacheKey: 'home.work',
+      reloadKey: (_retry, ref.watch(alertsChangedProvider)),
+      read: (MachvonApiClient client) => readMerged(
+        client,
+        'getMyWork',
+        query: <String, Object?>{'view': 'mine', 'limit': workPageSize},
       ),
+      parse: parseOfficerHome,
+      asOf: (OfficerHome home) => home.alerts.asOf,
+      builder: (BuildContext context, Loaded<OfficerHome> loaded) =>
+          _WorkBody(
+            home: loaded.value,
+            loaded: loaded,
+            onRetry: () => setState(() => _retry += 1),
+          ),
     );
   }
 }

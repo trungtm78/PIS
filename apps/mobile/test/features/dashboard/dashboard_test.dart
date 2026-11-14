@@ -326,6 +326,58 @@ void main() {
     });
   });
 
+  group('R53 the home tab is laid out for who is signed in: by the authority the server says they hold', () {
+    Map<String, Object?> access(List<String> permissions, {String state = 'ACTIVE', List<Map<String, Object?>> delegations = const <Map<String, Object?>>[]}) => <String, Object?>{
+          'membership_id': '7f3a0000-0000-4000-8000-000000000001',
+          'scope_version': 3,
+          'grants': <Map<String, Object?>>[
+            <String, Object?>{'id': 'g1', 'role_code': 'X', 'permissions': permissions, 'state': state},
+          ],
+          'delegations_in': delegations,
+        };
+    ScriptedServer serverFor(Map<String, Object?> body) => ScriptedServer()
+      ..on('GET', '/me/effective-access', (_) => body)
+      ..on('GET', '/home/command-center', (_) => commandCenter())
+      ..on('GET', '/home/my-work', (_) => myWork(<Map<String, Object?>>[workItem('w-own', 'REPORT_DRAFT_OVERDUE', 'OVERDUE', late: 2, title: 'Nháp tuần 43')]));
+
+    testWidgets('an officer (reads the home, decides nothing) gets "Việc hôm nay" with their own work by deadline, and neither the province-wide band nor what waits for a leader', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = serverFor(access(<String>['home.read', 'pwf.task.work', 'rpt.read']));
+      await _open(tester, server, '/home');
+      expect(find.text('Việc hôm nay'), findsWidgets);
+      expect(find.text('Nháp tuần 43'), findsOneWidget);
+      expect(find.text('Cần bạn quyết định'), findsNothing);
+      expect(find.text('Số liệu và công thức'), findsNothing);
+      expect(server.calls.where((call) => call.url.path.replaceFirst('/v1', '') == '/home/command-center'), isEmpty, reason: 'the figures of the whole scope are not even read for an officer');
+      expect(server.calls.where((call) => call.url.path.replaceFirst('/v1', '') == '/home/my-work').first.url.queryParameters['view'], 'mine');
+    });
+
+    testWidgets('a person who may decide approvals, by a grant, a pattern or a delegation in force, gets the leader home', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      for (final Map<String, Object?> body in <Map<String, Object?>>[
+        access(<String>['home.read', 'approval.decide']),
+        access(<String>['home.*', 'approval.*']),
+        access(<String>['home.read'], delegations: <Map<String, Object?>>[<String, Object?>{'id': 'd1', 'permissions': <String>['approval.decide'], 'state': 'ACTIVE'}]),
+        access(<String>['home.read', 'committee.read']),
+      ]) {
+        await _open(tester, serverFor(body), '/home');
+        expect(find.text('Số liệu và công thức'), findsOneWidget);
+        expect(find.text('Việc hôm nay'), findsNothing);
+      }
+    });
+
+    testWidgets('a grant that is not in force gives no authority, and an answer that cannot be read keeps the layout the tab always had', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      await _open(tester, serverFor(access(<String>['approval.decide'], state: 'EXPIRED')), '/home');
+      expect(find.text('Việc hôm nay'), findsWidgets);
+      final ScriptedServer broken = ScriptedServer()
+        ..refuse('GET', '/me/effective-access', 500, 'INTERNAL_ERROR')
+        ..on('GET', '/home/command-center', (_) => commandCenter());
+      await _open(tester, broken, '/home');
+      expect(find.text('Số liệu và công thức'), findsOneWidget);
+    });
+  });
+
   group('AC-ST-MOB-010-6 UI-MOB-08 MOB-08 the officer home', () {
     final List<Map<String, Object?>> items = <Map<String, Object?>>[
       workItem('w-approval', 'APPROVAL', 'NEAR', screen: 'ADM-06', title: 'Phê duyệt kế hoạch vốn'),

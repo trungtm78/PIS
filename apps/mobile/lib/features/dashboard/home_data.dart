@@ -1,3 +1,4 @@
+import 'home_audience.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 
 import '../directives/directive_models.dart';
@@ -23,7 +24,11 @@ final class LeaderHomeData {
     this.changesError,
     this.directives,
     this.directivesError,
+    this.officer = false,
   });
+
+  /// The person decides nothing for a scope (R53): the home tab shows their own work by deadline, and none of the parts of a leader was read.
+  final bool officer;
 
   final CommandCenter? center;
 
@@ -62,6 +67,11 @@ String _partCode(ApiError error) => error.status == 403 && error.code != 'PERMIS
 
 /// Reads the alerts of the scope (those of the person when the scope is refused), the command center, the colours, the changes and the directives together.
 Future<Object?> readLeaderHome(MachvonApiClient client) async {
+  // R53: who the home is laid out for comes first, from the authority the server says the membership holds. An officer's home reads none of the figures of the whole scope; when the authority cannot be read the
+  // home keeps the layout it has always had (the reads below still stand on their own permissions).
+  final ({Object? value, ApiError? error}) access = await _attempt(() => client.getMyEffectiveAccess());
+  if (access.error != null && access.error!.status == 401) throw access.error!;
+  if (homeAudienceOf(access.value) == HomeAudience.officer) return <String, Object?>{'audience': 'officer'};
   final List<({Object? value, ApiError? error})> results = await Future.wait(<Future<({Object? value, ApiError? error})>>[
     _attempt(() => client.getCommandCenter()),
     _attempt(() => readAlertFeed(client, view: 'scope', fallbackToMine: true)),
@@ -99,6 +109,7 @@ Future<Object?> readLeaderHome(MachvonApiClient client) async {
 LeaderHomeData? parseLeaderHome(Object? raw) {
   final Json? row = asRecord(raw);
   if (row == null) return null;
+  if (row['audience'] == 'officer') return const LeaderHomeData(officer: true);
   final CommandCenter? center = row['center'] == null ? null : parseCommandCenter(row['center']);
   final AlertFeed? alerts = row['alerts'] == null ? null : parseAlertFeed(row['alerts']);
   if (center == null && alerts == null) return null;
