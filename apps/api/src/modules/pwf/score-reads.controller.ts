@@ -170,7 +170,7 @@ export class StaffScoreReadsController {
       const found = await this.reads.signals(tx, reach.review, tenant.membershipId, id.toLowerCase(), { limit: page.limit, after: page.after });
       await auditView(this.audit, tx, tenant, { action: 'score.signals_viewed', resourceType: PWF_RESOURCE_SCORE_PERIOD, resourceId: id.toLowerCase(), diff: { rows: found.items.length } });
       return {
-        items: found.items.map((one) => ({ membership_id: one.membershipId, display_name: one.displayName, flags: one.flags.map((flag) => ({ code: flag.code, task_codes: flag.taskCodes })) })),
+        items: found.items.map((one) => ({ membership_id: one.membershipId, display_name: one.displayName, flags: one.flags.map((flag) => ({ code: flag.code, task_codes: flag.taskCodes, tasks: flag.tasks })) })),
         next_cursor: found.next === null ? null : encodeCursor(found.next),
         as_of: now.toISOString(),
       } as unknown as Schemas['StaffScoreSignalPage'];

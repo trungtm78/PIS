@@ -19,6 +19,8 @@ interface Setup {
   catalogue?: unknown;
   versions?: Record<string, unknown[]>;
   effective?: Record<string, unknown>;
+  /** The entries of the shared catalogue of the kinds of project (`searchMasterRecords`). */
+  projectTypes?: unknown[];
 }
 
 const open = (setup: Setup = {}) => {
@@ -33,6 +35,7 @@ const open = (setup: Setup = {}) => {
       return (setup.effective ?? { PUBLIC_INVESTMENT: templateEffective(), PUBLIC_REPAIR: shippedEffective() })[code] ?? refusal('GOVERNANCE_RULE_NOT_FOUND', 404);
     },
   });
+  (h.client.readAll as ReturnType<typeof vi.fn>).mockImplementation(async (operation: string) => (operation === 'searchMasterRecords' ? (setup.projectTypes ?? []) : []));
   mountAs(<TemplateLibraryScreen route={route} />, h, { permissions: setup.permissions ?? ALL_PERMISSIONS, ...(setup.mode === undefined ? {} : { mode: setup.mode }), path: '/pwf/pwf-01' });
   return h;
 };
@@ -66,7 +69,17 @@ describe('PWF-01: the library of workflow templates', () => {
     const headers = within(screen.getByRole('table')).getAllByRole('columnheader').map((header) => header.textContent);
     expect(headers).toEqual([text('fix9.pwf01.col.template'), text('fix9.pwf01.col.type'), text('fix9.pwf01.col.versions'), text('fix9.pwf01.col.from'), text('fix9.pwf01.col.size'), text('fix9.pwf01.col.flag'), text('pwf.templates.col.actions.header')]);
     expect(screen.getByTestId('from-PUBLIC_INVESTMENT').textContent).toBe('01/12/2026');
+    // A kind of project nobody names is shown as its code, marked as a code.
     expect(screen.getByTestId('type-PUBLIC_INVESTMENT').textContent).toBe('CONSTRUCTION');
+    expect(screen.getByTestId('type-PUBLIC_INVESTMENT').querySelector('.pwf-code')?.textContent).toBe('CONSTRUCTION');
+  });
+
+  it('names the kind of project of a template by the shared catalogue, with the code as a small note under the name', async () => {
+    const h = open({ projectTypes: [{ business_key: 'CONSTRUCTION', label: 'Xây dựng mới', status: 'EFFECTIVE' }, { business_key: 'OLD', label: 'Hết hiệu lực', status: 'RETIRED' }] });
+    await screen.findByText('Mẫu bản 2');
+    await waitFor(() => expect(screen.getByTestId('type-PUBLIC_INVESTMENT').querySelector('.pwf-taskname__name')?.textContent).toBe('Xây dựng mới'));
+    expect(screen.getByTestId('type-PUBLIC_INVESTMENT').querySelector('.pwf-code')?.textContent).toBe('CONSTRUCTION');
+    expect(h.client.readAll).toHaveBeenCalledWith('searchMasterRecords', { query: { master_type: 'PROJECT_TYPE' } });
   });
 
   it('shows the shipped template as "default, not yet confirmed", with no day and no version of the tenant', async () => {

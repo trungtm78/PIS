@@ -331989,6 +331989,26 @@
                         "items": {
                           "type": "string"
                         }
+                      },
+                      "tasks": {
+                        "type": "array",
+                        "description": "Tên của từng việc trong task_codes (tên là thứ người rà soát đọc, mã chỉ là chú thích); việc không còn tìm thấy thì name bằng mã",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "code",
+                            "name"
+                          ],
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          }
+                        }
                       }
                     }
                   }

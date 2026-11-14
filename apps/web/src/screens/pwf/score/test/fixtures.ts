@@ -134,7 +134,7 @@ export const comparison = (over: Partial<Comparison> = {}): Comparison => ({
 export const preview = (over: Partial<PeriodPreview> = {}): PeriodPreview => ({ period: period({ status: 'DRAFT', snapshot_hash: null, locked_at: null, locked_by: null, response_until: null, open_response_count: 0 }), rated_count: 5, small_sample_count: 1, not_rated_count: 0, signal_count: 2, excluded_task_count: 3, preview_hash: HASH, as_of: AS_OF, ...over });
 
 export const signals = (over: Partial<SignalPage> = {}): SignalPage => ({
-  items: [{ membership_id: uuid(81), display_name: 'Người 1', flags: [{ code: 'CANCELLED_SHARE_HIGH', task_codes: ['T4', 'T5'] }] }],
+  items: [{ membership_id: uuid(81), display_name: 'Người 1', flags: [{ code: 'CANCELLED_SHARE_HIGH', task_codes: ['T4', 'T5'], tasks: [{ code: 'T4', name: 'Lập hồ sơ mời thầu' }, { code: 'T5', name: 'T5' }] }] }],
   next_cursor: null,
   as_of: AS_OF,
   ...over,

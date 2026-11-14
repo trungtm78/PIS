@@ -23,7 +23,9 @@ const open = (path: string, task: unknown = taskDetail({ can_assign: true })) =>
 describe('PWF-16: the ledger as a screen', () => {
   it('names the task, lists its ledger and offers the form when the server says the caller can assign', async () => {
     const h = open(`/pwf/pwf-16?id=${TASK}`);
-    expect((await screen.findByRole('heading', { level: 1 })).textContent).toContain('T2');
+    // The name of the task is the heading; its code is a small note under it, never part of the heading.
+    expect((await screen.findByRole('heading', { level: 1 })).textContent).toBe(text('fix10.ledger.heading.text', { name: 'Công việc 2' }));
+    expect(screen.getByTestId('ledger-task-code').textContent).toBe('T2');
     expect(await screen.findByRole('table')).toBeTruthy();
     expect(screen.getByTestId('assign-form')).toBeTruthy();
     expect(h.read).toHaveBeenCalledWith('getProjectTask', { path: { task_id: TASK } });

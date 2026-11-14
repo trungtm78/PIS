@@ -67964,6 +67964,7 @@ final class StaffScoreSignalPageResponseItemsItemFlagsItem implements ResponseMo
   const StaffScoreSignalPageResponseItemsItemFlagsItem({
     required this.code,
     required this.taskCodes,
+    this.tasks,
     this.extra = const <String, Object?>{},
   });
 
@@ -67972,12 +67973,14 @@ final class StaffScoreSignalPageResponseItemsItemFlagsItem implements ResponseMo
     return StaffScoreSignalPageResponseItemsItemFlagsItem(
       code: requiredField(map, path, 'code', asString),
       taskCodes: requiredField(map, path, 'task_codes', asList(asString)),
-      extra: unknownFields(map, path, const <String>{'code', 'task_codes'}, strict: true),
+      tasks: optionalField(map, path, 'tasks', asList(StaffScoreSignalPageResponseItemsItemFlagsItemTasksItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'code', 'task_codes', 'tasks'}, strict: true),
     );
   }
 
   final String code;
   final List<String> taskCodes;
+  final List<StaffScoreSignalPageResponseItemsItemFlagsItemTasksItem>? tasks;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -67986,6 +67989,37 @@ final class StaffScoreSignalPageResponseItemsItemFlagsItem implements ResponseMo
   Map<String, Object?> toJson() => <String, Object?>{
         'code': code,
         'task_codes': taskCodes,
+        if (tasks != null) 'tasks': tasks!.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class StaffScoreSignalPageResponseItemsItemFlagsItemTasksItem implements ResponseModel {
+  const StaffScoreSignalPageResponseItemsItemFlagsItemTasksItem({
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory StaffScoreSignalPageResponseItemsItemFlagsItemTasksItem.fromJson(Object? json, [String path = 'StaffScoreSignalPageResponseItemsItemFlagsItemTasksItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return StaffScoreSignalPageResponseItemsItemFlagsItemTasksItem(
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'code', 'name'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
         ...extra,
       };
 }

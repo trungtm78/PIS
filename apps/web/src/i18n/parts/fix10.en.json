@@ -23,5 +23,7 @@
   "fix10.board.more.action": "Show more",
   "fix10.board.export.action": "Export to Excel ({total} tasks)",
   "fix10.board.export.done": "Exported {name} with all {rows} tasks.",
-  "fix10.board.export.failed": "The Excel file could not be made. Try again or narrow the filters."
+  "fix10.board.export.failed": "The Excel file could not be made. Try again or narrow the filters.",
+  "fix10.ledger.heading.text": "Assignment ledger · {name}",
+  "fix10.editor.task.unnamed": "Task not named yet"
 }

@@ -83,6 +83,28 @@ export function TaskName({ name, code, note, children }: { name: string; code: s
 }
 
 /**
+ * The kind of project a template is for, by its name: the name the shared catalogue gives the code, else the name the screens know for it, and only then the code, marked as a code. Where a name is shown the code is a
+ * small note under it, for whoever has to match it against the mapping rule.
+ */
+export function ProjectTypeName({ code, names }: { code: string; names: ReadonlyMap<string, string> }) {
+  const { t } = useTranslation();
+  const name = names.get(code) ?? (templateKnown(code) ? templateName(t, code) : translator.has(`pwf6.fact.${codeKey(code)}.word`) ? factName(t, code) : undefined);
+  if (name === undefined) {
+    return (
+      <span className="pwf-code" data-project-type={code}>
+        {code}
+      </span>
+    );
+  }
+  return (
+    <span className="pwf-taskname" data-project-type={code}>
+      <span className="pwf-taskname__name">{name}</span>
+      {name === code ? null : <span className="pwf-code pwf-taskname__code">{code}</span>}
+    </span>
+  );
+}
+
+/**
  * A role by its name: the name the template gives it (`name`, a role a tenant made up itself), else the name of the shipped catalogue. Only a role neither of them names is shown as its code, marked as a code. The code stays on the
  * element (`data-role`, and the tooltip) for whoever needs it.
  */

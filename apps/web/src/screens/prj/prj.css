@@ -213,3 +213,7 @@ section[data-screen-id='PRJ-03'] .ui-kpi__value {
   font-size: 24px;
   overflow-wrap: normal;
 }
+
+/* A name with its code as a small note under it (the milestones of the plan tab): the name is what a person reads. */
+.prj-named { display: flex; flex-direction: column; gap: 2px; }
+.prj-named__code { font-size: 12px; color: var(--mv-color-ink3, var(--muted)); font-variant-numeric: tabular-nums; }

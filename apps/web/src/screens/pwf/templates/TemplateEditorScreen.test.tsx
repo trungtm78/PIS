@@ -482,6 +482,9 @@ describe('PWF-02: one task in short tabs (owner review of 14/11/2026)', () => {
     open();
     await ready();
     fireEvent.click(screen.getByTestId('pick-0'));
+    // The name of the chosen task is the heading of its panel; the code is a note under it.
+    expect(screen.getByTestId('task-heading').textContent).not.toMatch(/^Việc /);
+    expect(screen.getByTestId('task-heading-code').textContent).toMatch(/^[A-Z][A-Z0-9_]*$/);
     const tabs = within(screen.getByTestId('task-parts')).getAllByRole('tab');
     expect(tabs.map((tab) => tab.getAttribute('data-testid'))).toEqual(TASK_TABS.map((id) => `task-parts-tab-${id}`));
     expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { dayMonthYear } from '../../../i18n/format';
 import { DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { methodLabel } from '../../bid/plan-labels';
@@ -49,15 +50,19 @@ function MilestonesSection({ projectId }: { projectId: string }) {
     {
       key: 'milestone',
       header: t('prj.mile.col.milestone'),
+      // The name of the milestone is what a person reads; its code is a small note under it.
       render: (item) => (
-        <>
-          <code>{item.code}</code> {item.name}
-        </>
+        <span className="prj-named">
+          <span>{item.name}</span>
+          <span className="prj-named__code" data-testid="milestone-code">
+            {item.code}
+          </span>
+        </span>
       ),
     },
-    { key: 'baseline', header: t('prj.mile.col.baseline'), render: (item) => item.baselineDate },
-    { key: 'planned', header: t('prj.mile.col.planned'), render: (item) => item.plannedDate },
-    { key: 'actual', header: t('prj.mile.col.actual'), render: (item) => item.actualDate ?? '–' },
+    { key: 'baseline', header: t('prj.mile.col.baseline'), render: (item) => dayMonthYear(item.baselineDate) },
+    { key: 'planned', header: t('prj.mile.col.planned'), render: (item) => dayMonthYear(item.plannedDate) },
+    { key: 'actual', header: t('prj.mile.col.actual'), render: (item) => dayMonthYear(item.actualDate) },
     {
       key: 'status',
       header: t('prj.mile.col.status'),

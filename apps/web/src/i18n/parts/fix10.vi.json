@@ -23,5 +23,7 @@
   "fix10.board.more.action": "Xem thêm",
   "fix10.board.export.action": "Xuất Excel ({total} việc)",
   "fix10.board.export.done": "Đã xuất tệp {name} với đủ {rows} việc.",
-  "fix10.board.export.failed": "Chưa xuất được tệp Excel. Hãy thử lại hoặc lọc hẹp hơn."
+  "fix10.board.export.failed": "Chưa xuất được tệp Excel. Hãy thử lại hoặc lọc hẹp hơn.",
+  "fix10.ledger.heading.text": "Sổ phân công · {name}",
+  "fix10.editor.task.unnamed": "Công việc chưa đặt tên"
 }

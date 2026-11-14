@@ -305,7 +305,11 @@ function TaskPanel({ template, index, task, onChange, problems, show, disabled, 
   const common = { problems, show, disabled };
   return (
     <div data-task={task.code}>
-      <h3>{t('pwf.templates.task.title', { code: task.code })}</h3>
+      {/* The name of the task is its heading; the code is a small note under it (a task not named yet says so, with its code). */}
+      <h3 data-testid="task-heading">{task.name.trim() === '' ? t('fix10.editor.task.unnamed') : task.name}</h3>
+      <p className="pwf-code" data-testid="task-heading-code">
+        {task.code}
+      </p>
       <Tabs
         label={t('fix8.editor.parts.label')}
         testId="task-parts"

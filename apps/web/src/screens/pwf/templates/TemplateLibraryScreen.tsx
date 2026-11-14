@@ -10,7 +10,8 @@ import type { DataTableColumn } from '../../../ui';
 import { useCatalogue } from '../../adm/governance/hooks';
 import { statusText } from '../../adm/governance/labels';
 import type { RuleStatus } from '../../adm/governance/model';
-import { factName, templateKnown, templateName } from '../codes';
+import { ProjectTypeName } from '../codes';
+import { useProjectTypeNames } from '../hooks';
 import { FigureInfo, UnverifiedLabel } from '../components';
 import { PATHS, PERMISSIONS, TEMPLATE_RULE_TYPE, dayText, editorLink, holds } from '../model';
 import { useTemplateCodes } from './hooks';
@@ -113,6 +114,7 @@ function ForceCell({ row }: { row: LibraryRow }) {
 
 function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit: boolean }) {
   const { t } = useTranslation();
+  const typeNames = useProjectTypeNames();
   const columns: DataTableColumn<LibraryRow>[] = [
     {
       key: 'template',
@@ -133,7 +135,9 @@ function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit:
         row.summary === null ? null : row.summary.projectType === null || row.summary.projectType === undefined ? (
           <span className="pwf-hint">{t('fix9.pwf01.type.any')}</span>
         ) : (
-          <span data-testid={`type-${row.code}`}>{templateKnown(row.summary.projectType) ? templateName(t, row.summary.projectType) : factName(t, row.summary.projectType)}</span>
+          <span data-testid={`type-${row.code}`}>
+            <ProjectTypeName code={row.summary.projectType} names={typeNames} />
+          </span>
         ),
     },
     {

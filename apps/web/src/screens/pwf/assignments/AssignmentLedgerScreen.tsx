@@ -42,7 +42,10 @@ function LedgerContent({ route }: ScreenProps) {
                 <Link to={taskLink(taskId)}>{t('pwf.ledger.back.link')}</Link>
               </p>
               <div className="heading">
-                <h1 id="screen-title">{t('pwf.ledger.screen.heading', { code: task.data.task_code, name: task.data.name })}</h1>
+                <h1 id="screen-title">{t('fix10.ledger.heading.text', { name: task.data.name })}</h1>
+                <p className="pwf-code" data-testid="ledger-task-code">
+                  {task.data.task_code}
+                </p>
               </div>
               <AssignmentLedger taskId={taskId} canAssign={task.data.can_assign} />
             </>

@@ -138,6 +138,11 @@ describe('PlanTab (PRJ-03, tab Plan)', () => {
     await waitFor(() => expect(within(milestones).getByText('Moc 1', { exact: false })).toBeTruthy());
     expect(within(milestones).getByTestId('delay').textContent).toBe(vi_['prj.mile.delay.pill'].replace('{days}', '62'));
     expect(within(milestones).getByText(vi_['prj.mile.status.delayed'])).toBeTruthy();
+    // The days read day/month/year, and the code of a milestone is a small note under its name, not the lead of the cell.
+    expect(within(milestones).getAllByText('13/07/2026').length).toBeGreaterThan(0);
+    expect(milestones.textContent).not.toContain('2026-07-13');
+    expect(within(milestones).getAllByTestId('milestone-code')).toHaveLength(2);
+    expect(milestones.querySelector('code')).toBeNull();
     expect(within(await screen.findByTestId('ws-components')).getByText('CP1')).toBeTruthy();
     expect(screen.getByTestId('ws-wbs-total').textContent).toContain('500.000.000.000');
     const capital = await screen.findByTestId('ws-capital');

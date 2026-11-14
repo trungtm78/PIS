@@ -317,7 +317,7 @@ export function ResponseList({ responses, renderHandle }: ResponseListProps) {
 }
 
 /** The flags raised for the reviewers of a period; they never change a score and they are not shown to the person scored. */
-export function FlagList({ flags }: { flags: ReadonlyArray<{ code: FlagCode; task_codes?: readonly string[] }> }) {
+export function FlagList({ flags }: { flags: ReadonlyArray<{ code: FlagCode; task_codes?: readonly string[]; tasks?: ReadonlyArray<{ code: string; name: string }> | undefined }> }) {
   const { t } = useTranslation();
   return (
     <ul className="pwfs-flags" data-testid="flags">
@@ -327,7 +327,16 @@ export function FlagList({ flags }: { flags: ReadonlyArray<{ code: FlagCode; tas
             {flagWord(t, flag.code)}
           </StatusPill>
           <span className="adm-kit-sub"> {flagHint(t, flag.code)}</span>
-          {flag.task_codes === undefined || flag.task_codes.length === 0 ? null : <span className="adm-kit-sub"> · {flag.task_codes.join(', ')}</span>}
+          {flag.task_codes === undefined || flag.task_codes.length === 0 ? null : (
+            <ul className="pwfs-flagtasks" data-testid="flag-tasks">
+              {flag.task_codes.map((code) => (
+                <li key={code}>
+                  {/* The name is what a reviewer reads; the code is a small note under it (an older answer that names no task shows the code alone). */}
+                  <TaskName name={flag.tasks?.find((one) => one.code === code)?.name ?? code} code={code} />
+                </li>
+              ))}
+            </ul>
+          )}
         </li>
       ))}
     </ul>

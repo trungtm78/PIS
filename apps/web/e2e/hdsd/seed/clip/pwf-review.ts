@@ -1,5 +1,5 @@
 import type { CommandReply, Obj, SeedContext } from '../context.ts';
-import { ensureWorkCalendar, masterRecord, paper, tolerate } from '../field-assurance/shared.ts';
+import { ensureWorkCalendar, masterRecord, paper, publishMaster, tolerate } from '../field-assurance/shared.ts';
 
 /**
  * Group `clip-public-pwf-review`: the screens of the project workflow (PWF-01 to PWF-16, the section of PRJ-02, the tab of PRJ-03, MOB-78 to MOB-82) have something to judge on every one of them.
@@ -702,6 +702,16 @@ async function scores(ctx: SeedContext): Promise<void> {
 export async function seedClipPwfReview(ctx: SeedContext): Promise<void> {
   // R52: the calendars of the years a slipping schedule can reach are published before any workflow is laid, so that no schedule is pinned short of them.
   await ctx.step('ADM', 'the working calendars of the years the schedules reach', () => ensureWorkCalendar(ctx, [ctx.year, ctx.year + 1, ctx.year + 2, ctx.year + 3]));
+  // The template of the tenant names its kind of project by a code of the shared catalogue: the entry is published, so the library reads its name and not the code.
+  await ctx.step('ADM', 'the kind of project of the template of the tenant, in the shared catalogue', async () => {
+    await tolerate(ctx, 'the project type ROAD_REPAIR', async () =>
+      publishMaster(
+        ctx,
+        { type: 'PROJECT_TYPE', key: 'ROAD_REPAIR', label: 'Sửa chữa đường giao thông', reason: 'Bổ sung loại dự án sửa chữa đường giao thông để gắn mẫu quy trình của tỉnh' },
+        await paper(ctx, { symbol: 'PWF-LDA-01/QD-UBND', title: 'Quyết định bổ sung danh mục loại dự án của tỉnh', type: 'QD', issuedOn: ctx.day(-30) }),
+      ),
+    );
+  });
   await ctx.step('PWF', 'the library: a template of the tenant in force, its second version waiting, a draft', () => library(ctx));
   await ctx.step('PWF', 'the mapping rule of the tenant and its three-colour policy', async () => {
     await mapping(ctx);

@@ -60,3 +60,6 @@
 .pwfs-project {
   display: block;
 }
+
+/* The tasks a signal names: one a line, the name first and the code as a note under it. */
+.pwfs-flagtasks { list-style: none; margin: var(--mv-space-4) 0 0; padding: 0; display: grid; gap: var(--mv-space-4); }

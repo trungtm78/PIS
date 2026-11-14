@@ -50516,6 +50516,11 @@ export interface components {
                     /** @enum {string} */
                     code: "CANCELLED_SHARE_HIGH" | "TASKS_SPLIT_AFTER_BASELINE" | "BASELINE_REVISED_IN_PERIOD" | "ASSIGNEE_CHANGED_NEAR_DUE";
                     task_codes: string[];
+                    /** @description Tên của từng việc trong task_codes (tên là thứ người rà soát đọc, mã chỉ là chú thích); việc không còn tìm thấy thì name bằng mã */
+                    tasks?: {
+                        code: string;
+                        name: string;
+                    }[];
                 }[];
             }[];
             next_cursor: string | null;

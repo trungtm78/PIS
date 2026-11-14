@@ -402,7 +402,7 @@ export class PwfScoreReads {
   }
 
   /** The signals of a period for the reviewer, by person, in pages. */
-  async signals(tx: TenantTx, reviewUnits: ScoreUnits, reviewer: string, periodId: string, page: { limit: number; after?: { code: string; id: string } | undefined }): Promise<PageOf<{ membershipId: string; displayName: string; flags: Array<{ code: string; taskCodes: string[] }> }>> {
+  async signals(tx: TenantTx, reviewUnits: ScoreUnits, reviewer: string, periodId: string, page: { limit: number; after?: { code: string; id: string } | undefined }): Promise<PageOf<{ membershipId: string; displayName: string; flags: Array<{ code: string; taskCodes: string[]; tasks: Array<{ code: string; name: string }> }> }>> {
     const id = scoreIdOf(periodId, 'id');
     return withScoreScope(tx, { units: reviewUnits, subject: '' }, async () => {
       const period = await tx.query<{ id: string }>('select id from machvon.staff_score_period p where p.id = $1::uuid', [id]);
@@ -416,8 +416,20 @@ export class PwfScoreReads {
       );
       const shown = rows.slice(0, page.limit);
       const last = shown[shown.length - 1];
+      // A signal keeps the codes of its tasks (the snapshot of a locked period is never reshaped); the names a reviewer reads are looked up beside them, among the tasks the person holds or held. One query for the page.
+      const named = shown.length === 0 ? [] : await tx.query<{ membership_id: string; task_code: string; name: string }>(
+        `select distinct on (a.membership_id, t.task_code) a.membership_id, t.task_code, t.name
+           from machvon.project_task_assignment a join machvon.project_task t on t.tenant_id = a.tenant_id and t.id = a.task_id
+          where a.membership_id = any($1::uuid[]) and t.task_code = any($2::text[]) order by a.membership_id, t.task_code, t.id`,
+        [shown.map((row) => row.membership_id), [...new Set(shown.flatMap((row) => row.flags.flatMap((flag) => flag.task_codes)))]],
+      );
+      const nameOf = new Map(named.map((one) => [`${one.membership_id}:${one.task_code}`, one.name] as const));
       return {
-        items: shown.map((row) => ({ membershipId: row.membership_id, displayName: row.display_name ?? '', flags: row.flags.map((flag) => ({ code: flag.code, taskCodes: flag.task_codes })) })),
+        items: shown.map((row) => ({
+          membershipId: row.membership_id,
+          displayName: row.display_name ?? '',
+          flags: row.flags.map((flag) => ({ code: flag.code, taskCodes: flag.task_codes, tasks: flag.task_codes.map((code) => ({ code, name: nameOf.get(`${row.membership_id}:${code}`) ?? code })) })),
+        })),
         next: rows.length > shown.length && last !== undefined ? { code: '0', id: last.membership_id } : null,
       };
     });
