@@ -38559,6 +38559,8 @@
   "pwf.unit.calendar.word": "ngày",
   "pwf.band.overdue.text": "Quá hạn {days} {unit}",
   "pwf.band.today.text": "Đến hạn hôm nay",
+  "pwf.band.overdueNow.text": "Đã quá hạn",
+  "pwf.band.noDayLeft.text": "Không còn {unit} nào trước hạn",
   "pwf.band.remaining.text": "Còn {days} {unit}",
   "pwf.status.notStarted.word": "Chưa bắt đầu",
   "pwf.status.inProgress.word": "Đang làm",

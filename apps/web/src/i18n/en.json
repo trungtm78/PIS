@@ -38559,6 +38559,8 @@
   "pwf.unit.calendar.word": "days",
   "pwf.band.overdue.text": "Overdue by {days} {unit}",
   "pwf.band.today.text": "Due today",
+  "pwf.band.overdueNow.text": "Overdue",
+  "pwf.band.noDayLeft.text": "No {unit} left before the deadline",
   "pwf.band.remaining.text": "{days} {unit} left",
   "pwf.status.notStarted.word": "Not started",
   "pwf.status.inProgress.word": "In progress",

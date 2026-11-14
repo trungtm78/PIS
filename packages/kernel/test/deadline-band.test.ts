@@ -8,6 +8,7 @@ import {
   deadlineBand,
   deadlineSourceOf,
   deadlineSources,
+  deadlineWording,
   dueReminders,
   registerDeadlineSource,
   reminderPoints,
@@ -116,18 +117,63 @@ describe('remainingDays', () => {
 });
 
 describe('deadlineBand', () => {
+  it('B7: a deadline is overdue from the day after it, whatever the calendar says of that day, and "today" is the day of the deadline only (decision table with a weekend and a holiday)', () => {
+    // 2026-11-13 is a Friday, 14 and 15 the weekend, 16 a Monday; Wednesday 11 is the holiday of the fixture.
+    const legacy: BandThresholds = { green_days: null, yellow_days: 7, red_days: -1 };
+    const table: Array<{ due: string; today: string; remaining: number; overdue: boolean; dueToday: boolean; band: string; legacyBand: string }> = [
+      { due: '2026-11-13', today: '2026-11-12', remaining: 1, overdue: false, dueToday: false, band: 'YELLOW', legacyBand: 'YELLOW' },
+      { due: '2026-11-13', today: '2026-11-13', remaining: 0, overdue: false, dueToday: true, band: 'RED', legacyBand: 'YELLOW' },
+      // Saturday and Sunday after the deadline: no working day has passed, and the deadline has: overdue and red on every ladder, never "due today".
+      { due: '2026-11-13', today: '2026-11-14', remaining: 0, overdue: true, dueToday: false, band: 'RED', legacyBand: 'RED' },
+      { due: '2026-11-13', today: '2026-11-15', remaining: 0, overdue: true, dueToday: false, band: 'RED', legacyBand: 'RED' },
+      { due: '2026-11-13', today: '2026-11-16', remaining: -1, overdue: true, dueToday: false, band: 'RED', legacyBand: 'RED' },
+      { due: '2026-11-13', today: '2026-11-18', remaining: -3, overdue: true, dueToday: false, band: 'RED', legacyBand: 'RED' },
+      // Read on a Saturday, a deadline on the Monday after has one working day left.
+      { due: '2026-11-16', today: '2026-11-14', remaining: 1, overdue: false, dueToday: false, band: 'YELLOW', legacyBand: 'YELLOW' },
+      // A deadline that falls on a Sunday, read on the Friday before: no working day is left, and it is neither today nor overdue.
+      { due: '2026-11-15', today: '2026-11-13', remaining: 0, overdue: false, dueToday: false, band: 'RED', legacyBand: 'YELLOW' },
+      { due: '2026-11-15', today: '2026-11-15', remaining: 0, overdue: false, dueToday: true, band: 'RED', legacyBand: 'YELLOW' },
+      { due: '2026-11-15', today: '2026-11-16', remaining: -1, overdue: true, dueToday: false, band: 'RED', legacyBand: 'RED' },
+      // The holiday of Wednesday 11 is not counted on either side.
+      { due: '2026-11-12', today: '2026-11-10', remaining: 1, overdue: false, dueToday: false, band: 'YELLOW', legacyBand: 'YELLOW' },
+      { due: '2026-11-10', today: '2026-11-11', remaining: 0, overdue: true, dueToday: false, band: 'RED', legacyBand: 'RED' },
+      { due: '2026-11-10', today: '2026-11-12', remaining: -1, overdue: true, dueToday: false, band: 'RED', legacyBand: 'RED' },
+    ];
+    for (const row of table) {
+      const got = deadlineBand({ dueOn: row.due, today: row.today, unit: 'WORKING', calendars: SOURCE, thresholds: EXAMPLE });
+      expect({ due: row.due, today: row.today, remaining: got.remainingDays, overdue: got.overdue, dueToday: got.dueToday, band: got.band }).toEqual({ due: row.due, today: row.today, remaining: row.remaining, overdue: row.overdue, dueToday: row.dueToday, band: row.band });
+      expect([row.due, row.today, deadlineBand({ dueOn: row.due, today: row.today, unit: 'WORKING', calendars: SOURCE, thresholds: legacy }).band]).toEqual([row.due, row.today, row.legacyBand]);
+    }
+    // In calendar days nothing changes: the day after the deadline is -1.
+    expect(deadlineBand({ dueOn: '2026-11-13', today: '2026-11-14', unit: 'CALENDAR', thresholds: EXAMPLE })).toEqual({ band: 'RED', remainingDays: -1, overdue: true, dueToday: false, unit: 'CALENDAR' });
+    expect(deadlineBand({ dueOn: '2026-11-13', today: '2026-11-13', unit: 'CALENDAR', thresholds: EXAMPLE })).toMatchObject({ remainingDays: 0, overdue: false, dueToday: true });
+  });
+
+  it('B7: one wording for every screen: how late, due today, no working day left, or how many days are left', () => {
+    const wording = (due: string | null, today: string, unit: 'WORKING' | 'CALENDAR' = 'WORKING') => deadlineWording(deadlineBand({ dueOn: due, today, unit, calendars: SOURCE, thresholds: EXAMPLE }));
+    expect(wording('2026-11-13', '2026-11-12')).toEqual({ kind: 'DAYS_LEFT', days: 1, unit: 'WORKING' });
+    expect(wording('2026-11-13', '2026-11-13')).toEqual({ kind: 'DUE_TODAY', days: 0, unit: 'WORKING' });
+    expect(wording('2026-11-13', '2026-11-14')).toEqual({ kind: 'OVERDUE', days: 0, unit: 'WORKING' });
+    expect(wording('2026-11-13', '2026-11-16')).toEqual({ kind: 'OVERDUE_DAYS', days: 1, unit: 'WORKING' });
+    expect(wording('2026-11-15', '2026-11-13')).toEqual({ kind: 'NO_DAY_LEFT', days: 0, unit: 'WORKING' });
+    expect(wording('2026-11-13', '2026-11-14', 'CALENDAR')).toEqual({ kind: 'OVERDUE_DAYS', days: 1, unit: 'CALENDAR' });
+    expect(wording('2026-12-25', '2026-11-13')).toEqual({ kind: 'FAR', days: null, unit: 'WORKING' });
+    expect(wording(null, '2026-11-13')).toEqual({ kind: 'NO_DUE', days: null, unit: 'WORKING' });
+    expect(wording('2027-01-05', '2026-12-30')).toEqual({ kind: 'UNKNOWN', days: null, unit: 'WORKING' });
+  });
+
   it('gives the colour, the days left and whether it is overdue', () => {
-    expect(deadlineBand({ dueOn: '2026-11-12', today: TODAY, unit: 'WORKING', calendars: SOURCE, thresholds: EXAMPLE })).toEqual({ band: 'YELLOW', remainingDays: 2, overdue: false, unit: 'WORKING' });
-    expect(deadlineBand({ dueOn: '2026-11-06', today: TODAY, unit: 'CALENDAR', thresholds: EXAMPLE })).toEqual({ band: 'RED', remainingDays: -3, overdue: true, unit: 'CALENDAR' });
+    expect(deadlineBand({ dueOn: '2026-11-12', today: TODAY, unit: 'WORKING', calendars: SOURCE, thresholds: EXAMPLE })).toEqual({ band: 'YELLOW', remainingDays: 2, overdue: false, dueToday: false, unit: 'WORKING' });
+    expect(deadlineBand({ dueOn: '2026-11-06', today: TODAY, unit: 'CALENDAR', thresholds: EXAMPLE })).toEqual({ band: 'RED', remainingDays: -3, overdue: true, dueToday: false, unit: 'CALENDAR' });
   });
 
   it('says why a task has no colour: no due day, or still far', () => {
-    expect(deadlineBand({ dueOn: null, today: TODAY, unit: 'CALENDAR', thresholds: EXAMPLE })).toEqual({ band: 'NONE', remainingDays: null, overdue: false, unit: 'CALENDAR', reason: 'NO_DUE' });
+    expect(deadlineBand({ dueOn: null, today: TODAY, unit: 'CALENDAR', thresholds: EXAMPLE })).toEqual({ band: 'NONE', remainingDays: null, overdue: false, dueToday: false, unit: 'CALENDAR', reason: 'NO_DUE' });
     expect(deadlineBand({ dueOn: '2026-12-31', today: TODAY, unit: 'CALENDAR', thresholds: EXAMPLE })).toMatchObject({ band: 'NONE', reason: 'FAR' });
   });
 
   it('is UNKNOWN, with its reason, when the working calendar is missing', () => {
-    expect(deadlineBand({ dueOn: '2027-01-05', today: '2026-12-30', unit: 'WORKING', calendars: SOURCE, thresholds: EXAMPLE })).toEqual({ band: 'UNKNOWN', remainingDays: null, overdue: false, unit: 'WORKING', reason: 'CALENDAR_UNAVAILABLE' });
+    expect(deadlineBand({ dueOn: '2027-01-05', today: '2026-12-30', unit: 'WORKING', calendars: SOURCE, thresholds: EXAMPLE })).toEqual({ band: 'UNKNOWN', remainingDays: null, overdue: false, dueToday: false, unit: 'WORKING', reason: 'CALENDAR_UNAVAILABLE' });
   });
 
   it('refuses a day that is not a day', () => {

@@ -5,7 +5,7 @@ import { PwfAssignmentReads, legalBasisView } from './pwf-assignment.ts';
 import { currentFormRevisions } from './pwf-form-revision.ts';
 import { TASK_COLUMNS, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow, TaskSql } from './pwf-schedule-support.ts';
-import { bandResolver, taskItemOf, unitPathOfProject } from './pwf-workflow-reads.ts';
+import { bandResolver, bandSubjectOf, taskItemOf, unitPathOfProject } from './pwf-workflow-reads.ts';
 import type { Can } from './pwf-workflow-reads.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -147,7 +147,7 @@ export class PwfTaskReads {
       };
     });
     return {
-      ...taskItemOf(task, resolver.of(task, unit), assignee),
+      ...taskItemOf(task, resolver.of(bandSubjectOf(task), unit), assignee),
       responsible_role: task.responsibleRole,
       approver_role: task.approverRole,
       duration_working_days: task.durationWorkingDays,

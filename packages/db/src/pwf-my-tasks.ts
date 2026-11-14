@@ -3,12 +3,13 @@ import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.t
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
 import { PwfDeadlinePreferenceStore, hasPersonalLadder, personalThresholdsOf } from './pwf-deadline-preference.ts';
+import { bandViewOf } from './pwf-workflow-reads.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 /**
  * "My tasks" by deadline (MOB-80, PWF-15; R40): the open tasks the ledger of assignments hands to the caller, each with the OFFICIAL colour and, only when the person set a ladder of their own that differs from it, the colour of THAT ladder, beside
- * the real day of the deadline. The official colour is always there and is the one that counts; the personal one is only ever earlier. A personal ladder the official rule has since passed is read as the official line (the preference names what was
+ * the real day of the deadline (the OFFICIAL one: the finish of the schedule last released by a decision, R49; the forecast is told beside it when it differs). The official colour is always there and is the one that counts; the personal one is only ever earlier. A personal ladder the official rule has since passed is read as the official line (the preference names what was
  * raised), and one that cannot be merged into a valid ladder is left out rather than shown wrong. Bounded (R35): the page is cut by the database (cursor on the day and the id) and the total is the exact count of what the filters leave, from a grouped count of its own.
  */
 
@@ -33,6 +34,7 @@ interface MyTaskSql {
   project_code: string;
   status: (typeof STATUSES)[number];
   due_date: string | null;
+  forecast_finish: string | null;
   kind: 'TASK' | 'MILESTONE';
   priority: 'LOW' | 'NORMAL' | 'HIGH' | 'CRITICAL';
   phase_code: string;
@@ -42,15 +44,7 @@ interface MyTaskSql {
   sort_day: string;
 }
 
-interface BandJson {
-  band: pwfDeadlineBand.Band;
-  remaining_days: number | null;
-  unit: pwfDeadlineBand.DeadlineUnit;
-  overdue: boolean;
-  reason?: string | null;
-}
-
-const viewOf = (result: pwfDeadlineBand.DeadlineBandResult): BandJson => ({ band: result.band, remaining_days: result.remainingDays, unit: result.unit, overdue: result.overdue, reason: result.reason ?? null });
+const viewOf = bandViewOf;
 
 export class PwfMyTaskReads {
   private readonly policies = new PwfBandPolicies();
@@ -81,7 +75,7 @@ export class PwfMyTaskReads {
       `exists (select 1 from machvon.project_task_assignment a where a.tenant_id = t.tenant_id and a.task_id = t.id and a.role in ('RESPONSIBLE', 'ACCOUNTABLE') and a.membership_id = ${me}::uuid and a.valid_from <= ${day}::date and (a.valid_to is null or a.valid_to >= ${day}::date))`,
     ];
     if (filter.status !== undefined) where.push(`t.status = ${bind(filter.status)}`);
-    if (filter.dueBefore !== undefined) where.push(`t.planned_finish <= ${bind(filter.dueBefore)}::date`);
+    if (filter.dueBefore !== undefined) where.push(`t.committed_finish <= ${bind(filter.dueBefore)}::date`);
     const set = await this.policies.load(tx, today);
     const calendars = await this.calendars.load(tx, WORK_CALENDAR_CODE, now);
     const officialOf = (kind: MyTaskSql['kind'], priority: MyTaskSql['priority'], phase: string, unitPath: string | null, dueOn: string | null): pwfDeadlineBand.DeadlineBandResult => {
@@ -90,9 +84,9 @@ export class PwfMyTaskReads {
     };
     // The exact total (and the groups the colour filter keeps) come from one grouped count of their own, so a page never changes the number it says there are; the page is cut by the database, nothing is read past it.
     const groups = await tx.query<{ d: string | null; kind: MyTaskSql['kind']; priority: MyTaskSql['priority']; phase_code: string; unit_path: string | null; n: string }>(
-      `select t.planned_finish::text as d, t.kind, t.priority, t.phase_code, ou.path as unit_path, count(*)::text as n
+      `select t.committed_finish::text as d, t.kind, t.priority, t.phase_code, ou.path as unit_path, count(*)::text as n
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
-        where ${where.join(' and ')} group by t.planned_finish, t.kind, t.priority, t.phase_code, ou.path`,
+        where ${where.join(' and ')} group by t.committed_finish, t.kind, t.priority, t.phase_code, ou.path`,
       params,
     );
     let total = 0;
@@ -107,16 +101,16 @@ export class PwfMyTaskReads {
     if (filter.band !== undefined) {
       if (kept.length === 0) conditions.push('false');
       else {
-        const keys = `(coalesce(t.planned_finish::text, ''), t.kind, t.priority, t.phase_code, coalesce(ou.path, '')) in (select * from unnest(${pageBind(kept.map((one) => one.d ?? ''))}::text[], ${pageBind(kept.map((one) => one.kind))}::text[], ${pageBind(kept.map((one) => one.priority))}::text[], ${pageBind(kept.map((one) => one.phase_code))}::text[], ${pageBind(kept.map((one) => one.unit_path ?? ''))}::text[]))`;
+        const keys = `(coalesce(t.committed_finish::text, ''), t.kind, t.priority, t.phase_code, coalesce(ou.path, '')) in (select * from unnest(${pageBind(kept.map((one) => one.d ?? ''))}::text[], ${pageBind(kept.map((one) => one.kind))}::text[], ${pageBind(kept.map((one) => one.priority))}::text[], ${pageBind(kept.map((one) => one.phase_code))}::text[], ${pageBind(kept.map((one) => one.unit_path ?? ''))}::text[]))`;
         conditions.push(keys);
       }
     }
-    if (page.after !== undefined) conditions.push(`(coalesce(t.planned_finish, date '${FAR_DAY}'), t.id) > (${pageBind(page.after.code)}::date, ${pageBind(page.after.id)}::uuid)`);
+    if (page.after !== undefined) conditions.push(`(coalesce(t.committed_finish, date '${FAR_DAY}'), t.id) > (${pageBind(page.after.code)}::date, ${pageBind(page.after.id)}::uuid)`);
     const rows = await tx.query<MyTaskSql>(
-      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.status, t.planned_finish::text as due_date, t.kind, t.priority, t.phase_code, t.critical, t.version, ou.path as unit_path,
-              coalesce(t.planned_finish, date '${FAR_DAY}')::text as sort_day
+      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.status, t.committed_finish::text as due_date, case when t.planned_finish is distinct from t.committed_finish then t.planned_finish::text end as forecast_finish, t.kind, t.priority, t.phase_code, t.critical, t.version, ou.path as unit_path,
+              coalesce(t.committed_finish, date '${FAR_DAY}')::text as sort_day
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
-        where ${conditions.join(' and ')} order by coalesce(t.planned_finish, date '${FAR_DAY}'), t.id limit ${pageBind(page.limit + 1)}`,
+        where ${conditions.join(' and ')} order by coalesce(t.committed_finish, date '${FAR_DAY}'), t.id limit ${pageBind(page.limit + 1)}`,
       pageParams,
     );
     const stored = await this.preferences.stored(tx, membershipId);
@@ -146,6 +140,7 @@ export class PwfMyTaskReads {
         project_code: row.project_code,
         status: row.status,
         due_date: row.due_date,
+        forecast_finish: row.forecast_finish,
         official_band: official,
         personal_band: own,
         critical: row.critical,

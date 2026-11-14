@@ -25,13 +25,18 @@ export function unitWord(t: T, unit: BandUnit): string {
   return unit === 'WORKING' ? t('pwf.unit.working.word') : t('pwf.unit.calendar.word');
 }
 
-/** "2 working days left", "overdue 3 days": the figure of a band with its unit; a band with no day count says nothing. */
+/**
+ * "2 working days left", "overdue 3 days": the figure of a band with its unit; a band with no day count says nothing. The words follow the one wording of the server (kernel `deadlineWording`, R49), so that the words, the colour and the
+ * group never disagree: overdue is what the server says it is (the day of the deadline has passed, even when no working day of lateness is counted yet, as on the weekend after it), and "due today" is said on the day of the deadline only.
+ * A band that does not say whether the deadline is today (an example of a ladder) is read as before.
+ */
 export function remainingText(t: T, band: TaskBand): string | undefined {
   if (band.remaining_days === null) return undefined;
   const unit = unitWord(t, band.unit);
   if (band.remaining_days < 0) return t('pwf.band.overdue.text', { days: Math.abs(band.remaining_days), unit });
-  if (band.remaining_days === 0) return t('pwf.band.today.text');
-  return t('pwf.band.remaining.text', { days: band.remaining_days, unit });
+  if (band.remaining_days > 0) return t('pwf.band.remaining.text', { days: band.remaining_days, unit });
+  if (band.overdue) return t('pwf.band.overdueNow.text');
+  return band.due_today === false ? t('pwf.band.noDayLeft.text', { unit }) : t('pwf.band.today.text');
 }
 
 export function statusWord(t: T, status: TaskStatus): string {

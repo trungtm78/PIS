@@ -87,8 +87,8 @@ async function task(due: number | null, options: TaskOptions = {}): Promise<stri
   await seedSql([
     [
       `insert into machvon.project_task (tenant_id, id, workflow_id, project_id, task_code, name, phase_code, sort_order, kind, required, responsible_role, priority, duration_working_days, status, excluded, tracked, state,
-                                         planned_start, planned_finish, baseline_start, baseline_finish, total_float, critical, schedule_version, actual_start, created_by, updated_by, actual_finish, cancelled_at)
-       values ($1, $2, $3, $4, $5, $6, 'P1', $7, $8, true, 'ROLE_A', $9, $10, $11, $12, $13, 'SCHEDULED', $14::date, $15::date, $14::date, $16::date, $17, $18, $19, $20::date, $21, $21, $22::date, $23::timestamptz)`,
+                                         planned_start, planned_finish, baseline_start, baseline_finish, total_float, critical, schedule_version, actual_start, created_by, updated_by, actual_finish, cancelled_at, committed_start, committed_finish)
+       values ($1, $2, $3, $4, $5, $6, 'P1', $7, $8, true, 'ROLE_A', $9, $10, $11, $12, $13, 'SCHEDULED', $14::date, $15::date, $14::date, $16::date, $17, $18, $19, $20::date, $21, $21, $22::date, $23::timestamptz, $14::date, $15::date)`,
       [
         TENANT_A,
         id,
@@ -275,13 +275,13 @@ describe('the source PROJECT_TASK of the alert centre', () => {
     expect(before.map((row) => row.id)).toEqual([`${id}:1`]);
     expect(onlyTasks((await collect()).rows).map((row) => row.id)).toEqual([`${id}:1`]);
     // Moved: the days and the version of the schedule change together, as a published schedule writes them.
-    await admin(`update machvon.project_task set planned_finish = $2::date, planned_start = $3::date, schedule_version = 2 where id = $1::uuid`, [id, day(4), day(2)]);
+    await admin(`update machvon.project_task set planned_finish = $2::date, planned_start = $3::date, committed_finish = $2::date, committed_start = $3::date, schedule_version = 2 where id = $1::uuid`, [id, day(4), day(2)]);
     const moved = onlyTasks((await collect()).rows);
     expect(moved.map((row) => [row.id, row.dueOn, row.severity])).toEqual([[`${id}:2`, day(4), 'WATCH']]);
     // Moved out of the window: it leaves.
-    await admin(`update machvon.project_task set planned_finish = $2::date, planned_start = $2::date, schedule_version = 3 where id = $1::uuid`, [id, day(30)]);
+    await admin(`update machvon.project_task set planned_finish = $2::date, planned_start = $2::date, committed_finish = $2::date, committed_start = $2::date, schedule_version = 3 where id = $1::uuid`, [id, day(30)]);
     expect(onlyTasks((await collect()).rows)).toEqual([]);
-    await admin(`update machvon.project_task set planned_finish = $2::date, planned_start = $2::date, schedule_version = 4 where id = $1::uuid`, [id, day(0)]);
+    await admin(`update machvon.project_task set planned_finish = $2::date, planned_start = $2::date, committed_finish = $2::date, committed_start = $2::date, schedule_version = 4 where id = $1::uuid`, [id, day(0)]);
     expect(onlyTasks((await collect()).rows).map((row) => row.id)).toEqual([`${id}:4`]);
     for (const status of ['ON_HOLD', 'IN_PROGRESS', 'AWAITING_APPROVAL', 'DONE']) {
       await admin(`update machvon.project_task set status = $2, actual_start = coalesce(actual_start, current_date), actual_finish = case when $2 = 'DONE' then current_date else null end where id = $1::uuid`, [id, status]);
@@ -502,7 +502,7 @@ describe('the multi-point reminders (BR-PWF-24)', () => {
   it('gives a task that is moved to a new version its points again, and drops a task that is done, on hold or cancelled', async () => {
     const id = await task(2);
     expect((await fire()).map((notice) => notice.point)).toEqual([2]);
-    await admin(`update machvon.project_task set planned_finish = $2::date, schedule_version = 2 where id = $1::uuid`, [id, day(1)]);
+    await admin(`update machvon.project_task set planned_finish = $2::date, committed_finish = $2::date, schedule_version = 2 where id = $1::uuid`, [id, day(1)]);
     expect((await fire()).map((notice) => [notice.point, notice.sourceId])).toEqual([[2, `${id}:2`]]);
     for (const status of ['ON_HOLD', 'DONE', 'CANCELLED']) {
       await admin(`update machvon.project_task set status = $2, actual_start = coalesce(actual_start, current_date), actual_finish = case when $2 = 'DONE' then current_date else null end, cancelled_at = case when $2 = 'CANCELLED' then now() else null end, schedule_version = schedule_version + 1 where id = $1::uuid`, [id, status]);
@@ -593,8 +593,8 @@ describe('exact totals where the alert centre is cut', () => {
     const EXTRA = 25;
     await seedSql([
       [
-        `insert into machvon.project_task (tenant_id, id, workflow_id, project_id, task_code, name, phase_code, sort_order, kind, required, responsible_role, priority, duration_working_days, status, state, planned_start, planned_finish, schedule_version, created_by, updated_by)
-         select $1, gen_random_uuid(), $2, $3, 'B' || lpad(n::text, 5, '0'), 'Bulk ' || n, 'P1', n, 'TASK', true, 'ROLE_A', 'NORMAL', 1, 'NOT_STARTED', 'SCHEDULED', current_date + (n % 5), current_date + (n % 5), 1, $4, $4 from generate_series(1, $5::int) n`,
+        `insert into machvon.project_task (tenant_id, id, workflow_id, project_id, task_code, name, phase_code, sort_order, kind, required, responsible_role, priority, duration_working_days, status, state, planned_start, planned_finish, committed_start, committed_finish, schedule_version, created_by, updated_by)
+         select $1, gen_random_uuid(), $2, $3, 'B' || lpad(n::text, 5, '0'), 'Bulk ' || n, 'P1', n, 'TASK', true, 'ROLE_A', 'NORMAL', 1, 'NOT_STARTED', 'SCHEDULED', current_date + (n % 5), current_date + (n % 5), current_date + (n % 5), current_date + (n % 5), 1, $4, $4 from generate_series(1, $5::int) n`,
         [TENANT_A, workflowDept, projectDept, memberId(MANAGER), LIMIT + EXTRA],
       ],
       [

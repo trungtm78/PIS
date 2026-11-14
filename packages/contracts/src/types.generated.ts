@@ -49187,9 +49187,15 @@ export interface components {
                 tracked: boolean;
                 /** @enum {string} */
                 state: "SCHEDULED" | "COMPLETED" | "PASS_THROUGH" | "CALENDAR_UNAVAILABLE";
-                /** Format: date */
+                /**
+                 * Format: date
+                 * @description Ngày bắt đầu theo lịch đã PHÁT HÀNH gần nhất (lịch đầu, tiếp nhận, dời lịch được duyệt) (R49)
+                 */
                 planned_start: string | null;
-                /** Format: date */
+                /**
+                 * Format: date
+                 * @description Hạn chính thức: ngày kết thúc theo lịch đã PHÁT HÀNH gần nhất; màu hạn, nhắc và cảnh báo tính theo ngày này; tính lại lịch theo tiến độ không làm đổi (R49)
+                 */
                 planned_finish: string | null;
                 /** Format: date */
                 baseline_finish: string | null;
@@ -49205,6 +49211,8 @@ export interface components {
                     overdue: boolean;
                     /** @enum {string|null} */
                     reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                    /** @description Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói "đến hạn hôm nay"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ */
+                    due_today?: boolean;
                 };
                 assignee: {
                     /** Format: uuid */
@@ -49216,6 +49224,16 @@ export interface components {
                 step_code?: string | null;
                 checklist_total?: number;
                 checklist_done?: number;
+                /**
+                 * Format: date
+                 * @description Ngày bắt đầu dự báo theo lần tính lại gần nhất, chỉ có khi khác lịch đã phát hành và việc chưa kết thúc (R49)
+                 */
+                forecast_start?: string | null;
+                /**
+                 * Format: date
+                 * @description Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)
+                 */
+                forecast_finish?: string | null;
             }[];
             gates: {
                 /** @enum {string} */
@@ -49298,9 +49316,15 @@ export interface components {
                 tracked: boolean;
                 /** @enum {string} */
                 state: "SCHEDULED" | "COMPLETED" | "PASS_THROUGH" | "CALENDAR_UNAVAILABLE";
-                /** Format: date */
+                /**
+                 * Format: date
+                 * @description Ngày bắt đầu theo lịch đã PHÁT HÀNH gần nhất (lịch đầu, tiếp nhận, dời lịch được duyệt) (R49)
+                 */
                 planned_start: string | null;
-                /** Format: date */
+                /**
+                 * Format: date
+                 * @description Hạn chính thức: ngày kết thúc theo lịch đã PHÁT HÀNH gần nhất; màu hạn, nhắc và cảnh báo tính theo ngày này; tính lại lịch theo tiến độ không làm đổi (R49)
+                 */
                 planned_finish: string | null;
                 /** Format: date */
                 baseline_finish: string | null;
@@ -49316,6 +49340,8 @@ export interface components {
                     overdue: boolean;
                     /** @enum {string|null} */
                     reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                    /** @description Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói "đến hạn hôm nay"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ */
+                    due_today?: boolean;
                 };
                 assignee: {
                     /** Format: uuid */
@@ -49324,6 +49350,16 @@ export interface components {
                 } | null;
                 return_count: number;
                 version: number;
+                /**
+                 * Format: date
+                 * @description Ngày bắt đầu dự báo theo lần tính lại gần nhất, chỉ có khi khác lịch đã phát hành và việc chưa kết thúc (R49)
+                 */
+                forecast_start?: string | null;
+                /**
+                 * Format: date
+                 * @description Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)
+                 */
+                forecast_finish?: string | null;
             }[];
             next_cursor: string | null;
             total: number;
@@ -49379,6 +49415,16 @@ export interface components {
                     task: string | null;
                     year?: number | null;
                 }[];
+                /**
+                 * Format: date
+                 * @description Ngày bắt đầu theo lịch đã phát hành (R49)
+                 */
+                due_start?: string | null;
+                /**
+                 * Format: date
+                 * @description Hạn chính thức của việc theo lịch đã phát hành (R49); start/finish là lịch tính lại hiện hành (dự báo)
+                 */
+                due_finish?: string | null;
             }[];
             excluded_tasks: string[];
             findings: {
@@ -49431,9 +49477,15 @@ export interface components {
             tracked: boolean;
             /** @enum {string} */
             state: "SCHEDULED" | "COMPLETED" | "PASS_THROUGH" | "CALENDAR_UNAVAILABLE";
-            /** Format: date */
+            /**
+             * Format: date
+             * @description Ngày bắt đầu theo lịch đã PHÁT HÀNH gần nhất (lịch đầu, tiếp nhận, dời lịch được duyệt) (R49)
+             */
             planned_start: string | null;
-            /** Format: date */
+            /**
+             * Format: date
+             * @description Hạn chính thức: ngày kết thúc theo lịch đã PHÁT HÀNH gần nhất; màu hạn, nhắc và cảnh báo tính theo ngày này; tính lại lịch theo tiến độ không làm đổi (R49)
+             */
             planned_finish: string | null;
             /** Format: date */
             baseline_finish: string | null;
@@ -49449,6 +49501,8 @@ export interface components {
                 overdue: boolean;
                 /** @enum {string|null} */
                 reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                /** @description Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói "đến hạn hôm nay"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ */
+                due_today?: boolean;
             };
             assignee: {
                 /** Format: uuid */
@@ -49650,6 +49704,16 @@ export interface components {
             } | null;
             legal_basis?: components["schemas"]["PwfLegalBasisView"][];
             step_legal_basis?: components["schemas"]["PwfLegalBasisView"][];
+            /**
+             * Format: date
+             * @description Ngày bắt đầu dự báo theo lần tính lại gần nhất, chỉ có khi khác lịch đã phát hành và việc chưa kết thúc (R49)
+             */
+            forecast_start?: string | null;
+            /**
+             * Format: date
+             * @description Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)
+             */
+            forecast_finish?: string | null;
         };
         PwfTaskStart: {
             /** @description Bắt buộc khi bắt đầu trước khi tiền nhiệm đủ điều kiện theo loại liên kết (quản lý cho phép bắt đầu sớm) */
@@ -49833,7 +49897,10 @@ export interface components {
                 kind: "TASK" | "MILESTONE";
                 /** @enum {string} */
                 status: "NOT_STARTED" | "IN_PROGRESS" | "AWAITING_APPROVAL" | "DONE" | "ON_HOLD" | "CANCELLED";
-                /** Format: date */
+                /**
+                 * Format: date
+                 * @description Hạn chính thức của việc (lịch đã phát hành gần nhất, R49)
+                 */
                 due_date: string | null;
                 band: {
                     /** @enum {string} */
@@ -49844,6 +49911,8 @@ export interface components {
                     overdue: boolean;
                     /** @enum {string|null} */
                     reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                    /** @description Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói "đến hạn hôm nay"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ */
+                    due_today?: boolean;
                 };
                 critical: boolean;
                 assignee: {
@@ -49851,6 +49920,11 @@ export interface components {
                     membership_id: string;
                     display_name: string;
                 } | null;
+                /**
+                 * Format: date
+                 * @description Ngày kết thúc dự báo, chỉ có khi khác hạn chính thức (R49)
+                 */
+                forecast_finish?: string | null;
             }[];
             next_cursor: string | null;
             shown: number;
@@ -49917,7 +49991,10 @@ export interface components {
                 /** Format: uuid */
                 project_id: string;
                 project_code: string;
-                /** Format: date */
+                /**
+                 * Format: date
+                 * @description Ngày chính thức của mốc (lịch đã phát hành gần nhất, R49)
+                 */
                 planned_date: string | null;
                 /** Format: date */
                 baseline_date: string | null;
@@ -49932,7 +50009,14 @@ export interface components {
                     overdue: boolean;
                     /** @enum {string|null} */
                     reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                    /** @description Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói "đến hạn hôm nay"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ */
+                    due_today?: boolean;
                 };
+                /**
+                 * Format: date
+                 * @description Ngày dự báo hiện hành của mốc (R49)
+                 */
+                forecast_date?: string | null;
             }[];
             total: number;
             /** Format: date-time */
@@ -49968,7 +50052,10 @@ export interface components {
                 project_code: string;
                 /** @enum {string} */
                 status: "NOT_STARTED" | "IN_PROGRESS" | "AWAITING_APPROVAL" | "DONE" | "ON_HOLD" | "CANCELLED";
-                /** Format: date */
+                /**
+                 * Format: date
+                 * @description Hạn chính thức của việc (lịch đã phát hành gần nhất, R49)
+                 */
                 due_date: string | null;
                 official_band: {
                     /** @enum {string} */
@@ -49979,6 +50066,8 @@ export interface components {
                     overdue: boolean;
                     /** @enum {string|null} */
                     reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                    /** @description Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói "đến hạn hôm nay"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ */
+                    due_today?: boolean;
                 };
                 personal_band: {
                     /** @enum {string} */
@@ -49989,9 +50078,16 @@ export interface components {
                     overdue: boolean;
                     /** @enum {string|null} */
                     reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                    /** @description Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói "đến hạn hôm nay"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ */
+                    due_today?: boolean;
                 } | null;
                 critical: boolean;
                 version: number;
+                /**
+                 * Format: date
+                 * @description Ngày kết thúc dự báo, chỉ có khi khác hạn chính thức (R49)
+                 */
+                forecast_finish?: string | null;
             }[];
             next_cursor: string | null;
             total: number;

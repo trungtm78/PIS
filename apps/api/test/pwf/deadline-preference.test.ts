@@ -76,8 +76,8 @@ describe('the personal deadline preference, my tasks and the reminders of the ta
     counter += 1;
     const id = randomUUID();
     await seedSql(
-      `insert into machvon.project_task (tenant_id, id, workflow_id, project_id, task_code, name, phase_code, sort_order, kind, required, responsible_role, priority, duration_working_days, status, state, planned_start, planned_finish, baseline_start, baseline_finish, schedule_version, actual_start, created_by, updated_by)
-       values ($1, $2, $3, $4, $5, $6, 'P1', $7, 'TASK', true, 'ROLE_A', 'NORMAL', 2, $8, 'SCHEDULED', $9::date, $10::date, $9::date, $10::date, 1, $11::date, $12, $12)`,
+      `insert into machvon.project_task (tenant_id, id, workflow_id, project_id, task_code, name, phase_code, sort_order, kind, required, responsible_role, priority, duration_working_days, status, state, planned_start, planned_finish, baseline_start, baseline_finish, committed_start, committed_finish, schedule_version, actual_start, created_by, updated_by)
+       values ($1, $2, $3, $4, $5, $6, 'P1', $7, 'TASK', true, 'ROLE_A', 'NORMAL', 2, $8, 'SCHEDULED', $9::date, $10::date, $9::date, $10::date, $9::date, $10::date, 1, $11::date, $12, $12)`,
       [TENANT_A, id, workflowId, projectId, `T${String(counter).padStart(4, '0')}`, `Task ${counter}`, counter, status, day(due - 2), day(due), status === 'NOT_STARTED' ? null : day(-5), memberId(MANAGER)],
     );
     if (assignee !== null) {
@@ -277,7 +277,7 @@ describe('the personal deadline preference, my tasks and the reminders of the ta
       const id = await task(1);
       const ids = async (): Promise<string[]> => ((await call('GET', '/home/my-work', { member: WORKER })).json.items as Array<{ id: string; source: string }>).filter((one) => one.source === 'PROJECT_TASK').map((one) => one.id);
       expect(await ids()).toEqual([`${id}:1`]);
-      await rows(`update machvon.project_task set planned_finish = $2::date, planned_start = $2::date, schedule_version = 2 where id = $1::uuid`, [id, day(2)]);
+      await rows(`update machvon.project_task set planned_finish = $2::date, planned_start = $2::date, committed_finish = $2::date, committed_start = $2::date, schedule_version = 2 where id = $1::uuid`, [id, day(2)]);
       expect(await ids()).toEqual([`${id}:2`]);
       await rows(`update machvon.project_task set status = 'ON_HOLD', actual_start = $2::date where id = $1::uuid`, [id, day(-3)]);
       expect(await ids()).toEqual([]);

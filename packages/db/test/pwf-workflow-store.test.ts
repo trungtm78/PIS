@@ -360,9 +360,10 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       // The milestone after A is a row of the project milestones (R28), still planned.
       const ms = await taskOf(wf.id, 'MS_A');
       expect(ms.milestone_id).toBeTruthy();
-      // The task was approved after its planned day, so the milestone moved later with the schedule: a counted move of a date, and the baseline day is the first schedule's.
+      // R49: the task was approved after its planned day and the forecast was computed again, and the milestone of the project keeps its official day (the committed one): only a released schedule moves a milestone.
       const [milestone] = await owner<{ code: string; status: string; planned_date: string; baseline_date: string }>('select code, status, planned_date::text, baseline_date::text from machvon.project_milestone where id = $1::uuid', [ms.milestone_id]);
-      expect(milestone).toMatchObject({ code: 'MS_A', planned_date: ms.planned_finish, baseline_date: ms.baseline_finish });
+      expect(milestone).toMatchObject({ code: 'MS_A', planned_date: ms.committed_finish, baseline_date: ms.baseline_finish });
+      expect(ms.committed_finish).toBe(ms.baseline_finish);
     });
 
     it('returns a task for work with a reason (the number of returns grows) and refuses a stale version', async () => {
@@ -702,6 +703,113 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect(await taskOf(wf.id, 'OWN_SURVEY')).toMatchObject({ own_task: true, duration_working_days: 4 });
       expect((await taskOf(wf.id, 'TC')).duration_working_days).toBe(8);
       expect((await owner('select 1 from machvon.project_task_dependency where workflow_id = $1::uuid and task_id = $2::uuid', [wf.id, (await taskOf(wf.id, 'OWN_SURVEY')).id])).length).toBe(1);
+    });
+  });
+
+  describe('A5, R49: the official deadline is the released schedule, the recomputation from progress is a forecast', () => {
+    const ago = (days: number): string => new Date(Date.parse(`${TODAY}T00:00:00Z`) - days * 86_400_000).toISOString().slice(0, 10);
+    const ALL = { manage: true, proposeReschedule: true, work: true, approve: true, assign: true };
+    const detailOf = async (projectId: string): Promise<Array<Record<string, unknown>>> => ((await as((tx) => reads.detail(tx, everything, projectId, now(), ALL))) as { tasks: Array<Record<string, unknown>> }).tasks;
+    const boardOf = async (projectId: string): Promise<Array<Record<string, unknown>>> => ((await as((tx) => deadlines.board(tx, everything, { projectId }, { limit: 50 }, now()))) as { items: Array<Record<string, unknown>> }).items;
+
+    it('completing a task late publishes a forecast and moves no official deadline: the late tasks stay red on the board until a move of their date is approved', async () => {
+      // The project started 40 days ago: A (3 days), its milestone and C (5 days) are all past their days.
+      const p = await project();
+      const wf = await start(p.id, { plannedStartDate: ago(40) });
+      const before = { a: await taskOf(wf.id, 'TA'), ms: await taskOf(wf.id, 'MS_A'), c: await taskOf(wf.id, 'TC') };
+      expect(before.c).toMatchObject({ committed_start: before.c.planned_start, committed_finish: before.c.planned_finish, baseline_finish: before.c.planned_finish });
+      expect(String(before.c.planned_finish) < TODAY).toBe(true);
+      expect((await detailOf(p.id)).find((one) => one.task_code === 'TC')).toMatchObject({ planned_finish: before.c.planned_finish, forecast_finish: null, band: { band: 'RED', overdue: true } });
+
+      await doneA(wf.id);
+
+      // The schedule was computed again from today (a PROGRESS version): the forecast of what is left moved into the future.
+      const versions = await owner<{ version: number; kind: string }>('select version, kind from machvon.project_schedule_version where workflow_id = $1::uuid order by version', [wf.id]);
+      expect(versions.map((one) => one.kind)).toEqual(['INITIAL', 'PROGRESS']);
+      const after = { ms: await taskOf(wf.id, 'MS_A'), c: await taskOf(wf.id, 'TC') };
+      expect(String(after.c.planned_finish) > TODAY).toBe(true);
+      expect(String(after.c.planned_finish) > String(before.c.planned_finish)).toBe(true);
+      // (1) The official deadline of the open tasks did not move, nor did the first baseline.
+      expect(after.c).toMatchObject({ committed_start: before.c.committed_start, committed_finish: before.c.committed_finish, baseline_finish: before.c.baseline_finish });
+      expect(after.ms).toMatchObject({ committed_finish: before.ms.committed_finish, baseline_finish: before.ms.baseline_finish });
+      // (2) Every read judges the task on its official deadline: still red and overdue, with the forecast told beside it (3).
+      const shown = (await detailOf(p.id)).find((one) => one.task_code === 'TC');
+      expect(shown).toMatchObject({ planned_start: before.c.committed_start, planned_finish: before.c.committed_finish, forecast_finish: after.c.planned_finish, band: { band: 'RED', overdue: true, due_today: false } });
+      const onBoard = (await boardOf(p.id)).find((one) => one.task_code === 'TC');
+      expect(onBoard).toMatchObject({ due_date: before.c.committed_finish, forecast_finish: after.c.planned_finish, band: { band: 'RED', overdue: true } });
+      const full = (await as((tx) => taskReads.task(tx, everything, after.c.id as string, now(), memberId(MANAGER), ALL))) as Record<string, unknown>;
+      expect(full).toMatchObject({ planned_finish: before.c.committed_finish, forecast_finish: after.c.planned_finish, baseline_finish: before.c.baseline_finish, band: { band: 'RED', overdue: true } });
+      const counts = ((await as((tx) => reads.detail(tx, everything, p.id, now(), ALL))) as { counts_by_band: Record<string, number> }).counts_by_band;
+      expect(counts.RED).toBe(2);
+      // The task that is done keeps the deadline it was judged by, beside its real days.
+      expect(await taskOf(wf.id, 'TA')).toMatchObject({ status: 'DONE', committed_finish: before.a.committed_finish, actual_finish: TODAY });
+      // The milestone of the project keeps its official day too: nothing moved it.
+      const [milestone] = await owner<{ planned_date: string; status: string }>('select planned_date::text, status from machvon.project_milestone where id = $1::uuid', [after.ms.milestone_id]);
+      expect(milestone).toMatchObject({ planned_date: before.ms.committed_finish, status: 'PLANNED' });
+      // The schedule read (the Gantt) shows the forecast, with the official days beside it.
+      const schedule = (await as((tx) => reads.schedule(tx, everything, p.id))) as { tasks: Array<Record<string, unknown>> };
+      expect(schedule.tasks.find((one) => one.task_code === 'TC')).toMatchObject({ finish: after.c.planned_finish, due_finish: before.c.committed_finish });
+    });
+
+    it('an approved reschedule is what moves the official deadline: the proposal is measured against the released days, and the late task is no longer red once it is approved', async () => {
+      const p = await project();
+      const wf = await start(p.id, { plannedStartDate: ago(40) });
+      await doneA(wf.id);
+      const stale = await taskOf(wf.id, 'TC');
+      const current = await owner<{ version: number }>('select version from machvon.project_workflow where id = $1::uuid', [wf.id]);
+      const version = Number(current[0]?.version);
+      const proposal = await as((tx) => reschedules.propose(tx, { projectId: p.id, expectedVersion: version, input: { reason: 'The rest of the project is planned again from today' }, actor: memberId(MANAGER), scopes, now: now() }));
+      // The forecast already sits where the proposal puts the task, and the proposal still tells the move: it is a move of the official day.
+      const change = proposal.preview.changes.find((one) => one.code === 'TC');
+      expect(change?.finishShiftDays ?? 0).toBeGreaterThan(0);
+      expect(proposal.preview.projectFinishShiftDays ?? 0).toBeGreaterThan(0);
+      // While it waits nothing is official yet.
+      expect(await taskOf(wf.id, 'TC')).toMatchObject({ committed_finish: stale.committed_finish });
+      await as((tx) => reschedules.decide(tx, { proposalId: proposal.id, expectedVersion: version, decision: 'APPROVE', actor: memberId(CHECKER), scopes, now: now() }), CHECKER);
+      const moved = await taskOf(wf.id, 'TC');
+      expect(moved).toMatchObject({ committed_start: moved.planned_start, committed_finish: moved.planned_finish, baseline_finish: stale.baseline_finish });
+      expect(String(moved.committed_finish) > TODAY).toBe(true);
+      expect(Number(moved.reschedule_count)).toBe(1);
+      const shown = (await detailOf(p.id)).find((one) => one.task_code === 'TC');
+      expect(shown).toMatchObject({ planned_finish: moved.committed_finish, forecast_finish: null });
+      expect((shown?.band as { overdue: boolean }).overdue).toBe(false);
+      // The task that was done before the reschedule keeps the deadline it was judged by.
+      expect(await taskOf(wf.id, 'TA')).toMatchObject({ committed_finish: (await taskOf(wf.id, 'TA')).baseline_finish });
+      // The milestone of the project follows the released schedule, as a counted move of a date.
+      const ms = await taskOf(wf.id, 'MS_A');
+      const [milestone] = await owner<{ planned_date: string; status: string }>('select planned_date::text, status from machvon.project_milestone where id = $1::uuid', [ms.milestone_id]);
+      expect(milestone).toMatchObject({ planned_date: ms.committed_finish, status: 'DELAYED' });
+    });
+
+    it('B7: reads a deadline of a Friday as due today on the Friday only, overdue from the Saturday (with no working day of lateness yet) and one working day late on the Monday', async () => {
+      // The first Wednesday of March next year: A takes Wednesday, Thursday and Friday.
+      const first = new Date(Date.UTC(YEAR + 1, 2, 1));
+      const wednesday = new Date(first.getTime() + ((3 - first.getUTCDay() + 7) % 7) * 86_400_000);
+      const dayAt = (offset: number): string => new Date(wednesday.getTime() + offset * 86_400_000).toISOString().slice(0, 10);
+      const noon = (day: string): Date => new Date(`${day}T05:00:00.000Z`);
+      const p = await project();
+      const wf = await start(p.id, { plannedStartDate: dayAt(0) });
+      expect(await taskOf(wf.id, 'TA')).toMatchObject({ committed_start: dayAt(0), committed_finish: dayAt(2) });
+      const bandOn = async (day: string): Promise<Record<string, unknown>> =>
+        (((await as((tx) => reads.detail(tx, everything, p.id, noon(day), ALL))) as { tasks: Array<{ task_code: string; band: Record<string, unknown> }> }).tasks.find((one) => one.task_code === 'TA') as { band: Record<string, unknown> }).band;
+      expect(await bandOn(dayAt(1))).toMatchObject({ band: 'YELLOW', remaining_days: 1, overdue: false, due_today: false });
+      expect(await bandOn(dayAt(2))).toMatchObject({ band: 'RED', remaining_days: 0, overdue: false, due_today: true });
+      expect(await bandOn(dayAt(3))).toMatchObject({ band: 'RED', remaining_days: 0, overdue: true, due_today: false });
+      expect(await bandOn(dayAt(4))).toMatchObject({ band: 'RED', remaining_days: 0, overdue: true, due_today: false });
+      expect(await bandOn(dayAt(5))).toMatchObject({ band: 'RED', remaining_days: -1, overdue: true, due_today: false });
+      // The board says the same of the same day: one source.
+      const saturday = ((await as((tx) => deadlines.board(tx, everything, { projectId: p.id }, { limit: 50 }, noon(dayAt(3))))) as { items: Array<{ task_code: string; band: Record<string, unknown> }> }).items.find((one) => one.task_code === 'TA');
+      expect(saturday?.band).toMatchObject({ band: 'RED', remaining_days: 0, overdue: true, due_today: false });
+    });
+
+    it('the database lets nothing but a released schedule move a committed day', async () => {
+      const p = await project();
+      const wf = await start(p.id);
+      const c = await taskOf(wf.id, 'TC');
+      expect(await sqlState(as((tx) => tx.query(`update machvon.project_task set committed_start = committed_start + 30, committed_finish = committed_finish + 30 where id = $1::uuid`, [c.id])))).toBe('42501');
+      // The forecast may be written freely: that is what a recomputation does.
+      await as((tx) => tx.query(`update machvon.project_task set planned_start = planned_start + 30, planned_finish = planned_finish + 30 where id = $1::uuid`, [c.id]));
+      expect(await taskOf(wf.id, 'TC')).toMatchObject({ committed_finish: c.committed_finish });
     });
   });
 

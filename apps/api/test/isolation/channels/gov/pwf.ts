@@ -168,9 +168,9 @@ const INSERT_WORKFLOW = `insert into machvon.project_workflow
 
 const INSERT_TASK = `insert into machvon.project_task
   (tenant_id, id, workflow_id, project_id, task_code, name, phase_code, sort_order, kind, required, responsible_role, priority, duration_working_days, status, tracked,
-   planned_start, planned_finish, baseline_start, baseline_finish, actual_start, created_by, updated_by)
+   planned_start, planned_finish, baseline_start, baseline_finish, committed_start, committed_finish, actual_start, created_by, updated_by)
   values ($1, $2, $3, $4, $5, $6, 'P1', 1, 'TASK', true, 'ROLE_A', 'NORMAL', 5, 'IN_PROGRESS', true,
-   date '2026-11-02', date '2026-11-06', date '2026-11-02', date '2026-11-06', date '2026-11-02', $7, $7) on conflict do nothing`;
+   date '2026-11-02', date '2026-11-06', date '2026-11-02', date '2026-11-06', date '2026-11-02', date '2026-11-06', date '2026-11-02', $7, $7) on conflict do nothing`;
 
 const INSERT_CHECKLIST_ITEM = `insert into machvon.project_task_checklist_item (tenant_id, task_id, item_code, name, required, evidence_kinds, done)
   values ($1, $2, $3, 'Dossier checked', true, '{}', false) on conflict do nothing`;
