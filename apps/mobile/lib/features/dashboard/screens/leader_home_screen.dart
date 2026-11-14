@@ -29,8 +29,8 @@ import '../widgets/alert_list.dart';
 import '../widgets/changes_block.dart';
 import '../widgets/committee_card.dart';
 import '../widgets/edition_cards.dart';
-import 'officer_home_screen.dart';
 import '../widgets/rag_card.dart';
+import 'officer_home_screen.dart';
 
 /// MOB-07: the home of a leader, work before figures. From the top: the command band (the amount disbursed, one bar for the rate on the
 /// total plan, the two rates in two notes); one line of context (scope, closing day, freshness); three figures that wait for someone;

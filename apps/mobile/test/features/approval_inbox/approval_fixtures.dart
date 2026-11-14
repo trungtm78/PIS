@@ -12,6 +12,8 @@ Map<String, Object?> approvalTask(
   bool overdue = false,
   bool canDecide = true,
   String resourceId = 'rep-2',
+  String? initiator,
+  String? submittedAt,
 }) =>
     <String, Object?>{
       'id': id,
@@ -25,6 +27,8 @@ Map<String, Object?> approvalTask(
       'resource': <String, Object?>{'type': 'report', 'id': resourceId},
       'instance': <String, Object?>{'id': 'i-$id', 'version': 2, 'status': 'Running', 'amount_vnd': '420000000', 'unit_id': 'u-bql1'},
       'actions': <String, Object?>{'decide': canDecide, 'reassign': false, 'cancel': false},
+      if (initiator != null) 'initiator': <String, Object?>{'name': initiator},
+      if (submittedAt != null) 'submitted_at': submittedAt,
     };
 
 Map<String, Object?> page(List<Object?> items) => <String, Object?>{'items': items, 'next_cursor': null, 'as_of': '2026-11-02T09:00:00Z'};

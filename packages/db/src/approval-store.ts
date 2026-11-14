@@ -113,6 +113,9 @@ export interface TaskRecord {
   overdueReminders: number;
   reassignedFromId: string | null;
   escalatedFromId: string | null;
+  /** Who sent the record for approval (the name the directory of the tenant gives; null when it gives none) and when: what tells two tasks of the same kind apart in an inbox. */
+  initiatorName: string | null;
+  submittedAt: string;
 }
 
 interface VersionRow {
@@ -230,6 +233,8 @@ interface TaskRow {
   overdue_reminders: number;
   reassigned_from_id: string | null;
   escalated_from_id: string | null;
+  initiator_name: string | null;
+  submitted_at: string;
 }
 
 const TASK_FROM = `machvon.approval_task t join machvon.workflow_instance i on i.tenant_id = t.tenant_id and i.id = t.workflow_instance_id
@@ -244,7 +249,8 @@ const delegatedTo = (member: string, assignee: string, unit: string, at: string)
 const taskColumns = (delegated: string): string => `t.id, t.workflow_instance_id, t.step_id, t.step_index, t.assignee_id, a.display_name as assignee_name, t.on_behalf_of_id, ${TIME('t.due_at')} as due_at, t.status, t.decision, t.reason, ${TIME('t.decided_at')} as decided_at,
   t.decided_by, i.business_type, i.resource_type, i.resource_id, ${TIME('t.created_at')} as created_at, t.version::text as version, ${TIME('t.created_at')} as sort_key, ${delegated} as delegated_to_me,
   i.version::text as instance_version, i.status as instance_status, i.amount_vnd::text as amount_vnd, i.document_type, i.unit_id, v.revision as workflow_revision, v.definition_json->'steps'->t.step_index->>'name' as step_name,
-  ${TIME('t.escalated_at')} as escalated_at, t.overdue_reminders, t.reassigned_from_task_id as reassigned_from_id, t.escalated_from_task_id as escalated_from_id`;
+  ${TIME('t.escalated_at')} as escalated_at, t.overdue_reminders, t.reassigned_from_task_id as reassigned_from_id, t.escalated_from_task_id as escalated_from_id,
+  (select d.display_name from machvon.tenant_user_directory d where d.tenant_id = i.tenant_id and d.membership_id = i.initiator_membership_id) as initiator_name, ${TIME('i.started_at')} as submitted_at`;
 const TASK_COLUMNS = taskColumns('false');
 const toTask = (row: TaskRow): TaskRecord => ({
   id: row.id,
@@ -278,6 +284,8 @@ const toTask = (row: TaskRow): TaskRecord => ({
   overdueReminders: row.overdue_reminders,
   reassignedFromId: row.reassigned_from_id,
   escalatedFromId: row.escalated_from_id,
+  initiatorName: row.initiator_name,
+  submittedAt: row.submitted_at,
 });
 
 export interface StartInput {

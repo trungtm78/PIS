@@ -24,6 +24,14 @@ const String kReleaseNoticeScreenId = 'MOB-54';
 /// The screen that asks for the second factor (the step-up of the session).
 const String kSecondFactorScreenId = 'MOB-03';
 
+/// The query parameters that name ONE record on a screen whose address is otherwise a list (`/approval/doc-23?doc=<id>` is one incoming letter, DOC-24).
+const Set<String> kRecordQueryParameters = <String>{'doc'};
+
+/// Whether a location shows one record: its path names the record (`/projects/mob-10/<id>`) or a record parameter of its query does. A detail screen has its own action bar at the bottom
+/// and hides the five tabs (design-system-v2, section 7), whichever way its address names the record.
+bool isDetailLocation(Map<String, String> pathParameters, Map<String, String> queryParameters) =>
+    pathParameters.isNotEmpty || kRecordQueryParameters.any((String name) => (queryParameters[name] ?? '').isNotEmpty);
+
 /// Whether the screen opens without a session.
 bool isPublicScreen(String screenId) => kPublicScreenIds.contains(screenId);
 

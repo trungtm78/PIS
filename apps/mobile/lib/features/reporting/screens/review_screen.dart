@@ -503,11 +503,15 @@ class _FindingRow extends StatelessWidget {
     final String? screen = screenOfFinding(finding);
     final String message = findingMessage(context, finding);
     final String fix = context.t('mob.rep.review.fix.action');
+    // The sentence of a finding is what the person has to fix: it is read whole, across the width of the row, and the way to fix it is a line under it (beside it, the link took
+    // half the row and the sentence was cut at its second line: "Chưa nhập khối lượng thi công, ng...").
     return WorkRow(
       title: message,
+      titleMaxLines: 6,
       semanticLabel: screen == null ? null : '$message. $fix',
       leading: finding.isError ? _Glyph(icon: Icons.error_outline, color: v2.palette.lateFg) : _Glyph(icon: Icons.warning_amber_rounded, color: v2.palette.soonFg),
-      trailing: screen == null ? null : Text(fix, textAlign: TextAlign.end, style: context.v2text.label.copyWith(color: v2.palette.primaryStrong)),
+      footer: screen == null ? null : Text(fix, style: context.v2text.label.copyWith(color: v2.palette.primaryStrong)),
+      trailing: screen == null ? null : Icon(Icons.chevron_right, color: v2.palette.ink2),
       dividerAbove: dividerAbove,
       onTap: screen == null ? null : () => onFix(screen),
     );

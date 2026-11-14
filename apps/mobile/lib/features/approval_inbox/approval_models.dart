@@ -24,7 +24,13 @@ final class ApprovalTask {
     this.amountVnd,
     this.unitId,
     this.assigneeName,
+    this.initiatorName,
+    this.submittedAt,
   });
+
+  /// Who sent the record for approval and when: what tells two tasks of one kind apart in the inbox. Null when the server names neither.
+  final String? initiatorName;
+  final String? submittedAt;
 
   final String id;
 
@@ -79,6 +85,8 @@ ApprovalTask? parseApprovalTask(Object? raw) {
     escalated: filled(row['escalated_at']) != null,
     canDecide: actions?['decide'] == true,
     status: status,
+    initiatorName: filled(asRecord(row['initiator'])?['name']),
+    submittedAt: filled(row['submitted_at']),
   );
 }
 

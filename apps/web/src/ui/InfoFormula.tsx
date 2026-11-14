@@ -82,7 +82,8 @@ export function InfoFormula({ name, formula, numerator, denominator, exclusions,
       {open && (
         <div id={panelId} className="ui-info__panel" role="dialog" aria-label={name}>
           <strong className="ui-info__title">{name}</strong>
-          <dl className="ui-info__list">
+          {/* The facts scroll inside the panel when they are longer than it (the panel never grows past the screen), so the list takes the keyboard focus to be scrolled with the arrow keys. */}
+          <dl className="ui-info__list" tabIndex={0}>
             {rows.map((row) => (
               <div key={row.key} className="ui-info__row" data-field={row.key}>
                 <dt>{row.label}</dt>

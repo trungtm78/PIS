@@ -64,6 +64,17 @@ describe('InfoFormula', () => {
     expect(screen.queryByText(labels.unverified as string)).not.toBeInTheDocument();
   });
 
+  it('keeps its facts in a list that scrolls inside the panel and takes the keyboard focus, with the Close button outside that list so it never leaves the screen', async () => {
+    render(<InfoFormula {...props} labels={labels} />);
+    await userEvent.click(screen.getByRole('button', { name: labels.open }));
+    const panel = screen.getByRole('dialog');
+    const list = panel.querySelector('.ui-info__list') as HTMLElement;
+    expect(list.getAttribute('tabindex')).toBe('0');
+    const close = within(panel).getByRole('button', { name: labels.close });
+    expect(list.contains(close)).toBe(false);
+    expect(close.parentElement).toBe(panel);
+  });
+
   it('closes with Escape and gives the focus back to the button', async () => {
     render(<InfoFormula {...props} />);
     const button = screen.getByRole('button', { name: labels.open });

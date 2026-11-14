@@ -247,6 +247,8 @@ class _InboxBody extends StatelessWidget {
           SizedBox(
             height: 360,
             child: EmptyStateView(
+              // An inbox with nothing in it says so in its own words; it never tells the person to "create the first record".
+              body: list.items.isEmpty ? context.t('mob.ntf.inbox.none.body') : context.t('mob.ntf.inbox.filtered.body'),
               activeFilters: <String>[
                 if (filter.view != InboxView.all) _viewLabel(context, filter.view),
                 if (filter.priority != null) priorityLabel(context, filter.priority!),

@@ -9,7 +9,10 @@ import 'state_card.dart';
 /// a filter usually means "the filter is too narrow", and offers to clear them; with no filter it tells the user what
 /// to do next.
 class EmptyStateView extends StatelessWidget {
-  const EmptyStateView({this.activeFilters = const <String>[], this.onClearFilters, super.key});
+  const EmptyStateView({this.activeFilters = const <String>[], this.onClearFilters, this.body, super.key});
+
+  /// The sentence of the screen for "nothing here" (an inbox with nothing waiting is not a list to add a first record to); the standard sentence when not given. The title is the same on every screen.
+  final String? body;
 
   /// The filters in use, already worded for the user.
   final List<String> activeFilters;
@@ -23,10 +26,10 @@ class EmptyStateView extends StatelessWidget {
     return StateCard(
       icon: Icons.inbox_outlined,
       title: context.t('mob.states.empty.title'),
-      body: context.t('mob.states.empty.body'),
+      body: body ?? context.t('mob.states.empty.body'),
       announcement: <String>[
         context.t('mob.states.empty.title'),
-        context.t('mob.states.empty.body'),
+        body ?? context.t('mob.states.empty.body'),
         if (hasFilters) '${context.t('mob.states.empty.filter.label')}: ${activeFilters.join(', ')}',
       ].join('. '),
       details: <Widget>[

@@ -53,6 +53,7 @@ class _ApprovalInboxScreenState extends ConsumerState<ApprovalInboxScreen> {
         parse: parseApprovalInbox,
         asOf: (ApprovalInbox inbox) => inbox.asOf,
         isEmpty: (ApprovalInbox inbox) => inbox.tasks.isEmpty,
+        emptyBody: context.t('mob.apv.inbox.none.body'),
         onLoaded: (Loaded<ApprovalInbox> loaded) => ref.read(tabBadgeProvider.notifier).set(AppTab.approval, loaded.value.tasks.length),
         builder: (BuildContext context, Loaded<ApprovalInbox> loaded) {
           return _InboxBody(
@@ -173,9 +174,15 @@ class ApprovalRow extends StatelessWidget {
       if (unitName != null) unitName!,
       ?amount,
     ].join(' · ');
+    // What tells two tasks of one kind apart (six weekly reports read alike otherwise): who sent the record, and the day it was sent.
+    final String sender = <String>[
+      if (task.initiatorName != null) context.t('mob.apv.inbox.row.sender', <String, Object>{'name': task.initiatorName!}),
+      if (task.submittedAt != null) context.t('mob.apv.inbox.row.sent', <String, Object>{'day': formatDay(task.submittedAt!, language: Localizations.localeOf(context).languageCode)}),
+    ].join(' · ');
     final String spoken = <String>[
       type,
       if (task.stepName.isNotEmpty) task.stepName,
+      if (sender.isNotEmpty) sender,
       if (unitName != null) context.t('mob.apv.inbox.row.unit', <String, Object>{'unit': unitName!}),
       if (task.amountVnd != null) context.t('mob.apv.inbox.row.amount', <String, Object>{'value': moneyLabel(context, task.amountVnd)}),
       if (task.overdue) context.t('mob.apv.inbox.row.late'),
@@ -186,6 +193,7 @@ class ApprovalRow extends StatelessWidget {
     return WorkRow(
       title: type,
       subtitle: subtitle.isEmpty ? null : subtitle,
+      footer: sender.isEmpty ? null : Text(sender, style: text.caption),
       leading: DeadlineGlyph(band: band),
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,

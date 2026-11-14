@@ -301,6 +301,8 @@ describe('the approval workflows over HTTP (ST-ADM-012)', () => {
     const ours = (mine.json.items as Array<{ workflow_instance_id: string; actions: { decide: boolean }; assignee: { id: string } }>).filter((item) => item.workflow_instance_id === instanceId);
     expect(ours).toHaveLength(1);
     expect(ours[0]).toMatchObject({ actions: { decide: true }, assignee: { id: memberId(LEADER_A) } });
+    // The task says who sent the record and when, so that an inbox of several tasks of one kind can tell them apart.
+    expect(ours[0]).toMatchObject({ initiator: { name: expect.anything() }, submitted_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/) });
     // The reader sees no task that is not theirs; the administrator who runs workflows sees them all.
     expect(((await call('GET', `/resources/approval_task?workflow_instance_id=${instanceId}`, { member: READER })).json.items as unknown[]).length).toBe(0);
     expect(((await call('GET', `/resources/approval_task?workflow_instance_id=${instanceId}`, { member: ADMIN })).json.items as unknown[]).length).toBeGreaterThanOrEqual(2);

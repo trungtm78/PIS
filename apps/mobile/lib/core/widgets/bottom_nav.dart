@@ -113,13 +113,21 @@ class AppBottomNavItem extends StatelessWidget {
                   else
                     icon,
                   const SizedBox(height: 3),
-                  Text(
-                    item.label,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.visible,
-                    style: text.captionStrong.copyWith(color: color),
-                    textScaler: cappedScaler(context, MachvonV2Type.navLabelScaleCap),
+                  // One line always: a label that does not fit the width of its tab ("Thông báo" among five tabs on a narrow phone) is drawn a little smaller, never broken in two.
+                  // The label keeps the height of one line whatever it was scaled to, so the icons of the five tabs stay on one line.
+                  SizedBox(
+                    height: cappedScaler(context, MachvonV2Type.navLabelScaleCap).scale(text.captionStrong.fontSize ?? 12) * (text.captionStrong.height ?? 1.3),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        item.label,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        softWrap: false,
+                        style: text.captionStrong.copyWith(color: color),
+                        textScaler: cappedScaler(context, MachvonV2Type.navLabelScaleCap),
+                      ),
+                    ),
                   ),
                 ],
               ),

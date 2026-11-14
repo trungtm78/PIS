@@ -1,10 +1,10 @@
-import 'home_audience.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 
 import '../directives/directive_models.dart';
 import '../read_support/wire.dart';
 import 'alerts.dart';
 import 'command_center.dart';
+import 'home_audience.dart';
 import 'home_insight.dart';
 
 /// What the home of a leader reads: the alerts and the command center, each on its own, and beside them the colours of the units with their reasons, what

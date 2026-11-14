@@ -111,6 +111,30 @@ void main() {
       expect(container.read(tabBadgeProvider)[AppTab.approval], 0);
     });
 
+    testWidgets('tasks of one kind are told apart: each row says who sent the record and the day it was sent, and a task the server names no sender for says nothing of one', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server, tasks: <Map<String, Object?>>[
+        approvalTask('t-1', initiator: 'Phạm Quốc Dũng', submittedAt: '2026-11-09T02:00:00Z'),
+        approvalTask('t-2', initiator: 'Nguyễn Thị Hoa', submittedAt: '2026-11-10T02:00:00Z', due: '2026-11-06T10:00:00Z'),
+        approvalTask('t-3', due: '2026-11-07T10:00:00Z'),
+      ]);
+      await _open(tester, server, '/approval');
+      expect(find.byType(ApprovalRow), findsNWidgets(3));
+      expect(find.text('Người trình: Phạm Quốc Dũng · trình ngày 09/11/2026'), findsOneWidget);
+      expect(find.text('Người trình: Nguyễn Thị Hoa · trình ngày 10/11/2026'), findsOneWidget);
+      expect(find.textContaining('Người trình:'), findsNWidgets(2));
+    });
+
+    testWidgets('an inbox with nothing waiting says so in its own words and never tells the person to create a first record', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server, tasks: <Map<String, Object?>>[]);
+      await _open(tester, server, '/approval');
+      expect(find.textContaining('Không có hồ sơ nào chờ bạn duyệt'), findsOneWidget);
+      expect(find.textContaining('tạo bản ghi đầu tiên'), findsNothing);
+    });
+
     testWidgets('there is no swipe and no button that approves from the list, and opening a row sends no decision', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();

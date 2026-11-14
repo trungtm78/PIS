@@ -91,6 +91,9 @@ function taskView(row: ApprovalTaskRecord, membershipId: string, operates = fals
     overdue_reminders: row.overdueReminders,
     escalated_at: row.escalatedAt,
     escalated_from_id: row.escalatedFromId,
+    // Who sent the record and when: an inbox of six tasks of one kind tells them apart by these (the name is the one the directory of the tenant gives).
+    initiator: { name: row.initiatorName },
+    submitted_at: row.submittedAt,
     reassigned_from_id: row.reassignedFromId,
     // The server judges again: this only says whether the screen should offer it.
     actions: { decide: row.status === 'Pending' && (row.assigneeId === membershipId || row.delegatedToMe), reassign: operates && row.status === 'Pending', cancel: operates && row.status === 'Pending' && row.instanceStatus === 'Running' },

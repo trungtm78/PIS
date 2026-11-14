@@ -55,6 +55,7 @@ class DataView<T> extends ConsumerStatefulWidget {
     this.scopeLabel,
     this.closingLabel,
     this.contextParts,
+    this.emptyBody,
     super.key,
   }) : assert((builder == null) != (contextBuilder == null), 'give the builder or the contextBuilder, not both and not neither');
 
@@ -66,6 +67,9 @@ class DataView<T> extends ConsumerStatefulWidget {
   /// The moment the data describes, taken from the parsed value.
   final String? Function(T value)? asOf;
   final bool Function(T value)? isEmpty;
+
+  /// The sentence of this screen for "nothing here" (an inbox with nothing waiting says so; it never tells the person to "create the first record"). The standard sentence when not given.
+  final String? emptyBody;
 
   /// Error codes of the server that mean "there is nothing to show yet" (no snapshot frozen yet) and are drawn as the empty state.
   final Set<String> emptyOnCodes;
@@ -272,6 +276,7 @@ class _DataViewState<T> extends ConsumerState<DataView<T>> {
             activeFilters: widget.activeFilters,
             onClearFilters: widget.onClearFilters,
             keepContent: false,
+            emptyBody: widget.emptyBody,
             child: data == null || _state != ScreenState.defaultState
                 ? const SizedBox.shrink()
                 : (widget.contextBuilder != null ? widget.contextBuilder!(context, data, _line(data)) : widget.builder!(context, data)),

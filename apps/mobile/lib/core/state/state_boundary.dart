@@ -24,6 +24,7 @@ class StateBoundary extends StatelessWidget {
     this.activeFilters = const <String>[],
     this.onClearFilters,
     this.keepContent = true,
+    this.emptyBody,
     super.key,
   });
 
@@ -37,6 +38,9 @@ class StateBoundary extends StatelessWidget {
   final VoidCallback? onClearFilters;
 
   final bool keepContent;
+
+  /// The sentence of the screen for its empty state; the standard one when not given.
+  final String? emptyBody;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +62,7 @@ class StateBoundary extends StatelessWidget {
       case ScreenState.loading:
         return LoadingView(label: context.t('mob.states.loading.label'));
       case ScreenState.empty:
-        return EmptyStateView(activeFilters: activeFilters, onClearFilters: onClearFilters);
+        return EmptyStateView(activeFilters: activeFilters, onClearFilters: onClearFilters, body: emptyBody);
       case ScreenState.error:
       case ScreenState.denied:
       case ScreenState.expired:
