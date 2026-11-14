@@ -191,7 +191,9 @@
         "project.create",
         "project.update",
         "organization_unit.read",
-        "master.read"
+        "master.read",
+        "pwf.read",
+        "pwf.workflow.manage"
       ]
     },
     {

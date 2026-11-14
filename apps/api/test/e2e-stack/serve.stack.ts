@@ -255,7 +255,8 @@ const ISSUE_END_ROLES = [
  * The permissions are the ones of apps/web/e2e/support/e2e-fixtures.json; a screen is gated by both lists.
  */
 const INVESTMENT_ROLES = [
-  { n: 110, user: 'projectManager', code: 'E2E_PROJECT_MANAGER', permissions: ['project.read', 'project.create', 'project.update', 'organization_unit.read', 'master.read'], rank: 40 },
+  // The person who registers a project reads the kind of workflow the rule suggests and starts the workflow with the registration (ST-PWF-024, PRJ-02): `pwf.read` and `pwf.workflow.manage`.
+  { n: 110, user: 'projectManager', code: 'E2E_PROJECT_MANAGER', permissions: ['project.read', 'project.create', 'project.update', 'organization_unit.read', 'master.read', 'pwf.read', 'pwf.workflow.manage'], rank: 40 },
   { n: 111, user: 'projectViewer', code: 'E2E_PROJECT_VIEWER', permissions: ['project.read', 'organization_unit.read', 'master.read'], rank: 20 },
   { n: 112, user: 'capPlanner', code: 'E2E_CAPITAL_PLANNER', permissions: ['capital.read', 'capital.appropriation.manage', 'master.read'], rank: 40 },
   { n: 113, user: 'capApprover', code: 'E2E_CAPITAL_APPROVER', permissions: ['capital.read', 'capital.appropriation.approve'], rank: 50 },
@@ -897,7 +898,8 @@ function issueFixtures(tenantId: string): Array<[string, unknown[]]> {
     );
   }
   const year = new Date().getUTCFullYear();
-  [year, year + 1].forEach((calendarYear, index) => {
+  // Five years: a project workflow is scheduled on the published calendars to its last day, and the longest built-in template (public construction investment) runs past the second year.
+  [year, year + 1, year + 2, year + 3, year + 4].forEach((calendarYear, index) => {
     statements.push([
       `insert into machvon.work_calendar_version (tenant_id, id, calendar_code, year, revision, working_days, holidays, compensated_workdays, legal_basis_ref, status, created_by, published_by, published_at)
        values ($1, $2, 'WORKDAY_VN', $3, 1, '[1,2,3,4,5]'::jsonb, '[]'::jsonb, '[]'::jsonb, 'Labour Code 2019, Article 112', 'Published', $4, $4, now())`,
