@@ -1,7 +1,8 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
-import { FilterPanel } from '../../../ui';
-import { bandWord, statusWord } from '../labels';
-import { BAND_FILTERS, STATUS_FILTERS, appliedCount } from './model';
+import { phaseName } from '../codes';
+import { statusWord } from '../labels';
+import { STATUS_FILTERS, appliedCount } from './model';
 import type { Filters, Option } from './model';
 
 export interface FilterBarProps {
@@ -20,7 +21,7 @@ function withCurrent(options: readonly Option[], current: string): Option[] {
   return current === '' || options.some((option) => option.id === current) ? [...options] : [...options, { id: current, label: current }];
 }
 
-function Select({ id, label, value, onChange, children }: { id: string; label: string; value: string; onChange: (value: string) => void; children: React.ReactNode }) {
+function Select({ id, label, value, onChange, children }: { id: string; label: string; value: string; onChange: (value: string) => void; children: ReactNode }) {
   const { t } = useTranslation();
   return (
     <label className="pwf-field">
@@ -33,23 +34,31 @@ function Select({ id, label, value, onChange, children }: { id: string; label: s
   );
 }
 
-/** The filters of the board: colour, phase, person, unit, status and the days the deadline falls between. They are kept in the address by the screen. */
+/**
+ * The filters of the board in one compact panel: the status as a row of chips (the colour is chosen on the strip of counts above), then the phase, the person, the unit and the days the deadline falls between on one
+ * line that wraps. They are kept in the address by the screen.
+ */
 export function FilterBar({ filters, onChange, onClear, phases, people, units, updatedAt }: FilterBarProps) {
   const { t } = useTranslation();
   const phaseOptions = withCurrent(
-    phases.map((phase) => ({ id: phase, label: phase })),
+    phases.map((phase) => ({ id: phase, label: phaseName(t, phase) })),
     filters.phase,
   );
+  const applied = appliedCount(filters);
   return (
-    <FilterPanel applied={appliedCount(filters)} {...(updatedAt === undefined ? {} : { updatedAt })}>
-      <div className="pwf-filters">
-        <Select id="band" label={t('pwf.board.filter.band.label')} value={filters.band} onChange={(band) => onChange({ band })}>
-          {BAND_FILTERS.map((band) => (
-            <option key={band} value={band}>
-              {bandWord(t, band)}
-            </option>
-          ))}
-        </Select>
+    <section className="pwf-filterbar" aria-label={t('pwf6.board.filter.title')} data-testid="filter-bar">
+      <div className="pwf-chips" role="group" aria-label={t('pwf.board.filter.status.label')}>
+        <span className="pwf-chips__label">{t('pwf.board.filter.status.label')}</span>
+        <button type="button" className="pwf-chip" aria-pressed={filters.status === ''} data-testid="filter-status-any" onClick={() => onChange({ status: '' })}>
+          {t('pwf.board.filter.any.option')}
+        </button>
+        {STATUS_FILTERS.map((status) => (
+          <button key={status} type="button" className="pwf-chip" aria-pressed={filters.status === status} data-testid={`filter-status-${status}`} onClick={() => onChange({ status: filters.status === status ? '' : status })}>
+            {statusWord(t, status)}
+          </button>
+        ))}
+      </div>
+      <div className="pwf-filterbar__fields">
         <Select id="phase" label={t('pwf.board.filter.phase.label')} value={filters.phase} onChange={(phase) => onChange({ phase })}>
           {phaseOptions.map((option) => (
             <option key={option.id} value={option.id}>
@@ -78,13 +87,6 @@ export function FilterBar({ filters, onChange, onClear, phases, people, units, u
             <input type="text" data-testid="filter-unit" value={filters.unit} onChange={(event) => onChange({ unit: event.target.value.trim() })} />
           </label>
         )}
-        <Select id="status" label={t('pwf.board.filter.status.label')} value={filters.status} onChange={(status) => onChange({ status })}>
-          {STATUS_FILTERS.map((status) => (
-            <option key={status} value={status}>
-              {statusWord(t, status)}
-            </option>
-          ))}
-        </Select>
         <label className="pwf-field">
           <span>{t('pwf.board.filter.from.label')}</span>
           <input type="date" data-testid="filter-from" value={filters.dueFrom} max={filters.dueTo === '' ? undefined : filters.dueTo} onChange={(event) => onChange({ dueFrom: event.target.value })} />
@@ -93,12 +95,15 @@ export function FilterBar({ filters, onChange, onClear, phases, people, units, u
           <span>{t('pwf.board.filter.to.label')}</span>
           <input type="date" data-testid="filter-to" value={filters.dueTo} min={filters.dueFrom === '' ? undefined : filters.dueFrom} onChange={(event) => onChange({ dueTo: event.target.value })} />
         </label>
-      </div>
-      <div className="pwf-actions">
-        <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="filter-clear" disabled={appliedCount(filters) === 0} onClick={onClear}>
-          {t('pwf.board.filter.clear.action')}
+        <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="filter-clear" disabled={applied === 0} onClick={onClear}>
+          {applied === 0 ? t('pwf.board.filter.clear.action') : t('pwf6.board.filter.clear.count', { count: applied })}
         </button>
       </div>
-    </FilterPanel>
+      {updatedAt === undefined ? null : (
+        <p className="pwf-hint pwf-filterbar__stamp" data-testid="filter-updated">
+          {t('pwf6.board.updated.text', { at: updatedAt })}
+        </p>
+      )}
+    </section>
   );
 }

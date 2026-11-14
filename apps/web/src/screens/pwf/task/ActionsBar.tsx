@@ -1,9 +1,10 @@
 import { useTranslation } from '../../../i18n';
-import { SectionCard, StatusPill } from '../../../ui';
+import { StatusPill } from '../../../ui';
+import { docTypeName } from '../codes';
 import { blockerWord } from '../labels';
 import type { TaskDetail } from '../model';
 import { blockerRows } from './model';
-import type { Actions } from './model';
+import type { Actions, BlockerRow } from './model';
 import type { TaskDialog } from './TaskDialogs';
 
 export interface ActionsBarProps {
@@ -26,8 +27,15 @@ export function ActionsBar({ task, actions, onOpen, onWaive }: ActionsBarProps) 
     [actions.resume, 'resume', t('pwf.task.resume.action')],
   ];
   const shown = buttons.filter(([allowed]) => allowed);
+  // What a blocker is about, by its name: the item of the checklist, the legal document type or the form; the code stays the fallback.
+  const subjectName = (row: BlockerRow): string => {
+    if (row.code === 'LEGAL_DOC_MISSING') return docTypeName(t, row.subject);
+    if (row.code === 'FORM_MISSING') return task.form_templates.find((form) => form.code === row.subject)?.current_title ?? row.subject;
+    if (row.code === 'CHECKLIST_ITEM_OPEN' || row.code === 'EVIDENCE_MISSING') return task.checklist.find((item) => item.item_code === row.subject)?.name ?? row.subject;
+    return row.subject;
+  };
   return (
-    <SectionCard title={t('pwf.task.actions.title')}>
+    <section className="pwf-taskhead__actions" aria-label={t('pwf.task.actions.title')}>
       {task.status === 'IN_PROGRESS' ? (
         <div data-testid="completion-check">
           {task.completion.ok ? (
@@ -42,7 +50,7 @@ export function ActionsBar({ task, actions, onOpen, onWaive }: ActionsBarProps) 
               <ul className="pwf-list" data-testid="completion-blockers">
                 {rows.map((row) => (
                   <li key={`${row.code}:${row.subject}`}>
-                    {blockerWord(t, row.code, row.subject)}
+                    {blockerWord(t, row.code, subjectName(row))}
                     {row.coverable ? <span className="pwf-hint"> {t('pwf.task.completion.coverable')}</span> : null}
                     {row.coverable && actions.requestException ? (
                       <button type="button" className="ui-button ui-button--outline ui-button--small" data-action={`waive-${row.subject}`} onClick={() => onWaive(row.subject)}>
@@ -57,7 +65,7 @@ export function ActionsBar({ task, actions, onOpen, onWaive }: ActionsBarProps) 
         </div>
       ) : null}
       {shown.length === 0 ? (
-        <p className="callout" role="status" data-testid="no-actions">
+        <p className="pwf-hint" role="status" data-testid="no-actions">
           {t('pwf.task.actions.none')}
         </p>
       ) : (
@@ -69,6 +77,6 @@ export function ActionsBar({ task, actions, onOpen, onWaive }: ActionsBarProps) 
           ))}
         </div>
       )}
-    </SectionCard>
+    </section>
   );
 }

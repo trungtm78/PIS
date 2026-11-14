@@ -11,19 +11,26 @@ import { useScreenState } from '../../../states/useScreenState';
 import { ConfirmDialog, SectionCard, StatusPill } from '../../../ui';
 import { useProject } from '../../prj/hooks';
 import type { ProjectView } from '../../prj/model';
+import { Named, factName, templateName, versionText } from '../codes';
 import { CalendarMissingNote, FigureInfo, ProblemBanner, UnverifiedLabel } from '../components';
 import { formProblemText, problemText } from '../labels';
 import { PATHS, PERMISSIONS, TEMPLATE_RULE_TYPE, dayText, describeProblem, factsOf, holds, missingYears, workflowLink } from '../model';
 import type { AdoptResult, Problem, TemplateParams } from '../model';
 import { useWorkflowSuggestion } from '../process/hooks';
 import { basisText } from '../process/labels';
-import { FACT_VALUE, MAX_SELECTION_REASON, MIN_SELECTION_REASON } from '../process/model';
+import { FACT_VALUE, FUNDING_SOURCES, MAX_SELECTION_REASON, MIN_SELECTION_REASON, PROJECT_GROUPS } from '../process/model';
 import { AdoptResultView } from './AdoptResultView';
 import { useApplyAdoption, useDryRunAdoption, usePreviewTemplate, useStartWorkflow, useTemplateCatalogue, useTemplateRule } from './hooks';
 import { FACT_FIELDS, MAX_FACT, adoptBody, decisionsValid, dryRunKey, emptyForm, factsOfProject, hasErrors, readiness, startBody, summarizeTemplate, templateCodes, validateForm } from './model';
 import type { Decision, Decisions, FactField, FormField, Mode, StartForm } from './model';
 import './start.css';
 import '../pwf.css';
+
+/** The values a fact can be chosen from: the groups and the sources of capital the shipped templates branch on, the type the project itself carries, and whatever the form already holds (a value the list does not know is kept, never dropped). */
+function factOptions(field: FactField, current: string, ofProject: string): string[] {
+  const known: readonly string[] = field === 'project_group' ? PROJECT_GROUPS : field === 'funding_source' ? FUNDING_SOURCES : [];
+  return [...new Set([...known, ofProject, current].filter((value) => value !== ''))];
+}
 
 const NEVER_EMPTY = (): boolean => false;
 /** The label of a fact of the branch (each key is written out so that the i18n check sees it is in use). */
@@ -210,14 +217,16 @@ function StartPanel({ project }: { project: ProjectView }) {
     );
   }
 
+  const nameOfTemplate = (code: string): string => suggestion.data?.templates.find((one) => one.code === code)?.name ?? templateName(t, code);
+  const initialFacts = factsOfProject(project);
   const current = dryRunKey(form, decisions);
   const status = dry === undefined ? undefined : readiness(dry.result, dry.key, current, decisions);
   const adopting = form.mode === 'adopt';
 
   return (
     <>
-      <p>
-        <code>{project.code}</code> · {project.name}
+      <p className="pwf-context" data-testid="start-project">
+        <Named name={project.name} code={project.code} />
       </p>
       <SectionCard title={t('pwf.start.form.title')}>
         <form
@@ -249,7 +258,7 @@ function StartPanel({ project }: { project: ProjectView }) {
                   <option value="">{t('pwf.start.template.choose.option')}</option>
                   {codes.map((code) => (
                     <option key={code.code} value={code.code}>
-                      {code.unverified ? t('pwf.start.template.unverifiedOption.text', { code: code.code }) : code.code}
+                      {code.unverified ? t('pwf.start.template.unverifiedOption.text', { code: nameOfTemplate(code.code) }) : nameOfTemplate(code.code)}
                     </option>
                   ))}
                 </select>
@@ -271,8 +280,13 @@ function StartPanel({ project }: { project: ProjectView }) {
                   basisText(t, 'NONE', null)
                 ) : (
                   <>
-                    <strong>{t('pwf.process.kind.suggested.text', { code: suggested, name: suggestion.data.templates.find((one) => one.code === suggested)?.name ?? '' })}</strong> {basisText(t, suggestion.data.basis, suggestion.data.line)}{' '}
-                    {t('pwf.process.kind.ruleVersion.text', { version: suggestion.data.rule.version })}
+                    <span className="pwf-suggestion__label">{t('pwf6.kind.suggested.label')}</span>
+                    <strong className="pwf-suggestion__name">
+                      <Named name={nameOfTemplate(suggested)} code={suggested} />
+                    </strong>
+                    <span className="pwf-suggestion__why">
+                      {basisText(t, suggestion.data.basis, suggestion.data.line)} {t('pwf6.kind.rule.text', { version: versionText(t, suggestion.data.rule.version) })}
+                    </span>
                   </>
                 )}
               </p>
@@ -303,7 +317,7 @@ function StartPanel({ project }: { project: ProjectView }) {
               </p>
               <dl className="pwf-facts">
                 <dt>{t('pwf.start.template.projectType.label')}</dt>
-                <dd>{summary.projectType ?? t('pwf.start.template.anyType.text')}</dd>
+                <dd>{summary.projectType === null || summary.projectType === undefined ? t('pwf.start.template.anyType.text') : templateName(t, summary.projectType)}</dd>
                 <dt>{t('pwf.start.template.version.label')}</dt>
                 <dd>{rule.data?.source === 'RULE' ? t('pwf.start.template.sourceRule.text', { version: rule.data.version }) : t('pwf.start.template.sourceDefault.text')}</dd>
                 <dt>{t('pwf.start.template.phases.label')}</dt>
@@ -330,7 +344,16 @@ function StartPanel({ project }: { project: ProjectView }) {
             <div className="pwf-filters">
               {FACT_FIELDS.map((field) => (
                 <LabelledField key={field} label={factLabel(t, field)} testId={field} error={fieldError(field)}>
-                  {({ id, invalid, describedBy }) => <input id={id} type="text" data-testid={`fact-${field}`} value={form.facts[field]} aria-invalid={invalid} aria-describedby={describedBy} onChange={(event) => edit({ facts: { ...form.facts, [field]: event.target.value } })} />}
+                  {({ id, invalid, describedBy }) => (
+                    <select id={id} data-testid={`fact-${field}`} value={form.facts[field]} aria-invalid={invalid} aria-describedby={describedBy} onChange={(event) => edit({ facts: { ...form.facts, [field]: event.target.value } })}>
+                      <option value="">{t('pwf6.start.fact.none')}</option>
+                      {factOptions(field, form.facts[field], initialFacts[field]).map((value) => (
+                        <option key={value} value={value}>
+                          {field === 'project_type' && value === project.projectType?.businessKey ? (project.projectType?.label ?? factName(t, value)) : factName(t, value)}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </LabelledField>
               ))}
             </div>
@@ -340,11 +363,11 @@ function StartPanel({ project }: { project: ProjectView }) {
 
           <div className="pwf-actions">
             {adopting ? (
-              <button type="button" className="ui-button" data-testid="dry-run" disabled={dryRun.isPending} onClick={() => void runDry()}>
+              <button type="button" className="ui-button ui-button--primary" data-testid="dry-run" disabled={dryRun.isPending} onClick={() => void runDry()}>
                 {t('pwf.start.dryRun.action')}
               </button>
             ) : (
-              <button type="button" className="ui-button" data-testid="submit-start" disabled={start.isPending} onClick={() => void submitStart()}>
+              <button type="button" className="ui-button ui-button--primary" data-testid="submit-start" disabled={start.isPending} onClick={() => void submitStart()}>
                 {t('pwf.start.submit.action')}
               </button>
             )}
@@ -383,7 +406,7 @@ function StartPanel({ project }: { project: ProjectView }) {
         <>
           <AdoptResultView result={dry.result} decisions={decisions} readiness={status} showErrors={attempted} onDecision={setDecision} />
           <div className="pwf-actions">
-            <button type="button" className="ui-button" data-testid="apply" disabled={status !== 'ready' || apply.isPending} onClick={() => setConfirming(true)}>
+            <button type="button" className="ui-button ui-button--primary" data-testid="apply" disabled={status !== 'ready' || apply.isPending} onClick={() => setConfirming(true)}>
               {t('pwf.start.apply.action')}
             </button>
           </div>

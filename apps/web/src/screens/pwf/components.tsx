@@ -1,11 +1,13 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { InfoFormula, StatusPill } from '../../ui';
 import type { InfoFormulaLabels } from '../../ui';
 import { blockerWord, bandWord, missingReasonWord, problemText, remainingText } from './labels';
-import { bandIcon, bandTone, dayText, isConflict, taskLink } from './model';
-import type { Problem, TaskBand } from './model';
+import { BANDS, bandIcon, bandTone, dayText, isConflict, taskLink } from './model';
+import type { Band, Problem, TaskBand } from './model';
 import './pwf.css';
+import './pwf6.css';
 
 /** The words of the "i" control: the keys the other figures of the product use, so a number says its formula, source and day the same way on every screen. */
 export function useInfoLabels(): (name: string) => InfoFormulaLabels {
@@ -117,6 +119,64 @@ export function ProblemBanner({ problem, onReload }: { problem: Problem; onReloa
           {t('pwf.problem.reload.action')}
         </button>
       ) : null}
+    </div>
+  );
+}
+
+/** "3/5" with a bar: the share done of one tier (a phase, a step, a checklist). Nothing to count is said as a dash of words, never as 0 %. */
+export function Meter({ done, total, label, testId }: { done: number; total: number; label: string; testId?: string }) {
+  const { t } = useTranslation();
+  if (total <= 0) return null;
+  const percent = Math.round((Math.min(done, total) / total) * 100);
+  return (
+    <span className="pwf-meter" data-testid={testId} data-complete={done >= total}>
+      <progress value={Math.min(done, total)} max={total} aria-label={t('pwf.process.progress.aria.label', { label, done, total })} />
+      <span className="pwf-meter__text">{t('pwf6.meter.value.text', { done, total, percent })}</span>
+    </span>
+  );
+}
+
+export interface BandStripProps {
+  counts: Readonly<Record<Band, number>>;
+  /** The accessible name of the group. */
+  label: string;
+  unit: string;
+  /** The "i" of the counts: said once for the strip, not under every number. */
+  info?: ReactNode;
+  /** With `onSelect` each count is a button that filters to its colour (pressed again, it clears the filter). */
+  selected?: Band | '';
+  onSelect?: (band: Band | '') => void;
+  /** The colours that can be chosen (a count that is no filter stays a plain tile). */
+  selectable?: readonly Band[];
+}
+
+/** The count of tasks by official colour as one strip of five equal tiles, each with its glyph and word; the colour is never the only cue. */
+export function BandStrip({ counts, label, unit, info, selected = '', onSelect, selectable = BANDS }: BandStripProps) {
+  const { t } = useTranslation();
+  return (
+    <div className="pwf-bands" role="group" aria-label={label}>
+      {BANDS.map((band) => {
+        const body = (
+          <>
+            <span className="pwf-bands__label">
+              <span aria-hidden="true">{bandIcon(band)}</span> {bandWord(t, band)}
+            </span>
+            <span className="pwf-bands__figure">
+              <span className="pwf-bands__value">{counts[band]}</span> <span className="pwf-bands__unit">{unit}</span>
+            </span>
+          </>
+        );
+        return onSelect === undefined || !selectable.includes(band) ? (
+          <div key={band} className="pwf-bands__tile" data-band={band} data-testid={`count-${band.toLowerCase()}`}>
+            {body}
+          </div>
+        ) : (
+          <button key={band} type="button" className="pwf-bands__tile" data-band={band} data-testid={`count-${band.toLowerCase()}`} aria-pressed={selected === band} onClick={() => onSelect(selected === band ? '' : band)}>
+            {body}
+          </button>
+        );
+      })}
+      {info === undefined ? null : <span className="pwf-bands__info">{info}</span>}
     </div>
   );
 }

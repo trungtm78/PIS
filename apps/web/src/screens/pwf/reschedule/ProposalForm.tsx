@@ -105,7 +105,7 @@ export function ProposalForm({ form, errors, pending, disabled, onChange, onSubm
           </p>
         )}
         <div className="pwf-actions">
-          <button type="button" className="ui-button" data-testid="submit-propose" disabled={pending || disabled} onClick={onSubmit}>
+          <button type="button" className="ui-button ui-button--primary" data-testid="submit-propose" disabled={pending || disabled} onClick={onSubmit}>
             {t('pwf.resched.propose.action')}
           </button>
         </div>

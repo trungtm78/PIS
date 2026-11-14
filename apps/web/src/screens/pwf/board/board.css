@@ -3,70 +3,152 @@
   flex-wrap: wrap;
   gap: 4px;
   border-bottom: 1px solid var(--mv-color-border);
-  margin: 12px 0;
+  margin: 16px 0 12px;
 }
 .pwf-tabs [role='tab'] {
   font: inherit;
-  padding: 8px 14px;
-  border: 1px solid transparent;
-  border-bottom: 0;
-  border-radius: 6px 6px 0 0;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 0;
+  border-bottom: 3px solid transparent;
   background: transparent;
   color: var(--mv-color-text-secondary);
   cursor: pointer;
 }
 .pwf-tabs [role='tab'][aria-selected='true'] {
-  background: var(--mv-color-surface);
-  border-color: var(--mv-color-border);
+  border-bottom-color: var(--mv-color-primary);
   color: var(--mv-color-ink);
-  font-weight: 600;
+  font-weight: 700;
 }
-.pwf-hint {
-  color: var(--mv-color-text-secondary);
-  font-size: 13px;
+.pwf-tabs [role='tab']:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: -2px;
+}
+
+/* The filters: a row of status chips, then the selects and the days on one line that wraps; the clear button sits on the line of the fields and keeps its own height. */
+.pwf-filterbar {
+  display: grid;
+  gap: 12px;
+  padding: 16px 20px;
+  margin: 0 0 8px;
+  background: var(--mv-color-surface);
+  border: 1px solid var(--mv-color-border);
+  border-radius: 14px;
+}
+.pwf-filterbar__fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 16px;
+}
+.pwf-filterbar__fields .pwf-field {
+  flex: 1 1 168px;
+  max-width: 240px;
+  min-width: 0;
+}
+.pwf-filterbar__fields .pwf-field select,
+.pwf-filterbar__fields .pwf-field input {
+  min-height: 36px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.pwf-filterbar__fields .ui-button {
+  flex: 0 0 auto;
+  min-height: 36px;
+}
+.pwf-filterbar__stamp {
+  margin: 0;
+}
+.pwf-cellstack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.pwf-nowrap {
+  white-space: nowrap;
+}
+
+/* The month: one kind of cell for every day. Weekday names are a dark header row; a day outside the month is an empty tinted cell. */
+.pwf-monthnav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+.pwf-monthnav strong {
+  min-width: 168px;
+  text-align: center;
+  font-size: 16px;
+}
+.pwf-calendar__region {
+  max-height: none;
+  margin: 8px 0 16px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 8px;
 }
 .pwf-calendar {
   width: 100%;
+  min-width: 616px;
   border-collapse: collapse;
   table-layout: fixed;
-  margin: 8px 0 16px;
 }
 .pwf-calendar caption {
-  text-align: left;
-  font-size: 12px;
-  color: var(--mv-color-text-secondary);
-  padding-bottom: 4px;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
-.pwf-calendar th,
-.pwf-calendar td {
+.pwf-calendar thead th {
+  position: static;
+  background: var(--mv-color-table-head);
+  color: var(--mv-color-menu-text);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  padding: 8px;
+  border: 0;
+}
+.pwf-calendar tbody td {
   border: 1px solid var(--mv-color-border);
   vertical-align: top;
   padding: 0;
+  height: 88px;
+  background: var(--mv-color-surface);
 }
-.pwf-calendar th {
-  background: var(--mv-color-surface2);
-  font-size: 12px;
-  padding: 4px;
-}
-.pwf-calendar__out {
+.pwf-calendar tbody td.pwf-calendar__out {
   background: var(--mv-color-surface2);
 }
-.pwf-calendar td {
-  height: 72px;
+.pwf-calendar tbody td:nth-child(n + 6).pwf-calendar__in {
+  background: var(--mv-color-background);
 }
 .pwf-day {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
-  padding: 4px;
+  min-height: 88px;
+  padding: 6px 8px;
   font: inherit;
   text-align: left;
   border: 0;
-  background: var(--mv-color-surface);
+  background: transparent;
   color: var(--mv-color-ink);
+}
+button.pwf-day {
   cursor: pointer;
+  background: var(--mv-color-surface);
+}
+button.pwf-day:hover {
+  background: var(--mv-color-primary-soft);
+}
+button.pwf-day:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: -2px;
 }
 .pwf-day[aria-pressed='true'] {
   outline: 2px solid var(--mv-color-focus);
@@ -76,22 +158,44 @@
 .pwf-day__number {
   font-weight: 600;
   font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mv-color-text-secondary);
+}
+button.pwf-day .pwf-day__number {
+  color: var(--mv-color-ink);
+}
+.pwf-day__number[data-today='true'] {
+  align-self: flex-start;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--mv-color-primary);
+  color: var(--mv-color-surface);
 }
 .pwf-day__counts {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  font-size: 11px;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.pwf-day__count {
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--mv-color-neutral-soft);
+  color: var(--mv-color-neutral);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .pwf-day__count[data-band='RED'] {
+  background: var(--mv-color-danger-soft);
   color: var(--mv-color-danger);
 }
 .pwf-day__count[data-band='YELLOW'] {
+  background: var(--mv-color-warning-soft);
   color: var(--mv-color-warning);
 }
 .pwf-day__count[data-band='GREEN'] {
+  background: var(--mv-color-success-soft);
   color: var(--mv-color-success);
-}
-.pwf-day__count[data-band='UNKNOWN'] {
-  color: var(--mv-color-neutral);
 }

@@ -47,8 +47,10 @@ describe('PWF-11: my score', () => {
     open();
     const card = await screen.findByTestId('my-period');
     expect(within(card).getByTestId('score-computed').textContent).toBe('82.5');
-    expect(within(card).getByTestId('rating').textContent).toBe('GOOD');
-    expect(within(card).getByText(text('pwfs.my.basis.text', { policy: 'DEFAULT', version: 2 }))).toBeTruthy();
+    // The grade is said in words; its code stays on the element.
+    expect(within(card).getByTestId('rating').textContent).toBe(text('pwf6.grade.good.word'));
+    expect(within(card).getByTestId('rating').getAttribute('data-rating')).toBe('GOOD');
+    expect(within(card).getByTestId('policy-basis').textContent).toBe(text('pwf6.score.policy.text', { version: text('pwf6.version.numbered.text', { version: 2 }) }));
     expect(within(card).getByTestId('window').textContent).toBe('15/01/2027');
     expect(within(card).getByTestId('hash').textContent).toBe('ab12cd34ef56ab12');
     expect(screen.getByTestId('support-notice').textContent).toContain(text('pwfs.common.support.note'));
@@ -83,7 +85,7 @@ describe('PWF-11: my score', () => {
     const panel = await screen.findByRole('dialog');
     expect(within(panel).getByText(text('pwfs.info.formula.text'))).toBeTruthy();
     expect(within(panel).getByText(text('pwfs.info.source.text', { policy: 'DEFAULT', hash: 'ab12cd34ef56' }))).toBeTruthy();
-    expect(within(panel).getByText(text('pwfs.info.version.text', { version: 2 }))).toBeTruthy();
+    expect(within(panel).getByText(text('pwf6.score.policy.text', { version: text('pwf6.version.numbered.text', { version: 2 }) }))).toBeTruthy();
   });
 
   it('says "not enough data" instead of a rating for a small sample, and shows the number', async () => {

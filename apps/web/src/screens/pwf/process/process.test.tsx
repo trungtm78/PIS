@@ -8,7 +8,7 @@ import { EMPTY_CHOICE } from './model';
 import type { ChoiceForm } from './model';
 import { ProcessKindSection } from './ProcessKindSection';
 import { StepsPanel } from './StepsPanel';
-import { TaskProcessSection } from './TaskProcessSection';
+import { FormRevision, TaskProcessSection, mergedBasis } from './TaskProcessSection';
 import { legalBasis, step, suggestion } from './test/fixtures';
 
 afterEach(cleanup);
@@ -85,7 +85,8 @@ describe('the workflow in three tiers (PWF-03, the tab of the project)', () => {
     expect(policy.textContent).toContain(text('pwf.process.progress.value.text', { label: text('pwf.process.progress.tasks.label'), done: 1, total: 2, percent: 50 }));
     expect(policy.textContent).toContain(text('pwf.process.progress.value.text', { label: text('pwf.process.progress.checklist.label'), done: 3, total: 4, percent: 75 }));
     expect(screen.getByTestId('checklist-T2').textContent).toBe(text('pwf.process.task.checklist.text', { done: 1, total: 2 }));
-    expect(within(policy).getAllByRole('link').map((link) => link.textContent)).toEqual(['T1 · Công việc 1', 'T2 · Công việc 2']);
+    expect(within(policy).getAllByRole('link').map((link) => link.textContent)).toEqual(['Công việc 1', 'Công việc 2']);
+    expect([...policy.querySelectorAll('[data-task]')].map((line) => line.querySelector('.pwf-code')?.textContent)).toEqual(['T1', 'T2']);
     const build = panel.querySelector('[data-step="S_BUILD"]') as HTMLElement;
     expect(build.textContent).toContain(text('pwf.process.progress.none.text', { label: text('pwf.process.progress.checklist.label') }));
     // The task the project added itself is kept apart, under its phase.
@@ -124,20 +125,43 @@ describe('the place of a task in the procedure (PWF-04)', () => {
         })}
       />,
     );
-    expect(screen.getByTestId('task-step').textContent).toContain('2. Thẩm định dự án');
-    expect(screen.getByTestId('task-step').textContent).toContain('DPI_APPRAISER');
-    expect(screen.getByTestId('task-legal').textContent).toContain('85/2025/NĐ-CP');
-    expect(screen.getByTestId('task-step-legal').textContent).toContain(`${text('pwf.process.docKind.law.word')} 58/2024/QH15`);
+    // One list of grounds: what the task cites and what its step cites, each marked with where it comes from.
+    const grounds = screen.getByTestId('task-legal');
+    expect(grounds.textContent).toContain('85/2025/NĐ-CP');
+    expect(grounds.textContent).toContain(`${text('pwf.process.docKind.law.word')} 58/2024/QH15`);
+    expect((grounds.querySelector('[data-document="DECREE_85_2025_ND_CP"]') as HTMLElement).textContent).toContain(text('pwf6.legal.from.task'));
+    expect((grounds.querySelector('[data-document="LAW_58_2024_QH15"]') as HTMLElement).textContent).toContain(text('pwf6.legal.from.step'));
+    cleanup();
+    // The revisions of the forms are said with each form.
+    render(
+      <>
+        <FormRevision form={form()} />
+        <FormRevision form={form({ code: 'BM_02', policy: 'PINNED', pinned_revision: 1, current_revision: 4, used_revision: 1, newer_available: false })} />
+      </>,
+    );
     expect(screen.getByTestId('form-current-BM_01').textContent).toBe(text('pwf.process.forms.current.text', { revision: 3, from: '01/11/2026' }));
-    expect(screen.getByTestId('form-used-BM_01').textContent).toBe(text('pwf.process.forms.used.text', { revision: 2, hash: 'abababababab' }));
+    expect(screen.getByTestId('form-used-BM_01').textContent).toBe(text('pwf6.forms.used.text', { revision: 2 }));
     expect(screen.getByTestId('form-newer-BM_01').textContent).toBe(text('pwf.process.forms.newer.text', { used: 2, current: 3 }));
     expect(screen.queryByTestId('form-newer-BM_02')).toBeNull();
-    expect((screen.getByTestId('task-forms').querySelector('[data-form-revision="BM_02"]') as HTMLElement).textContent).toContain(text('pwf.process.forms.pinned.word', { revision: 1 }));
+    expect((document.querySelector('[data-form-revision="BM_02"]') as HTMLElement).textContent).toContain(text('pwf.process.forms.pinned.word', { revision: 1 }));
+  });
+
+  it('says a ground the task and its step both cite once, as cited by both', () => {
+    const same = legalBasis({ document_code: 'LAW_58_2024_QH15', doc_kind: 'LAW', number: '58/2024/QH15', article: 'Điều 5' });
+    expect(mergedBasis([same], [same, legalBasis({ document_code: 'LAW_58_2024_QH15', doc_kind: 'LAW', number: '58/2024/QH15', article: 'Điều 9' })]).map((one) => [one.basis.article, one.from])).toEqual([
+      ['Điều 5', 'both'],
+      ['Điều 9', 'step'],
+    ]);
   });
 
   it('says that a task belongs to no step, that a form has no approved revision, and that no document was made yet', () => {
-    render(<TaskProcessSection task={taskDetail({ step: null, legal_basis: [], step_legal_basis: [], form_templates: [form({ satisfied: false, current_revision: null, current_title: null, current_effective_from: null, used_revision: null, used_sha256: null, newer_available: false })] })} />);
-    expect(screen.getByTestId('task-step-none').textContent).toBe(text('pwf.process.task.noStep.text'));
+    render(
+      <>
+        <TaskProcessSection task={taskDetail({ step: null, legal_basis: [], step_legal_basis: [] })} />
+        <FormRevision form={form({ satisfied: false, current_revision: null, current_title: null, current_effective_from: null, used_revision: null, used_sha256: null, newer_available: false })} />
+      </>,
+    );
+    expect(screen.getByTestId('task-legal-empty').textContent).toBe(text('pwf.process.legal.none.text'));
     expect(screen.getByTestId('form-current-BM_01').textContent).toBe(text('pwf.process.forms.current.none'));
     expect(screen.getByTestId('form-used-BM_01').textContent).toBe(text('pwf.process.forms.used.none'));
   });
@@ -157,7 +181,10 @@ describe('the kind of workflow and the planned start (PRJ-02, PWF-05)', () => {
 
   it('says what the rule suggests and why, offers every template, and previews the schedule before anything is saved', () => {
     show({ plannedStart: '2026-12-01' });
-    expect(screen.getByTestId('kind-suggestion').textContent).toContain(text('pwf.process.kind.suggested.text', { code: 'PUBLIC_INVESTMENT', name: 'Dự án đầu tư công xây dựng' }));
+    expect(screen.getByTestId('kind-suggestion').textContent).toContain(text('pwf6.kind.suggested.label'));
+    expect(screen.getByTestId('kind-suggestion').textContent).toContain('Dự án đầu tư công xây dựng');
+    expect(screen.getByTestId('kind-suggestion').getAttribute('data-suggested')).toBe('PUBLIC_INVESTMENT');
+    expect(screen.getByTestId('kind-suggestion').textContent).toContain(text('pwf6.kind.reason.label'));
     expect(screen.getByTestId('kind-suggestion').textContent).toContain(text('pwf.process.basis.default.text'));
     expect(within(screen.getByTestId('kind-template')).getAllByRole('option').map((option) => option.getAttribute('value'))).toEqual(['', 'PUBLIC_INVESTMENT', 'PUBLIC_REPAIR']);
     expect(screen.getByTestId('kind-unverified')).toBeTruthy();

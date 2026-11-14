@@ -7,7 +7,9 @@ import { CalendarMissingCell, CalendarMissingNote, FigureInfo, ProblemBanner } f
 import { describeProblem, dayProblem, dayText, missingYears, todayInVietnam } from '../model';
 import type { ProjectFacts, SchedulePreview, ScheduleTask, TemplateValidation } from '../model';
 import { formProblemText } from '../labels';
-import { TextField, problemMapOf, problemWord } from './editor-fields';
+import { factName } from '../codes';
+import { FUNDING_SOURCES, PROJECT_GROUPS } from '../process/model';
+import { problemWord } from './editor-fields';
 import type { PreviewInput } from './hooks';
 import type { Template, TemplateProblem } from './template-model';
 
@@ -188,6 +190,13 @@ export interface PreviewPanelProps {
 
 const FACTS: readonly (keyof ProjectFacts)[] = ['project_group', 'funding_source', 'project_type'];
 
+/** The values a fact of the preview is chosen from: the groups and sources of capital the law and the shipped templates name, the type of project the template is for, and every value a branch of this template tests. */
+export function factChoices(template: Template, name: keyof ProjectFacts, current: string): string[] {
+  const known: readonly string[] = name === 'project_group' ? PROJECT_GROUPS : name === 'funding_source' ? FUNDING_SOURCES : template.project_type === null ? [] : [template.project_type];
+  const tested = template.tasks.flatMap((task) => task.when.filter((condition) => condition.field === name).flatMap((condition) => condition.in));
+  return [...new Set([...known, ...tested, current].filter((value) => value !== ''))];
+}
+
 /** The schedule of the template on a start day and the facts of a project: dates, float and the critical path; a year with no calendar is said, never guessed. */
 export function PreviewPanel({ template, canRun, pending, error, result, current, onRun }: PreviewPanelProps) {
   const { t } = useTranslation();
@@ -200,7 +209,6 @@ export function PreviewPanel({ template, canRun, pending, error, result, current
     if (startProblem !== undefined) return;
     onRun({ template, plannedStartDate: start.trim(), facts: Object.fromEntries(FACTS.flatMap((name) => (facts[name].trim() === '' ? [] : [[name, facts[name].trim()]]))) as PreviewInput['facts'] });
   };
-  const noProblems = problemMapOf([]);
   const factLabel = (name: keyof ProjectFacts): string => (name === 'project_group' ? t('pwf.templates.condition.projectGroup.word') : name === 'funding_source' ? t('pwf.templates.condition.fundingSource.word') : t('pwf.templates.condition.projectType.word'));
   return (
     <SectionCard title={t('pwf.templates.preview.title')}>
@@ -211,7 +219,17 @@ export function PreviewPanel({ template, canRun, pending, error, result, current
           {attempted && startProblem !== undefined ? <span className="pwf-field__error">{formProblemText(t, startProblem)}</span> : null}
         </div>
         {FACTS.map((name) => (
-          <TextField key={name} label={factLabel(name)} path={`preview.${name}`} problems={noProblems} show={false} value={facts[name]} disabled={!canRun} onChange={(value) => setFacts({ ...facts, [name]: value })} />
+          <div key={name} className="pwf-field">
+            <label htmlFor={`pwf-preview-${name}`}>{factLabel(name)}</label>
+            <select id={`pwf-preview-${name}`} value={facts[name]} disabled={!canRun} data-testid={`field-preview.${name}`} onChange={(event) => setFacts({ ...facts, [name]: event.target.value })}>
+              <option value="">{t('pwf6.start.fact.none')}</option>
+              {factChoices(template, name, facts[name]).map((value) => (
+                <option key={value} value={value}>
+                  {factName(t, value)}
+                </option>
+              ))}
+            </select>
+          </div>
         ))}
       </div>
       <p className="pwf-actions">

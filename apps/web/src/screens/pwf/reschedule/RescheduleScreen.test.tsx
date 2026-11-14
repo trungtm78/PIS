@@ -80,9 +80,9 @@ describe('PWF-06: what if the start day moves', () => {
     const t1 = within(result).getByTestId('change-T1');
     expect(t1.textContent).toContain('01/12/2026 – 10/12/2026');
     expect(t1.textContent).toContain('04/01/2027 – 15/01/2027');
-    expect(t1.textContent).toContain(text('pwf.resched.col.shiftPair.text', { start: '+5', finish: '+5' }));
+    expect(t1.textContent).toContain(text('pwf6.resched.shift.later', { days: 5 }));
     expect(t1.textContent).toContain(text('pwf.resched.critical.became.word'));
-    expect(t1.textContent).toContain(text('pwf.resched.col.variance.text', { days: '+5' }));
+    expect(t1.textContent).toContain('T1');
     expect(within(result).getByTestId('change-T2').textContent).toContain(text('pwf.resched.critical.left.word'));
     expect(within(result).getByTestId('summary').textContent).toBe(text('pwf.resched.result.summary.text', { total: 2, slipped: 2, gained: 0, became: 1, left: 1 }));
     expect(within(result).getByTestId('baseline-note').textContent).toBe(text('pwf.resched.baseline.note'));

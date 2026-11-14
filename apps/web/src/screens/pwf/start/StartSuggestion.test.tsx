@@ -34,7 +34,7 @@ describe('PWF-05: the rule suggests the kind of workflow of the project (R47)', 
     const panel = await screen.findByTestId('suggestion');
     expect(panel.textContent).toContain('PUBLIC_REPAIR');
     expect(panel.textContent).toContain(text('pwf.process.basis.rule.text', { line: 'REPAIR' }));
-    expect(panel.textContent).toContain(text('pwf.process.kind.ruleVersion.text', { version: 4 }));
+    expect(panel.textContent).toContain(text('pwf6.kind.rule.text', { version: text('pwf6.version.numbered.text', { version: 4 }) }));
     const asked = (h.read.mock.calls.find((call) => call[0] === 'suggestProjectWorkflow') as [string, { query: Record<string, string> }])[1].query;
     expect(asked.project_id).toBe(PROJECT_ID);
     await waitFor(() => expect(within(screen.getByTestId('template')).getAllByRole('option').length).toBeGreaterThan(1));

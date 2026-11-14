@@ -1,4 +1,6 @@
 import { useTranslation } from '../../../i18n';
+import { ScrollRegion } from '../../scroll-region';
+import { Named, versionText } from '../codes';
 import { SectionCard, StatusPill } from '../../../ui';
 import { UnverifiedLabel } from '../components';
 import { dayText } from '../model';
@@ -63,7 +65,7 @@ export function ProcessKindSection({ form, onChange, suggestion, current = true,
             {t('pwf.process.kind.denied.text')}
           </p>
         ) : null}
-        <p className="pwf-suggestion" role="status" aria-live="polite" data-testid="kind-suggestion">
+        <div className="pwf-suggestion" role="status" aria-live="polite" data-testid="kind-suggestion" data-suggested={suggestion?.suggested_template_code ?? undefined}>
           {suggestion === undefined ? (
             loading ? (
               t('pwf.process.kind.loading.text')
@@ -74,24 +76,32 @@ export function ProcessKindSection({ form, onChange, suggestion, current = true,
             basisText(t, 'NONE', null)
           ) : (
             <>
-              <strong>{t('pwf.process.kind.suggested.text', { code: suggestion.suggested_template_code, name: suggestion.templates.find((one) => one.code === suggestion.suggested_template_code)?.name ?? '' })}</strong>{' '}
-              {basisText(t, suggestion.basis, suggestion.line)} {t('pwf.process.kind.ruleVersion.text', { version: suggestion.rule.version })}
+              <span className="pwf-suggestion__label">{t('pwf6.kind.suggested.label')}</span>
+              <strong className="pwf-suggestion__name">
+                <Named name={suggestion.templates.find((one) => one.code === suggestion.suggested_template_code)?.name ?? suggestion.suggested_template_code} code={suggestion.suggested_template_code} />
+              </strong>
+              <dl className="pwf-suggestion__why">
+                <dt>{t('pwf6.kind.reason.label')}</dt>
+                <dd>{basisText(t, suggestion.basis, suggestion.line)}</dd>
+                <dt>{t('pwf6.kind.rule.label')}</dt>
+                <dd>{versionText(t, suggestion.rule.version)}</dd>
+              </dl>
             </>
           )}
-        </p>
+        </div>
         {suggestion !== undefined && suggestion.unknown_templates.length > 0 ? (
           <p className="callout warning pwf-notice" role="status" data-testid="kind-unknown">
             {t('pwf.process.kind.unknownTemplates.text', { codes: suggestion.unknown_templates.join(', ') })}
           </p>
         ) : null}
-        <div className="pwf-filters">
+        <div className="pwf-filters pwf-kind__fields">
           <div className="pwf-field">
             <label htmlFor="kind-template">{t('pwf.process.kind.template.label')}</label>
             <select id="kind-template" data-testid="kind-template" value={form.templateCode} disabled={locked} onChange={(event) => onChange({ templateCode: event.target.value })}>
               <option value="">{t('pwf.process.kind.template.auto')}</option>
               {(suggestion?.templates ?? []).map((one) => (
                 <option key={one.code} value={one.code}>
-                  {one.code} · {one.name}
+                  {one.name}
                 </option>
               ))}
             </select>
@@ -150,20 +160,32 @@ export function ProcessKindSection({ form, onChange, suggestion, current = true,
         ) : null}
         {preview === null ? null : (
           <div className="pwf-preview" data-testid="kind-preview">
-            <h3>{t('pwf.process.preview.title', { code: preview.template_code, version: preview.template_version })}</h3>
+            <h3>
+              {t('pwf6.kind.preview.title', { name: suggestion?.templates.find((one) => one.code === preview.template_code)?.name ?? preview.template_code })} <span className="pwf-code">{versionText(t, preview.template_version)}</span>
+            </h3>
             {preview.missing_facts.length > 0 ? (
               <p className="callout warning pwf-notice" role="status" data-testid="preview-facts">
                 {t('pwf.process.preview.missingFacts.text', { facts: preview.missing_facts.map((field) => factWord(t, field)).join(', ') })}
               </p>
             ) : (
               <>
-                <dl className="pwf-facts" data-testid="preview-facts-list">
-                  <dt>{t('pwf.process.preview.finish.label')}</dt>
-                  <dd data-testid="preview-finish">{preview.project_finish === null ? t('pwf.process.preview.finish.unknown') : dayText(preview.project_finish)}</dd>
-                  <dt>{t('pwf.process.preview.total.label')}</dt>
-                  <dd data-testid="preview-total">{preview.total_working_days === null ? t('pwf.process.preview.finish.unknown') : t('pwf.process.preview.days.text', { days: preview.total_working_days })}</dd>
-                  <dt>{t('pwf.process.preview.counts.label')}</dt>
-                  <dd data-testid="preview-counts">{t('pwf.process.preview.counts.text', { phases: preview.phase_count, steps: preview.step_count, tasks: preview.task_count })}</dd>
+                <dl className="pwf-stats pwf-preview__stats" data-testid="preview-facts-list">
+                  <div className="pwf-stats__item">
+                    <dt>{t('pwf.process.preview.finish.label')}</dt>
+                    <dd data-testid="preview-finish">{preview.project_finish === null ? t('pwf.process.preview.finish.unknown') : dayText(preview.project_finish)}</dd>
+                  </div>
+                  <div className="pwf-stats__item">
+                    <dt>{t('pwf.process.preview.total.label')}</dt>
+                    <dd data-testid="preview-total">{preview.total_working_days === null ? t('pwf.process.preview.finish.unknown') : t('pwf.process.preview.days.text', { days: preview.total_working_days })}</dd>
+                  </div>
+                  <div className="pwf-stats__item">
+                    <dt>{t('pwf6.kind.steps.label')}</dt>
+                    <dd data-testid="preview-steps">{t('pwf6.kind.steps.text', { steps: preview.step_count })}</dd>
+                  </div>
+                  <div className="pwf-stats__item">
+                    <dt>{t('pwf.process.preview.counts.label')}</dt>
+                    <dd data-testid="preview-counts">{t('pwf.process.preview.counts.text', { phases: preview.phase_count, steps: preview.step_count, tasks: preview.task_count })}</dd>
+                  </div>
                 </dl>
                 {preview.findings.some((finding) => finding.code === 'CALENDAR_UNAVAILABLE') ? (
                   <p className="callout warning pwf-notice" role="status" data-testid="preview-calendar">
@@ -171,29 +193,34 @@ export function ProcessKindSection({ form, onChange, suggestion, current = true,
                   </p>
                 ) : null}
                 {preview.excluded_tasks.length > 0 ? <p className="pwf-hint">{t('pwf.process.preview.excluded.text', { count: preview.excluded_tasks.length })}</p> : null}
-                <table className="pwf-steps-table">
-                  <caption>{t('pwf.process.preview.steps.caption')}</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">{t('pwf.process.preview.col.step')}</th>
-                      <th scope="col">{t('pwf.process.preview.col.start')}</th>
-                      <th scope="col">{t('pwf.process.preview.col.finish')}</th>
-                      <th scope="col" className="pwf-num">
-                        {t('pwf.process.preview.col.days')}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {preview.steps.map((step) => (
-                      <tr key={`${step.phase_code}/${step.code}`} data-step={step.code}>
-                        <th scope="row">{step.name}</th>
-                        <td>{step.task_count === 0 ? t('pwf.process.step.notApplicable.word') : dayText(step.start)}</td>
-                        <td>{step.task_count === 0 ? '–' : dayText(step.finish)}</td>
-                        <td className="pwf-num">{step.task_count === 0 ? '–' : step.duration_working_days}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <details className="pwf-inline-fold pwf-preview__steps">
+                  <summary>{t('pwf6.kind.steps.summary', { steps: preview.step_count })}</summary>
+                  <ScrollRegion label={t('pwf.process.preview.steps.caption')}>
+                    <table className="pwf-steps-table">
+                      <caption>{t('pwf.process.preview.steps.caption')}</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">{t('pwf.process.preview.col.step')}</th>
+                          <th scope="col">{t('pwf.process.preview.col.start')}</th>
+                          <th scope="col">{t('pwf.process.preview.col.finish')}</th>
+                          <th scope="col" className="pwf-num">
+                            {t('pwf.process.preview.col.days')}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {preview.steps.map((step) => (
+                          <tr key={`${step.phase_code}/${step.code}`} data-step={step.code}>
+                            <th scope="row">{step.name}</th>
+                            <td>{step.task_count === 0 ? t('pwf.process.step.notApplicable.word') : dayText(step.start)}</td>
+                            <td>{step.task_count === 0 ? '' : dayText(step.finish)}</td>
+                            <td className="pwf-num">{step.task_count === 0 ? '' : step.duration_working_days}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </ScrollRegion>
+                </details>
               </>
             )}
           </div>

@@ -1,0 +1,198 @@
+/* PWF-04: the head of a task (what, state, deadline, people, actions), then the blocks a person works through. Tokens only. */
+.pwf-taskhead {
+  display: grid;
+  gap: 12px;
+  padding: 20px 24px;
+  margin: 0 0 16px;
+  background: var(--mv-color-surface);
+  border: 1px solid var(--mv-color-border);
+  border-radius: 14px;
+}
+.pwf-taskhead__title {
+  margin: 0;
+}
+.pwf-taskhead__title h1 {
+  margin: 0 0 4px;
+}
+.pwf-taskhead__where {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-taskhead__where > span + span::before {
+  content: '›';
+  margin-right: 8px;
+  color: var(--mv-color-border);
+}
+.pwf-taskhead__facts {
+  padding: 12px 0;
+  border-top: 1px solid var(--mv-color-border);
+  border-bottom: 1px solid var(--mv-color-border);
+}
+.pwf-taskhead__facts dd {
+  font-size: 16px;
+}
+.pwf-taskhead__actions .pwf-actions {
+  margin: 0;
+}
+.pwf-taskhead__actions [data-testid='completion-check'] {
+  margin-bottom: 12px;
+}
+.pwf-taskhead__actions [data-testid='completion-blockers'] {
+  margin-top: 8px;
+}
+.pwf-taskhead__actions [data-testid='completion-blockers'] li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  padding-left: 12px;
+  border-left: 3px solid var(--mv-color-warning);
+}
+.pwf-required {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mv-color-danger);
+  white-space: nowrap;
+}
+.pwf-checklist,
+.pwf-docs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pwf-checklist__item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 12px;
+  min-height: 44px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--mv-color-border);
+}
+.pwf-checklist__item:last-child,
+.pwf-docs__item:last-child {
+  border-bottom: 0;
+}
+.pwf-checklist__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--mv-color-neutral);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+.pwf-checklist__item[data-done='true'] .pwf-checklist__box {
+  border-color: var(--mv-color-success);
+  background: var(--mv-color-success);
+  color: var(--mv-color-surface);
+}
+.pwf-checklist__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.pwf-checklist__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+@media (max-width: 599px) {
+  .pwf-checklist__item {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+  .pwf-checklist__state {
+    grid-column: 2;
+  }
+}
+.pwf-docs__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--mv-color-border);
+}
+.pwf-docs__kind {
+  flex: 0 0 132px;
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-docs__item .pwf-named {
+  flex: 1 1 240px;
+  font-weight: 600;
+}
+.pwf-docs__revision {
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  padding-left: 144px;
+  font-size: 13px;
+}
+.pwf-docs__revision .pwf-legal__facts {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+}
+.pwf-docs__revision .pwf-legal__facts dd {
+  margin-right: 12px;
+}
+.pwf-docs__revision .callout {
+  flex: 1 1 100%;
+}
+@media (max-width: 599px) {
+  .pwf-docs__kind {
+    flex-basis: 100%;
+  }
+  .pwf-docs__revision {
+    padding-left: 0;
+  }
+}
+.pwf-history,
+.pwf-history ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pwf-history__date {
+  margin: 12px 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-history__entry {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 12px;
+  padding: 6px 0 6px 12px;
+  border-left: 2px solid var(--mv-color-border);
+}
+.pwf-history__time {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mv-color-text-secondary);
+  padding-top: 2px;
+}
+.pwf-history__what {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pwf-history__reason {
+  font-size: 13px;
+  color: var(--mv-color-text-secondary);
+}

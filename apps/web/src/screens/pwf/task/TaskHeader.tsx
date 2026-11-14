@@ -1,108 +1,90 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
-import { SectionCard, StatusPill } from '../../../ui';
-import { BandBadge, CalendarMissingCell, FigureInfo } from '../components';
-import { kindWord, priorityWord, statusWord } from '../labels';
+import { StatusPill } from '../../../ui';
+import { RoleName, phaseName } from '../codes';
+import { BandBadge, CalendarMissingCell, FigureInfo, Meter } from '../components';
+import { priorityWord, statusWord } from '../labels';
 import { calendarMissing, dayText, hasBand } from '../model';
 import type { TaskDetail } from '../model';
 import { statusTone } from './model';
 
-function Fact({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <>
-      <dt>{label}</dt>
-      <dd>{children}</dd>
-    </>
-  );
-}
+const BAND_TONE: Readonly<Record<string, 'danger' | 'warning' | 'success' | undefined>> = { RED: 'danger', YELLOW: 'warning', GREEN: 'success' };
 
-const orDash = (value: number | string | null): string => (value === null ? '–' : String(value));
-
-/** The head of PWF-04: what the task is, where it stands and every figure of its schedule with the "i" that says how it is counted. */
-export function TaskHeader({ task }: { task: TaskDetail }) {
+/**
+ * The head of PWF-04: what a person needs to act, and nothing else. The name of the task (its code is a note), where it sits in the procedure, its state and official colour, the deadline in the colour of its band, who does
+ * it and who approves it, how far the checklist is, and the actions the server allows (`children`). The figures of the schedule are one block further down, closed until asked for.
+ */
+export function TaskHeader({ task, children }: { task: TaskDetail; children?: ReactNode }) {
   const { t } = useTranslation();
   const missing = calendarMissing(task);
-  const record = t('pwf.task.version.record.text', { version: task.version });
-  const figure = (name: string, formula: string, source: string): ReactNode => <FigureInfo name={name} formula={formula} source={source} asOf={task.as_of} version={record} />;
-  const planned = missing ? <CalendarMissingCell year={task.missing_year} /> : `${dayText(task.planned_start)} – ${dayText(task.planned_finish)}`;
-  const late = missing ? <CalendarMissingCell year={task.missing_year} /> : `${dayText(task.late_start)} – ${dayText(task.late_finish)}`;
+  const step = task.step ?? null;
+  const banded = hasBand(task);
+  const done = task.checklist.filter((item) => item.done).length;
+  const tone = banded ? BAND_TONE[task.band.band] : undefined;
   return (
-    <SectionCard title={t('pwf.task.header.title')}>
-      <p className="pwf-pills">
+    <header className="pwf-taskhead" data-testid="task-head">
+      <div className="heading pwf-taskhead__title">
+        <h1 id="screen-title">{task.name}</h1>
+        <p className="pwf-taskhead__where" data-testid="task-where">
+          <span className="pwf-code">{task.task_code}</span>
+          <span>{phaseName(t, step?.phase_code ?? task.phase_code)}</span>
+          {step === null ? null : (
+            <span>
+              {t('pwf6.task.step.text', { order: step.order, name: step.name })}
+            </span>
+          )}
+        </p>
+      </div>
+      <p className="pwf-pills" data-testid="task-pills">
         <StatusPill tone={statusTone(task.status)}>{statusWord(t, task.status)}</StatusPill>
-        {!hasBand(task) ? null : (
+        {!banded ? null : (
           <>
             <BandBadge band={task.band} />
-            {figure(t('pwf.task.band.name'), t('pwf.task.band.formula'), t('pwf.task.source.policy.text'))}
+            <FigureInfo name={t('pwf.task.band.name')} formula={t('pwf.task.band.formula')} source={t('pwf.task.source.policy.text')} asOf={task.as_of} version={t('pwf.task.version.record.text', { version: task.version })} />
           </>
         )}
         {task.critical ? (
-          <StatusPill tone="danger" icon="◆">
+          <StatusPill tone="info" icon="◆">
             {t('pwf.task.critical.word')}
           </StatusPill>
         ) : null}
+        {task.kind === 'MILESTONE' ? (
+          <StatusPill tone="neutral" icon="◆">
+            {t('pwf.kind.milestone.word')}
+          </StatusPill>
+        ) : null}
+        <StatusPill tone="neutral">{task.required ? t('pwf.task.required.yes') : t('pwf.task.required.no')}</StatusPill>
+        {task.priority === 'NORMAL' ? null : <StatusPill tone={task.priority === 'LOW' ? 'neutral' : 'warning'}>{t('pwf6.task.priority.text', { priority: priorityWord(t, task.priority) })}</StatusPill>}
+        {task.return_count > 0 ? <StatusPill tone="warning">{t('pwf6.task.returned.text', { count: task.return_count })}</StatusPill> : null}
       </p>
-      <dl className="pwf-facts" data-testid="task-facts">
-        <Fact label={t('pwf.task.field.phase.label')}>{task.phase_code}</Fact>
-        <Fact label={t('pwf.task.field.kind.label')}>{kindWord(t, task.kind)}</Fact>
-        <Fact label={t('pwf.task.field.priority.label')}>{priorityWord(t, task.priority)}</Fact>
-        <Fact label={t('pwf.task.field.required.label')}>{task.required ? t('pwf.task.required.yes') : t('pwf.task.required.no')}</Fact>
-        <Fact label={t('pwf.task.field.responsible.label')}>{task.responsible_role}</Fact>
-        <Fact label={t('pwf.task.field.approver.label')}>{task.approver_role ?? t('pwf.task.approver.none')}</Fact>
-        <Fact label={t('pwf.task.field.assignee.label')}>{task.assignee?.display_name ?? t('pwf.task.assignee.none')}</Fact>
-        <Fact label={t('pwf.task.field.planned.label')}>{planned}</Fact>
-        <Fact label={t('pwf.task.field.baseline.label')}>{`${dayText(task.baseline_start)} – ${dayText(task.baseline_finish)}`}</Fact>
-        <Fact label={t('pwf.task.field.late.label')}>{late}</Fact>
-        <Fact label={t('pwf.task.field.actual.label')}>{`${dayText(task.actual_start)} – ${dayText(task.actual_finish)}`}</Fact>
-        <Fact label={t('pwf.task.field.duration.label')}>
-          <span className="pwf-figure">
-            {t('pwf.task.days.text', { days: task.duration_working_days })}
-            {figure(t('pwf.task.duration.name'), t('pwf.task.duration.formula'), t('pwf.task.source.template.text'))}
-          </span>
-        </Fact>
-        <Fact label={t('pwf.task.field.remaining.label')}>
-          <span className="pwf-figure">
-            {task.remaining_working_days === null ? '–' : t('pwf.task.days.text', { days: task.remaining_working_days })}
-            {figure(t('pwf.task.remaining.name'), t('pwf.task.remaining.formula'), t('pwf.task.source.record.text'))}
-          </span>
-        </Fact>
-        <Fact label={t('pwf.task.field.percent.label')}>
-          <span className="pwf-figure">
-            {task.percent_complete === null ? '–' : `${task.percent_complete}%`}
-            {figure(t('pwf.task.percent.name'), t('pwf.task.percent.formula'), t('pwf.task.source.record.text'))}
-          </span>
-        </Fact>
-        <Fact label={t('pwf.task.field.float.label')}>
-          <span className="pwf-figure">
-            {missing ? '–' : orDash(task.total_float)}
-            {figure(t('pwf.task.float.name'), t('pwf.task.float.formula'), t('pwf.task.source.schedule.text'))}
-          </span>
-        </Fact>
-        <Fact label={t('pwf.task.field.freeFloat.label')}>
-          <span className="pwf-figure">
-            {missing ? '–' : orDash(task.free_float)}
-            {figure(t('pwf.task.freeFloat.name'), t('pwf.task.freeFloat.formula'), t('pwf.task.source.schedule.text'))}
-          </span>
-        </Fact>
-        <Fact label={t('pwf.task.field.variance.label')}>
-          <span className="pwf-figure">
-            {task.finish_variance_days === null ? '–' : t('pwf.task.days.text', { days: task.finish_variance_days })}
-            {figure(t('pwf.task.variance.name'), t('pwf.task.variance.formula'), t('pwf.task.source.baseline.text'))}
-          </span>
-        </Fact>
-        <Fact label={t('pwf.task.field.returns.label')}>
-          <span className="pwf-figure">
-            {task.return_count}
-            {figure(t('pwf.task.returns.name'), t('pwf.task.returns.formula'), t('pwf.task.source.history.text'))}
-          </span>
-        </Fact>
-        <Fact label={t('pwf.task.field.reschedules.label')}>
-          <span className="pwf-figure">
-            {task.reschedule_count}
-            {figure(t('pwf.task.reschedules.name'), t('pwf.task.reschedules.formula'), t('pwf.task.source.history.text'))}
-          </span>
-        </Fact>
+      <dl className="pwf-stats pwf-taskhead__facts" data-testid="task-facts">
+        <div className="pwf-stats__item" data-tone={tone}>
+          <dt>{task.status === 'DONE' ? t('pwf6.task.finished.label') : t('pwf6.task.due.label')}</dt>
+          <dd data-testid="task-due">{missing ? <CalendarMissingCell year={task.missing_year} /> : task.status === 'DONE' && task.actual_finish !== null ? dayText(task.actual_finish) : task.planned_finish === null ? t('pwf6.task.due.none') : dayText(task.planned_finish)}</dd>
+        </div>
+        <div className="pwf-stats__item">
+          <dt>{t('pwf6.task.doer.label')}</dt>
+          <dd data-testid="task-doer">
+            {task.assignee?.display_name ?? t('pwf.task.assignee.none')}
+            <span className="pwf-code">
+              <RoleName code={task.responsible_role} />
+            </span>
+          </dd>
+        </div>
+        <div className="pwf-stats__item">
+          <dt>{t('pwf6.task.approver.label')}</dt>
+          <dd data-testid="task-approver">{task.approver_role === null ? t('pwf.task.approver.none') : <RoleName code={task.approver_role} />}</dd>
+        </div>
+        {task.checklist.length === 0 ? null : (
+          <div className="pwf-stats__item">
+            <dt>{t('pwf.task.checklist.title')}</dt>
+            <dd>
+              <Meter done={done} total={task.checklist.length} label={t('pwf.task.checklist.title')} testId="task-checklist-meter" />
+            </dd>
+          </div>
+        )}
       </dl>
-    </SectionCard>
+      {children}
+    </header>
   );
 }

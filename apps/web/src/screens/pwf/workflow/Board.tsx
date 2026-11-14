@@ -83,16 +83,24 @@ export function BoardFilters({ detail, filter, onChange }: FiltersProps) {
 function Card({ item, projectId }: { item: TaskPage['items'][number]; projectId: string }) {
   const { t } = useTranslation();
   const missing = calendarMissing(item);
+  const banded = !(item.status === 'DONE' || item.status === 'CANCELLED' || item.excluded);
   return (
-    <li className="pwf-card" data-testid={`card-${item.task_code}`} data-critical={item.critical}>
-      <TaskLink id={item.id} projectId={projectId}>{`${item.task_code} · ${item.name}`}</TaskLink>
+    <li className="pwf-card" data-testid={`card-${item.task_code}`} data-critical={item.critical} data-band={banded ? item.band.band : undefined}>
+      <span className="pwf-card__title">
+        <TaskLink id={item.id} projectId={projectId}>
+          {item.name}
+        </TaskLink>
+        <span className="pwf-code">{item.task_code}</span>
+      </span>
       <span className="pwf-pills">
         <StatusPill tone={item.status === 'DONE' ? 'success' : item.status === 'CANCELLED' || item.status === 'ON_HOLD' ? 'neutral' : 'default'}>{statusWord(t, item.status)}</StatusPill>
-        {item.critical ? <StatusPill tone="info" icon="◆">{t('pwf.flow.critical.word')}</StatusPill> : null}
+        {banded ? <BandBadge band={item.band} /> : null}
       </span>
-      {item.status === 'DONE' || item.status === 'CANCELLED' || item.excluded ? null : <BandBadge band={item.band} />}
-      <span className="pwf-card__due">
-        {t('pwf.flow.board.due.label')}: {missing ? <CalendarMissingCell year={item.missing_year} /> : dayText(item.planned_finish)}
+      <span className="pwf-card__meta">
+        <span className="pwf-card__due">
+          {t('pwf.flow.board.due.label')}: {missing ? <CalendarMissingCell year={item.missing_year} /> : dayText(item.planned_finish)}
+        </span>
+        {item.critical ? <span className="pwf-outline__critical">{t('pwf6.flow.critical.mark')}</span> : null}
       </span>
       <span className="pwf-card__who">{item.assignee === null ? t('pwf.flow.board.unassigned.text') : item.assignee.display_name}</span>
     </li>
@@ -137,7 +145,7 @@ export function Board({ detail, projectId, items, total, loading, failed, hasMor
           <p className="sub" data-testid="board-count">
             {t('pwf.flow.board.shown.text', { shown: items.length, total: total ?? items.length })} <WorkflowInfo figure="count" asOf={detail.as_of} version={t('pwf.flow.info.scheduleVersion.text', { version: detail.schedule_version })} />
           </p>
-          <div className="pwf-board" data-testid="board">
+          <div className="pwf-board" data-testid="board" role="region" aria-label={t('pwf.flow.section.board.title')} tabIndex={0}>
             {columns.map((column) => (
               <section key={column.code} className="pwf-board__column" aria-label={column.name} data-phase={column.code}>
                 <h3>{column.name}</h3>

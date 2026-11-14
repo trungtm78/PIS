@@ -4,7 +4,7 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard } from '../../../ui';
-import { AdjustmentList, ContributionsTable, ExcludedList, PeriodStatusPill, ResponseList, ScoreFigure, ScoreInfo, SupportNotice } from './components';
+import { AdjustmentList, ContributionsTable, ExcludedList, PeriodStatusPill, PolicyBasis, ResponseList, ScoreFigure, ScoreInfo, SupportNotice } from './components';
 import { ResponseForm } from './forms';
 import { useMyScores, useReloadScores, useScoreCacheGuard, useScoreIdentity, useSubmitResponse } from './hooks';
 import { Comparison } from './Comparison';
@@ -70,7 +70,7 @@ function PeriodCard({ item, onReload }: { item: MyScore; onReload: () => void })
           <div>
             <ScoreFigure line={line} />
             <div className="pwf-figure">
-              <span>{t('pwfs.my.basis.text', { policy: line.basis.policy_code, version: line.basis.policy_version })}</span>
+              <PolicyBasis code={line.basis.policy_code} version={line.basis.policy_version} />
               <ScoreInfo basis={line.basis} asOf={line.as_of} />
             </div>
           </div>

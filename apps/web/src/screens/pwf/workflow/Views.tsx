@@ -1,11 +1,15 @@
-import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
-import { DayStrip, ProcessTree, SectionCard, Stepper, Timeline } from '../../../ui';
-import { dayText, taskLink, todayInVietnam } from '../model';
+import { SectionCard, StatusPill, Stepper } from '../../../ui';
+import { ScrollRegion } from '../../scroll-region';
+import { phaseName } from '../codes';
+import { BandBadge } from '../components';
+import { statusWord } from '../labels';
+import { dayText, hasBand, taskLink, todayInVietnam } from '../model';
 import type { Schedule, WorkflowDetail } from '../model';
 import { WorkflowInfo } from './figures';
-import { ganttBars, ganttMarks, ganttRange, milestoneGroups, phaseOfNode, stepperSteps, taskIdOfNode, treeNodes } from './model';
+import { GanttChart } from './GanttChart';
+import { ganttRows, milestoneRows, stepperSteps } from './model';
 
 interface Common {
   detail: WorkflowDetail;
@@ -22,42 +26,6 @@ export function PhaseStepper({ detail, version }: Common) {
   );
 }
 
-interface TreeProps extends Common {
-  selectedPhase: string;
-  onPhase: (code: string) => void;
-  onTask: (taskId: string) => void;
-}
-
-/** The phases and the tasks in them as one tree with the health of each (late, needs attention, on hold, fine); a press on a task opens it, a press on a phase filters the board to it. */
-export function WorkflowTree({ detail, selectedPhase, onPhase, onTask }: TreeProps) {
-  const { t } = useTranslation();
-  const nodes = useMemo(() => treeNodes(detail, t), [detail, t]);
-  const select = (id: string): void => {
-    const task = taskIdOfNode(id);
-    if (task !== undefined) onTask(task);
-    else {
-      const phase = phaseOfNode(id);
-      if (phase !== undefined) onPhase(phase === selectedPhase ? '' : phase);
-    }
-  };
-  return (
-    <SectionCard title={t('pwf.flow.section.tree.title')}>
-      <p className="sub">{t('pwf.flow.tree.help.text')}</p>
-      <ProcessTree
-        nodes={nodes}
-        edges={[]}
-        selectedId={selectedPhase === '' ? undefined : `phase:${selectedPhase}`}
-        onSelect={select}
-        state={nodes.length === 0 ? 'empty' : 'ready'}
-        caption={t('pwf.flow.tree.caption.text')}
-        emptyText={t('pwf.flow.tree.empty.text')}
-        storageKey="pwf-03"
-        unitWord={t('pwf.flow.tree.unit.word')}
-      />
-    </SectionCard>
-  );
-}
-
 interface GanttProps extends Common {
   schedule: Schedule | undefined;
   loading: boolean;
@@ -65,63 +33,101 @@ interface GanttProps extends Common {
   onRetry: () => void;
 }
 
-/** The tasks the schedule puts on a day: those that start and those that finish on it. */
-function DayTasks({ schedule, day }: { schedule: Schedule; day: string }) {
-  const { t } = useTranslation();
-  const starting = schedule.tasks.filter((task) => task.start === day);
-  const finishing = schedule.tasks.filter((task) => task.finish === day);
-  const names = (tasks: Schedule['tasks']): string => tasks.map((task) => task.task_code).join(', ');
-  return (
-    <p className="sub" data-testid="day-tasks" role="status">
-      {t('pwf.flow.gantt.day.text', { day: dayText(day), starting: starting.length === 0 ? t('pwf.flow.gantt.dayNone.text') : names(starting), finishing: finishing.length === 0 ? t('pwf.flow.gantt.dayNone.text') : names(finishing) })}
-    </p>
-  );
-}
-
-/** The schedule as bars: solid is the current schedule, dashed the first baseline; the critical path is named in text under it. */
+/** The schedule on a time axis: the current bars, the first baseline, the delay against it, the critical path and today. The critical path is also named in words under the chart. */
 export function Gantt({ detail, version, schedule, loading, failed, onRetry }: GanttProps) {
   const { t } = useTranslation();
-  const [day, setDay] = useState<string | undefined>(undefined);
-  const range = schedule === undefined ? null : ganttRange(schedule);
-  const marks = schedule === undefined ? { changes: [], deadlines: [] } : ganttMarks(schedule);
-  const bars = schedule === undefined ? [] : ganttBars(schedule, detail.tasks, t);
+  const rows = schedule === undefined ? [] : ganttRows(schedule, detail.tasks);
+  const names = new Map((schedule?.tasks ?? []).map((task) => [task.task_code, task.name]));
+  const dated = rows.some((row) => row.actual !== null);
   return (
     <SectionCard title={t('pwf.flow.section.gantt.title')} status={<WorkflowInfo figure="critical" asOf={schedule?.as_of ?? detail.as_of} version={version} />}>
-      <p className="sub">{t('pwf.flow.gantt.help.text')}</p>
-      <DayStrip
-        from={range?.from ?? ''}
-        to={range?.to ?? ''}
-        changes={marks.changes}
-        deadlines={marks.deadlines}
-        today={todayInVietnam()}
-        selectedDay={day}
-        onSelectDay={setDay}
-        bars={bars}
-        state={loading ? 'loading' : failed ? 'error' : range === null ? 'empty' : 'ready'}
-        onRetry={onRetry}
-      />
-      {schedule !== undefined && day !== undefined ? <DayTasks schedule={schedule} day={day} /> : null}
-      {schedule === undefined ? null : (
-        <p data-testid="critical-path">
-          <strong>{t('pwf.flow.gantt.path.label')}</strong> {schedule.critical_path.length === 0 ? t('pwf.flow.gantt.pathNone.text') : schedule.critical_path.join(' → ')}
+      {loading ? (
+        <p role="status" aria-busy="true" data-testid="gantt-loading">
+          {t('pwf6.gantt.loading.text')}
         </p>
+      ) : failed ? (
+        <p className="callout danger" role="alert" data-testid="gantt-failed">
+          {t('pwf6.gantt.failed.text')}{' '}
+          <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={onRetry}>
+            {t('ui.common.retry')}
+          </button>
+        </p>
+      ) : !dated ? (
+        <p className="callout" role="status" data-testid="gantt-empty">
+          {t('pwf6.gantt.empty.text')}
+        </p>
+      ) : (
+        <GanttChart rows={rows} phases={detail.phases} today={todayInVietnam()} />
+      )}
+      {schedule === undefined ? null : (
+        <div className="pwf-path" data-testid="critical-path">
+          <strong>{t('pwf.flow.gantt.path.label')}</strong>{' '}
+          {schedule.critical_path.length === 0 ? (
+            t('pwf.flow.gantt.pathNone.text')
+          ) : (
+            <ol className="pwf-path__list">
+              {schedule.critical_path.map((code) => (
+                <li key={code} data-code={code}>
+                  {names.get(code) ?? code}
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
       )}
     </SectionCard>
   );
 }
 
-/** The milestones in the order of their dates, each with its official colour in words. */
-export function MilestoneTimeline({ detail, version }: Common) {
+/** The milestones of the plan in the order of their dates: the day, the milestone, its phase, where it stands and its official colour in words. A plan table, not a log: no hour, no author, no "days without change". */
+export function MilestoneTimeline({ detail, version, projectId }: Common & { projectId: string }) {
   const { t } = useTranslation();
-  const groups = useMemo(() => milestoneGroups(detail, t), [detail, t]);
+  const rows = milestoneRows(detail);
+  const dated = rows.filter((row) => row.day !== null);
   return (
     <SectionCard title={t('pwf.flow.section.milestones.title')} status={<WorkflowInfo figure="bands" asOf={detail.as_of} version={version} />}>
-      {groups.length === 0 ? (
+      {dated.length === 0 ? (
         <p className="callout" role="status" data-testid="no-milestones">
           {t('pwf.flow.timeline.empty.text')}
         </p>
       ) : (
-        <Timeline groups={groups} order="asc" caption={t('pwf.flow.timeline.caption.text')} today={todayInVietnam()} />
+        <div className="pwf-free" data-testid="milestones">
+          <ScrollRegion label={t('pwf.flow.timeline.caption.text')}>
+            <table className="pwf-outline pwf-outline--flat">
+              <caption className="sr-only">{t('pwf.flow.timeline.caption.text')}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{t('pwf6.milestone.col.day')}</th>
+                  <th scope="col">{t('pwf6.milestone.col.name')}</th>
+                  <th scope="col">{t('pwf6.milestone.col.phase')}</th>
+                  <th scope="col">{t('pwf6.milestone.col.state')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.id} data-milestone={row.code}>
+                    <td className="pwf-num">{row.day === null ? <span className="pwf-missing">{t('pwf6.milestone.noDay.text')}</span> : <strong>{dayText(row.day)}</strong>}</td>
+                    <th scope="row">
+                      <span className="pwf-outline__name">
+                        <span aria-hidden="true">◆</span> <Link to={taskLink(row.id, projectId)}>{row.name}</Link>
+                        <span className="pwf-code">{row.code}</span>
+                      </span>
+                    </th>
+                    <td>{phaseName(t, row.phase, detail.phases)}</td>
+                    <td>
+                      <span className="pwf-pills">
+                        <StatusPill tone={row.task.status === 'DONE' ? 'success' : 'neutral'} icon={row.task.status === 'DONE' ? '✓' : '○'}>
+                          {statusWord(t, row.task.status)}
+                        </StatusPill>
+                        {hasBand(row.task) && row.task.band.band !== 'NONE' ? <BandBadge band={row.task.band} /> : null}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </ScrollRegion>
+        </div>
       )}
     </SectionCard>
   );

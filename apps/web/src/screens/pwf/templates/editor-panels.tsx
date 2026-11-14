@@ -6,6 +6,7 @@ import { FigureInfo } from '../components';
 import { dependencyWord, gateWord, kindWord, priorityWord } from '../labels';
 import { CheckField, CodeListField, NumberField, SelectField, TextField } from './editor-fields';
 import { TaskProcessFields } from './editor-steps';
+import { FormPicker } from './FormPicker';
 import { KpiCodePicker } from './KpiCodePicker';
 import type { ProblemMap } from './editor-fields';
 import {
@@ -32,6 +33,7 @@ import {
   updateTask,
 } from './template-model';
 import type { ConditionField, ConstraintKind, EditorTask, Template } from './template-model';
+import { stepsOf } from './template-model';
 
 type T = Translator['t'];
 
@@ -149,24 +151,55 @@ export function TasksPanel({ template, onChange, problems, show, disabled, selec
       <div className="pwf-tpl-editor">
         <div>
           <ul className="pwf-tpl-tree" aria-label={t('pwf.templates.tasks.tree.label')} data-testid="tree">
-            {groups.map((group) => (
-              <li key={group.phase?.code ?? 'none'} data-phase={group.phase?.code ?? ''}>
-                <strong>{group.phase === null ? t('pwf.templates.tasks.orphans.text') : `${group.phase.code} · ${group.phase.name}`}</strong>
-                <ul>
-                  {group.tasks.map((item) => (
-                    <li key={item.index}>
-                      <button type="button" className="pwf-tpl-pick" aria-current={selected === item.index} data-testid={`pick-${item.index}`} onClick={() => onSelect(item.index)}>
-                        <code>{item.task.code}</code>
-                        <span>{item.task.name === '' ? t('pwf.templates.lib.noName.text') : item.task.name}</span>
-                        {item.task.kind === 'MILESTONE' ? <StatusPill tone="info" icon="◆">{kindWord(t, 'MILESTONE')}</StatusPill> : null}
-                        {item.task.required ? null : <StatusPill tone="neutral">{t('pwf.templates.task.optional.word')}</StatusPill>}
-                        {hasProblem(item.index) ? <StatusPill tone="danger" icon="⚠">{t('pwf.templates.task.problem.word')}</StatusPill> : null}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
+            {groups.map((group) => {
+              const steps = group.phase === null ? [] : stepsOf(template).filter((step) => step.phase === group.phase?.code);
+              const known = new Set(steps.map((step) => step.code));
+              const loose = group.tasks.filter((item) => item.task.step === null || item.task.step === undefined || !known.has(item.task.step));
+              const pick = (item: (typeof group.tasks)[number]) => (
+                <li key={item.index}>
+                  <button type="button" className="pwf-tpl-pick" aria-current={selected === item.index} data-testid={`pick-${item.index}`} onClick={() => onSelect(item.index)}>
+                    <span className="pwf-tpl-pick__name">{item.task.name === '' ? t('pwf.templates.lib.noName.text') : item.task.name}</span>
+                    <span className="pwf-code">{item.task.code}</span>
+                    <span className="pwf-tpl-pick__facts">
+                      <span className="pwf-hint">{t('pwf6.editor.tree.days', { days: item.task.duration_working_days })}</span>
+                      {item.task.checklist.length === 0 ? null : <span className="pwf-hint">{t('pwf6.editor.tree.checklist', { count: item.task.checklist.length })}</span>}
+                      {item.task.kind === 'MILESTONE' ? <StatusPill tone="info" icon="◆">{kindWord(t, 'MILESTONE')}</StatusPill> : null}
+                      {item.task.required ? null : <StatusPill tone="neutral">{t('pwf.templates.task.optional.word')}</StatusPill>}
+                      {hasProblem(item.index) ? <StatusPill tone="danger" icon="⚠">{t('pwf.templates.task.problem.word')}</StatusPill> : null}
+                    </span>
+                  </button>
+                </li>
+              );
+              return (
+                <li key={group.phase?.code ?? 'none'} data-phase={group.phase?.code ?? ''}>
+                  <span className="pwf-tpl-tree__phase">
+                    <strong>{group.phase === null ? t('pwf.templates.tasks.orphans.text') : group.phase.name === '' ? group.phase.code : group.phase.name}</strong>
+                    {group.phase === null || group.phase.name === '' ? null : <span className="pwf-code">{group.phase.code}</span>}
+                    <span className="pwf-hint">{t('pwf6.editor.tree.count', { count: group.tasks.length })}</span>
+                  </span>
+                  {steps.length === 0 ? (
+                    <ul>{group.tasks.map(pick)}</ul>
+                  ) : (
+                    <ul>
+                      {steps.map((step) => (
+                        <li key={step.code} data-tree-step={step.code}>
+                          <span className="pwf-tpl-tree__step">
+                            {step.name === '' ? step.code : step.name} {step.name === '' ? null : <span className="pwf-code">{step.code}</span>}
+                          </span>
+                          <ul>{group.tasks.filter((item) => item.task.step === step.code).map(pick)}</ul>
+                        </li>
+                      ))}
+                      {loose.length === 0 ? null : (
+                        <li data-tree-step="">
+                          <span className="pwf-tpl-tree__step">{t('pwf6.editor.tree.noStep')}</span>
+                          <ul>{loose.map(pick)}</ul>
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
           </ul>
           {show && problems.get('tasks') !== undefined ? (
             <p className="pwf-field__error" role="alert" data-testid="error-tasks">
@@ -179,7 +212,7 @@ export function TasksPanel({ template, onChange, problems, show, disabled, selec
               <select id="pwf-add-task-phase" value={target} disabled={disabled || template.phases.length === 0} data-testid="add-task-phase" onChange={(event) => setPhase(event.target.value)}>
                 {template.phases.map((one) => (
                   <option key={one.code} value={one.code}>
-                    {one.code}
+                    {one.name === '' ? one.code : one.name}
                   </option>
                 ))}
               </select>
@@ -342,6 +375,7 @@ function TaskPanel({ template, index, task, onChange, problems, show, disabled, 
           <CodeListField label={t('pwf.templates.docs.forms.label')} path={`${at}.form_templates`} hint={t('pwf.templates.docs.forms.hint')} value={task.form_templates} onChange={(value) => patch({ form_templates: value })} {...common} />
           <CodeListField label={t('pwf.templates.docs.kpi.label')} path={`${at}.kpi_codes`} hint={t('pwf.templates.docs.kpi.hint')} value={task.kpi_codes} onChange={(value) => patch({ kpi_codes: value })} {...common} />
         </div>
+        <FormPicker taskCode={task.code} value={task.form_templates} disabled={disabled} onChange={(value) => patch({ form_templates: value })} />
         <KpiCodePicker taskCode={task.code} value={task.kpi_codes} disabled={disabled} enabled onChange={(value) => patch({ kpi_codes: value })} />
       </fieldset>
       <TaskProcessFields template={template} index={index} task={task} onPatch={patch} problems={problems} show={show} disabled={disabled} />

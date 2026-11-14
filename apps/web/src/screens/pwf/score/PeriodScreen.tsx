@@ -8,7 +8,8 @@ import { useScreenState } from '../../../states/useScreenState';
 import { ConfirmDialog, DataTable, SectionCard } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { dayText, stampText } from '../model';
-import { FlagList, FlagsNote, PeriodStatusPill, ScoreProblemBanner, SupportNotice } from './components';
+import { FlagList, FlagsNote, PeriodStatusPill, PolicyBasis, ScoreProblemBanner, SupportNotice } from './components';
+import { UnitSelect } from './units';
 import { useComputePeriod, useLockPeriod, useOfficializePeriod, usePeriod, usePeriods, useReloadScores, useScoreCacheGuard, useScoreIdentity, useSignals } from './hooks';
 import { scoreFormProblem } from './labels';
 import { EMPTY_PERIOD, SCORE_PERMISSIONS, describeScoreProblem, isScoreConflict, mayDo, mayWrite, periodBody, periodLink, rangeText, unitLink, validatePeriod } from './model';
@@ -54,7 +55,9 @@ function PeriodContent({ route }: ScreenProps) {
       <StateBoundary state={screenState} onRetry={() => void periods.refetch()}>
         {canManage ? <ComputeCard onDone={(preview) => setParams({ id: preview.period.id })} /> : null}
         <SectionCard title={t('pwfs.period.list.title')}>
-          <DataTable columns={columns} rows={rows} rowKey={(row) => row.id} caption={t('pwfs.period.caption.text')} state={rows.length === 0 ? 'empty' : 'ready'} />
+          <div className="pwf-free">
+            <DataTable columns={columns} rows={rows} rowKey={(row) => row.id} caption={t('pwfs.period.caption.text')} state={rows.length === 0 ? 'empty' : 'ready'} />
+          </div>
           {periods.hasNextPage ? (
             <button type="button" className="ui-button ui-button--outline ui-button--small" data-action="more-periods" onClick={() => void periods.fetchNextPage()}>
               {t('pwfs.period.more.action')}
@@ -111,14 +114,14 @@ function ComputeCard({ onDone }: { onDone: (preview: PeriodPreview) => void }) {
       >
         <p className="adm-kit-sub">{t('pwfs.period.compute.hint')}</p>
         <div className="pwf-filters">
-          {field('unitId', t('pwfs.period.compute.unit.label'))}
-          {field('from', t('pwfs.period.compute.from.label'), t('pwfs.period.compute.day.hint'))}
-          {field('to', t('pwfs.period.compute.to.label'), t('pwfs.period.compute.day.hint'))}
+          {field('unitId', t('pwf6.score.unit.label'))}
+          {field('from', t('pwfs.period.compute.from.label'))}
+          {field('to', t('pwfs.period.compute.to.label'))}
           {field('policy', t('pwfs.period.compute.policy.label'))}
         </div>
         {problem === undefined ? null : <ScoreProblemBanner problem={problem} />}
         <p className="pwfs-actions">
-          <button type="submit" className="ui-button" disabled={compute.isPending} data-action="compute">
+          <button type="submit" className="ui-button ui-button--primary" disabled={compute.isPending} data-action="compute">
             {t('pwfs.period.compute.action')}
           </button>
         </p>
@@ -135,7 +138,11 @@ function PeriodField({ name, label, hint, value, problem, show, onChange }: { na
   return (
     <div className="pwf-field">
       <label htmlFor={id}>{label}</label>
-      <input id={id} type="text" autoComplete="off" value={value} aria-invalid={invalid} aria-describedby={invalid ? `${id}-error` : undefined} data-testid={`field-${name}`} onChange={(event) => onChange(event.target.value)} />
+      {name === 'unitId' ? (
+        <UnitSelect id={id} value={value} invalid={invalid} describedBy={invalid ? `${id}-error` : undefined} testId={`field-${name}`} anyLabel={t('pwf6.score.unit.pick')} onChange={onChange} />
+      ) : (
+        <input id={id} type={name === 'from' || name === 'to' ? 'date' : 'text'} autoComplete="off" value={value} aria-invalid={invalid} aria-describedby={invalid ? `${id}-error` : undefined} data-testid={`field-${name}`} onChange={(event) => onChange(event.target.value)} />
+      )}
       {hint === undefined ? null : <span className="gova1-hint">{hint}</span>}
       {invalid && problem !== undefined ? (
         <span className="pwf-field__error" id={`${id}-error`} data-testid={`error-${name}`}>
@@ -202,7 +209,9 @@ function Detail({ period, canManage }: { period: ScorePeriod; canManage: boolean
       <SectionCard title={t('pwfs.period.detail.title', { range: rangeText(period.period_from, period.period_to) })} status={<PeriodStatusPill status={period.status} />}>
         <dl className="pwf-facts" data-testid="period-detail">
           <dt>{t('pwfs.period.facts.policy.label')}</dt>
-          <dd>{t('pwfs.period.facts.policy.text', { policy: period.policy_code, version: period.policy_version })}</dd>
+          <dd>
+            <PolicyBasis code={period.policy_code} version={period.policy_version} />
+          </dd>
           <dt>{t('pwfs.period.facts.hash.label')}</dt>
           <dd data-testid="snapshot-hash">{period.snapshot_hash === null ? t('pwfs.period.facts.noHash.text') : period.snapshot_hash}</dd>
           <dt>{t('pwfs.period.facts.lockedAt.label')}</dt>
@@ -232,13 +241,13 @@ function Detail({ period, canManage }: { period: ScorePeriod; canManage: boolean
                 >
                   {t('pwfs.period.recompute.action')}
                 </button>
-                <button type="button" className="ui-button" data-action="lock" onClick={() => setStep('lock')}>
+                <button type="button" className="ui-button ui-button--primary" data-action="lock" onClick={() => setStep('lock')}>
                   {t('pwfs.period.lock.action')}
                 </button>
               </>
             ) : null}
             {period.status === 'LOCKED' ? (
-              <button type="button" className="ui-button" data-action="officialize" onClick={() => setStep('officialize')}>
+              <button type="button" className="ui-button ui-button--primary" data-action="officialize" onClick={() => setStep('officialize')}>
                 {t('pwfs.period.officialize.action')}
               </button>
             ) : null}

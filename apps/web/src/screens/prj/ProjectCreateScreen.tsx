@@ -188,8 +188,17 @@ function ProjectCreateContent({ route }: ScreenProps) {
                   <SuggestionPanel suggestion={created.data.suggestion} />
                 )}
                 {seesKinds ? (
-                  <p role="status" data-testid="created-workflow">
-                    {withWorkflow ? <Link to={workflowLink(createdId)}>{t('pwf.process.kind.created.started')}</Link> : t('pwf.process.kind.created.later')}
+                  <p role="status" data-testid="created-workflow" className="prj-created-workflow">
+                    {withWorkflow ? (
+                      <>
+                        <span>{t('pwf6.kind.created.text')}</span>{' '}
+                        <Link className="ui-button ui-button--outline ui-button--small" to={workflowLink(createdId)}>
+                          {t('pwf6.kind.created.open')}
+                        </Link>
+                      </>
+                    ) : (
+                      t('pwf.process.kind.created.later')
+                    )}
                   </p>
                 ) : null}
                 <p>

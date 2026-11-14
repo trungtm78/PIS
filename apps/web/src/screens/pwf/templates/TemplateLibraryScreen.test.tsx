@@ -64,7 +64,7 @@ describe('PWF-01: the library of workflow templates', () => {
     expect(within(repair).getByText(text('pwf.common.unverified.label'))).toBeTruthy();
     expect(within(repair).getByText(text('pwf.templates.lib.force.default'))).toBeTruthy();
     expect(within(repair).getByText(text('pwf.templates.lib.noVersions.text'))).toBeTruthy();
-    expect(within(repair).getByText('REPAIR')).toBeTruthy();
+    expect(within(repair).getByText(text('pwf6.fact.repair.word'))).toBeTruthy();
   });
 
   it('counts the templates, those a rule of the tenant governs and those not yet confirmed, each with its "i"', async () => {
@@ -140,8 +140,13 @@ describe('PWF-01: the library of workflow templates', () => {
     const list = await screen.findByTestId('compare-changes');
     expect(list.textContent).toContain('T1');
     expect(list.textContent).toContain(text('pwf.templates.change.added.word'));
-    expect(list.querySelectorAll('[data-kind="added"]').length).toBe(2);
-    expect(list.querySelector('[data-kind="changed"]')?.textContent).toContain(text('pwf.templates.scope.template.word'));
+    expect(list.querySelectorAll('.pwf-cmp__item[data-kind="added"]').length).toBe(2);
+    expect(list.querySelector('.pwf-cmp__item[data-kind="changed"]')?.textContent).toContain(text('pwf.templates.scope.template.word'));
+    // The sizes of both versions stand side by side with the difference, and a change says its value before and after in words.
+    const totals = screen.getByTestId('compare-totals');
+    expect(totals.querySelector('[data-total="tasks"]')?.textContent).toContain(text('pwf6.cmp.total.tasks'));
+    expect(screen.getByTestId('compare-counts').textContent).toContain(text('pwf6.cmp.count.added', { count: 2 }));
+    expect(list.querySelector('.pwf-cmp__item[data-kind="changed"] [data-field="name"]')?.textContent).toContain(text('pwf6.cmp.field.name'));
     expect(screen.getByTestId('compare-diff').getAttribute('href')).toBe(`/adm/adm-22?rule=${uuid(102)}&against=${uuid(101)}`);
   });
 

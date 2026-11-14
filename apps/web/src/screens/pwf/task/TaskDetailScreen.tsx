@@ -13,14 +13,16 @@ import type { Problem, TaskDetail } from '../model';
 import { ActionsBar } from './ActionsBar';
 import { ExceptionsSection } from './ExceptionsSection';
 import { useTask } from './hooks';
-import { HistorySection, KpiSection, PredecessorsSection } from './InsightSections';
+import { HistorySection, KpiSection } from './InsightSections';
 import { actionsOf } from './model';
 import { RequirementsSection } from './RequirementsSection';
+import { ScheduleSection } from './ScheduleSection';
 import { TaskDialogs } from './TaskDialogs';
 import type { TaskDialog } from './TaskDialogs';
 import { TaskProcessSection } from '../process/TaskProcessSection';
 import { TaskHeader } from './TaskHeader';
 import '../pwf.css';
+import './task.css';
 
 const NEVER_EMPTY = (): boolean => false;
 
@@ -75,12 +77,10 @@ function TaskBody({ task }: { task: TaskDetail }) {
   const missing = calendarMissing(task);
   return (
     <>
-      <div className="heading">
-        <h1 id="screen-title">
-          {task.task_code} · {task.name}
-        </h1>
-      </div>
       {missing && task.missing_year !== null ? <CalendarMissingNote years={[task.missing_year]} /> : null}
+      <TaskHeader task={task}>
+        <ActionsBar task={task} actions={actions} onOpen={setDialog} onWaive={(subject) => setPrefill({ items: subject, seq: (prefill?.seq ?? 0) + 1 })} />
+      </TaskHeader>
       {problem === undefined ? null : (
         <ProblemBanner
           problem={problem}
@@ -90,18 +90,16 @@ function TaskBody({ task }: { task: TaskDetail }) {
           }}
         />
       )}
-      <ActionsBar task={task} actions={actions} onOpen={setDialog} onWaive={(subject) => setPrefill({ items: subject, seq: (prefill?.seq ?? 0) + 1 })} />
-      <TaskHeader task={task} />
-      <TaskProcessSection task={task} />
-      <PredecessorsSection task={task} />
       <RequirementsSection task={task} canWork={actions.work} onTick={(itemCode, itemName) => setDialog({ kind: 'tick', itemCode, itemName })} onResult={onResult} />
+      <TaskProcessSection task={task} />
+      <ScheduleSection task={task} />
       <ExceptionsSection task={task} canRequest={actions.requestException} canDecide={actions.decideException} prefill={prefill} onDecide={(exception, decision) => setDialog({ kind: 'decide', exception, decision })} onResult={onResult} />
       <AssignmentLedger taskId={task.id} canAssign={actions.assign} />
       <p>
         <Link to={assignmentsLink(task.id)}>{t('pwf.task.ledger.link')}</Link>
       </p>
-      <HistorySection task={task} />
       <KpiSection task={task} />
+      <HistorySection task={task} />
       <TaskDialogs task={task} dialog={dialog} onClose={() => setDialog(null)} onResult={onResult} />
     </>
   );

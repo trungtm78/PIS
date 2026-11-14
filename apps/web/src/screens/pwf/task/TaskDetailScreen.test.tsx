@@ -49,12 +49,16 @@ describe('PWF-04: the head of the task', () => {
   it('shows what the task is, where it stands, the colour with its words and a way back to the workflow', async () => {
     open();
     await ready();
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('T2 · Công việc 2');
+    // The name is the title; the code is a note under it, with the phase.
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Công việc 2');
+    expect(screen.getByTestId('task-where').textContent).toContain('T2');
     expect(screen.getByText(text('pwf.status.inProgress.word'))).toBeTruthy();
     expect(screen.getAllByText(text('pwf.band.yellow.word')).length).toBeGreaterThan(0);
     expect(screen.getByText(text('pwf.band.remaining.text', { days: 2, unit: text('pwf.unit.working.word') }))).toBeTruthy();
     expect(screen.getByRole('link', { name: text('pwf.task.back.link') }).getAttribute('href')).toBe(`/prj/prj-03?id=${PROJECT}&tab=workflow`);
-    const facts = screen.getByTestId('task-facts').textContent ?? '';
+    // The head says the deadline, who does the task and who approves it; the figures of the schedule are one block further down.
+    expect(screen.getByTestId('task-due').textContent).toBe('10/12/2026');
+    const facts = screen.getByTestId('schedule-facts').textContent ?? '';
     expect(facts).toContain('01/12/2026 – 10/12/2026');
     expect(facts).toContain('30/11/2026');
     expect(facts).toContain(text('pwf.task.days.text', { days: 20 }));
@@ -91,9 +95,9 @@ describe('PWF-04: the head of the task', () => {
   it('lists the predecessors with the kind of link and the lag, or says there are none', async () => {
     open({ task: detail({ predecessors: [{ task: 'T1', kind: 'SS', lag_working_days: 2 }] }) });
     await ready();
-    const table = within(screen.getByTestId('predecessors')).getByRole('table');
-    expect(within(table).getByText(text('pwf.dependency.ss.word'))).toBeTruthy();
-    expect(within(table).getByText(text('pwf.task.days.text', { days: 2 }))).toBeTruthy();
+    const list = screen.getByTestId('predecessors').querySelector('[data-predecessor="T1"]') as HTMLElement;
+    expect(list.textContent).toContain(text('pwf.dependency.ss.word'));
+    expect(list.textContent).toContain(text('pwf6.task.lag.text', { days: 2 }));
     cleanup();
     open();
     await ready();
@@ -179,7 +183,7 @@ describe('PWF-04: start, complete, approve, return, resume', () => {
     open();
     await ready();
     const list = screen.getByTestId('completion-blockers');
-    expect(list.textContent).toContain(text('pwf.blocker.checklist.text', { subject: 'C1' }));
+    expect(list.textContent).toContain(text('pwf.blocker.checklist.text', { subject: 'Có biên bản họp' }));
     expect(screen.getByText(text('pwf.task.completion.blocked'))).toBeTruthy();
   });
 
@@ -291,7 +295,8 @@ describe('PWF-04: checklist, documents and evidence', () => {
     const list = within(screen.getByTestId('checklist'));
     expect(list.getByText(text('pwf.task.checklist.open'))).toBeTruthy();
     expect(list.getByText(text('pwf.task.checklist.done', { at: '02/12/2026 10:00' }))).toBeTruthy();
-    expect(list.getByText(text('pwf.task.checklist.kinds', { kinds: 'DOCUMENT' }))).toBeTruthy();
+    expect(list.getByText(text('pwf.task.checklist.kinds', { kinds: text('pwf6.evidence.document.word') }))).toBeTruthy();
+    expect(list.getAllByText(text('pwf.task.required.yes')).length).toBe(1);
     const documents = within(screen.getByTestId('documents'));
     expect(documents.getByText(text('pwf.task.satisfied.yes'))).toBeTruthy();
     expect(documents.getByText(text('pwf.task.satisfied.no'))).toBeTruthy();
@@ -379,7 +384,7 @@ describe('PWF-04: exceptions', () => {
     await ready();
     const table = within(screen.getByTestId('exceptions')).getByRole('table');
     expect(within(table).getAllByText(text('pwf.exception.pause.word'), { selector: 'td' })).toHaveLength(2);
-    expect(within(table).getByText('C1, F1')).toBeTruthy();
+    expect(within(table).getByText('Có biên bản họp, F1')).toBeTruthy();
     expect(within(table).getAllByText('01/12/2026 – 05/12/2026', { selector: 'td' })).toHaveLength(2);
     expect(within(table).getByText(text('pwf.task.exception.status.requested'))).toBeTruthy();
     expect(within(table).getByText(text('pwf.task.exception.status.rejected'))).toBeTruthy();
@@ -513,9 +518,10 @@ describe('PWF-04: ledger, history and KPI', () => {
   });
 
   it('says the KPI is hidden when the caller may not see it, and empty when there is none', async () => {
+    // A person who may not see the KPI gets no empty card about it.
     open();
     await ready();
-    expect(screen.getByTestId('kpi-hidden')).toBeTruthy();
+    expect(screen.queryByTestId('kpi')).toBeNull();
     cleanup();
     open({ task: detail({ kpi_results: [] }) });
     await ready();

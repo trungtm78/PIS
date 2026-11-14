@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard } from '../../../ui';
-import { PERMISSIONS, holds, startLink, taskLink } from '../model';
+import { PERMISSIONS, holds, startLink } from '../model';
 import { StepsPanel } from '../process/StepsPanel';
 import type { WorkflowDetail } from '../model';
 import { Board } from './Board';
@@ -14,7 +14,8 @@ import { useGates, useSchedule, useTaskPages, useWorkflow } from './hooks';
 import { NO_FILTER, calendarYears, gateRows, isStale } from './model';
 import type { TaskFilter } from './model';
 import { Overview } from './Overview';
-import { Gantt, MilestoneTimeline, PhaseStepper, WorkflowTree } from './Views';
+import { WorkflowOutline } from './Outline';
+import { Gantt, MilestoneTimeline, PhaseStepper } from './Views';
 import './workflow.css';
 
 /** The project has no workflow yet: the screen says so and, for a person who may start or adopt one, links to the form that does. */
@@ -25,7 +26,7 @@ function NoWorkflow({ projectId, canStart }: { projectId: string; canStart: bool
       <p data-testid="no-workflow">{t('pwf.flow.empty.body')}</p>
       {canStart ? (
         <p>
-          <Link className="ui-button" to={startLink(projectId)} data-testid="start-link">
+          <Link className="ui-button ui-button--primary" to={startLink(projectId)} data-testid="start-link">
             {t('pwf.flow.empty.start.action')}
           </Link>
         </p>
@@ -45,7 +46,6 @@ interface LoadedProps {
 
 function Loaded({ detail, projectId, readAt, refetchFailed, frozen, onReload }: LoadedProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [filter, setFilter] = useState<TaskFilter>(NO_FILTER);
   const schedule = useSchedule(projectId, true);
   const pages = useTaskPages(projectId, filter, true);
@@ -87,10 +87,9 @@ function Loaded({ detail, projectId, readAt, refetchFailed, frozen, onReload }: 
       ) : null}
       <Overview detail={detail} schedule={schedule.data} years={calendarYears(detail, schedule.data)} stale={stale} canReschedule={canReschedule} />
       <PhaseStepper detail={detail} version={version} />
-      <StepsPanel detail={detail} projectId={projectId} />
-      <WorkflowTree detail={detail} version={version} selectedPhase={filter.phase} onPhase={(phase) => setFilter({ ...filter, phase })} onTask={(id) => navigate(taskLink(id, projectId))} />
+      <WorkflowOutline detail={detail} projectId={projectId} selectedPhase={filter.phase} onPhase={(phase) => setFilter({ ...filter, phase })} />
       <Gantt detail={detail} version={version} schedule={schedule.data} loading={schedule.isLoading} failed={schedule.isError} onRetry={() => void schedule.refetch()} />
-      <MilestoneTimeline detail={detail} version={version} />
+      <MilestoneTimeline detail={detail} version={version} projectId={projectId} />
       <Board
         detail={detail}
         projectId={projectId}
@@ -106,6 +105,7 @@ function Loaded({ detail, projectId, readAt, refetchFailed, frozen, onReload }: 
         onRetry={() => void pages.refetch()}
       />
       <GatesPanel detail={detail} rows={rows} />
+      <StepsPanel detail={detail} projectId={projectId} />
     </div>
   );
 }

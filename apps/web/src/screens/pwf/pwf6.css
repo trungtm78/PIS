@@ -1,0 +1,659 @@
+/* Shared presentation of the workflow screens: names with codes as notes, the strip of the three colours, meters, stat grids, the outline table, chips. Tokens only. */
+.pwf-code {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--mv-color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.pwf-named {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+.pwf-hint {
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pwf-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+/* A table of the module scrolls sideways in its own region and is never cut by a fixed height: the page scrolls down. */
+.pwf-free .ui-table-scroll {
+  max-height: none;
+}
+.pwf-bands {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 16px;
+  position: relative;
+}
+@media (max-width: 1099px) {
+  .pwf-bands {
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  }
+}
+.pwf-bands__tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 16px;
+  font: inherit;
+  text-align: left;
+  color: var(--mv-color-ink);
+  background: var(--mv-color-surface);
+  border: 1px solid var(--mv-color-border);
+  border-left: 4px solid var(--mv-color-neutral);
+  border-radius: 14px;
+}
+button.pwf-bands__tile {
+  cursor: pointer;
+}
+button.pwf-bands__tile:hover {
+  background: var(--mv-color-surface2);
+}
+button.pwf-bands__tile:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}
+.pwf-bands__tile[aria-pressed='true'] {
+  background: var(--mv-color-primary-soft);
+  border-color: var(--mv-color-primary);
+}
+.pwf-bands__tile[data-band='RED'] {
+  border-left-color: var(--mv-color-danger);
+}
+.pwf-bands__tile[data-band='YELLOW'] {
+  border-left-color: var(--mv-color-warning);
+}
+.pwf-bands__tile[data-band='GREEN'] {
+  border-left-color: var(--mv-color-success);
+}
+.pwf-bands__label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-bands__tile[data-band='RED'] .pwf-bands__label {
+  color: var(--mv-color-danger);
+}
+.pwf-bands__tile[data-band='YELLOW'] .pwf-bands__label {
+  color: var(--mv-color-warning);
+}
+.pwf-bands__tile[data-band='GREEN'] .pwf-bands__label {
+  color: var(--mv-color-success);
+}
+.pwf-bands__value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.pwf-bands__unit {
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-bands__info {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+}
+.pwf-meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pwf-meter progress {
+  width: 72px;
+  height: 8px;
+  accent-color: var(--mv-color-primary);
+}
+.pwf-meter[data-complete='true'] progress {
+  accent-color: var(--mv-color-success);
+}
+.pwf-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 24px;
+  margin: 0;
+}
+.pwf-stats__item {
+  min-width: 0;
+}
+.pwf-stats__item--wide {
+  grid-column: span 2;
+}
+@media (max-width: 599px) {
+  .pwf-stats__item--wide {
+    grid-column: auto;
+  }
+}
+.pwf-stats dt {
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+  margin-bottom: 2px;
+}
+.pwf-stats dd {
+  margin: 0;
+  font-weight: 600;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+.pwf-stats__item[data-tone='danger'] dd {
+  color: var(--mv-color-danger);
+}
+.pwf-stats__item[data-tone='warning'] dd {
+  color: var(--mv-color-warning);
+}
+.pwf-stats__item[data-tone='success'] dd {
+  color: var(--mv-color-success);
+}
+.pwf-outline {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.pwf-outline thead th {
+  position: static;
+  background: var(--mv-color-table-head);
+  color: var(--mv-color-menu-text);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  padding: 10px 12px;
+  white-space: nowrap;
+}
+.pwf-outline tbody th,
+.pwf-outline tbody td {
+  position: static;
+  background: transparent;
+  color: var(--mv-color-ink);
+  text-align: left;
+  font-weight: 400;
+  vertical-align: middle;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--mv-color-border);
+}
+.pwf-outline tbody td.pwf-num,
+.pwf-outline thead th.pwf-num {
+  text-align: right;
+}
+.pwf-outline tbody tr[data-level='1'] > th,
+.pwf-outline tbody tr[data-level='1'] > td {
+  background: var(--mv-color-surface2);
+  border-top: 1px solid var(--mv-color-border);
+}
+.pwf-outline tbody tr[data-level='1'] th {
+  font-weight: 700;
+}
+.pwf-outline tbody tr[data-level='2'] th {
+  padding-left: 36px;
+  font-weight: 600;
+}
+.pwf-outline tbody tr[data-level='3'] th {
+  padding-left: 60px;
+}
+.pwf-outline tbody tr[data-level='3'][data-health='late'] th {
+  box-shadow: inset 3px 0 0 var(--mv-color-danger);
+}
+.pwf-outline tbody tr[data-level='3'][data-health='attention'] th {
+  box-shadow: inset 3px 0 0 var(--mv-color-warning);
+}
+.pwf-outline__toggle {
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 4px 0;
+  min-height: 24px;
+  cursor: pointer;
+  text-align: left;
+}
+.pwf-outline__toggle:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}
+.pwf-outline__name {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+.pwf-outline__critical {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mv-color-info);
+  white-space: nowrap;
+}
+.pwf-phase > summary {
+  cursor: pointer;
+  min-height: 32px;
+}
+.pwf-phase > summary h3 {
+  display: inline;
+  font-size: 15px;
+}
+.pwf-taskline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 6px 0;
+  border-top: 1px solid var(--mv-color-border);
+}
+.pwf-taskline__name {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  min-width: 0;
+}
+/* Filter chips: one row of labelled choices that wraps; the chosen one is filled. */
+.pwf-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.pwf-chips__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mv-color-text-secondary);
+  min-width: 88px;
+}
+.pwf-chip {
+  font: inherit;
+  font-size: 13px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 999px;
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  cursor: pointer;
+}
+.pwf-chip:hover {
+  background: var(--mv-color-surface2);
+}
+.pwf-chip:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}
+.pwf-chip[aria-pressed='true'] {
+  background: var(--mv-color-primary);
+  border-color: var(--mv-color-primary);
+  color: var(--mv-color-surface);
+  font-weight: 600;
+}
+/* A block that is closed until asked for (schedule figures, history): the summary reads as a section title. */
+.pwf-fold {
+  border: 1px solid var(--mv-color-border);
+  border-radius: 14px;
+  background: var(--mv-color-surface);
+  margin: 16px 0;
+}
+.pwf-fold > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-fold > summary:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}
+.pwf-fold__body {
+  padding: 4px 20px 20px;
+}
+.pwf-fold__note {
+  margin-left: 8px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Cells that stack a name over its code, a line that must not wrap. */
+.pwf-cellstack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.pwf-nowrap {
+  white-space: nowrap;
+}
+.pwf-context {
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+.pwf-late {
+  color: var(--mv-color-danger);
+}
+.pwf-subtitle {
+  margin: 20px 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.pwf-inline-fold {
+  margin-top: 12px;
+}
+.pwf-inline-fold > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--mv-color-primary);
+  border-radius: 8px;
+  color: var(--mv-color-primary);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.pwf-inline-fold > summary::-webkit-details-marker {
+  display: none;
+}
+.pwf-inline-fold > summary:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}
+.pwf-inline-fold[open] > summary {
+  background: var(--mv-color-primary-soft);
+  margin-bottom: 12px;
+}
+/* Plain tables of the module (step times, a schedule as a table): a light header, no dark first column. */
+.pwf-steps-table thead th {
+  position: static;
+  background: var(--mv-color-surface2);
+  color: var(--mv-color-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+.pwf-steps-table tbody th {
+  position: static;
+  background: transparent;
+  color: var(--mv-color-ink);
+  font-weight: 400;
+}
+/* The kind of workflow (PRJ-02, PWF-05): what the system suggests, why, and the choices on one aligned row. */
+.pwf-suggestion {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  background: var(--mv-color-primary-soft);
+  border: 1px solid var(--mv-color-border);
+  border-left: 4px solid var(--mv-color-primary);
+  border-radius: 8px;
+}
+.pwf-suggestion p {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+.pwf-suggestion__label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-suggestion__name {
+  font-size: 16px;
+}
+.pwf-suggestion__why {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 2px 12px;
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+.pwf-suggestion__why dt {
+  color: var(--mv-color-text-secondary);
+}
+.pwf-suggestion__why dd {
+  margin: 0;
+}
+span.pwf-suggestion__why {
+  display: block;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-kind__fields {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: start;
+}
+.pwf-kind__fields select,
+.pwf-kind__fields input {
+  min-height: 36px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.pwf-field__hint {
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-preview {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 8px;
+}
+.pwf-preview__stats dd {
+  font-size: 16px;
+}
+.prj-created-workflow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+/* The two ways to begin (PWF-05) as two choices side by side, the radio next to its words. */
+.pwf-mode {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+.pwf-mode legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-mode label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.pwf-mode label:has(input:checked) {
+  border-color: var(--mv-color-primary);
+  background: var(--mv-color-primary-soft);
+  font-weight: 600;
+}
+.pwf-mode input {
+  flex: 0 0 auto;
+  margin: 0;
+}
+/* The structured comparison of two versions of a template (PWF-01). */
+.pwf-cmp {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+.pwf-cmp__totals td[data-delta='up'],
+.pwf-cmp__totals td[data-delta='down'] {
+  font-weight: 700;
+}
+.pwf-cmp__phase h3 {
+  margin: 0 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--mv-color-border);
+  font-size: 14px;
+}
+.pwf-cmp__items,
+.pwf-cmp__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.pwf-cmp__list {
+  gap: 2px;
+}
+.pwf-cmp__item {
+  padding: 10px 12px;
+  border: 1px solid var(--mv-color-border);
+  border-left: 4px solid var(--mv-color-warning);
+  border-radius: 8px;
+}
+.pwf-cmp__item[data-kind='added'] {
+  border-left-color: var(--mv-color-success);
+}
+.pwf-cmp__item[data-kind='removed'] {
+  border-left-color: var(--mv-color-danger);
+}
+.pwf-cmp__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+.pwf-cmp__fields {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-size: 13px;
+  table-layout: fixed;
+}
+.pwf-cmp__fields th,
+.pwf-cmp__fields td {
+  position: static;
+  background: transparent;
+  color: var(--mv-color-ink);
+  text-align: left;
+  vertical-align: top;
+  padding: 4px 8px;
+  border-top: 1px solid var(--mv-color-border);
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.pwf-cmp__fields thead th {
+  border-top: 0;
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-cmp__fields tbody th {
+  width: 24%;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-cmp__before {
+  color: var(--mv-color-text-secondary);
+}
+.pwf-cmp__after {
+  font-weight: 600;
+}
+.pwf-cmp__list li[data-kind='added'] {
+  color: var(--mv-color-success);
+}
+.pwf-cmp__list li[data-kind='removed'] {
+  color: var(--mv-color-danger);
+}
+/* The editor (PWF-02): the tree by phase, step and task; pickers with a search; blocks that fold. */
+.pwf-tpl-tree__phase,
+.pwf-tpl-tree__step {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+.pwf-tpl-tree__step {
+  font-weight: 600;
+  font-size: 13px;
+  padding: 4px 0;
+}
+.pwf-tpl-pick__name {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+.pwf-tpl-pick__facts {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.pwf-picker__search {
+  max-width: 360px;
+  margin-bottom: 8px;
+}
+.pwf-picker__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.pwf-picker__list label {
+  display: block;
+  min-height: 24px;
+  padding: 2px 0;
+}
+.pwf-tpl-fold > summary {
+  cursor: pointer;
+  min-height: 24px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.pwf-lib .pwf-tpl-name {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.pwf-resched tbody th {
+  min-width: 240px;
+}
+/* A caption kept for screen readers stays out of sight whatever the sheet of the shell says of captions. */
+.pwf-outline caption.ui-sr-only,
+.pwf-cmp caption.ui-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.pwf-outline .ui-button {
+  white-space: nowrap;
+}

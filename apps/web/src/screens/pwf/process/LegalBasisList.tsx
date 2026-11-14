@@ -11,13 +11,15 @@ export interface LegalBasisListProps {
   /** What the list is the legal ground of (the name of a step or of a task): the accessible name of the list. */
   of: string;
   testId?: string;
+  /** Where the ground at an index comes from (the task, its step, or both), already translated: shown as a small note. */
+  origin?: (index: number) => string;
 }
 
 /**
  * The legal grounds of a step or of a task (R45): the document as the shared catalogue names it (kind, number, title, issuer, days of effect), the article the template cites, whether a legal officer confirmed the citation, and
  * whether the document may still be cited today. A document that lapsed or was replaced is said in words and with the code of what replaced it; the colour is never the only cue.
  */
-export function LegalBasisList({ basis, of, testId }: LegalBasisListProps) {
+export function LegalBasisList({ basis, of, testId, origin }: LegalBasisListProps) {
   const { t } = useTranslation();
   if (basis.length === 0) {
     return (
@@ -28,7 +30,7 @@ export function LegalBasisList({ basis, of, testId }: LegalBasisListProps) {
   }
   return (
     <ul className="pwf-legal" aria-label={t('pwf.process.legal.list.label', { of })} data-testid={testId}>
-      {basis.map((one) => (
+      {basis.map((one, index) => (
         <li key={`${one.document_code}|${one.article ?? ''}`} data-document={one.document_code} data-state={one.state}>
           <div className="pwf-legal__head">
             <strong>{one.number === null ? one.document_code : `${docKindWord(t, one.doc_kind)} ${one.number}`}</strong>
@@ -38,6 +40,7 @@ export function LegalBasisList({ basis, of, testId }: LegalBasisListProps) {
             <StatusPill tone={one.verification === 'VERIFIED' && one.document_verification === 'VERIFIED' ? 'success' : 'warning'} icon={one.verification === 'VERIFIED' && one.document_verification === 'VERIFIED' ? '✓' : '⚠'}>
               {one.verification === 'VERIFIED' && one.document_verification === 'VERIFIED' ? t('pwf.process.legal.verified.word') : t('pwf.process.legal.unverified.word')}
             </StatusPill>
+            {origin === undefined ? null : <span className="pwf-hint">{origin(index)}</span>}
           </div>
           {one.title === null ? null : <div>{one.title}</div>}
           <dl className="pwf-legal__facts">

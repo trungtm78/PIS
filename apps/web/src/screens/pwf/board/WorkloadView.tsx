@@ -14,13 +14,13 @@ export function WorkloadView({ workload }: { workload: Workload }) {
   const info = (name: string) => <FigureInfo name={name} formula={t('pwf.board.workload.formula')} source={t('pwf.board.workload.source')} asOf={workload.as_of} version={t('pwf.board.count.version')} />;
   const columns: DataTableColumn<WorkloadRow>[] = [
     { key: 'person', header: t('pwf.board.workload.person.header'), pinned: true, render: (row) => row.name },
-    { key: 'open', header: t('pwf.board.workload.open.header'), align: 'right', render: (row) => row.open },
+    { key: 'open', header: t('pwf6.workload.open.header'), align: 'right', render: (row) => row.open },
     ...workload.weeks.map(
-      (week, index): DataTableColumn<WorkloadRow> => ({ key: `week-${week}`, header: t('pwf.board.workload.week.header', { date: dayText(week) }), align: 'right', render: (row) => row.weekly[index] ?? 0 }),
+      (week, index): DataTableColumn<WorkloadRow> => ({ key: `week-${week}`, header: t('pwf6.workload.week.header', { date: dayText(week).slice(0, 5) }), align: 'right', render: (row) => row.weekly[index] ?? 0 }),
     ),
     {
       key: 'total',
-      header: t('pwf.board.workload.total.header'),
+      header: t('pwf6.workload.total.header'),
       align: 'right',
       render: (row) => (
         <span className="pwf-figure">
@@ -41,7 +41,8 @@ export function WorkloadView({ workload }: { workload: Workload }) {
           {t('pwf.board.workload.empty.text')}
         </p>
       ) : (
-        <div data-testid="workload-table">
+        <div data-testid="workload-table" className="pwf-free pwf-workload">
+          <p className="pwf-hint">{t('pwf6.workload.unit.note')}</p>
           <DataTable columns={columns} rows={rows} rowKey={(row) => row.id} caption={t('pwf.board.workload.caption')} state="ready" />
         </div>
       )}

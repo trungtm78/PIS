@@ -17,12 +17,13 @@ export function MilestonesView({ milestones }: { milestones: MilestoneList }) {
       key: 'milestone',
       header: t('pwf.board.milestones.col.milestone'),
       render: (item) => (
-        <>
-          <Link to={taskLink(item.task_id, item.project_id)}>{item.task_code}</Link> {item.name}
-        </>
+        <span className="pwf-cellstack">
+          <Link to={taskLink(item.task_id, item.project_id)}>{item.name}</Link>
+          <span className="pwf-code">{item.task_code}</span>
+        </span>
       ),
     },
-    { key: 'project', header: t('pwf.board.col.project.header'), render: (item) => <Link to={workflowLink(item.project_id)}>{item.project_code}</Link> },
+    { key: 'project', header: t('pwf.board.col.project.header'), render: (item) => <Link className="pwf-nowrap" to={workflowLink(item.project_id)}>{item.project_code}</Link> },
     { key: 'planned', header: t('pwf.board.milestones.col.planned'), render: (item) => dayText(item.planned_date) },
     { key: 'baseline', header: t('pwf.board.milestones.col.baseline'), render: (item) => dayText(item.baseline_date) },
     {
@@ -62,7 +63,7 @@ export function MilestonesView({ milestones }: { milestones: MilestoneList }) {
           {t('pwf.board.milestones.empty.text')}
         </p>
       ) : (
-        <div data-testid="milestones-table">
+        <div data-testid="milestones-table" className="pwf-free">
           <DataTable columns={columns} rows={[...milestones.items]} rowKey={(item) => item.task_id} caption={t('pwf.board.milestones.caption')} state="ready" />
         </div>
       )}

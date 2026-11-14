@@ -49,14 +49,21 @@ export function AssignmentLedger({ taskId, canAssign }: AssignmentLedgerProps) {
       <div data-testid="ledger">
         <StateBoundary state={state} onRetry={() => void query.refetch()}>
           {items.length === 0 ? (
-            <p className="callout" role="status" data-testid="ledger-empty">
+            <p className="pwf-hint" role="status" data-testid="ledger-empty">
               {t('pwf.ledger.empty.text')}
             </p>
           ) : (
-            <DataTable columns={columns} rows={items} rowKey={(item) => item.id} caption={t('pwf.ledger.table.caption')} />
+            <div className="pwf-free">
+              <DataTable columns={columns} rows={items} rowKey={(item) => item.id} caption={t('pwf.ledger.table.caption')} />
+            </div>
           )}
         </StateBoundary>
-        {canAssign && mode !== 'READ_ONLY' ? <AssignForm taskId={taskId} ledger={items} /> : null}
+        {canAssign && mode !== 'READ_ONLY' ? (
+          <details className="pwf-inline-fold" data-testid="assign-fold">
+            <summary>{t('pwf.ledger.form.title')}</summary>
+            <AssignForm taskId={taskId} ledger={items} />
+          </details>
+        ) : null}
       </div>
     </SectionCard>
   );
@@ -110,7 +117,6 @@ function AssignForm({ taskId, ledger }: { taskId: string; ledger: readonly Assig
 
   return (
     <form className="pwf-assign" onSubmit={submit} noValidate aria-label={t('pwf.ledger.form.title')} data-testid="assign-form">
-      <h3>{t('pwf.ledger.form.title')}</h3>
       {refused === undefined ? null : <ProblemBanner problem={refused} />}
       {saved ? (
         <p className="callout" role="status" data-testid="assign-saved">

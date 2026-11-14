@@ -5,11 +5,12 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard } from '../../../ui';
-import { AdjustmentList, ContributionsTable, ExcludedList, FlagList, FlagsNote, LineStatePill, PeriodStatusPill, ResponseList, ScoreFigure, ScoreInfo, SupportNotice } from './components';
+import { AdjustmentList, ContributionsTable, ExcludedList, FlagList, FlagsNote, LineStatePill, PeriodStatusPill, PolicyBasis, ResponseList, ScoreFigure, ScoreInfo, SupportNotice } from './components';
 import { AdjustmentRequestForm, DecisionForm, HandleResponseForm, ResponseForm } from './forms';
 import { useDecideAdjustment, useHandleResponse, usePolicyLimits, useReloadScores, useRequestAdjustment, useScoreCacheGuard, useScoreIdentity, useScoreLine, useSubmitResponse } from './hooks';
 import { SCORE_PATHS, SCORE_PERMISSIONS, actionsOf, isNotFound, mayDo, periodLink, unitLink } from './model';
 import type { ScoreLine } from './model';
+import { UnitName } from './units';
 import '../pwf.css';
 import './score.css';
 
@@ -73,7 +74,7 @@ function Detail({ line }: { line: ScoreLine }) {
           <div>
             <ScoreFigure line={line} />
             <div className="pwf-figure">
-              <span>{t('pwfs.my.basis.text', { policy: line.basis.policy_code, version: line.basis.policy_version })}</span>
+              <PolicyBasis code={line.basis.policy_code} version={line.basis.policy_version} />
               <ScoreInfo basis={line.basis} asOf={line.as_of} />
             </div>
           </div>
@@ -87,7 +88,9 @@ function Detail({ line }: { line: ScoreLine }) {
               <Link to={periodLink(line.period_id)}>{t('pwfs.detail.period.link')}</Link> · <Link to={unitLink(line.period_id)}>{t('pwfs.detail.unit.link')}</Link>
             </dd>
             <dt>{t('pwfs.detail.unitAt.label')}</dt>
-            <dd data-testid="unit-at">{line.unit_id_at_period}</dd>
+            <dd data-testid="unit-at" title={line.unit_id_at_period}>
+              <UnitName id={line.unit_id_at_period} />
+            </dd>
           </dl>
         </div>
       </SectionCard>

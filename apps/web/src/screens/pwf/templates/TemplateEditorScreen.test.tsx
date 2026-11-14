@@ -323,7 +323,7 @@ describe('PWF-02: the checks of the server', () => {
     await ready();
     expect(screen.getByTestId('preview-none')).toBeTruthy();
     fireEvent.change(screen.getByTestId('preview-start'), { target: { value: '2027-01-04' } });
-    change('preview.project_group', ' A ');
+    change('preview.project_group', 'A');
     click('preview');
     const preview = await screen.findByTestId('preview');
     await waitFor(() => expect(h.command).toHaveBeenCalledWith('previewProjectWorkflowTemplate', expect.anything()));

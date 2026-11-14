@@ -3,7 +3,10 @@ import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
 import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
+import { Named, docTypeKnown, docTypeName, evidenceKindName } from '../codes';
+import { Meter } from '../components';
 import { formProblemText } from '../labels';
+import { FormRevision } from '../process/TaskProcessSection';
 import { stampText } from '../model';
 import type { TaskDetail } from '../model';
 import { Field, problemAttributes } from './Field';
@@ -33,82 +36,134 @@ function Satisfied({ satisfied }: { satisfied: boolean }) {
   );
 }
 
-/** What the task asks for before it can be completed: the checklist, the legal document types, the forms of the template, and the evidence that was attached. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-/i;
+
+/** What a piece of evidence is, in words: the legal document or the form it answers, else the reference typed with it; a document of the store is said as such, with the start of its id as a note. */
+function EvidenceWhat({ row, task }: { row: EvidenceRow; task: TaskDetail }) {
+  const { t } = useTranslation();
+  const form = row.form_template_code === null ? undefined : task.form_templates.find((item) => item.code === row.form_template_code);
+  const title = row.legal_doc_type !== null ? docTypeName(t, row.legal_doc_type) : row.form_template_code !== null ? (form?.current_title ?? row.form_template_code) : null;
+  const code = row.legal_doc_type ?? row.form_template_code;
+  const reference = row.external_ref !== null && !UUID.test(row.external_ref) ? row.external_ref : null;
+  const stored = row.document_id !== null;
+  return (
+    <span className="pwf-cellstack">
+      {title === null ? null : <Named name={title} code={code} />}
+      {reference === null ? null : <span>{reference}</span>}
+      {stored ? (
+        <span className="pwf-hint" title={row.document_id ?? undefined}>
+          {t('pwf6.task.evidence.stored')}
+        </span>
+      ) : null}
+      {title === null && reference === null && !stored ? <span className="pwf-hint">{t('pwf6.task.evidence.unnamed')}</span> : null}
+      {row.form_template_revision === null || row.form_template_revision === undefined ? null : <span className="pwf-hint">{t('pwf6.task.evidence.revision', { revision: row.form_template_revision })}</span>}
+    </span>
+  );
+}
+
+/**
+ * What the task asks for before it can be completed, in the order a person works: the checklist (each item is ticked where it stands; a required item says so), then the documents: the legal document types and the forms with their
+ * revisions, the evidence that was attached, and the form that attaches more (closed until asked for).
+ */
 export function RequirementsSection({ task, canWork, onTick, onResult }: RequirementsProps) {
   const { t } = useTranslation();
+  const itemName = (code: string | null): string | null => (code === null ? null : (task.checklist.find((item) => item.item_code === code)?.name ?? code));
   const evidenceColumns: DataTableColumn<EvidenceRow>[] = [
-    { key: 'kind', header: t('pwf.task.evidence.col.kind'), render: (row) => row.evidence_kind },
-    { key: 'item', header: t('pwf.task.evidence.col.item'), render: (row) => row.item_code ?? '–' },
-    { key: 'what', header: t('pwf.task.evidence.col.what'), render: (row) => row.legal_doc_type ?? row.form_template_code ?? row.document_id ?? row.external_ref ?? '–' },
-    { key: 'note', header: t('pwf.task.evidence.col.note'), render: (row) => row.note ?? '–' },
+    { key: 'what', header: t('pwf.task.evidence.col.what'), render: (row) => <EvidenceWhat row={row} task={task} /> },
+    { key: 'kind', header: t('pwf.task.evidence.col.kind'), render: (row) => evidenceKindName(t, row.evidence_kind) },
+    { key: 'item', header: t('pwf.task.evidence.col.item'), render: (row) => itemName(row.item_code) ?? '' },
+    { key: 'note', header: t('pwf.task.evidence.col.note'), render: (row) => row.note ?? '' },
     { key: 'at', header: t('pwf.task.evidence.col.at'), render: (row) => stampText(row.attached_at) },
   ];
+  const doneCount = task.checklist.filter((item) => item.done).length;
+  const forms = task.form_templates;
   return (
     <>
-      <SectionCard title={t('pwf.task.checklist.title')}>
+      <SectionCard title={t('pwf.task.checklist.title')} status={task.checklist.length === 0 ? undefined : <Meter done={doneCount} total={task.checklist.length} label={t('pwf.task.checklist.title')} />}>
         {task.checklist.length === 0 ? (
-          <p className="callout" role="status" data-testid="checklist-empty">
+          <p className="pwf-hint" role="status" data-testid="checklist-empty">
             {t('pwf.task.checklist.empty')}
           </p>
         ) : (
-          <ul className="pwf-list" data-testid="checklist">
+          <ul className="pwf-checklist" data-testid="checklist">
             {task.checklist.map((item) => (
-              <li key={item.item_code} data-item={item.item_code}>
-                <strong>{item.name}</strong> <code>{item.item_code}</code> {item.required ? t('pwf.task.required.yes') : t('pwf.task.required.no')}{' '}
-                {item.done ? (
-                  <StatusPill tone="success" icon="✓">
-                    {t('pwf.task.checklist.done', { at: stampText(item.done_at) })}
-                  </StatusPill>
-                ) : (
-                  <>
-                    <StatusPill tone="warning" icon="⚠">
-                      {t('pwf.task.checklist.open')}
+              <li key={item.item_code} className="pwf-checklist__item" data-item={item.item_code} data-done={item.done}>
+                <span className="pwf-checklist__box" aria-hidden="true">
+                  {item.done ? '✓' : ''}
+                </span>
+                <span className="pwf-checklist__body">
+                  <span className="pwf-checklist__name">
+                    <strong>{item.name}</strong>
+                    {item.required ? <span className="pwf-required">{t('pwf.task.required.yes')}</span> : <span className="pwf-hint">{t('pwf.task.required.no')}</span>}
+                  </span>
+                  {item.evidence_kinds.length === 0 ? null : <span className="pwf-hint">{t('pwf.task.checklist.kinds', { kinds: item.evidence_kinds.map((kind) => evidenceKindName(t, kind)).join(', ') })}</span>}
+                </span>
+                <span className="pwf-checklist__state">
+                  {item.done ? (
+                    <StatusPill tone="success" icon="✓">
+                      {t('pwf.task.checklist.done', { at: stampText(item.done_at) })}
                     </StatusPill>
-                    {canWork ? (
-                      <button type="button" className="ui-button ui-button--outline ui-button--small" data-action={`tick-${item.item_code}`} onClick={() => onTick(item.item_code, item.name)}>
-                        {t('pwf.task.checklist.tick.action')}
-                      </button>
-                    ) : null}
-                  </>
-                )}
-                {item.evidence_kinds.length === 0 ? null : <span className="pwf-hint"> {t('pwf.task.checklist.kinds', { kinds: item.evidence_kinds.join(', ') })}</span>}
+                  ) : (
+                    <>
+                      <StatusPill tone="warning" icon="○">
+                        {t('pwf.task.checklist.open')}
+                      </StatusPill>
+                      {canWork ? (
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" data-action={`tick-${item.item_code}`} onClick={() => onTick(item.item_code, item.name)}>
+                          {t('pwf.task.checklist.tick.action')}
+                        </button>
+                      ) : null}
+                    </>
+                  )}
+                </span>
               </li>
             ))}
           </ul>
         )}
       </SectionCard>
-      <SectionCard title={t('pwf.task.documents.title')}>
+      <SectionCard title={t('pwf6.task.documents.title')}>
         <div data-testid="documents">
-          {task.legal_doc_types.length === 0 && task.form_templates.length === 0 ? (
-            <p className="callout" role="status">
+          {task.legal_doc_types.length === 0 && forms.length === 0 ? (
+            <p className="pwf-hint" role="status">
               {t('pwf.task.documents.empty')}
             </p>
           ) : (
-            <ul className="pwf-list">
+            <ul className="pwf-docs">
               {task.legal_doc_types.map((item) => (
-                <li key={`legal:${item.code}`} data-legal={item.code}>
-                  {t('pwf.task.documents.legal', { code: item.code })} <Satisfied satisfied={item.satisfied} />
+                <li key={`legal:${item.code}`} className="pwf-docs__item" data-legal={item.code}>
+                  <span className="pwf-docs__kind">{t('pwf6.task.documents.legal')}</span>
+                  <Named name={docTypeName(t, item.code)} code={docTypeKnown(item.code) ? item.code : undefined} />
+                  <Satisfied satisfied={item.satisfied} />
                 </li>
               ))}
-              {task.form_templates.map((item) => (
-                <li key={`form:${item.code}`} data-form={item.code}>
-                  {t('pwf.task.documents.form', { code: item.code })} <Satisfied satisfied={item.satisfied} />
+              {forms.map((item) => (
+                <li key={`form:${item.code}`} className="pwf-docs__item" data-form={item.code}>
+                  <span className="pwf-docs__kind">{t('pwf6.task.documents.form')}</span>
+                  <Named name={item.current_title ?? item.code} code={item.current_title === null || item.current_title === undefined ? undefined : item.code} />
+                  <Satisfied satisfied={item.satisfied} />
+                  <FormRevision form={item} />
                 </li>
               ))}
             </ul>
           )}
         </div>
-      </SectionCard>
-      <SectionCard title={t('pwf.task.evidence.title')}>
+        <h3 className="pwf-subtitle">{t('pwf6.task.evidence.title')}</h3>
         <div data-testid="evidence">
           {task.evidence.length === 0 ? (
-            <p className="callout" role="status" data-testid="evidence-empty">
+            <p className="pwf-hint" role="status" data-testid="evidence-empty">
               {t('pwf.task.evidence.empty')}
             </p>
           ) : (
-            <DataTable columns={evidenceColumns} rows={task.evidence} rowKey={(row) => row.id} caption={t('pwf.task.evidence.caption')} />
+            <div className="pwf-free">
+              <DataTable columns={evidenceColumns} rows={task.evidence} rowKey={(row) => row.id} caption={t('pwf.task.evidence.caption')} />
+            </div>
           )}
-          {canWork ? <EvidenceAttachForm task={task} onResult={onResult} /> : null}
+          {canWork ? (
+            <details className="pwf-inline-fold" data-testid="evidence-fold">
+              <summary>{t('pwf.task.attach.title')}</summary>
+              <EvidenceAttachForm task={task} onResult={onResult} />
+            </details>
+          ) : null}
         </div>
       </SectionCard>
     </>
@@ -147,13 +202,12 @@ function EvidenceAttachForm({ task, onResult }: { task: TaskDetail; onResult: (e
   };
   return (
     <form className="pwf-assign" onSubmit={submit} noValidate aria-label={t('pwf.task.attach.title')} data-testid="evidence-form">
-      <h3>{t('pwf.task.attach.title')}</h3>
       <div className="pwf-filters">
         <Field id="evidence-kind" label={t('pwf.task.attach.kind.label')} error={error('evidenceKind')} testKey="kind">
           <input id="evidence-kind" list="evidence-kinds" data-testid="field-kind" value={form.evidenceKind} onChange={(event) => change({ evidenceKind: event.target.value })} {...problemAttributes('evidence-kind', error('evidenceKind'))} />
           <datalist id="evidence-kinds">
             {kinds.map((kind) => (
-              <option key={kind} value={kind} />
+              <option key={kind} value={kind} label={evidenceKindName(t, kind)} />
             ))}
           </datalist>
         </Field>
@@ -162,7 +216,7 @@ function EvidenceAttachForm({ task, onResult }: { task: TaskDetail; onResult: (e
             <option value="">{t('pwf.task.attach.item.none')}</option>
             {task.checklist.map((item) => (
               <option key={item.item_code} value={item.item_code}>
-                {item.item_code} · {item.name}
+                {item.name}
               </option>
             ))}
           </select>
@@ -172,7 +226,7 @@ function EvidenceAttachForm({ task, onResult }: { task: TaskDetail; onResult: (e
             <option value="">{t('pwf.task.attach.legal.none')}</option>
             {task.legal_doc_types.map((item) => (
               <option key={item.code} value={item.code}>
-                {item.code}
+                {docTypeName(t, item.code)}
               </option>
             ))}
           </select>
@@ -182,7 +236,7 @@ function EvidenceAttachForm({ task, onResult }: { task: TaskDetail; onResult: (e
             <option value="">{t('pwf.task.attach.form.none')}</option>
             {task.form_templates.map((item) => (
               <option key={item.code} value={item.code}>
-                {item.code}
+                {item.current_title ?? item.code}
               </option>
             ))}
           </select>

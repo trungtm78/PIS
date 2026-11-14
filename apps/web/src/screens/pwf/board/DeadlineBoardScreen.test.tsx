@@ -64,10 +64,12 @@ describe('PWF-07: the list of the board', () => {
     expect(within(line).getByText('⛔')).toBeTruthy();
     expect(within(line).getByText(text('pwf.band.overdue.text', { days: 2, unit: text('pwf.unit.working.word') }))).toBeTruthy();
     expect(within(line).getByText('10/12/2026')).toBeTruthy();
-    expect(within(line).getByText(text('pwf.board.critical.word'))).toBeTruthy();
+    expect(line.textContent).toContain(text('pwf6.flow.critical.mark'));
+    expect(line.textContent).toContain('T2');
     expect(within(line).getByText('Nguyễn Văn An')).toBeTruthy();
-    expect(within(line).getByRole('link', { name: 'T2' }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${uuid(1002)}&project=${PROJECT_ID}`);
-    expect(within(line).getByRole('link', { name: /DA-001/ }).getAttribute('href')).toBe(`/prj/prj-03?id=${PROJECT_ID}&tab=workflow`);
+    expect(within(line).getByRole('link', { name: 'Công việc 2' }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${uuid(1002)}&project=${PROJECT_ID}`);
+    expect(line.textContent).toContain('DA-001');
+    expect(within(line).getByRole('link', { name: 'Dự án thử' }).getAttribute('href')).toBe(`/prj/prj-03?id=${PROJECT_ID}&tab=workflow`);
   });
 
   it('counts each colour from the totals of the server, not from the rows, each with its "i"', async () => {
@@ -77,8 +79,9 @@ describe('PWF-07: the list of the board', () => {
     expect(within(screen.getByTestId('count-yellow')).getByText('12')).toBeTruthy();
     expect(within(screen.getByTestId('count-green')).getByText('30')).toBeTruthy();
     expect(within(screen.getByTestId('count-none')).getByText('4')).toBeTruthy();
-    expect(screen.getAllByRole('button', { name: /Công thức và nguồn/ })).toHaveLength(5);
-    fireEvent.click(within(screen.getByTestId('count-red')).getByRole('button'));
+    // One "i" says the formula of the five counts.
+    expect(screen.getAllByRole('button', { name: /Công thức và nguồn/ })).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button', { name: /Công thức và nguồn/ }));
     expect(screen.getByRole('dialog').textContent).toContain(text('pwf.board.count.formula'));
   });
 
@@ -135,20 +138,23 @@ describe('PWF-07: the filters', () => {
     const h = open({ path: '/pwf/pwf-07?band=RED&phase=EXECUTION&status=IN_PROGRESS&from=2026-12-01&to=2026-12-31&assignee=a1&unit=u1' });
     await ready();
     expect(queryOf(h, 'getDeadlineBoard')).toMatchObject({ band: 'RED', phase: 'EXECUTION', status: 'IN_PROGRESS', due_from: '2026-12-01', due_to: '2026-12-31', assignee_id: 'a1', unit_id: 'u1' });
-    expect((screen.getByTestId('filter-band') as HTMLSelectElement).value).toBe('RED');
+    expect(screen.getByTestId('count-red').getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByTestId('filter-status-IN_PROGRESS').getAttribute('aria-pressed')).toBe('true');
   });
 
   it('filters by colour, phase, person, unit, status and days, one read each time', async () => {
     const h = open();
     await ready();
     await screen.findByRole('option', { name: 'Ban quản lý dự án 1' });
-    fireEvent.change(screen.getByTestId('filter-band'), { target: { value: 'YELLOW' } });
+    // The count of a colour is the filter of that colour (a count that is no filter, "not yet in range", is a plain tile).
+    expect(screen.getByTestId('count-none').tagName).toBe('DIV');
+    fireEvent.click(screen.getByTestId('count-yellow'));
     await waitFor(() => expect(queryOf(h, 'getDeadlineBoard').band).toBe('YELLOW'));
     fireEvent.change(screen.getByTestId('filter-unit'), { target: { value: uuid(60) } });
     await waitFor(() => expect(queryOf(h, 'getDeadlineBoard').unit_id).toBe(uuid(60)));
     fireEvent.change(screen.getByTestId('filter-assignee'), { target: { value: uuid(61) } });
     await waitFor(() => expect(queryOf(h, 'getDeadlineBoard').assignee_id).toBe(uuid(61)));
-    fireEvent.change(screen.getByTestId('filter-status'), { target: { value: 'ON_HOLD' } });
+    fireEvent.click(screen.getByTestId('filter-status-ON_HOLD'));
     await waitFor(() => expect(queryOf(h, 'getDeadlineBoard').status).toBe('ON_HOLD'));
     fireEvent.change(screen.getByTestId('filter-phase'), { target: { value: 'PREPARATION' } });
     await waitFor(() => expect(queryOf(h, 'getDeadlineBoard').phase).toBe('PREPARATION'));
@@ -199,7 +205,7 @@ describe('PWF-07: the calendar', () => {
     fireEvent.click(await screen.findByTestId('day-2026-12-10'));
     const day = screen.getByTestId('selected-day');
     expect(day.textContent).toContain(text('pwf.board.calendar.selected.title', { date: '10/12/2026' }));
-    expect(within(day).getByRole('link', { name: 'T2' }).getAttribute('href')).toContain('/pwf/pwf-04?id=');
+    expect(within(day).getByRole('link', { name: 'Công việc 2' }).getAttribute('href')).toContain('/pwf/pwf-04?id=');
     expect(within(day).getByText(text('pwf.band.red.word'))).toBeTruthy();
     fireEvent.click(screen.getByTestId('calendar-next'));
     await waitFor(() => expect(queryOf(h, 'getDeadlineCalendar').month).toBe('2027-01'));
@@ -234,7 +240,7 @@ describe('PWF-07: milestones and workload', () => {
     expect(within(table).getByText(text('pwf.board.slip.none.text'))).toBeTruthy();
     expect(within(table).getByText(text('pwf.board.risk.yes.word'))).toBeTruthy();
     expect(within(table).getAllByText(text('pwf.board.risk.no.word')).length).toBeGreaterThan(0);
-    expect(within(table).getByRole('link', { name: 'M1' }).getAttribute('href')).toContain('/pwf/pwf-04?id=');
+    expect(within(table).getByRole('link', { name: 'Mốc 1' }).getAttribute('href')).toContain('/pwf/pwf-04?id=');
     expect(screen.getByTestId('milestones-total').textContent).toBe(text('pwf.board.milestones.total.text', { total: 3 }));
   });
 
@@ -253,7 +259,7 @@ describe('PWF-07: milestones and workload', () => {
     expect(within(rows[0] as HTMLElement).getByText('5.5')).toBeTruthy();
     // The only buttons are the "i" of the totals: nothing moves work from one person to another.
     expect(within(table).getAllByRole('button').every((button) => /Công thức và nguồn/.test(button.getAttribute('aria-label') ?? ''))).toBe(true);
-    expect(within(table).getAllByText(text('pwf.board.workload.week.header', { date: '07/12/2026' }))).toHaveLength(1);
+    expect(within(table).getAllByText(text('pwf6.workload.week.header', { date: '07/12' }))).toHaveLength(1);
   });
 
   it('says nobody has work in the period', async () => {

@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
 import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
+import { docTypeName } from '../codes';
 import { exceptionWord, formProblemText } from '../labels';
 import { MIN_REASON, dayText } from '../model';
 import type { ExceptionKind, TaskDetail } from '../model';
@@ -22,14 +23,16 @@ export interface ExceptionsProps {
   onResult: (error?: unknown) => void;
 }
 
-const periodText = (item: TaskException): string => (item.valid_from === null ? '–' : `${dayText(item.valid_from)} – ${dayText(item.valid_to)}`);
+const periodText = (item: TaskException): string => (item.valid_from === null ? '' : item.valid_to === null ? dayText(item.valid_from) : `${dayText(item.valid_from)} – ${dayText(item.valid_to)}`);
 
 /** Exceptions of the task: a waiver of a missing requirement, a cancellation, a pause, an external delay; each is requested with a reason and decided by somebody else. */
 export function ExceptionsSection({ task, canRequest, canDecide, prefill, onDecide, onResult }: ExceptionsProps) {
   const { t } = useTranslation();
+  // What a waiver covers, by name: an item of the checklist, a legal document type or a form of the task; a code nothing names stays as it is.
+  const itemName = (code: string): string => task.checklist.find((item) => item.item_code === code)?.name ?? task.form_templates.find((form) => form.code === code)?.current_title ?? docTypeName(t, code);
   const columns: DataTableColumn<TaskException>[] = [
     { key: 'kind', header: t('pwf.task.exception.col.kind'), render: (item) => exceptionWord(t, item.kind) },
-    { key: 'items', header: t('pwf.task.exception.col.items'), render: (item) => (item.items.length === 0 ? '–' : item.items.join(', ')) },
+    { key: 'items', header: t('pwf.task.exception.col.items'), render: (item) => item.items.map((code) => itemName(code)).join(', ') },
     { key: 'period', header: t('pwf.task.exception.col.period'), render: (item) => periodText(item) },
     { key: 'reason', header: t('pwf.task.exception.col.reason'), render: (item) => item.reason },
     {
@@ -54,22 +57,27 @@ export function ExceptionsSection({ task, canRequest, canDecide, prefill, onDeci
               {t('pwf.task.exception.reject.action')}
             </button>
           </span>
-        ) : (
-          '–'
-        ),
+        ) : null,
     },
   ];
   return (
     <SectionCard title={t('pwf.task.exception.title')}>
       <div data-testid="exceptions">
         {task.exceptions.length === 0 ? (
-          <p className="callout" role="status" data-testid="exceptions-empty">
+          <p className="pwf-hint" role="status" data-testid="exceptions-empty">
             {t('pwf.task.exception.empty')}
           </p>
         ) : (
-          <DataTable columns={columns} rows={task.exceptions} rowKey={(item) => item.id} caption={t('pwf.task.exception.caption')} />
+          <div className="pwf-free">
+            <DataTable columns={columns} rows={task.exceptions} rowKey={(item) => item.id} caption={t('pwf.task.exception.caption')} />
+          </div>
         )}
-        {canRequest ? <ExceptionRequestForm key={prefill?.seq ?? 0} task={task} initialItems={prefill?.items ?? ''} onResult={onResult} /> : null}
+        {canRequest ? (
+          <details className="pwf-inline-fold" data-testid="exception-fold" open={prefill !== undefined}>
+            <summary>{t('pwf.task.request.title')}</summary>
+            <ExceptionRequestForm key={prefill?.seq ?? 0} task={task} initialItems={prefill?.items ?? ''} onResult={onResult} />
+          </details>
+        ) : null}
       </div>
     </SectionCard>
   );
@@ -106,7 +114,6 @@ function ExceptionRequestForm({ task, initialItems, onResult }: { task: TaskDeta
   };
   return (
     <form className="pwf-assign" onSubmit={submit} noValidate aria-label={t('pwf.task.request.title')} data-testid="exception-form">
-      <h3>{t('pwf.task.request.title')}</h3>
       <div className="pwf-filters">
         <Field id="exception-kind" label={t('pwf.task.request.kind.label')} error={undefined} testKey="kind">
           <select id="exception-kind" data-testid="field-exception-kind" value={form.kind} onChange={(event) => change({ kind: EXCEPTION_KINDS.find((kind: ExceptionKind) => kind === event.target.value) ?? 'WAIVE_REQUIREMENT' })}>

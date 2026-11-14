@@ -10,13 +10,13 @@ import type { DataTableColumn } from '../../../ui';
 import { useCatalogue } from '../../adm/governance/hooks';
 import { statusText } from '../../adm/governance/labels';
 import type { RuleStatus } from '../../adm/governance/model';
+import { factName } from '../codes';
 import { FigureInfo, UnverifiedLabel } from '../components';
 import { PATHS, PERMISSIONS, TEMPLATE_RULE_TYPE, dayText, editorLink, holds } from '../model';
 import { useTemplateCodes } from './hooks';
 import { DEFAULT_SIDE, compareSides, libraryRow, libraryTotals } from './library-model';
 import type { CompareSide, LibraryRow } from './library-model';
-import { compareTemplates } from './template-model';
-import type { TemplateChange } from './template-model';
+import { TemplateCompare } from './Compare';
 import '../pwf.css';
 import './templates.css';
 
@@ -117,21 +117,26 @@ function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit:
     {
       key: 'template',
       header: t('pwf.templates.col.template.header'),
+      pinned: true,
       render: (row) => (
         <span className="pwf-tpl-name">
-          <code>{row.code}</code>
-          <span>{row.summary?.name === '' || row.summary === null ? t('pwf.templates.lib.noName.text') : row.summary.name}</span>
+          <strong>{row.summary?.name === '' || row.summary === null ? t('pwf.templates.lib.noName.text') : row.summary.name}</strong>
+          <span className="pwf-code">{row.code}</span>
+          {row.summary?.projectType === null || row.summary?.projectType === undefined ? null : (
+            <span className="pwf-hint">
+              {t('pwf6.lib.type.label')} <span>{factName(t, row.summary.projectType)}</span>
+            </span>
+          )}
           {row.unverified ? <UnverifiedLabel /> : null}
         </span>
       ),
     },
-    { key: 'type', header: t('pwf.templates.col.type.header'), render: (row) => row.summary?.projectType ?? t('pwf.templates.lib.anyType.text') },
     {
       key: 'versions',
       header: t('pwf.templates.col.versions.header'),
       render: (row) =>
         row.versions.length === 0 ? (
-          t('pwf.templates.lib.noVersions.text')
+          <span className="pwf-hint">{t('pwf.templates.lib.noVersions.text')}</span>
         ) : (
           <span className="pwf-pills">
             {STATUS_ORDER.filter((status) => row.statusCounts[status] > 0).map((status) => (
@@ -142,40 +147,54 @@ function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit:
           </span>
         ),
     },
-    { key: 'force', header: t('pwf.templates.col.force.header'), render: (row) => <ForceCell row={row} /> },
-    { key: 'from', header: t('pwf.templates.col.from.header'), render: (row) => (row.effectiveFrom === null ? '–' : dayText(row.effectiveFrom)) },
+    {
+      key: 'force',
+      header: t('pwf.templates.col.force.header'),
+      render: (row) => (
+        <span className="pwf-tpl-name">
+          <ForceCell row={row} />
+          {row.effectiveFrom === null ? null : (
+            <span className="pwf-hint">
+              {t('pwf6.lib.from.label')} <span>{dayText(row.effectiveFrom)}</span>
+            </span>
+          )}
+        </span>
+      ),
+    },
     {
       key: 'size',
       header: t('pwf.templates.col.size.header'),
       render: (row) =>
-        row.summary === null ? (
-          '–'
-        ) : row.summary.steps === undefined ? (
-          t('pwf.templates.lib.size.text', { phases: row.summary.phases, tasks: row.summary.tasks })
-        ) : (
-          <>
-            {t('pwf.templates.lib.size.text', { phases: row.summary.phases, tasks: row.summary.tasks })} <span className="pwf-hint">{t('pwf.templates.lib.steps.text', { steps: row.summary.steps })}</span>
-          </>
+        row.summary === null ? null : (
+          <span className="pwf-tpl-name pwf-nowrap">
+            <span>{t('pwf.templates.lib.size.text', { phases: row.summary.phases, tasks: row.summary.tasks })}</span>
+            {row.summary.steps === undefined ? null : <span className="pwf-hint">{t('pwf.templates.lib.steps.text', { steps: row.summary.steps })}</span>}
+          </span>
         ),
     },
     {
       key: 'actions',
       header: t('pwf.templates.col.actions.header'),
       render: (row) => (
-        <span className="pwf-pills">
+        <span className="pwf-pills pwf-nowrap">
           {canEdit ? (
-            <Link to={editorLink(row.code)} data-testid={`edit-${row.code}`}>
+            <Link className="ui-button ui-button--outline ui-button--small" to={editorLink(row.code)} data-testid={`edit-${row.code}`}>
               {t('pwf.templates.lib.edit.action')}
             </Link>
           ) : null}
-          <Link to={`${RULE_VERSIONS_PATH}?type=${TEMPLATE_RULE_TYPE}&code=${encodeURIComponent(row.code)}`} data-testid={`versions-${row.code}`}>
+          <Link className="ui-button ui-button--outline ui-button--small" to={`${RULE_VERSIONS_PATH}?type=${TEMPLATE_RULE_TYPE}&code=${encodeURIComponent(row.code)}`} data-testid={`versions-${row.code}`}>
             {t('pwf.templates.lib.versions.action')}
           </Link>
         </span>
       ),
     },
   ];
-  return <DataTable columns={columns} rows={[...rows]} rowKey={(row) => row.code} caption={t('pwf.templates.lib.table.caption')} />;
+  return (
+    <div className="pwf-free pwf-lib">
+      <DataTable columns={columns} rows={[...rows]} rowKey={(row) => row.code} caption={t('pwf.templates.lib.table.caption')} />
+    </div>
+  );
+
 }
 
 const STATUS_LOOK: Readonly<Record<RuleStatus, { tone: 'neutral' | 'info' | 'success'; icon: string }>> = {
@@ -206,8 +225,8 @@ function ComparePanel({ rows }: { rows: readonly LibraryRow[] }) {
   const sides: CompareSide[] = data === undefined ? [] : compareSides(data.versions, data.effective);
   const left = sides.find((side) => side.id === leftId);
   const right = sides.find((side) => side.id === rightId);
-  const changes: TemplateChange[] | undefined = left === undefined || right === undefined ? undefined : compareTemplates(left.template, right.template);
-  const sideLabel = (side: CompareSide): string => (side.id === DEFAULT_SIDE ? t('pwf.templates.compare.default.option') : t('pwf.templates.compare.version.option', { version: side.version, status: side.status === 'DEFAULT' ? '' : statusText(t, side.status) }));
+  const changes = left === undefined || right === undefined ? undefined : true;
+  const sideLabel = (side: CompareSide): string => (side.id === DEFAULT_SIDE ? t('pwf.templates.compare.default.option') : t('pwf.templates.compare.version.option', { version: side.version, status: side.status === 'DEFAULT' ? '' : statusText(t, side.status) }).trim());
 
   return (
     <SectionCard title={t('pwf.templates.compare.title')}>
@@ -227,7 +246,7 @@ function ComparePanel({ rows }: { rows: readonly LibraryRow[] }) {
             <option value="">{t('pwf.templates.compare.choose.option')}</option>
             {rows.map((one) => (
               <option key={one.code} value={one.code}>
-                {one.code}
+                {one.summary === null || one.summary.name === '' ? one.code : t('pwf6.lib.option.text', { name: one.summary.name, code: one.code })}
               </option>
             ))}
           </select>
@@ -259,61 +278,16 @@ function ComparePanel({ rows }: { rows: readonly LibraryRow[] }) {
         <p className="callout" role="status" data-testid="compare-pick">
           {t('pwf.templates.compare.pick.text')}
         </p>
-      ) : changes.length === 0 ? (
-        <p className="callout" role="status" data-testid="compare-same">
-          {t('pwf.templates.compare.same.text')}
-        </p>
-      ) : (
-        <ChangeList changes={changes} />
+      ) : left === undefined || right === undefined ? null : (
+        <TemplateCompare before={left.template} after={right.template} left={sideLabel(left)} right={sideLabel(right)} />
       )}
       {left !== undefined && right !== undefined && left.id !== DEFAULT_SIDE && right.id !== DEFAULT_SIDE ? (
         <p>
-          <Link to={`${PATHS.ruleDiff}?rule=${right.id}&against=${left.id}`} data-testid="compare-diff">
-            {t('pwf.templates.compare.diff.action')}
+          <Link className="pwf-hint" to={`${PATHS.ruleDiff}?rule=${right.id}&against=${left.id}`} data-testid="compare-diff">
+            {t('pwf6.cmp.raw.action')}
           </Link>
         </p>
       ) : null}
     </SectionCard>
   );
-}
-
-function ChangeList({ changes }: { changes: readonly TemplateChange[] }) {
-  const { t } = useTranslation();
-  return (
-    <ul className="pwf-tpl-changes" data-testid="compare-changes">
-      {changes.map((change) => (
-        <li key={`${change.scope}:${change.code}:${change.kind}`} data-kind={change.kind}>
-          <StatusPill tone={change.kind === 'added' ? 'success' : change.kind === 'removed' ? 'danger' : 'warning'} icon={change.kind === 'added' ? '+' : change.kind === 'removed' ? '−' : '~'}>
-            {changeWord(t, change.kind)}
-          </StatusPill>{' '}
-          {scopeWord(t, change.scope)} {change.code === '' ? '' : <code>{change.code}</code>}
-          {change.fields.length === 0 ? null : <span className="adm-kit-sub"> · {change.fields.join(', ')}</span>}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function changeWord(t: ReturnType<typeof useTranslation>['t'], kind: TemplateChange['kind']): string {
-  switch (kind) {
-    case 'added':
-      return t('pwf.templates.change.added.word');
-    case 'removed':
-      return t('pwf.templates.change.removed.word');
-    case 'changed':
-      return t('pwf.templates.change.changed.word');
-  }
-}
-
-function scopeWord(t: ReturnType<typeof useTranslation>['t'], scope: TemplateChange['scope']): string {
-  switch (scope) {
-    case 'template':
-      return t('pwf.templates.scope.template.word');
-    case 'phase':
-      return t('pwf.templates.scope.phase.word');
-    case 'step':
-      return t('pwf.templates.scope.step.word');
-    case 'task':
-      return t('pwf.templates.scope.task.word');
-  }
 }

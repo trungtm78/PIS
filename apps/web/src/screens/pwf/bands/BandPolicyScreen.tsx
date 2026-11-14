@@ -340,12 +340,14 @@ function Preview({ thresholds, unit, preview }: { thresholds: Thresholds | undef
   return (
     <div className="pwf-tpl-sub" data-testid="preview">
       <h3>{t('pwf.bands.preview.title')}</h3>
-      <p className="pwf-band-sentence" data-testid="owner-example">
-        <StatusPill tone="info" icon="ⓘ">
-          {t('pwf.bands.preview.owner.label')}
-        </StatusPill>{' '}
-        {sentenceText(t, OWNER_EXAMPLE, unit)}
-      </p>
+      {thresholds !== undefined && thresholds.green_days === OWNER_EXAMPLE.green_days && thresholds.yellow_days === OWNER_EXAMPLE.yellow_days && thresholds.red_days === OWNER_EXAMPLE.red_days ? null : (
+        <p className="pwf-band-sentence" data-testid="owner-example">
+          <StatusPill tone="info" icon="ⓘ">
+            {t('pwf.bands.preview.owner.label')}
+          </StatusPill>{' '}
+          {sentenceText(t, OWNER_EXAMPLE, unit)}
+        </p>
+      )}
       {thresholds === undefined ? (
         <p className="callout warning" role="status" data-testid="preview-blocked">
           <span aria-hidden="true">⚠ </span>

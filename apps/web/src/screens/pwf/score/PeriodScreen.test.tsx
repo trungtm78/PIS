@@ -49,7 +49,7 @@ describe('PWF-14: the period', () => {
     expect(within(facts).getByTestId('snapshot-hash').textContent).toBe(HASH);
     expect(within(facts).getByTestId('window').textContent).toBe('15/01/2027');
     expect(within(facts).getByTestId('open-responses').textContent).toBe('1');
-    expect(within(facts).getByText(text('pwfs.period.facts.policy.text', { policy: 'DEFAULT', version: 2 }))).toBeTruthy();
+    expect(within(facts).getByTestId('policy-basis').textContent).toBe(text('pwf6.score.policy.text', { version: text('pwf6.version.numbered.text', { version: 2 }) }));
     expect(screen.getByTestId('support-notice')).toBeTruthy();
   });
 

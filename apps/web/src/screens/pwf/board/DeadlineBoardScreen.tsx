@@ -7,11 +7,9 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import type { ScreenState } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { KpiStrip, KpiTile } from '../../../ui';
-import { FigureInfo } from '../components';
-import { PERMISSIONS, bandIcon, bandTone, holds, monthOf, stampText, todayInVietnam } from '../model';
+import { BandStrip, FigureInfo } from '../components';
+import { PERMISSIONS, holds, monthOf, stampText, todayInVietnam } from '../model';
 import type { Band, DeadlineCalendar, MilestoneList, Workload } from '../model';
-import { bandWord } from '../labels';
 import { BoardList } from './BoardList';
 import { CalendarView, MonthNav } from './CalendarView';
 import { FilterBar } from './FilterBar';
@@ -19,13 +17,12 @@ import { MilestonesView } from './MilestonesView';
 import { WorkloadView } from './WorkloadView';
 import { useBoard, useCalendar, useMilestones, usePersonOptions, useUnitOptions, useWorkload } from './hooks';
 import { viewWord } from './labels';
-import { NO_FILTERS, STALE_MINUTES, VIEWS, assigneesOf, filtersOf, isMonth, isStale, paramsOf, phasesOf, shiftMonth, viewOf } from './model';
+import { BAND_FILTERS, NO_FILTERS, STALE_MINUTES, VIEWS, assigneesOf, filtersOf, isMonth, isStale, paramsOf, phasesOf, shiftMonth, viewOf } from './model';
 import type { Filters, View } from './model';
 import '../pwf.css';
 import './board.css';
 
 const NEVER_EMPTY = (): boolean => false;
-const COUNT_BANDS: readonly Band[] = ['RED', 'YELLOW', 'GREEN', 'NONE', 'UNKNOWN'];
 
 /** PWF-07: the deadline board of the whole portfolio: official colours only, exact totals, month calendar, milestones of the next 30 days and the workload by person (display only). */
 export default function DeadlineBoardScreen({ route }: ScreenProps) {
@@ -71,7 +68,7 @@ function BoardContent({ route }: ScreenProps) {
             <p className="callout" data-testid="official-notice">
               {t('pwf.board.official.notice')}
             </p>
-            <Counts counts={last.counts_by_band} asOf={last.as_of} />
+            <Counts counts={last.counts_by_band} asOf={last.as_of} selected={BAND_FILTERS.find((one) => one === filters.band) ?? ''} onSelect={(band) => write({ ...filters, band: BAND_FILTERS.find((one) => one === band) ?? '' }, view, view === 'calendar' ? month : undefined)} />
             {last.counts_by_band.UNKNOWN > 0 ? (
               <p className="callout warning pwf-notice" data-testid="unknown-notice" role="status">
                 <span aria-hidden="true">⚠ </span>
@@ -126,24 +123,19 @@ function BoardContent({ route }: ScreenProps) {
   );
 }
 
-/** The exact counts of the board by colour, each with its "i": they come from the server, never from the rows on the screen. */
-function Counts({ counts, asOf }: { counts: Readonly<Record<Band, number>>; asOf: string }) {
+/** The exact counts of the board by colour as one strip, with one "i" for all five: they come from the server, never from the rows on the screen. A press on a colour filters the board to it. */
+function Counts({ counts, asOf, selected, onSelect }: { counts: Readonly<Record<Band, number>>; asOf: string; selected: Band | ''; onSelect: (band: Band | '') => void }) {
   const { t } = useTranslation();
   return (
-    <KpiStrip label={t('pwf.board.counts.title')}>
-      {COUNT_BANDS.map((band) => (
-        <div key={band} data-testid={`count-${band.toLowerCase()}`}>
-          <KpiTile
-            icon={bandIcon(band)}
-            label={bandWord(t, band)}
-            value={String(counts[band])}
-            unit={t('pwf.board.count.unit')}
-            tone={bandTone(band)}
-            sub={<FigureInfo name={bandWord(t, band)} formula={t('pwf.board.count.formula')} source={t('pwf.board.count.source')} asOf={asOf} version={t('pwf.board.count.version')} />}
-          />
-        </div>
-      ))}
-    </KpiStrip>
+    <BandStrip
+      counts={counts}
+      label={t('pwf.board.counts.title')}
+      unit={t('pwf.board.count.unit')}
+      selected={selected}
+      onSelect={onSelect}
+      selectable={BAND_FILTERS}
+      info={<FigureInfo name={t('pwf.board.counts.title')} formula={t('pwf.board.count.formula')} source={t('pwf.board.count.source')} asOf={asOf} version={t('pwf.board.count.version')} />}
+    />
   );
 }
 

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { SectionCard, StatusPill } from '../../../ui';
+import { RoleName, versionText } from '../codes';
 import { BandBadge } from '../components';
 import { statusWord } from '../labels';
 import { dayText, hasBand, taskLink } from '../model';
@@ -26,16 +27,22 @@ function Progress({ done, total, label }: { done: number; total: number; label: 
 function TaskLine({ task, projectId }: { task: WorkflowTask; projectId: string }) {
   const { t } = useTranslation();
   return (
-    <li data-task={task.task_code}>
-      <Link to={taskLink(task.id, projectId)}>
-        {task.task_code} · {task.name}
-      </Link>{' '}
-      <span className="pwf-hint">{task.excluded ? t('pwf.process.task.excluded.word') : statusWord(t, task.status)}</span> {hasBand(task) ? <BandBadge band={task.band} /> : null}{' '}
-      {(task.checklist_total ?? 0) > 0 ? (
-        <span className="pwf-hint" data-testid={`checklist-${task.task_code}`}>
-          {t('pwf.process.task.checklist.text', { done: task.checklist_done ?? 0, total: task.checklist_total ?? 0 })}
-        </span>
-      ) : null}
+    <li className="pwf-taskline" data-task={task.task_code}>
+      <span className="pwf-taskline__name">
+        <Link to={taskLink(task.id, projectId)}>{task.name}</Link>
+        <span className="pwf-code">{task.task_code}</span>
+      </span>
+      <span className="pwf-pills">
+        <StatusPill tone={task.status === 'DONE' ? 'success' : 'neutral'} icon={task.status === 'DONE' ? '✓' : '○'}>
+          {task.excluded ? t('pwf.process.task.excluded.word') : statusWord(t, task.status)}
+        </StatusPill>
+        {hasBand(task) && task.band.band !== 'NONE' ? <BandBadge band={task.band} /> : null}
+        {(task.checklist_total ?? 0) > 0 ? (
+          <span className="pwf-hint" data-testid={`checklist-${task.task_code}`}>
+            {t('pwf.process.task.checklist.text', { done: task.checklist_done ?? 0, total: task.checklist_total ?? 0 })}
+          </span>
+        ) : null}
+      </span>
     </li>
   );
 }
@@ -64,7 +71,7 @@ function Step({ group, projectId }: { group: StepGroup; projectId: string }) {
           <>
             <dt>{t('pwf.process.step.owner.label')}</dt>
             <dd>
-              <code>{step.responsible_role}</code>
+              <RoleName code={step.responsible_role} />
             </dd>
           </>
         )}
@@ -101,11 +108,11 @@ export function StepsPanel({ detail, projectId }: { detail: WorkflowDetail; proj
   const attention = attentionCount(detail);
   const selection = detail.selection ?? null;
   return (
-    <SectionCard title={t('pwf.process.steps.section.title')}>
+    <SectionCard title={t('pwf6.steps.section.title')}>
       <div data-testid="steps-panel">
         <p className="pwf-hint" data-testid="steps-summary">
           {t('pwf.process.steps.summary.text', { phases: groups.length, steps: (detail.steps ?? []).length, days: detail.standard_working_days ?? 0 })}
-          {selection === null ? null : ` ${t('pwf.process.steps.selection.text', { mode: selectionModeWord(t, selection.mode), version: selection.rule_version })}`}
+          {selection === null ? null : ` ${t('pwf6.steps.selection.text', { mode: selectionModeWord(t, selection.mode), version: versionText(t, selection.rule_version) })}`}
         </p>
         {selection !== null && selection.mode === 'OVERRIDE' ? (
           <p className="callout pwf-notice" role="status" data-testid="steps-override">
@@ -120,12 +127,13 @@ export function StepsPanel({ detail, projectId }: { detail: WorkflowDetail; proj
         <ol className="pwf-phases">
           {groups.map((phase) => (
             <li key={phase.code} data-phase={phase.code}>
-              <div className="pwf-step__head">
-                <h3>
-                  {phase.order}. {phase.name}
-                </h3>
-                <Progress done={phase.requiredDone} total={phase.requiredTotal} label={t('pwf.process.progress.required.label')} />
-              </div>
+              <details className="pwf-phase" open={detail.phases.find((one) => one.code === phase.code)?.open === true || groups.length === 1}>
+                <summary className="pwf-step__head">
+                  <h3>
+                    {phase.order}. {phase.name}
+                  </h3>
+                  <Progress done={phase.requiredDone} total={phase.requiredTotal} label={t('pwf.process.progress.required.label')} />
+                </summary>
               <ol className="pwf-steps">
                 {phase.steps.map((group) => (
                   <Step key={group.step.code} group={group} projectId={projectId} />
@@ -141,6 +149,7 @@ export function StepsPanel({ detail, projectId }: { detail: WorkflowDetail; proj
                   </ul>
                 </>
               )}
+              </details>
             </li>
           ))}
         </ol>

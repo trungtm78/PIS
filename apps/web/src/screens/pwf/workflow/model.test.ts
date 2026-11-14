@@ -8,24 +8,21 @@ import {
   assigneeOptions,
   boardColumns,
   calendarYears,
-  ganttBars,
-  ganttMarks,
-  ganttRange,
+  ganttAt,
+  ganttDayWidth,
+  ganttGroups,
+  ganttRows,
+  ganttScale,
   gateRows,
   healthOf,
   isStale,
-  milestoneGroups,
-  phaseNodeId,
-  phaseOfNode,
+  milestoneRows,
   stepperSteps,
-  taskIdOfNode,
-  taskNodeId,
   taskQuery,
-  taskSentence,
-  treeNodes,
   worstHealth,
   worstVariance,
 } from './model';
+import type { GanttRow } from './model';
 
 const t = (key: string, params?: Record<string, string | number>) => text(key, params);
 
@@ -61,35 +58,6 @@ describe('PWF-03 model: freshness', () => {
   });
 });
 
-describe('PWF-03 model: the tree', () => {
-  it('makes the phases the parents of their tasks, with counts, late counts and a sentence that names the colour and the critical path', () => {
-    const nodes = treeNodes(detail(), t);
-    const phase = nodes.find((node) => node.id === phaseNodeId('PREPARATION'));
-    expect(phase).toMatchObject({ label: 'Chuẩn bị đầu tư', count: 2, health: 'late', lateCount: 1, parentId: null });
-    expect(phase?.ariaLabel).toBe(text('pwf.flow.tree.phase.aria', { name: 'Chuẩn bị đầu tư', done: 1, total: 2, count: 2 }));
-    const task = nodes.find((node) => node.id === taskNodeId(TASKS[1]?.id ?? ''));
-    expect(task).toMatchObject({ label: 'T2 · Công việc 2', count: 1, health: 'late', parentId: phaseNodeId('PREPARATION') });
-    expect(task?.ariaLabel).toContain(text('pwf.flow.critical.aria'));
-    expect(task?.ariaLabel).toContain(text('pwf.band.red.word'));
-    expect(nodes).toHaveLength(7);
-  });
-
-  it('leaves out the tasks the schedule left out, and keeps a task of an unknown phase at the root', () => {
-    const base = detail();
-    const nodes = treeNodes(detail({ tasks: [...base.tasks, workflowTask(9, { excluded: true }), workflowTask(8, { phase_code: 'OTHER' })] }), t);
-    expect(nodes.some((node) => node.label.startsWith('T9'))).toBe(false);
-    expect(nodes.find((node) => node.label.startsWith('T8'))?.parentId).toBeNull();
-  });
-
-  it('says nothing about the colour of a finished task and tells a node id apart', () => {
-    expect(taskSentence(t, workflowTask(1, { status: 'DONE' }))).not.toContain(text('pwf.band.green.word'));
-    expect(taskIdOfNode('task:abc')).toBe('abc');
-    expect(taskIdOfNode('phase:X')).toBeUndefined();
-    expect(phaseOfNode('phase:X')).toBe('X');
-    expect(phaseOfNode('task:abc')).toBeUndefined();
-  });
-});
-
 describe('PWF-03 model: the stepper', () => {
   it('puts the phases before the open one as done, the open one as current (late when a task of it is red) and the rest as upcoming', () => {
     const steps = stepperSteps(detail(), t);
@@ -109,31 +77,62 @@ describe('PWF-03 model: the stepper', () => {
 });
 
 describe('PWF-03 model: the Gantt', () => {
-  it('draws the current schedule against the first baseline, marks the critical path in words and keeps a task with no date as a label', () => {
-    const bars = ganttBars(schedule(), detail().tasks, t);
-    expect(bars.map((bar) => bar.code)).toEqual(['T1', 'T2', 'T3', 'T4', 'T5']);
-    const second = bars[1];
-    expect(second?.label).toBe(`T2 (${text('pwf.flow.gantt.critical.mark')})`);
+  it('draws the current schedule against the first baseline, names each task, marks the critical path and keeps a task with no date as a row', () => {
+    const rows = ganttRows(schedule(), detail().tasks);
+    expect(rows.map((row) => row.code)).toEqual(['T1', 'T2', 'T3', 'T4', 'T5']);
+    const second = rows[1];
+    expect(second).toMatchObject({ name: 'Việc T2', critical: true, done: false, variance: 2 });
     expect(second?.actual).toEqual({ from: '2026-12-06', to: '2026-12-10' });
-    expect(second?.planned).toEqual({ from: '2026-12-06', to: '2026-12-08' });
-    const last = bars[4];
-    expect(last).toMatchObject({ planned: null, actual: null });
-    expect(last?.label).toContain(text('pwf.flow.gantt.noDate.mark'));
+    expect(second?.baseline).toEqual({ from: '2026-12-06', to: '2026-12-08' });
+    expect(rows[0]?.done).toBe(true);
+    expect(rows[3]?.milestone).toBe(true);
+    expect(rows[4]).toMatchObject({ baseline: null, actual: null });
   });
 
   it('starts the baseline bar at the baseline finish when it is before the scheduled start, and has none without a baseline', () => {
-    const early = ganttBars(schedule(), [workflowTask(1, { task_code: 'T1', baseline_finish: '2026-11-20' })], t)[0];
-    expect(early?.planned).toEqual({ from: '2026-11-20', to: '2026-11-20' });
-    const none = ganttBars(schedule(), [workflowTask(1, { task_code: 'T1', baseline_finish: null })], t)[0];
-    expect(none?.planned).toBeNull();
+    const early = ganttRows(schedule(), [workflowTask(1, { task_code: 'T1', baseline_finish: '2026-11-20' })])[0];
+    expect(early?.baseline).toEqual({ from: '2026-11-20', to: '2026-11-20' });
+    const none = ganttRows(schedule(), [workflowTask(1, { task_code: 'T1', baseline_finish: null })])[0];
+    expect(none?.baseline).toBeNull();
   });
 
-  it('leaves out the tasks that pass through, finds the window of the strip and the days to mark', () => {
+  it('leaves out the tasks that pass through, and lays the axis over whole months with the Mondays of the window', () => {
     const pass = schedule({ tasks: [...schedule().tasks, { ...schedule().tasks[0], task_code: 'T6', state: 'PASS_THROUGH' } as never] });
-    expect(ganttBars(pass, [], t).map((bar) => bar.code)).not.toContain('T6');
-    expect(ganttRange(schedule())).toEqual({ from: '2026-12-01', to: '2027-02-12' });
-    expect(ganttRange(schedule({ tasks: [schedule().tasks[4] as never] }))).toBeNull();
-    expect(ganttMarks(schedule())).toEqual({ changes: ['2026-12-05'], deadlines: ['2026-12-10', '2027-02-12'] });
+    expect(ganttRows(pass, []).map((row) => row.code)).not.toContain('T6');
+    const scale = ganttScale(ganttRows(schedule(), detail().tasks));
+    expect(scale).toMatchObject({ from: '2026-12-01', to: '2027-02-28', days: 90 });
+    expect(scale?.months.map((month) => [month.key, month.offset, month.days])).toEqual([
+      ['2026-12', 0, 31],
+      ['2027-01', 31, 31],
+      ['2027-02', 62, 28],
+    ]);
+    expect(scale?.weeks[0]).toEqual({ day: '2026-12-07', offset: 6 });
+    expect(ganttScale(ganttRows(schedule({ tasks: [schedule().tasks[4] as never] }), []))).toBeNull();
+  });
+
+  it('places a day on the axis as a share of its width, the end of a day at its right edge, and nothing outside the window', () => {
+    const scale = ganttScale(ganttRows(schedule(), detail().tasks));
+    if (scale === null) throw new Error('the schedule has dates');
+    expect(ganttAt(scale, '2026-12-01')).toBe(0);
+    expect(ganttAt(scale, '2027-02-28', true)).toBe(100);
+    expect(ganttAt(scale, '2026-12-10')).toBeCloseTo(10, 5);
+    expect(ganttAt(scale, '2026-11-30')).toBeNull();
+    expect(ganttAt(scale, '2027-03-01')).toBeNull();
+    // A short schedule gets wide days, a schedule of years narrow ones, both within limits.
+    expect(ganttDayWidth(30)).toBe(14);
+    expect(ganttDayWidth(90)).toBeCloseTo(10.7, 1);
+    expect(ganttDayWidth(2000)).toBe(3);
+  });
+
+  it('groups the rows under their phases in order, a task of an unknown phase last under its code', () => {
+    const rows = [...ganttRows(schedule(), detail().tasks), { ...(ganttRows(schedule(), detail().tasks)[0] as GanttRow), code: 'T8', phase: 'OTHER' }];
+    const groups = ganttGroups(rows, detail().phases);
+    expect(groups.map((group) => [group.code, group.rows.map((row) => row.code)])).toEqual([
+      ['PREPARATION', ['T1', 'T2']],
+      ['EXECUTION', ['T3', 'T4', 'T5']],
+      ['OTHER', ['T8']],
+    ]);
+    expect(groups[0]?.name).toBe('Chuẩn bị đầu tư');
   });
 
   it('finds the worst delay against the baseline, and none when no task has one', () => {
@@ -149,12 +148,19 @@ describe('PWF-03 model: the Gantt', () => {
 });
 
 describe('PWF-03 model: milestones', () => {
-  it('groups the milestones that have a date by day, in order, each with the word of its colour', () => {
+  it('lists the milestones of the plan by their day, one without a day last, and leaves out the ones the schedule left out', () => {
     const base = detail();
-    const groups = milestoneGroups(detail({ tasks: [...base.tasks, workflowTask(6, { kind: 'MILESTONE', planned_finish: '2026-12-20', status: 'DONE' }), workflowTask(7, { kind: 'MILESTONE', excluded: true, planned_finish: '2026-12-21' }), workflowTask(8, { kind: 'MILESTONE', planned_finish: null })] }), t);
-    expect(groups.map((group) => group.date)).toEqual(['2026-12-20', '2027-02-12']);
-    expect(groups[1]?.entries[0]).toMatchObject({ badge: text('pwf.band.green.word'), tone: 'success' });
-    expect(groups[0]?.entries[0]?.badge).toBeUndefined();
+    const rows = milestoneRows(
+      detail({
+        tasks: [...base.tasks, workflowTask(6, { kind: 'MILESTONE', planned_finish: '2026-12-20', status: 'DONE' }), workflowTask(7, { kind: 'MILESTONE', excluded: true, planned_finish: '2026-12-21' }), workflowTask(8, { kind: 'MILESTONE', planned_finish: null })],
+      }),
+    );
+    expect(rows.map((row) => [row.code, row.day])).toEqual([
+      ['T6', '2026-12-20'],
+      ['T4', '2027-02-12'],
+      ['T8', null],
+    ]);
+    expect(rows[1]).toMatchObject({ name: 'Mốc khởi công', phase: 'EXECUTION' });
   });
 });
 

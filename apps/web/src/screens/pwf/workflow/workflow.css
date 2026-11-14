@@ -1,18 +1,34 @@
+/* The board: one column for each phase, all of one height, scrolling sideways in its own region when the phases do not fit (the page never scrolls sideways). */
 .pwf-board {
   display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(232px, 1fr);
   gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  align-items: start;
+  align-items: stretch;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.pwf-board:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
 }
 .pwf-board__column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-height: 560px;
   background: var(--mv-color-surface2);
   border: 1px solid var(--mv-color-border);
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 12px;
 }
 .pwf-board__column h3 {
   margin: 0 0 4px;
   font-size: 14px;
+}
+.pwf-board__column ul {
+  overflow-y: auto;
+  flex: 1 1 auto;
 }
 .pwf-board__column ul,
 .pwf-gates {
@@ -21,22 +37,334 @@
   padding: 0;
   display: grid;
   gap: 8px;
+  align-content: start;
 }
 .pwf-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px;
+  gap: 6px;
+  padding: 10px 12px;
   background: var(--mv-color-surface);
   border: 1px solid var(--mv-color-border);
-  border-radius: 6px;
+  border-left: 3px solid var(--mv-color-border);
+  border-radius: 8px;
+}
+.pwf-card[data-band='RED'] {
+  border-left-color: var(--mv-color-danger);
+}
+.pwf-card[data-band='YELLOW'] {
+  border-left-color: var(--mv-color-warning);
+}
+.pwf-card[data-band='GREEN'] {
+  border-left-color: var(--mv-color-success);
+}
+.pwf-card__title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-weight: 600;
+}
+.pwf-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 8px;
 }
 .pwf-card__due,
 .pwf-card__who {
   font-size: 12px;
   color: var(--mv-color-text-secondary);
 }
+.pwf-gate {
+  border: 1px solid var(--mv-color-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.pwf-gate__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+.pwf-gate summary {
+  cursor: pointer;
+  min-height: 24px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--mv-color-text-secondary);
+}
 .pwf-gate ul {
   margin: 6px 0 0;
   padding-left: 18px;
+}
+.pwf-path {
+  margin-top: 12px;
+  font-size: 13px;
+}
+.pwf-path__list {
+  display: inline;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pwf-path__list li {
+  display: inline;
+}
+.pwf-path__list li + li::before {
+  content: ' → ';
+  color: var(--mv-color-text-secondary);
+}
+
+/* The Gantt: labels fixed on the left, a time axis of months and weeks, bars placed by day. */
+.pwf-gantt__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-gantt__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pwf-gantt__swatch {
+  display: inline-block;
+  width: 24px;
+  height: 10px;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+.pwf-gantt__swatch--bar {
+  background: var(--mv-color-primary);
+}
+.pwf-gantt__swatch--done {
+  background: var(--mv-color-neutral);
+}
+.pwf-gantt__swatch--baseline {
+  border: 2px dashed var(--mv-color-chart-plan);
+}
+.pwf-gantt__swatch--late {
+  background: repeating-linear-gradient(135deg, var(--mv-color-danger) 0 3px, var(--mv-color-danger-soft) 3px 6px);
+  border: 1px solid var(--mv-color-danger);
+}
+.pwf-gantt__swatch--critical {
+  background: var(--mv-color-primary);
+  outline: 2px solid var(--mv-color-ink);
+  outline-offset: 1px;
+  width: 20px;
+  margin: 0 2px;
+}
+.pwf-gantt__swatch--milestone {
+  width: 10px;
+  height: 10px;
+  border-radius: 0;
+  background: var(--mv-color-ink);
+  transform: rotate(45deg);
+  margin: 0 4px;
+}
+.pwf-gantt__swatch--today {
+  width: 2px;
+  height: 14px;
+  border-radius: 0;
+  background: var(--mv-color-danger);
+  margin: 0 6px;
+}
+.pwf-gantt__scroll {
+  overflow: auto;
+  max-width: 100%;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 8px;
+}
+.pwf-gantt__scroll:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}
+.pwf-gantt__grid {
+  display: grid;
+  grid-template-columns: minmax(200px, 280px) max-content;
+  width: max-content;
+  min-width: 100%;
+}
+.pwf-gantt__corner,
+.pwf-gantt__label {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--mv-color-surface);
+  border-right: 1px solid var(--mv-color-border);
+  border-bottom: 1px solid var(--mv-color-border);
+  padding: 6px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.pwf-gantt__corner {
+  background: var(--mv-color-table-head);
+  color: var(--mv-color-menu-text);
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 3;
+}
+.pwf-gantt__name {
+  font-size: 13px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pwf-gantt__axis {
+  background: var(--mv-color-table-head);
+  color: var(--mv-color-menu-text);
+  font-size: 12px;
+}
+.pwf-gantt__months {
+  display: flex;
+  height: 26px;
+}
+.pwf-gantt__month {
+  box-sizing: border-box;
+  padding: 4px 6px;
+  border-left: 1px solid var(--mv-color-table-head-group);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.pwf-gantt__weeks {
+  position: relative;
+  height: 22px;
+  background: var(--mv-color-surface2);
+  color: var(--mv-color-text-secondary);
+  border-bottom: 1px solid var(--mv-color-border);
+}
+.pwf-gantt__week {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  padding: 3px 0 0 3px;
+  border-left: 1px solid var(--mv-color-border);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.pwf-gantt__todaymark {
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--mv-color-danger);
+  color: var(--mv-color-surface);
+  font-weight: 700;
+  white-space: nowrap;
+  z-index: 1;
+}
+.pwf-gantt__phase {
+  background: var(--mv-color-surface2);
+  border-bottom: 1px solid var(--mv-color-border);
+  min-height: 30px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-gantt__phase.pwf-gantt__label {
+  background: var(--mv-color-surface2);
+}
+.pwf-gantt__track {
+  position: relative;
+  min-height: 44px;
+  border-bottom: 1px solid var(--mv-color-border);
+}
+.pwf-gantt__gridline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--mv-color-border);
+}
+.pwf-gantt__today {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--mv-color-danger);
+  opacity: 0.7;
+}
+.pwf-gantt__bar,
+.pwf-gantt__late,
+.pwf-gantt__baseline {
+  position: absolute;
+  box-sizing: border-box;
+  border-radius: 4px;
+}
+.pwf-gantt__baseline {
+  top: 8px;
+  height: 28px;
+  min-width: 4px;
+  border: 2px dashed var(--mv-color-chart-plan);
+}
+.pwf-gantt__bar {
+  top: 14px;
+  height: 16px;
+  min-width: 4px;
+  background: var(--mv-color-primary);
+}
+.pwf-gantt__bar[data-done='true'] {
+  background: var(--mv-color-neutral);
+}
+.pwf-gantt__bar[data-critical='true'] {
+  outline: 2px solid var(--mv-color-ink);
+  outline-offset: 1px;
+}
+.pwf-gantt__late {
+  top: 14px;
+  height: 16px;
+  min-width: 3px;
+  background: repeating-linear-gradient(135deg, var(--mv-color-danger) 0 3px, var(--mv-color-danger-soft) 3px 6px);
+  border: 1px solid var(--mv-color-danger);
+}
+.pwf-gantt__milestone {
+  position: absolute;
+  top: 15px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  background: var(--mv-color-ink);
+  transform: rotate(45deg);
+}
+.pwf-gantt__variance {
+  position: absolute;
+  top: 12px;
+  margin-left: 8px;
+  padding: 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mv-color-danger);
+  background: var(--mv-color-surface);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.pwf-gantt__nodate {
+  position: absolute;
+  top: 12px;
+  left: 8px;
+  font-size: 12px;
+  color: var(--mv-color-warning);
+}
+.pwf-gantt__table {
+  margin-top: 12px;
+}
+.pwf-gantt__table summary {
+  cursor: pointer;
+  min-height: 24px;
+  color: var(--mv-color-primary);
+  font-weight: 600;
+  font-size: 13px;
 }

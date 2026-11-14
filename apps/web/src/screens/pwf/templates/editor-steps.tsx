@@ -51,8 +51,8 @@ export function LegalBasisEditor({ at, value, onChange, documents, problems, sho
   const patch = (index: number, change: Partial<LegalBasisInput>): void => onChange(value.map((one, position) => (position === index ? { ...one, ...change } : one)));
   const common = { problems, show, disabled };
   return (
-    <fieldset className="pwf-tpl-sub">
-      <legend>{t('pwf.templates.legal.legend.text', { count: value.length, max: MAX_LEGAL_BASIS })}</legend>
+    <details className="pwf-tpl-sub pwf-tpl-fold" data-testid={`legal-fold-${at}`} open={show && [...problems.keys()].some((path) => path.startsWith(`${at}.legal_basis`))}>
+      <summary>{t('pwf.templates.legal.legend.text', { count: value.length, max: MAX_LEGAL_BASIS })}</summary>
       <p className="adm-kit-sub">{t('pwf.templates.legal.hint.text')}</p>
       <datalist id={listId}>
         {documents.map((code) => (
@@ -108,7 +108,7 @@ export function LegalBasisEditor({ at, value, onChange, documents, problems, sho
       <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={disabled || value.length >= MAX_LEGAL_BASIS} data-action={`add-basis-${at}`} onClick={() => onChange([...value, { document: '', verification: 'UNVERIFIED' }])}>
         {t('pwf.templates.legal.add.action')}
       </button>
-    </fieldset>
+    </details>
   );
 }
 
@@ -128,7 +128,7 @@ export function StepsEditor({ template, onChange, problems, show, disabled }: St
   const { t } = useTranslation();
   const documents = useLegalDocumentCodes();
   const steps = stepsOf(template);
-  const phaseOptions = template.phases.map((phase) => ({ value: phase.code, label: `${phase.code} · ${phase.name}` }));
+  const phaseOptions = template.phases.map((phase) => ({ value: phase.code, label: phase.name === '' ? phase.code : phase.name }));
   const common = { problems, show, disabled };
   return (
     <SectionCard title={t('pwf.templates.steps.section.title')} status={<span data-testid="steps-count">{t('pwf.templates.limit.text', { count: steps.length, max: MAX_STEPS })}</span>}>
@@ -148,7 +148,9 @@ export function StepsEditor({ template, onChange, problems, show, disabled }: St
           <p className="adm-kit-sub">{t('pwf.templates.steps.hint.text')}</p>
           {groupSteps(template).map((group) => (
             <section key={group.phase?.code ?? 'none'} data-step-phase={group.phase?.code ?? ''} aria-label={group.phase === null ? t('pwf.templates.steps.orphans.text') : `${group.phase.code} · ${group.phase.name}`}>
-              <h3>{group.phase === null ? t('pwf.templates.steps.orphans.text') : `${group.phase.code} · ${group.phase.name}`}</h3>
+              <h3>
+                {group.phase === null ? t('pwf.templates.steps.orphans.text') : group.phase.name === '' ? group.phase.code : group.phase.name} {group.phase === null || group.phase.name === '' ? null : <span className="pwf-code">{group.phase.code}</span>}
+              </h3>
               <ol className="pwf-tpl-rows">
                 {group.steps.map(({ index, step, tasks }) => {
                   const at = `steps[${index}]`;

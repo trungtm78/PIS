@@ -59,7 +59,9 @@ describe('PWF-08: reading the policy', () => {
   it('says the ladder as the owner does, in the unit of the source, and keeps the owner example beside it', async () => {
     open();
     expect((await ready()).textContent).toBe('Còn 5 ngày làm việc: xanh, còn 2 ngày làm việc: vàng, dưới 1 ngày làm việc: đỏ');
-    expect(screen.getByTestId('owner-example').textContent).toContain('Còn 5 ngày làm việc: xanh, còn 2 ngày làm việc: vàng, dưới 1 ngày làm việc: đỏ');
+    // The owner example is said once: when the ladder of the form is the example itself, the sentence of the form says it.
+    expect(screen.queryByTestId('owner-example')).toBeNull();
+    expect(screen.getByTestId('sentence').textContent).toContain('Còn 5 ngày làm việc: xanh, còn 2 ngày làm việc: vàng, dưới 1 ngày làm việc: đỏ');
   });
 
   it('shows what the server says each number of days left turns into, with the word and the glyph and the unit', async () => {

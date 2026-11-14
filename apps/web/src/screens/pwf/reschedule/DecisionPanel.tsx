@@ -52,7 +52,7 @@ export function DecisionPanel({ held, pending, onDecide }: DecisionPanelProps) {
           )}
         </div>
         <div className="pwf-actions">
-          <button type="button" className="ui-button" data-testid="approve" disabled={pending} onClick={() => send('APPROVE')}>
+          <button type="button" className="ui-button ui-button--primary" data-testid="approve" disabled={pending} onClick={() => send('APPROVE')}>
             {t('pwf.resched.decision.approve.action')}
           </button>
           <button type="button" className="ui-button ui-button--outline" data-testid="reject" disabled={pending} onClick={() => send('REJECT')}>

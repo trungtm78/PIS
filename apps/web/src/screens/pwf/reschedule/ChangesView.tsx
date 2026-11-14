@@ -1,4 +1,5 @@
 import { useTranslation } from '../../../i18n';
+import { ScrollRegion } from '../../scroll-region';
 import { SectionCard, StatusPill } from '../../../ui';
 import { CalendarMissingCell, CalendarMissingNote, FigureInfo } from '../components';
 import { dayText, missingYears } from '../model';
@@ -33,6 +34,13 @@ export interface ChangesViewProps {
 }
 
 /** The before and after of a proposal in working days: what moves and by how much, the float and the critical path, and the variance against the FIRST baseline, which a reschedule never changes (BR-PWF-07, BR-PWF-08). */
+/** A shift in working days in words: "5 days earlier", "3 days later", "unchanged" (a signed number alone does not say which way is good). */
+function shiftWords(t: ReturnType<typeof useTranslation>['t'], days: number | null): string {
+  if (days === null) return '';
+  if (days === 0) return t('pwf6.resched.shift.none');
+  return days < 0 ? t('pwf6.resched.shift.earlier', { days: Math.abs(days) }) : t('pwf6.resched.shift.later', { days });
+}
+
 export function ChangesView({ preview, before }: ChangesViewProps) {
   const { t } = useTranslation();
   const rows = changeRows(preview, before);
@@ -66,8 +74,10 @@ export function ChangesView({ preview, before }: ChangesViewProps) {
             {t('pwf.resched.result.empty.notice')}
           </p>
         ) : (
-          <table className="pwf-table">
-            <caption>{t('pwf.resched.result.table.caption')}</caption>
+          <div className="pwf-free">
+          <ScrollRegion label={t('pwf.resched.result.table.caption')}>
+          <table className="pwf-outline pwf-outline--flat pwf-resched">
+            <caption className="ui-sr-only">{t('pwf.resched.result.table.caption')}</caption>
             <thead>
               <tr>
                 <th scope="col">{t('pwf.resched.col.task')}</th>
@@ -88,21 +98,26 @@ export function ChangesView({ preview, before }: ChangesViewProps) {
             <tbody>
               {rows.map((row) => (
                 <tr key={row.code} data-testid={`change-${row.code}`}>
-                  <td>
-                    <code>{row.code}</code> {row.name}
-                  </td>
+                  <th scope="row">
+                    <span className="pwf-cellstack">
+                      <span>{row.name}</span>
+                      <span className="pwf-code">{row.code}</span>
+                    </span>
+                  </th>
                   <td>{range(row.beforeStart, row.beforeFinish)}</td>
                   <td>{row.calendarMissingYear === null ? range(row.afterStart, row.afterFinish) : <CalendarMissingCell year={row.calendarMissingYear} />}</td>
-                  <td>{t('pwf.resched.col.shiftPair.text', { start: shiftText(row.startShift), finish: shiftText(row.finishShift) })}</td>
+                  <td>{row.startShift === row.finishShift ? shiftWords(t, row.finishShift) : t('pwf6.resched.shift.pair', { start: shiftWords(t, row.startShift), finish: shiftWords(t, row.finishShift) })}</td>
                   <td>{shiftText(row.floatChange)}</td>
                   <td>
                     <CriticalMark row={row} />
                   </td>
-                  <td>{row.baselineFinishVariance === null ? '–' : t('pwf.resched.col.variance.text', { days: shiftText(row.baselineFinishVariance) })}</td>
+                  <td>{row.baselineFinishVariance === null ? '' : shiftWords(t, row.baselineFinishVariance)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </ScrollRegion>
+          </div>
         )}
       </div>
     </SectionCard>

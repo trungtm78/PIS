@@ -127,7 +127,7 @@ export function ResponseForm({ onSend, onReload }: ResponseFormProps) {
       <Field label={t('pwfs.response.body.label')} name="response-body" value={body} multiline onChange={setBody} problem={found} show={attempted} limits={{ min: RESPONSE_MIN, max: RESPONSE_MAX }} hint={t('pwfs.response.body.hint', { min: RESPONSE_MIN })} />
       {problem === undefined ? null : <ScoreProblemBanner problem={problem} onReload={onReload} />}
       <p className="pwfs-actions">
-        <button type="submit" className="ui-button" disabled={busy} data-action="send-response">
+        <button type="submit" className="ui-button ui-button--primary" disabled={busy} data-action="send-response">
           {t('pwfs.response.send.action')}
         </button>
       </p>
@@ -172,7 +172,7 @@ export function AdjustmentRequestForm({ limits, onSend, onReload }: AdjustmentFo
       <Field label={t('pwfs.adjustment.evidence.label')} name="evidence" value={form.evidenceRef} onChange={(evidenceRef) => set({ evidenceRef })} problem={problems.evidenceRef} show={attempted} limits={{ max: EVIDENCE_REF_MAX }} />
       {problem === undefined ? null : <ScoreProblemBanner problem={problem} onReload={onReload} />}
       <p className="pwfs-actions">
-        <button type="submit" className="ui-button" disabled={busy} data-action="send-adjustment">
+        <button type="submit" className="ui-button ui-button--primary" disabled={busy} data-action="send-adjustment">
           {t('pwfs.adjustment.send.action')}
         </button>
       </p>
@@ -208,7 +208,7 @@ export function DecisionForm({ adjustment, onDecide, onReload }: DecisionFormPro
       <Field label={t('pwfs.decision.note.label')} name={`note-${adjustment.id}`} value={note} onChange={setNote} problem={shown} show={shown !== undefined} limits={{ min: DECISION_NOTE_MIN, max: DECISION_NOTE_MAX }} hint={t('pwfs.decision.note.hint')} />
       {problem === undefined ? null : <ScoreProblemBanner problem={problem} onReload={isScoreConflict(problem) ? onReload : undefined} />}
       <p className="pwfs-actions">
-        <button type="button" className="ui-button" disabled={busy} data-action={`approve-${adjustment.id}`} onClick={() => decide('APPROVE')}>
+        <button type="button" className="ui-button ui-button--primary" disabled={busy} data-action={`approve-${adjustment.id}`} onClick={() => decide('APPROVE')}>
           {t('pwfs.decision.approve.action')}
         </button>
         <button type="button" className="ui-button ui-button--outline" disabled={busy} data-action={`reject-${adjustment.id}`} onClick={() => decide('REJECT')}>
@@ -265,7 +265,7 @@ export function HandleResponseForm({ response, limits, onHandle, onReload }: Han
       ) : null}
       {problem === undefined ? null : <ScoreProblemBanner problem={problem} onReload={isScoreConflict(problem) ? onReload : undefined} />}
       <p className="pwfs-actions">
-        <button type="submit" className="ui-button" disabled={busy} data-action={`handle-${response.id}`}>
+        <button type="submit" className="ui-button ui-button--primary" disabled={busy} data-action={`handle-${response.id}`}>
           {t('pwfs.handle.send.action')}
         </button>
       </p>

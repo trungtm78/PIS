@@ -1,11 +1,11 @@
 import type { Translator } from '../../../i18n';
-import type { DayStripBar, ProcessTreeNode, StepperStep, TimelineGroup } from '../../../ui';
-import { bandWord, gateWord, kindWord, statusWord } from '../labels';
-import { bandTone, calendarMissing, hasBand, missingYears } from '../model';
+import type { StepperStep } from '../../../ui';
+import { gateWord } from '../labels';
+import { calendarMissing, missingYears } from '../model';
 import type { Band, GateAssessment, GateTarget, Schedule, TaskPage, WorkflowDetail, WorkflowPhase, WorkflowTask } from '../model';
 
 type T = Translator['t'];
-type Health = NonNullable<ProcessTreeNode['health']>;
+export type Health = 'late' | 'attention' | 'hold' | 'ok' | 'none';
 
 /** What the server computed is read again when it is older than this by the time the screen read it (the figures of a cache that stopped refreshing are not today's). */
 export const STALE_AFTER_MS = 15 * 60_000;
@@ -49,53 +49,6 @@ const isTracked = (task: WorkflowTask): boolean => !task.excluded;
 
 const orderedPhases = (detail: WorkflowDetail): WorkflowPhase[] => [...detail.phases].sort((a, b) => a.order - b.order);
 
-export const phaseNodeId = (code: string): string => `phase:${code}`;
-export const taskNodeId = (id: string): string => `task:${id}`;
-
-/** The id of a task node as the task id, or undefined for a phase node. */
-export const taskIdOfNode = (nodeId: string): string | undefined => (nodeId.startsWith('task:') ? nodeId.slice('task:'.length) : undefined);
-/** The code of a phase node, or undefined for a task node. */
-export const phaseOfNode = (nodeId: string): string | undefined => (nodeId.startsWith('phase:') ? nodeId.slice('phase:'.length) : undefined);
-
-/** The tasks of the workflow as the tree of the phases: a phase holds its tasks (tasks left out of the schedule are not in it). The sentence a screen reader hears names the status, the colour and the critical path. */
-export function treeNodes(detail: WorkflowDetail, t: T): ProcessTreeNode[] {
-  const phases = orderedPhases(detail);
-  const known = new Set(phases.map((phase) => phase.code));
-  const tasks = detail.tasks.filter(isTracked);
-  const phaseNodes = phases.map((phase): ProcessTreeNode => {
-    const own = tasks.filter((task) => task.phase_code === phase.code);
-    return {
-      id: phaseNodeId(phase.code),
-      label: phase.name,
-      count: own.length,
-      health: worstHealth(own),
-      lateCount: own.filter((task) => healthOf(task) === 'late').length,
-      heldCount: own.filter((task) => task.status === 'ON_HOLD').length,
-      parentId: null,
-      ariaLabel: t('pwf.flow.tree.phase.aria', { name: phase.name, done: phase.required_done, total: phase.required_total, count: own.length }),
-    };
-  });
-  const taskNodes = tasks.map(
-    (task): ProcessTreeNode => ({
-      id: taskNodeId(task.id),
-      label: `${task.task_code} · ${task.name}`,
-      count: 1,
-      health: healthOf(task),
-      parentId: known.has(task.phase_code) ? phaseNodeId(task.phase_code) : null,
-      ariaLabel: taskSentence(t, task),
-    }),
-  );
-  return [...phaseNodes, ...taskNodes];
-}
-
-/** What is said about a task in one sentence: code and name, the kind, the status, the colour and whether it is on the critical path. */
-export function taskSentence(t: T, task: WorkflowTask): string {
-  const parts = [`${task.task_code} ${task.name}`, kindWord(t, task.kind), statusWord(t, task.status)];
-  if (hasBand(task)) parts.push(bandWord(t, task.band.band));
-  if (task.critical) parts.push(t('pwf.flow.critical.aria'));
-  return parts.join(', ');
-}
-
 // ---- the stepper of the phases ------------------------------------------------------------------------------------------------------------------------------------------------
 
 /** The phases in order: before the open phase they are done, the open phase is current (late when one of its tasks is red, on hold when the workflow is), after it they are still to come. */
@@ -114,38 +67,103 @@ export function stepperSteps(detail: WorkflowDetail, t: T): StepperStep[] {
   });
 }
 
-// ---- the Gantt: bars of the current schedule against the first baseline ---------------------------------------------------------------------------------------------
+// ---- the Gantt: bars of the current schedule against the first baseline, on a time axis --------------------------------------------------------------------------
 
-/**
- * One bar for each task of the schedule that has dates. The solid bar is the current schedule; the dashed bar is the first baseline: the contract of the list gives the baseline finish of a task (its baseline start is
- * in the task detail only), so the dashed bar runs from the scheduled start to the baseline finish and the overrun past it is the delay against the baseline. The critical path is said in the label, not by colour.
- */
-export function ganttBars(schedule: Schedule, tasks: readonly WorkflowTask[], t: T): DayStripBar[] {
+export interface GanttSpan {
+  from: string;
+  to: string;
+}
+
+export interface GanttRow {
+  code: string;
+  name: string;
+  phase: string;
+  milestone: boolean;
+  critical: boolean;
+  done: boolean;
+  /** The current schedule of the task; null when it has no dates (its calendar is missing). */
+  actual: GanttSpan | null;
+  /**
+   * The first baseline: the list gives the baseline finish of a task (its baseline start is in the task detail only), so the dashed bar runs from the scheduled start to the baseline finish and what the solid bar
+   * runs past it is the delay against the baseline.
+   */
+  baseline: GanttSpan | null;
+  /** Days the finish is later than the baseline (positive is late). */
+  variance: number | null;
+}
+
+/** One row for each task of the schedule that is worked on (a task passed through is left out), in the order of the schedule. */
+export function ganttRows(schedule: Schedule, tasks: readonly WorkflowTask[]): GanttRow[] {
   const baseline = new Map(tasks.map((task) => [task.task_code, task.baseline_finish]));
   return schedule.tasks
     .filter((task) => task.state !== 'PASS_THROUGH')
-    .map((task): DayStripBar => {
-      const mark = task.critical ? ` (${t('pwf.flow.gantt.critical.mark')})` : '';
-      if (task.start === null || task.finish === null) return { code: task.task_code, label: `${task.task_code}${mark} (${t('pwf.flow.gantt.noDate.mark')})`, planned: null, actual: null };
+    .map((task): GanttRow => {
+      const common = { code: task.task_code, name: task.name, phase: task.phase_code, milestone: task.kind === 'MILESTONE', critical: task.critical, done: task.state === 'COMPLETED', variance: task.finish_variance_days };
+      if (task.start === null || task.finish === null) return { ...common, actual: null, baseline: null };
       const baselineFinish = baseline.get(task.task_code) ?? null;
-      const planned = baselineFinish === null ? null : { from: baselineFinish < task.start ? baselineFinish : task.start, to: baselineFinish };
-      return { code: task.task_code, label: `${task.task_code}${mark}`, planned, actual: { from: task.start, to: task.finish } };
+      return { ...common, actual: { from: task.start, to: task.finish }, baseline: baselineFinish === null ? null : { from: baselineFinish < task.start ? baselineFinish : task.start, to: baselineFinish } };
     });
 }
 
-/** The window the calendar strip covers: from the first scheduled day to the last, or null when no task has a date (the strip then says so). */
-export function ganttRange(schedule: Schedule): { from: string; to: string } | null {
-  const days = schedule.tasks.flatMap((task) => [task.start, task.finish].filter((day): day is string => day !== null));
-  if (days.length === 0) return null;
-  const sorted = [...days].sort();
-  return { from: sorted[0] as string, to: sorted[sorted.length - 1] as string };
+const utc = (day: string): number => Date.parse(`${day}T00:00:00Z`);
+const iso = (at: number): string => new Date(at).toISOString().slice(0, 10);
+const DAY_MS = 86_400_000;
+
+export interface GanttScale {
+  /** The first day of the month the earliest bar starts in. */
+  from: string;
+  /** The last day of the month the latest bar ends in. */
+  to: string;
+  days: number;
+  months: { key: string; month: number; year: number; offset: number; days: number }[];
+  /** The Mondays of the window, as the offset of each in days from `from`. */
+  weeks: { day: string; offset: number }[];
 }
 
-/** The days a completed task finished and the days an open task falls due: the marks of the strip. */
-export function ganttMarks(schedule: Schedule): { changes: string[]; deadlines: string[] } {
-  const done = schedule.tasks.filter((task) => task.state === 'COMPLETED' && task.finish !== null).map((task) => task.finish as string);
-  const open = schedule.tasks.filter((task) => task.state === 'SCHEDULED' && task.finish !== null).map((task) => task.finish as string);
-  return { changes: [...new Set(done)], deadlines: [...new Set(open)] };
+/** The time axis of the chart: whole months around every bar (current and baseline); null when no task has a date. */
+export function ganttScale(rows: readonly GanttRow[]): GanttScale | null {
+  const days = rows.flatMap((row) => [row.actual?.from, row.actual?.to, row.baseline?.from, row.baseline?.to].filter((day): day is string => day !== undefined));
+  if (days.length === 0) return null;
+  const sorted = [...days].sort();
+  const first = sorted[0] as string;
+  const last = sorted[sorted.length - 1] as string;
+  const from = `${first.slice(0, 7)}-01`;
+  const lastYear = Number(last.slice(0, 4));
+  const lastMonth = Number(last.slice(5, 7));
+  const to = iso(Date.UTC(lastYear, lastMonth, 0));
+  const total = Math.round((utc(to) - utc(from)) / DAY_MS) + 1;
+  const months: GanttScale['months'] = [];
+  let year = Number(from.slice(0, 4));
+  let month = Number(from.slice(5, 7));
+  while (year < lastYear || (year === lastYear && month <= lastMonth)) {
+    const start = Date.UTC(year, month - 1, 1);
+    months.push({ key: `${year}-${String(month).padStart(2, '0')}`, month, year, offset: Math.round((start - utc(from)) / DAY_MS), days: new Date(Date.UTC(year, month, 0)).getUTCDate() });
+    if (month === 12) {
+      month = 1;
+      year += 1;
+    } else month += 1;
+  }
+  const weeks: GanttScale['weeks'] = [];
+  for (let at = utc(from); at <= utc(to); at += DAY_MS) if (new Date(at).getUTCDay() === 1) weeks.push({ day: iso(at), offset: Math.round((at - utc(from)) / DAY_MS) });
+  return { from, to, days: total, months, weeks };
+}
+
+/** Where a day sits on the axis, as a share of its width (0 to 100); a day outside the window is null. `end` puts the mark at the end of the day (the right edge of a bar). */
+export function ganttAt(scale: GanttScale, day: string, end = false): number | null {
+  const offset = Math.round((utc(day) - utc(scale.from)) / DAY_MS);
+  if (Number.isNaN(offset) || offset < 0 || offset >= scale.days) return null;
+  return ((offset + (end ? 1 : 0)) / scale.days) * 100;
+}
+
+/** The pixels a day takes on the axis: wide enough to read a short schedule, narrow enough that a schedule of years still scrolls in a few screens. */
+export const ganttDayWidth = (days: number): number => Math.min(14, Math.max(3, Math.round((960 / days) * 10) / 10));
+
+/** The rows of the chart under the phase each belongs to, phases in their order; a task of a phase the workflow does not list comes last under its code. */
+export function ganttGroups(rows: readonly GanttRow[], phases: readonly WorkflowPhase[]): { code: string; name: string; rows: GanttRow[] }[] {
+  const ordered = [...phases].sort((a, b) => a.order - b.order);
+  const known = new Set(ordered.map((phase) => phase.code));
+  const strays = [...new Set(rows.filter((row) => !known.has(row.phase)).map((row) => row.phase))];
+  return [...ordered.map((phase) => ({ code: phase.code, name: phase.name })), ...strays.map((code) => ({ code, name: code }))].map((phase) => ({ ...phase, rows: rows.filter((row) => row.phase === phase.code) })).filter((group) => group.rows.length > 0);
 }
 
 /** The largest delay of a task against the first baseline in the schedule (positive is late), or null when no task has a variance. */
@@ -166,23 +184,22 @@ export function calendarYears(detail: WorkflowDetail, schedule: Schedule | undef
 
 // ---- the milestones by day ----------------------------------------------------------------------------------------------------------------------------------------------
 
-/** The milestones that have a date, a day after another, each with the word and tone of its official colour. A milestone with no date is left out: the screen says why (missing calendar). */
-export function milestoneGroups(detail: WorkflowDetail, t: T): TimelineGroup[] {
-  const byDay = new Map<string, TimelineGroup['entries'][number][]>();
-  for (const task of detail.tasks) {
-    if (task.kind !== 'MILESTONE' || task.excluded || task.planned_finish === null) continue;
-    const entries = byDay.get(task.planned_finish) ?? [];
-    entries.push({
-      id: task.id,
-      at: `${task.planned_finish}T00:00:00.000+07:00`,
-      kind: 'note',
-      title: t('pwf.flow.timeline.entry.text', { code: task.task_code, name: task.name }),
-      ...(hasBand(task) ? { badge: bandWord(t, task.band.band), tone: bandTone(task.band.band) } : {}),
-      note: statusWord(t, task.status),
-    });
-    byDay.set(task.planned_finish, entries);
-  }
-  return [...byDay.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([date, entries]) => ({ date, entries }));
+export interface MilestoneRow {
+  id: string;
+  code: string;
+  name: string;
+  phase: string;
+  /** The planned day; null when it cannot be counted (the calendar of its year is missing). */
+  day: string | null;
+  task: WorkflowTask;
+}
+
+/** The milestones of the plan in the order of their dates; one that has no date comes last (the screen says why: missing calendar). */
+export function milestoneRows(detail: WorkflowDetail): MilestoneRow[] {
+  return detail.tasks
+    .filter((task) => task.kind === 'MILESTONE' && !task.excluded)
+    .map((task): MilestoneRow => ({ id: task.id, code: task.task_code, name: task.name, phase: task.phase_code, day: task.planned_finish, task }))
+    .sort((a, b) => (a.day === b.day ? a.code.localeCompare(b.code) : a.day === null ? 1 : b.day === null ? -1 : a.day < b.day ? -1 : 1));
 }
 
 // ---- the list: filters, cursor and the board by phase -----------------------------------------------------------------------------------------------------------------
@@ -243,9 +260,18 @@ export interface GateRow {
   /** From the assessment of the gate, once it was read. */
   assessment: GateAssessment | undefined;
   failed: boolean;
+  /** The gate belongs to a phase the workflow has not reached yet: it is not expected to be open, so it is said in neutral words and never as a failure. */
+  upcoming: boolean;
+}
+
+/** Whether the phase that carries the gate comes after the phase the workflow is in. */
+function gateUpcoming(detail: WorkflowDetail, target: GateTarget): boolean {
+  const open = detail.phases.find((phase) => phase.open);
+  const own = detail.phases.find((phase) => phase.gates.includes(target));
+  return open !== undefined && own !== undefined && own.order > open.order;
 }
 
 /** The gates the workflow declares, each with the assessment read for it (a gate whose assessment failed to read says so and keeps what the workflow knows). */
 export function gateRows(detail: WorkflowDetail, results: readonly { data: GateAssessment | undefined; failed: boolean }[], t: T): GateRow[] {
-  return detail.gates.map((gate, index) => ({ target: gate.target, word: gateWord(t, gate.target), missingCount: gate.missing_count, assessment: results[index]?.data, failed: results[index]?.failed ?? false }));
+  return detail.gates.map((gate, index) => ({ target: gate.target, word: gateWord(t, gate.target), missingCount: gate.missing_count, assessment: results[index]?.data, failed: results[index]?.failed ?? false, upcoming: gateUpcoming(detail, gate.target) }));
 }

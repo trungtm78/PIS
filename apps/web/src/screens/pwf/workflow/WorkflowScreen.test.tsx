@@ -41,19 +41,22 @@ describe('PWF-03: the workflow of a project', () => {
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(text('pwf.flow.page.title'));
     await screen.findByText('DA-2026-001 · Dự án số 1');
     const facts = screen.getByTestId('workflow-facts');
-    expect(facts.textContent).toContain(text('pwf.flow.template.value.text', { code: 'PUBLIC_INVESTMENT', version: 3 }));
+    expect(facts.textContent).toContain(text('pwf6.flow.template.text', { name: text('pwf6.template.publicInvestment.word'), version: text('pwf6.version.numbered.text', { version: 3 }) }));
+    expect(facts.textContent).toContain('PUBLIC_INVESTMENT');
     expect(facts.textContent).toContain('a'.repeat(12));
     expect(facts.textContent).toContain('01/12/2026');
     expect(screen.getByTestId('workflow-status').textContent).toContain(text('pwf.flow.status.active.word'));
     expect(screen.queryByTestId('unverified')).toBeNull();
     await waitFor(() => expect(screen.getByTestId('project-finish').textContent).toContain('12/02/2027'));
     expect(screen.getByTestId('critical-count').textContent).toContain(text('pwf.flow.kpi.tasks.text', { count: 2 }));
-    expect(screen.getByTestId('variance').textContent).toContain(text('pwf.flow.variance.value.text', { days: 5, task: 'T3' }));
+    expect(screen.getByTestId('variance').textContent).toContain(text('pwf6.flow.variance.text', { days: 5, task: 'Công việc 3' }));
     // The three colours as tiles, with words and glyphs, and every figure has its "i".
     const group = screen.getByRole('group', { name: text('pwf.flow.kpi.group.label') });
     for (const word of ['red', 'yellow', 'green', 'none', 'unknown']) expect(group.textContent).toContain(text(`pwf.band.${word}.word`));
     expect(group.textContent).toContain('⛔');
-    expect(infoButtons().length).toBeGreaterThan(10);
+    // One "i" for the strip of counts, and one for each figure of the schedule.
+    expect(within(group).getAllByRole('button', { name: /Công thức và nguồn của/ }).length).toBe(1);
+    expect(infoButtons().length).toBeGreaterThan(6);
   });
 
   it('labels a template that was not confirmed, and says a workflow on hold is on hold', async () => {
@@ -178,47 +181,78 @@ describe('PWF-03: the states', () => {
 });
 
 describe('PWF-03: the tree, the schedule and the milestones', () => {
-  const node = (id: string) => document.querySelector(`[data-node-id="${id}"] .ui-process-tree__outline-main`) as HTMLElement;
-
-  it('opens a task when its node is chosen and filters the board to a phase when its node is chosen (again to clear it)', async () => {
+  it('reads the workflow as one tree in a table: phase, then task, each with its state, day, person and progress; a phase folds and filters the board', async () => {
     show();
     await ready();
-    const calls = () => screen.getByTestId('where').textContent;
-    fireEvent.click(node('phase:EXECUTION'));
+    const outline = screen.getByTestId('outline');
+    const phase = outline.querySelector('[data-node-id="phase:PREPARATION"]') as HTMLElement;
+    expect(phase.textContent).toContain('Chuẩn bị đầu tư');
+    expect(phase.textContent).toContain(text('pwf6.outline.late.text', { count: 1 }));
+    expect(phase.textContent).toContain(text('pwf6.meter.value.text', { done: 1, total: 2, percent: 50 }));
+    // A task is its name linked to its screen, with its code as a note.
+    const task = outline.querySelector('[data-task="T2"]') as HTMLElement;
+    expect(within(task).getByRole('link', { name: TASKS[1]?.name ?? '' }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${TASKS[1]?.id ?? ''}&project=${PROJECT_ID}`);
+    expect(task.textContent).toContain('T2');
+    expect(task.textContent).toContain(text('pwf.band.red.word'));
+    expect(task.getAttribute('data-health')).toBe('late');
+    // The button of a phase filters the board to it, and clears the filter when pressed again.
+    fireEvent.click(outline.querySelector('[data-action="filter-phase-EXECUTION"]') as HTMLElement);
     await waitFor(() => expect(screen.getByTestId('board').querySelectorAll('[data-testid^="card-"]').length).toBe(3));
     expect((selectOf(text('pwf.flow.filter.phase.label')) as HTMLSelectElement).value).toBe('EXECUTION');
-    fireEvent.click(node('phase:EXECUTION'));
+    fireEvent.click(outline.querySelector('[data-action="filter-phase-EXECUTION"]') as HTMLElement);
     await waitFor(() => expect((selectOf(text('pwf.flow.filter.phase.label')) as HTMLSelectElement).value).toBe(''));
-    fireEvent.click(node(`task:${TASKS[1]?.id ?? ''}`));
-    expect(calls()).toBe(`/pwf/pwf-04?id=${TASKS[1]?.id ?? ''}&project=${PROJECT_ID}`);
+    // A phase folds: its tasks leave the table, and "collapse all" folds every phase.
+    fireEvent.click(within(phase).getByRole('button', { expanded: true }));
+    expect(outline.querySelector('[data-task="T2"]')).toBeNull();
+    expect(outline.querySelector('[data-task="T3"]')).not.toBeNull();
+    fireEvent.click(document.querySelector('[data-action="outline-toggle-all"]') as HTMLElement);
+    expect(outline.querySelectorAll('[data-task]').length).toBe(0);
+    fireEvent.click(document.querySelector('[data-action="outline-toggle-all"]') as HTMLElement);
+    expect(outline.querySelectorAll('[data-task]').length).toBe(5);
   });
 
-  it('draws the schedule, says the critical path in words, and lists what starts and finishes on a chosen day', async () => {
+  it('draws the schedule on a time axis with a legend, names the tasks, says the critical path by name, and gives the same facts as a table', async () => {
     show();
     await ready();
-    await waitFor(() => expect(screen.getByTestId('critical-path').textContent).toContain('T2 → T3'));
-    fireEvent.click(document.querySelector('[data-day="2026-12-10"]') as HTMLElement);
-    expect(screen.getByTestId('day-tasks').textContent).toBe(text('pwf.flow.gantt.day.text', { day: '10/12/2026', starting: text('pwf.flow.gantt.dayNone.text'), finishing: 'T2' }));
-    fireEvent.click(within(document.querySelector('.ui-day-strip') as HTMLElement).getByRole('button', { name: text('ui.dayStrip.table.show') }));
-    expect(screen.getByRole('table', { name: text('ui.dayStrip.bars.label') }).textContent).toContain(`T2 (${text('pwf.flow.gantt.critical.mark')})`);
+    await waitFor(() => expect(screen.getByTestId('critical-path').textContent).toContain('Việc T2'));
+    expect([...screen.getByTestId('critical-path').querySelectorAll('li')].map((item) => item.getAttribute('data-code'))).toEqual(['T2', 'T3']);
+    const gantt = screen.getByTestId('gantt');
+    for (const key of ['current', 'done', 'baseline', 'late', 'critical', 'milestone']) expect(gantt.textContent).toContain(text(`pwf6.gantt.legend.${key}`));
+    // The label of a row is the name of the task with its code; the axis names the months.
+    expect((gantt.querySelector('[data-row="T2"]') as HTMLElement).textContent).toContain('Việc T2');
+    expect(gantt.textContent).toContain(text('pwf6.gantt.month.text', { month: '12', year: 2026 }));
+    // What the bar runs past the baseline is said in days next to it.
+    expect(gantt.textContent).toContain(text('pwf6.gantt.variance.text', { days: 5 }));
+    expect(gantt.querySelectorAll('.pwf-gantt__bar[data-critical="true"]').length).toBe(2);
+    expect(gantt.querySelectorAll('.pwf-gantt__milestone').length).toBe(1);
+    expect(gantt.textContent).toContain(text('pwf.flow.gantt.noDate.mark'));
+    const table = within(gantt).getByRole('table', { name: text('pwf6.gantt.table.caption') });
+    expect(within(table).getAllByRole('row').length).toBe(6);
+    expect(table.textContent).toContain('10/12/2026');
   });
 
   it('says when no task has a date yet, and that no task is on the critical path', async () => {
     show({ schedule: () => schedule({ critical_path: [], tasks: [schedule().tasks[4] as never] }) });
     await ready();
-    expect(await screen.findByText(text('ui.dayStrip.empty.message'))).toBeTruthy();
+    expect((await screen.findByTestId('gantt-empty')).textContent).toBe(text('pwf6.gantt.empty.text'));
     expect(screen.getByTestId('critical-path').textContent).toContain(text('pwf.flow.gantt.pathNone.text'));
   });
 
-  it('shows the error card of the strip with a retry when the schedule cannot be read', async () => {
+  it('says the schedule cannot be read, with a retry, when its read fails', async () => {
     show({ schedule: () => new Error('down') });
-    expect(await screen.findByText(text('ui.dayStrip.error.message'))).toBeTruthy();
+    expect((await screen.findByTestId('gantt-failed')).textContent).toContain(text('pwf6.gantt.failed.text'));
   });
 
   it('lists the milestones by date with the word of their colour, or says there are none with a date', async () => {
     const { unmount } = show();
     await ready();
-    expect(within(document.querySelector('.ui-timeline') as HTMLElement).getByText(text('pwf.flow.timeline.entry.text', { code: 'T4', name: 'Mốc khởi công' }))).toBeTruthy();
+    // A plan table of its own: the day, the milestone by name with its code, its phase and its state; nothing of a log (no hour, no author).
+    const row = screen.getByTestId('milestones').querySelector('[data-milestone="T4"]') as HTMLElement;
+    expect(within(row).getByRole('link', { name: 'Mốc khởi công' }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${TASKS[3]?.id ?? ''}&project=${PROJECT_ID}`);
+    expect(row.textContent).toContain('12/02/2027');
+    expect(row.textContent).toContain('Thực hiện đầu tư');
+    expect(row.textContent).toContain(text('pwf.band.green.word'));
+    expect(row.textContent).not.toContain('00:00');
     unmount();
     show({ workflow: () => detail({ tasks: TASKS.filter((task) => task.kind !== 'MILESTONE') }) });
     expect((await screen.findByTestId('no-milestones')).textContent).toBe(text('pwf.flow.timeline.empty.text'));
@@ -236,7 +270,7 @@ describe('PWF-03: the board and its filters', () => {
     expect(card.textContent).toContain(text('pwf.band.red.word'));
     expect(card.textContent).toContain('Nguyễn Văn An');
     expect(within(board).getByTestId('card-T3').textContent).toContain(text('pwf.flow.board.unassigned.text'));
-    expect(within(board).getByRole('link', { name: 'T2 · Công việc 2' }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${TASKS[1]?.id ?? ''}&project=${PROJECT_ID}`);
+    expect(within(board).getByRole('link', { name: 'Công việc 2' }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${TASKS[1]?.id ?? ''}&project=${PROJECT_ID}`);
     // A finished task has no colour.
     expect(within(board).getByTestId('card-T1').querySelector('.pwf-band')).toBeNull();
     expect(screen.getByTestId('board-count').textContent).toContain(text('pwf.flow.board.shown.text', { shown: 5, total: 5 }));
@@ -291,12 +325,25 @@ describe('PWF-03: the gates of the project commands', () => {
     expect(closed.textContent).toContain(text('pwf.gate.submit.word'));
     expect(closed.textContent).toContain(text('pwf.flow.gate.closed.word'));
     expect(closed.textContent).toContain('⛔');
-    expect(within(closed).getByRole('link', { name: 'T2' }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${TASKS[1]?.id ?? ''}&project=${PROJECT_ID}`);
+    expect(closed.getAttribute('data-state')).toBe('waiting');
+    expect(within(closed).getByRole('link', { name: 'Công việc 2' }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${TASKS[1]?.id ?? ''}&project=${PROJECT_ID}`);
     expect(closed.textContent).toContain(text('pwf.missing.notDone.text'));
     expect(closed.textContent).toContain(`T9 · ${text('pwf.missing.noState.text')}`);
     const open = screen.getByTestId('gate-startProjectImplementation');
     await waitFor(() => expect(open.getAttribute('data-open')).toBe('true'));
     expect(open.textContent).toContain(text('pwf.flow.gate.open.word'));
+  });
+
+  it('says a gate of a phase the workflow has not reached in neutral words, never as a failure', async () => {
+    show({ gate: (input: Record<string, unknown>) => ({ ...gate(input), open: false, missing: [{ task: 'T3', task_id: TASKS[2]?.id ?? null, phase: 'EXECUTION', reason: 'NOT_DONE' as const }] }) });
+    const later = await screen.findByTestId('gate-startProjectImplementation');
+    await waitFor(() => expect(later.querySelector('ul')).not.toBeNull());
+    expect(later.getAttribute('data-state')).toBe('upcoming');
+    expect(later.textContent).toContain(text('pwf6.gate.upcoming.word'));
+    expect(later.textContent).not.toContain('⛔');
+    expect(later.textContent).not.toContain(text('pwf.flow.gate.closed.word'));
+    // Its list of tasks is there, folded until asked for.
+    expect((later.querySelector('details') as HTMLDetailsElement).open).toBe(false);
   });
 
   it('says a command with no gate has none, and a workflow with no gate declared says so', async () => {

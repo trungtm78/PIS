@@ -2,6 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { Named } from '../codes';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
@@ -56,7 +57,7 @@ function RescheduleContent({ route }: ScreenProps) {
         <h1 id="screen-title">{t('pwf.resched.page.title')}</h1>
         {project.data === undefined || project.data === null ? null : (
           <p>
-            <code>{project.data.code}</code> · {project.data.name} ·{' '}
+            <Named name={project.data.name} code={project.data.code} /> ·{' '}
             <Link to={workflowLink(project.data.id)}>{t('pwf.resched.back.link')}</Link>
           </p>
         )}

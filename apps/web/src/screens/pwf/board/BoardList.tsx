@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
-import { DataTable, StatusPill } from '../../../ui';
+import { DataTable } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
+import { phaseName } from '../codes';
 import { BandBadge } from '../components';
 import { dayText, taskLink, workflowLink } from '../model';
 import type { DeadlineBoard } from '../model';
@@ -33,15 +34,14 @@ export function BoardList({ rows, total, truncated, hasMore, loadingMore, onMore
     {
       key: 'task',
       header: t('pwf.board.col.task.header'),
+      pinned: true,
       render: (row) => (
-        <span className="pwf-pills">
-          <Link to={taskLink(row.task_id, row.project_id)}>{row.task_code}</Link>
-          <span>{row.name}</span>
-          {row.critical ? (
-            <StatusPill tone="danger" icon="◆">
-              {t('pwf.board.critical.word')}
-            </StatusPill>
-          ) : null}
+        <span className="pwf-cellstack">
+          <Link to={taskLink(row.task_id, row.project_id)}>{row.name}</Link>
+          <span className="pwf-code">
+            {row.task_code}
+            {row.critical ? ` · ${t('pwf6.flow.critical.mark')}` : ''}
+          </span>
         </span>
       ),
     },
@@ -49,13 +49,14 @@ export function BoardList({ rows, total, truncated, hasMore, loadingMore, onMore
       key: 'project',
       header: t('pwf.board.col.project.header'),
       render: (row) => (
-        <Link to={workflowLink(row.project_id)}>
-          {row.project_code} · {row.project_name}
-        </Link>
+        <span className="pwf-cellstack">
+          <Link to={workflowLink(row.project_id)}>{row.project_name}</Link>
+          <span className="pwf-code">{row.project_code}</span>
+        </span>
       ),
     },
-    { key: 'phase', header: t('pwf.board.col.phase.header'), render: (row) => row.phase_code },
-    { key: 'person', header: t('pwf.board.col.person.header'), render: (row) => row.assignee?.display_name ?? t('pwf.board.unassigned.text') },
+    { key: 'phase', header: t('pwf.board.col.phase.header'), render: (row) => phaseName(t, row.phase_code) },
+    { key: 'person', header: t('pwf.board.col.person.header'), render: (row) => row.assignee?.display_name ?? <span className="pwf-hint">{t('pwf.board.unassigned.text')}</span> },
     { key: 'due', header: t('pwf.board.col.due.header'), render: (row) => <DueCell row={row} /> },
     { key: 'band', header: t('pwf.board.col.band.header'), render: (row) => <BandBadge band={row.band} /> },
   ];
@@ -70,16 +71,18 @@ export function BoardList({ rows, total, truncated, hasMore, loadingMore, onMore
           {t('pwf.board.truncated.notice', { total })}
         </p>
       ) : null}
-      <DataTable
-        columns={columns}
-        rows={[...rows]}
-        rowKey={(row) => row.task_id}
-        rowAttrs={(row) => ({ 'data-task-id': row.task_id, 'data-band': row.band.band })}
-        caption={t('pwf.board.list.caption')}
-        state="ready"
-        emptyKind={filtered ? 'filtered' : 'none'}
-        onClearFilters={onClearFilters}
-      />
+      <div className="pwf-free">
+        <DataTable
+          columns={columns}
+          rows={[...rows]}
+          rowKey={(row) => row.task_id}
+          rowAttrs={(row) => ({ 'data-task-id': row.task_id, 'data-band': row.band.band })}
+          caption={t('pwf.board.list.caption')}
+          state="ready"
+          emptyKind={filtered ? 'filtered' : 'none'}
+          onClearFilters={onClearFilters}
+        />
+      </div>
       {hasMore ? (
         <p className="pwf-actions">
           <button type="button" className="ui-button ui-button--outline" data-testid="more" disabled={loadingMore} onClick={onMore}>

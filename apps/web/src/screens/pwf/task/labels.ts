@@ -1,4 +1,5 @@
 import type { Translator } from '../../../i18n';
+import { historyName } from '../codes';
 import type { HistoryEntry, KpiResult, TaskException } from './model';
 
 type T = Translator['t'];
@@ -36,7 +37,7 @@ export function historyWord(t: T, kind: HistoryEntry['kind']): string {
     case 'CANCELLED':
       return t('pwf.task.history.cancelled.word');
     default:
-      return kind;
+      return historyName(t, kind);
   }
 }
 

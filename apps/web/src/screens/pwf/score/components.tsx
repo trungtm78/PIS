@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
+import { gradeLook, gradeName, versionText } from '../codes';
 import { FigureInfo } from '../components';
 import { roleWord } from '../labels';
 import { dayText, stampText } from '../model';
@@ -89,9 +90,7 @@ export function ScoreFigure({ line }: ScoreFigureProps) {
       </p>
       <p className="pwfs-figure__rating">
         {isRated(line) && line.rating !== null ? (
-          <StatusPill tone="success" icon="✓">
-            <span data-testid="rating">{line.rating}</span>
-          </StatusPill>
+          <RatingPill rating={line.rating} testId="rating" />
         ) : (
           <LineStatePill state={line.state} />
         )}
@@ -117,7 +116,7 @@ export function ScoreInfo({ basis, asOf }: { basis: ScoreLine['basis']; asOf: st
       formula={t('pwfs.info.formula.text')}
       source={t('pwfs.info.source.text', { policy: basis.policy_code, hash: basis.snapshot_hash === null ? t('pwfs.info.noHash.text') : basis.snapshot_hash.slice(0, 12) })}
       asOf={asOf}
-      version={t('pwfs.info.version.text', { version: basis.policy_version })}
+      version={t('pwf6.score.policy.text', { version: versionText(t, basis.policy_version) })}
     />
   );
 }
@@ -180,6 +179,30 @@ function TaskCell({ contribution }: { contribution: Contribution }) {
 }
 
 /** Every point of a score traced to a task: the part of the person in it (the days of the assignments inside the period, the share and the factor of the role), its weight and its score. */
+/** A grade in words with a tone and a glyph of its own: the weakest grade is never green and never ticked. The code of the grade stays on the element for whoever needs it. */
+export function RatingPill({ rating, testId }: { rating: string; testId?: string }) {
+  const { t } = useTranslation();
+  const look = gradeLook(rating);
+  return (
+    <StatusPill tone={look.tone} icon={look.icon}>
+      <span data-testid={testId} data-rating={rating}>
+        {gradeName(t, rating)}
+      </span>
+    </StatusPill>
+  );
+}
+
+/** "Scoring policy: system default" or "version N"; the code of a policy that is not the default one is a note. */
+export function PolicyBasis({ code, version }: { code: string; version: number }) {
+  const { t } = useTranslation();
+  return (
+    <span data-testid="policy-basis">
+      {t('pwf6.score.policy.text', { version: versionText(t, version) })}
+      {code === 'DEFAULT' ? null : <span className="pwf-code"> {code}</span>}
+    </span>
+  );
+}
+
 export function ContributionsTable({ contributions }: { contributions: readonly Contribution[] }) {
   const { t } = useTranslation();
   const columns: DataTableColumn<Contribution>[] = [
@@ -199,7 +222,11 @@ export function ContributionsTable({ contributions }: { contributions: readonly 
     { key: 'weight', header: t('pwfs.contribution.col.weight'), align: 'right', render: (row) => row.weight },
     { key: 'score', header: t('pwfs.contribution.col.score'), align: 'right', render: (row) => scoreText(row.score) },
   ];
-  return <DataTable columns={columns} rows={[...contributions]} rowKey={(row) => `${row.task_code}:${row.task_id ?? 'restricted'}`} caption={t('pwfs.contribution.caption.text')} state={contributions.length === 0 ? 'empty' : 'ready'} />;
+  return (
+    <div className="pwf-free">
+      <DataTable columns={columns} rows={[...contributions]} rowKey={(row) => `${row.task_code}:${row.task_id ?? 'restricted'}`} caption={t('pwfs.contribution.caption.text')} state={contributions.length === 0 ? 'empty' : 'ready'} />
+    </div>
+  );;
 }
 
 /** The tasks left out of the score, each with the reason (a task that does not count is never hidden). */

@@ -8,7 +8,8 @@ import { useScreenState } from '../../../states/useScreenState';
 import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { dayText } from '../model';
-import { LineStatePill, PeriodStatusPill, ScoreProblemBanner, SupportNotice } from './components';
+import { LineStatePill, PeriodStatusPill, RatingPill, ScoreProblemBanner, SupportNotice } from './components';
+import { UnitSelect, useUnitNames } from './units';
 import { useExportPeriod, usePeriodLines, usePeriods, useScoreCacheGuard, useScoreIdentity } from './hooks';
 import { lineStateWord } from './labels';
 import { SCORE_PERMISSIONS, boardOrder, describeScoreProblem, exportBlob, lineLink, mayDo, periodLink, rangeText, rankingBlock, scoreText, isRated } from './model';
@@ -72,7 +73,7 @@ function BoardContent({ route }: ScreenProps) {
     },
     { key: 'computed', header: t('pwfs.board.col.computed'), align: 'right', render: ({ row }) => scoreText(row.score_computed) },
     { key: 'adjusted', header: t('pwfs.board.col.adjusted'), align: 'right', render: ({ row }) => (row.has_adjustment ? scoreText(row.score_adjusted) : '–') },
-    { key: 'rating', header: t('pwfs.board.col.rating'), render: ({ row }) => (isRated(row) && row.rating !== null ? row.rating : <LineStatePill state={row.state} />) },
+    { key: 'rating', header: t('pwfs.board.col.rating'), render: ({ row }) => (isRated(row) && row.rating !== null ? <RatingPill rating={row.rating} /> : <LineStatePill state={row.state} />) },
     { key: 'sample', header: t('pwfs.board.col.sample'), align: 'right', render: ({ row }) => t('pwfs.board.sample.text', { count: row.rated_task_count, weight: row.effective_weight }) },
     {
       key: 'marks',
@@ -150,7 +151,7 @@ function BoardContent({ route }: ScreenProps) {
             </div>
             <div className="pwf-field">
               <label htmlFor="pwfs-filter-unit">{t('pwfs.board.filter.unit.label')}</label>
-              <input id="pwfs-filter-unit" type="text" autoComplete="off" value={unitFilter} aria-invalid={!unitValid} data-testid="filter-unit" onChange={(event) => setUnitFilter(event.target.value)} />
+              <UnitSelect id="pwfs-filter-unit" value={unitFilter} invalid={!unitValid} testId="filter-unit" anyLabel={t('pwfs.board.filter.any.option')} onChange={setUnitFilter} />
               {unitValid ? null : (
                 <span className="pwf-field__error" data-testid="error-unit">
                   <span aria-hidden="true">⚠ </span>
@@ -160,7 +161,9 @@ function BoardContent({ route }: ScreenProps) {
             </div>
           </div>
           <StateBoundary state={lineState} onRetry={() => void lines.refetch()}>
-            <DataTable columns={columns} rows={ordered} rowKey={({ row }) => row.id} caption={t('pwfs.board.caption.text')} />
+            <div className="pwf-free">
+              <DataTable columns={columns} rows={ordered} rowKey={({ row }) => row.id} caption={t('pwfs.board.caption.text')} />
+            </div>
             {lines.hasNextPage ? (
               <button type="button" className="ui-button ui-button--outline" data-action="more-lines" disabled={lines.isFetchingNextPage} onClick={() => void lines.fetchNextPage()}>
                 {t('pwfs.board.moreLines.action')}
@@ -178,13 +181,14 @@ function BoardContent({ route }: ScreenProps) {
 
 function PeriodPicker({ periods, chosen, onChoose }: { periods: readonly ScorePeriod[]; chosen: string | null; onChoose: (id: string) => void }) {
   const { t } = useTranslation();
+  const unitName = useUnitNames();
   return (
     <div className="pwf-field">
       <label htmlFor="pwfs-period">{t('pwfs.board.period.label')}</label>
       <select id="pwfs-period" value={chosen ?? ''} data-testid="period" onChange={(event) => onChoose(event.target.value)}>
         {periods.map((one) => (
           <option key={one.id} value={one.id}>
-            {t('pwfs.board.period.option', { range: rangeText(one.period_from, one.period_to), unit: one.scope_unit_id.slice(0, 8) })}
+            {t('pwf6.score.period.option', { range: rangeText(one.period_from, one.period_to), unit: unitName(one.scope_unit_id) })}
           </option>
         ))}
       </select>

@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n';
 import { DataTable } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { BandBadge } from '../components';
-import { bandIcon, dayText, taskLink, workflowLink } from '../model';
+import { bandIcon, dayText, taskLink, todayInVietnam, workflowLink } from '../model';
 import type { Band, DeadlineCalendar } from '../model';
 import { bandWord } from '../labels';
 import { weekdayWord } from './labels';
@@ -19,19 +19,21 @@ export interface CalendarViewProps {
 /** The colours a day counts, the ones that call for action first; none ("not yet in range") is not shown on a day. */
 const DAY_BANDS: readonly Band[] = ['RED', 'YELLOW', 'GREEN', 'UNKNOWN'];
 
-function DayCell({ cell, selected, onSelect }: { cell: GridCell; selected: boolean; onSelect: (date: string) => void }) {
+function DayCell({ cell, selected, today, onSelect }: { cell: GridCell; selected: boolean; today: boolean; onSelect: (date: string) => void }) {
   const { t } = useTranslation();
   const number = Number(cell.date.slice(8, 10));
-  if (cell.day === undefined) {
-    return <span className="pwf-day__number">{number}</span>;
-  }
+  const numberNode = (
+    <span className="pwf-day__number" data-today={today} aria-hidden={cell.day === undefined ? undefined : true}>
+      {number}
+    </span>
+  );
+  // Every day of the month is one kind of cell: the number in the corner, the counts under it. A day with tasks is a button that lists them; a day without is the same cell with nothing under the number.
+  if (cell.day === undefined) return <span className="pwf-day pwf-day--plain">{numberNode}</span>;
   const { day } = cell;
   return (
     <button type="button" className="pwf-day" data-testid={`day-${cell.date}`} aria-pressed={selected} onClick={() => onSelect(cell.date)}>
       <span className="ui-sr-only">{t('pwf.board.calendar.day.label', { date: dayText(cell.date), total: day.total })}</span>
-      <span className="pwf-day__number" aria-hidden="true">
-        {number}
-      </span>
+      {numberNode}
       <span className="pwf-day__counts">
         {DAY_BANDS.filter((band) => day.counts_by_band[band] > 0).map((band) => (
           <span key={band} className="pwf-day__count" data-band={band}>
@@ -49,14 +51,16 @@ export function CalendarView({ month, calendar }: CalendarViewProps) {
   const [selected, setSelected] = useState<string | undefined>(undefined);
   const weeks = calendarGrid(month, calendar.days);
   const chosen = calendar.days.find((day) => day.date === selected);
+  const today = todayInVietnam();
   const columns: DataTableColumn<CalendarTask>[] = [
     {
       key: 'task',
       header: t('pwf.board.col.task.header'),
       render: (task) => (
-        <>
-          <Link to={taskLink(task.task_id, task.project_id)}>{task.task_code}</Link> {task.name}
-        </>
+        <span className="pwf-cellstack">
+          <Link to={taskLink(task.task_id, task.project_id)}>{task.name}</Link>
+          <span className="pwf-code">{task.task_code}</span>
+        </span>
       ),
     },
     { key: 'project', header: t('pwf.board.col.project.header'), render: (task) => <Link to={workflowLink(task.project_id)}>{task.project_code}</Link> },
@@ -80,6 +84,7 @@ export function CalendarView({ month, calendar }: CalendarViewProps) {
       ) : (
         <p className="pwf-hint">{t('pwf.board.calendar.pick.hint')}</p>
       )}
+      <div className="ui-table-scroll pwf-calendar__region" role="region" aria-label={t('pwf.board.calendar.caption', { month })} tabIndex={0}>
       <table className="pwf-calendar" data-testid="calendar-grid">
         <caption>{t('pwf.board.calendar.caption', { month })}</caption>
         <thead>
@@ -96,17 +101,20 @@ export function CalendarView({ month, calendar }: CalendarViewProps) {
             <tr key={week[0]?.date}>
               {week.map((cell) => (
                 <td key={cell.date} className={cell.inMonth ? 'pwf-calendar__in' : 'pwf-calendar__out'}>
-                  {cell.inMonth ? <DayCell cell={cell} selected={selected === cell.date} onSelect={setSelected} /> : null}
+                  {cell.inMonth ? <DayCell cell={cell} selected={selected === cell.date} today={cell.date === today} onSelect={setSelected} /> : null}
                 </td>
               ))}
             </tr>
           ))}
         </tbody>
       </table>
+      </div>
       {chosen === undefined ? null : (
         <section data-testid="selected-day" aria-label={t('pwf.board.calendar.selected.title', { date: dayText(chosen.date) })}>
           <h3>{t('pwf.board.calendar.selected.title', { date: dayText(chosen.date) })}</h3>
+          <div className="pwf-free">
           <DataTable columns={columns} rows={[...chosen.tasks]} rowKey={(task) => task.task_id} caption={t('pwf.board.calendar.selected.title', { date: dayText(chosen.date) })} state="ready" />
+          </div>
         </section>
       )}
     </div>
@@ -117,7 +125,7 @@ export function CalendarView({ month, calendar }: CalendarViewProps) {
 export function MonthNav({ month, onMonth }: { month: string; onMonth: (delta: number) => void }) {
   const { t } = useTranslation();
   return (
-    <div className="pwf-actions">
+    <div className="pwf-monthnav">
       <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="calendar-prev" onClick={() => onMonth(-1)}>
         {t('pwf.board.calendar.prev.action')}
       </button>
