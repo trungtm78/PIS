@@ -81,6 +81,22 @@ void main() {
       expect(tester.widget<FilterChip>(find.byType(FilterChip)).selected, isTrue);
     });
 
+    testWidgets('a detail screen (a screen of one record) hides the five tabs, and they are back on the list (design-system-v2, section 7)', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[1]);
+      final container = await pumpApp(tester, features: const [listFeature], location: '/projects');
+      expect(find.byType(AppBottomNav), findsOneWidget);
+
+      container.read(routerProvider).go('/projects/mob-10/p1');
+      await tester.pumpAndSettle();
+      expect(find.text('detail p1'), findsOneWidget);
+      expect(find.byType(AppBottomNav), findsNothing, reason: 'the detail screen has its own action bar; the tabs would sit under it');
+
+      container.read(routerProvider).pop();
+      await tester.pumpAndSettle();
+      expect(find.byType(AppBottomNav), findsOneWidget);
+      expect(Uri.parse(currentLocation(container)).path, '/projects');
+    });
+
     testWidgets('back on the root of another tab goes to Home, and only back on Home leaves the application', (WidgetTester tester) async {
       useDevice(tester, kDeviceSizes[1]);
       final container = await pumpApp(tester, features: const [listFeature]);
@@ -96,8 +112,9 @@ void main() {
 
     testWidgets('tapping the open tab again returns to its root', (WidgetTester tester) async {
       useDevice(tester, kDeviceSizes[1]);
-      final container = await pumpApp(tester, features: const [listFeature], location: '/projects/mob-10/p3');
-      expect(find.text('detail p3'), findsOneWidget);
+      // A screen under the root of the tab that is not the screen of one record keeps the five tabs (a detail screen hides them: the test above).
+      final container = await pumpApp(tester, features: const [listFeature], location: '/projects/mob-12');
+      expect(currentLocation(container), '/projects/mob-12');
 
       await tester.tap(_tab(AppTab.projects));
       await tester.pumpAndSettle();
