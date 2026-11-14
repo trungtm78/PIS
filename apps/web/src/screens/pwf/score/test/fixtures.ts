@@ -85,7 +85,7 @@ export const line = (over: Partial<ScoreLine> = {}): ScoreLine => ({
   effective_weight: 14.5,
   period_status: 'LOCKED',
   contributions: [contribution(1), contribution(2, { task_id: null, name: '', score: 60 })],
-  excluded: [{ task_code: 'T9', reason: 'NO_SHARE' }],
+  excluded: [{ task_code: 'T9', reason: 'NO_SHARE', name: 'Lập đề xuất chủ trương đầu tư' }],
   flags: [],
   adjustments: [],
   responses: [],

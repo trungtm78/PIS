@@ -5,7 +5,7 @@ import { SectionCard, StatusPill, Tabs } from '../../../ui';
 import { roleKnown, roleName } from '../codes';
 import { FigureInfo } from '../components';
 import { dependencyWord, gateWord, kindWord, priorityWord } from '../labels';
-import { CheckField, CodeListField, NumberField, SelectField, TextField } from './editor-fields';
+import { CheckField, CodeListField, NumberField, SelectField, TextField, roleHintOf } from './editor-fields';
 import { TaskProcessFields } from './editor-steps';
 import { FormPicker } from './FormPicker';
 import { KpiCodePicker } from './KpiCodePicker';
@@ -36,7 +36,7 @@ import {
   updateTask,
 } from './template-model';
 import type { ConditionField, ConstraintKind, EditorTask, Template } from './template-model';
-import { stepsOf, templateRoleName, usedRoleCodes } from './template-model';
+import { stepsOf, usedRoleCodes } from './template-model';
 import { problemWord } from './editor-fields';
 
 type T = Translator['t'];
@@ -292,12 +292,7 @@ function TaskPanel({ template, index, task, onChange, problems, show, disabled, 
     const found = [...problems.keys()].filter((path) => path.startsWith(`${at}.`) && taskPartOf(path.slice(at.length + 1)) === id).length;
     return found === 0 ? undefined : found;
   };
-  // What a role code is called: the name this template gives it, else the shipped catalogue; a code nobody named says where to name it.
-  const roleHint = (code: string): string | undefined => {
-    if (code.trim() === '') return undefined;
-    const name = templateRoleName(template, code) ?? (roleKnown(code) ? roleName(t, code) : undefined);
-    return name === undefined ? t('fix8.editor.role.unnamed.hint') : t('fix8.editor.role.named.hint', { name });
-  };
+  const roleHint = (code: string): string | undefined => roleHintOf(t, template, code);
   const patch = (value: Partial<EditorTask>): void => onChange(updateTask(template, index, value));
   const phaseCodes = template.phases.map((phase) => phase.code);
   const phaseOptions = (phaseCodes.includes(task.phase) ? phaseCodes : [task.phase, ...phaseCodes]).map((value) => ({ value, label: value === '' ? t('pwf.templates.task.noPhase.option') : value }));
@@ -471,7 +466,7 @@ function TaskPanel({ template, index, task, onChange, problems, show, disabled, 
                 {task.checklist.map((item, at2) => (
                   <li key={at2} className="pwf-tpl-row">
                     <TextField label={t('pwf.templates.checklist.code.label')} path={`${at}.checklist[${at2}].code`} value={item.code} onChange={(value) => patch({ checklist: task.checklist.map((one, k) => (k === at2 ? { ...one, code: value } : one)) })} {...common} />
-                    <TextField label={t('pwf.templates.checklist.name.label')} path={`${at}.checklist[${at2}].name`} value={item.name} onChange={(value) => patch({ checklist: task.checklist.map((one, k) => (k === at2 ? { ...one, name: value } : one)) })} {...common} />
+                    <TextField grow label={t('pwf.templates.checklist.name.label')} path={`${at}.checklist[${at2}].name`} value={item.name} onChange={(value) => patch({ checklist: task.checklist.map((one, k) => (k === at2 ? { ...one, name: value } : one)) })} {...common} />
                     <CodeListField label={t('pwf.templates.checklist.evidence.label')} path={`${at}.checklist[${at2}].evidence_kinds`} value={item.evidence_kinds} onChange={(value) => patch({ checklist: task.checklist.map((one, k) => (k === at2 ? { ...one, evidence_kinds: value } : one)) })} {...common} />
                     <CheckField label={t('pwf.templates.checklist.required.label')} path={`${at}.checklist[${at2}].required`} checked={item.required} disabled={disabled} onChange={(checked) => patch({ checklist: task.checklist.map((one, k) => (k === at2 ? { ...one, required: checked } : one)) })} />
                     <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={disabled} data-action={`remove-item-${at2}`} onClick={() => patch({ checklist: task.checklist.filter((_, k) => k !== at2) })}>

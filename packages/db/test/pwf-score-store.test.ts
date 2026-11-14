@@ -940,6 +940,13 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       const line = worker[0] as NonNullable<(typeof worker)[number]>;
       expect(line.contributions.find((one) => one.task_code === 'G4')).toMatchObject({ score: 0 });
       expect(line.excluded).toContainEqual({ task_id: expect.any(String), task_code: 'G5', reason: 'CANCELLED_APPROVED' });
+      // Lane fix11: a task left out is read by its NAME, with its code kept beside it; a reader who may not read the project of the task gets the code and the reason only.
+      const [lineRow] = await owner<{ id: string }>('select id from machvon.staff_score_line where period_id = $1::uuid and membership_id = $2::uuid', [draft.period.id, memberId(WORKER)]);
+      const [g5] = await owner<{ name: string }>("select name from machvon.project_task where workflow_id = $1::uuid and task_code = 'G5'", [wf.id]);
+      const named = await as((tx) => reads.line(tx, viewer(HR, { readUnits: '*' }), lineRow?.id ?? '', () => ({ sql: 'true', params: [] })));
+      expect(named.excluded.find((one) => one.taskCode === 'G5')).toEqual({ taskCode: 'G5', reason: 'CANCELLED_APPROVED', name: g5?.name });
+      const unnamed = await as((tx) => reads.line(tx, viewer(HR, { readUnits: '*' }), lineRow?.id ?? '', () => ({ sql: 'false', params: [] })));
+      expect(unnamed.excluded.find((one) => one.taskCode === 'G5')).toEqual({ taskCode: 'G5', reason: 'CANCELLED_APPROVED', name: null });
       const signalsOf = async (member: number): Promise<string[]> =>
         (await as((tx) => reads.signals(tx, '*', memberId(HR), draft.period.id, { limit: 50 }))).items.find((one) => one.membershipId === memberId(member))?.flags.map((flag) => flag.code) ?? [];
       expect(await signalsOf(WORKER)).toEqual(['CANCELLED_SHARE_HIGH', 'TASKS_SPLIT_AFTER_BASELINE']);

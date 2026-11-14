@@ -63,3 +63,28 @@
 
 /* The tasks a signal names: one a line, the name first and the code as a note under it. */
 .pwfs-flagtasks { list-style: none; margin: var(--mv-space-4) 0 0; padding: 0; display: grid; gap: var(--mv-space-4); }
+
+/* PWF-09, the tab of the scales (lane fix11): a scale a row, open one at a time. */
+.pwfs-scale__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 6px;
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.pwfs-scale[data-scale-open='yes'] > .pwfs-scale__head {
+  border-color: var(--mv-color-primary);
+}
+.pwfs-scale__summary {
+  color: var(--mv-color-text-secondary);
+  font-size: 13px;
+}

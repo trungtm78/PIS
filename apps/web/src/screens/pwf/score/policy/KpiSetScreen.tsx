@@ -5,7 +5,7 @@ import type { ScreenProps } from '../../../../routes/types';
 import { useSession } from '../../../../session/SessionContext';
 import { StateBoundary } from '../../../../states/StateBoundary';
 import { useScreenState } from '../../../../states/useScreenState';
-import { SectionCard, Tabs, useTabParam } from '../../../../ui';
+import { SectionCard, StatusPill, Tabs, useTabParam } from '../../../../ui';
 import { useCatalogue, useEffective } from '../../../adm/governance/hooks';
 import type { RuleTypeEntry } from '../../../adm/governance/model';
 import { kpiName } from '../../codes';
@@ -95,6 +95,8 @@ function SetContent({ route }: ScreenProps) {
   // PWF-09 is four short pages instead of one of nine thousand pixels: the KPIs of the set, the scale of each, what each applies to, and the versions. The tab is kept in the address.
   const [view, setView] = useTabParam('view', KPI_SET_VIEWS);
   const [find, setFind] = useState('');
+  // The scale that is open on the tab of the scales: the first one until the person opens another; -1 when they closed them all.
+  const [openScale, setOpenScale] = useState<number | undefined>(undefined);
   const findId = useId();
   const visible = useMemo(() => matchingItems(form, find, (kpiCode) => kpiName(t, kpiCode)), [form, find, t]);
   // A problem in a tab that is not the one shown is counted on that tab, so nothing wrong is out of sight.
@@ -194,12 +196,40 @@ function SetContent({ route }: ScreenProps) {
                 count: countOf('scale'),
                 panel: (
                   <SectionCard title={t('fix10.kpiset.tab.scale')}>
+                    {/* One scale open at a time (lane fix11): six scales drawn in full made a page of more than 5,000 pixels. A closed one says in a line what it is and how many problems it holds, so nothing wrong is out of sight. */}
                     <ol className="pwf-tpl-rows" data-testid="items-scale">
-                      {visible.map((index) => (
-                        <li key={index}>
-                          <ItemEditor part="scale" form={form} index={index} item={form.items[index] as ItemForm} problems={problems} show={show} disabled={!canStore} references={references} onChange={set} operations={operations.data?.items} />
-                        </li>
-                      ))}
+                      {visible.map((index) => {
+                        const item = form.items[index] as ItemForm;
+                        const open = (openScale ?? visible[0]) === index;
+                        const wrong = show ? problems.filter((problem) => problem.path.startsWith(`items[${index}].scale`)).length : 0;
+                        const name = item.kpiCode.trim() === '' ? t('pwfs.kpiset.item.legend', { number: index + 1 }) : kpiName(t, item.kpiCode);
+                        return (
+                          <li key={index} className="pwfs-scale" data-scale-open={open ? 'yes' : 'no'}>
+                            <button
+                              type="button"
+                              className="pwfs-scale__head"
+                              aria-expanded={open}
+                              aria-controls={`pwfs-scale-${index}`}
+                              data-testid={`scale-toggle-${index}`}
+                              onClick={() => setOpenScale(open ? -1 : index)}
+                            >
+                              <span aria-hidden="true">{open ? '▾' : '▸'}</span>
+                              <strong>{name}</strong>
+                              <span className="pwfs-scale__summary">
+                                {item.scale.kind === 'LINEAR' ? t('fix11.kpiset.scale.linear', { worst: item.scale.worst, best: item.scale.best }) : t('fix11.kpiset.scale.stepped', { count: item.scale.steps.length })}
+                              </span>
+                              {wrong === 0 ? null : (
+                                <StatusPill tone="danger" icon="⚠">
+                                  {t('fix11.kpiset.scale.problems', { count: wrong })}
+                                </StatusPill>
+                              )}
+                            </button>
+                            <div id={`pwfs-scale-${index}`} hidden={!open}>
+                              <ItemEditor part="scale" form={form} index={index} item={item} problems={problems} show={show} disabled={!canStore} references={references} onChange={set} operations={operations.data?.items} />
+                            </div>
+                          </li>
+                        );
+                      })}
                     </ol>
                   </SectionCard>
                 ),

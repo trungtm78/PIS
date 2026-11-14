@@ -64,5 +64,8 @@
   "fix11.kpiFact.unit.label": "Cách đếm ngày",
   "fix11.kpiFact.against.label": "So với",
   "fix11.kpiFact.graceDays.label": "Số ngày châm chước",
-  "fix11.kpiFact.calendars.label": "Lịch làm việc"
+  "fix11.kpiFact.calendars.label": "Lịch làm việc",
+  "fix11.kpiset.scale.linear": "Tuyến tính: từ {worst} (0 điểm) đến {best} (100 điểm)",
+  "fix11.kpiset.scale.stepped": "Theo bậc: {count} bậc",
+  "fix11.kpiset.scale.problems": "{count} chỗ cần sửa"
 }

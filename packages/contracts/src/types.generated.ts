@@ -50388,6 +50388,8 @@ export interface components {
             excluded: {
                 task_code: string;
                 reason: string;
+                /** @description Tên việc (người đọc không đọc được dự án của việc thì null); mã việc vẫn giữ để đối chiếu */
+                name?: string | null;
             }[];
             /** @description Cờ dành cho người rà soát; không bao giờ đổi điểm */
             flags?: ("CANCELLED_SHARE_HIGH" | "TASKS_SPLIT_AFTER_BASELINE" | "BASELINE_REVISED_IN_PERIOD" | "ASSIGNEE_CHANGED_NEAR_DUE")[];

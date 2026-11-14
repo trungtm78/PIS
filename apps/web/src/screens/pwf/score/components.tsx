@@ -240,7 +240,8 @@ export function ExcludedList({ excluded }: { excluded: readonly Excluded[] }) {
     <ul data-testid="excluded" className="pwfs-excluded">
       {excluded.map((item) => (
         <li key={`${item.task_code}:${item.reason}`}>
-          <strong>{item.task_code}</strong> · {excludedReasonWord(t, item.reason)}
+          {/* The name a person reads, the code as the small note under it (lane fix11); the code alone only where the reader may not read the project of the task. */}
+          <TaskName name={item.name ?? item.task_code} code={item.name == null ? '' : item.task_code} /> <span className="pwfs-excluded__reason">{excludedReasonWord(t, item.reason)}</span>
         </li>
       ))}
     </ul>

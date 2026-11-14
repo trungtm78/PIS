@@ -379,7 +379,11 @@ void main() {
       expect(find.text('Tốt'), findsOneWidget);
       expect(find.textContaining('căn cứ hỗ trợ'), findsOneWidget);
       expect(find.text('Lập hồ sơ mời thầu'), findsOneWidget);
-      expect(find.text('Tạm dừng được duyệt'), findsOneWidget);
+      // Lane fix11: a task left out is read by its name, and why in words; neither the code of the task nor the code of the reason is a text of the row.
+      expect(find.text('Thẩm định hồ sơ mời thầu'), findsOneWidget);
+      expect(find.text('Việc được miễn'), findsOneWidget);
+      expect(find.text('T-13'), findsNothing);
+      expect(find.text('EXCLUDED'), findsNothing);
       // The adjustments and the responses are on their own tab.
       await tester.scrollUntilVisible(find.textContaining('Điều chỉnh'), 200, scrollable: find.byType(Scrollable).first);
       await tester.tap(find.textContaining('Điều chỉnh').first);

@@ -115,6 +115,26 @@ describe('PWF-09: reading the set', () => {
     expect(screen.queryByTestId('field-items[1].unit')).toBeNull();
   });
 
+  it('shows one scale at a time on the tab of the scales: the first is open, a closed one says what it is in a line, and a problem in a closed one is counted on its line (lane fix11)', async () => {
+    open();
+    await ready();
+    fireEvent.click(screen.getByTestId('kpiset-tab-scale'));
+    const panelOf = (index: number): HTMLElement => document.getElementById(`pwfs-scale-${index}`) as HTMLElement;
+    expect(screen.getByTestId('scale-toggle-0').getAttribute('aria-expanded')).toBe('true');
+    expect(panelOf(0).hidden).toBe(false);
+    expect(panelOf(1).hidden).toBe(true);
+    expect(screen.getByTestId('scale-toggle-1').textContent).toMatch(/Tuyến tính|Theo bậc/);
+    fireEvent.click(screen.getByTestId('scale-toggle-1'));
+    expect(panelOf(1).hidden).toBe(false);
+    expect(panelOf(0).hidden).toBe(true);
+    // A problem in a scale that is closed is counted on its line: nothing wrong is out of sight.
+    change('items[0].scale.worst', 'abc');
+    expect(screen.getByTestId('scale-toggle-0').textContent).toContain(text('fix11.kpiset.scale.problems', { count: 1 }));
+    // Closing the open one leaves them all closed.
+    fireEvent.click(screen.getByTestId('scale-toggle-1'));
+    expect(panelOf(1).hidden).toBe(true);
+  });
+
   it('draws the conversion curve of each scale with the same points in words', async () => {
     open({ path: '/pwf/pwf-09?view=scale' });
     await ready();

@@ -6,7 +6,7 @@ import { SectionCard, StatusPill } from '../../../ui';
 import { useCatalogue, useScopeKey } from '../../adm/governance/hooks';
 import { toResolved } from '../../adm/governance/model';
 import { docKindWord } from '../process/labels';
-import { NumberField, SelectField, TextField } from './editor-fields';
+import { NumberField, SelectField, TextField, roleHintOf } from './editor-fields';
 import type { ProblemMap } from './editor-fields';
 import {
   FORM_POLICY_KINDS,
@@ -201,7 +201,7 @@ export function StepsEditor({ template, onChange, problems, show, disabled }: St
                         <TextField label={t('pwf.templates.steps.code.label')} path={`${at}.code`} value={step.code} onChange={(code) => onChange(renameStep(template, index, code))} {...common} />
                         <TextField label={t('pwf.templates.steps.name.label')} path={`${at}.name`} value={step.name} onChange={(name) => onChange(updateStep(template, index, { name }))} {...common} />
                         <SelectField label={t('pwf.templates.steps.phase.label')} path={`${at}.phase`} value={step.phase} options={phaseOptions.some((option) => option.value === step.phase) ? phaseOptions : [{ value: step.phase, label: step.phase }, ...phaseOptions]} onChange={(phase) => onChange(updateStep(template, index, { phase }))} {...common} />
-                        <TextField label={t('pwf.templates.steps.role.label')} path={`${at}.responsible_role`} hint={t('pwf.templates.steps.role.hint')} value={step.responsible_role ?? ''} onChange={(role) => onChange(updateStep(template, index, { responsible_role: role }))} {...common} />
+                        <TextField label={t('pwf.templates.steps.role.label')} path={`${at}.responsible_role`} hint={roleHintOf(t, template, step.responsible_role ?? '') ?? t('pwf.templates.steps.role.hint')} value={step.responsible_role ?? ''} onChange={(role) => onChange(updateStep(template, index, { responsible_role: role }))} {...common} />
                         <span data-testid={`step-tasks-${index}`}>
                           <StatusPill tone={tasks === 0 ? 'warning' : 'neutral'} icon={tasks === 0 ? '⚠' : undefined}>
                             {t('pwf.templates.steps.tasks.text', { count: tasks })}

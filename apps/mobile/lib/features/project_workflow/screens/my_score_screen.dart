@@ -111,7 +111,7 @@ class _PwfScoreViewState extends State<PwfScoreView> {
                 ],
                 if (line.excluded.isNotEmpty) ...<Widget>[
                   GroupHeader(title: context.t('mob.pwf.score.excluded'), count: line.excluded.length),
-                  for (int index = 0; index < line.excluded.length; index += 1) WorkRow(title: line.excluded[index].taskCode, subtitle: line.excluded[index].reason, leading: const Icon(Icons.remove_circle_outline), dividerAbove: index > 0),
+                  for (int index = 0; index < line.excluded.length; index += 1) WorkRow(title: line.excluded[index].name ?? line.excluded[index].taskCode, subtitle: _excludedReason(context, line.excluded[index].reason), leading: const Icon(Icons.remove_circle_outline), dividerAbove: index > 0),
                 ],
                 if (line.contributions.isEmpty && line.excluded.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.score.tasks.none'), style: text.body)),
               ],
@@ -192,6 +192,18 @@ class _PwfScoreViewState extends State<PwfScoreView> {
     final bool twin = lines.where((PwfScoreLine other) => other.periodFrom == line.periodFrom && other.periodTo == line.periodTo).length > 1;
     return twin && line.unitName != null ? context.t('mob.pwf11.score.chip', <String, Object>{'days': days, 'unit': line.unitName!}) : days;
   }
+
+  /// Why a task is left out of the score, in words (lane fix11): the code of the reason is never the text of a row. A reason the phone has no words for is said to be another reason, without its code.
+  String _excludedReason(BuildContext context, String reason) => switch (reason) {
+        'NO_SHARE' => context.t('mob.pwf11.excluded.noShare'),
+        'NO_SCORE' => context.t('mob.pwf11.excluded.noScore'),
+        'CANCELLED_IGNORED' => context.t('mob.pwf11.excluded.cancelledIgnored'),
+        'CANCELLED_APPROVED' => context.t('mob.pwf11.excluded.cancelledApproved'),
+        'EXCLUDED' => context.t('mob.pwf11.excluded.excused'),
+        'NOT_STARTED' => context.t('mob.pwf11.excluded.notStarted'),
+        'NOT_DUE' => context.t('mob.pwf11.excluded.notDue'),
+        _ => context.t('mob.pwf11.excluded.other'),
+      };
 
   String _periodStatus(BuildContext context, String status) => switch (status) {
         'OFFICIAL' => context.t('mob.pwf.score.status.official'),

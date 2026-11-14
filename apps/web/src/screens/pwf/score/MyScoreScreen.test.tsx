@@ -73,6 +73,11 @@ describe('PWF-11: my score', () => {
     expect(within(card).getAllByText('50%')).toHaveLength(2);
     expect(within(card).getByTestId('restricted').textContent).toContain(text('pwfs.contribution.restricted.text'));
     expect(within(card).getByTestId('excluded').textContent).toContain(text('pwfs.excluded.noShare.word'));
+    // Lane fix11: a task left out is named; its code is the small note under the name, never the heading of the row.
+    const left = within(card).getByTestId('excluded');
+    expect(within(left).getByText('Lập đề xuất chủ trương đầu tư')).toBeTruthy();
+    expect(within(left).getByTestId('task-code').textContent).toBe('T9');
+    expect(left.querySelector('strong')).toBeNull();
   });
 
   it('opens the facts behind a task: the KPI results with their formula, the hash and the inputs', async () => {

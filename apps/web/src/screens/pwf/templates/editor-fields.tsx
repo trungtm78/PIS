@@ -2,8 +2,9 @@ import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
-import { joinCodes, splitCodes } from './template-model';
-import type { TemplateProblem, TemplateProblemKind } from './template-model';
+import { roleKnown, roleName } from '../codes';
+import { joinCodes, splitCodes, templateRoleName } from './template-model';
+import type { Template, TemplateProblem, TemplateProblemKind } from './template-model';
 
 /** The problems of the editor by path, for the field that has one. */
 export type ProblemMap = ReadonlyMap<string, TemplateProblemKind>;
@@ -31,6 +32,16 @@ export function problemWord(t: Translator['t'], kind: TemplateProblemKind): stri
   }
 }
 
+/**
+ * What a role code is called, as the hint under the field that holds the code (PWF-02): the name this template gives it, else the name of the shipped catalogue; a code nobody named says where to name it. A person
+ * reads "Kỹ sư hiện trường" under the box, never the code alone (lane fix11: the role of a step said nothing of its name).
+ */
+export function roleHintOf(t: Translator['t'], template: Template, code: string): string | undefined {
+  if (code.trim() === '') return undefined;
+  const name = templateRoleName(template, code) ?? (roleKnown(code) ? roleName(t, code) : undefined);
+  return name === undefined ? t('fix8.editor.role.unnamed.hint') : t('fix8.editor.role.named.hint', { name });
+}
+
 export interface FieldFrameProps {
   label: string;
   path: string;
@@ -39,18 +50,20 @@ export interface FieldFrameProps {
   show: boolean;
   hint?: string | undefined;
   wide?: boolean | undefined;
+  /** The field takes two columns of its row: a text a person reads whole (the content of a checklist item), not a code. */
+  grow?: boolean | undefined;
   children: (props: { id: string; invalid: boolean; describedBy: string | undefined }) => ReactNode;
 }
 
 /** A label, the control, an optional hint and the problem of the path in words next to it (never colour alone). */
-export function FieldFrame({ label, path, problems, show, hint, wide, children }: FieldFrameProps) {
+export function FieldFrame({ label, path, problems, show, hint, wide, grow, children }: FieldFrameProps) {
   const { t } = useTranslation();
   const id = useId();
   const kind = problems.get(path);
   const invalid = show && kind !== undefined;
   const describedBy = [invalid ? `${id}-error` : '', hint === undefined ? '' : `${id}-hint`].filter((part) => part !== '').join(' ');
   return (
-    <div className={wide === true ? 'pwf-field pwf-field--wide' : 'pwf-field'}>
+    <div className={wide === true ? 'pwf-field pwf-field--wide' : grow === true ? 'pwf-field pwf-field--grow' : 'pwf-field'}>
       <label htmlFor={id}>{label}</label>
       {children({ id, invalid, describedBy: describedBy === '' ? undefined : describedBy })}
       {hint === undefined ? null : (

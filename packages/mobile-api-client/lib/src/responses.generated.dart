@@ -67460,6 +67460,7 @@ final class StaffScoreLineResponseExcludedItem implements ResponseModel {
   const StaffScoreLineResponseExcludedItem({
     required this.taskCode,
     required this.reason,
+    this.name,
     this.extra = const <String, Object?>{},
   });
 
@@ -67468,12 +67469,14 @@ final class StaffScoreLineResponseExcludedItem implements ResponseModel {
     return StaffScoreLineResponseExcludedItem(
       taskCode: requiredField(map, path, 'task_code', asString),
       reason: requiredField(map, path, 'reason', asString),
-      extra: unknownFields(map, path, const <String>{'task_code', 'reason'}, strict: true),
+      name: optionalField(map, path, 'name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'task_code', 'reason', 'name'}, strict: true),
     );
   }
 
   final String taskCode;
   final String reason;
+  final String? name;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -67482,6 +67485,7 @@ final class StaffScoreLineResponseExcludedItem implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'task_code': taskCode,
         'reason': reason,
+        if (name != null) 'name': name,
         ...extra,
       };
 }

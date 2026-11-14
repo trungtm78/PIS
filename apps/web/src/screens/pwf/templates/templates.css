@@ -65,8 +65,30 @@
   display: grid;
   gap: 8px;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  align-items: end;
+  /* Lane fix11: the controls of a row stand on one line whatever is under them. Aligned at the end, a field with a hint under its box stood higher than its neighbours and a button lower than the boxes. */
+  align-items: start;
   padding: 6px 0;
+}
+/* A label of one line and a label of two take the same height, the text at the foot of it, so that every box of the row starts at the same height. */
+.pwf-tpl-row > .pwf-field > label {
+  display: flex;
+  align-items: flex-end;
+  min-height: 2.7em;
+}
+/* What is not a field (a button that removes the row, a count) stands at the height of the boxes, under the height of a label. */
+.pwf-tpl-row > button,
+.pwf-tpl-row > span {
+  margin-top: calc(2.7em + 4px);
+  justify-self: start;
+}
+/* A text a person reads whole takes two columns of the row (the content of a checklist item was cut in a narrow box). */
+.pwf-tpl-row > .pwf-field--grow {
+  grid-column: span 2;
+}
+@media (max-width: 420px) {
+  .pwf-tpl-row > .pwf-field--grow {
+    grid-column: auto;
+  }
 }
 .pwf-tpl-checks {
   display: flex;

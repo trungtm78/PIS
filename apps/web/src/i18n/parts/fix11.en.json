@@ -64,5 +64,8 @@
   "fix11.kpiFact.unit.label": "How days are counted",
   "fix11.kpiFact.against.label": "Compared with",
   "fix11.kpiFact.graceDays.label": "Days of grace",
-  "fix11.kpiFact.calendars.label": "Working calendar"
+  "fix11.kpiFact.calendars.label": "Working calendar",
+  "fix11.kpiset.scale.linear": "Linear: from {worst} (0 points) to {best} (100 points)",
+  "fix11.kpiset.scale.stepped": "Stepped: {count} steps",
+  "fix11.kpiset.scale.problems": "{count} to fix"
 }

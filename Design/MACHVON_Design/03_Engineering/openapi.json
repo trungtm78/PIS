@@ -331445,6 +331445,13 @@
                 },
                 "reason": {
                   "type": "string"
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên việc (người đọc không đọc được dự án của việc thì null); mã việc vẫn giữ để đối chiếu"
                 }
               }
             }

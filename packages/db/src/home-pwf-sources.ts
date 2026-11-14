@@ -112,7 +112,7 @@ export class HomePwfSources {
          from machvon.project_task t
          join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
          ${PROJECT_JOINS('t', 't.project_id')}
-        where t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS') and t.committed_finish is not null ${until} ${past} and ${visible}
+        where t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS') and t.committed_finish is not null ${until} ${past} and ${OPEN_WORK} and ${visible}
         order by t.committed_finish, t.id limit ${SOURCE_LIMIT}`,
       params.values,
     );
@@ -160,8 +160,14 @@ export class HomePwfSources {
     const days = wording.days ?? 0;
     // A short title a phone shows whole: the NAME of the task and what its deadline says; the project is the second line, by its name. No code of a task, of a phase or of a project is in the words (owner review of 14/11/2026).
     const named = { task: row.name };
+    // A milestone that is listed has nothing open before it: it waits to be recorded, and the words say that, not that somebody is late with work.
+    const milestone = row.kind === 'MILESTONE';
     const title =
-      wording.kind === 'OVERDUE_DAYS'
+      milestone && wording.kind === 'OVERDUE_DAYS'
+        ? message('home.source.pwf.milestone.unrecorded.title', { ...named, days })
+        : milestone && wording.kind === 'OVERDUE'
+          ? message('home.source.pwf.milestone.unrecorded_now.title', named)
+          : wording.kind === 'OVERDUE_DAYS'
         ? message(escalated ? 'home.source.pwf.overdue.escalated.title' : 'home.source.pwf.overdue.title', { ...named, days })
         : wording.kind === 'OVERDUE'
           ? message('home.source.pwf.overdue_now.title', named)
@@ -222,6 +228,16 @@ export class HomePwfSources {
     );
   }
 }
+
+/**
+ * A milestone is not work somebody does: it is reached when what stands before it is done (lane fix11). While a task before it is still open, that task is the thing to act on and carries the alert; the milestone
+ * is not listed beside it as one more overdue task with the same day (its slip is the alert of the one who answers for the project, `PWF_MILESTONE_AT_RISK`). A milestone with nothing open before it only waits to
+ * be recorded: it is listed, in its own words. Its day is the committed one, as for a task (R49).
+ */
+const OPEN_WORK = `(t.kind <> 'MILESTONE' or not exists (
+          select 1 from machvon.project_task_dependency dep
+            join machvon.project_task before on before.tenant_id = dep.tenant_id and before.id = dep.predecessor_id
+           where dep.tenant_id = t.tenant_id and dep.task_id = t.id and before.tracked and not before.excluded and before.status not in ('DONE', 'CANCELLED')))`;
 
 interface TaskSql {
   id: string;

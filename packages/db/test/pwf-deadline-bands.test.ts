@@ -145,6 +145,7 @@ async function clearTasks(): Promise<void> {
   await calendars('delete from machvon.alert_notification_profile');
   await admin('delete from machvon.project_task_reminder');
   await admin('delete from machvon.project_task_assignment');
+  await admin('delete from machvon.project_task_dependency');
   await admin('delete from machvon.project_task');
 }
 
@@ -208,6 +209,22 @@ beforeEach(clearTasks);
  * The tasks of a workflow as a source of the alert centre (PWF-2, R30, R40): the colour is the official one, the days are working days, the read is direct, and nothing a person sets for themselves changes what the alert centre says.
  */
 describe('the source PROJECT_TASK of the alert centre', () => {
+  it('never lists a milestone as overdue work while a task before it is still open: the open task carries the alert, and a milestone that only waits to be recorded says so in its own words (lane fix11)', async () => {
+    const before = await task(-3);
+    const blocked = await task(-3, { kind: 'MILESTONE' });
+    const ready = await task(-3, { kind: 'MILESTONE' });
+    const done = await task(-5, { status: 'DONE' });
+    await seedSql([
+      ['insert into machvon.project_task_dependency (tenant_id, workflow_id, task_id, predecessor_id, kind, lag_working_days) values ($1, $2, $3, $4, $5, 0)', [TENANT_A, workflowDept, blocked, before, 'FS']],
+      ['insert into machvon.project_task_dependency (tenant_id, workflow_id, task_id, predecessor_id, kind, lag_working_days) values ($1, $2, $3, $4, $5, 0)', [TENANT_A, workflowDept, ready, done, 'FS']],
+    ]);
+    const rows = onlyTasks((await collect()).rows).filter((row) => row.kind === 'PWF_TASK_OVERDUE');
+    expect(rows.map((row) => row.id).sort()).toEqual([`${before}:1`, `${ready}:1`].sort());
+    const title = (id: string): string => (rows.find((row) => row.id === `${id}:1`)?.title ?? '').replace(/^Task \d+/, 'Task');
+    expect(title(before)).toBe('Task: quá hạn 3 ngày làm việc, đã báo cấp quản lý');
+    expect(title(ready)).toBe('Task: mốc chưa được ghi nhận, quá hạn 3 ngày làm việc');
+  });
+
   it('lists a task by its official colour with the severity of its facet and the identity task and version, and nothing farther than the green line', async () => {
     const ids = {
       far: await task(6),

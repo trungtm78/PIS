@@ -265,7 +265,7 @@ Map<String, Object?> scoreItem({String state = 'RATED', double? computed = 82.5,
           <String, Object?>{'task_code': 'T-12', 'task_id': null, 'name': 'Thẩm định kế hoạch', 'fraction': 0.5, 'weight': 1, 'score': 70, 'spans': <Object?>[]},
         ],
         'excluded': <Object?>[
-          <String, Object?>{'task_code': 'T-13', 'reason': 'Tạm dừng được duyệt'},
+          <String, Object?>{'task_code': 'T-13', 'reason': 'EXCLUDED', 'name': 'Thẩm định hồ sơ mời thầu'},
         ],
         'adjustments': adjusted == null
             ? <Object?>[]

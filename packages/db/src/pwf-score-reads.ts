@@ -139,7 +139,8 @@ export interface ResponseView {
 
 export interface LineDetail extends LineSummary {
   contributions: DetailContribution[];
-  excluded: Array<{ taskCode: string; reason: string }>;
+  /** The tasks left out of the score. `name` is the name people read (lane fix11): null where the reader may not read the project of the task, as for the tasks behind the points. */
+  excluded: Array<{ taskCode: string; reason: string; name: string | null }>;
   flags: Array<{ code: string; taskCodes: string[] }>;
   adjustments: AdjustmentView[];
   responses: ResponseView[];
@@ -369,6 +370,11 @@ export class PwfScoreReads {
     // The project of each point, by code and name: two tasks of the same name in two projects are told apart by it. The person sees the projects of their own tasks; a reader only the projects they may read.
     const projectIds = [...new Set(row.contributions.map((one) => one.project_id))];
     const readable = await this.readableProjects(tx, isSubject ? undefined : projects, projectIds);
+    // The names of the tasks left out (lane fix11): the snapshot keeps their codes, a person reads names. The person sees the names of their own tasks; a reader only where they may read the project.
+    const excludedIds = [...new Set(row.excluded.map((one) => one.task_id).filter((one): one is string => typeof one === 'string' && one !== ''))];
+    const excludedTasks = excludedIds.length === 0 ? [] : await tx.query<{ id: string; name: string; project_id: string }>('select t.id, t.name, t.project_id from machvon.project_task t where t.id = any($1::uuid[])', [excludedIds]);
+    const excludedReadable = await this.readableProjects(tx, isSubject ? undefined : projects, [...new Set(excludedTasks.map((one) => one.project_id))]);
+    const excludedNames = new Map(excludedTasks.filter((one) => isSubject || excludedReadable.has(one.project_id)).map((one) => [one.id, one.name] as const));
     const canWrite = row.period_status !== 'DRAFT';
     return {
       ...toSummary(row),
@@ -377,7 +383,7 @@ export class PwfScoreReads {
         const visible = isSubject || project !== undefined;
         return { taskCode: one.task_code, taskId: visible ? one.task_id : null, name: visible ? one.name : '', projectCode: visible ? (project?.code ?? null) : null, projectName: visible ? (project?.name ?? null) : null, fraction: one.fraction, weight: one.weight, score: one.score, spans: one.spans.map((span) => ({ role: span.role, validFrom: span.valid_from, validTo: span.valid_to, sharePct: span.share_pct })) };
       }),
-      excluded: row.excluded.map((one) => ({ taskCode: one.task_code, reason: one.reason })),
+      excluded: row.excluded.map((one) => ({ taskCode: one.task_code, reason: one.reason, name: excludedNames.get(one.task_id) ?? null })),
       flags: flags.map((one) => ({ code: one.code, taskCodes: one.task_codes })),
       adjustments: adjustments.map(toAdjustment),
       responses: responses.map(toResponse),

@@ -1624,6 +1624,8 @@
   "home.source.pwf.no_day_left.title": "{task}: hết ngày làm việc trước hạn",
   "home.source.pwf.overdue.escalated.title": "{task}: quá hạn {days} ngày làm việc, đã báo cấp quản lý",
   "home.source.pwf.milestone.title": "{task}: dự báo trễ {days} ngày",
+  "home.source.pwf.milestone.unrecorded.title": "{task}: mốc chưa được ghi nhận, quá hạn {days} ngày làm việc",
+  "home.source.pwf.milestone.unrecorded_now.title": "{task}: mốc chưa được ghi nhận, đã quá hạn",
   "home.source.pwf.detail": "{project}",
   "home.source.pwf.detail.critical": "{project} · trên đường găng",
   "home.source.pwf.milestone.detail": "{project} · hạn cơ sở {baseline}, dự báo {date}",

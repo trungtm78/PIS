@@ -919,7 +919,7 @@ final class PwfScoreLine {
   final String? rating;
   final String? responseUntil;
   final List<PwfScoreContribution> contributions;
-  final List<({String taskCode, String reason})> excluded;
+  final List<({String taskCode, String reason, String? name})> excluded;
   final List<PwfScoreAdjustment> adjustments;
   final List<PwfScoreResponse> responses;
   final bool canRespond;
@@ -976,9 +976,9 @@ PwfMyScores? parsePwfMyScores(Object? raw) {
             if (asRecord(c) case final Json row when filled(row['task_code']) != null && _number(row['score']) != null)
               PwfScoreContribution(taskCode: filled(row['task_code'])!, name: text(row['name']) ?? '', project: filled(row['project_name']) ?? filled(row['project_code']), fraction: _number(row['fraction']) ?? 0, weight: _number(row['weight']) ?? 0, score: _number(row['score'])!),
         ],
-        excluded: <({String taskCode, String reason})>[
+        excluded: <({String taskCode, String reason, String? name})>[
           for (final Object? e in listOf(line['excluded']))
-            if (asRecord(e) case final Json row when filled(row['task_code']) != null) (taskCode: filled(row['task_code'])!, reason: text(row['reason']) ?? ''),
+            if (asRecord(e) case final Json row when filled(row['task_code']) != null) (taskCode: filled(row['task_code'])!, reason: text(row['reason']) ?? '', name: filled(row['name'])),
         ],
         adjustments: <PwfScoreAdjustment>[
           for (final Object? a in listOf(line['adjustments']))

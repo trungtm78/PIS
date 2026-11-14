@@ -144,7 +144,7 @@ export function lineDto(line: StaffScoreLineDetail, now: Date): Schemas['StaffSc
       score: one.score,
       spans: one.spans.map((span) => ({ role: span.role, valid_from: span.validFrom, valid_to: span.validTo, share_pct: span.sharePct })),
     })),
-    excluded: line.excluded.map((one) => ({ task_code: one.taskCode, reason: one.reason })),
+    excluded: line.excluded.map((one) => ({ task_code: one.taskCode, reason: one.reason, name: one.name })),
     // The signals of gaming are for the reviewer: a line read by anybody else has no `flags` member at all.
     ...(line.flags.length === 0 ? {} : { flags: line.flags.map((one) => one.code) }),
     adjustments: line.adjustments.map(adjustmentDto),

@@ -171,6 +171,18 @@ describe('PWF-02: the steps of the phases, the legal grounds and the form polici
     expect(within(screen.getByTestId('field-tasks[0].step')).getAllByRole('option').map((option) => option.textContent)).toEqual([text('pwf.templates.steps.pick.none'), 'S_PREPARATION · Chuẩn bị đầu tư', 'S2 · Thẩm định']);
   });
 
+  it('says the NAME of the role that answers for a step under the box of its code, and where to name a code nobody named (lane fix11)', () => {
+    render(<Editor initial={enableSteps(base())} />);
+    const field = screen.getByTestId('field-steps[0].responsible_role');
+    const hintOf = (): string => document.getElementById((field.getAttribute('aria-describedby') ?? '').split(' ').pop() ?? '')?.textContent ?? '';
+    // No role yet: the hint says what the box is for.
+    expect(hintOf()).toBe(text('pwf.templates.steps.role.hint'));
+    fireEvent.change(field, { target: { value: 'SITE_ENGINEER' } });
+    expect(hintOf()).toBe(text('fix8.editor.role.named.hint', { name: text('pwf6.role.siteEngineer.word') }));
+    fireEvent.change(field, { target: { value: 'A_ROLE_OF_OURS' } });
+    expect(hintOf()).toBe(text('fix8.editor.role.unnamed.hint'));
+  });
+
   it('cites a document of the catalogue by its code for a step and for a task, with the article and the verification, and says a code the catalogue does not have', async () => {
     render(<Editor initial={enableSteps(base())} />);
     click('add-basis-steps[0]');
