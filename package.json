@@ -22,6 +22,7 @@
     "edition:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/edition-check.mjs",
     "coverage:libs": "node scripts/coverage-libs.mjs",
     "uat:run": "node scripts/uat-run.mjs",
+    "uat:suites": "node scripts/uat-suites.mjs",
     "contracts:generate": "npm run contracts:generate -w @machvon/contracts",
     "contracts:check": "npm run contracts:check -w @machvon/contracts",
     "contracts:compat": "npm run contracts:compat -w @machvon/contracts --",

@@ -96,6 +96,8 @@ Ca được ghép với test theo mã ca trong tên test, ở mọi bộ của r
 
 Hai bộ Jest dùng PostgreSQL nhúng chạy lần lượt (làn `db` của `scripts/lane.mjs`), không song song.
 
+Một lệnh chạy đủ bảy bộ, mỗi bộ một journal riêng, rồi gộp vào kho của lượt chạy: `npm run uat:suites -- --run-id <mã lượt>` (`scripts/uat-suites.mjs`). `--suite <tên>` (api, db, kernel, vitest, node, playwright, flutter; lặp lại được) chạy một phần và gộp vào kho sẵn có; `--journal-dir <thư mục> --no-store` chỉ để lại journal (`journal-<tên>.jsonl`) cho harness tự đọc. Bộ nào đỏ thì các bộ sau vẫn chạy (ca của nó thành FAIL); bộ nào không khởi động được công cụ thì bị bỏ và được báo.
+
 ## Việc còn lại của writer (nợ có chủ đích)
 
 1. **Đào sâu theo thao tác:** `openapi.json` có 1.017 thao tác (545 có body, 1.493 trường bắt buộc, 818 trường có ràng buộc, 296 enum). Ca "thiếu trường X thì 422" chỉ có giá trị khi khẳng định `detail` nêu đúng trường X, nếu không nó vẫn đạt khi có lỗi 422 khác (oracle yếu). Cần bộ sinh ví dụ hợp lệ theo schema trước khi sinh ca.
