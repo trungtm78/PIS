@@ -254,7 +254,7 @@ async function scoreOfThePerson(ctx: SeedContext): Promise<void> {
     period = computed.json.period;
     ctx.record({ module: 'PWF', kind: 'score-period', id: String(period.id), code: `${window.from}..${window.to}`, note: 'computed', screen: 'PWF-14' });
   }
-  if (period.status === 'DRAFT') await ctx.attempt<CommandReply>(PERSON, 'POST', `/staff-score-periods/${String(period.id)}/lock`, {}, { version: Number(period.version) });
+  if (period.status === 'DRAFT') await ctx.attempt<CommandReply>(PERSON, 'POST', `/staff-score-periods/${String(period.id)}/lock`, { early_reason: 'Chốt sớm để rà soát giữa quý theo kế hoạch đánh giá của đơn vị; số liệu tính đến ngày chốt, việc còn trong hạn chưa chấm' }, { version: Number(period.version) });
   if ((await ctx.get<{ items: Obj[] }>(PERSON, '/me/staff-scores', { limit: 5 })).items.length === 0) ctx.warn(`no scoring period holds a line of ${PERSON}: the screen of the score of the phone stays empty`);
 }
 

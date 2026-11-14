@@ -561,7 +561,11 @@ export function ratingOf(score: number, bands: readonly RatingBand[]): string {
 // The score of a person in a period (R34).
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-export type StaffTaskState = 'RATED' | 'EXCLUDED' | 'CANCELLED_APPROVED' | 'CANCELLED_UNAPPROVED' | 'NOT_STARTED';
+/**
+ * `NOT_DUE` is a task that was still open and inside its deadline at the cutoff of the figures (the day a draft is taken on in the middle of a period): it is neither late nor done, so it is left out of the denominator
+ * and named, never read as a miss (PWF D-53).
+ */
+export type StaffTaskState = 'RATED' | 'EXCLUDED' | 'CANCELLED_APPROVED' | 'CANCELLED_UNAPPROVED' | 'NOT_STARTED' | 'NOT_DUE';
 
 /** One line of the assignment ledger: who held the task in which interval (`to` null while the assignment is open), in which role, and which share of the task. */
 export interface LedgerAssignment {
@@ -636,7 +640,7 @@ const taskWeightOf = (task: StaffPeriodTask, policy: StaffScoringPolicy): number
 
 /**
  * The score of every person who holds a task in the period (R34). The part of a person in a task is the share of the task window the assignment covers (working days when calendars give some, else calendar days)
- * times the share given to the person times the factor of the role, capped at the whole task. A task whose result is excused, approved as cancelled or not started leaves the denominator; one cancelled without
+ * times the share given to the person times the factor of the role, capped at the whole task. A task whose result is excused, approved as cancelled, not started or not due yet at the cutoff leaves the denominator; one cancelled without
  * approval counts as 0 when the policy says so. A person with no weight is NOT_RATED (never a division by zero); below the small-sample thresholds the score is shown and the rating withheld.
  */
 export function aggregateStaffPeriod(input: StaffPeriodInput): StaffPeriodScore[] {
@@ -773,7 +777,7 @@ export function gamingSignals(input: GamingInput): { membershipId: string; flags
       }
       if (revisedInPeriod) flags.push({ code: 'BASELINE_REVISED_IN_PERIOD', taskCodes: [] });
       const handed = tasks.filter((one) => {
-        if (one.baselineDue === null) return false;
+        if (one.baselineDue === null || one.state === 'NOT_DUE') return false;
         const late = one.finishedOn === null ? input.periodTo > one.baselineDue : one.finishedOn > one.baselineDue;
         const left = one.assignments.filter((a) => a.membershipId === membershipId && a.to !== null);
         return late && left.some((a) => (a.to as string) <= (one.baselineDue as string) && workflowDaysBetween(a.to as string, one.baselineDue as string) <= limits.handoverDays);

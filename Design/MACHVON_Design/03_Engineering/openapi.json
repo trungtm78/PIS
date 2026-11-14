@@ -237487,7 +237487,7 @@
     "/me/project-tasks": {
       "get": {
         "operationId": "getMyTasks",
-        "summary": "Việc của tôi theo hạn: màu chính thức và màu cá nhân kèm ngày hạn thật (MOB-80)",
+        "summary": "Việc của tôi theo hạn: màu chính thức và màu cá nhân kèm ngày hạn thật; status=DONE trả việc đã xong gần đây, mới nhất trước (MOB-80)",
         "tags": [
           "PWF"
         ],
@@ -237507,7 +237507,8 @@
             "required": false,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "NOT_STARTED, IN_PROGRESS, AWAITING_APPROVAL, ON_HOLD (việc còn mở) hoặc DONE (việc người gọi đã hoàn thành trong done_window_days ngày gần đây, phân trang)"
           },
           {
             "name": "due_before",
@@ -238682,13 +238683,25 @@
         },
         "x-error-codes": [
           "STAFF_SCORE_PERIOD_LOCKED",
-          "VERSION_CONFLICT"
+          "VERSION_CONFLICT",
+          "STAFF_SCORE_PERIOD_NOT_ENDED",
+          "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
           "pwf.score.period.locked.v1"
         ],
-        "x-state-guard": "DRAFT → LOCKED; dưới khóa theo kỳ; không có đường quay lại"
+        "x-state-guard": "DRAFT → LOCKED; dưới khóa theo kỳ; không có đường quay lại",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffScorePeriodLockRequest"
+              }
+            }
+          }
+        }
       }
     },
     "/staff-score-periods/{id}": {
@@ -330320,6 +330333,14 @@
                   ],
                   "format": "date",
                   "description": "Ngày kết thúc dự báo, chỉ có khi khác hạn chính thức (R49)"
+                },
+                "finished_on": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date",
+                  "description": "Ngày hoàn thành thực tế; chỉ có với việc đã xong (status=DONE)"
                 }
               }
             }
@@ -330376,6 +330397,11 @@
             "type": "integer",
             "minimum": 0,
             "description": "Số việc đang mở đã quá hạn chính thức (R49)"
+          },
+          "done_window_days": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Chỉ có khi lọc status=DONE: danh sách gồm việc đã xong trong ngần này ngày gần đây"
           }
         }
       },
@@ -330907,6 +330933,30 @@
               "null"
             ],
             "description": "Tên đơn vị của kỳ"
+          },
+          "computed_as_of": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "description": "Mốc cắt của số liệu (R50): ngày tính khi kỳ còn chạy, ngày cuối kỳ khi kỳ đã hết; null với kỳ tính trước R50"
+          },
+          "provisional": {
+            "type": "boolean",
+            "description": "Số liệu tạm tính: kỳ là bản nháp và mốc cắt còn trước ngày cuối kỳ"
+          },
+          "not_due_task_count": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "Số việc còn trong hạn tại mốc cắt nên chưa chấm (nằm ngoài mẫu số)"
+          },
+          "early_lock": {
+            "type": "boolean",
+            "description": "Kỳ được chốt trước ngày cuối kỳ, có lý do trong nhật ký"
           }
         }
       },
@@ -330953,6 +331003,11 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "not_due_task_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Số việc còn trong hạn tại mốc cắt nên chưa chấm"
           }
         }
       },
@@ -332583,6 +332638,18 @@
           }
         },
         "description": "Đề xuất loại quy trình cho một dự án theo quy tắc ánh xạ, danh sách loại quy trình và bản xem trước lịch (R47)"
+      },
+      "StaffScorePeriodLockRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "early_reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "Lý do chốt trước ngày cuối kỳ (bắt buộc khi kỳ chưa hết, độ dài tối thiểu theo chính sách chấm điểm); ghi vào nhật ký"
+          }
+        }
       }
     }
   }

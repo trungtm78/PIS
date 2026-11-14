@@ -59827,6 +59827,7 @@ final class PwfMyTaskPageResponse implements ResponseModel {
     required this.asOf,
     this.countsByBand,
     this.overdueCount,
+    this.doneWindowDays,
     this.extra = const <String, Object?>{},
   });
 
@@ -59839,7 +59840,8 @@ final class PwfMyTaskPageResponse implements ResponseModel {
       asOf: requiredField(map, path, 'as_of', asString),
       countsByBand: optionalField(map, path, 'counts_by_band', PwfMyTaskPageResponseCountsByBand.fromJson),
       overdueCount: optionalField(map, path, 'overdue_count', asInt),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'total', 'as_of', 'counts_by_band', 'overdue_count'}, strict: true),
+      doneWindowDays: optionalField(map, path, 'done_window_days', asInt),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'total', 'as_of', 'counts_by_band', 'overdue_count', 'done_window_days'}, strict: true),
     );
   }
 
@@ -59849,6 +59851,7 @@ final class PwfMyTaskPageResponse implements ResponseModel {
   final String asOf;
   final PwfMyTaskPageResponseCountsByBand? countsByBand;
   final int? overdueCount;
+  final int? doneWindowDays;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59861,6 +59864,7 @@ final class PwfMyTaskPageResponse implements ResponseModel {
         'as_of': asOf,
         if (countsByBand != null) 'counts_by_band': countsByBand!.toJson(),
         if (overdueCount != null) 'overdue_count': overdueCount,
+        if (doneWindowDays != null) 'done_window_days': doneWindowDays,
         ...extra,
       };
 }
@@ -59921,6 +59925,7 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
     required this.critical,
     required this.version,
     this.forecastFinish,
+    this.finishedOn,
     this.extra = const <String, Object?>{},
   });
 
@@ -59939,7 +59944,8 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
       critical: requiredField(map, path, 'critical', asBool),
       version: requiredField(map, path, 'version', asInt),
       forecastFinish: optionalField(map, path, 'forecast_finish', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'project_id', 'project_code', 'status', 'due_date', 'official_band', 'personal_band', 'critical', 'version', 'forecast_finish'}, strict: true),
+      finishedOn: optionalField(map, path, 'finished_on', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'project_id', 'project_code', 'status', 'due_date', 'official_band', 'personal_band', 'critical', 'version', 'forecast_finish', 'finished_on'}, strict: true),
     );
   }
 
@@ -59955,6 +59961,7 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
   final bool critical;
   final int version;
   final String? forecastFinish;
+  final String? finishedOn;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59973,6 +59980,7 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
         'critical': critical,
         'version': version,
         if (forecastFinish != null) 'forecast_finish': forecastFinish,
+        if (finishedOn != null) 'finished_on': finishedOn,
         ...extra,
       };
 }
@@ -67663,6 +67671,7 @@ final class StaffScorePeriodPreviewResponse implements ResponseModel {
     required this.excludedTaskCount,
     required this.previewHash,
     required this.asOf,
+    this.notDueTaskCount,
     this.extra = const <String, Object?>{},
   });
 
@@ -67677,7 +67686,8 @@ final class StaffScorePeriodPreviewResponse implements ResponseModel {
       excludedTaskCount: requiredField(map, path, 'excluded_task_count', asInt),
       previewHash: requiredField(map, path, 'preview_hash', asString),
       asOf: requiredField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'period', 'rated_count', 'small_sample_count', 'not_rated_count', 'signal_count', 'excluded_task_count', 'preview_hash', 'as_of'}, strict: true),
+      notDueTaskCount: optionalField(map, path, 'not_due_task_count', asInt),
+      extra: unknownFields(map, path, const <String>{'period', 'rated_count', 'small_sample_count', 'not_rated_count', 'signal_count', 'excluded_task_count', 'preview_hash', 'as_of', 'not_due_task_count'}, strict: true),
     );
   }
 
@@ -67689,6 +67699,7 @@ final class StaffScorePeriodPreviewResponse implements ResponseModel {
   final int excludedTaskCount;
   final String previewHash;
   final String asOf;
+  final int? notDueTaskCount;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -67703,6 +67714,7 @@ final class StaffScorePeriodPreviewResponse implements ResponseModel {
         'excluded_task_count': excludedTaskCount,
         'preview_hash': previewHash,
         'as_of': asOf,
+        if (notDueTaskCount != null) 'not_due_task_count': notDueTaskCount,
         ...extra,
       };
 }
@@ -67730,6 +67742,10 @@ final class StaffScorePeriodResponse implements ResponseModel {
     required this.asOf,
     this.scopeUnitCode,
     this.scopeUnitName,
+    this.computedAsOf,
+    this.provisional,
+    this.notDueTaskCount,
+    this.earlyLock,
     this.extra = const <String, Object?>{},
   });
 
@@ -67757,7 +67773,11 @@ final class StaffScorePeriodResponse implements ResponseModel {
       asOf: requiredField(map, path, 'as_of', asString),
       scopeUnitCode: optionalField(map, path, 'scope_unit_code', nullable(asString)),
       scopeUnitName: optionalField(map, path, 'scope_unit_name', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'id', 'scope_unit_id', 'period_kind', 'period_from', 'period_to', 'status', 'policy_code', 'policy_rule_id', 'policy_version', 'snapshot_hash', 'locked_by', 'locked_at', 'response_until', 'official_at', 'supersedes_period_id', 'line_count', 'open_response_count', 'version', 'as_of', 'scope_unit_code', 'scope_unit_name'}, strict: true),
+      computedAsOf: optionalField(map, path, 'computed_as_of', nullable(asString)),
+      provisional: optionalField(map, path, 'provisional', asBool),
+      notDueTaskCount: optionalField(map, path, 'not_due_task_count', nullable(asInt)),
+      earlyLock: optionalField(map, path, 'early_lock', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'scope_unit_id', 'period_kind', 'period_from', 'period_to', 'status', 'policy_code', 'policy_rule_id', 'policy_version', 'snapshot_hash', 'locked_by', 'locked_at', 'response_until', 'official_at', 'supersedes_period_id', 'line_count', 'open_response_count', 'version', 'as_of', 'scope_unit_code', 'scope_unit_name', 'computed_as_of', 'provisional', 'not_due_task_count', 'early_lock'}, strict: true),
     );
   }
 
@@ -67782,6 +67802,10 @@ final class StaffScorePeriodResponse implements ResponseModel {
   final String asOf;
   final String? scopeUnitCode;
   final String? scopeUnitName;
+  final String? computedAsOf;
+  final bool? provisional;
+  final int? notDueTaskCount;
+  final bool? earlyLock;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -67809,6 +67833,10 @@ final class StaffScorePeriodResponse implements ResponseModel {
         'as_of': asOf,
         if (scopeUnitCode != null) 'scope_unit_code': scopeUnitCode,
         if (scopeUnitName != null) 'scope_unit_name': scopeUnitName,
+        if (computedAsOf != null) 'computed_as_of': computedAsOf,
+        if (provisional != null) 'provisional': provisional,
+        if (notDueTaskCount != null) 'not_due_task_count': notDueTaskCount,
+        if (earlyLock != null) 'early_lock': earlyLock,
         ...extra,
       };
 }

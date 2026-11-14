@@ -957,6 +957,87 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect((await as((tx) => reads.line(tx, viewer(HR, { readUnits: '*' }), hrLine, everything))).flags).toEqual([]);
     });
   });
+  describe('R50: a draft taken in the middle of a period is cut at the day it is taken on', () => {
+    const NEXT = { from: `${Y + 1}-01-01`, to: `${Y + 1}-03-31` };
+    const MID = new Date(`${Y + 1}-02-16T03:00:00Z`);
+    const AFTER = new Date(`${Y + 1}-04-02T03:00:00Z`);
+    // The other tests of the file leave tasks of the same people in the unit: a line is read through the tasks of THIS test (codes C1 to C5).
+    const OWN = /^C[1-5]$/;
+    const partsOf = async (periodId: string, member: number): Promise<{ excluded: Array<{ task_code: string; reason: string }>; scored: Array<{ task_code: string; score: number }> }> => {
+      const [row] = await owner<{ excluded: Array<{ task_code: string; reason: string }>; contributions: Array<{ task_code: string; score: number }> }>(
+        'select excluded, contributions from machvon.staff_score_line where period_id = $1::uuid and membership_id = $2::uuid',
+        [periodId, memberId(member)],
+      );
+      return {
+        excluded: (row?.excluded ?? []).filter((one) => OWN.test(one.task_code)).map((one) => ({ task_code: one.task_code, reason: one.reason })).sort((left, right) => (left.task_code < right.task_code ? -1 : 1)),
+        scored: (row?.contributions ?? []).filter((one) => OWN.test(one.task_code)).map((one) => ({ task_code: one.task_code, score: one.score })).sort((left, right) => (left.task_code < right.task_code ? -1 : 1)),
+      };
+    };
+
+    it('scores what is done or overdue at the cutoff, keeps a task still inside its deadline out of the denominator (NOT_DUE), and reads the same tasks at the end of the period once it is over', async () => {
+      const wf = await workflow();
+      const done = await seedTask(wf, 'C1', { baselineFinish: `${Y + 1}-02-10`, baselineStart: `${Y + 1}-02-02`, actualFinish: `${Y + 1}-02-10` });
+      const inTerm = await seedTask(wf, 'C2', { status: 'IN_PROGRESS', baselineFinish: `${Y + 1}-03-20`, baselineStart: `${Y + 1}-02-02` });
+      const overdue = await seedTask(wf, 'C3', { status: 'IN_PROGRESS', baselineFinish: `${Y + 1}-02-06`, baselineStart: `${Y + 1}-02-02` });
+      const waiting = await seedTask(wf, 'C4', { status: 'IN_PROGRESS', baselineFinish: `${Y + 1}-03-25`, baselineStart: `${Y + 1}-02-02` });
+      await hold(done, WORKER);
+      await hold(inTerm, WORKER);
+      await hold(overdue, OTHER);
+      await hold(waiting, CHECKER);
+
+      expect(await refusal(compute(NEXT, { now: new Date(`${Y}-12-30T03:00:00Z`) }))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'period_from' });
+
+      const mid = await compute(NEXT, { now: MID });
+      expect(mid).toMatchObject({ notDueTaskCount: 2, asOfDay: `${Y + 1}-02-16`, provisional: true });
+      expect(mid.period.summary).toMatchObject({ as_of: `${Y + 1}-02-16`, not_due_tasks: 2 });
+      // The person with one task done on time and one still inside its deadline is read on the done one alone.
+      expect(await partsOf(mid.period.id, WORKER)).toEqual({ scored: [{ task_code: 'C1', score: 100 }], excluded: [{ task_code: 'C2', reason: 'NOT_DUE' }] });
+      // A task past its deadline at the cutoff is read, open as it is, and it costs points.
+      const late = await partsOf(mid.period.id, OTHER);
+      expect(late.excluded).toEqual([]);
+      expect(late.scored).toEqual([{ task_code: 'C3', score: expect.any(Number) }]);
+      expect(late.scored[0]?.score).toBeLessThan(100);
+      // A task that is not due yet gives its holder nothing, good or bad: nothing was read, so nothing is said.
+      expect(await partsOf(mid.period.id, CHECKER)).toEqual({ scored: [], excluded: [{ task_code: 'C4', reason: 'NOT_DUE' }] });
+      // The same day gives the same hash.
+      expect((await compute(NEXT, { now: MID })).previewHash).toBe(mid.previewHash);
+
+      // Once the period is over the cutoff is its last day: the two tasks are past their deadlines then and are read as late.
+      const ended = await compute(NEXT, { now: AFTER });
+      expect(ended).toMatchObject({ notDueTaskCount: 0, asOfDay: NEXT.to, provisional: false });
+      const worker = await partsOf(ended.period.id, WORKER);
+      expect(worker.excluded).toEqual([]);
+      expect(worker.scored.map((one) => one.task_code)).toEqual(['C1', 'C2']);
+      expect(worker.scored[1]?.score).toBeLessThan(100);
+      expect((await partsOf(ended.period.id, CHECKER)).scored.map((one) => one.task_code)).toEqual(['C4']);
+    });
+
+    it('locks a period before its last day only with a reason that is recorded, cut at the day of the lock, and the early lock is reproducible; after the last day no reason is asked and the cutoff is the end', async () => {
+      const draft = await compute(NEXT, { now: MID });
+      expect(await refusal(lockIt(draft.period.id, draft.period.version, { now: MID }))).toMatchObject({ code: 'STAFF_SCORE_PERIOD_NOT_ENDED', status: 409, extensions: { period_to: NEXT.to } });
+      expect(await refusal(lockIt(draft.period.id, draft.period.version, { now: MID, earlyReason: 'too short' }))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'early_reason' });
+      // The last day of the period is still inside it.
+      expect(await refusal(lockIt(draft.period.id, draft.period.version, { now: new Date(`${NEXT.to}T03:00:00Z`) }))).toMatchObject({ code: 'STAFF_SCORE_PERIOD_NOT_ENDED' });
+      const reason = 'The unit is dissolved on 1 March: the period is closed early.';
+      const locked = await lockIt(draft.period.id, draft.period.version, { now: MID, earlyReason: reason });
+      expect(locked).toMatchObject({ status: 'LOCKED', facts: { as_of: `${Y + 1}-02-16`, early: true, early_reason: reason } });
+      expect((await partsOf(draft.period.id, WORKER)).excluded).toEqual([{ task_code: 'C2', reason: 'NOT_DUE' }]);
+      expect(await as((tx) => scores.verify(tx, draft.period.id))).toEqual({ reproducible: true, hashMatches: true, figuresMatch: true });
+      const [row] = await owner<{ summary: Record<string, unknown> }>('select summary from machvon.staff_score_period where id = $1::uuid', [draft.period.id]);
+      expect(row?.summary).toMatchObject({ as_of: `${Y + 1}-02-16`, early_lock: true, not_due_tasks: 2 });
+
+      // A period that is over: no reason, and the cutoff is its last day whatever the day of the lock.
+      const wf = await workflow();
+      const open = await seedTask(wf, 'C5', { status: 'IN_PROGRESS', baselineFinish: `${Y - 4}-11-19`, baselineStart: `${Y - 4}-11-02` });
+      await hold(open, WORKER);
+      const past = await compute({ from: `${Y - 4}-10-01`, to: `${Y - 4}-12-31` });
+      expect(past).toMatchObject({ notDueTaskCount: 0, asOfDay: `${Y - 4}-12-31`, provisional: false });
+      const closed = await lockIt(past.period.id, past.period.version, { earlyReason: 'A reason nobody asked for, long enough to pass.' });
+      expect(closed).toMatchObject({ status: 'LOCKED', facts: { as_of: `${Y - 4}-12-31`, early: false } });
+      expect(closed.facts).not.toHaveProperty('early_reason');
+    });
+  });
+
   describe('B11 (R49): who is scored', () => {
     it('scores the staff of the unit, each person once: a guest of a contractor and a service account hold no line, and the memberships of one person are one line', async () => {
       const TEAM = 9;

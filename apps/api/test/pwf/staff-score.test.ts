@@ -425,4 +425,31 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       expect((await call('GET', `/staff-score-periods/${periodId}`, { member: HR })).json.status).toBe('OFFICIAL');
     });
   });
+
+  describe('R50: a period that is still running', () => {
+    it('says its figures are provisional and the day they are cut at, is locked early only with a reason, and keeps the reason in the audit row and out of the event', async () => {
+      const month = Number(TODAY.slice(5, 7));
+      const first = month - ((month - 1) % 3);
+      const year = TODAY.slice(0, 4);
+      const from = `${year}-${String(first).padStart(2, '0')}-01`;
+      const to = `${year}-${String(first + 2).padStart(2, '0')}-${String(new Date(Date.UTC(Number(year), first + 2, 0)).getUTCDate()).padStart(2, '0')}`;
+      const draft = await call('POST', '/staff-score-periods', { member: HR, body: { scope_unit_id: unitId(DEPARTMENT), period_from: from, period_to: to, policy_code: 'TESTPOL' } });
+      expect(draft).toMatchObject({ status: 200, json: { not_due_task_count: 0, period: { status: 'DRAFT', computed_as_of: TODAY, provisional: TODAY < to, not_due_task_count: 0, early_lock: false } } });
+      const id = (draft.json.period as { id: string }).id;
+      const version = (draft.json.period as { version: number }).version;
+      const refused = await call('POST', `/staff-score-periods/${id}/lock`, { member: HR, ifMatch: `"${version}"` });
+      expect(refused).toMatchObject({ status: 409, json: { code: 'STAFF_SCORE_PERIOD_NOT_ENDED', period_to: to } });
+      expect((await call('POST', `/staff-score-periods/${id}/lock`, { member: HR, ifMatch: `"${version}"`, body: { early_reason: 'short' } })).status).toBe(422);
+      expect((await call('POST', `/staff-score-periods/${id}/lock`, { member: HR, ifMatch: `"${version}"`, body: { early_reason: 'x', other: 1 } })).status).toBe(400);
+      const reason = 'The department is merged next week: its period is closed early.';
+      const locked = await call('POST', `/staff-score-periods/${id}/lock`, { member: HR, ifMatch: `"${version}"`, body: { early_reason: reason } });
+      expect(locked).toMatchObject({ status: 200, json: { status: 'LOCKED' } });
+      expect((await call('GET', `/staff-score-periods/${id}`, { member: HR })).json).toMatchObject({ status: 'LOCKED', computed_as_of: TODAY, provisional: false, early_lock: true });
+      const [audit] = await rows<{ reason: string | null; diff: Record<string, unknown> }>('select reason, safe_diff as diff from machvon.audit_event where action = $1 and resource_id = $2', ['score.period_locked', id]);
+      expect(audit).toMatchObject({ reason, diff: { early: true, as_of: TODAY } });
+      const [event] = await rows<{ payload: Record<string, unknown> }>('select payload from machvon.outbox_event where aggregate_id = $1 and type = $2', [id, 'pwf.score.period.locked.v1']);
+      expect(event?.payload).toMatchObject({ id, status: 'LOCKED', early: true, as_of: TODAY });
+      expect(JSON.stringify(event?.payload)).not.toMatch(/score|reason|name/);
+    });
+  });
 });

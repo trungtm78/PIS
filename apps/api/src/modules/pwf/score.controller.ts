@@ -95,6 +95,7 @@ export class StaffScoreController {
       not_rated_count: preview.notRatedCount,
       signal_count: preview.signalCount,
       excluded_task_count: preview.excludedTaskCount,
+      not_due_task_count: preview.notDueTaskCount,
       preview_hash: preview.previewHash,
       as_of: now.toISOString(),
     } as unknown as Schemas['StaffScorePeriodPreview'];
@@ -104,11 +105,28 @@ export class StaffScoreController {
   @HttpCode(200)
   @OperationId('lockStaffScorePeriod')
   @Command({ operation: 'lockStaffScorePeriod', versioned: true })
-  async lock(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
+  async lock(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['StaffScorePeriodLockRequest'] | undefined): Promise<CommandResult> {
     const now = new Date();
     const units = await scoreUnitsOf(scope.tx, access, [PERMISSIONS.lockStaffScorePeriod], now);
-    const result = await this.periods.lock(scope.tx, { periodId: id, expectedVersion: scope.expectedVersion ?? 0, actor: scope.tenant.membershipId, units, now });
-    await this.periodDone(scope, result, 'score.period_locked', 'pwf.score.period.locked.v1', now);
+    const result = await this.periods.lock(scope.tx, { periodId: id, expectedVersion: scope.expectedVersion ?? 0, actor: scope.tenant.membershipId, units, now, earlyReason: body?.early_reason });
+    // R50: the reason of an early lock is words of a person: it goes to the audit row (as the reason of the row) and never into the event, which carries ids, codes, days and statuses only.
+    const { early_reason: earlyReason, ...facts } = result.facts as { early_reason?: string } & Record<string, unknown>;
+    await announce(
+      scope,
+      {
+        resource: PWF_RESOURCE_SCORE_PERIOD,
+        id: result.id,
+        version: result.version,
+        action: 'score.period_locked',
+        type: 'pwf.score.period.locked.v1',
+        fromStatus: result.fromStatus,
+        status: result.status,
+        audit: { scope_unit_id: result.scopeUnitId, ...facts },
+        event: { scope_unit_id: result.scopeUnitId, ...facts },
+        ...(earlyReason === undefined ? {} : { reason: earlyReason }),
+      },
+      now,
+    );
     return commandResult(scope, result.status, result.version, result.id);
   }
 

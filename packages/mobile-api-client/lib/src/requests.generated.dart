@@ -16415,6 +16415,19 @@ final class StaffScoreAdjustmentRequest implements RequestModel {
       };
 }
 
+final class StaffScorePeriodLockRequest implements RequestModel {
+  const StaffScorePeriodLockRequest({
+    this.earlyReason,
+  });
+
+  final String? earlyReason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (earlyReason != null) 'early_reason': earlyReason,
+      };
+}
+
 final class StaffScorePeriodRequest implements RequestModel {
   const StaffScorePeriodRequest({
     required this.scopeUnitId,

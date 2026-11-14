@@ -658,6 +658,9 @@ interface Period extends Obj {
   period_from: string;
 }
 
+/** R50: the quarter is still running when the data is seeded, so its lock is an early one and says why; the figures are cut at the day of the lock and the tasks still inside their deadline stay unread. */
+const EARLY_LOCK_REASON = 'Chốt sớm để rà soát giữa quý theo kế hoạch đánh giá của tỉnh; số liệu tính đến ngày chốt, việc còn trong hạn chưa chấm';
+
 /** The period of the whole province computed and locked by the owner, with one adjustment decided by a second person and one response of the person scored. */
 async function scores(ctx: SeedContext): Promise<void> {
   const unit = ctx.unitId('CB-HQ');
@@ -670,7 +673,7 @@ async function scores(ctx: SeedContext): Promise<void> {
     ctx.record({ module: 'PWF', kind: 'score-period', id: period.id, code: `${window.from}..${window.to}`, note: 'computed', screen: 'PWF-14' });
   }
   if (period.status === 'DRAFT') {
-    const locked = await ctx.attempt<CommandReply>(OWNER, 'POST', `/staff-score-periods/${period.id}/lock`, {}, { version: Number(period.version) });
+    const locked = await ctx.attempt<CommandReply>(OWNER, 'POST', `/staff-score-periods/${period.id}/lock`, { early_reason: EARLY_LOCK_REASON }, { version: Number(period.version) });
     if (!locked.ok) return;
   }
   const lines = await ctx.list<Obj>(OWNER, `/staff-score-periods/${period.id}/lines`);
@@ -697,6 +700,8 @@ async function scores(ctx: SeedContext): Promise<void> {
 }
 
 export async function seedClipPwfReview(ctx: SeedContext): Promise<void> {
+  // R52: the calendars of the years a slipping schedule can reach are published before any workflow is laid, so that no schedule is pinned short of them.
+  await ctx.step('ADM', 'the working calendars of the years the schedules reach', () => ensureWorkCalendar(ctx, [ctx.year, ctx.year + 1, ctx.year + 2, ctx.year + 3]));
   await ctx.step('PWF', 'the library: a template of the tenant in force, its second version waiting, a draft', () => library(ctx));
   await ctx.step('PWF', 'the mapping rule of the tenant and its three-colour policy', async () => {
     await mapping(ctx);

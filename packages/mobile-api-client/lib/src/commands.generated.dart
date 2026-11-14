@@ -3577,8 +3577,8 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> lockSiteDiary(QmsLockSiteDiary body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('lockSiteDiary', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
-  Future<Object?> lockStaffScorePeriod({required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
-      execute('lockStaffScorePeriod', path: <String, Object?>{'id': id}, ifMatchVersion: ifMatchVersion, attempt: attempt);
+  Future<Object?> lockStaffScorePeriod(StaffScorePeriodLockRequest body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('lockStaffScorePeriod', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> logMonitoringFeedback(LogMonitoringFeedback body, {required String id, CommandAttempt? attempt}) =>
       execute('logMonitoringFeedback', path: <String, Object?>{'id': id}, body: body, attempt: attempt);

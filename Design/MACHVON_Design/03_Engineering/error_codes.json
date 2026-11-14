@@ -7739,6 +7739,14 @@
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
+    },
+    "STAFF_SCORE_PERIOD_NOT_ENDED": {
+      "status": 409,
+      "title": "The scoring period has not ended",
+      "meaning": "Kỳ chấm điểm chưa kết thúc: chỉ chốt sau ngày cuối kỳ, hoặc chốt sớm kèm lý do được ghi nhật ký (PWF, R50).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
     }
   }
 }

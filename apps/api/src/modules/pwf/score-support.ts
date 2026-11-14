@@ -79,6 +79,11 @@ export function periodDto(period: StaffScorePeriodView, now: Date): Schemas['Sta
     line_count: period.lineCount,
     open_response_count: period.openResponseCount,
     version: period.version,
+    // R50: the day the figures are cut at. A draft cut before the last day of its period is provisional: its figures move until the period is over.
+    computed_as_of: period.summary.as_of ?? null,
+    provisional: period.status === 'DRAFT' && period.summary.as_of !== undefined && period.summary.as_of < period.periodTo,
+    not_due_task_count: period.summary.not_due_tasks ?? null,
+    early_lock: period.summary.early_lock === true,
     as_of: now.toISOString(),
   } as unknown as Schemas['StaffScorePeriod'];
 }

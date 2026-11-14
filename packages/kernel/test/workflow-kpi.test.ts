@@ -631,6 +631,14 @@ describe('aggregateStaffPeriod: the score of a person in a period', () => {
     expect(Number.isNaN(ann?.score)).toBe(false);
   });
 
+  it('keeps a task that is still inside its deadline at the cutoff out of the denominator and names it NOT_DUE: a draft taken in the middle of a period scores what is done or overdue only', () => {
+    const result = aggregateStaffPeriod({ ...base, tasks: [task('DONE1', { taskScore: 90 }), task('OPEN1', { state: 'NOT_DUE', taskScore: null }), task('OPEN2', { state: 'NOT_DUE', taskScore: 0 })] });
+    const ann = of(result, 'ann');
+    expect(ann).toMatchObject({ score: 90, ratedTaskCount: 1, state: 'RATED' });
+    expect(ann?.contributions.map((one) => one.taskCode)).toEqual(['DONE1']);
+    expect(ann?.excluded).toEqual([{ taskCode: 'OPEN1', reason: 'NOT_DUE' }, { taskCode: 'OPEN2', reason: 'NOT_DUE' }]);
+  });
+
   it('shows the score but withholds the rating below the small-sample thresholds', () => {
     const three = [task('A'), task('B'), task('C')];
     const result = aggregateStaffPeriod({ ...base, policy, tasks: three });
@@ -755,6 +763,9 @@ describe('gamingSignals', () => {
     expect(flagsOf(gamingSignals(input([open])), 'ann')).toEqual([{ code: 'ASSIGNEE_CHANGED_NEAR_DUE', taskCodes: ['L'] }]);
     const noDue = { ...handed, baselineDue: null };
     expect(flagsOf(gamingSignals(input([noDue])), 'ann')).toEqual([]);
+    // A task that is not due at the cutoff of a draft is not late yet, whatever the end of the period: a hand-over of it says nothing.
+    const notDue = t('L', { ...handed, finishedOn: null, state: 'NOT_DUE' });
+    expect(flagsOf(gamingSignals(input([notDue])), 'ann')).toEqual([]);
   });
 
   it('never changes a score: the signals are a separate list for the reviewer', () => {

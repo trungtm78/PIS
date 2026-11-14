@@ -5,7 +5,7 @@ import type { ResolvedGovernanceRule } from '@machvon/kernel';
 import { PwfKpiStore, scoreBundle } from './pwf-kpi-store.ts';
 import { computeFigures, previewHashOf, snapshotHashOf, snapshotOf, verifySnapshot } from './pwf-score-compute.ts';
 import type { PeriodFigures, PeriodSnapshot, SnapshotInputs, SnapshotKpi, SnapshotTask } from './pwf-score-compute.ts';
-import { calendarFingerprint, excusalMark, dayOfInstant, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
+import { baselineAt, calendarFingerprint, excusalMark, dayOfInstant, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
 import type { CalendarSet, TaskBundle } from './pwf-score-facts.ts';
 import { SYSTEM_SCORE_SCOPE, checkVersion, lockPeriod, lockPeriodKey, notFound, scoreIdOf, unitReached, withScoreScope } from './pwf-score-support.ts';
 import type { ScoreUnits } from './pwf-score-support.ts';
@@ -13,7 +13,7 @@ import type { TenantTx } from './tenant-database.ts';
 
 /**
  * The scoring period of the staff of a unit (PWF-3, docs PWF 3 F9, 4, 5 BR-PWF-34 to 39, R34, R43). `compute` reads the tasks the people of the unit held (the ledger of assignments, the results of the KPIs, the open
- * tasks read in memory as of the end of the period) and writes the lines and the signals of a DRAFT that can be computed again; `lock` reads them once more, takes the snapshot of everything the figures came from and
+ * tasks read in memory as of the CUTOFF: the day the figures are taken on while the period runs, its last day once it is over, R50) and writes the lines and the signals of a DRAFT that can be computed again; `lock` reads them once more, takes the snapshot of everything the figures came from and
  * its hash, and no way back opens; `officialize` ends the window of response; `verify` computes the lines of a locked period again from its snapshot. A command that reaches the period takes the lock of the period, so a
  * lock and an adjustment never read each other half done. Who may do what is judged by the caller (the permission and the units); the tables of scores answer through the policy of the database as well.
  */
@@ -23,6 +23,15 @@ const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const POLICY_CODE = /^[A-Z][A-Z0-9_]{1,39}$/;
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
+
+/**
+ * The summary a period keeps beside its figures (R50): the counts of the figures, the day they were cut at (`as_of`: the day they were taken on while the period ran, its last day once it was over), how many tasks were
+ * still inside their deadline that day and so left unread, and whether the period was locked before its last day. A period computed before R50 has the counts only.
+ */
+export type PeriodSummary = PeriodFigures['summary'] & { as_of?: string; not_due_tasks?: number; early_lock?: boolean };
+
+/** The cutoff of the figures of a period taken on `today` (R50): today while the period runs, its last day once it is over. A task is read as it stood on that day and never on a day that has not come. */
+export const cutoffOf = (periodTo: string, today: string): string => (today < periodTo ? today : periodTo);
 
 export interface PeriodRow {
   id: string;
@@ -39,7 +48,7 @@ export interface PeriodRow {
   policyVersion: number;
   previewHash: string | null;
   snapshotHash: string | null;
-  summary: PeriodFigures['summary'];
+  summary: PeriodSummary;
   lockedBy: string | null;
   lockedAt: string | null;
   responseUntil: string | null;
@@ -62,7 +71,7 @@ interface PeriodSql {
   policy_version: number;
   preview_hash: string | null;
   snapshot_hash: string | null;
-  summary: PeriodFigures['summary'];
+  summary: PeriodSummary;
   locked_by: string | null;
   locked_at: string | null;
   response_until: string | null;
@@ -119,6 +128,12 @@ export interface PeriodPreview {
   previewHash: string;
   /** Whether this call made the period (false: a draft of the same days was computed again). */
   created: boolean;
+  /** The day the figures are cut at (R50). */
+  asOfDay: string;
+  /** Whether the period was still running that day: the figures are provisional and will move until its last day. */
+  provisional: boolean;
+  /** The tasks left unread because they were still inside their deadline at the cutoff. */
+  notDueTaskCount: number;
 }
 
 export interface PeriodCommandResult {
@@ -135,6 +150,7 @@ interface Built {
   figures: PeriodFigures;
   policy: pwfKpi.StaffScoringPolicy;
   rule: ResolvedGovernanceRule;
+  summary: PeriodSummary;
 }
 
 /** Whether `from` to `to` is a whole month, quarter or year, the way the policy says periods are. */
@@ -153,9 +169,15 @@ export class PwfScoreStore {
   private readonly policies = new GovernancePolicyPort();
   private readonly kpis = new PwfKpiStore();
 
-  /** The inputs of the period read from the database: the tasks people of the unit held that are measured in the period, as of the end of it. */
+  /**
+   * The inputs of the period read from the database: the tasks people of the unit held that are measured in the period, as of its cutoff (R50). While the period runs the cutoff is the day the figures are taken on: a task
+   * done by then is read on its results, a task past its deadline by then is read open as it is, and a task still inside its deadline is NOT_DUE (named on the line of each holder, out of every denominator). Once the
+   * period is over the cutoff is its last day and nothing is NOT_DUE, so the figures of a period that ended are the ones they always were.
+   */
   private async inputsOf(tx: TenantTx, request: { unitId: string; from: string; to: string; policyCode: string }, now: Date): Promise<Built> {
-    const rule = await this.policies.get(tx, pwfKpi.STAFF_SCORING_POLICY_RULE_TYPE, request.policyCode, request.to);
+    const cutoff = cutoffOf(request.to, dayOfInstant(now));
+    if (cutoff < request.from) throw invalid('period_from');
+    const rule = await this.policies.get(tx, pwfKpi.STAFF_SCORING_POLICY_RULE_TYPE, request.policyCode, cutoff);
     if (rule === undefined) throw new DomainError('GOVERNANCE_RULE_NOT_FOUND', 404, 'policy_code');
     const policy = pwfKpi.parseStaffScoringPolicy(rule.params);
     if (!periodMatchesKind(policy.periodKind, request.from, request.to)) throw invalid('period_to');
@@ -180,7 +202,7 @@ export class PwfScoreStore {
       samePerson.set(row.membership_id, personOf.get(row.user_id) as string);
     }
     const members = staff.filter((row) => samePerson.get(row.membership_id) === row.membership_id).map((row) => ({ membership_id: row.membership_id, unit_id: row.unit_id })).sort((left, right) => (left.membership_id < right.membership_id ? -1 : 1));
-    // The standing of a task at the end of the period is read from the log of its requests to close, sends back and closes (as `readingOf` reads it), not from its present status: a task awaiting approval on the last day
+    // The standing of a task at the cutoff ($3; $4 is the last day of the period) is read from the log of its requests to close, sends back and closes (as `readingOf` reads it), not from its present status: a task awaiting approval on the last day
     // and sent back the next month is still a candidate, and one whose finish was declared after the period is not done in it. A task whose log does not record the request is read from its row.
     const candidates = await tx.query<{ id: string }>(
       `select t.id from machvon.project_task t
@@ -196,16 +218,16 @@ export class PwfScoreStore {
             or (t.status = 'CANCELLED' and (t.cancelled_at at time zone 'Asia/Ho_Chi_Minh')::date between $2::date and $3::date)
             or (h.logged and h.last_kind = 'COMPLETE_REQUESTED')
             or (not h.logged and t.status = 'AWAITING_APPROVAL' and (t.completion_requested_at at time zone 'Asia/Ho_Chi_Minh')::date <= $3::date)
-            or (t.baseline_finish <= $3::date
+            or (t.baseline_finish <= $4::date
                 and not (t.status = 'DONE' and t.actual_finish <= $3::date and (not h.logged or h.last_kind in ('COMPLETE_REQUESTED', 'COMPLETED')))
                 and not (t.status = 'CANCELLED' and (t.cancelled_at at time zone 'Asia/Ho_Chi_Minh')::date <= $3::date))
           )
         order by t.id`,
-      [staff.map((member) => member.membership_id), request.from, request.to],
+      [staff.map((member) => member.membership_id), request.from, cutoff, request.to],
     );
     const bundles = await loadTaskBundles(tx, candidates.map((row) => row.id));
     const ordered = [...bundles.values()].sort((left, right) => (left.row.id < right.row.id ? -1 : 1));
-    const readings = new Map(ordered.map((bundle) => [bundle.row.id, readingOf(bundle.row, request.to, bundle.history)] as const));
+    const readings = new Map(ordered.map((bundle) => [bundle.row.id, readingOf(bundle.row, cutoff, bundle.history)] as const));
     const finals = ordered.filter((bundle) => readings.get(bundle.row.id)?.final === true).map((bundle) => bundle.row.id);
     // A task closed by the end of the period has its results recorded (idempotently) before the period reads them; one whose results were evaluated at its present version, on the present calendars, is not read again (the job keeps them current).
     const fingerprint = await calendarFingerprint(tx);
@@ -217,7 +239,7 @@ export class PwfScoreStore {
     const heads = await this.kpis.heads(tx, finals, false);
     const span = yearSpanOf(
       ordered.flatMap((bundle) => [bundle.row.baselineFirst, bundle.row.baselineCurrent, ...bundle.history.baselines.map((step) => step.finish), bundle.row.baselineStart, bundle.row.plannedStart, bundle.row.actualStart, bundle.row.actualFinish, bundle.row.cancelledOn]),
-      request.to,
+      cutoff,
     );
     const calendars = await loadCalendars(tx, Math.min(span.from, Number(request.from.slice(0, 4))), span.to);
     const sets = loadKpiSets(tx, this.policies);
@@ -225,23 +247,27 @@ export class PwfScoreStore {
     const tasks: SnapshotTask[] = [];
     for (const bundle of ordered) {
       const reading = readings.get(bundle.row.id) as ReturnType<typeof readingOf>;
-      const resolved = await sets.forTemplate(bundle.workflow.templateCode, reading.final ? (reading.closedOn as string) : request.to);
+      const resolved = await sets.forTemplate(bundle.workflow.templateCode, reading.final ? (reading.closedOn as string) : cutoff);
+      const notDue = isNotDue(bundle, reading, cutoff);
       let kpi: SnapshotKpi[];
-      if (reading.final) {
+      if (notDue) {
+        // Nothing is read of a task that is neither closed nor late: a figure for it would be a guess about days that have not come.
+        kpi = [];
+      } else if (reading.final) {
         kpi = (heads.get(bundle.row.id) ?? []).map((one) => ({ kpi_code: one.kpiCode, operation: one.operation, state: one.state, value: one.value, score: one.score, weight: one.weight, inputs_hash: one.inputsHash, result_id: one.id }));
       } else {
-        kpi = scoreBundle(bundle, reading, request.to, resolved, calendars).map(({ result }) => ({ kpi_code: result.kpiCode, operation: result.operation, state: result.state, value: result.value, score: result.score, weight: result.weight, inputs_hash: result.inputsHash, result_id: null }));
+        kpi = scoreBundle(bundle, reading, cutoff, resolved, calendars).map(({ result }) => ({ kpi_code: result.kpiCode, operation: result.operation, state: result.state, value: result.value, score: result.score, weight: result.weight, inputs_hash: result.inputsHash, result_id: null }));
         usedSets.set(resolved.code, { code: resolved.code, rule_id: resolved.ruleId, version: resolved.version });
       }
       if (reading.final) usedSets.set(resolved.code, { code: resolved.code, rule_id: resolved.ruleId, version: resolved.version });
-      const task = taskOf(bundle, reading, kpi, request.from, request.to);
+      const task = taskOf(bundle, reading, kpi, request.from, cutoff, notDue);
       tasks.push({ ...task, assignments: task.assignments.map((one) => ({ ...one, membership_id: samePerson.get(one.membership_id) ?? one.membership_id })) });
     }
     const workflowIds = [...new Set(tasks.map((task) => task.workflow_id))].sort();
     const baselines = workflowIds.length === 0 ? [] : await tx.query<{ workflow_id: string; version: number; taken_on: string }>(
       `select workflow_id, version, (taken_at at time zone 'Asia/Ho_Chi_Minh')::date::text as taken_on from machvon.project_workflow_baseline where workflow_id = any($1::uuid[]) and (taken_at at time zone 'Asia/Ho_Chi_Minh')::date <= $2::date order by workflow_id, version`,
-      // A baseline taken after the end of the period is not an input of it.
-      [workflowIds, request.to],
+      // A baseline taken after the cutoff of the period is not an input of it.
+      [workflowIds, cutoff],
     );
     const inputs: SnapshotInputs = {
       version: 1,
@@ -256,7 +282,8 @@ export class PwfScoreStore {
       members,
       tasks,
     };
-    return { inputs, figures: computeFigures(inputs, policy, calendars.source), policy, rule };
+    const figures = computeFigures(inputs, policy, calendars.source);
+    return { inputs, figures, policy, rule, summary: { ...figures.summary, as_of: cutoff, not_due_tasks: tasks.filter((task) => task.state === 'NOT_DUE').length } };
   }
 
   /** Computes the draft of a period of the unit (the same days again compute the draft again), or refuses: the unit is out of the reach of the caller, the days do not match the kind of the policy, the days overlap another period. */
@@ -286,7 +313,7 @@ export class PwfScoreStore {
         const rows = await tx.query<{ id: string }>(
           `insert into machvon.staff_score_period (tenant_id, scope_unit_id, period_kind, period_from, period_to, policy_code, policy_rule_id, policy_version, preview_hash, computed_by, summary, created_by, updated_by)
            values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2, $3::date, $4::date, $5, $6::uuid, $7, $8, $9::uuid, $10::jsonb, $9::uuid, $9::uuid) returning id`,
-          [unitId, result.policy.periodKind, request.periodFrom, request.periodTo, request.policyCode, result.rule.ruleId, result.rule.version, previewHash, request.actor, JSON.stringify(result.figures.summary)],
+          [unitId, result.policy.periodKind, request.periodFrom, request.periodTo, request.policyCode, result.rule.ruleId, result.rule.version, previewHash, request.actor, JSON.stringify(result.summary)],
         );
         id = (rows[0] as { id: string }).id;
       } else {
@@ -296,7 +323,7 @@ export class PwfScoreStore {
         await tx.query(
           `update machvon.staff_score_period set policy_code = $2, policy_rule_id = $3::uuid, policy_version = $4, preview_hash = $5, computed_at = now(), computed_by = $6::uuid, summary = $7::jsonb,
                   version = version + 1, updated_at = now(), updated_by = $6::uuid where id = $1::uuid`,
-          [id, request.policyCode, result.rule.ruleId, result.rule.version, previewHash, request.actor, JSON.stringify(result.figures.summary)],
+          [id, request.policyCode, result.rule.ruleId, result.rule.version, previewHash, request.actor, JSON.stringify(result.summary)],
         );
       }
       await this.writeFigures(tx, id, result.figures);
@@ -313,6 +340,9 @@ export class PwfScoreStore {
       excludedTaskCount: summary.excluded_tasks,
       previewHash: built.previewHash,
       created: same === undefined,
+      asOfDay: built.result.summary.as_of as string,
+      provisional: (built.result.summary.as_of as string) < request.periodTo,
+      notDueTaskCount: built.result.summary.not_due_tasks as number,
     };
   }
 
@@ -359,8 +389,12 @@ export class PwfScoreStore {
   /**
    * Locks a draft period: the figures are read once more as of now (a task done since the draft is in), the snapshot of everything they came from is taken and hashed, and the period is LOCKED with the window of
    * response open. A period that is not a draft is 409 `STAFF_SCORE_PERIOD_LOCKED`; a stale version is 409 `VERSION_CONFLICT`. No way back opens.
+   *
+   * R50: a period is locked after its last day, and the cutoff of its figures is then that last day. Before that (the last day included: it is not over) the lock is 409 `STAFF_SCORE_PERIOD_NOT_ENDED`, unless the caller
+   * gives a reason of the length the policy asks of a reason (`early_reason`); the early lock is cut at the day it is made on, the tasks still inside their deadline stay unread (NOT_DUE), and the reason goes into the
+   * audit row with the facts of the command.
    */
-  async lock(tx: TenantTx, request: { periodId: string; expectedVersion: number; actor: string; units: ScoreUnits; now: Date }): Promise<PeriodCommandResult> {
+  async lock(tx: TenantTx, request: { periodId: string; expectedVersion: number; actor: string; units: ScoreUnits; now: Date; earlyReason?: string | undefined }): Promise<PeriodCommandResult> {
     const periodId = scoreIdOf(request.periodId, 'id');
     await lockPeriod(tx, periodId);
     const period = await this.locate(tx, periodId, request.units);
@@ -368,8 +402,12 @@ export class PwfScoreStore {
     await this.assertSubtreeReached(tx, period.scopeUnitId, request.units);
     if (period.status !== 'DRAFT') throw new DomainError('STAFF_SCORE_PERIOD_LOCKED', 409, 'status', { extensions: { period_status: period.status } });
     const today = dayOfInstant(request.now);
+    const early = today <= period.periodTo;
+    const earlyReason = request.earlyReason?.trim() ?? '';
+    if (early && earlyReason === '') throw new DomainError('STAFF_SCORE_PERIOD_NOT_ENDED', 409, 'period_to', { extensions: { period_to: period.periodTo } });
     const built = await withScoreScope(tx, SYSTEM_SCORE_SCOPE, async () => {
       const result = await this.inputsOf(tx, { unitId: period.scopeUnitId, from: period.periodFrom, to: period.periodTo, policyCode: period.policyCode }, request.now);
+      if (early && earlyReason.length < result.policy.calibration.minReasonLength) throw invalid('early_reason');
       await tx.query('delete from machvon.staff_score_signal where period_id = $1::uuid', [periodId]);
       await tx.query('delete from machvon.staff_score_line where period_id = $1::uuid', [periodId]);
       await this.writeFigures(tx, periodId, result.figures);
@@ -378,12 +416,23 @@ export class PwfScoreStore {
     const snapshot = snapshotOf(built.inputs, built.figures, request.now.toISOString());
     const hash = snapshotHashOf(snapshot);
     const responseUntil = processCore.workflowAddDays(today, built.policy.responseWindowDays);
+    const summary: PeriodSummary = { ...built.summary, ...(early ? { early_lock: true } : {}) };
     await tx.query(
       `update machvon.staff_score_period set status = 'LOCKED', policy_rule_id = $2::uuid, policy_version = $3, preview_hash = $4, snapshot = $5::jsonb, snapshot_hash = $6, summary = $7::jsonb, locked_by = $8::uuid, locked_at = $9::timestamptz,
               response_until = $10::date, version = version + 1, updated_at = now(), updated_by = $8::uuid where id = $1::uuid`,
-      [periodId, built.rule.ruleId, built.rule.version, previewHashOf(built.inputs, built.figures), canonicalJson(snapshot), hash, JSON.stringify(built.figures.summary), request.actor, request.now.toISOString(), responseUntil],
+      [periodId, built.rule.ruleId, built.rule.version, previewHashOf(built.inputs, built.figures), canonicalJson(snapshot), hash, JSON.stringify(summary), request.actor, request.now.toISOString(), responseUntil],
     );
-    return { id: periodId, scopeUnitId: period.scopeUnitId, fromStatus: 'DRAFT', status: 'LOCKED', version: period.version + 1, facts: { period_from: period.periodFrom, period_to: period.periodTo, policy_code: period.policyCode, policy_version: built.rule.version, snapshot_hash: hash, response_until: responseUntil, people: built.figures.summary.people } };
+    return {
+      id: periodId,
+      scopeUnitId: period.scopeUnitId,
+      fromStatus: 'DRAFT',
+      status: 'LOCKED',
+      version: period.version + 1,
+      facts: {
+        period_from: period.periodFrom, period_to: period.periodTo, policy_code: period.policyCode, policy_version: built.rule.version, snapshot_hash: hash, response_until: responseUntil, people: built.figures.summary.people,
+        as_of: summary.as_of, early, ...(early ? { early_reason: earlyReason } : {}),
+      },
+    };
   }
 
   /**
@@ -464,14 +513,24 @@ export class PwfScoreStore {
   }
 }
 
-/** The task of the snapshot: its state for the score, its window (the whole life of the task, from its start to its end or to the end of the period), the results of its KPIs and the ledger. */
-function taskOf(bundle: TaskBundle, reading: ReturnType<typeof readingOf>, kpi: SnapshotKpi[], periodFrom: string, periodTo: string): SnapshotTask {
+/**
+ * Whether a task is still inside its deadline at the cutoff (R50): open (neither closed nor handed in for approval by then) and the cutoff not past its due, by the first baseline and by the baseline in force that day
+ * alike, so that no KPI of lateness could call it late. The due day itself is not late (as `latenessOf` of the kernel reads it).
+ */
+export function isNotDue(bundle: TaskBundle, reading: ReturnType<typeof readingOf>, cutoff: string): boolean {
+  if (reading.final || reading.status === 'DONE' || reading.status === 'CANCELLED') return false;
+  const dues = [bundle.row.baselineFirst, baselineAt(bundle, cutoff)].filter((day): day is string => day !== null);
+  return dues.length > 0 && dues.every((due) => cutoff <= due);
+}
+
+/** The task of the snapshot: its state for the score, its window (the whole life of the task, from its start to its end or to the cutoff of the period), the results of its KPIs and the ledger. */
+function taskOf(bundle: TaskBundle, reading: ReturnType<typeof readingOf>, kpi: SnapshotKpi[], periodFrom: string, cutoff: string, notDue: boolean): SnapshotTask {
   const { row } = bundle;
-  const end = reading.final ? (reading.closedOn as string) : periodTo;
+  const end = reading.final ? (reading.closedOn as string) : cutoff;
   let start = row.actualStart ?? row.baselineStart ?? row.plannedStart ?? periodFrom;
   if (start > end) start = end;
   const responsible = bundle.assignments.filter((one) => one.role === 'RESPONSIBLE').map((one) => one.membershipId);
-  let state: pwfKpi.StaffTaskState = 'RATED';
+  let state: pwfKpi.StaffTaskState = notDue ? 'NOT_DUE' : 'RATED';
   if (reading.status === 'CANCELLED') state = row.cancelledBy !== null && !responsible.includes(row.cancelledBy) ? 'CANCELLED_APPROVED' : 'CANCELLED_UNAPPROVED';
   return {
     task_id: row.id,

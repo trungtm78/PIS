@@ -27012,7 +27012,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Việc của tôi theo hạn: màu chính thức và màu cá nhân kèm ngày hạn thật (MOB-80) */
+        /** Việc của tôi theo hạn: màu chính thức và màu cá nhân kèm ngày hạn thật; status=DONE trả việc đã xong gần đây, mới nhất trước (MOB-80) */
         get: operations["getMyTasks"];
         put?: never;
         post?: never;
@@ -50137,6 +50137,11 @@ export interface components {
                  * @description Ngày kết thúc dự báo, chỉ có khi khác hạn chính thức (R49)
                  */
                 forecast_finish?: string | null;
+                /**
+                 * Format: date
+                 * @description Ngày hoàn thành thực tế; chỉ có với việc đã xong (status=DONE)
+                 */
+                finished_on?: string | null;
             }[];
             next_cursor: string | null;
             total: number;
@@ -50152,6 +50157,8 @@ export interface components {
             };
             /** @description Số việc đang mở đã quá hạn chính thức (R49) */
             overdue_count?: number;
+            /** @description Chỉ có khi lọc status=DONE: danh sách gồm việc đã xong trong ngần này ngày gần đây */
+            done_window_days?: number;
         };
         PwfDeadlinePreference: {
             green_days?: number | null;
@@ -50283,6 +50290,17 @@ export interface components {
             scope_unit_code?: string | null;
             /** @description Tên đơn vị của kỳ */
             scope_unit_name?: string | null;
+            /**
+             * Format: date
+             * @description Mốc cắt của số liệu (R50): ngày tính khi kỳ còn chạy, ngày cuối kỳ khi kỳ đã hết; null với kỳ tính trước R50
+             */
+            computed_as_of?: string | null;
+            /** @description Số liệu tạm tính: kỳ là bản nháp và mốc cắt còn trước ngày cuối kỳ */
+            provisional?: boolean;
+            /** @description Số việc còn trong hạn tại mốc cắt nên chưa chấm (nằm ngoài mẫu số) */
+            not_due_task_count?: number | null;
+            /** @description Kỳ được chốt trước ngày cuối kỳ, có lý do trong nhật ký */
+            early_lock?: boolean;
         };
         StaffScorePeriodPreview: {
             period: components["schemas"]["StaffScorePeriod"];
@@ -50294,6 +50312,8 @@ export interface components {
             preview_hash: string;
             /** Format: date-time */
             as_of: string;
+            /** @description Số việc còn trong hạn tại mốc cắt nên chưa chấm */
+            not_due_task_count?: number;
         };
         StaffScorePeriodPage: {
             items: components["schemas"]["StaffScorePeriod"][];
@@ -50667,6 +50687,10 @@ export interface components {
             can_start: boolean;
             /** Format: date-time */
             as_of: string;
+        };
+        StaffScorePeriodLockRequest: {
+            /** @description Lý do chốt trước ngày cuối kỳ (bắt buộc khi kỳ chưa hết, độ dài tối thiểu theo chính sách chấm điểm); ghi vào nhật ký */
+            early_reason?: string;
         };
     };
     responses: never;
@@ -217030,6 +217054,7 @@ export interface operations {
         parameters: {
             query?: {
                 band?: string;
+                /** @description NOT_STARTED, IN_PROGRESS, AWAITING_APPROVAL, ON_HOLD (việc còn mở) hoặc DONE (việc người gọi đã hoàn thành trong done_window_days ngày gần đây, phân trang) */
                 status?: string;
                 due_before?: string;
                 limit?: number;
@@ -217811,7 +217836,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["StaffScorePeriodLockRequest"];
+            };
+        };
         responses: {
             /** @description Command accepted; returns resource id/version/status */
             200: {
