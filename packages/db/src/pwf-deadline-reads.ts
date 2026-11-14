@@ -81,6 +81,8 @@ function conditionsOf(scope: ScopeBuilder, filter: BoardFilter, today: string, e
 
 interface GroupSql {
   d: string | null;
+  /** The schedule could not compute the days of these tasks: a year has no published calendar. */
+  u: boolean;
   kind: 'TASK' | 'MILESTONE';
   priority: 'LOW' | 'NORMAL' | 'HIGH' | 'CRITICAL';
   phase_code: string;
@@ -96,7 +98,7 @@ export class PwfDeadlineReads {
   }
 
   private bandOfGroup(resolver: BandResolver, group: GroupSql): BandView {
-    return resolver.of({ status: 'IN_PROGRESS', excluded: false, tracked: true, dueOn: group.d, kind: group.kind, priority: group.priority, phaseCode: group.phase_code }, group.unit_path);
+    return resolver.of({ status: 'IN_PROGRESS', excluded: false, tracked: true, dueOn: group.d, kind: group.kind, priority: group.priority, phaseCode: group.phase_code, calendarUnavailable: group.u === true }, group.unit_path);
   }
 
   /** The tasks of the portfolio that are not over, by official colour, nearest finish first; the totals are exact counts and do not depend on the page. */
@@ -105,8 +107,8 @@ export class PwfDeadlineReads {
     const resolver = await bandResolver(tx, this.calendars, now);
     const where = conditionsOf(scope, filter, vietnamDateOf(now));
     const groups = await tx.query<GroupSql>(
-      `select t.committed_finish::text as d, t.kind, t.priority, t.phase_code, ou.path as unit_path, count(*)::text as n from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
-        where ${where.sql} group by t.committed_finish, t.kind, t.priority, t.phase_code, ou.path`,
+      `select t.committed_finish::text as d, (t.state = 'CALENDAR_UNAVAILABLE') as u, t.kind, t.priority, t.phase_code, ou.path as unit_path, count(*)::text as n from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
+        where ${where.sql} group by t.committed_finish, (t.state = 'CALENDAR_UNAVAILABLE'), t.kind, t.priority, t.phase_code, ou.path`,
       where.params,
     );
     const counts = emptyCounts();
@@ -135,7 +137,7 @@ export class PwfDeadlineReads {
       parts.push(`(coalesce(t.committed_finish, ${bind(FAR_DAY)}::date), t.id) > (${bind(after.code)}::date, ${bind(after.id)}::uuid)`);
     }
     const rows = await tx.query<{ id: string; task_code: string; name: string; project_id: string; project_code: string; project_name: string; phase_code: string; kind: 'TASK' | 'MILESTONE'; priority: GroupSql['priority']; status: string; due_date: string | null; forecast_finish: string | null; critical: boolean; sort_day: string; unit_path: string | null }>(
-      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, p.name as project_name, t.phase_code, t.kind, t.priority, t.status, t.committed_finish::text as due_date, case when t.planned_finish is distinct from t.committed_finish then t.planned_finish::text end as forecast_finish, t.critical, coalesce(t.committed_finish, date '${FAR_DAY}')::text as sort_day, ou.path as unit_path
+      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, p.name as project_name, t.phase_code, t.kind, t.priority, t.status, (t.state = 'CALENDAR_UNAVAILABLE') as u, t.committed_finish::text as due_date, case when t.planned_finish is distinct from t.committed_finish then t.planned_finish::text end as forecast_finish, t.critical, coalesce(t.committed_finish, date '${FAR_DAY}')::text as sort_day, ou.path as unit_path
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
         where ${parts.join(' and ')} order by coalesce(t.committed_finish, date '${FAR_DAY}'), t.id limit ${bind(page.limit + 1)}`,
       params,
@@ -156,7 +158,7 @@ export class PwfDeadlineReads {
         status: row.status,
         due_date: row.due_date,
         forecast_finish: row.forecast_finish,
-        band: resolver.of({ status: row.status as never, excluded: false, tracked: true, dueOn: row.due_date, kind: row.kind, priority: row.priority, phaseCode: row.phase_code }, row.unit_path),
+        band: resolver.of({ status: row.status as never, excluded: false, tracked: true, dueOn: row.due_date, kind: row.kind, priority: row.priority, phaseCode: row.phase_code, calendarUnavailable: (row as { u?: boolean }).u === true }, row.unit_path),
         critical: row.critical,
         assignee: assignees.get(row.id) ?? null,
       })),
@@ -189,8 +191,8 @@ export class PwfDeadlineReads {
     const resolver = await bandResolver(tx, this.calendars, now);
     const where = conditionsOf(scope, { ...filter, dueFrom: from, dueTo: to }, vietnamDateOf(now));
     const groups = await tx.query<GroupSql>(
-      `select t.committed_finish::text as d, t.kind, t.priority, t.phase_code, ou.path as unit_path, count(*)::text as n from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
-        where ${where.sql} group by t.committed_finish, t.kind, t.priority, t.phase_code, ou.path`,
+      `select t.committed_finish::text as d, (t.state = 'CALENDAR_UNAVAILABLE') as u, t.kind, t.priority, t.phase_code, ou.path as unit_path, count(*)::text as n from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
+        where ${where.sql} group by t.committed_finish, (t.state = 'CALENDAR_UNAVAILABLE'), t.kind, t.priority, t.phase_code, ou.path`,
       where.params,
     );
     const days = new Map<string, { total: number; counts: Counts }>();

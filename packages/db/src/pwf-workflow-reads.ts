@@ -35,8 +35,8 @@ export interface BandView {
 export const bandViewOf = (result: pwfDeadlineBand.DeadlineBandResult): BandView => ({ band: result.band, remaining_days: result.remainingDays, unit: result.unit, overdue: result.overdue, due_today: result.dueToday, reason: result.reason ?? null });
 
 /** What the colour of a deadline is judged on: the state of the task, what it is, and its OFFICIAL deadline (`dueOn`, the finish of the schedule last released by a decision, R49). */
-export type BandSubject = Pick<TaskRow, 'status' | 'excluded' | 'tracked' | 'kind' | 'priority' | 'phaseCode'> & { dueOn: string | null };
-export const bandSubjectOf = (row: TaskRow): BandSubject => ({ status: row.status, excluded: row.excluded, tracked: row.tracked, kind: row.kind, priority: row.priority, phaseCode: row.phaseCode, dueOn: dueOf(row) });
+export type BandSubject = Pick<TaskRow, 'status' | 'excluded' | 'tracked' | 'kind' | 'priority' | 'phaseCode'> & { dueOn: string | null; /** True when the schedule could not give the task its days because a year has no published calendar (state CALENDAR_UNAVAILABLE). */ calendarUnavailable?: boolean };
+export const bandSubjectOf = (row: TaskRow): BandSubject => ({ status: row.status, excluded: row.excluded, tracked: row.tracked, kind: row.kind, priority: row.priority, phaseCode: row.phaseCode, dueOn: dueOf(row), calendarUnavailable: row.state === 'CALENDAR_UNAVAILABLE' });
 
 /** The forecast of a task that is not over, when the current computation differs from the days that were released; null when there is nothing else to tell. */
 export function forecastOf(row: Pick<TaskRow, 'status' | 'plannedStart' | 'plannedFinish' | 'committedStart' | 'committedFinish'>): { start: string | null; finish: string | null } {
@@ -101,6 +101,8 @@ export async function bandResolver(tx: TenantTx, calendars: HomeWorkCalendars, n
       const policy = policies.forUnitPath(unitPath);
       // A task that is over, cancelled, left out of the project or not tracked has no colour.
       if (task.status === 'DONE' || task.status === 'CANCELLED' || task.excluded || !task.tracked) return { band: 'NONE', remaining_days: null, unit: policy.unit, overdue: false, due_today: false, reason: 'NO_DUE' };
+      // A task whose days the schedule could not compute for want of a calendar has no deadline to guess: its colour is UNKNOWN, never NONE (which reads as "far away") and never green (BR-PWF-10, BR-PWF-26).
+      if (task.calendarUnavailable === true && task.dueOn === null) return { band: 'UNKNOWN', remaining_days: null, unit: policy.unit, overdue: false, due_today: false, reason: 'CALENDAR_UNAVAILABLE' };
       const thresholds = pwfDeadlineBand.thresholdsFor(policy, { taskKind: task.kind, priority: task.priority, phase: task.phaseCode });
       return bandViewOf(pwfDeadlineBand.deadlineBand({ dueOn: task.dueOn, today, unit: policy.unit, calendars: source, thresholds }));
     },

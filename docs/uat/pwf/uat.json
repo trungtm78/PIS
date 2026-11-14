@@ -204,9 +204,8 @@
         "T-PWF-05"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "WEB-E2E",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/project-workflow.test.ts"
       }
     },
     {

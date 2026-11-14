@@ -537,6 +537,50 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
       expect((await rows<{ version: number }>('select version from machvon.project_schedule_version where workflow_id = $1::uuid', [workflowId])).map((one) => one.version)).toEqual([1]);
     });
 
+    it('UAT-PWF-03: a workflow that runs into a year with no published calendar is still created; the task that crosses into that year is CALENDAR_UNAVAILABLE with the missing year, no guessed day and the colour UNKNOWN (never green); the project has no finish day; publishing the calendar later changes no day by itself', async () => {
+      // The tenant has the calendars of the years up to YEAR + 2: a task of 600 working days from December 2026 ends in the first year without one.
+      const missingYear = YEAR + 3;
+      await seedTemplate('UATLONG', template('Qua năm thiếu lịch', [task('TA', { duration_working_days: 5 }), task('TB', { duration_working_days: 600, predecessors: after('TA') })]));
+      const id = await project();
+      const started = await begin(id, 'UATLONG', `${YEAR}-12-14`);
+      expect(started).toMatchObject({ status: 200, json: { status: 'ACTIVE' } });
+      const read = async (): Promise<{ tasks: Array<Record<string, unknown>>; schedule: Record<string, unknown>; version: unknown }> => {
+        const view = (await detail(id)).json;
+        return { tasks: view.tasks as Array<Record<string, unknown>>, schedule: (await call('GET', `/projects/${id}/workflow/schedule`, { member: READER })).json, version: view.schedule_version };
+      };
+      const before = await read();
+      expect(byCode(before.tasks, 'TA')).toMatchObject({ state: 'SCHEDULED', planned_start: `${YEAR}-12-14`, missing_year: null });
+      const crossing = byCode(before.tasks, 'TB');
+      expect(crossing).toMatchObject({ state: 'CALENDAR_UNAVAILABLE', missing_year: missingYear, planned_finish: null });
+      expect(crossing.band).toMatchObject({ band: 'UNKNOWN', reason: 'CALENDAR_UNAVAILABLE' });
+      expect(before.schedule.project_finish).toBeNull();
+      expect((before.schedule.findings as Array<{ code: string; year: number }>).some((one) => one.code === 'CALENDAR_UNAVAILABLE' && one.year === missingYear)).toBe(true);
+      const counts = (await detail(id)).json.counts_by_band as Record<string, number>;
+      expect(counts.UNKNOWN).toBe(1);
+      expect(counts.GREEN).toBe(0);
+      // The board of the portfolio counts it apart as well, and never among the green ones.
+      const board = (await call('GET', '/pwf/deadlines?band=UNKNOWN&limit=100', { member: READER })).json;
+      expect((board.counts_by_band as Record<string, number>).UNKNOWN).toBeGreaterThanOrEqual(1);
+      expect((board.items as Array<{ task_code: string; band: { band: string } }>).filter((one) => one.task_code === 'TB' && one.band.band === 'UNKNOWN').length).toBeGreaterThanOrEqual(1);
+      // The calendar of the missing year is published: nothing moves by itself; the days change only by a reschedule that somebody proposes and another person approves.
+      await harness.owner(TENANT_A, [
+        [
+          `insert into machvon.work_calendar_version (tenant_id, id, calendar_code, year, revision, working_days, holidays, compensated_workdays, legal_basis_ref, status, created_by, published_by, published_at)
+           values ($1, gen_random_uuid(), 'WORKDAY_VN', $2, 1, '[1,2,3,4,5]'::jsonb, '[]'::jsonb, '[]'::jsonb, 'Labour Code 2019', 'Published', $3, $3, now())`,
+          [TENANT_A, missingYear, memberId(MANAGER)],
+        ],
+      ]);
+      const after2 = await read();
+      expect(after2.version).toBe(before.version);
+      expect(byCode(after2.tasks, 'TB')).toMatchObject({ state: 'CALENDAR_UNAVAILABLE', planned_finish: null });
+      const version = (await detail(id)).json.version as number;
+      const proposed = await call('POST', `/projects/${id}/workflow/reschedules`, { member: MANAGER, ifMatch: `"${version}"`, body: { planned_start_date: `${YEAR}-12-14`, reason: 'Lập lại lịch sau khi công bố lịch làm việc của năm còn thiếu' } });
+      expect(proposed).toMatchObject({ status: 200, json: { status: 'PROPOSED' } });
+      const replanned = byCode((proposed.json.schedule as { tasks: Array<Record<string, unknown>> }).tasks, 'TB');
+      expect(replanned.state).toBe('SCHEDULED');
+      expect(String(replanned.finish).slice(0, 4)).toBe(String(missingYear));
+    });
+
     it('UAT-PWF-05: a completion without the legal paper and the checklist item is blocked with each blocker; with both it waits for approval; a return counts and needs a reason; another person approves and the maker never does', async () => {
       const id = await project();
       const five = await begin(id, 'UATFIVE');
