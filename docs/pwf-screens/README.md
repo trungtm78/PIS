@@ -2,7 +2,7 @@
 
 Chụp lại toàn bộ đêm 14 rạng sáng 15/11/2026 từ nhánh `lane/shots3` (từ `main` cc1b5a6f8, sau làn fix10) trên ứng dụng chạy thật: API trên PostgreSQL nhúng, seed `clip-seed apply --dataset public` chạy trọn trên một stack sạch, web dựng ở chế độ development và chụp bằng Chromium của Playwright (1440×900, ảnh toàn trang; vài ảnh là khung nhìn khi mở hộp hoặc sau khi cuộn, và mười ảnh rộng 390 px); điện thoại là APK debug dựng từ nhánh với `--dart-define=MACHVON_ALLOW_SCREENSHOTS=true`, AVD `guide` (720×1560, cỡ chữ 100%), ảnh lấy bằng `adb exec-out screencap -p`. Không có ảnh mock và không có ảnh golden. Ảnh của các lượt trước đã xóa hết.
 
-Tổng cộng 157 ảnh: 90 ảnh web, 67 ảnh điện thoại. Tôi đã mở xem 157 ảnh (cột cuối ghi từng ảnh). Với ảnh web, phần lớn được xem ở bản chụp ngay trước bản cuối: bản cuối chụp lại cả bộ sau các sửa cuối cùng (hộp "i", câu của băng số liệu cũ, bảng dạng thẻ), cùng bố cục; các ảnh bị các sửa đó đụng tới (hộp "i", mọi ảnh 390 px, PWF-12, PWF-14, PRJ-03 và PWF-03 tab đầu) đã được xem lại ở bản cuối. Ảnh web dài được xem ở cỡ thu nhỏ theo từng tờ hai ảnh, chỗ nghi ngờ thì cắt ra xem cỡ thật; ảnh điện thoại xem theo tờ năm ảnh ở nửa cỡ. Với mọi ảnh web, kịch bản chụp đo được: không có lỗi JavaScript, không có khóa dịch lộ ra, và trang không cuộn ngang.
+Tổng cộng 167 ảnh: 90 ảnh web, 77 ảnh điện thoại. Tôi đã mở xem 167 ảnh (cột cuối ghi từng ảnh). Với ảnh web, phần lớn được xem ở bản chụp ngay trước bản cuối: bản cuối chụp lại cả bộ sau các sửa cuối cùng (hộp "i", câu của băng số liệu cũ, bảng dạng thẻ), cùng bố cục; các ảnh bị các sửa đó đụng tới (hộp "i", mọi ảnh 390 px, PWF-12, PWF-14, PRJ-03 và PWF-03 tab đầu) đã được xem lại ở bản cuối. Ảnh web dài được xem ở cỡ thu nhỏ theo từng tờ hai ảnh, chỗ nghi ngờ thì cắt ra xem cỡ thật; ảnh điện thoại xem theo tờ năm ảnh ở nửa cỡ. Với mọi ảnh web, kịch bản chụp đo được: không có lỗi JavaScript, không có khóa dịch lộ ra, và trang không cuộn ngang.
 
 Xem dạng lưới có mục lục theo màn rồi theo tab: [index.html](index.html).
 
@@ -35,7 +35,7 @@ Xem dạng lưới có mục lục theo màn rồi theo tab: [index.html](index.
 - Đã sửa trong làn này: loại dự án của tỉnh là mở rộng của một loại của hệ thống (ROAD_REPAIR dưới "Cải tạo, nâng cấp, mở rộng"; thêm SCHOOL_EQUIPMENT dưới "Mua sắm"); nhóm phê duyệt đọc đúng dòng điểm nằm trong từng mục (period, line); mỗi dự án có người làm, cán bộ phối hợp và kết cục từng việc ghi rõ trong seed (xong đúng ngày, xong trễ 1 đến 5 ngày làm việc, còn mở và trễ, trình hôm nay chờ duyệt, trình rồi bị trả lại); mốc mà mọi việc đứng trước đã xong được ghi nhận; việc trễ được chuyển người một ngày trước hạn (có tín hiệu "Đổi người sát hạn"); chính sách chấm điểm của tỉnh xếp loại từ 3 việc; thêm một kỳ nháp của Sở Kế hoạch và Đầu tư để có số "tạm tính"; nhóm e-GP mở nghĩa vụ đăng tải ở nhiều ngày hơn để luôn có một nghĩa vụ "sắp đến hạn" (`clip-seed verify` hỏng ở mục này khi chạy vào thứ Bảy).
 - Bản công, lượt cuối trên stack sạch: cả bộ chạy trọn, thoát 0. Ba nhóm PWF (`clip-public-pwf-review` 729 lệnh, `clip-public-approvals`, `clip-public-phone-work`) không có lệnh nào bị từ chối. Còn 7 lệnh bị từ chối được seed bỏ qua ở các nhóm KHÁC, có từ trước và không sửa trong làn này: `clip-public-documents` (xác minh chữ ký 403 SCOPE_DENIED; bàn giao hồ sơ 422 `handed_over_at`), `clip-public-payments` và `clip-public-disbursement` (sinh kỳ báo cáo 409 PERIOD_OVERLAP, mỗi nhóm một lần), `clip-public-egp` (quyết định ánh xạ 409 CROSSWALK_DUPLICATE), `clip-public-bi` (hai yêu cầu công bố 403 SCOPE_DENIED).
 - `clip-seed verify` bản công trên stack đó: 47 mục đạt, 1 mục hỏng ("egp obligations due soon: 0"). Seed e-GP đã sửa như trên nhưng CHƯA chạy lại `verify` trên một stack sạch sau khi sửa.
-- Bản doanh nghiệp: CHƯA chạy lại trong làn này.
+- Bản doanh nghiệp, cả bộ chạy sạch từ đầu trên một stack mới (lượt trước chỉ áp dụng lại một nhóm): thoát 0; nhóm `clip-ent-phone-work` không có lệnh nào bị từ chối; `clip-seed verify --dataset enterprise` đạt 30 trên 30 mục. Còn 39 dòng cảnh báo được seed bỏ qua ở các nhóm khác, có từ trước và không sửa trong làn này: `clip-ent-weekly` (10: tuần hoặc tháng không có kế hoạch vốn hiệu lực), `clip-ent-vendor` (12: cổng nhà thầu chưa gắn, tự duyệt bị chặn, hai đề xuất xếp hạng đã chốt), `clip-ent-platform` (10: kênh thông báo chưa xác minh), `clip-ent-bi` (2), `clip-ent-documents` (2), `clip-ent-audit` (2: lời mời vai trò bị từ chối), `clip-ent-legal` (1). Lần chạy thử đầu của tôi trên bản này dừng ở nhóm hợp đồng vì thư mục stack còn sổ seed của bản công (lỗi thao tác của tôi, không phải của seed); chạy lại với thư mục sạch thì trọn.
 - Giới hạn còn lại của seed điểm: seed khai ngày hoàn thành lùi về quá khứ còn chứng từ nộp vào ngày chạy seed, nên KPI "Độ đầy đủ của chứng từ" của việc đã xong ra 0 (điểm việc đúng hạn là 80 thay vì 100). Phân bố điểm tính theo quý chứa ngày chạy seed; chạy đầu một quý thì kỳ gần như rỗng.
 
 
@@ -276,6 +276,21 @@ Bản công nay có hồ sơ chờ duyệt (nhóm seed clip-public-approvals), n
 | [`mobile/87-MOB-20-tab-so-lieu.png`](mobile/87-MOB-20-tab-so-lieu.png) | MOB-20 | Tab Số liệu | Đã mở xem bản cuối. Còn thấy: nhãn "Tổng lũy kế sáu ô" khó hiểu; báo cáo chưa nhập số nên toàn 0. |
 | [`mobile/88-MOB-20-tab-thuyet-minh-tep.png`](mobile/88-MOB-20-tab-thuyet-minh-tep.png) | MOB-20 | Tab Thuyết minh, tệp | Đã mở xem bản cuối. |
 
+## Điện thoại · Bản doanh nghiệp (Đạm Phú Mỹ)
+
+| Ảnh | Mã màn | Đang hiển thị | Đã tự xem chưa, và điều còn thấy |
+|---|---|---|---|
+| [`mobile/e01-MOB-07-trang-chu.png`](mobile/e01-MOB-07-trang-chu.png) | MOB-07 | Trang chủ điều hành | Đã mở xem bản cuối. Còn thấy: hai dòng tỷ lệ ghi "Chưa có kế hoạch vốn để tính". |
+| [`mobile/e02-MOB-07-trang-chu-cuon-xuong.png`](mobile/e02-MOB-07-trang-chu-cuon-xuong.png) | MOB-07 | Trang chủ, cuộn xuống | Đã mở xem bản cuối. Còn thấy: một cảnh báo mở đầu bằng mã "QUALITY_MANAGEMENT_ISO9001 VN-QMS-2022-0301"; khối Ban chỉ đạo ghi "Chưa có số liệu" ba lần. |
+| [`mobile/e10-MOB-23-hop-phe-duyet.png`](mobile/e10-MOB-23-hop-phe-duyet.png) | MOB-23 | Hộp phê duyệt: sáu báo cáo tuần chờ quyết định | Đã mở xem bản cuối. Mỗi hàng có dòng "Người trình: Phạm Quốc Dũng · trình ngày 15/11/2026". Còn thấy: sáu hàng cùng tiêu đề, cùng người trình, cùng ngày, không nêu dự án: vẫn không phân biệt được nhau. |
+| [`mobile/e11-MOB-24-chi-tiet-phe-duyet-tab-1.png`](mobile/e11-MOB-24-chi-tiet-phe-duyet-tab-1.png) | MOB-24 | Chi tiết phê duyệt, tab Nội dung | Đã mở xem bản cuối. Ở đây có dòng Hồ sơ nêu dự án và kỳ (khác chi tiết của phản hồi về điểm trên bản công). |
+| [`mobile/e20-MOB-80-viec-cua-toi.png`](mobile/e20-MOB-80-viec-cua-toi.png) | MOB-80 | Việc của tôi: chín việc, đều chưa vào tầm | Đã mở xem bản cuối. Chụp sau khi flow 40 hoàn thành một việc. |
+| [`mobile/e21-MOB-80-tab-da-xong.png`](mobile/e21-MOB-80-tab-da-xong.png) | MOB-80 | Việc của tôi, tab Đã xong: hai việc | Đã mở xem bản cuối. Còn thấy: cả hai ghi "trễ hạn" (seed lập workflow lùi hai tuần rồi hoàn thành hôm nay). |
+| [`mobile/e30-MOB-81-diem-kpi-tab-theo-viec.png`](mobile/e30-MOB-81-diem-kpi-tab-theo-viec.png) | MOB-81 | Điểm KPI của tôi: 70, hai việc | Đã mở xem bản cuối. Mẫu nhỏ: "Chưa đủ dữ liệu ... Điểm chỉ để tham khảo". |
+| [`mobile/e31-MOB-81-tab-cach-tinh.png`](mobile/e31-MOB-81-tab-cach-tinh.png) | MOB-81 | Tab Cách tính | Đã mở xem bản cuối. |
+| [`mobile/e40-MOB-47-ca-nhan.png`](mobile/e40-MOB-47-ca-nhan.png) | MOB-47 | Cá nhân | Đã mở xem bản cuối. |
+| [`mobile/e50-MOB-32-thong-bao.png`](mobile/e50-MOB-32-thong-bao.png) | MOB-32 | Thông báo, tab Sự kiện (rỗng) | Đã mở xem bản cuối. Câu rỗng riêng của Thông báo. |
+
 ## Điện thoại · Chế độ tối (đặt "Tối" trong Cá nhân)
 
 | Ảnh | Mã màn | Đang hiển thị | Đã tự xem chưa, và điều còn thấy |
@@ -343,5 +358,5 @@ Không sửa mã điện thoại trong làn này, nên không có golden nào đ
 ## Flow Maestro (trình giả lập `guide`, Android 15, bản debug)
 
 - Bản công: flow 06 ĐẠT; flow 40 ĐẠT đến hết qua `run_40_project_workflow.sh` (41 giây; cổng API bị chặn rồi mở lại đúng lúc); flow 20 KHÔNG ĐẠT hai lần trên hai mẫu, dừng ở chờ "Cần bạn quyết định" (xem khiếm khuyết 5).
-- Bản doanh nghiệp: chưa chạy.
+- Bản doanh nghiệp: flow 06 ĐẠT (26 giây); flow 40 ĐẠT đến hết (41 giây), kể cả bước điểm mà lượt trước chưa xác nhận được; flow 20 KHÔNG ĐẠT hai lần; ở bản này tiêu đề nằm trên màn đầu, mẫu chỉ không kịp ngân sách 2,5 giây trên trình giả lập.
 

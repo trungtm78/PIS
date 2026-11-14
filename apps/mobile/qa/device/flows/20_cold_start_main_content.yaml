@@ -1,5 +1,8 @@
 # STATUS: RUN ON AN EMULATOR ONLY (AVD guide, Android 15, software graphics, debug build, 2026-11-06): 3 samples out of 3 were NOT within 2.5 s. That says nothing about a
 # phone (a debug build on a software renderer is far slower than a release build on a phone): the verdict stays NOT RUN until the matrix devices run it.
+# Lane shots3 (2026-11-15, same AVD, debug builds, clean stacks with the whole clip seed): 2 samples on each edition, 4 out of 4 failed the wait after 8 s. On the public edition this is not time: the home of a
+#   person who holds workflow tasks now shows the block "Việc theo hạn của tôi" above the alerts, so the heading "Cần bạn quyết định" is below the first screen and this wait cannot match at any speed (the
+#   flow needs another mark of the loaded home, or to scroll). On the enterprise edition the heading is on the first screen and the sample was simply not within the budget on this emulator.
 # UAT 2026-11-13 (same AVD, software graphics, debug build of the merge of PR 2): 2 runs, 2 failed the wait. That was not only time: the heading below merged with the
 # texts of the alerts into one node, so this whole-text wait could match at no speed (fixed in the application: a heading is a node of its own). Not re-run; no verdict for a phone.
 # Supports: AC-ST-MOB-040-2 / UAT-NFR-PERFORMANCE-02, the 2.5 s budget of the main content after a cold start.
