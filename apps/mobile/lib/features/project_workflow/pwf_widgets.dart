@@ -84,74 +84,73 @@ class PwfGlyph extends StatelessWidget {
   }
 }
 
-/// The end column of a row of a task: the deadline label with its shape, and under it the day the deadline falls on. A task that is over has no
-/// deadline: it says its status in words.
-class PwfDeadlineColumn extends StatelessWidget {
-  const PwfDeadlineColumn({required this.band, required this.status, this.dueDay, this.missingYear, this.note, super.key});
+/// The deadline of a task on one line under its name, across the width of the row: the words of the band with its shape, the day the deadline falls on
+/// and, when the progress points to another day, the forecast. A task that waits for an approval, is paused or is over says its status instead of a
+/// count of days. It replaces the narrow end column, where "Còn 1 ngày làm việc" and "Chờ duyệt hoàn thành" broke into four or five lines.
+class PwfDeadlineLine extends StatelessWidget {
+  const PwfDeadlineLine({required this.band, required this.status, this.dueDay, this.forecastDay, this.missingYear, super.key});
 
   final PwfBand band;
   final PwfTaskStatus status;
-
-  /// The day the task falls due, `YYYY-MM-DD`: always shown with a coloured band, so a colour is never the only thing said.
   final String? dueDay;
-  final int? missingYear;
 
-  /// A line under the day (the label of a personal setting).
-  final String? note;
+  /// The day the progress now points to; shown only when it is another day than [dueDay].
+  final String? forecastDay;
+  final int? missingYear;
 
   @override
   Widget build(BuildContext context) {
     final MachvonV2Text text = context.v2text;
-    final bool large = largeText(context);
-    final CrossAxisAlignment align = large ? CrossAxisAlignment.start : CrossAxisAlignment.end;
-    final TextAlign textAlign = large ? TextAlign.start : TextAlign.end;
-    if (status.isFinal || status == PwfTaskStatus.awaitingApproval || status == PwfTaskStatus.onHold) {
-      final DeadlineBand? colour = status == PwfTaskStatus.done ? DeadlineBand.done : null;
-      final String words = pwfStatusLabel(context, status);
-      return Column(
-        crossAxisAlignment: align,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          if (colour != null) DeadlineLabel(band: colour, text: words) else Text(words, style: text.label, textAlign: textAlign),
-          if (note != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(note!, style: text.caption, textAlign: textAlign)),
-        ],
-      );
-    }
-    final DeadlineBand? colour = pwfDeadlineBandOf(band);
-    final String words = pwfDeadlineWords(context, band, missingYear: missingYear);
-    return Column(
-      crossAxisAlignment: align,
-      mainAxisSize: MainAxisSize.min,
+    final bool byStatus = status.isFinal || status == PwfTaskStatus.awaitingApproval || status == PwfTaskStatus.onHold;
+    final DeadlineBand? colour = byStatus ? (status == PwfTaskStatus.done ? DeadlineBand.done : null) : pwfDeadlineBandOf(band);
+    final String words = byStatus ? pwfStatusLabel(context, status) : pwfDeadlineWords(context, band, missingYear: missingYear);
+    // A deadline that is not in range yet, or cannot be counted, may fall in another year: its day is then written with the year.
+    final bool far = band.kind == PwfBandKind.none || band.kind == PwfBandKind.unknown;
+    final String? due = status.isFinal || dueDay == null ? null : context.t('mob.deadline.due.label', <String, Object>{'date': far ? formatDay(dueDay!, language: AppStrings.of(context).language) : formatDayShort(dueDay!)});
+    final String? forecast = pwfForecastWords(context, status: status, dueDay: dueDay, forecastDay: forecastDay);
+    return Wrap(
+      spacing: MachvonV2Space.s8,
+      runSpacing: MachvonV2Space.s4,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: <Widget>[
-        if (colour != null)
-          DeadlineLabel(band: colour, text: words, dueDay: dueDay)
-        else
-          Semantics(container: true, label: dueDay == null ? words : context.t('mob.deadline.spoken.short', <String, Object>{'band': words, 'label': context.t('mob.deadline.due.label', <String, Object>{'date': formatDay(dueDay!, language: AppStrings.of(context).language)})}), excludeSemantics: true, child: Text(words, style: text.label, textAlign: textAlign)),
-        if (dueDay != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(context.t('mob.deadline.due.label', <String, Object>{'date': formatDayShort(dueDay!)}), style: text.caption, textAlign: textAlign)),
-        if (note != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(note!, style: text.caption, textAlign: textAlign)),
+        if (colour != null) DeadlineLabel(band: colour, text: words, dueDay: status.isFinal ? null : dueDay) else Text(words, style: text.label),
+        if (due != null) Text(due, style: text.caption),
+        if (forecast != null) Text(forecast, style: text.caption),
       ],
     );
   }
 }
 
-/// One row of a task of the workflow: the glyph of its official band, its name, who does it and its code, and the deadline at the end. The official
-/// band is the only colour a shared screen shows (R40).
+/// "Dự báo xong 20/11" when the progress of a task that is not over points to another day than its official deadline; null otherwise.
+String? pwfForecastWords(BuildContext context, {required PwfTaskStatus status, String? dueDay, String? forecastDay}) {
+  if (status.isFinal || forecastDay == null || forecastDay == dueDay) return null;
+  // The forecast of a task that runs late may fall in the year after its deadline: the year is then written.
+  final bool sameYear = dueDay != null && dueDay.length >= 4 && forecastDay.startsWith(dueDay.substring(0, 4));
+  return context.t('mob.pwf7.forecast.short', <String, Object>{'date': sameYear ? formatDayShort(forecastDay) : formatDay(forecastDay, language: AppStrings.of(context).language)});
+}
+
+/// One row of a task of the workflow: the glyph of its official band, its name (never cut short of three lines), who does it and where it stands, and
+/// the deadline on a line of its own. The official band is the only colour a shared screen shows (R40). The code of the task is not a thing a person
+/// reads: it is in the facts of the task (MOB-79), not on the row.
 WorkRow pwfTaskRow(BuildContext context, PwfTaskRow task, {VoidCallback? onTap, bool dividerAbove = false}) {
   final List<String> facts = <String>[
-    task.code,
     if (task.assignee != null) task.assignee!,
-    if (task.status == PwfTaskStatus.inProgress || task.status == PwfTaskStatus.awaitingApproval) pwfStatusLabel(context, task.status),
+    // A task that waits for an approval says so on its deadline line; only "in progress" is a fact of its own here.
+    if (task.status == PwfTaskStatus.inProgress) pwfStatusLabel(context, task.status),
     if (task.returnCount > 0) context.t('mob.pwf.row.returned', <String, Object>{'count': task.returnCount}),
     // PWF-4: the checklist of the task itself, counted by the server.
     if (task.checklistTotal > 0) context.t('mob.pwf.process.row.checklist', <String, Object>{'done': task.checklistDone, 'total': task.checklistTotal}),
   ];
   return WorkRow(
     title: task.name,
-    subtitle: facts.join(' · '),
+    subtitle: facts.isEmpty ? null : facts.join(' · '),
+    subtitleMaxLines: 2,
+    titleMaxLines: 3,
     leading: PwfGlyph(band: task.band, status: task.status),
-    trailing: PwfDeadlineColumn(band: task.band, status: task.status, dueDay: task.status.isFinal ? null : task.plannedFinish, missingYear: task.missingYear),
+    footer: PwfDeadlineLine(band: task.band, status: task.status, dueDay: task.plannedFinish, forecastDay: task.forecastFinish, missingYear: task.missingYear),
+    trailing: onTap == null ? null : Icon(Icons.chevron_right, color: context.v2.palette.ink3),
     onTap: onTap,
-    semanticLabel: pwfSpokenRow(context, title: task.name, facts: facts, band: task.band, status: task.status, dueDay: task.plannedFinish, missingYear: task.missingYear),
+    semanticLabel: pwfSpokenRow(context, title: task.name, facts: facts, band: task.band, status: task.status, dueDay: task.plannedFinish, missingYear: task.missingYear, note: pwfForecastWords(context, status: task.status, dueDay: task.plannedFinish, forecastDay: task.forecastFinish)),
     dividerAbove: dividerAbove,
   );
 }

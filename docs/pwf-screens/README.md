@@ -2,7 +2,7 @@
 
 Web: chụp lại ngày 14/11/2026 từ nhánh `lane/pwf6` (đã gộp `lane/pwf5`) trên ứng dụng chạy thật: API trên PostgreSQL nhúng, seed `clip-seed --dataset public` chạy trọn trên một stack sạch (gồm nhóm `clip-public-pwf-review`), web chạy ở chế độ development, Chromium của Playwright 1440×900, ảnh toàn trang. Không có ảnh mock.
 
-**Điện thoại: thư mục `mobile/` vẫn là ảnh CŨ, chụp trước khi sửa và trước khi chia tab.** Lượt này chưa dựng APK và chưa chạy AVD, nên các thay đổi trên điện thoại (MOB-79 và MOB-81 theo tab, khối "Việc theo hạn của tôi" ở trang chủ, tên thay cho mã) chưa có ảnh; chúng mới được kiểm bằng `flutter test` và golden.
+Điện thoại: chụp lại ngày 14/11/2026 từ nhánh `lane/mob7`, từng tab một, xem mục "Điện thoại" ở cuối tệp.
 
 ## Việc đã tự kiểm trên ảnh
 
@@ -77,6 +77,67 @@ Kiểm tra seed: `clip-seed verify` báo FAILED vì một phép kiểm không th
 | [`web/55-PWF-13-chi-tiet-diem.png`](web/55-PWF-13-chi-tiet-diem.png) | PWF-13 | Chi tiết điểm của một cán bộ | Chưa mở xem. |
 | [`web/57-PWF-14-ky-cham-diem.png`](web/57-PWF-14-ky-cham-diem.png) | PWF-14 | Kỳ chấm điểm | Chưa mở xem. |
 
+## Điện thoại (MOB-07, 09, 10, 32, 47, 78 đến 82), chụp lại theo tab
+
+Chụp ngày 14/11/2026 từ nhánh `lane/mob7` trên ứng dụng chạy thật: API bản công trên PostgreSQL nhúng (cổng riêng), seed `clip-seed apply --dataset public` chạy trọn trên stack sạch (gồm nhóm `clip-public-pwf-review` và `clip-public-phone-work`), APK debug bản công dựng từ nhánh, AVD `guide` (720×1560, cỡ chữ 100%), đăng nhập bằng nhà cung cấp danh tính thử của stack (người thứ nhất: Nguyễn Văn An, chủ sở hữu, có việc được giao và có điểm), ảnh lấy bằng `adb exec-out screencap -p`. Không có ảnh mock và không có ảnh golden.
+
+Cách dựng lại: `node uat/run/uat-2026-11-14-rerun/tools/start-public-stack.mjs <thư mục> <cổng API> <cổng IdP> <khóa phiên>` (chạy stack và seed); `flutter build apk --debug --dart-define=MACHVON_API_BASE_URL=http://127.0.0.1:<cổng API> --dart-define=MACHVON_OIDC_ISSUER=http://127.0.0.1:<cổng IdP>/realms/machvon --dart-define=MACHVON_OIDC_CLIENT_ID=machvon-web`; `emulator -avd guide`; `adb reverse` hai cổng; `adb install`; `adb shell cmd locale set-app-locales vn.machvon.app --locales vi-VN`; đăng nhập bằng `maestro test apps/mobile/qa/device/flows/06_sign_in_test_idp.yaml`; đi từng màn bằng `adb shell input` và chụp.
+
+Trong 48 ảnh, tôi đã mở xem 31 ảnh, phần lớn ở bản chụp của một vòng trước (ghi rõ ở cột cuối: ứng dụng được dựng năm lần, mỗi lần sửa xong lại chụp lại cả bộ, và không phải ảnh nào của bộ cuối cũng được mở lại). Ảnh ghi "Chưa mở xem" là chưa mở ở vòng nào.
+
+Không chụp được: tab Phê duyệt và chi tiết phê duyệt (MOB-23, 24). Hai màn này đặt cờ chặn chụp màn hình nên `screencap` trả ảnh đen; tài khoản đăng nhập cũng không có việc chờ duyệt. Chi tiết phê duyệt đã chia ba tab (Nội dung, So sánh, Bằng chứng) và mới được kiểm bằng widget test, chưa được nhìn trên thiết bị.
+
+| Ảnh | Mã màn | Đang hiển thị | Việc đã xem và điều còn thấy |
+|---|---|---|---|
+| [`mobile/01-MOB-07-trang-chu.png`](mobile/01-MOB-07-trang-chu.png) | MOB-07 | Trang chủ: dải điều hành, ba ô chỉ số, khối "Việc theo hạn của tôi" ngay dưới | Đã mở xem. Khối việc theo hạn có ba số kèm hình của ba dải, nằm ngay dưới ô chỉ số (trước nằm cuối trang). Còn thấy: nhãn "Quá hạn, đến hạn" xuống hai dòng; ô "Cảnh báo đang mở" có nhãn "Cần theo dõi" xuống hai dòng (màn của làn khác). |
+| [`mobile/02-MOB-07-trang-chu-viec-theo-han.png`](mobile/02-MOB-07-trang-chu-viec-theo-han.png) | MOB-07 | Trang chủ, cuộn tới khối việc theo hạn và danh sách "Cần bạn quyết định" | Đã mở xem bản chụp vòng trước (cùng bố cục). Hàng cảnh báo cho ba dòng tiêu đề và hai dòng ngữ cảnh. Còn thấy: câu cảnh báo của máy chủ dài nên vẫn bị cắt, và dòng ngữ cảnh của cảnh báo workflow chứa mã việc và mã giai đoạn (chữ do API soạn). |
+| [`mobile/03-MOB-47-ca-nhan-cong-viec-cua-toi.png`](mobile/03-MOB-47-ca-nhan-cong-viec-cua-toi.png) | MOB-47 | Cá nhân: hồ sơ và nhóm "Công việc của tôi" | Đã mở xem bản chụp vòng trước (cùng bố cục): hồ sơ, rồi Việc của tôi, Điểm KPI của tôi, Ủy quyền và vắng mặt. |
+| [`mobile/04-MOB-47-ca-nhan-nhac-han-cai-dat.png`](mobile/04-MOB-47-ca-nhan-nhac-han-cai-dat.png) | MOB-47 | Cá nhân: nhóm "Nhắc hạn việc" (xem trước ba mức) và nhóm "Cài đặt" | Đã mở xem bản chụp vòng trước. |
+| [`mobile/05-MOB-47-ca-nhan-cong-cu.png`](mobile/05-MOB-47-ca-nhan-cong-cu.png) | MOB-47 | Cá nhân: nhóm "Công cụ" | Chưa mở xem. |
+| [`mobile/06-MOB-47-ca-nhan-tai-khoan-ho-tro.png`](mobile/06-MOB-47-ca-nhan-tai-khoan-ho-tro.png) | MOB-47 | Cá nhân: nhóm "Tài khoản" và "Hỗ trợ" | Đã mở xem: hai nhóm ngắn có tiêu đề, phiên bản ở cuối. |
+| [`mobile/10-MOB-80-viec-cua-toi-tab-can-lam.png`](mobile/10-MOB-80-viec-cua-toi-tab-can-lam.png) | MOB-80 | Việc của tôi, tab Cần làm: ba số theo dải, nhóm theo hạn | Đã mở xem bản chụp vòng trước (cùng bố cục): tên việc không bị cắt, hạn nằm một dòng riêng, không còn mã việc, có "Dự báo xong". |
+| [`mobile/11-MOB-80-tab-can-lam-cuon-xuong.png`](mobile/11-MOB-80-tab-can-lam-cuon-xuong.png) | MOB-80 | Tab Cần làm, cuộn xuống | Chưa mở xem. |
+| [`mobile/12-MOB-80-tab-can-lam-mau-chinh-thuc.png`](mobile/12-MOB-80-tab-can-lam-mau-chinh-thuc.png) | MOB-80 | Tab Cần làm, màu chính thức | Chưa mở xem. |
+| [`mobile/13-MOB-80-tab-cho-duyet.png`](mobile/13-MOB-80-tab-cho-duyet.png) | MOB-80 | Tab Chờ duyệt | Đã mở xem: hai việc chờ duyệt, mỗi việc có hạn và dự báo. |
+| [`mobile/14-MOB-80-tab-da-xong.png`](mobile/14-MOB-80-tab-da-xong.png) | MOB-80 | Tab Đã xong | Chưa mở xem. |
+| [`mobile/20-MOB-79-chi-tiet-viec-tab-can-lam.png`](mobile/20-MOB-79-chi-tiet-viec-tab-can-lam.png) | MOB-79 | Chi tiết việc, tab Cần làm | Đã mở xem bản chụp vòng trước: điều kiện còn thiếu gọi tên mục kiểm (không còn mã), nút "Dời hạn" một dòng. Ảnh hiện tại chụp lại sau khi sửa màu biểu tượng, chưa mở xem lại. |
+| [`mobile/21-MOB-79-tab-can-lam-cuon-xuong.png`](mobile/21-MOB-79-tab-can-lam-cuon-xuong.png) | MOB-79 | Tab Cần làm, cuộn xuống: danh mục kiểm, chứng từ đã nộp | Đã mở xem: mục kiểm ghi tên người đánh dấu và giờ, chứng từ ghi tiêu đề tài liệu và tên người nộp. |
+| [`mobile/22-MOB-79-tab-thong-tin.png`](mobile/22-MOB-79-tab-thong-tin.png) | MOB-79 | Tab Thông tin: nhóm Phân công | Đã mở xem: giá trị thẳng lề phải, bốn tab vừa một hàng. |
+| [`mobile/23-MOB-79-tab-thong-tin-cuon-xuong.png`](mobile/23-MOB-79-tab-thong-tin-cuon-xuong.png) | MOB-79 | Tab Thông tin, cuộn xuống: nhóm Thời hạn, Vị trí trong quy trình | Đã mở xem bản chụp vòng đầu (trước khi sửa lề phải). Ảnh hiện tại chưa mở xem lại. |
+| [`mobile/24-MOB-79-tab-can-cu.png`](mobile/24-MOB-79-tab-can-cu.png) | MOB-79 | Tab Căn cứ | Đã mở xem bản chụp vòng đầu: trạng thái hiệu lực đứng đầu dòng, không còn cột phải. |
+| [`mobile/25-MOB-79-tab-dien-bien.png`](mobile/25-MOB-79-tab-dien-bien.png) | MOB-79 | Tab Diễn biến: đề nghị đã gửi | Đã mở xem: đề nghị ghi tên người đề nghị. |
+| [`mobile/26-MOB-79-tab-dien-bien-cuon-xuong.png`](mobile/26-MOB-79-tab-dien-bien-cuon-xuong.png) | MOB-79 | Tab Diễn biến, cuộn xuống: lịch sử | Đã mở xem bản chụp vòng đầu: sự kiện bằng tiếng Việt, kèm tên người thực hiện. |
+| [`mobile/27-MOB-79-viec-cho-duyet.png`](mobile/27-MOB-79-viec-cho-duyet.png) | MOB-79 | Một việc đang chờ duyệt hoàn thành | Đã mở xem bản chụp vòng trước. Còn thấy: trạng thái "Chờ duyệt hoàn thành" hiện hai lần (dòng hạn và dòng Trạng thái). |
+| [`mobile/30-MOB-81-diem-kpi-tab-theo-viec.png`](mobile/30-MOB-81-diem-kpi-tab-theo-viec.png) | MOB-81 | Điểm KPI, tab Theo việc | Đã mở xem bản chụp vòng trước: hai số ở đầu, xếp loại là một dòng. Còn thấy: việc trùng tên của hai dự án không phân biệt được (bản đọc không trả dự án). |
+| [`mobile/31-MOB-81-tab-dieu-chinh.png`](mobile/31-MOB-81-tab-dieu-chinh.png) | MOB-81 | Tab Điều chỉnh | Chưa mở xem. |
+| [`mobile/32-MOB-81-tab-cach-tinh.png`](mobile/32-MOB-81-tab-cach-tinh.png) | MOB-81 | Tab Cách tính | Đã mở xem: ba dòng, giá trị thẳng lề phải. |
+| [`mobile/35-MOB-82-cai-dat-nhac-han.png`](mobile/35-MOB-82-cai-dat-nhac-han.png) | MOB-82 | Cài đặt nhắc hạn | Đã mở xem bản chụp vòng trước (màn không đổi trong làn này). |
+| [`mobile/36-MOB-82-cai-dat-nhac-han-cuon-xuong.png`](mobile/36-MOB-82-cai-dat-nhac-han-cuon-xuong.png) | MOB-82 | Cài đặt nhắc hạn, cuộn xuống | Chưa mở xem. |
+| [`mobile/40-MOB-09-du-an.png`](mobile/40-MOB-09-du-an.png) | MOB-09 | Danh sách dự án | Chưa mở xem. |
+| [`mobile/41-MOB-10-chi-tiet-du-an-tab-tong-quan.png`](mobile/41-MOB-10-chi-tiet-du-an-tab-tong-quan.png) | MOB-10 | Chi tiết dự án DA-PWF-02, tab Tổng quan: nhóm Quy mô, Đơn vị và người phụ trách, Phân loại | Đã mở xem: dải giai đoạn thẳng lề với tiêu đề, giá trị thẳng lề phải. Còn thấy: nhãn "Tổng mức đầu tư" xuống hai dòng. |
+| [`mobile/42-MOB-10-tab-tong-quan-cuon-xuong.png`](mobile/42-MOB-10-tab-tong-quan-cuon-xuong.png) | MOB-10 | Tab Tổng quan, cuộn xuống: Phân loại, Rủi ro | Chưa mở xem. |
+| [`mobile/43-MOB-10-tab-tien-do.png`](mobile/43-MOB-10-tab-tien-do.png) | MOB-10 | Tab Tiến độ: workflow của dự án (dải giai đoạn, ba số theo dải) | Đã mở xem bản chụp vòng đầu (cùng bố cục). |
+| [`mobile/44-MOB-10-tab-tien-do-cong-viec.png`](mobile/44-MOB-10-tab-tien-do-cong-viec.png) | MOB-10 | Tab Tiến độ: công việc theo giai đoạn, bước, việc | Đã mở xem bản chụp vòng đầu. |
+| [`mobile/45-MOB-10-tab-tien-do-cuon-tiep.png`](mobile/45-MOB-10-tab-tien-do-cuon-tiep.png) | MOB-10 | Tab Tiến độ, cuộn tiếp | Chưa mở xem. |
+| [`mobile/46-MOB-10-tab-tien-do-moc-cua-du-an.png`](mobile/46-MOB-10-tab-tien-do-moc-cua-du-an.png) | MOB-10 | Tab Tiến độ: lối mở toàn bộ workflow và mốc của dự án | Đã mở xem bản chụp vòng đầu. |
+| [`mobile/47-MOB-10-tab-von.png`](mobile/47-MOB-10-tab-von.png) | MOB-10 | Tab Vốn | Đã mở xem: số chính ở đầu, số đầy đủ, ba lối xem thêm. |
+| [`mobile/48-MOB-10-tab-ho-so.png`](mobile/48-MOB-10-tab-ho-so.png) | MOB-10 | Tab Hồ sơ | Chưa mở xem. |
+| [`mobile/50-MOB-78-workflow-tab-tong-quan.png`](mobile/50-MOB-78-workflow-tab-tong-quan.png) | MOB-78 | Workflow dự án, tab Tổng quan | Đã mở xem bản chụp vòng đầu và bản tối. |
+| [`mobile/51-MOB-78-tab-tong-quan-cac-giai-doan.png`](mobile/51-MOB-78-tab-tong-quan-cac-giai-doan.png) | MOB-78 | Tab Tổng quan, cuộn xuống: các giai đoạn | Đã mở xem bản chụp vòng trước: mỗi giai đoạn có trạng thái và số việc bắt buộc đã xong. |
+| [`mobile/52-MOB-78-tab-cong-viec.png`](mobile/52-MOB-78-tab-cong-viec.png) | MOB-78 | Tab Công việc: giai đoạn, bước, việc theo màu hạn | Đã mở xem bản chụp vòng trước: dòng của bước đủ chữ, căn cứ pháp lý nằm trong dòng. |
+| [`mobile/53-MOB-78-tab-cong-viec-cuon-xuong.png`](mobile/53-MOB-78-tab-cong-viec-cuon-xuong.png) | MOB-78 | Tab Công việc, cuộn xuống | Chưa mở xem. |
+| [`mobile/54-MOB-78-tab-moc.png`](mobile/54-MOB-78-tab-moc.png) | MOB-78 | Tab Mốc | Đã mở xem: nhóm "Mốc chưa xong", hạn ngoài tầm ghi đủ năm. |
+| [`mobile/60-MOB-32-thong-bao-tab-su-kien.png`](mobile/60-MOB-32-thong-bao-tab-su-kien.png) | MOB-32 | Thông báo, tab Sự kiện | Đã mở xem bản chụp vòng đầu: tài khoản này chưa có sự kiện nào nên là trạng thái rỗng. Còn thấy: câu của trạng thái rỗng nói "tạo bản ghi đầu tiên" (màn của làn khác). |
+| [`mobile/61-MOB-32-thong-bao-tab-viec-can-xu-ly.png`](mobile/61-MOB-32-thong-bao-tab-viec-can-xu-ly.png) | MOB-32 | Thông báo, tab Việc cần xử lý | Đã mở xem bản chụp vòng trước. Còn thấy: tiêu đề cảnh báo vẫn bị cắt ở ba dòng, dòng ngữ cảnh chứa mã việc. |
+| [`mobile/70-toi-MOB-07-trang-chu.png`](mobile/70-toi-MOB-07-trang-chu.png) | MOB-07 | Chế độ tối: trang chủ | Chưa mở xem. |
+| [`mobile/71-toi-MOB-47-ca-nhan.png`](mobile/71-toi-MOB-47-ca-nhan.png) | MOB-47 | Chế độ tối: Cá nhân | Chưa mở xem. |
+| [`mobile/72-toi-MOB-80-viec-cua-toi.png`](mobile/72-toi-MOB-80-viec-cua-toi.png) | MOB-80 | Chế độ tối: Việc của tôi | Chưa mở xem. |
+| [`mobile/73-toi-MOB-79-chi-tiet-viec.png`](mobile/73-toi-MOB-79-chi-tiet-viec.png) | MOB-79 | Chế độ tối: chi tiết việc | Đã mở xem bản chụp lại sau khi sửa: biểu tượng của hàng "còn thiếu" đã đọc được trên nền tối (bản trước bị đen). |
+| [`mobile/74-toi-MOB-79-tab-thong-tin.png`](mobile/74-toi-MOB-79-tab-thong-tin.png) | MOB-79 | Chế độ tối: chi tiết việc, tab Thông tin | Chưa mở xem. |
+| [`mobile/75-toi-MOB-10-chi-tiet-du-an.png`](mobile/75-toi-MOB-10-chi-tiet-du-an.png) | MOB-10 | Chế độ tối: chi tiết dự án | Chưa mở xem. |
+| [`mobile/76-toi-MOB-78-workflow-tab-tong-quan.png`](mobile/76-toi-MOB-78-workflow-tab-tong-quan.png) | MOB-78 | Chế độ tối: workflow, tab Tổng quan | Đã mở xem: ba dải, hàng việc và tab đọc rõ trên nền tối. |
+| [`mobile/77-toi-MOB-78-tab-cong-viec.png`](mobile/77-toi-MOB-78-tab-cong-viec.png) | MOB-78 | Chế độ tối: workflow, tab Công việc | Chưa mở xem. |
+
 ## Khiếm khuyết còn thấy hoặc còn biết
 
 - Dải giai đoạn ở tab Tổng quan ghi "Đang ở đây" cho nhiều giai đoạn cùng lúc (`web/20`): theo cờ `open` của bản đọc.
@@ -84,5 +145,16 @@ Kiểm tra seed: `clip-seed verify` báo FAILED vì một phép kiểm không th
 - Vai trò và mã văn bản do tỉnh tự đặt, không có trong danh mục tên, vẫn hiện mã.
 - Bảng điểm: việc trùng tên chưa kèm mã dự án (bản đọc không trả dự án).
 - Ô ngày trong ảnh hiện tháng/ngày/năm do Chromium của máy chụp; trên máy người dùng theo ngôn ngữ của trình duyệt.
-- Ảnh điện thoại chưa chụp lại (xem trên).
 - Các khiếm khuyết về logic đã nêu ở bản trước (tiếp nhận workflow, hạn bị đẩy lùi, bảng điểm có tài khoản khách) thuộc nhánh pwf5; lượt này không kiểm lại chúng trên ảnh.
+
+Riêng điện thoại (làn mob7):
+
+- Câu cảnh báo và dòng ngữ cảnh của cảnh báo workflow ở trang chủ và tab Thông báo do API soạn: dài nên bị cắt ở ba dòng, và chứa mã việc, mã giai đoạn (`mobile/02`, `mobile/61`).
+- Thanh tab của màn chi tiết nằm trong danh sách cuộn, không dính ở đầu màn: cuộn xuống thì phải cuộn lên mới đổi tab được.
+- Màn chi tiết vẫn hiện thanh điều hướng năm tab ở dưới thanh hành động (hệ thiết kế v2 nói màn chi tiết ẩn thanh điều hướng).
+- Vai trò, loại văn bản, biểu mẫu do tỉnh tự đặt, không có trong danh mục tên, vẫn hiện mã; mã việc còn ở nhóm "Vị trí trong quy trình" của tab Thông tin (cố ý, để đối chiếu với máy tính).
+- Điểm KPI: việc trùng tên của hai dự án không phân biệt được.
+- Nhãn hai dòng: "Quá hạn, đến hạn" ở ô chỉ số, "Tổng mức đầu tư" ở chi tiết dự án.
+- Tab Phê duyệt không chụp được (cờ chặn chụp).
+
+Golden Windows của điện thoại đổi trong làn mob7 (90 tệp, không thêm tệp mới): danh sách ở `mobile-goldens-changed.txt`; bản Linux (`goldens-linux`) của đúng các tệp đó cần CI dựng lại.

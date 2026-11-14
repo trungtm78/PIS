@@ -126,21 +126,28 @@ class _Header extends StatelessWidget {
     final int done = counted.where((Milestone milestone) => milestone.isDone).length;
     final String stage = stageLabel(context, line.stage);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s4, MachvonV2Space.s16, MachvonV2Space.s12),
+      padding: const EdgeInsets.only(top: MachvonV2Space.s4, bottom: MachvonV2Space.s12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Semantics(container: true, header: true, child: Text('${line.code} · ${line.name}', style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
-          const SizedBox(height: MachvonV2Space.s8),
-          Wrap(
-            spacing: MachvonV2Space.s8,
-            runSpacing: MachvonV2Space.s4,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: <Widget>[
-              StatusPill(label: stage),
-              if (line.unitName.isNotEmpty) Text(line.unitName, style: text.caption),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16),
+            child: Semantics(container: true, header: true, child: Text('${line.code} · ${line.name}', style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
           ),
+          const SizedBox(height: MachvonV2Space.s8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16),
+            child: Wrap(
+              spacing: MachvonV2Space.s8,
+              runSpacing: MachvonV2Space.s4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: <Widget>[
+                StatusPill(label: stage),
+                if (line.unitName.isNotEmpty) Text(line.unitName, style: text.caption),
+              ],
+            ),
+          ),
+          // The strip carries its own side padding: it sits outside the padding of the title so both start on the same edge.
           if (position != null) ...<Widget>[
             const SizedBox(height: MachvonV2Space.s12),
             StageStrip(
@@ -161,24 +168,49 @@ class _Header extends StatelessWidget {
 
 List<Widget> _overview(BuildContext context, ProjectDetail detail) {
   final ProjectLine line = detail.line;
-  final List<(String, String?)> facts = <(String, String?)>[
-    (context.t('mob.prj.detail.overview.unit'), line.unitName),
-    (context.t('mob.prj.detail.overview.group'), line.projectGroup),
-    (context.t('mob.prj.detail.overview.national'), line.nationalCode),
-    (context.t('mob.prj.detail.overview.leader'), line.leaderName),
-    (context.t('mob.prj.detail.overview.area'), detail.areaLabel),
-    (context.t('mob.prj.detail.overview.sector'), detail.sectorLabel),
+  // The facts in short groups with a heading each, the main figures first: a group none of whose facts is known is left out with its heading.
+  final List<(String, List<(String, String?)>)> groups = <(String, List<(String, String?)>)>[
     (
-      context.t('mob.prj.detail.schedule.years'),
-      detail.startYear != null && detail.endYear != null ? context.t('mob.prj.detail.schedule.yearsValue', <String, Object>{'from': detail.startYear!, 'to': detail.endYear!}) : null,
+      context.t('mob.prj.detail.overview.scale'),
+      <(String, String?)>[
+        (context.t('mob.prj.detail.capital.total'), moneyLabel(context, detail.totalInvestmentVnd)),
+        (context.t('mob.prj.detail.overview.group'), line.projectGroup),
+        (
+          context.t('mob.prj.detail.schedule.years'),
+          detail.startYear != null && detail.endYear != null ? context.t('mob.prj.detail.schedule.yearsValue', <String, Object>{'from': detail.startYear!, 'to': detail.endYear!}) : null,
+        ),
+      ],
     ),
-    (context.t('mob.prj.detail.capital.total'), moneyLabel(context, detail.totalInvestmentVnd)),
+    (
+      context.t('mob.prj.detail.overview.who'),
+      <(String, String?)>[
+        (context.t('mob.prj.detail.overview.unit'), line.unitName),
+        (context.t('mob.prj.detail.overview.leader'), line.leaderName),
+      ],
+    ),
+    (
+      context.t('mob.prj.detail.overview.class'),
+      <(String, String?)>[
+        (context.t('mob.prj.detail.overview.sector'), detail.sectorLabel),
+        (context.t('mob.prj.detail.overview.area'), detail.areaLabel),
+        (context.t('mob.prj.detail.overview.national'), line.nationalCode),
+      ],
+    ),
   ];
-  final List<(String, String?)> known = <(String, String?)>[for (final (String, String?) fact in facts) if (fact.$2 != null && fact.$2!.isNotEmpty) fact];
   final RiskSummary? risks = detail.risks;
   return <Widget>[
-    for (int index = 0; index < known.length; index += 1) InfoRow(label: known[index].$1, value: known[index].$2, divider: index > 0),
-    const SizedBox(height: MachvonV2Space.s12),
+    for (final (String title, List<(String, String?)> facts) in groups)
+      ...(() {
+        final List<(String, String?)> known = <(String, String?)>[for (final (String, String?) fact in facts) if (fact.$2 != null && fact.$2!.isNotEmpty) fact];
+        if (known.isEmpty) return const <Widget>[];
+        return <Widget>[
+          SectionPanel(
+            title: title,
+            padded: false,
+            children: <Widget>[for (int index = 0; index < known.length; index += 1) InfoRow(label: known[index].$1, value: known[index].$2, divider: index > 0)],
+          ),
+        ];
+      })(),
     SectionPanel(
       title: context.t('mob.prj.detail.risk.title'),
       padded: false,
@@ -258,6 +290,12 @@ List<Widget> _progress(BuildContext context, ProjectDetail detail) {
     MilestoneGroup.over: context.t('mob.prj.detail.group.over'),
   };
   return <Widget>[
+    // The workflow of the project first (PWF): where it stands, its tasks by official colour, then stage, step and task. A project with no workflow, or a reader who may not read it, draws nothing here.
+    PwfProgressSection(projectId: detail.line.id),
+    Padding(
+      padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s24, MachvonV2Space.s16, MachvonV2Space.s8),
+      child: Semantics(container: true, header: true, child: Text(context.t('mob.prj.detail.milestones.title'), style: context.v2text.heading)),
+    ),
     if (milestones == null)
       const Padding(padding: EdgeInsets.symmetric(vertical: MachvonV2Space.s12), child: _Unreadable())
     else if (milestones.isEmpty)
@@ -275,8 +313,6 @@ List<Widget> _progress(BuildContext context, ProjectDetail detail) {
             for (int index = 0; index < members.length; index += 1) _MilestoneRow(milestone: members[index], dividerAbove: index > 0),
           ];
         })(),
-    // The workflow of the project (PWF): its stages and its tasks by official colour. A project with no workflow, or a reader who may not read it, draws nothing here.
-    PwfProgressSection(projectId: detail.line.id, showMilestones: false),
   ];
 }
 

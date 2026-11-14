@@ -4,6 +4,7 @@ import 'package:machvon_api_client/machvon_api_client.dart';
 
 import '../../core/di/providers.dart' show apiClientProvider;
 import '../../core/l10n/app_strings.dart';
+import '../../core/theme/colors.dart';
 import '../../core/widgets/nav_row.dart';
 import '../../core/widgets/section_panel.dart';
 import '../../core/widgets/stat_strip.dart';
@@ -59,9 +60,9 @@ class _PwfHomeDeadlinesState extends ConsumerState<PwfHomeDeadlines> {
       children: <Widget>[
         StatStrip(
           cells: <StatCell>[
-            StatCell(value: '${counts.red}', label: context.t('mob.pwf6.home.red')),
-            StatCell(value: '${counts.yellow}', label: context.t('mob.pwf6.home.yellow')),
-            StatCell(value: '${counts.green}', label: context.t('mob.pwf6.home.green')),
+            StatCell(value: '${counts.red}', label: context.t('mob.pwf6.home.red'), band: DeadlineBand.late, bandInline: true),
+            StatCell(value: '${counts.yellow}', label: context.t('mob.pwf6.home.yellow'), band: DeadlineBand.soon, bandInline: true),
+            StatCell(value: '${counts.green}', label: context.t('mob.pwf6.home.green'), band: DeadlineBand.ok, bandInline: true),
           ],
         ),
         NavRow(label: context.t('mob.pwf.entry.tasks'), icon: Icons.event_available_outlined, dividerAbove: true, onTap: () => openScreen(context, 'MOB-80')),

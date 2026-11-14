@@ -94,6 +94,7 @@ final class PwfTaskRow {
     required this.band,
     required this.version,
     this.plannedFinish,
+    this.forecastFinish,
     this.missingYear,
     this.assignee,
     this.returnCount = 0,
@@ -127,6 +128,9 @@ final class PwfTaskRow {
   final PwfBand band;
   final int version;
   final String? plannedFinish;
+
+  /// The day the progress now points to, told by the server only when it is another day than the official deadline of a task that is not over.
+  final String? forecastFinish;
   final int? missingYear;
   final String? assignee;
   final int returnCount;
@@ -156,6 +160,7 @@ PwfTaskRow? parsePwfTaskRow(Object? raw) {
     band: band,
     version: version,
     plannedFinish: day(record['planned_finish']),
+    forecastFinish: day(record['forecast_finish']),
     missingYear: whole(record['missing_year']),
     assignee: filled(asRecord(record['assignee'])?['display_name']),
     returnCount: count(record['return_count']),
@@ -339,6 +344,7 @@ final class PwfMyTask {
     required this.critical,
     required this.version,
     this.dueDate,
+    this.forecastFinish,
   });
 
   final String taskId;
@@ -348,6 +354,9 @@ final class PwfMyTask {
   final String projectCode;
   final PwfTaskStatus status;
   final String? dueDate;
+
+  /// The day the progress now points to, when it is another day than the deadline.
+  final String? forecastFinish;
   final PwfBand official;
   final PwfBand personal;
   final bool critical;
@@ -391,6 +400,7 @@ PwfMyTasks? parsePwfMyTasks(Object? raw) {
         projectCode: filled(item['project_code']) ?? '',
         status: status,
         dueDate: day(item['due_date']),
+        forecastFinish: day(item['forecast_finish']),
         official: official,
         personal: personal,
         critical: item['critical'] == true,
@@ -404,13 +414,17 @@ PwfMyTasks? parsePwfMyTasks(Object? raw) {
 // ---- A task (MOB-79) -------------------------------------------------------------------------------------------------------------
 
 final class PwfChecklistItem {
-  const PwfChecklistItem({required this.code, required this.name, required this.mandatory, required this.done, this.evidenceKinds = const <String>[]});
+  const PwfChecklistItem({required this.code, required this.name, required this.mandatory, required this.done, this.evidenceKinds = const <String>[], this.doneByName, this.doneAt});
 
   final String code;
   final String name;
   final bool mandatory;
   final bool done;
   final List<String> evidenceKinds;
+
+  /// Who ticked the item, by name, and when.
+  final String? doneByName;
+  final String? doneAt;
 }
 
 /// A legal document type or a form the task needs, and whether it is already attached.
@@ -422,7 +436,7 @@ final class PwfRequirement {
 }
 
 final class PwfEvidence {
-  const PwfEvidence({required this.id, required this.kind, required this.attachedAt, this.itemCode, this.legalDocType, this.formTemplateCode, this.externalRef, this.note});
+  const PwfEvidence({required this.id, required this.kind, required this.attachedAt, this.itemCode, this.legalDocType, this.formTemplateCode, this.externalRef, this.note, this.attachedByName, this.documentTitle, this.documentSymbol});
 
   final String id;
   final String kind;
@@ -432,6 +446,11 @@ final class PwfEvidence {
   final String? formTemplateCode;
   final String? externalRef;
   final String? note;
+
+  /// Who gave the evidence, by name, and the title and the number of the document of the store it points to.
+  final String? attachedByName;
+  final String? documentTitle;
+  final String? documentSymbol;
 }
 
 /// What stops the task from being completed: the code of the rule and what it is about (an item, a document type, a form).
@@ -443,7 +462,7 @@ final class PwfBlocker {
 }
 
 final class PwfException {
-  const PwfException({required this.id, required this.kind, required this.status, required this.reason, this.validFrom, this.validTo, this.decisionNote});
+  const PwfException({required this.id, required this.kind, required this.status, required this.reason, this.validFrom, this.validTo, this.decisionNote, this.requestedByName, this.decidedByName});
 
   final String id;
 
@@ -456,15 +475,28 @@ final class PwfException {
   final String? validFrom;
   final String? validTo;
   final String? decisionNote;
+  final String? requestedByName;
+  final String? decidedByName;
 }
 
 final class PwfHistoryEntry {
-  const PwfHistoryEntry({required this.id, required this.kind, required this.at, this.reason});
+  const PwfHistoryEntry({required this.id, required this.kind, required this.at, this.reason, this.actorName});
 
   final String id;
   final String kind;
   final String at;
   final String? reason;
+
+  /// Who did it, by name.
+  final String? actorName;
+}
+
+/// A person the task is given to: the name the directory of the tenant has for them and their part (`RESPONSIBLE`, `ACCOUNTABLE`, `CONSULTED`, `INFORMED`).
+final class PwfTaskPerson {
+  const PwfTaskPerson({required this.name, required this.role});
+
+  final String name;
+  final String role;
 }
 
 /// The task with everything the person needs to work on it, and what they may do now (the server decides every `can_*`).
@@ -498,6 +530,8 @@ final class PwfTaskDetail {
     this.assignee,
     this.plannedStart,
     this.plannedFinish,
+    this.forecastFinish,
+    this.people = const <PwfTaskPerson>[],
     this.baselineFinish,
     this.actualStart,
     this.actualFinish,
@@ -552,6 +586,12 @@ final class PwfTaskDetail {
   final String? assignee;
   final String? plannedStart;
   final String? plannedFinish;
+
+  /// The day the progress now points to, when it is another day than the official deadline.
+  final String? forecastFinish;
+
+  /// The people the task is given to now, by name, each with the part they have in it.
+  final List<PwfTaskPerson> people;
   final String? baselineFinish;
   final String? actualStart;
   final String? actualFinish;
@@ -589,6 +629,8 @@ PwfTaskDetail? parsePwfTaskDetail(Object? raw) {
         mandatory: item['required'] == true,
         done: item['done'] == true,
         evidenceKinds: <String>[for (final Object? kind in listOf(item['evidence_kinds'])) ?filled(kind)],
+        doneByName: filled(item['done_by_name']),
+        doneAt: filled(item['done_at']),
       ),
     );
   }
@@ -627,6 +669,9 @@ PwfTaskDetail? parsePwfTaskDetail(Object? raw) {
             formTemplateCode: filled(item['form_template_code']),
             externalRef: filled(item['external_ref']),
             note: filled(item['note']),
+            attachedByName: filled(item['attached_by_name']),
+            documentTitle: filled(item['document_title']),
+            documentSymbol: filled(item['document_symbol']),
           ),
     ],
     blockers: <PwfBlocker>[
@@ -644,12 +689,14 @@ PwfTaskDetail? parsePwfTaskDetail(Object? raw) {
             validFrom: day(item['valid_from']),
             validTo: day(item['valid_to']),
             decisionNote: filled(item['decision_note']),
+            requestedByName: filled(item['requested_by_name']),
+            decidedByName: filled(item['decided_by_name']),
           ),
     ],
     history: <PwfHistoryEntry>[
       for (final Object? entry in listOf(record['history']))
         if (asRecord(entry) case final Json item when filled(item['id']) != null && filled(item['kind']) != null && filled(item['at']) != null)
-          PwfHistoryEntry(id: filled(item['id'])!, kind: filled(item['kind'])!, at: filled(item['at'])!, reason: filled(item['reason'])),
+          PwfHistoryEntry(id: filled(item['id'])!, kind: filled(item['kind'])!, at: filled(item['at'])!, reason: filled(item['reason']), actorName: filled(item['actor_name'])),
     ],
     canStart: record['can_start'] == true,
     canComplete: record['can_complete'] == true,
@@ -662,6 +709,12 @@ PwfTaskDetail? parsePwfTaskDetail(Object? raw) {
     assignee: filled(asRecord(record['assignee'])?['display_name']),
     plannedStart: day(record['planned_start']),
     plannedFinish: day(record['planned_finish']),
+    forecastFinish: day(record['forecast_finish']),
+    people: <PwfTaskPerson>[
+      for (final Object? entry in listOf(record['assignments']))
+        if (asRecord(entry) case final Json item when filled(item['display_name']) != null && filled(item['role']) != null && item['valid_to'] == null)
+          PwfTaskPerson(name: filled(item['display_name'])!, role: filled(item['role'])!),
+    ],
     baselineFinish: day(record['baseline_finish']),
     actualStart: day(record['actual_start']),
     actualFinish: day(record['actual_finish']),

@@ -124,9 +124,13 @@ class AlertRow extends StatelessWidget {
       title,
       subtitle,
     ].join('. ');
+    // The words of an alert are a sentence of the server: three lines of it and two of its context are read whole far more often than two and one, and the
+    // row is already that tall beside its deadline and its button.
     final Widget row = WorkRow(
       title: title,
+      titleMaxLines: 3,
       subtitle: subtitle,
+      subtitleMaxLines: 2,
       leading: deadline != null ? DeadlineGlyph(band: deadline.band) : GlyphSquare(icon: look.icon, tone: item.severity == AlertSeverity.watch ? GlyphTone.neutral : GlyphTone.attention),
       trailing: trailing,
       onTap: onTap,

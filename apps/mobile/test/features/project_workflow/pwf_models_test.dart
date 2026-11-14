@@ -131,6 +131,33 @@ void main() {
       expect(task.version, 3);
     });
 
+    test('the names the server sends are read: who did what, the title of a document, the people of the task, and the forecast when it is another day than the deadline', () {
+      final TaskState state = TaskState()..checklistDone = <String>{'C1'};
+      state.evidence.add(<String, Object?>{'id': 'e1', 'item_code': null, 'evidence_kind': 'DOCUMENT', 'document_id': 'd1', 'legal_doc_type': null, 'form_template_code': null, 'external_ref': null, 'note': null, 'attached_by': 'm-1', 'attached_by_name': 'Nguyễn Văn An', 'attached_at': kAsOf, 'document_title': 'Tờ trình chủ trương đầu tư', 'document_symbol': '12/TTr-BQL'});
+      state.exceptions.add(<String, Object?>{'id': 'x1', 'task_id': kTaskId, 'kind': 'EXTERNAL_DELAY', 'items': <Object?>[], 'valid_from': '2026-11-10', 'valid_to': '2026-11-12', 'reason': 'Chờ Sở', 'evidence_ref': null, 'status': 'APPROVED', 'requested_by': 'm-1', 'requested_by_name': 'Nguyễn Văn An', 'decided_by': 'm-2', 'decided_by_name': 'Trần Thị Bích', 'decision_note': null, 'version': 2});
+      final Map<String, Object?> json = taskDetailJson(state)
+        ..['forecast_finish'] = '2026-11-20'
+        ..['assignments'] = <Object?>[
+          <String, Object?>{'membership_id': 'm-1', 'display_name': 'Nguyễn Văn An', 'role': 'RESPONSIBLE', 'valid_from': '2026-11-01', 'valid_to': null},
+          <String, Object?>{'membership_id': 'm-2', 'display_name': 'Trần Thị Bích', 'role': 'ACCOUNTABLE', 'valid_from': '2026-11-01', 'valid_to': null},
+          <String, Object?>{'membership_id': 'm-3', 'display_name': 'Người đã thôi', 'role': 'RESPONSIBLE', 'valid_from': '2026-10-01', 'valid_to': '2026-10-31'},
+        ]
+        ..['history'] = <Object?>[<String, Object?>{'id': 'h1', 'kind': 'START', 'at': kAsOf, 'actor': 'm-1', 'actor_name': 'Nguyễn Văn An', 'reason': null}];
+      final PwfTaskDetail task = parsePwfTaskDetail(json)!;
+      expect(task.evidence.single.attachedByName, 'Nguyễn Văn An');
+      expect(task.evidence.single.documentTitle, 'Tờ trình chủ trương đầu tư');
+      expect(task.evidence.single.documentSymbol, '12/TTr-BQL');
+      expect(task.exceptions.single.requestedByName, 'Nguyễn Văn An');
+      expect(task.exceptions.single.decidedByName, 'Trần Thị Bích');
+      expect(task.history.single.actorName, 'Nguyễn Văn An');
+      expect(task.forecastFinish, '2026-11-20');
+      expect(task.people.map((PwfTaskPerson p) => '${p.role}:${p.name}'), <String>['RESPONSIBLE:Nguyễn Văn An', 'ACCOUNTABLE:Trần Thị Bích'], reason: 'an assignment that ended is not a person of the task now');
+      // A row of a list carries the forecast too, and an answer from before these fields existed reads as before.
+      expect(parsePwfTaskRow(<String, Object?>{...taskRow(kTaskId, 'Việc', status: 'IN_PROGRESS', official: band('RED', days: -2), finish: '2026-11-10', version: 1), 'forecast_finish': '2026-11-20'})!.forecastFinish, '2026-11-20');
+      expect(parsePwfTaskDetail(taskDetailJson(TaskState()))!.forecastFinish, isNull);
+      expect(parsePwfTaskDetail(taskDetailJson(TaskState()))!.people, isEmpty);
+    });
+
     test('an answer without a version or a band is refused', () {
       final Map<String, Object?> json = taskDetailJson(TaskState())..remove('version');
       expect(parsePwfTaskDetail(json), isNull);

@@ -39,9 +39,18 @@ void main() {
       await _open(tester, _workflowServer(), 'MOB-78', suffix: '/$kProjectId');
       expect(find.text('Giai đoạn 2/3 · Thực hiện đầu tư'), findsOneWidget);
       expect(find.text('Việc bắt buộc xong 4/9'), findsOneWidget);
-      expect(find.text('Việc quá hạn'), findsOneWidget);
-      expect(find.text('Màu hạn chính thức của đơn vị, giống nhau với mọi người xem.'), findsOneWidget);
-      // The open stage is open; the others are closed.
+      // The overview: the three official bands as three figures, each named by its band, the tasks that need a person now and the stages with what is done of each.
+      expect(find.text('Quá hạn'), findsOneWidget);
+      expect(find.text('Sắp đến hạn'), findsOneWidget);
+      expect(find.text('Còn thời gian'), findsOneWidget);
+      expect(find.textContaining('Màu hạn chính thức của đơn vị, giống nhau với mọi người xem.'), findsOneWidget);
+      expect(find.text('Cần xử lý ngay'), findsOneWidget);
+      expect(find.text('Các giai đoạn'), findsOneWidget);
+      expect(find.textContaining('Đang thực hiện · Việc bắt buộc xong '), findsOneWidget, reason: 'one stage is the current one');
+      // The work is a tab of its own: the open stage is open; the others are closed.
+      await tester.tap(find.textContaining('Công việc').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Các giai đoạn'), findsNothing);
       expect(find.text('Lập hồ sơ mời thầu gói thầu xây lắp'), findsOneWidget);
       expect(find.text('Quyết toán dự án'), findsNothing);
       expect(find.text('Quyết định chủ trương đầu tư'), findsNothing);
@@ -65,8 +74,14 @@ void main() {
     testWidgets('the milestones ahead are listed first; a colour filter narrows the list and opens the stages that match; a stage can be opened and closed', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await _open(tester, _workflowServer(), 'MOB-78', suffix: '/$kProjectId');
-      expect(find.text('Mốc sắp tới'), findsOneWidget);
-      expect(find.text('Ký hợp đồng thi công'), findsWidgets);
+      // The milestones are a tab of their own: the ones not done yet, the nearest first.
+      await tester.tap(find.textContaining('Mốc').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Mốc chưa xong'), findsOneWidget);
+      expect(find.text('Ký hợp đồng thi công'), findsOneWidget);
+      await tester.tap(find.textContaining('Công việc').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Mốc chưa xong'), findsNothing);
       await tester.tap(find.text('Kết thúc đầu tư'));
       await tester.pumpAndSettle();
       expect(find.text('Quyết toán dự án'), findsOneWidget);
@@ -77,7 +92,6 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Lập hồ sơ mời thầu gói thầu xây lắp'), findsOneWidget);
       expect(find.text('Thẩm định kế hoạch lựa chọn nhà thầu'), findsNothing);
-      expect(find.text('Mốc sắp tới'), findsNothing);
     });
 
     testWidgets('a task opens its screen', (WidgetTester tester) async {
@@ -180,7 +194,11 @@ void main() {
       // It is grouped by the person's own band: the first and the second are in "Trễ hạn".
       expect(find.text('Trễ hạn'), findsOneWidget);
       expect(find.text('Chưa vào tầm'), findsNWidgets(2), reason: 'the group and the words of the task that is not in range');
-      expect(find.text('Đã xong hoặc đã hủy'), findsOneWidget);
+      // What is over is a tab of its own, not a group at the foot of a long list.
+      await tester.tap(find.textContaining('Đã xong').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Trễ hạn'), findsNothing);
+      expect(find.text('Không có việc nào ở mục này.'), findsNothing, reason: 'one task of the list is done');
     });
 
     testWidgets('on the official view the same list is grouped by the official colour and says nothing of a personal setting', (WidgetTester tester) async {
@@ -188,7 +206,7 @@ void main() {
       await _open(tester, mine(), 'MOB-80');
       await tester.tap(find.text('Màu chính thức'));
       await tester.pumpAndSettle();
-      expect(find.text('Sắp đến hạn'), findsOneWidget);
+      expect(find.text('Sắp đến hạn'), findsNWidgets(2), reason: 'the figure at the head of the screen and the group of the list');
       expect(find.text('Trễ hạn'), findsOneWidget);
       expect(find.textContaining('Theo cài đặt của bạn', findRichText: true), findsNothing);
       expect(find.text('Màu hạn chính thức của đơn vị, giống nhau với mọi người xem.'), findsOneWidget);
@@ -290,11 +308,15 @@ void main() {
       expect(find.text('Lập hồ sơ mời thầu'), findsOneWidget);
       expect(find.text('Tạm dừng được duyệt'), findsOneWidget);
       // The adjustments and the responses are on their own tab.
-      await tester.scrollUntilVisible(find.textContaining('Điều chỉnh, phản hồi'), 200, scrollable: find.byType(Scrollable).first);
-      await tester.tap(find.textContaining('Điều chỉnh, phản hồi'));
+      await tester.scrollUntilVisible(find.textContaining('Điều chỉnh'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.textContaining('Điều chỉnh').first);
       await tester.pump();
       expect(find.text('Hai việc bị tính trễ do chờ ý kiến của Sở.'), findsOneWidget);
       expect(find.textContaining('trên bản máy tính đến ngày 30/11/2026'), findsOneWidget);
+      // How the score was worked out (the rule it follows) is the third tab.
+      await tester.ensureVisible(find.textContaining('Cách tính').first);
+      await tester.tap(find.textContaining('Cách tính').first);
+      await tester.pump();
       expect(find.text('Chính sách chấm điểm: phiên bản 1'), findsOneWidget);
     });
 
@@ -311,9 +333,12 @@ void main() {
       useDevice(tester, kTallDevice);
       await _open(tester, scores(body: scoresJson(items: <Map<String, Object?>>[scoreItem(adjusted: 85)])), 'MOB-81');
       expect(find.text('85'), findsWidgets);
+      await tester.ensureVisible(find.textContaining('Cách tính').first);
+      await tester.tap(find.textContaining('Cách tính').first);
+      await tester.pump();
       expect(find.text('Điểm tính được, trước điều chỉnh'), findsOneWidget);
-      await tester.scrollUntilVisible(find.textContaining('Điều chỉnh, phản hồi'), 200, scrollable: find.byType(Scrollable).first);
-      await tester.tap(find.textContaining('Điều chỉnh, phản hồi'));
+      await tester.scrollUntilVisible(find.textContaining('Điều chỉnh'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.textContaining('Điều chỉnh').first);
       await tester.pump();
       expect(find.text('Điều chỉnh +2,5 điểm'), findsOneWidget);
       await _open(tester, scores(body: scoresJson(items: <Map<String, Object?>>[scoreItem(state: 'SMALL_SAMPLE', rating: null, rated: 2)])), 'MOB-81');
