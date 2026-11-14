@@ -55,7 +55,7 @@ void main() {
         '30_flapping_and_kill_during_submit.yaml',
         '40_project_workflow.yaml',
       ]);
-      expect(scripts.map((File f) => f.uri.pathSegments.last), <String>['android_a11y_audit.sh', 'run_cold_start_samples.sh']);
+      expect(scripts.map((File f) => f.uri.pathSegments.last), <String>['android_a11y_audit.sh', 'run_40_project_workflow.sh', 'run_cold_start_samples.sh']);
     });
 
     test('every flow and script says on its first line that it has not been run on a device (a flow that was run on the emulator says so and still says "NOT RUN" for the phones), and names the application', () {
