@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
+import type { OutboxDelivery } from '@machvon/db';
 import { ND30_A4_STANDARD, loadErrorRegistry, signTenantContext, validateRuleParams, vietnamDateOf } from '@machvon/kernel';
 import { BASELINE_PACK, applyBaseline } from '../../../../packages/db/src/master-baseline';
 import { CommandModule } from '../../src/command.module';
@@ -12,6 +13,7 @@ import { ProjectRescheduleController } from '../../src/modules/pwf/reschedule.co
 import { ProjectTaskController, ProjectTaskReadsController } from '../../src/modules/pwf/task.controller';
 import { ProjectWorkflowController, ProjectWorkflowReadsController } from '../../src/modules/pwf/workflow.controller';
 import { ProjectController, ProjectReadsController } from '../../src/modules/prj/project.controller';
+import { PlanPublishedConsumer } from '../../src/modules/prj/plan-published.consumer';
 import { ProjectLifecycleReadsController, ProjectStageController } from '../../src/modules/prj/stage.controller';
 import { AuthzHarness, TENANT_A, TENANT_B, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
@@ -104,7 +106,7 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
     }
     for (const n of [MANAGER, WORKER, CHECKER, READER, NOBODY]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_MANAGER, ROOT);
-    const all = ['project.create', 'project.read', 'pwf.template.manage', 'pwf.workflow.manage', 'pwf.workflow.adopt', 'pwf.read', 'pwf.task.work', 'pwf.task.approve', 'pwf.task.assign', 'pwf.schedule.propose', 'pwf.schedule.approve', 'project.stage.complete'];
+    const all = ['project.create', 'project.read', 'pwf.template.manage', 'pwf.workflow.manage', 'pwf.workflow.adopt', 'pwf.read', 'pwf.task.work', 'pwf.task.approve', 'pwf.task.assign', 'pwf.schedule.propose', 'pwf.schedule.approve', 'project.stage.complete', 'project.stage.implement'];
     await harness.seedRole(TENANT_A, 1, 'PWF_MANAGER', all, 40);
     await harness.seedRole(TENANT_A, 2, 'PWF_WORKER', ['pwf.read', 'pwf.task.work'], 20);
     await harness.seedRole(TENANT_A, 3, 'PWF_CHECKER', ['pwf.read', 'pwf.task.approve', 'pwf.schedule.approve'], 20);
@@ -474,7 +476,7 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
         ]),
       );
       await seedTemplate('UATPAIR', template('Hai việc', [task('TA'), task('TB', { duration_working_days: 5, predecessors: after('TA', 2) })]));
-      await seedTemplate('UATGATE', template('Cổng', [task('TA'), task('TB')], [{ code: 'P1', name: 'Giai đoạn một', gates: ['startProjectImplementation', 'completeProject'] }]));
+      await seedTemplate('UATGATE', template('Cổng', [task('TA'), task('TB')], [{ code: 'P1', name: 'Giai đoạn một', gates: ['capital.plan_published.v1', 'startProjectImplementation'] }]));
       await seedTemplate('UATFIVE', template('Hồ sơ', [task('TA', { approver_role: 'CHECKER_ROLE', legal_doc_types: ['FEASIBILITY_REPORT'], checklist: [{ code: 'KS_HIEN_TRUONG', name: 'Khảo sát hiện trường', required: true, evidence_kinds: ['DOCUMENT'] }] })]));
       await seedTemplate('UATMILE', template('Mốc đầu', [task('TA'), task('M0', { kind: 'MILESTONE', duration_working_days: 0, required: false })]));
       await seedTemplate('UATLOAD', template('Tải', [task('TA', { duration_working_days: 5 }), task('TB', { duration_working_days: 4 })]));
@@ -568,28 +570,81 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
       expect((seen.band as { band: string }).band).toBe('NONE');
     });
 
-    it('UAT-PWF-06: a stage command the workflow gates is refused with 422 PWF_GATE_CLOSED and the two missing tasks while the legal state stays, succeeds once both are done, and a project without a workflow is never gated (measured on completeProject)', async () => {
-      const id = await project('IMPLEMENTATION');
+    it('UAT-PWF-06: startProjectImplementation on a project whose workflow gates it is 422 PWF_GATE_CLOSED with the two missing tasks and the legal state stays; the event capital.plan_published.v1 moves nothing and leaves pwf.gate.refused.v1; once both tasks are done the command succeeds; a project without a workflow is never gated', async () => {
+      const id = await project('BUDGETED');
       const workflowId = (await begin(id, 'UATGATE')).json.resource_id as string;
       const preview = (await call('GET', `/projects/${id}/workflow/gates/startProjectImplementation`, { member: READER })).json;
       expect(preview).toMatchObject({ target: 'startProjectImplementation', gated: true, open: false });
       const missing = preview.missing as Array<{ task: string; reason: string }>;
       expect(missing.map((one) => one.task).sort()).toEqual(['TA', 'TB']);
       for (const one of missing) expect(one.reason).toBe('NOT_DONE');
-      const versionOfProject = async (projectId: string): Promise<number> => (await rows<{ version: number }>('select version from machvon.project where id = $1::uuid', [projectId]))[0]!.version;
-      const complete = async (projectId: string): Promise<Reply> => call('POST', `/projects/${projectId}/completion`, { member: MANAGER, ifMatch: `"${await versionOfProject(projectId)}"`, body: { reason: 'Công trình đã hoàn thành', decision_document_id: await paper() } });
-      const closed = await complete(id);
+      const projectRow = async (projectId: string): Promise<{ status: string; version: number }> => (await rows<{ status: string; version: number }>('select status, version from machvon.project where id = $1::uuid', [projectId]))[0]!;
+      const implement = async (projectId: string): Promise<Reply> => call('POST', `/projects/${projectId}/implementation-start`, { member: MANAGER, ifMatch: `"${(await projectRow(projectId)).version}"`, body: { reason: 'Khởi công theo quyết định đầu tư', investment_decision_document_id: await paper() } });
+      const closed = await implement(id);
       expect(closed).toMatchObject({ status: 422, json: { code: 'PWF_GATE_CLOSED' } });
       for (const code of ['TA', 'TB']) expect(JSON.stringify(closed.json)).toContain(code);
-      expect((await rows<{ status: string }>('select status from machvon.project where id = $1::uuid', [id]))[0]?.status).toBe('IMPLEMENTATION');
+      expect(JSON.stringify(closed.json)).toContain('NOT_DONE');
+      expect((await projectRow(id)).status).toBe('BUDGETED');
+
+      // The system event the same phase gates: a project of the pipeline with a funded line in the published plan stays where it is, and the refusal is announced with the tasks that are missing.
+      const waiting = await project('PIPELINE');
+      const waitingFlow = (await begin(waiting, 'UATGATE')).json.resource_id as string;
+      const planId = randomUUID();
+      const planVersion = randomUUID();
+      const lineId = randomUUID();
+      await harness.owner(TENANT_A, [
+        [
+          `insert into machvon.capital_plan (tenant_id, id, plan_code, plan_kind, plan_year, period_from_year, period_to_year, scope_unit_id, revision, status, decision_document_id, effective_at, created_by, updated_by)
+           values ($1, $2, $3, 'ANNUAL', 2026, 2026, 2026, $4, 1, 'PUBLISHED', $5, now(), $6, $6)`,
+          [TENANT_A, planId, `CP-UAT-${planId.slice(0, 6)}`, unitId(ROOT), await paper(), memberId(MANAGER)],
+        ],
+        [
+          `insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at, capital_plan_id, created_by, updated_by)
+           values ($1, $2, $3, 2026, 1, $4, 'APPROVED', now(), $5, $6, $6)`,
+          [TENANT_A, planVersion, waiting, randomUUID(), planId, memberId(MANAGER)],
+        ],
+        [
+          `insert into machvon.allocation_line (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, project_id, created_by, updated_by)
+           values ($1, $2, $3, $4, 'CURRENT_YEAR', 2026, 1000000, 0, $5, $6, $6)`,
+          [TENANT_A, lineId, planVersion, areaVersion, waiting, memberId(MANAGER)],
+        ],
+        [`insert into machvon.allocation_balance (tenant_id, id, allocation_line_id, allocated_vnd, committed_vnd, disbursed_vnd) values ($1, $2, $3, 1000000, 0, 0)`, [TENANT_A, randomUUID(), lineId]],
+      ]);
+      const relayKey = randomBytes(32);
+      const delivery: OutboxDelivery = {
+        id: randomUUID(),
+        tenantId: TENANT_A,
+        tenantContext: signTenantContext({ tenantId: TENANT_A, membershipId: WORKER_SYSTEM, scopeVersion: 0 }, relayKey),
+        type: 'capital.plan_published.v1',
+        schemaVersion: 1,
+        aggregateType: 'capital_plan',
+        aggregateId: planId,
+        aggregateVersion: 1,
+        payload: { tenant_id: TENANT_A, capital_plan_id: planId, revision: 1, plan_year: 2026, effective_at: new Date().toISOString(), decision_document_id: randomUUID(), project_ids: [waiting] },
+        eventKey: `capital_plan:${planId}:1`,
+        correlationId: randomUUID(),
+        attempts: 0,
+      };
+      const consumer = new PlanPublishedConsumer({ database: harness.tenants as TenantDatabase, security: { signingKey: relayKey } });
+      expect(await consumer.handle(delivery)).toBe('processed');
+      expect((await projectRow(waiting)).status).toBe('PIPELINE');
+      const refused = await rows<{ payload: Record<string, unknown> }>(`select payload from machvon.outbox_event where aggregate_id = $1 and type = 'pwf.gate.refused.v1'`, [waiting]);
+      expect(refused).toHaveLength(1);
+      expect(refused[0]?.payload).toMatchObject({ project_id: waiting, workflow_id: waitingFlow, target: 'capital.plan_published.v1' });
+      expect((refused[0]?.payload.missing as Array<{ task: string }>).map((one) => one.task).sort()).toEqual(['TA', 'TB']);
+      // The event delivered again announces nothing twice.
+      expect(await consumer.handle(delivery)).toBe('duplicate');
+      expect((await rows(`select 1 from machvon.outbox_event where aggregate_id = $1 and type = 'pwf.gate.refused.v1'`, [waiting])).length).toBe(1);
+
       await done(workflowId, 'TA');
       await done(workflowId, 'TB');
-      expect((await call('GET', `/projects/${id}/workflow/gates/completeProject`, { member: READER })).json).toMatchObject({ open: true, missing: [] });
-      expect((await complete(id)).status).toBe(200);
-      // The same command on a project that has no workflow runs as it did before PWF: no gate is evaluated, nothing is logged as checked.
-      const plain = await project('IMPLEMENTATION');
-      expect((await complete(plain)).status).toBe(200);
+      expect((await call('GET', `/projects/${id}/workflow/gates/startProjectImplementation`, { member: READER })).json).toMatchObject({ open: true, missing: [] });
+      expect(await implement(id)).toMatchObject({ status: 200, json: { status: 'IMPLEMENTATION' } });
+      // The same command on a project that has no workflow runs as it did before PWF: no gate is evaluated, and no task log says a gate was checked.
+      const plain = await project('BUDGETED');
+      expect(await implement(plain)).toMatchObject({ status: 200, json: { status: 'IMPLEMENTATION' } });
       expect((await call('GET', `/projects/${plain}/workflow`, { member: READER })).status).toBe(404);
+      expect((await rows('select 1 from machvon.project_task_log l join machvon.project_task t on t.id = l.task_id where t.project_id = $1::uuid', [plain])).length).toBe(0);
     });
 
     it('UAT-PWF-07: a reschedule keeps the real days of the task that is done and plans the rest again; the proposer cannot approve it (SELF_APPROVAL_DENIED); once another person approves, the schedule is version 2 with both hashes and the baseline is still the first one', async () => {
@@ -621,6 +676,10 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
       const b = (await call('GET', `/project-tasks/${(await taskOf(workflowId, 'TB')).id}`, { member: READER })).json;
       expect(b.baseline_finish).toBe(byCode(before, 'TB').baseline_finish);
       expect(b.reschedule_count).toBe(1);
+      // The variance is counted from that first baseline: B is planned later than its baseline day by the working days the start moved.
+      expect(String(b.planned_finish) > String(b.baseline_finish)).toBe(true);
+      expect(b.finish_variance_days).toBe(Math.round((Date.parse(String(b.planned_finish)) - Date.parse(String(b.baseline_finish))) / 86_400_000));
+      expect(b.finish_variance_days as number).toBeGreaterThan(0);
     });
 
     it('UAT-PWF-BND-08: the shares of one role on a task may add up to 100 and not to 101, a second range of the same person that overlaps is refused, a share outside 1..100 is refused, and the ledger is only added to', async () => {
@@ -753,6 +812,11 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
       expect((await act(a.id, 'start', WORKER)).json.code).toBe('PWF_TASK_STATE_INVALID');
       expect((await act(a.id, 'resume', WORKER)).json.code).toBe('PWF_TASK_STATE_INVALID');
       expect((await rows('select 1 from machvon.project_task where id = $1::uuid', [a.id])).length).toBe(1);
+      const scheduled = (await call('GET', `/projects/${id}/workflow/schedule`, { member: READER })).json.tasks as Array<Record<string, unknown>>;
+      // The cancelled task is a node of no length: it has no days and no float of its own, and B still follows it by its link (2 working days after the node, never before).
+      expect(byCode(scheduled, 'TA')).toMatchObject({ state: 'PASS_THROUGH', start: null, finish: null, total_float: null });
+      expect(byCode(scheduled, 'TB').state).toBe('SCHEDULED');
+      expect(String(byCode(scheduled, 'TB').start) >= '2026-11-04').toBe(true);
       const hand = await project();
       const handFlow = (await begin(hand, 'UATHAND')).json.resource_id as string;
       const x = await taskOf(handFlow, 'TX');
