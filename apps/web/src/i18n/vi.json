@@ -38697,7 +38697,6 @@
   "pwf.flow.gate.failed.text": "Không đọc được chi tiết của cổng này, đang hiện số việc theo workflow.",
   "pwf.flow.gate.none.text": "Mẫu workflow này không khai báo giai đoạn nào chặn lệnh của dự án.",
   "pwf.flow.partial.text": "Một phần dữ liệu chưa đọc được: lịch, danh sách việc hoặc cổng. Các phần còn lại vẫn đúng tại thời điểm đọc.",
-  "pwf.flow.stale.text": "Số liệu có thể đã cũ: tính lúc {time} (giờ gốc). Hãy đọc lại.",
   "pwf.flow.info.scheduleVersion.text": "Lịch phiên bản {version}",
   "pwf.flow.info.bands.name": "Số việc theo màu hạn",
   "pwf.flow.info.bands.formula": "Số ngày còn lại = hạn dự báo trừ hôm nay (giờ Việt Nam), tính theo ngày làm việc. So với ngưỡng của chính sách ba màu: đỏ, vàng, xanh. Chỉ dùng màu chính thức.",
@@ -40533,5 +40532,7 @@
   "fix10.pref.levels.legend": "Ngưỡng cá nhân xanh, vàng, đỏ",
   "fix10.pref.raised.label": "Cảnh báo khi ngưỡng bị nâng bằng mức chính thức",
   "fix10.pref.raised.none": "hiện không có ngưỡng nào của bạn bị nâng.",
-  "fix10.pref.raised.some": "ngưỡng {levels} của bạn đang muộn hơn mức chính thức nên đã được nâng bằng mức chính thức."
+  "fix10.pref.raised.some": "ngưỡng {levels} của bạn đang muộn hơn mức chính thức nên đã được nâng bằng mức chính thức.",
+  "shots3.period.col.unit": "Đơn vị",
+  "shots3.flow.stale.text": "Số liệu có thể đã cũ: tính lúc {time}. Hãy đọc lại."
 }

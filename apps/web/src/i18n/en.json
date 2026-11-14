@@ -38697,7 +38697,6 @@
   "pwf.flow.gate.failed.text": "The detail of this gate could not be read, showing the count from the workflow.",
   "pwf.flow.gate.none.text": "This workflow template declares no phase that blocks a project command.",
   "pwf.flow.partial.text": "Part of the data could not be read: the schedule, the task list or the gates. The rest is correct as of the time it was read.",
-  "pwf.flow.stale.text": "The figures may be out of date: computed at {time} (source time). Read them again.",
   "pwf.flow.info.scheduleVersion.text": "Schedule version {version}",
   "pwf.flow.info.bands.name": "Tasks by deadline colour",
   "pwf.flow.info.bands.formula": "Days left = forecast deadline minus today (Vietnam time), counted in working days. Compared with the thresholds of the three-colour policy: red, yellow, green. Only the official colour is used.",
@@ -40533,5 +40532,7 @@
   "fix10.pref.levels.legend": "Personal thresholds: green, yellow, red",
   "fix10.pref.raised.label": "Warning when a threshold is raised to the official level",
   "fix10.pref.raised.none": "none of your thresholds is raised now.",
-  "fix10.pref.raised.some": "your threshold {levels} is later than the official level, so it was raised to it."
+  "fix10.pref.raised.some": "your threshold {levels} is later than the official level, so it was raised to it.",
+  "shots3.period.col.unit": "Unit",
+  "shots3.flow.stale.text": "The figures may be out of date: computed at {time}. Read them again."
 }
