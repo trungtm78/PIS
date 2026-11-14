@@ -45,6 +45,7 @@ interface TaskNeeds {
   legal_doc_types: Array<{ code: string; satisfied: boolean }>;
   form_templates: Array<{ code: string; satisfied: boolean }>;
   checklist: Array<{ item_code: string; done: boolean; evidence_kinds: string[] }>;
+  evidence: Array<{ item_code: string | null; evidence_kind: string }>;
   completion: { blockers: Array<{ code: string; subject: string }> };
 }
 
@@ -55,10 +56,13 @@ async function handInPapers(ctx: SeedContext, taskId: string): Promise<void> {
   for (const blocker of task.completion.blockers) {
     if (blocker.code === 'LEGAL_DOC_MISSING') await give({ evidence_kind: 'DECISION_DOCUMENT', legal_doc_type: blocker.subject, external_ref: `Văn bản ${blocker.subject} của việc ${task.task_code}, bản gốc lưu tại văn thư`, note: 'Văn bản đã ký' });
     else if (blocker.code === 'FORM_MISSING') await give({ evidence_kind: 'DOCUMENT', form_template_code: blocker.subject, external_ref: `Văn bản lập theo biểu mẫu ${blocker.subject}`, note: 'Lập từ biểu mẫu của kho văn bản' });
-    else if (blocker.code === 'EVIDENCE_MISSING') {
-      const kind = task.checklist.find((item) => item.item_code === blocker.subject)?.evidence_kinds[0];
-      if (kind !== undefined) await give({ evidence_kind: kind, item_code: blocker.subject, external_ref: `Hồ sơ kèm mục ${blocker.subject}, lưu tại Ban quản lý dự án` });
-    }
+  }
+  // An open item that asks for evidence of a kind cannot be ticked without it (the server answers PWF_TASK_COMPLETION_BLOCKED, EVIDENCE_MISSING, to the tick): its paper is handed in here, the tick stays for the phone.
+  for (const item of task.checklist) {
+    const kind = item.evidence_kinds[0];
+    if (item.done || kind === undefined) continue;
+    if (task.evidence.some((one) => one.item_code === item.item_code && item.evidence_kinds.includes(one.evidence_kind))) continue;
+    await give({ evidence_kind: kind, item_code: item.item_code, external_ref: `Hồ sơ kèm mục ${item.item_code}, lưu tại Ban quản lý dự án` });
   }
 }
 

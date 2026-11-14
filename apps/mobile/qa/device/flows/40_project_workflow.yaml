@@ -1,4 +1,8 @@
-# STATUS: see the end of this header for the last run of this version (lane fix9, 2026-11-14, emulator "guide", debug builds of both editions).
+# STATUS (lane fix9, 2026-11-14, emulator "guide", Android 15, debug builds, through scripts/run_40_project_workflow.sh; NOT RUN on any phone of the matrix):
+#   public edition: PASSED to the end (the list, the task, the completion queued offline and sent, my score). The run before it ticked the mandatory item "Hồ sơ đầy đủ theo danh mục" on the
+#     phone and stopped at the line "sẽ gửi khi có mạng" because the screen was scrolled down (the flow now scrolls up to it); the passing run opened the next task, which had no open item.
+#   enterprise edition: passed through the completion queued offline and sent, then STOPPED at "căn cứ hỗ trợ": the enterprise dataset has no closed scoring period, so MOB-81 shows its
+#     empty state and no score (and no note of support). The step stays as it is: it needs a score of the person (the public dataset makes one in clip-public-pwf-review).
 # History: UAT 2026-11-13 (public edition) ran the first version twice: it stopped at "Việc của tôi theo hạn" after the tab Cá nhân opened, because that entry
 # sat below the first screen of the tab and a tap does not scroll (uat/run/uat-2026-11-13-merge/public/mobile/diag-after-40.png).
 # Written against the screens MOB-78 to MOB-82 (lane pwfmob).
@@ -71,8 +75,10 @@ appId: vn.machvon.app
           element: 'Cần làm.*'
           direction: UP
 - takeScreenshot: 40_task_ready
-# No condition is left: the bar offers "Hoàn thành việc".
+# No condition is left and no command of the person was refused: the bar offers "Hoàn thành việc".
+# (An item that asks for evidence is refused when ticked without it, "Máy chủ không nhận: xong một mục danh mục kiểm": the seed hands that evidence in; on other data give it first with "Nộp chứng từ cho mục này".)
 - assertNotVisible: 'Còn [0-9]+ điều kiện chưa đủ để hoàn thành.'
+- assertNotVisible: 'Một lệnh của bạn chưa được ghi.*'
 - setAirplaneMode: enabled
 - extendedWaitUntil:
     visible: 'Bạn đang ngoại tuyến.*'
@@ -82,6 +88,11 @@ appId: vn.machvon.app
 - tapOn:
     text: 'Hoàn thành việc'
     index: 1
+# The line of what waits stands at the head of the task: the screen may have been scrolled down to the checklist.
+- scrollUntilVisible:
+    element: '.*sẽ gửi khi có mạng.*'
+    direction: UP
+    timeout: 20000
 - assertVisible: '.*sẽ gửi khi có mạng.*'
 - takeScreenshot: 40_task_queued
 - setAirplaneMode: disabled
