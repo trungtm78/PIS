@@ -7,11 +7,11 @@ import { createHash } from 'node:crypto';
 export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the enterprise dataset, in order: portfolio, capital of the year (lines for the packages), funding, directives, accounting file, report forms, documents, procurement, contracts, process tree, disbursement, the frozen enterprise snapshot, BI, the triage of the warnings. */
-export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-capital-prior', 'clip-ent-snapshot-prior', 'clip-ent-crosscheck', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust', 'clip-ent-execution', 'clip-ent-issues', 'clip-ent-lifecycle', 'clip-ent-weekly', 'clip-ent-capplus', 'clip-ent-legal', 'clip-ent-rights', 'clip-ent-bi2', 'clip-ent-vendor', 'clip-ent-ops', 'clip-ent-admin', 'clip-ent-platform', 'clip-ent-audit', 'clip-ent-mobile', 'clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal'];
+export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-capital-prior', 'clip-ent-snapshot-prior', 'clip-ent-crosscheck', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust', 'clip-ent-execution', 'clip-ent-issues', 'clip-ent-lifecycle', 'clip-ent-weekly', 'clip-ent-capplus', 'clip-ent-legal', 'clip-ent-rights', 'clip-ent-bi2', 'clip-ent-vendor', 'clip-ent-ops', 'clip-ent-admin', 'clip-ent-platform', 'clip-ent-audit', 'clip-ent-mobile', 'clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal', 'clip-ent-phone-work'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
-  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-payments', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras', 'clip-public-contractor-portal'],
+  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-payments', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras', 'clip-public-contractor-portal', 'clip-public-phone-work'],
   enterprise: ENTERPRISE_GROUPS,
 };
 
@@ -36,6 +36,8 @@ export const DATASET_PHASES = {
     { clockDays: 0, groups: ['clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras'] },
     // The vendor portal opens on a contractor with an invitation and two requests (the contractor accepting the invitation is an act of its own identity provider, played by the stack).
     { clockDays: 0, groups: ['clip-public-contractor-portal'] },
+    // The person who signs in on the phone holds tasks in progress of a project workflow (MOB-80, MOB-81; Maestro flow 40): the last group, it reads the projects the groups above made.
+    { clockDays: 0, groups: ['clip-public-phone-work'] },
   ],
   enterprise: [
     { clockDays: 0, groups: ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts'] },
@@ -55,6 +57,8 @@ export const DATASET_PHASES = {
     { clockDays: 0, groups: ['clip-ent-execution', 'clip-ent-issues', 'clip-ent-lifecycle', 'clip-ent-weekly', 'clip-ent-capplus', 'clip-ent-legal', 'clip-ent-rights', 'clip-ent-bi2', 'clip-ent-vendor', 'clip-ent-ops', 'clip-ent-admin', 'clip-ent-platform', 'clip-ent-audit', 'clip-ent-mobile'] },
     // The appraisal stage, the effectiveness appraisals, the earned value, the project documents and the structured narratives come last: they only read what the groups above made.
     { clockDays: 0, groups: ['clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal'] },
+    // The person who signs in on the phone holds tasks in progress of a project workflow (MOB-80, MOB-81; Maestro flow 40).
+    { clockDays: 0, groups: ['clip-ent-phone-work'] },
   ],
 };
 
