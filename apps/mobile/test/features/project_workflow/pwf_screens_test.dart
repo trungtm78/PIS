@@ -402,6 +402,28 @@ void main() {
       expect(server.calls.every((HttpCall call) => call.method == 'GET'), isTrue);
     });
 
+    testWidgets('a person scored in two units over the same days sees which unit each score is of: on the chips and under the period (lane fix11)', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      Map<String, Object?> inUnit(String lineId, String unit, double score) {
+        final Map<String, Object?> item = scoreItem(computed: score);
+        return <String, Object?>{
+          'period': <String, Object?>{...item['period']! as Map<String, Object?>, 'id': 'p-$lineId', 'scope_unit_name': unit},
+          'line': <String, Object?>{...item['line']! as Map<String, Object?>, 'id': lineId, 'period_id': 'p-$lineId', 'unit_name_at_period': unit},
+        };
+      }
+
+      await _open(tester, scores(body: scoresJson(items: <Map<String, Object?>>[inUnit('l-1', 'Sở Xây dựng', 82.5), inUnit('l-2', 'Sở Kế hoạch và Đầu tư', 61)])), 'MOB-81');
+      expect(find.text('01/07 - 30/09 · Sở Xây dựng'), findsOneWidget);
+      expect(find.text('01/07 - 30/09 · Sở Kế hoạch và Đầu tư'), findsOneWidget);
+      expect(find.text('Đơn vị chấm: Sở Xây dựng'), findsOneWidget);
+      await tester.ensureVisible(find.text('01/07 - 30/09 · Sở Kế hoạch và Đầu tư'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('01/07 - 30/09 · Sở Kế hoạch và Đầu tư'));
+      await tester.pump();
+      expect(find.text('Đơn vị chấm: Sở Kế hoạch và Đầu tư'), findsOneWidget);
+      expect(find.text('Đơn vị chấm: Sở Xây dựng'), findsNothing);
+    });
+
     testWidgets('an adjustment shows the adjusted score first and the computed one beside it; a small sample says it is not enough to rate; a period with no task says so', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await _open(tester, scores(body: scoresJson(items: <Map<String, Object?>>[scoreItem(adjusted: 85)])), 'MOB-81');

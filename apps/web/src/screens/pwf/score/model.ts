@@ -420,6 +420,13 @@ export function exportBlob(file: Pick<PeriodExport, 'content_base64' | 'content_
 // ---- compare -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 /** The change of the score between two periods that were both rated; a period with a small sample or no rating is never compared with another. */
+/** The point a change is counted from: the one before [point] among the points of the same unit that are not drafts; none for a draft, or for the first of its unit. */
+export function previousOf(points: readonly ComparisonPoint[], point: ComparisonPoint): ComparisonPoint | undefined {
+  if (point.period_status === 'DRAFT') return undefined;
+  const before = points.slice(0, points.indexOf(point)).filter((one) => one.unit_id === point.unit_id && one.period_status !== 'DRAFT');
+  return before[before.length - 1];
+}
+
 export function changeBetween(previous: ComparisonPoint | undefined, next: ComparisonPoint): number | null {
   if (previous === undefined || previous.state !== 'RATED' || next.state !== 'RATED') return null;
   const before = effectiveScore(previous);

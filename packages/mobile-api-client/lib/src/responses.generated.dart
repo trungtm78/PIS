@@ -66950,6 +66950,9 @@ final class StaffScoreComparisonResponsePointsItem implements ResponseModel {
     required this.periodFrom,
     required this.periodTo,
     required this.periodStatus,
+    required this.unitId,
+    required this.unitCode,
+    required this.unitName,
     required this.scoreComputed,
     required this.scoreAdjusted,
     required this.rating,
@@ -66966,13 +66969,16 @@ final class StaffScoreComparisonResponsePointsItem implements ResponseModel {
       periodFrom: requiredField(map, path, 'period_from', asString),
       periodTo: requiredField(map, path, 'period_to', asString),
       periodStatus: requiredField(map, path, 'period_status', asString),
+      unitId: requiredField(map, path, 'unit_id', asString),
+      unitCode: requiredField(map, path, 'unit_code', asString),
+      unitName: requiredField(map, path, 'unit_name', nullable(asString)),
       scoreComputed: requiredField(map, path, 'score_computed', nullable(asNum)),
       scoreAdjusted: requiredField(map, path, 'score_adjusted', nullable(asNum)),
       rating: requiredField(map, path, 'rating', nullable(asString)),
       state: requiredField(map, path, 'state', asString),
       ratedTaskCount: requiredField(map, path, 'rated_task_count', asInt),
       effectiveWeight: requiredField(map, path, 'effective_weight', asNum),
-      extra: unknownFields(map, path, const <String>{'period_id', 'period_from', 'period_to', 'period_status', 'score_computed', 'score_adjusted', 'rating', 'state', 'rated_task_count', 'effective_weight'}, strict: true),
+      extra: unknownFields(map, path, const <String>{'period_id', 'period_from', 'period_to', 'period_status', 'unit_id', 'unit_code', 'unit_name', 'score_computed', 'score_adjusted', 'rating', 'state', 'rated_task_count', 'effective_weight'}, strict: true),
     );
   }
 
@@ -66980,6 +66986,9 @@ final class StaffScoreComparisonResponsePointsItem implements ResponseModel {
   final String periodFrom;
   final String periodTo;
   final String periodStatus;
+  final String unitId;
+  final String unitCode;
+  final String? unitName;
   final num? scoreComputed;
   final num? scoreAdjusted;
   final String? rating;
@@ -66996,6 +67005,9 @@ final class StaffScoreComparisonResponsePointsItem implements ResponseModel {
         'period_from': periodFrom,
         'period_to': periodTo,
         'period_status': periodStatus,
+        'unit_id': unitId,
+        'unit_code': unitCode,
+        'unit_name': unitName,
         'score_computed': scoreComputed,
         'score_adjusted': scoreAdjusted,
         'rating': rating,

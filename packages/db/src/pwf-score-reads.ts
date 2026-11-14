@@ -379,7 +379,7 @@ export class PwfScoreReads {
   }
 
   /**
-   * The scores of one person over the periods in a window, oldest first, for the comparison of periods. The reach is the one of the line: the person themselves (locked periods), or the readers of the units. The
+   * The scores of one person over the periods in a window, oldest first, for the comparison of periods. The reach is the one of the line: the person themselves (locked and official periods only), or the readers of the units (drafts too). The
    * samples differ when the states are not alike or one has more than twice the rated tasks of another: such periods are not ranked against each other.
    */
   async compare(tx: TenantTx, viewer: Viewer, membershipId: string, window: { from?: string | undefined; to?: string | undefined }): Promise<{ membershipId: string; points: LineSummary[]; samplesDiffer: boolean }> {
@@ -394,7 +394,9 @@ export class PwfScoreReads {
         [member, window.from ?? null, window.to ?? null],
       ),
     );
-    const points = rows.map(toSummary).filter((one) => unitReached(viewer.readUnits, one.unitIdAtPeriod) || (isSubject && one.periodStatus !== 'DRAFT'));
+    // Lane fix11: the person a score is about reads the periods that are LOCKED or OFFICIAL and no draft, whatever reading of a unit they hold themselves (a draft of a unit that holds them is the working paper of
+    // its manager, as in the list of their own scores). Anybody else reads the lines of the units they read, drafts included, each said to be one with its unit.
+    const points = rows.map(toSummary).filter((one) => (isSubject ? one.periodStatus !== 'DRAFT' : unitReached(viewer.readUnits, one.unitIdAtPeriod)));
     if (points.length === 0 && !isSubject) throw notFound();
     const counts = points.map((one) => one.ratedTaskCount);
     const alike = points.every((one) => one.state === points[0]?.state) && (counts.length === 0 || Math.max(...counts) <= 2 * Math.max(1, Math.min(...counts)));

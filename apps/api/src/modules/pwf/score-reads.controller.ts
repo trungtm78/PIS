@@ -131,6 +131,10 @@ export class StaffScoreReadsController {
           period_from: one.periodFrom,
           period_to: one.periodTo,
           period_status: one.periodStatus,
+          // The unit the line was scored in: a person scored in two units has two lines over the same days, told apart by this (lane fix11).
+          unit_id: one.unitIdAtPeriod,
+          unit_code: one.unitCode,
+          unit_name: one.unitName,
           score_computed: one.scoreComputed,
           score_adjusted: one.scoreAdjusted,
           rating: one.rating,

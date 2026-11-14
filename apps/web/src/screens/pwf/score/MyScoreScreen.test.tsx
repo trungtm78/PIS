@@ -133,6 +133,28 @@ describe('PWF-11: my score', () => {
     expect(screen.queryByTestId('no-ranking')).toBeNull();
   });
 
+  it('names the unit and the standing of every period, counts a change inside one unit only, and never from or to a draft (lane fix11)', async () => {
+    const [first, second] = comparison().points;
+    if (first === undefined || second === undefined) throw new Error('the fixture holds two periods');
+    const otherUnit = { ...second, period_id: uuid(5003), unit_id: uuid(7002), unit_code: 'BQLDA', unit_name: null, score_computed: 40, score_adjusted: null };
+    const draft = { ...second, period_id: uuid(5004), period_from: '2027-01-01', period_to: '2027-03-31', period_status: 'DRAFT' as const, score_computed: 99, score_adjusted: null };
+    open({ compare: comparison({ points: [first, second, otherUnit, draft] }) });
+    const table = await screen.findByTestId('comparison');
+    expect(within(table).getAllByTestId('compare-unit').map((cell) => cell.textContent)).toEqual(['Sở Kế hoạch và Đầu tư', 'Sở Kế hoạch và Đầu tư', 'BQLDA', 'Sở Kế hoạch và Đầu tư']);
+    expect(within(table).getAllByText(text('pwfs.status.draft.word')).length).toBe(1);
+    // +15.5 between the two periods of the first unit; nothing for the first period of the other unit (not 40 - 85.5) and nothing for the draft (not 99 - 85.5).
+    expect(within(table).getAllByText('+15.5').length).toBe(1);
+    expect(within(table).queryByText('-45.5')).toBeNull();
+    expect(within(table).queryByText('+13.5')).toBeNull();
+    expect(screen.getByTestId('compare-draft-note').textContent).toBe(text('fix11.compare.draft.note'));
+  });
+
+  it('shows no note about drafts when the server gave none (the person a score is about never gets one)', async () => {
+    open();
+    await screen.findByTestId('comparison');
+    expect(screen.queryByTestId('compare-draft-note')).toBeNull();
+  });
+
   it('says periods are not ranked against each other when their samples differ', async () => {
     open({ compare: comparison({ sample_sizes_differ: true }) });
     expect((await screen.findByTestId('no-ranking')).textContent).toBe(text('pwfs.compare.noRanking.note'));

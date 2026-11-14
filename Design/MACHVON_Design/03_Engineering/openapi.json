@@ -331872,7 +331872,10 @@
                 "rating",
                 "state",
                 "rated_task_count",
-                "effective_weight"
+                "effective_weight",
+                "unit_id",
+                "unit_code",
+                "unit_name"
               ],
               "properties": {
                 "period_id": {
@@ -331893,6 +331896,20 @@
                     "DRAFT",
                     "LOCKED",
                     "OFFICIAL"
+                  ]
+                },
+                "unit_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Đơn vị mà dòng điểm được chấm (một người có điểm ở hai đơn vị có hai dòng cùng khoảng ngày)"
+                },
+                "unit_code": {
+                  "type": "string"
+                },
+                "unit_name": {
+                  "type": [
+                    "string",
+                    "null"
                   ]
                 },
                 "score_computed": {
@@ -331944,7 +331961,8 @@
             "type": "string",
             "format": "date-time"
           }
-        }
+        },
+        "description": "So sánh kỳ của một người. Người được chấm chỉ đọc kỳ đã chốt hoặc chính thức của mình; kỳ nháp chỉ người đọc được đơn vị thấy. Mỗi điểm ghi đơn vị và trạng thái kỳ."
       },
       "StaffScoreSignalPage": {
         "type": "object",

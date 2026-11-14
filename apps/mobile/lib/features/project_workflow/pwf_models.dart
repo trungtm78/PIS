@@ -889,6 +889,7 @@ final class PwfScoreLine {
     required this.excluded,
     required this.adjustments,
     required this.responses,
+    this.unitName,
     required this.canRespond,
     required this.version,
     this.scoreComputed,
@@ -898,6 +899,9 @@ final class PwfScoreLine {
     this.policyCode,
     this.policyVersion,
   });
+
+  /// The unit the line was scored in (its name, else its code): a person scored in two units has two lines over the same days, told apart by this (lane fix11). Null when the server names none.
+  final String? unitName;
 
   final String id;
   final String periodId;
@@ -960,6 +964,7 @@ PwfMyScores? parsePwfMyScores(Object? raw) {
         periodFrom: from,
         periodTo: to,
         periodStatus: filled(line['period_status']) ?? filled(period['status']) ?? 'DRAFT',
+        unitName: filled(line['unit_name_at_period']) ?? filled(period['scope_unit_name']) ?? filled(line['unit_code_at_period']) ?? filled(period['scope_unit_code']),
         state: state,
         ratedTaskCount: count(line['rated_task_count']),
         scoreComputed: _number(line['score_computed']),

@@ -123,8 +123,8 @@ export const linePage = (items: ScoreLineRow[], over: Partial<{ next_cursor: str
 export const comparison = (over: Partial<Comparison> = {}): Comparison => ({
   membership_id: ME,
   points: [
-    { period_id: uuid(5001), period_from: '2026-07-01', period_to: '2026-09-30', period_status: 'OFFICIAL', score_computed: 70, score_adjusted: null, rating: 'FAIR', state: 'RATED', rated_task_count: 6, effective_weight: 10 },
-    { period_id: PERIOD_ID, period_from: '2026-10-01', period_to: '2026-12-31', period_status: 'LOCKED', score_computed: 82.5, score_adjusted: 85.5, rating: 'GOOD', state: 'RATED', rated_task_count: 6, effective_weight: 14.5 },
+    { period_id: uuid(5001), period_from: '2026-07-01', period_to: '2026-09-30', period_status: 'OFFICIAL', unit_id: uuid(7001), unit_code: 'SKHDT', unit_name: 'Sở Kế hoạch và Đầu tư', score_computed: 70, score_adjusted: null, rating: 'FAIR', state: 'RATED', rated_task_count: 6, effective_weight: 10 },
+    { period_id: PERIOD_ID, period_from: '2026-10-01', period_to: '2026-12-31', period_status: 'LOCKED', unit_id: uuid(7001), unit_code: 'SKHDT', unit_name: 'Sở Kế hoạch và Đầu tư', score_computed: 82.5, score_adjusted: 85.5, rating: 'GOOD', state: 'RATED', rated_task_count: 6, effective_weight: 14.5 },
   ],
   sample_sizes_differ: false,
   as_of: AS_OF,

@@ -624,6 +624,11 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect(worker).toEqual({ rating: null, rated_task_count: 1 });
       const compared = await as((tx) => reads.compare(tx, viewer(MANAGER, { readUnits: '*' }), memberId(WORKER), {}));
       expect(compared.points.every((one) => one.state === 'SMALL_SAMPLE' || one.state === 'RATED')).toBe(true);
+      // Lane fix11: a reader of the unit sees the draft, said to be one and with its unit; the person never reads their own draft in the comparison, whatever reading of the unit they hold themselves.
+      expect(compared.points.find((one) => one.periodId === preview.period.id)).toMatchObject({ periodStatus: 'DRAFT', unitIdAtPeriod: expect.any(String), unitCode: expect.any(String) });
+      const own = await as((tx) => reads.compare(tx, viewer(WORKER, { readUnits: '*' }), memberId(WORKER), {}));
+      expect(own.points.some((one) => one.periodId === preview.period.id)).toBe(false);
+      expect(own.points.every((one) => one.periodStatus !== 'DRAFT')).toBe(true);
     });
 
     it('refuses to compute or lock a period of a unit whose subtree the caller does not manage whole (403 SCOPE_DENIED)', async () => {

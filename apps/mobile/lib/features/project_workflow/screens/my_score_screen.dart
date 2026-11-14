@@ -72,13 +72,20 @@ class _PwfScoreViewState extends State<PwfScoreView> {
         StatusBanner(text: context.t('mob.pwf.score.support'), icon: Icons.info_outline),
         if (lines.length > 1)
           FilterChips<int>(
-            options: <ChipOption<int>>[for (int index = 0; index < lines.length; index += 1) ChipOption<int>(value: index, label: '${formatDayShort(lines[index].periodFrom)} - ${formatDayShort(lines[index].periodTo)}')],
+            options: <ChipOption<int>>[for (int index = 0; index < lines.length; index += 1) ChipOption<int>(value: index, label: _chipLabel(context, lines, index))],
             selected: _selected,
             onChanged: (int next) => setState(() => _selected = next),
           ),
         Padding(
           padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s8, MachvonV2Space.s16, MachvonV2Space.s8),
-          child: Text(context.t('mob.pwf.score.period', <String, Object>{'from': formatDay(line.periodFrom, language: language), 'to': formatDay(line.periodTo, language: language), 'status': _periodStatus(context, line.periodStatus)}), style: text.captionStrong),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(context.t('mob.pwf.score.period', <String, Object>{'from': formatDay(line.periodFrom, language: language), 'to': formatDay(line.periodTo, language: language), 'status': _periodStatus(context, line.periodStatus)}), style: text.captionStrong),
+              // The unit the score was given in: two units may each have scored the person over the same days.
+              if (line.unitName != null) Text(context.t('mob.pwf11.score.unit', <String, Object>{'unit': line.unitName!}), style: text.caption),
+            ],
+          ),
         ),
         StatStrip(
           cells: <StatCell>[
@@ -176,6 +183,14 @@ class _PwfScoreViewState extends State<PwfScoreView> {
   String _rating(BuildContext context, PwfScoreLine line) {
     if (line.state != 'RATED') return context.t('mob.pwf.score.rating.none');
     return line.rating == null ? context.t('mob.pwf.score.rating.none') : pwfGradeName(context, line.rating!);
+  }
+
+  /// The label of the chip of a period: its days, and the unit as well when another line covers the same days (two units scored the person).
+  String _chipLabel(BuildContext context, List<PwfScoreLine> lines, int index) {
+    final PwfScoreLine line = lines[index];
+    final String days = '${formatDayShort(line.periodFrom)} - ${formatDayShort(line.periodTo)}';
+    final bool twin = lines.where((PwfScoreLine other) => other.periodFrom == line.periodFrom && other.periodTo == line.periodTo).length > 1;
+    return twin && line.unitName != null ? context.t('mob.pwf11.score.chip', <String, Object>{'days': days, 'unit': line.unitName!}) : days;
   }
 
   String _periodStatus(BuildContext context, String status) => switch (status) {

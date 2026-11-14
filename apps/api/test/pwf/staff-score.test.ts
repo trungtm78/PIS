@@ -283,6 +283,8 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       const asked = await call('GET', `/staff-score-lines/compare?membership_id=${memberId(WORKER)}`, { member: UNIT_MANAGER });
       expect(asked.status).toBe(200);
       expect((asked.json.points as unknown[]).length).toBe(1);
+      // Lane fix11: every point says the unit it was scored in and where its period stands.
+      expect((asked.json.points as unknown[])[0]).toMatchObject({ period_id: periodId, unit_id: unitId(DEPARTMENT), unit_code: expect.any(String), period_status: expect.stringMatching(/^(LOCKED|OFFICIAL)$/) });
       expect(await views('score.comparison_viewed', UNIT_MANAGER)).toBe(1);
       expect((await call('GET', `/staff-score-lines/compare?membership_id=${memberId(WORKER)}`, { member: OTHER_STAFF })).status).toBe(404);
     });
@@ -437,6 +439,16 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       expect(draft).toMatchObject({ status: 200, json: { not_due_task_count: 0, period: { status: 'DRAFT', computed_as_of: TODAY, provisional: TODAY < to, not_due_task_count: 0, early_lock: false } } });
       const id = (draft.json.period as { id: string }).id;
       const version = (draft.json.period as { version: number }).version;
+      // Lane fix11: while the period is a draft, a reader of the unit sees its line in the comparison, said to be a draft of that unit; the person it is about does not, and neither does a reader of the unit about themselves.
+      const draftPoints = async (member: number, subject: number): Promise<unknown[]> =>
+        (((await call('GET', `/staff-score-lines/compare?membership_id=${memberId(subject)}`, { member })).json.points ?? []) as Array<{ period_id: string }>).filter((point) => point.period_id === id);
+      const [held] = await rows<{ n: string }>('select count(*)::text as n from machvon.staff_score_line where period_id = $1::uuid and membership_id = $2::uuid', [id, memberId(WORKER)]);
+      const seenByReader = await draftPoints(HR, WORKER);
+      expect(seenByReader.length).toBe(Number(held?.n));
+      for (const point of seenByReader) expect(point).toMatchObject({ period_status: 'DRAFT', unit_id: unitId(DEPARTMENT), unit_code: expect.any(String) });
+      expect(await draftPoints(WORKER, WORKER)).toEqual([]);
+      expect(await draftPoints(UNIT_MANAGER, UNIT_MANAGER)).toEqual([]);
+      expect(await draftPoints(HR, HR)).toEqual([]);
       const refused = await call('POST', `/staff-score-periods/${id}/lock`, { member: HR, ifMatch: `"${version}"` });
       expect(refused).toMatchObject({ status: 409, json: { code: 'STAFF_SCORE_PERIOD_NOT_ENDED', period_to: to } });
       expect((await call('POST', `/staff-score-periods/${id}/lock`, { member: HR, ifMatch: `"${version}"`, body: { early_reason: 'short' } })).status).toBe(422);

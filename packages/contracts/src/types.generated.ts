@@ -50487,6 +50487,7 @@ export interface components {
             /** Format: date-time */
             as_of: string;
         };
+        /** @description So sánh kỳ của một người. Người được chấm chỉ đọc kỳ đã chốt hoặc chính thức của mình; kỳ nháp chỉ người đọc được đơn vị thấy. Mỗi điểm ghi đơn vị và trạng thái kỳ. */
         StaffScoreComparison: {
             /** Format: uuid */
             membership_id: string;
@@ -50499,6 +50500,13 @@ export interface components {
                 period_to: string;
                 /** @enum {string} */
                 period_status: "DRAFT" | "LOCKED" | "OFFICIAL";
+                /**
+                 * Format: uuid
+                 * @description Đơn vị mà dòng điểm được chấm (một người có điểm ở hai đơn vị có hai dòng cùng khoảng ngày)
+                 */
+                unit_id: string;
+                unit_code: string;
+                unit_name: string | null;
                 score_computed: number | null;
                 score_adjusted: number | null;
                 rating: string | null;

@@ -4,9 +4,12 @@ import type { DataTableColumn } from '../../../ui';
 import { lineStateWord } from './labels';
 import { LineStatePill, PeriodStatusPill, RatingPill } from './components';
 import { useComparison } from './hooks';
-import { changeBetween, effectiveScore, rangeText, scoreText } from './model';
+import { changeBetween, effectiveScore, previousOf, rangeText, scoreText } from './model';
 import type { ComparisonPoint } from './model';
 
+/**
+ * Each row says its unit and where its period stands (draft, locked, official). The person a score is about gets no draft from the server; a reader of the unit does, and is told what a draft is.
+ */
 /** The periods of one person side by side. Periods whose samples differ are shown but not ranked against each other, and the change between two periods is said only when both were rated (BR-PWF-36). */
 export function Comparison({ membershipId, enabled }: { membershipId: string | undefined; enabled: boolean }) {
   const { t } = useTranslation();
@@ -16,6 +19,8 @@ export function Comparison({ membershipId, enabled }: { membershipId: string | u
   const points = [...data.points].sort((a, b) => a.period_from.localeCompare(b.period_from));
   const columns: DataTableColumn<ComparisonPoint>[] = [
     { key: 'period', header: t('pwfs.compare.col.period'), render: (row) => rangeText(row.period_from, row.period_to) },
+    // The unit the line was scored in: a person scored in two units has two lines over the same days (lane fix11). The name; the code where the reader may not read the name.
+    { key: 'unit', header: t('fix11.compare.col.unit'), render: (row) => <span data-testid="compare-unit">{row.unit_name ?? row.unit_code}</span> },
     { key: 'status', header: t('pwfs.compare.col.status'), render: (row) => <PeriodStatusPill status={row.period_status} /> },
     { key: 'score', header: t('pwfs.compare.col.score'), align: 'right', render: (row) => scoreText(effectiveScore(row)) },
     {
@@ -30,7 +35,8 @@ export function Comparison({ membershipId, enabled }: { membershipId: string | u
       header: t('pwfs.compare.col.change'),
       align: 'right',
       render: (row) => {
-        const change = changeBetween(points[points.indexOf(row) - 1], row);
+        // The change is against the period before it OF THE SAME UNIT, and never from or to a draft: a provisional figure and the score of another unit are not a point of a trend.
+        const change = changeBetween(previousOf(points, row), row);
         return change === null ? <span title={lineStateWord(t, row.state)}>–</span> : change > 0 ? `+${change}` : String(change);
       },
     },
@@ -38,6 +44,11 @@ export function Comparison({ membershipId, enabled }: { membershipId: string | u
   return (
     <SectionCard title={t('pwfs.compare.title')}>
       <div data-testid="comparison">
+        {points.some((point) => point.period_status === 'DRAFT') ? (
+          <p className="callout info" role="note" data-testid="compare-draft-note">
+            {t('fix11.compare.draft.note')}
+          </p>
+        ) : null}
         {data.sample_sizes_differ ? (
           <p className="callout warning" role="status" data-testid="no-ranking">
             {t('pwfs.compare.noRanking.note')}
