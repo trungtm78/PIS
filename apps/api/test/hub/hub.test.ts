@@ -27,6 +27,8 @@ const B_ADMIN = 1;
 const ROOT = 1;
 const DEPARTMENT = 2;
 const NOW = new Date('2027-10-15T03:00:00Z');
+// The clock of the hub: NOW, except while a test moves it to see what time does.
+let clock = NOW;
 const HOURS = 3_600_000;
 const ADMIN_RIGHTS = ['hub.read', 'hub.state.manage', 'hub.run.record', 'hub.incident.manage', 'hub.snapshot.capture', 'hub.reject.manage', 'hub.agent.manage', 'hub.agent.heartbeat'];
 const REASON = 'Waiting for the official sample file';
@@ -91,7 +93,7 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
       controllers: [HubController, HubReadsController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
-        { provide: HUB_CLOCK, useValue: () => NOW },
+        { provide: HUB_CLOCK, useValue: () => clock },
         { provide: APP_FILTER, useValue: new ProblemFilter(loadErrorRegistry(ERROR_CODES_PATH)) },
       ],
     });
@@ -324,11 +326,14 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     expect((await events(rejectId, 'hub.reject.discarded.v1'))[0]?.payload).toMatchObject({ reject_code: 'CODE_REQUIRED' });
   });
 
-  it('registers a collector agent with its platform, judges it by its heartbeat, and refuses a repeat code and an unknown connector', async () => {
+  it('UAT-HUB-AGT-01: registers a collector agent with its platform, judges it by its heartbeat (online, then stale once the heartbeat is older than the rule allows), and refuses a repeat code (409) and an unknown connector (422 naming connectors)', async () => {
     const body = { agent_code: 'collector-hn-01', os: 'linux', cpu_arch: 'arm64', agent_version: '1.4.2', connectors: ['egp.muasamcong', 'treasury.statement'] };
     const registered = await call('POST', '/integration-hub/agents', { member: ADMIN, body });
     expect(registered.status).toBe(200);
-    expect((await call('POST', '/integration-hub/agents', { member: ADMIN, body })).json.code).toBe('HUB_AGENT_CODE_TAKEN');
+    expect(await call('POST', '/integration-hub/agents', { member: ADMIN, body })).toMatchObject({ status: 409, json: { code: 'HUB_AGENT_CODE_TAKEN' } });
+    const stranger = await call('POST', '/integration-hub/agents', { member: ADMIN, body: { ...body, agent_code: 'collector-hn-09', connectors: ['no.such.connector'] } });
+    expect(stranger).toMatchObject({ status: 422, json: { code: 'VALIDATION_FAILED' } });
+    expect(JSON.stringify(stranger.json)).toContain('connectors');
     expect((await call('POST', '/integration-hub/agents', { member: ADMIN, body: { ...body, agent_code: 'collector-hn-02', connectors: ['no.such'] } })).status).toBe(422);
     expect((await call('POST', '/integration-hub/agents', { member: ADMIN, body: { ...body, agent_code: 'collector-hn-03', cpu_arch: 'x87' } })).status).toBe(422);
     const listed = await call('GET', '/integration-hub/agents?connector_code=treasury.statement', { member: READER });
@@ -339,6 +344,19 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     expect((after.json.items as Array<Record<string, unknown>>)[0]).toMatchObject({ health: 'ONLINE', agent_version: '1.4.3', spool_depth: 7 });
     const detail = (await call('GET', '/integration-hub/connectors/egp.muasamcong', { member: READER })).json;
     expect((detail.agents as Array<Record<string, unknown>>).map((agent) => agent.agent_code)).toEqual(['collector-hn-01']);
+    // The rule (agent_stale_after_minutes 15): a heartbeat 16 minutes old makes the agent stale, one 14 minutes old keeps it online.
+    const healthAt = async (minutes: number): Promise<unknown> => {
+      // The heartbeat was received at NOW; the clock moves on by the minutes.
+
+      clock = new Date(NOW.getTime() + minutes * 60_000);
+      try {
+        return ((await call('GET', '/integration-hub/agents', { member: READER })).json.items as Array<Record<string, unknown>>).find((agent) => agent.agent_code === 'collector-hn-01')?.health;
+      } finally {
+        clock = NOW;
+      }
+    };
+    expect(await healthAt(14)).toBe('ONLINE');
+    expect(await healthAt(16)).toBe('STALE');
     expect((await call('POST', '/integration-hub/agents/nobody/heartbeat', { member: ADMIN, body: { agent_version: '1.0', spool_depth: 0 } })).status).toBe(404);
     expect((await call('POST', '/integration-hub/agents/collector-hn-01/heartbeat', { member: ADMIN, body: { agent_version: '1.0', spool_depth: -1 } })).status).toBe(422);
   });
@@ -348,6 +366,34 @@ describe('the Integration Hub over HTTP (HUB-1)', () => {
     for (const item of reply.json.items as Array<Record<string, unknown>>) expect(item).toMatchObject({ status: ['access.open-api', 'ind.figure-import', 'mdm.catalogue-import'].includes(item.code as string) ? 'NEVER_RUN' : 'PENDING_EXTERNAL', last_run_at: null });
     expect(((await call('GET', '/integration-hub/incidents', { member: B_ADMIN, tenantId: TENANT_B })).json.items as unknown[]).length).toBe(0);
     expect(((await call('GET', '/integration-hub/agents', { member: B_ADMIN, tenantId: TENANT_B })).json.items as unknown[]).length).toBe(0);
+  });
+
+  it('UAT-HUB-HLT-01: on a tenant where two connectors ran, one well and one failing, the healthy ratio is 50 (1 of 2); a connector that never ran is waiting and counts in no percentage; the failing one raises CONNECTOR_FAILING; each of the five figures carries its formula, source, as-of and unverified flag', async () => {
+    // Tenant B used no connector until here (the test above), so the two runs below are all that ran.
+    const send = (code: string, body: Record<string, unknown>) => call('POST', `/integration-hub/connectors/${code}/runs`, { member: B_ADMIN, tenantId: TENANT_B, body });
+    const window = { kind: 'IMPORT', started_at: new Date(NOW.getTime() - HOURS).toISOString(), finished_at: new Date(NOW.getTime() - HOURS / 2).toISOString(), rows_total: 5 };
+    expect((await send('national.project_codes', { ...window, outcome: 'SUCCEEDED', rows_applied: 5, source_ref: 'sha:b-national-1' })).status).toBe(200);
+    expect((await send('treasury.statement', { ...window, outcome: 'FAILED', error_code: 'IMPORT_SCHEMA_INVALID', source_ref: 'sha:b-treasury-1' })).status).toBe(200);
+    const health = await call('GET', '/integration-hub/health', { member: B_ADMIN, tenantId: TENANT_B });
+    expect(health.status).toBe(200);
+    const kpis = health.json.kpis as Array<Record<string, unknown>>;
+    expect(kpis).toHaveLength(5);
+    expect(kpis.find((kpi) => kpi.code === 'HUB_CONNECTORS_HEALTHY_PCT')?.value).toBe(50);
+    for (const kpi of kpis) {
+      expect(String(kpi.formula).length).toBeGreaterThan(10);
+      expect(String(kpi.source).length).toBeGreaterThan(0);
+      expect(kpi.as_of).toBe(NOW.toISOString());
+      expect(typeof kpi.unverified).toBe('boolean');
+    }
+    const items = (await call('GET', '/integration-hub/connectors', { member: B_ADMIN, tenantId: TENANT_B })).json.items as Array<Record<string, unknown>>;
+    const statusOf = (code: string): unknown => items.find((item) => item.code === code)?.status;
+    expect([statusOf('national.project_codes'), statusOf('treasury.statement')]).toEqual(['HEALTHY', 'FAILING']);
+    // The connectors that never ran wait (for the outside or for a first run): none is healthy, none is failing, so none is in the ratio of 1 of 2.
+    const idle = items.filter((item) => !['national.project_codes', 'treasury.statement'].includes(item.code as string));
+    expect(idle.length).toBeGreaterThan(0);
+    for (const item of idle) expect(['PENDING_EXTERNAL', 'NEVER_RUN']).toContain(item.status);
+    const open = (await call('GET', '/integration-hub/incidents?state=OPEN', { member: B_ADMIN, tenantId: TENANT_B })).json.items as Array<Record<string, unknown>>;
+    expect(open.map((incident) => [incident.connector_code, incident.kind, (incident.alert as { code: string }).code])).toEqual([['treasury.statement', 'FAILING', 'CONNECTOR_FAILING']]);
   });
 
   it('refuses a malformed page request and an unknown filter', async () => {

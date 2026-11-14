@@ -29495,7 +29495,7 @@
       "Gửi nhịp tim, rồi dừng nhịp tim quá hạn",
       "Đăng ký cho bộ kết nối lạ"
     ],
-    "expected": "Mã trùng 409; trạng thái chuyển khỏe rồi cũ theo quy tắc nhịp tim; bộ kết nối lạ 404.",
+    "expected": "Mã trùng 409; trạng thái chuyển khỏe rồi cũ theo quy tắc nhịp tim; bộ kết nối lạ 422 VALIDATION_FAILED nêu trường connectors; nhịp tim của tác tử không tồn tại 404.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
@@ -30679,7 +30679,7 @@
       "Thừa kế lần hai",
       "Thừa kế vào báo cáo đã chốt"
     ],
-    "expected": "Lần một chỉ điền ô trống và ghi kỳ nguồn; lần hai 422 NARRATIVE_NOTHING_TO_INHERIT; báo cáo đã chốt 409 REVISION_IMMUTABLE.",
+    "expected": "Lần một chỉ điền ô trống và ghi kỳ nguồn; lần hai 409 NARRATIVE_NOTHING_TO_INHERIT; báo cáo đã chốt 409 REVISION_IMMUTABLE.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [

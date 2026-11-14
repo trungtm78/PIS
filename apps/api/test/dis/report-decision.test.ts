@@ -1000,7 +1000,7 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
       expect(await inherit(sent.reportId, 2)).toMatchObject({ status: 409, json: { code: 'REVISION_IMMUTABLE' } });
     });
 
-    it('UAT-DIS-ENT3B-1: the author inherits the previous period into the empty fields only and the source period is recorded; a second time has nothing to inherit; a submitted report, a locked period and a stale version are 409; the template is 403 without the import right', async () => {
+    it('UAT-DIS-ENT3B-1, UAT-ENT-NAR-01: the author inherits the previous period into the empty fields only and the source period is recorded; a second time has nothing to inherit; a submitted report, a locked period and a stale version are 409; the template is 403 without the import right', async () => {
       const { projectId, planId } = await seedProject();
       const first = await submitted({ project: { projectId, planId }, extra: { narrative: block({ proposals: 'Ask the group for support.' }) } });
       // A draft of the next period with one field written and the others empty.

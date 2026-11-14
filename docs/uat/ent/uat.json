@@ -1957,7 +1957,7 @@
     },
     {
       "tc_id": "TC-UAT-ENT-NAR-01",
-      "title": "Thừa kế thuyết minh kỳ trước chỉ điền ô trống và ghi kỳ nguồn, không còn gì để thừa kế là 422 NARRATIVE_NOTHING_TO_INHERIT, bản đã chốt 409 REVISION_IMMUTABLE",
+      "title": "Thừa kế thuyết minh kỳ trước chỉ điền ô trống và ghi kỳ nguồn, không còn gì để thừa kế là 409 NARRATIVE_NOTHING_TO_INHERIT, bản đã chốt 409 REVISION_IMMUTABLE",
       "type": "STATE",
       "platform": "api",
       "persona": "ent-report-editor",
@@ -1966,7 +1966,7 @@
       "severity_if_fail": "S2",
       "oracle_type": "Claim",
       "rule_ref": "FR-DIS-35",
-      "oracle_source": "Claim → FR-DIS-35; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "oracle_source": "Claim → FR-DIS-35; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json); kỳ vọng sửa 2026-11-14 (lane cov1): sổ mã lỗi error_codes.json khai NARRATIVE_NOTHING_TO_INHERIT là 409 (statusBasis spec); 422 của ca cũ không có căn cứ trong sổ mã lỗi",
       "catches_bug": "Thừa kế ghi đè nội dung người lập đã viết, hoặc sửa thuyết minh của bản đã chốt",
       "coverage_ids": [
         "COV-FR-DIS-35"
@@ -1980,7 +1980,7 @@
       },
       "seeding_method": "api",
       "steps": "Chuẩn bị: Tenant A bản enterprise; báo cáo kỳ trước có thuyết minh 8 trường; báo cáo kỳ này có một ô trống\n1. Thừa kế lần một\n2. Thừa kế lần hai\n3. Thừa kế vào báo cáo đã chốt",
-      "expected": "Lần một chỉ điền ô trống và ghi kỳ nguồn; lần hai 422 NARRATIVE_NOTHING_TO_INHERIT; báo cáo đã chốt 409 REVISION_IMMUTABLE.",
+      "expected": "Lần một chỉ điền ô trống và ghi kỳ nguồn; lần hai 409 NARRATIVE_NOTHING_TO_INHERIT; báo cáo đã chốt 409 REVISION_IMMUTABLE.",
       "evidence_required": [
         "trace",
         "response-bodies"
@@ -1995,8 +1995,8 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "finding: the case says the second inheritance is 422 NARRATIVE_NOTHING_TO_INHERIT, the product and the error registry answer 409"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dis/report-decision.test.ts"
       },
       "module": "ENT",
       "transition": {

@@ -803,8 +803,8 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần dựng đúng hai bộ kết nối đã chạy trên tenant sạch; thứ tự các suite hiện làm tenant không sạch"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/hub/hub.test.ts"
       },
       "module": "HUB",
       "db_assert": {
@@ -828,7 +828,7 @@
       "severity_if_fail": "S3",
       "oracle_type": "Claim",
       "rule_ref": "FR-HUB-02",
-      "oracle_source": "Claim → FR-HUB-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "oracle_source": "Claim → FR-HUB-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json); kỳ vọng sửa 2026-11-14 (lane cov1): hợp đồng openapi.json của registerHubAgent chỉ khai VALIDATION_FAILED và HUB_AGENT_CODE_TAKEN: bộ kết nối lạ trong thân lệnh là lỗi của trường connectors, không phải tài nguyên của đường dẫn; 404 chỉ đúng cho tác tử nêu trên đường dẫn",
       "catches_bug": "Tác tử không gửi nhịp tim vẫn được coi là khỏe",
       "coverage_ids": [
         "COV-FR-HUB-02"
@@ -842,7 +842,7 @@
       },
       "seeding_method": "api",
       "steps": "Chuẩn bị: Tenant A\n1. Đăng ký tác tử\n2. Đăng ký lại cùng mã\n3. Gửi nhịp tim, rồi dừng nhịp tim quá hạn\n4. Đăng ký cho bộ kết nối lạ",
-      "expected": "Mã trùng 409; trạng thái chuyển khỏe rồi cũ theo quy tắc nhịp tim; bộ kết nối lạ 404.",
+      "expected": "Mã trùng 409; trạng thái chuyển khỏe rồi cũ theo quy tắc nhịp tim; bộ kết nối lạ 422 VALIDATION_FAILED nêu trường connectors; nhịp tim của tác tử không tồn tại 404.",
       "evidence_required": [
         "trace",
         "response-bodies"
@@ -857,8 +857,8 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "finding: the case expects 404 for an agent registered for an unknown connector set, the product and the contract answer 422 VALIDATION_FAILED"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/hub/hub.test.ts"
       },
       "module": "HUB",
       "transition": {
