@@ -1,4 +1,6 @@
-# STATUS: NOT RUN on a phone of the pilot device matrix (written for the emulator of the e2e stack; the host has not run it on a phone).
+# STATUS: RUN ON AN EMULATOR ONLY (lane shots3, 2026-11-15, emulator "guide", Android 15, debug builds of both editions, clean stacks with the whole clip seed); NOT RUN on a phone of the pilot device matrix:
+#   public edition PASSED, enterprise edition PASSED (26 s), as the first person (the owner). With another person written into <stack-info.json>.user (an officer with one unit) the flow stops at
+#   'Chọn đơn vị và vai trò': a person with one unit is not asked to choose, the session is open and the home shows. That stop is of the flow, not of the application.
 # UAT 2026-11-13 (emulator "guide"): two runs stopped at the wait for 'Chọn đơn vị và vai trò': the heading of the chooser and the paragraph under it were one
 # semantics node, so the whole text did not match. The application now gives the heading a node of its own (AuthHeading, lib/features/session/flow.dart); not re-run since.
 # UAT 2026-11-14 (enterprise edition): two runs stopped at the wait for 'Xác thực hai yếu tố' and the application was on the home screen. The application and the server were right: the second factor is

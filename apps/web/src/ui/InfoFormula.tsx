@@ -45,6 +45,7 @@ export function InfoFormula({ name, formula, numerator, denominator, exclusions,
   const panelId = useId();
   const root = useRef<HTMLSpanElement>(null);
   const button = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -53,6 +54,14 @@ export function InfoFormula({ name, formula, numerator, denominator, exclusions,
     };
     document.addEventListener('mousedown', outside);
     return () => document.removeEventListener('mousedown', outside);
+  }, [open]);
+
+  // The panel opens under its button: what is left of the window below the button is all the room it has, so its height is held to that (never under 160 px) and the facts scroll inside, with "Close" always in sight.
+  useEffect(() => {
+    if (!open || panel.current === null) return;
+    const top = panel.current.getBoundingClientRect().top;
+    const room = Math.max(160, Math.floor(window.innerHeight - top - 16));
+    panel.current.style.setProperty('--ui-info-room', `${room}px`);
   }, [open]);
 
   const close = (): void => {
@@ -80,7 +89,7 @@ export function InfoFormula({ name, formula, numerator, denominator, exclusions,
         <span className="ui-info__glyph" aria-hidden="true" />
       </button>
       {open && (
-        <div id={panelId} className="ui-info__panel" role="dialog" aria-label={name}>
+        <div id={panelId} ref={panel} className="ui-info__panel" role="dialog" aria-label={name}>
           <strong className="ui-info__title">{name}</strong>
           {/* The facts scroll inside the panel when they are longer than it (the panel never grows past the screen), so the list takes the keyboard focus to be scrolled with the arrow keys. */}
           <dl className="ui-info__list" tabIndex={0}>

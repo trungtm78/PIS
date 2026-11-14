@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { decimalText } from '../../../i18n/format';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
@@ -70,12 +71,13 @@ function BoardContent({ route }: ScreenProps) {
     {
       key: 'name',
       header: t('pwfs.board.col.person'),
+      stackedTitle: true,
       render: ({ row }) => <Link to={lineLink(row.id)}>{row.display_name}</Link>,
     },
     { key: 'computed', header: t('pwfs.board.col.computed'), align: 'right', render: ({ row }) => scoreText(row.score_computed) },
     { key: 'adjusted', header: t('pwfs.board.col.adjusted'), align: 'right', render: ({ row }) => (row.has_adjustment ? scoreText(row.score_adjusted) : '–') },
     { key: 'rating', header: t('pwfs.board.col.rating'), render: ({ row }) => (isRated(row) && row.rating !== null ? <RatingPill rating={row.rating} /> : <LineStatePill state={row.state} />) },
-    { key: 'sample', header: t('pwfs.board.col.sample'), align: 'right', render: ({ row }) => t('pwfs.board.sample.text', { count: row.rated_task_count, weight: row.effective_weight }) },
+    { key: 'sample', header: t('pwfs.board.col.sample'), align: 'right', render: ({ row }) => t('pwfs.board.sample.text', { count: row.rated_task_count, weight: decimalText(row.effective_weight) }) },
     {
       key: 'marks',
       header: t('pwfs.board.col.marks'),

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# STATUS: NOT RUN on any phone of the matrix. Run on the emulator "guide" only (Android 15, debug builds of both editions, lane fix9, 2026-11-14); see the header of flows/40_project_workflow.yaml for the result.
+# STATUS: NOT RUN on any phone of the matrix. Run on the emulator "guide" only (Android 15, debug builds of both editions, lane shots3, 2026-11-15: both passed to the end); see the header of flows/40_project_workflow.yaml for the result.
 #
 # Device evidence of AC-ST-MOB-040-1 for the workflow flow (TC-UAT-PWF-15, TC-UAT-PWF-OFF-01).
 #

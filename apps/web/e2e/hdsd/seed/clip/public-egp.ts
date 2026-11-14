@@ -103,9 +103,11 @@ export async function seedClipEgp(ctx: SeedContext): Promise<void> {
     }
   });
 
-  // Posting obligations: an old trigger date makes the clock run out (overdue), a recent one is due soon, the rest on time.
+  // Posting obligations: an old trigger date makes the clock run out (overdue), a recent one is due soon, the rest on time. The clock is five working days and the reminder two calendar days, so
+  // which trigger day lands in the reminder window depends on the day of the week the seed runs on: the days seven to four days back are all opened, and one of them is due soon on any day
+  // (with -6 and -4 alone nothing was due soon on a Saturday: `clip-seed verify` of lane shots3, 14/11/2026).
   await ctx.step('BID', 'posting obligations', async () => {
-    const triggers = [-40, -30, -12, -6, -4, -1];
+    const triggers = [-40, -30, -12, -7, -6, -5, -4, -3, -1];
     const made: Obj[] = [];
     for (const [index, item] of chosen.slice(0, triggers.length).entries()) {
       const opened = await ctx.attempt<Obj>(MAKER, 'POST', '/egp/obligations', { kind: 'NOTICE', our_code: item.code, our_project_code: item.project, triggered_on: day(triggers[index] ?? -1) });

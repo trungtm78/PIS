@@ -10,6 +10,8 @@ export interface DataTableColumn<T> {
   group?: string;
   align?: 'left' | 'right';
   pinned?: boolean;
+  /** In a stacked table (narrow screen) this column is the title of the card of a row, in place of the first one: for a table whose first column is a rank or a mark that names nothing. */
+  stackedTitle?: boolean;
   render: (row: T) => ReactNode;
 }
 
@@ -102,6 +104,8 @@ export function DataTable<T>({ columns, rows, rowKey, totals, totalsLabel, sever
       {cell.label}
     </th>
   );
+  /** The column that titles the card of a row when the table is stacked: the one marked, else the first. */
+  const titleAt = Math.max(0, columns.findIndex((column) => column.stackedTitle === true));
   return (
     <div className="ui-table-wrap">
       <div className="ui-table-scroll" role="region" aria-label={caption} tabIndex={0}>
@@ -156,7 +160,7 @@ export function DataTable<T>({ columns, rows, rowKey, totals, totalsLabel, sever
                 return (
                   <tr {...rowAttrs?.(row)} className="ui-table__row" key={rowKey(row)} data-severity={level ?? undefined}>
                     {columns.map((column, position) => (
-                      <td className={cellClass(column, 'ui-table__cell')} key={column.key} data-label={stacked && position > 0 ? column.header : undefined}>
+                      <td className={cellClass(column, 'ui-table__cell')} key={column.key} data-label={stacked && position !== titleAt ? column.header : undefined} data-card-title={stacked && position === titleAt ? 'true' : undefined}>
                         {position === 0 && level !== null && <span className="ui-sr-only">{t('ui.dataTable.severityPrefix', { label: severityLabel(level) })}. </span>}
                         {column.render(row)}
                       </td>

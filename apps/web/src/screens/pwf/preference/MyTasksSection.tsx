@@ -41,7 +41,7 @@ export function MyTasksSection() {
       </p>
       <StateBoundary state={state} onRetry={() => void tasks.refetch()}>
         <div className="tablewrap">
-          <table className="pwfp-table" data-testid="my-tasks" aria-label={t('pwf.pref.tasks.title')}>
+          <table className="pwfp-table pwfp-table--cards" data-testid="my-tasks" aria-label={t('pwf.pref.tasks.title')}>
             <thead>
               <tr>
                 <th scope="col">{t('pwf.pref.tasks.project.label')}</th>
@@ -91,10 +91,10 @@ function TaskRow({ task, done }: { task: MyTask; done: boolean }) {
   const { t } = useTranslation();
   return (
     <tr data-task={task.task_id}>
-      <td>
+      <td data-label={t('pwf.pref.tasks.project.label')}>
         <Link to={workflowLink(task.project_id)}>{task.project_code}</Link>
       </td>
-      <td>
+      <td data-label={t('pwf.pref.tasks.task.label')}>
         <Link to={taskLink(task.task_id, task.project_id)}>{task.name}</Link>
         {task.critical ? (
           <>
@@ -105,9 +105,11 @@ function TaskRow({ task, done }: { task: MyTask; done: boolean }) {
           </>
         ) : null}
       </td>
-      <td>{statusWord(t, task.status)}</td>
-      <td data-testid="due">{task.due_date === null ? t('pwf.common.noDue.text') : dayText(task.due_date)}</td>
-      <td>
+      <td data-label={t('pwf.pref.tasks.status.label')}>{statusWord(t, task.status)}</td>
+      <td data-testid="due" data-label={t('pwf.pref.tasks.due.label')}>
+        {task.due_date === null ? t('pwf.common.noDue.text') : dayText(task.due_date)}
+      </td>
+      <td data-label={done ? t('fix10.mytasks.done.column') : t('pwf.pref.tasks.band.label')}>
         {done ? (
           <FinishedCell task={task} />
         ) : (

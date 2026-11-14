@@ -83,6 +83,10 @@
 .pwf-facts dd {
   margin: 0;
 }
+/* The hash of a locked period has no space: it breaks inside its line instead of pushing the page sideways on a narrow screen. */
+.pwf-facts dd[data-testid='snapshot-hash'] {
+  overflow-wrap: anywhere;
+}
 .pwf-pills {
   display: inline-flex;
   flex-wrap: wrap;
@@ -94,3 +98,4 @@
   align-items: center;
   gap: 4px;
 }
+

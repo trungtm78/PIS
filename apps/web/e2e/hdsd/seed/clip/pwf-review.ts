@@ -17,7 +17,10 @@ import { ensureWorkCalendar, masterRecord, paper, publishMaster, tolerate } from
  *   - around each task its working group (PWF-16): the leader who answers for it (ACCOUNTABLE) and one officer who is asked (CONSULTED), so that the scoreboard of the unit (PWF-12) is of a group
  *     of people and not of the two who do the work; one task is handed over two days before its deadline, which is what the reviewer of a period is warned of (a signal of PWF-14);
  *   - the KPI set and the scoring policy as versions of the tenant, written by the owner and approved by the leader (PWF-09, PWF-10);
- *   - a scoring period of the tenant computed and locked (PWF-11 to PWF-14, MOB-81), with an adjustment decided by a second person and a response of the person scored.
+ *   - a scoring period of the tenant computed and locked (PWF-11 to PWF-14, MOB-81), with an adjustment decided by a second person and a response of the person scored; the workflows are played so
+ *     that the scores of the quarter say something (lane shots3): each project has its officer who is asked, the two people who do the work finish on the day or one to four working days late, one
+ *     task of the quarter is still open and late, so the scoreboard holds people who are good, fair and weak, one whose sample is too small and people without a task;
+ *   - a second period, of one department, computed and left as a draft: the provisional figures of a quarter that is still running (R50, "Tạm tính đến ngày ...").
  *
  * Idempotent: every part reads what exists first (the rules by type and code, the projects by code, the tasks by status, the periods by their dates) and only tops up what is missing. A refusal of the
  * rules of the product is written as a warning and the group goes on; a server error (5xx) stops it.
@@ -35,6 +38,10 @@ const WORKERS = [OWNER, MAKER] as const;
  */
 const ACCOUNTABLE = CHECKER;
 const CONSULTED = ['treasuryMaker', 'docHead', 'unitAdmin'] as const;
+/** The department whose provisional period is left as a draft (R50): the planning department, the unit of the leader, of two officers and, below it, of the project board. */
+const DRAFT_PERIOD_UNIT = 'CB-SKHDT';
+/** The smallest sample the province rates a person on: three tasks of the quarter (the built-in policy says five, which a quarter of eight workflows gives to the two people who do the work only). */
+const MIN_RATED_TASKS = 3;
 
 const TEMPLATE_TYPE = 'PROJECT_WORKFLOW_TEMPLATE';
 const ASSIGNMENT_TYPE = 'PROJECT_WORKFLOW_ASSIGNMENT';
@@ -44,6 +51,11 @@ const KPI_SET_CODE = 'DEFAULT_PROJECT_WORKFLOW';
 const SCORING_TYPE = 'STAFF_SCORING_POLICY';
 const TENANT_TEMPLATE = 'CB_ROAD_REPAIR';
 const DRAFT_TEMPLATE = 'CB_SCHOOL_EQUIPMENT';
+/** The kinds of project the two templates of the tenant name: each an extension of a kind the platform holds, with the nature the catalogue asks for. */
+const PROJECT_KINDS = [
+  { key: 'ROAD_REPAIR', parent: 'UPGRADE', kind: 'MAJOR_REPAIR', label: 'Sửa chữa đường giao thông', reason: 'Bổ sung loại dự án sửa chữa đường giao thông để gắn mẫu quy trình của tỉnh' },
+  { key: 'SCHOOL_EQUIPMENT', parent: 'PROCUREMENT', kind: 'PROCUREMENT', label: 'Mua sắm thiết bị trường học', reason: 'Bổ sung loại dự án mua sắm thiết bị trường học để gắn mẫu quy trình đang soạn của tỉnh' },
+] as const;
 
 const str = (value: unknown): string => (typeof value === 'string' ? value : String(value ?? ''));
 /** The words a paper is named with on the screens: the name the product gives (of a form, of a checklist item), the code only when there is none. A reference a person reads never carries a code when a name exists. */
@@ -303,7 +315,7 @@ async function scoringRules(ctx: SeedContext): Promise<void> {
   const set = await tolerate(ctx, 'the KPI set in force', () => effectiveParams(ctx, KPI_SET_TYPE, KPI_SET_CODE));
   if (set !== undefined) await rule(ctx, { type: KPI_SET_TYPE, code: KPI_SET_CODE, params: set, reason: 'Xác nhận bộ KPI áp dụng cho công việc của dự án đầu tư công trong toàn tỉnh', upTo: 'APPROVED' });
   const policy = await tolerate(ctx, 'the scoring policy in force', () => effectiveParams(ctx, SCORING_TYPE, 'DEFAULT'));
-  if (policy !== undefined) await rule(ctx, { type: SCORING_TYPE, code: 'DEFAULT', params: policy, reason: 'Xác nhận chính sách chấm điểm cán bộ theo công việc của dự án trong toàn tỉnh', upTo: 'APPROVED' });
+  if (policy !== undefined) await rule(ctx, { type: SCORING_TYPE, code: 'DEFAULT', params: { ...policy, min_rated_tasks: MIN_RATED_TASKS }, reason: 'Chính sách chấm điểm cán bộ theo công việc của dự án trong toàn tỉnh; xếp loại từ ba việc được chấm trong kỳ', upTo: 'APPROVED' });
 }
 
 // ---- the projects and their workflows -----------------------------------------------------------------------------------------------------
@@ -320,25 +332,40 @@ interface ProjectSpec {
   facts: Record<string, string>;
   /** A workflow that only began: its tasks are started and none is finished yet, so its schedule is the one it was started with. */
   fresh?: boolean;
+  /** The officer who is asked for an opinion on every task of the project (CONSULTED). */
+  consulted: string;
+  /** Who does each task, in the order of the schedule (the tasks past their planned finish first, then the ones under way); the two people take turns where the list ends. */
+  workers?: readonly string[];
+  /**
+   * What became of each task whose planned finish is past, in the order of the schedule: finished that many working days after its planned finish (0: on the day), or still OPEN and late with an
+   * exception asked for the delay. A task the list does not reach was finished on its planned day.
+   */
+  past?: ReadonlyArray<number | 'OPEN'>;
+  /** What the person did today with the first task under way: handed it in (it waits for the approval of its completion), or handed it in and had it sent back. Left out: a part of the work is done. */
+  current?: 'HANDED_IN' | 'SENT_BACK';
 }
 
 /**
  * Two kinds of workflow, because the product computes the schedule again from the progress each time a task is finished (BR-PWF-06): the planned finish of every task that is still open is then
  * forecast from today, and a task that was late is no longer shown as late.
- *   - The first four are well under way and show the STATES. Each workflow started long enough ago for four or five of its tasks to be past their planned finish (some done on time, one waiting for approval, one sent back, one still open and late: red) and
- * for the next one to be under way. The durations are those of the templates: when a template changes, `elapsed` is what to adjust.
+ *   - The first four are well under way and show the STATES. Each workflow started long enough ago for four or five of its tasks to be past their planned finish and for the next one to be under way;
+ *     what became of each is written on the project (`past`, `current`): most were finished, on the day or a few working days late (the lateness is what the score of the quarter reads, against the
+ *     first baseline), one of the first and one of the fourth workflow is still open and late (red, with an exception asked), one task under way was handed in today and waits for the approval of its
+ *     completion, one was handed in and sent back. The durations are those of the templates: when a template changes, `elapsed` and the lists are what to adjust.
+ *     Who gets which score follows from this and nothing else: the owner finishes on the day (good), the officer of the project board is late and holds the open tasks (weak), the leader answers
+ *     for all of it (fair), and the officer asked on each project shares the fate of that project.
  *   - The last four only began and show the COLOURS: nothing is finished in them, so their first task keeps the deadline it was planned with, one or two working days ahead (yellow), three to
  *     five (green) or already past (red).
  */
 const PROJECTS: ProjectSpec[] = [
-  { code: 'DA-PWF-01', name: 'Xây dựng Trường THPT Nà Giàng (cơ sở mới)', template: 'PUBLIC_INVESTMENT', elapsed: 95, billions: 150, facts: { project_group: 'B', funding_source: 'STATE_BUDGET' } },
-  { code: 'DA-PWF-02', name: 'Mua sắm thiết bị dạy học các trường THCS huyện Hòa An', template: 'PUBLIC_PROCUREMENT', elapsed: 68, billions: 28, reason: 'Dự án chỉ mua sắm thiết bị dạy học, không có hạng mục xây dựng', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' } },
-  { code: 'DA-PWF-03', name: 'Sửa chữa, cải tạo Bệnh viện đa khoa huyện Trùng Khánh', template: 'PUBLIC_REPAIR', elapsed: 64, billions: 46, reason: 'Dự án sửa chữa, cải tạo công trình hiện có, không xây dựng mới', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' } },
-  { code: 'DA-PWF-04', name: 'Sửa chữa đường tỉnh 207, đoạn Km5 - Km18', template: TENANT_TEMPLATE, elapsed: 19, billions: 35, reason: 'Sửa chữa đường giao thông địa phương theo mẫu quy trình của tỉnh', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' } },
-  { code: 'DA-PWF-05', name: 'Xây dựng cầu Nà Pài qua sông Bằng', template: 'PUBLIC_INVESTMENT', elapsed: 6, billions: 210, facts: { project_group: 'B', funding_source: 'STATE_BUDGET' }, fresh: true },
-  { code: 'DA-PWF-06', name: 'Mua sắm trang thiết bị y tế Trung tâm Y tế huyện Bảo Lạc', template: 'PUBLIC_PROCUREMENT', elapsed: 7, billions: 19, reason: 'Dự án chỉ mua sắm trang thiết bị y tế, không có hạng mục xây dựng', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, fresh: true },
-  { code: 'DA-PWF-07', name: 'Cải tạo trụ sở Ủy ban nhân dân xã Quang Trung', template: 'PUBLIC_REPAIR', elapsed: 8, billions: 12, reason: 'Dự án sửa chữa, cải tạo công trình hiện có, không xây dựng mới', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, fresh: true },
-  { code: 'DA-PWF-08', name: 'Sửa chữa đường liên xã Đức Long - Thụy Hùng', template: TENANT_TEMPLATE, elapsed: 3, billions: 9, reason: 'Sửa chữa đường giao thông địa phương theo mẫu quy trình của tỉnh', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, fresh: true },
+  { code: 'DA-PWF-01', name: 'Xây dựng Trường THPT Nà Giàng (cơ sở mới)', template: 'PUBLIC_INVESTMENT', elapsed: 95, billions: 150, facts: { project_group: 'B', funding_source: 'STATE_BUDGET' }, consulted: 'unitAdmin', workers: [MAKER, OWNER, MAKER, MAKER, OWNER], past: [0, 0, 5, 'OPEN'] },
+  { code: 'DA-PWF-02', name: 'Mua sắm thiết bị dạy học các trường THCS huyện Hòa An', template: 'PUBLIC_PROCUREMENT', elapsed: 68, billions: 28, reason: 'Dự án chỉ mua sắm thiết bị dạy học, không có hạng mục xây dựng', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, consulted: 'treasuryMaker', workers: [OWNER, MAKER, OWNER, OWNER, MAKER, MAKER], past: [0, 0, 0, 0, 1] },
+  { code: 'DA-PWF-03', name: 'Sửa chữa, cải tạo Bệnh viện đa khoa huyện Trùng Khánh', template: 'PUBLIC_REPAIR', elapsed: 64, billions: 46, reason: 'Dự án sửa chữa, cải tạo công trình hiện có, không xây dựng mới', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, consulted: 'docHead', workers: [MAKER, OWNER, MAKER, OWNER, MAKER], past: [0, 0, 5, 1], current: 'SENT_BACK' },
+  { code: 'DA-PWF-04', name: 'Sửa chữa đường tỉnh 207, đoạn Km5 - Km18', template: TENANT_TEMPLATE, elapsed: 19, billions: 35, reason: 'Sửa chữa đường giao thông địa phương theo mẫu quy trình của tỉnh', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, consulted: 'nobody', workers: [OWNER, MAKER, MAKER, MAKER, OWNER], past: [0, 1, 4, 'OPEN'], current: 'HANDED_IN' },
+  { code: 'DA-PWF-05', name: 'Xây dựng cầu Nà Pài qua sông Bằng', template: 'PUBLIC_INVESTMENT', elapsed: 6, billions: 210, facts: { project_group: 'B', funding_source: 'STATE_BUDGET' }, fresh: true, consulted: 'unitAdmin' },
+  { code: 'DA-PWF-06', name: 'Mua sắm trang thiết bị y tế Trung tâm Y tế huyện Bảo Lạc', template: 'PUBLIC_PROCUREMENT', elapsed: 7, billions: 19, reason: 'Dự án chỉ mua sắm trang thiết bị y tế, không có hạng mục xây dựng', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, fresh: true, consulted: 'treasuryMaker' },
+  { code: 'DA-PWF-07', name: 'Cải tạo trụ sở Ủy ban nhân dân xã Quang Trung', template: 'PUBLIC_REPAIR', elapsed: 8, billions: 12, reason: 'Dự án sửa chữa, cải tạo công trình hiện có, không xây dựng mới', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, fresh: true, consulted: 'docHead' },
+  { code: 'DA-PWF-08', name: 'Sửa chữa đường liên xã Đức Long - Thụy Hùng', template: TENANT_TEMPLATE, elapsed: 3, billions: 9, reason: 'Sửa chữa đường giao thông địa phương theo mẫu quy trình của tỉnh', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, fresh: true, consulted: 'nobody' },
 ];
 
 /** The day a workflow started so that today is its `elapsed`-th working day (Monday to Friday; the public holidays in between move the schedule by their number, which the colours tolerate). */
@@ -351,6 +378,20 @@ function startDay(today: string, elapsed: number): string {
     if (weekday()) left -= 1;
   }
   return day.toISOString().slice(0, 10);
+}
+
+/** The day `days` calendar days after `day` (before it when negative). */
+const shiftDay = (day: string, days: number): string => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+
+/** The day `late` working days (Monday to Friday) after `day`, never after `limit`: the day a task planned for `day` was really finished. */
+function workdaysAfter(day: string, late: number, limit: string): string {
+  const at = new Date(`${day}T00:00:00Z`);
+  for (let left = late; left > 0; ) {
+    at.setUTCDate(at.getUTCDate() + 1);
+    if (at.getUTCDay() !== 0 && at.getUTCDay() !== 6) left -= 1;
+  }
+  const reached = at.toISOString().slice(0, 10);
+  return reached > limit ? limit : reached;
 }
 
 interface TaskRow extends Obj {
@@ -413,13 +454,14 @@ const tasksOf = async (ctx: SeedContext, projectId: string): Promise<TaskRow[]> 
 const detailOf = (ctx: SeedContext, person: string, taskId: string): Promise<TaskDetail> => ctx.get<TaskDetail>(person, `/project-tasks/${taskId}`);
 
 /**
- * The working group of the task, from the day the person who does it holds it: the leader ACCOUNTABLE and one officer CONSULTED (which one follows from the task, so a rerun asks the same person).
- * A line the ledger already holds is not given twice; a task that is closed takes no new line (the ledger refuses it), so the group is named while the task is open.
+ * The working group of the task, from the day the person who does it holds it: the leader ACCOUNTABLE and one officer CONSULTED (the officer of the project; without one, which officer follows
+ * from the task, so a rerun asks the same person). A line the ledger already holds is not given twice; a task that is closed takes no new line (the ledger refuses it), so the group is named while
+ * the task is open.
  */
-async function team(ctx: SeedContext, taskId: string): Promise<void> {
+async function team(ctx: SeedContext, taskId: string, consulted?: string): Promise<void> {
   const held = await ctx.list<Obj>(OWNER, `/project-tasks/${taskId}/assignments`);
   const from = str(held.find((line) => line.role === 'RESPONSIBLE')?.valid_from ?? ctx.today);
-  const asked = CONSULTED[[...taskId].reduce((sum, letter) => sum + letter.charCodeAt(0), 0) % CONSULTED.length] as string;
+  const asked = consulted ?? (CONSULTED[[...taskId].reduce((sum, letter) => sum + letter.charCodeAt(0), 0) % CONSULTED.length] as string);
   for (const [person, role, reason] of [
     [ACCOUNTABLE, 'ACCOUNTABLE', 'Lãnh đạo phụ trách chịu trách nhiệm về kết quả của việc theo phân công của dự án'],
     [asked, 'CONSULTED', 'Tham gia ý kiến chuyên môn theo quyết định thành lập tổ công tác của dự án'],
@@ -431,45 +473,58 @@ async function team(ctx: SeedContext, taskId: string): Promise<void> {
 
 /** The working group of every task that is open, for a stack whose workflows were played before the groups existed (a rerun; on a first run every task has its group from `begin`). */
 async function teams(ctx: SeedContext, ids: Record<string, string>): Promise<void> {
-  for (const projectId of Object.values(ids)) {
-    for (const task of await tasksOf(ctx, projectId)) if (['IN_PROGRESS', 'AWAITING_APPROVAL', 'ON_HOLD'].includes(task.status)) await team(ctx, task.id);
+  for (const [code, projectId] of Object.entries(ids)) {
+    const consulted = PROJECTS.find((one) => one.code === code)?.consulted;
+    for (const task of await tasksOf(ctx, projectId)) if (['IN_PROGRESS', 'AWAITING_APPROVAL', 'ON_HOLD'].includes(task.status)) await team(ctx, task.id, consulted);
   }
 }
 
 /**
- * One task changes hands two days before its deadline: the officer of the project board hands the first task of a workflow that only began over to the owner (the ledger closes the period of the
- * officer the day before, PWF-16 shows both lines). A hand-over this close to the deadline of a task that is not finished is what the reviewer of a scoring period is warned of
- * (ASSIGNEE_CHANGED_NEAR_DUE, the list of signals of PWF-14); nothing in the score depends on it.
+ * One task changes hands just before its deadline and is late: the officer of the project board held the first task of a workflow that only began, and the day before its deadline it was given to
+ * the owner (the ledger closes the period of the officer the day before that, PWF-16 shows both lines); the task is still open today. A hand-over this close to the deadline of a task that then
+ * ran late is what the reviewer of a scoring period is warned of (ASSIGNEE_CHANGED_NEAR_DUE, the list of signals of PWF-14; a task still inside its deadline gives no signal, R50); nothing in the
+ * score depends on the signal. Without a task that is late, a task whose deadline is ahead changes hands today (both lines show, no signal).
  */
 async function handover(ctx: SeedContext, ids: Record<string, string>): Promise<void> {
   const from = ctx.person(MAKER).membershipId;
   const to = ctx.person(OWNER).membershipId;
+  const REASON = 'Chuyển việc cho người khác do cán bộ đang phụ trách được điều động sang dự án khác';
+  const held: Array<{ spec: ProjectSpec; task: TaskRow; since: string }> = [];
   for (const spec of PROJECTS.filter((one) => one.fresh === true)) {
     const projectId = ids[spec.code];
     if (projectId === undefined) continue;
-    for (const task of (await tasksOf(ctx, projectId)).filter((one) => one.status === 'IN_PROGRESS' && one.planned_finish !== null && str(one.planned_finish) >= ctx.today)) {
+    for (const task of (await tasksOf(ctx, projectId)).filter((one) => one.status === 'IN_PROGRESS' && one.planned_finish !== null)) {
       const lines = (await ctx.list<Obj>(OWNER, `/project-tasks/${task.id}/assignments`)).filter((line) => line.role === 'RESPONSIBLE');
       // Handed over by an earlier run: one such task is enough.
       if (lines.some((line) => line.membership_id === from && line.valid_to !== null) && lines.some((line) => line.membership_id === to)) return;
-      if (lines.length !== 1 || lines[0]?.membership_id !== from || str(lines[0]?.valid_from) >= ctx.today) continue;
-      const given = await ctx.attempt<CommandReply>(OWNER, 'POST', `/project-tasks/${task.id}/assignments`, { membership_id: to, role: 'RESPONSIBLE', valid_from: ctx.today, share_pct: 100, reason: 'Chuyển việc cho người khác do cán bộ đang phụ trách được điều động sang dự án khác' });
+      if (lines.length === 1 && lines[0]?.membership_id === from && str(lines[0]?.valid_from) < ctx.today) held.push({ spec, task, since: str(lines[0]?.valid_from) });
+    }
+  }
+  // A task already late first (the signal), then one whose deadline is ahead.
+  const late = held.filter((one) => str(one.task.planned_finish) < ctx.today);
+  for (const { spec, task, since } of [...late, ...held.filter((one) => !late.includes(one))]) {
+    const due = str(task.planned_finish);
+    const dayBefore = shiftDay(due, -1);
+    const days = due < ctx.today && dayBefore > since ? [dayBefore, ctx.today] : [ctx.today];
+    for (const day of days) {
+      const given = await ctx.call<CommandReply>(OWNER, 'POST', `/project-tasks/${task.id}/assignments`, { membership_id: to, role: 'RESPONSIBLE', valid_from: day, share_pct: 100, reason: REASON });
       if (!given.ok) continue;
-      ctx.record({ module: 'PWF', kind: 'project-task', id: task.id, code: `${spec.code}/${task.task_code}`, note: `handed over from ${ctx.nameOf(MAKER)} to ${ctx.nameOf(OWNER)} before its deadline`, screen: 'PWF-16' });
+      ctx.record({ module: 'PWF', kind: 'project-task', id: task.id, code: `${spec.code}/${task.task_code}`, note: `handed over from ${ctx.nameOf(MAKER)} to ${ctx.nameOf(OWNER)} from ${day} (deadline ${due})`, screen: 'PWF-16' });
       return;
     }
   }
-  ctx.warn('no task of a workflow that only began is held by the officer with its deadline ahead: nothing was handed over, the period will show no signal');
+  ctx.warn('no task of a workflow that only began is held by the officer: nothing was handed over, the period will show no signal');
 }
 
 /**
  * Gives the task to the person and starts it. `on` is the day the work really began (its planned start: the workflow was started in the past and its first tasks were done then); a task whose
  * predecessors are not done is started early, with the reason the command asks for.
  */
-async function begin(ctx: SeedContext, task: TaskRow, person: string, on?: string): Promise<boolean> {
+async function begin(ctx: SeedContext, task: TaskRow, person: string, on?: string, consulted?: string): Promise<boolean> {
   if (task.status !== 'NOT_STARTED') return task.status === 'IN_PROGRESS';
   const give = (from: string): Promise<{ ok: boolean }> => ctx.call(OWNER, 'POST', `/project-tasks/${task.id}/assignments`, { membership_id: ctx.person(person).membershipId, role: 'RESPONSIBLE', valid_from: from, share_pct: 100, reason: 'Giao việc cho người phụ trách trực tiếp theo phân công của dự án' });
   if (on === undefined || !(await give(on)).ok) await give(ctx.today);
-  await team(ctx, task.id);
+  await team(ctx, task.id, consulted);
   const EARLY = 'Làm song song với việc đứng trước để kịp tiến độ chung của dự án, đã báo cáo lãnh đạo Ban';
   const bodies: Obj[] = [...(on === undefined ? [] : [{ actual_start: on }, { actual_start: on, early_start_reason: EARLY }]), {}, { early_start_reason: EARLY }];
   for (const [index, body] of bodies.entries()) {
@@ -523,12 +578,46 @@ async function complete(ctx: SeedContext, taskId: string, person: string, on?: s
 }
 
 /**
- * The work of one workflow as it stands today, read from its schedule. Of the tasks whose planned finish is past: the last one is still open and late (red), with an exception asked for the delay; the
- * one before was finished and sent back by the leader; the one before that waits for the approval of its completion; the earlier ones were done on their planned day (and approved where the task has an
- * approver). The tasks that are under way today are started on their planned day, a part of their checklist ticked and a first evidence given. Nothing is done twice: a task that is no longer
+ * The milestones the work has reached: a milestone every task before which is done is recorded as reached by the officer of the project board, on the day the last of those tasks was finished (a
+ * milestone is a task of no duration that somebody records: left alone it stays "not started", and the plan of the project shows a milestone months late whose every task was done on time).
+ * A milestone before which a task is still open is left as it is.
+ */
+async function milestones(ctx: SeedContext, spec: ProjectSpec, projectId: string): Promise<void> {
+  const all = await ctx.list<TaskRow>(OWNER, `/projects/${projectId}/workflow/tasks`, { limit: 100 });
+  const byCode = new Map(all.map((task) => [task.task_code, task]));
+  /** The day a task was finished (the list of the workflow does not say it: the task itself does); undefined while it is open. */
+  const finishedOn = async (code: string): Promise<string | undefined> => {
+    const row = byCode.get(code);
+    if (row === undefined) return undefined;
+    const task = (await detailOf(ctx, OWNER, row.id)) as Obj;
+    return task.status === 'DONE' && typeof task.actual_finish === 'string' ? task.actual_finish : undefined;
+  };
+  const stones = all.filter((task) => task.kind === 'MILESTONE' && task.status === 'NOT_STARTED').sort((left, right) => str(left.planned_start).localeCompare(str(right.planned_start)));
+  for (const stone of stones) {
+    const days: Array<string | undefined> = [];
+    for (const link of arr(((await detailOf(ctx, OWNER, stone.id)) as Obj).predecessors)) days.push(await finishedOn(str(link.task)));
+    if (days.length === 0 || days.some((day) => day === undefined)) continue;
+    const on = (days as string[]).sort().at(-1) as string;
+    const given = await ctx.call(OWNER, 'POST', `/project-tasks/${stone.id}/assignments`, { membership_id: ctx.person(MAKER).membershipId, role: 'RESPONSIBLE', valid_from: on, share_pct: 100, reason: 'Cán bộ Ban quản lý dự án ghi nhận mốc theo phân công của dự án' });
+    if (!given.ok) continue;
+    let now = await detailOf(ctx, MAKER, stone.id);
+    const begun = await ctx.call(MAKER, 'POST', `/project-tasks/${stone.id}/start`, { actual_start: on }, { version: Number(now.version) });
+    if (!begun.ok) continue;
+    now = await detailOf(ctx, MAKER, stone.id);
+    const reached = await ctx.attempt(MAKER, 'POST', `/project-tasks/${stone.id}/complete`, { note: 'Đã đạt mốc: các việc của bước đã hoàn thành', actual_finish: on }, { version: Number(now.version) });
+    if (!reached.ok) continue;
+    ctx.record({ module: 'PWF', kind: 'project-task', id: stone.id, code: `${spec.code}/${stone.task_code}`, note: `milestone reached on ${on}`, screen: 'PRJ-03' });
+  }
+}
+
+/**
+ * The work of one workflow as it stands today, read from its schedule and from what the project says became of its tasks (`past`, `current`, `workers`). A task whose planned finish is past was
+ * started on its planned day and finished on its planned finish or the working days after it the project names (approved by the leader where the task has an approver), or is still open and late
+ * (red), with an exception asked for the delay. The tasks that are under way today are started on their planned day, a part of their checklist ticked and a first evidence given; the first of them
+ * may have been handed in today (it waits for the approval of its completion) or handed in and sent back by the leader. Nothing is done twice: a workflow one task of which is no longer
  * `NOT_STARTED` is left as it is.
  */
-async function play(ctx: SeedContext, spec: { code: string; fresh?: boolean }, projectId: string, turn: number): Promise<void> {
+async function play(ctx: SeedContext, spec: ProjectSpec, projectId: string, turn: number): Promise<void> {
   const tasks = (await tasksOf(ctx, projectId)).filter((task) => task.planned_finish !== null);
   if (tasks.some((task) => task.status !== 'NOT_STARTED')) return;
   const past = tasks.filter((task) => str(task.planned_finish) < ctx.today);
@@ -542,17 +631,17 @@ async function play(ctx: SeedContext, spec: { code: string; fresh?: boolean }, p
     // Only begun: the tasks whose planned start is past are started on that day and worked on; none is finished, so the schedule (and each deadline) stays the one the workflow was started with.
     for (const task of [...past, ...current]) {
       const who = next();
-      if (!(await begin(ctx, task, who, str(task.planned_start)))) continue;
+      if (!(await begin(ctx, task, who, str(task.planned_start), spec.consulted))) continue;
       await work(ctx, task.id, who, 'PART');
       note(task, `under way since its planned start, held by ${ctx.nameOf(who)}`);
     }
     return;
   }
   for (const [index, task] of past.entries()) {
-    const fromEnd = past.length - 1 - index;
-    const who = next();
-    if (!(await begin(ctx, task, who, str(task.planned_start)))) continue;
-    if (fromEnd === 0) {
+    const who = spec.workers?.[index] ?? next();
+    const outcome = spec.past?.[index] ?? 0;
+    if (!(await begin(ctx, task, who, str(task.planned_start), spec.consulted))) continue;
+    if (outcome === 'OPEN') {
       // Still open and late: a part of the work is there, and the person asked for the delay to be recognised (decided by the leader in every other workflow, waiting in the others).
       await work(ctx, task.id, who, 'PART');
       const asked = await ctx.attempt<CommandReply>(who, 'POST', `/project-tasks/${task.id}/exceptions`, {
@@ -566,26 +655,24 @@ async function play(ctx: SeedContext, spec: { code: string; fresh?: boolean }, p
       note(task, `late and open, held by ${ctx.nameOf(who)}; external delay ${asked.ok ? (turn % 2 === 0 ? 'approved' : 'waiting') : 'refused'}`);
       continue;
     }
-    if (fromEnd === 1) {
-      // Finished late and sent back.
+    const on = workdaysAfter(str(task.planned_finish), outcome, ctx.today);
+    if (!(await complete(ctx, task.id, who, on))) continue;
+    const now = await approverOf(task);
+    if (now.status === 'AWAITING_APPROVAL') await ctx.attempt(CHECKER, 'POST', `/project-tasks/${task.id}/approve-completion`, { decision: 'APPROVE', note: 'Hồ sơ đủ, đồng ý hoàn thành' }, { version: Number(now.version) });
+    note(task, outcome === 0 ? `done on its planned day by ${ctx.nameOf(who)}` : `done ${outcome} working day(s) after its planned finish by ${ctx.nameOf(who)}`);
+  }
+  await milestones(ctx, spec, projectId);
+  for (const [index, task] of current.entries()) {
+    const who = spec.workers?.[past.length + index] ?? next();
+    if (!(await begin(ctx, task, who, str(task.planned_start), spec.consulted))) continue;
+    if (index === 0 && spec.current !== undefined) {
+      // Handed in today, inside its deadline: it waits for the approval of its completion, or the leader sent it back and it is open again.
       if (!(await complete(ctx, task.id, who))) continue;
       const now = await approverOf(task);
-      if (now.status === 'AWAITING_APPROVAL') await ctx.attempt(CHECKER, 'POST', `/project-tasks/${task.id}/return`, { reason: 'Hồ sơ còn thiếu ý kiến của cơ quan phối hợp, đề nghị bổ sung rồi trình lại' }, { version: Number(now.version) });
-      note(task, now.status === 'AWAITING_APPROVAL' ? 'sent back by the leader' : 'done (no approver to send it back)');
+      if (spec.current === 'SENT_BACK' && now.status === 'AWAITING_APPROVAL') await ctx.attempt(CHECKER, 'POST', `/project-tasks/${task.id}/return`, { reason: 'Hồ sơ còn thiếu ý kiến của cơ quan phối hợp, đề nghị bổ sung rồi trình lại' }, { version: Number(now.version) });
+      note(task, now.status !== 'AWAITING_APPROVAL' ? 'done today (the task has no approver)' : spec.current === 'SENT_BACK' ? 'handed in today and sent back by the leader' : 'handed in today, waits for the approval of its completion');
       continue;
     }
-    if (!(await complete(ctx, task.id, who, str(task.planned_finish)))) continue;
-    const now = await approverOf(task);
-    if (fromEnd === 2 && now.status === 'AWAITING_APPROVAL') {
-      note(task, 'waits for the approval of its completion');
-      continue;
-    }
-    if (now.status === 'AWAITING_APPROVAL') await ctx.attempt(CHECKER, 'POST', `/project-tasks/${task.id}/approve-completion`, { decision: 'APPROVE', note: 'Hồ sơ đủ, đồng ý hoàn thành' }, { version: Number(now.version) });
-    note(task, `done on its planned day by ${ctx.nameOf(who)}`);
-  }
-  for (const task of current) {
-    const who = next();
-    if (!(await begin(ctx, task, who, str(task.planned_start)))) continue;
     await work(ctx, task.id, who, 'PART');
     note(task, `under way, held by ${ctx.nameOf(who)}`);
   }
@@ -607,8 +694,6 @@ async function decideBy(ctx: SeedContext, people: readonly string[], path: strin
   ctx.warn(`POST ${path} was refused for everyone asked (${last})`);
   return false;
 }
-
-const shiftDay = (day: string, days: number): string => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 
 /** A reschedule of the workflow proposed by the officer: waiting for its decision on the first project (PWF-06 opens on it), approved by the leader on the second. */
 async function reschedules(ctx: SeedContext, ids: Record<string, string>): Promise<void> {
@@ -699,18 +784,32 @@ async function scores(ctx: SeedContext): Promise<void> {
   }
 }
 
+/** R50: the quarter of one department computed and left as a draft, so that PWF-12 and PWF-14 show provisional figures ("Tạm tính đến ngày ...") beside the period of the province that was locked early. */
+async function provisionalScores(ctx: SeedContext): Promise<void> {
+  const unit = ctx.unitId(DRAFT_PERIOD_UNIT);
+  const window = quarterOf(ctx.today);
+  if ((await ctx.list<Period>(OWNER, '/staff-score-periods', { scope_unit_id: unit })).some((one) => one.period_from === window.from)) return;
+  const computed = await ctx.attempt<{ period: Period }>(OWNER, 'POST', '/staff-score-periods', { scope_unit_id: unit, period_from: window.from, period_to: window.to, policy_code: 'DEFAULT' });
+  if (computed.ok) ctx.record({ module: 'PWF', kind: 'score-period', id: computed.json.period.id, code: `${DRAFT_PERIOD_UNIT} ${window.from}..${window.to}`, note: 'computed, left as a draft (provisional)', screen: 'PWF-14' });
+}
+
 export async function seedClipPwfReview(ctx: SeedContext): Promise<void> {
   // R52: the calendars of the years a slipping schedule can reach are published before any workflow is laid, so that no schedule is pinned short of them.
   await ctx.step('ADM', 'the working calendars of the years the schedules reach', () => ensureWorkCalendar(ctx, [ctx.year, ctx.year + 1, ctx.year + 2, ctx.year + 3]));
-  // The template of the tenant names its kind of project by a code of the shared catalogue: the entry is published, so the library reads its name and not the code.
-  await ctx.step('ADM', 'the kind of project of the template of the tenant, in the shared catalogue', async () => {
-    await tolerate(ctx, 'the project type ROAD_REPAIR', async () =>
-      publishMaster(
-        ctx,
-        { type: 'PROJECT_TYPE', key: 'ROAD_REPAIR', label: 'Sửa chữa đường giao thông', reason: 'Bổ sung loại dự án sửa chữa đường giao thông để gắn mẫu quy trình của tỉnh' },
-        await paper(ctx, { symbol: 'PWF-LDA-01/QD-UBND', title: 'Quyết định bổ sung danh mục loại dự án của tỉnh', type: 'QD', issuedOn: ctx.day(-30) }),
-      ),
-    );
+  // The templates of the tenant name their kind of project by a code of the shared catalogue: the entries are published, so the library reads their names and not the codes. A tenant adds a kind of
+  // project as an extension of one the platform holds (the policy of the catalogue: 403 POLICY_LOCKED `parent_record_id` without a parent of the platform).
+  await ctx.step('ADM', 'the kinds of project of the templates of the tenant, in the shared catalogue', async () => {
+    for (const kind of PROJECT_KINDS) {
+      await tolerate(ctx, `the project type ${kind.key}`, async () => {
+        const parent = await masterRecord(ctx, 'PROJECT_TYPE', kind.parent);
+        if (parent === undefined) throw new Error(`the platform holds no project type ${kind.parent}`);
+        return publishMaster(
+          ctx,
+          { type: 'PROJECT_TYPE', key: kind.key, label: kind.label, attributes: { kind: kind.kind }, parentRecordId: str(parent.id), reason: kind.reason },
+          await paper(ctx, { symbol: 'PWF-LDA-01/QD-UBND', title: 'Quyết định bổ sung danh mục loại dự án của tỉnh', type: 'QD', issuedOn: ctx.day(-30) }),
+        );
+      });
+    }
   });
   await ctx.step('PWF', 'the library: a template of the tenant in force, its second version waiting, a draft', () => library(ctx));
   await ctx.step('PWF', 'the mapping rule of the tenant and its three-colour policy', async () => {
@@ -737,4 +836,5 @@ export async function seedClipPwfReview(ctx: SeedContext): Promise<void> {
   await ctx.step('DOC', `a second revision of the form ${FORMS[0].code}`, () => publishForm(ctx, FORMS[0], 2));
   await ctx.step('PWF', 'the reminders of the person of the phone (PWF-15, MOB-82)', () => preference(ctx));
   await ctx.step('PWF', 'the scoring period of the quarter, locked, with an adjustment and a response (PWF-11 to PWF-14)', () => scores(ctx));
+  await ctx.step('PWF', 'the provisional period of one department, left as a draft (PWF-12, PWF-14)', () => provisionalScores(ctx));
 }

@@ -1,4 +1,7 @@
-# STATUS: RUN ON AN EMULATOR ONLY (lane fix9, 2026-11-14, emulator "guide", Android 15, debug builds, through scripts/run_40_project_workflow.sh); NOT RUN on any phone of the matrix:
+# STATUS: RUN ON AN EMULATOR ONLY (lane shots3, 2026-11-15, emulator "guide", Android 15, debug builds, clean stacks with the whole clip seed, through scripts/run_40_project_workflow.sh); NOT RUN on any phone of the matrix:
+#   public edition: PASSED to the end (41 s). enterprise edition: PASSED to the end (41 s), the score of the person included (the enterprise seed now closes a period: MOB-81 shows 70 on two tasks).
+#   In both runs the API port was refused when the task was ready and opened again when the command was queued (results/<label>/40_offline.log).
+# Lane fix9 (2026-11-14), the runs before:
 #   public edition: PASSED to the end (the list, the task, the completion queued offline and sent, my score). The run before it ticked the mandatory item "Hồ sơ đầy đủ theo danh mục" on the
 #     phone and stopped at the line "sẽ gửi khi có mạng" because the screen was scrolled down (the flow now scrolls up to it); the passing run opened the next task, which had no open item.
 #   enterprise edition: passed through the completion queued offline and sent, then STOPPED at "căn cứ hỗ trợ": the enterprise dataset has no closed scoring period, so MOB-81 shows its

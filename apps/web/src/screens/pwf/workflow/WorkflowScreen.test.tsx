@@ -170,7 +170,7 @@ describe('PWF-03: the states', () => {
   it('says the figures may be out of date when the server computed them long before they were read', async () => {
     show({ workflow: () => detail({ as_of: '2020-01-01T00:00:00.000Z' }) });
     const stale = await screen.findByTestId('stale');
-    expect(stale.textContent).toContain(text('pwf.flow.stale.text', { time: '00:00' }));
+    expect(stale.textContent).toContain(text('shots3.flow.stale.text', { time: '01/01/2020 07:00' }));
     expect(screen.queryByTestId('partial')).toBeNull();
   });
 
