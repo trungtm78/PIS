@@ -264,10 +264,10 @@ function Preview({ official, ladder, personal, confirm }: { official: Thresholds
                 {previewRows(official, ladder).map((row) => (
                   <tr key={row.days} data-days={row.days} data-official={row.official} data-personal={row.personal}>
                     <th scope="row">{remainingText(t, rowBand(row.official, row.days))}</th>
-                    <td>
+                    <td data-label={t('pwf.pref.preview.official.label')}>
                       <BandBadge band={rowBand(row.official, row.days)} showDays={false} />
                     </td>
-                    <td>
+                    <td data-label={t('pwf.pref.personal.label')}>
                       <BandBadge band={rowBand(row.personal, row.days)} showDays={false} />
                     </td>
                   </tr>

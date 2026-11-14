@@ -820,6 +820,11 @@ section[data-screen-id^='PWF-'] label:has(> input[type='radio']) {
    progress are lines "label: value" under it (the label is the header of the column, from data-label); a cell with nothing to say is left out. The head stays for assistive technology, out of sight. */
 @media (max-width: 640px) {
   .pwf-outline, .pwf-outline tbody, .pwf-outline tr, .pwf-outline tbody th, .pwf-outline tbody td { display: block; width: 100%; }
+  /* Lane fix11: the table keeps a least width of 720 px for the wide layout; as cards it must be as wide as the screen and no wider, or a long name of a step and the mark "Đường găng" run past the right edge and are cut. */
+  .pwf-outline { min-width: 0; }
+  .pwf-outline__name, .pwf-outline .pwf-taskname { display: flex; min-width: 0; max-width: 100%; }
+  .pwf-outline__toggle { white-space: normal; text-align: left; overflow-wrap: anywhere; }
+  .pwf-outline__critical { white-space: normal; }
   .pwf-outline thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .pwf-outline tbody tr { padding: var(--mv-space-8) var(--mv-space-12); border-bottom: 1px solid var(--mv-color-border); }
   /* `height: auto`: the page gives every td 44 px, which a cell laid out as a block does not grow past (two lines ran over the next cell). */

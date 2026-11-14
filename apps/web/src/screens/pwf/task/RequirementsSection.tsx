@@ -168,7 +168,7 @@ export function RequirementsSection({ task, canWork, onTick, onResult }: Require
             </p>
           ) : (
             <div className="pwf-free">
-              <DataTable columns={evidenceColumns} rows={task.evidence} rowKey={(row) => row.id} caption={t('pwf.task.evidence.caption')} />
+              <DataTable columns={evidenceColumns} rows={task.evidence} rowKey={(row) => row.id} caption={t('pwf.task.evidence.caption')} stacked />
             </div>
           )}
           {canWork ? (

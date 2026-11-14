@@ -123,3 +123,47 @@
     min-width: 0;
   }
 }
+
+/* The preview of the colours on a narrow screen (lane fix11): three columns did not fit 390 px and the third, the colour of the person, fell off the edge. A row is a card: the days as its title, each colour on a line with the name of its column. */
+@media (max-width: 640px) {
+  .pwfp-table,
+  .pwfp-table tbody,
+  .pwfp-table tr,
+  .pwfp-table tbody th,
+  .pwfp-table tbody td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .pwfp-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .pwfp-table tbody tr {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--mv-color-border);
+  }
+  .pwfp-table tbody th,
+  .pwfp-table tbody td {
+    height: auto;
+    padding: 4px 0;
+    border: 0;
+    text-align: left;
+  }
+  .pwfp-table tbody td[data-label] {
+    display: grid;
+    grid-template-columns: minmax(96px, 38%) minmax(0, 1fr);
+    column-gap: 8px;
+    align-items: center;
+  }
+  .pwfp-table tbody td[data-label]::before {
+    content: attr(data-label);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--mv-color-text-secondary);
+  }
+}
