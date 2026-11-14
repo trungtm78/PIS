@@ -75,6 +75,18 @@ describe('PWF-03 model: the stepper', () => {
     const finished = detail({ open_phase: null, phases: detail().phases.map((phase) => ({ ...phase, open: false })) });
     expect(stepperSteps(finished, t).map((step) => step.status)).toEqual(['done', 'done']);
   });
+
+  it('says "here" of ONE phase: the phase the server names as current; a later phase with work in parallel has started', () => {
+    const phase = (code: string, order: number, standing: 'DONE' | 'CURRENT' | 'STARTED' | 'UPCOMING') => ({ code, name: code, order, gates: [], required_total: 2, required_done: standing === 'DONE' ? 2 : 0, open: standing !== 'DONE', current: standing === 'CURRENT', standing });
+    // Three phases still have required work (`open`): only one of them is where the project is.
+    const parallel = detail({ open_phase: 'B', tasks: [], phases: [phase('A', 1, 'DONE'), phase('B', 2, 'CURRENT'), phase('C', 3, 'STARTED'), phase('D', 4, 'STARTED'), phase('E', 5, 'UPCOMING')] });
+    const steps = stepperSteps(parallel, t);
+    expect(steps.map((step) => step.status)).toEqual(['done', 'current', 'started', 'started', 'upcoming']);
+    expect(steps.filter((step) => step.current === true || step.status === 'current').map((step) => step.code)).toEqual(['B']);
+    // An answer kept from before the server named the current phase: the open phase of the workflow is the one, never every phase that is still open.
+    const older = detail({ open_phase: 'B', tasks: [], phases: parallel.phases.map(({ current: _current, standing: _standing, ...rest }) => rest) });
+    expect(stepperSteps(older, t).map((step) => step.status)).toEqual(['done', 'current', 'upcoming', 'upcoming', 'upcoming']);
+  });
 });
 
 describe('PWF-03 model: the Gantt', () => {

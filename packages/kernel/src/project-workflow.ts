@@ -164,9 +164,17 @@ export interface TemplatePhase {
   gates: readonly GateTarget[];
 }
 
+/** A role the template names itself: the code its steps and tasks use, and what people call it (a role of the shipped catalogue needs no entry; an entry wins over the catalogue on the screens of this template). */
+export interface TemplateRole {
+  code: string;
+  name: string;
+}
+
 export interface ProjectWorkflowTemplate {
   name: string;
   projectType: string | null;
+  /** The names of the roles the template uses, for the codes the tenant made up itself; absent or empty in a template that names none. */
+  roles?: readonly TemplateRole[];
   phases: readonly TemplatePhase[];
   /** The steps the template names, in the order of the template; absent or empty in a template without steps. */
   steps?: readonly TemplateStep[];
@@ -258,9 +266,16 @@ const PHASE: FieldSpec = object({
   gates: list(gateTarget, 10),
 });
 
+export const MAX_TEMPLATE_ROLES = 60;
+const ROLE: FieldSpec = object({
+  code: codeText(),
+  name: { kind: 'text', max: 120 },
+});
+
 export const PROJECT_WORKFLOW_SCHEMA: Readonly<Record<string, FieldSpec>> = {
   name: { kind: 'text', max: 200 },
   project_type: codeText(true),
+  roles: { ...list(ROLE, MAX_TEMPLATE_ROLES), optional: true },
   phases: list(PHASE, MAX_TEMPLATE_PHASES, 1),
   steps: { ...list(STEP, MAX_TEMPLATE_STEPS), optional: true },
   tasks: list(TASK, MAX_TEMPLATE_TASKS, 1),
@@ -383,6 +398,13 @@ export function templateDefect(params: unknown): string | undefined {
       if (gates.has(gate)) return `phases[${index}].gates[${position}]`;
       gates.add(gate);
     }
+  }
+  const roleCodes = new Set<string>();
+  for (const [index, raw] of arrayOf(params.roles).entries()) {
+    const role = isRecord(raw) ? raw : {};
+    if (typeof role.code !== 'string' || roleCodes.has(role.code)) return `roles[${index}].code`;
+    if (typeof role.name !== 'string' || role.name.trim() === '') return `roles[${index}].name`;
+    roleCodes.add(role.code);
   }
   // The steps (R44): a template names none (every phase is one step) or it names the step of every task, and a step lies in one phase and has at least one task.
   const steps = arrayOf(params.steps);
@@ -527,6 +549,10 @@ export function parseProjectWorkflowTemplate(params: unknown): ProjectWorkflowTe
   return {
     name: text(source.name),
     projectType: typeof source.project_type === 'string' ? source.project_type : null,
+    roles: arrayOf(source.roles).map((entry) => {
+      const role = entry as Record<string, unknown>;
+      return { code: text(role.code), name: text(role.name).trim() };
+    }),
     phases: arrayOf(source.phases).map((entry, index) => {
       const phase = entry as Record<string, unknown>;
       return { code: text(phase.code), name: text(phase.name), order: index + 1, gates: strings(phase.gates) as GateTarget[] };
@@ -541,6 +567,8 @@ export function templateParamsOf(template: ProjectWorkflowTemplate): RuleParams 
   return {
     name: template.name,
     ...(template.projectType === null ? {} : { project_type: template.projectType }),
+    // Left out when the template names no role, so that the params and the hash of every template written before are what they always were.
+    ...((template.roles ?? []).length === 0 ? {} : { roles: (template.roles ?? []).map((role) => ({ code: role.code, name: role.name })) }),
     phases: template.phases.map((phase) => ({ code: phase.code, name: phase.name, gates: [...phase.gates] })),
     // What a template written before steps, legal grounds and form policies has none of is left out, so that its params and its hash are what they always were (a running project keeps the hash it froze).
     ...((template.steps ?? []).length === 0
@@ -595,6 +623,12 @@ export function stepsOf(template: ProjectWorkflowTemplate): TemplateStep[] {
 
 /** The code of the step a task belongs to: its own, or the step its phase stands for. */
 export const stepCodeOf = (template: ProjectWorkflowTemplate, task: Pick<TemplateTask, 'step' | 'phase'>): string => ((template.steps ?? []).length === 0 || task.step === undefined || task.step === null ? task.phase : task.step);
+
+/** What the template calls a role, or null when it does not name it (the screen then uses the shipped catalogue of roles, and the code only when that has no name either). */
+export function roleNameOf(template: Pick<ProjectWorkflowTemplate, 'roles'>, code: string | null | undefined): string | null {
+  if (code === null || code === undefined) return null;
+  return (template.roles ?? []).find((role) => role.code === code)?.name ?? null;
+}
 
 /** The revision policy of a form of a task: what the template says, else the newest approved revision. */
 export function formPolicyOf(task: Pick<TemplateTask, 'formPolicies'>, form: string): TemplateFormPolicy {
@@ -877,6 +911,35 @@ export function openPhaseOf(template: ProjectWorkflowTemplate, tasks: readonly P
     if (tasks.some((one) => one.phase === phase.code && one.required && !one.excluded && one.tracked && one.status !== 'DONE' && one.status !== 'CANCELLED')) return phase.code;
   }
   return null;
+}
+
+export const PHASE_STANDINGS = ['DONE', 'CURRENT', 'STARTED', 'UPCOMING'] as const;
+export type PhaseStandingCode = (typeof PHASE_STANDINGS)[number];
+
+export interface PhaseStanding {
+  code: string;
+  standing: PhaseStandingCode;
+  /** True on the one phase the project is at, and on no other. */
+  current: boolean;
+}
+
+/**
+ * Where each phase stands, for the strip of phases (owner review of 14/11/2026: "here" is said of ONE phase). The phase the project is at is the earliest with a required task (of the project, tracked) that is neither done nor
+ * cancelled: the same phase `openPhaseOf` names, and the only CURRENT one. A phase after it in which work has begun in parallel (a task that is under way, on hold, waiting for approval or done) has STARTED; one with nothing begun is
+ * UPCOMING. A phase whose required tasks are all through is DONE; one that requires nothing is DONE once the project has passed it. When every phase is through no phase is current.
+ */
+export function phaseStandings(template: ProjectWorkflowTemplate, tasks: readonly PhaseTaskState[]): PhaseStanding[] {
+  const current = openPhaseOf(template, tasks);
+  const reached = current === null ? template.phases.length : template.phases.findIndex((phase) => phase.code === current);
+  return template.phases.map((phase, index): PhaseStanding => {
+    if (phase.code === current) return { code: phase.code, standing: 'CURRENT', current: true };
+    const own = tasks.filter((one) => one.phase === phase.code && !one.excluded && one.tracked);
+    const required = own.filter((one) => one.required);
+    const through = required.every((one) => one.status === 'DONE' || one.status === 'CANCELLED');
+    if (through && (required.length > 0 || index < reached)) return { code: phase.code, standing: 'DONE', current: false };
+    const begun = own.some((one) => one.status !== 'NOT_STARTED' && one.status !== 'CANCELLED');
+    return { code: phase.code, standing: begun ? 'STARTED' : 'UPCOMING', current: false };
+  });
 }
 
 /**

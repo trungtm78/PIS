@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { SectionCard, StatusPill, Stepper } from '../../../ui';
 import { ScrollRegion } from '../../scroll-region';
-import { phaseName } from '../codes';
+import { phaseName, TaskName } from '../codes';
 import { BandBadge } from '../components';
 import { statusWord } from '../labels';
 import { dayText, hasBand, taskLink, todayInVietnam } from '../model';
@@ -109,8 +109,10 @@ export function MilestoneTimeline({ detail, version, projectId }: Common & { pro
                     <td className="pwf-num">{row.day === null ? <span className="pwf-missing">{t('pwf6.milestone.noDay.text')}</span> : <strong>{dayText(row.day)}</strong>}</td>
                     <th scope="row">
                       <span className="pwf-outline__name">
-                        <span aria-hidden="true">◆</span> <Link to={taskLink(row.id, projectId)}>{row.name}</Link>
-                        <span className="pwf-code">{row.code}</span>
+                        <span aria-hidden="true">◆</span>
+                        <TaskName name={row.name} code={row.code}>
+                          <Link to={taskLink(row.id, projectId)}>{row.name}</Link>
+                        </TaskName>
                       </span>
                     </th>
                     <td>{phaseName(t, row.phase, detail.phases)}</td>
@@ -162,10 +164,9 @@ export function Attention({ detail, projectId, onAll }: { detail: WorkflowDetail
         <ul className="pwf-list" data-testid="attention">
           {shown.map((task) => (
             <li key={task.id} className="pwf-taskline" data-task={task.task_code}>
-              <span className="pwf-taskline__name">
+              <TaskName name={task.name} code={task.task_code}>
                 <Link to={taskLink(task.id, projectId)}>{task.name}</Link>
-                <span className="pwf-code">{task.task_code}</span>
-              </span>
+              </TaskName>
               <span className="pwf-pills">
                 <BandBadge band={task.band} />
                 {task.planned_finish === null ? null : <span className="pwf-hint">{dayText(task.planned_finish)}</span>}

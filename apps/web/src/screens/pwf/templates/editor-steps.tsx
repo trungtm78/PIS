@@ -1,7 +1,11 @@
+import { useQueries } from '@tanstack/react-query';
 import { useId } from 'react';
+import { useApiClient } from '../../../api/ApiClientContext';
 import { useTranslation } from '../../../i18n';
 import { SectionCard, StatusPill } from '../../../ui';
-import { useCatalogue } from '../../adm/governance/hooks';
+import { useCatalogue, useScopeKey } from '../../adm/governance/hooks';
+import { toResolved } from '../../adm/governance/model';
+import { docKindWord } from '../process/labels';
 import { NumberField, SelectField, TextField } from './editor-fields';
 import type { ProblemMap } from './editor-fields';
 import {
@@ -24,6 +28,35 @@ import type { EditorTask, FormPolicy, FormPolicyKind, LegalBasisInput, Template 
 
 const LEGAL_DOCUMENT = 'LEGAL_DOCUMENT';
 
+/**
+ * What people call each document of the catalogue (its kind and number, "Nghị định 85/2025/NĐ-CP"), read from the rule in force of each code: the picker of a legal ground shows the name and keeps the code as a note. A
+ * document whose rule cannot be read has no name here and is shown by its code; nothing waits for the names.
+ */
+export function useLegalDocumentNames(codes: readonly string[]): ReadonlyMap<string, string> {
+  const { t } = useTranslation();
+  const client = useApiClient();
+  const key = useScopeKey();
+  const found = useQueries({
+    queries: codes.map((code) => ({
+      queryKey: [...key, 'pwf-legal-document', code],
+      enabled: key[1] !== undefined,
+      retry: false,
+      staleTime: 300_000,
+      queryFn: async (): Promise<string | null> => {
+        const rule = toResolved(await client.read('getEffectiveGovernanceRule' as never, { query: { rule_type: LEGAL_DOCUMENT, code } } as never).catch(() => null));
+        const params = rule?.params as { doc_kind?: unknown; number?: unknown } | undefined;
+        return typeof params?.number === 'string' && params.number !== '' ? `${typeof params.doc_kind === 'string' ? `${docKindWord(t, params.doc_kind as never)} ` : ''}${params.number}` : null;
+      },
+    })),
+  });
+  const names = new Map<string, string>();
+  codes.forEach((code, index) => {
+    const name = found[index]?.data;
+    if (typeof name === 'string') names.set(code, name);
+  });
+  return names;
+}
+
 /** The codes of the shared catalogue of legal documents (R45), as the rule store lists them; empty while it is read or when it cannot be read (the code is then typed). */
 export function useLegalDocumentCodes(): string[] {
   const catalogue = useCatalogue(true);
@@ -39,19 +72,22 @@ export interface LegalBasisEditorProps {
   problems: ProblemMap;
   show: boolean;
   disabled: boolean;
+  /** Open from the start (the tab of the legal grounds of a task shows nothing else). */
+  open?: boolean;
 }
 
 /**
  * The legal grounds of a step or of a task (R45): each cites a document of the shared catalogue by its code, the article when it is known (left empty rather than guessed) and whether a legal officer confirmed the citation. The
  * words of the document are never typed here: the catalogue holds them, so one change there reaches every template that cites it.
  */
-export function LegalBasisEditor({ at, value, onChange, documents, problems, show, disabled }: LegalBasisEditorProps) {
+export function LegalBasisEditor({ at, value, onChange, documents, problems, show, disabled, open }: LegalBasisEditorProps) {
+  const names = useLegalDocumentNames(documents);
   const { t } = useTranslation();
   const listId = useId();
   const patch = (index: number, change: Partial<LegalBasisInput>): void => onChange(value.map((one, position) => (position === index ? { ...one, ...change } : one)));
   const common = { problems, show, disabled };
   return (
-    <details className="pwf-tpl-sub pwf-tpl-fold" data-testid={`legal-fold-${at}`} open={show && [...problems.keys()].some((path) => path.startsWith(`${at}.legal_basis`))}>
+    <details className="pwf-tpl-sub pwf-tpl-fold" data-testid={`legal-fold-${at}`} open={open === true || (show && [...problems.keys()].some((path) => path.startsWith(`${at}.legal_basis`)))}>
       <summary>{t('pwf.templates.legal.legend.text', { count: value.length, max: MAX_LEGAL_BASIS })}</summary>
       <p className="adm-kit-sub">{t('pwf.templates.legal.hint.text')}</p>
       <datalist id={listId}>
@@ -74,10 +110,15 @@ export function LegalBasisEditor({ at, value, onChange, documents, problems, sho
                   <option value="">{t('pwf.templates.legal.pick.none')}</option>
                   {documents.map((code) => (
                     <option key={code} value={code}>
-                      {code}
+                      {names.get(code) === undefined ? code : t('fix8.legal.pick.option', { name: names.get(code) ?? '', code })}
                     </option>
                   ))}
                 </select>
+                {names.get(one.document) === undefined ? null : (
+                  <span className="pwf-hint" data-testid={`name-${base}.document`}>
+                    {names.get(one.document)}
+                  </span>
+                )}
                 {unknown ? (
                   <span className="pwf-field__error" role="status" data-testid={`unknown-${base}.document`}>
                     <span aria-hidden="true">⚠ </span>
@@ -218,10 +259,12 @@ export interface TaskProcessFieldsProps {
   problems: ProblemMap;
   show: boolean;
   disabled: boolean;
+  /** One part only (the tabs of a task show each part where its purpose is); all three when left out. */
+  part?: 'step' | 'legal' | 'forms';
 }
 
 /** The parts of a task that say where it stands in the procedure (R44, R45, R46): its step, its own legal grounds, and for each of its forms whether the newest approved revision is used or one revision is pinned. */
-export function TaskProcessFields({ template, index, task, onPatch, problems, show, disabled }: TaskProcessFieldsProps) {
+export function TaskProcessFields({ template, index, task, onPatch, problems, show, disabled, part }: TaskProcessFieldsProps) {
   const { t } = useTranslation();
   const documents = useLegalDocumentCodes();
   const at = `tasks[${index}]`;
@@ -232,7 +275,7 @@ export function TaskProcessFields({ template, index, task, onPatch, problems, sh
   const policyIndex = (form: string): number => (task.form_policies ?? []).findIndex((one) => one.form === form);
   return (
     <>
-      {hasSteps(template) ? (
+      {hasSteps(template) && (part === undefined || part === 'step') ? (
         <fieldset className="pwf-tpl-sub">
           <legend>{t('pwf.templates.steps.task.legend')}</legend>
           <div className="pwf-tpl-row">
@@ -248,8 +291,8 @@ export function TaskProcessFields({ template, index, task, onPatch, problems, sh
           </div>
         </fieldset>
       ) : null}
-      <LegalBasisEditor at={at} value={task.legal_basis ?? []} onChange={(basis) => onPatch({ legal_basis: basis })} documents={documents} {...common} />
-      {task.form_templates.length === 0 ? null : (
+      {part === undefined || part === 'legal' ? <LegalBasisEditor at={at} value={task.legal_basis ?? []} onChange={(basis) => onPatch({ legal_basis: basis })} documents={documents} open={part === 'legal'} {...common} /> : null}
+      {task.form_templates.length === 0 || !(part === undefined || part === 'forms') ? null : (
         <fieldset className="pwf-tpl-sub">
           <legend>{t('pwf.templates.forms.legend.text')}</legend>
           <p className="adm-kit-sub">{t('pwf.templates.forms.hint.text')}</p>

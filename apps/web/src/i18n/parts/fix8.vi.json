@@ -1,0 +1,21 @@
+{
+  "ui.stepper.status.started": "Đã bắt đầu",
+  "fix8.editor.parts.label": "Các phần của công việc",
+  "fix8.editor.part.info": "Thông tin",
+  "fix8.editor.part.schedule": "Thời hạn và phụ thuộc",
+  "fix8.editor.part.docs": "Chứng từ và biểu mẫu",
+  "fix8.editor.part.checklist": "Danh mục kiểm",
+  "fix8.editor.part.kpi": "KPI",
+  "fix8.editor.part.legal": "Căn cứ",
+  "fix8.editor.tab.roles": "Vai trò",
+  "fix8.editor.roles.title": "Tên các vai trò của mẫu",
+  "fix8.editor.roles.hint": "Mỗi mã vai trò dùng ở bước hoặc công việc có một dòng. Đặt tên cho mã do đơn vị tự đặt: mọi màn hình của dự án chạy mẫu này sẽ hiện tên, mã chỉ là chú thích. Để trống thì dùng tên trong danh mục của hệ thống.",
+  "fix8.editor.roles.name.label": "Tên hiển thị của vai trò {code}",
+  "fix8.editor.roles.catalogue.text": "Tên trong danh mục của hệ thống: {name}",
+  "fix8.editor.roles.own.text": "Mã do đơn vị tự đặt, chưa có tên trong danh mục của hệ thống",
+  "fix8.editor.roles.unused.text": "không còn bước hay công việc nào dùng mã này",
+  "fix8.editor.roles.none.text": "Mẫu chưa dùng vai trò nào. Nhập vai trò ở bước và công việc trước.",
+  "fix8.editor.role.named.hint": "Tên hiển thị: {name}",
+  "fix8.editor.role.unnamed.hint": "Mã này chưa có tên. Đặt tên ở tab Vai trò.",
+  "fix8.legal.pick.option": "{name} ({code})"
+}

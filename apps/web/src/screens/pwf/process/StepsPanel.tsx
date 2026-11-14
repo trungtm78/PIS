@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { SectionCard, StatusPill } from '../../../ui';
-import { RoleName, versionText } from '../codes';
+import { RoleName, TaskName, versionText } from '../codes';
 import { BandBadge } from '../components';
 import { statusWord } from '../labels';
 import { dayText, hasBand, taskLink } from '../model';
@@ -28,10 +28,9 @@ function TaskLine({ task, projectId }: { task: WorkflowTask; projectId: string }
   const { t } = useTranslation();
   return (
     <li className="pwf-taskline" data-task={task.task_code}>
-      <span className="pwf-taskline__name">
+      <TaskName name={task.name} code={task.task_code}>
         <Link to={taskLink(task.id, projectId)}>{task.name}</Link>
-        <span className="pwf-code">{task.task_code}</span>
-      </span>
+      </TaskName>
       <span className="pwf-pills">
         <StatusPill tone={task.status === 'DONE' ? 'success' : 'neutral'} icon={task.status === 'DONE' ? '✓' : '○'}>
           {task.excluded ? t('pwf.process.task.excluded.word') : statusWord(t, task.status)}
@@ -71,7 +70,7 @@ function Step({ group, projectId }: { group: StepGroup; projectId: string }) {
           <>
             <dt>{t('pwf.process.step.owner.label')}</dt>
             <dd>
-              <RoleName code={step.responsible_role} />
+              <RoleName code={step.responsible_role} name={step.responsible_role_name} />
             </dd>
           </>
         )}

@@ -4,7 +4,7 @@ import { describeViolations, seriousViolations } from '../../../test/axe';
 import { mount } from '../../sas/test-support';
 import type { Answer } from '../test/fixtures';
 import ScoreDetailScreen from './ScoreDetailScreen';
-import { LINE_ID, ME, OTHER, OWN_ONLY, SCORE_ALL, adjustment, effective, kpiResult, line, refusal, response, routeOf, serve, text, uuid } from './test/fixtures';
+import { LINE_ID, ME, OTHER, OWN_ONLY, SCORE_ALL, adjustment, contribution, effective, kpiResult, line, refusal, response, routeOf, serve, text, uuid } from './test/fixtures';
 
 afterEach(() => {
   cleanup();
@@ -58,7 +58,23 @@ describe('PWF-13: the detail of a score', () => {
     const restricted = screen.getByTestId('restricted');
     expect(restricted.textContent).toContain(text('pwfs.contribution.restricted.text'));
     expect(within(restricted).queryByRole('link')).toBeNull();
-    expect(screen.getByRole('link', { name: /T1/ }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${uuid(1001)}`);
+    // The link is the NAME of the task; its code is a small note under it and never part of the link.
+    const link = screen.getByRole('link', { name: 'Công việc 1' });
+    expect(link.getAttribute('href')).toBe(`/pwf/pwf-04?id=${uuid(1001)}`);
+    expect(link.textContent).not.toContain('T1');
+    expect(screen.getAllByTestId('task-code').map((one) => one.textContent)).toEqual(['T1']);
+  });
+
+  it('tells two tasks of the same name apart by the project each belongs to, named under the task', async () => {
+    open({ line: line({ contributions: [contribution(1, { name: 'Lập hồ sơ', project_code: 'DA-01', project_name: 'Đường tỉnh 207' }), contribution(2, { name: 'Lập hồ sơ', project_code: 'DA-02', project_name: 'Trường THPT Nà Giàng' })] }) });
+    await screen.findByRole('table');
+    expect(screen.getAllByRole('link', { name: 'Lập hồ sơ' })).toHaveLength(2);
+    expect(screen.getAllByTestId('contribution-project').map((one) => one.textContent)).toEqual(['Đường tỉnh 207', 'Trường THPT Nà Giàng']);
+    // An answer kept from before the read named the project shows no empty line.
+    cleanup();
+    open({ line: line({ contributions: [contribution(1)] }) });
+    await screen.findByRole('table');
+    expect(screen.queryByTestId('contribution-project')).toBeNull();
   });
 
   it('shows the flags to a reviewer who is not the person scored, and says they change nothing', async () => {

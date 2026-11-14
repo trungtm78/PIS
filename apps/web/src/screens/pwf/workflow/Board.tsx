@@ -10,6 +10,7 @@ import { WorkflowInfo } from './figures';
 import { NO_FILTER, appliedFilters, assigneeOptions, boardColumns } from './model';
 import type { TaskFilter } from './model';
 import { TaskLink } from './Views';
+import { TaskName } from '../codes';
 
 const STATUSES = ['NOT_STARTED', 'IN_PROGRESS', 'AWAITING_APPROVAL', 'DONE', 'ON_HOLD', 'CANCELLED'] as const;
 
@@ -87,10 +88,11 @@ function Card({ item, projectId }: { item: TaskPage['items'][number]; projectId:
   return (
     <li className="pwf-card" data-testid={`card-${item.task_code}`} data-critical={item.critical} data-band={banded ? item.band.band : undefined}>
       <span className="pwf-card__title">
-        <TaskLink id={item.id} projectId={projectId}>
-          {item.name}
-        </TaskLink>
-        <span className="pwf-code">{item.task_code}</span>
+        <TaskName name={item.name} code={item.task_code}>
+          <TaskLink id={item.id} projectId={projectId}>
+            {item.name}
+          </TaskLink>
+        </TaskName>
       </span>
       <span className="pwf-pills">
         <StatusPill tone={item.status === 'DONE' ? 'success' : item.status === 'CANCELLED' || item.status === 'ON_HOLD' ? 'neutral' : 'default'}>{statusWord(t, item.status)}</StatusPill>

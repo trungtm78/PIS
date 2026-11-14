@@ -7,6 +7,7 @@ import { readinessText, treatmentWord } from './labels';
 import { TaskDecision } from './TaskDecision';
 import { emptyDecision, pendingDecisions, treatmentCounts, treatmentsFor } from './model';
 import type { AdoptReadiness, Decision, Decisions, Treatment } from './model';
+import { TaskName } from '../codes';
 
 export interface AdoptResultViewProps {
   result: AdoptResult;
@@ -77,7 +78,7 @@ export function AdoptResultView({ result, decisions, readiness, showErrors, onDe
               return (
                 <tr key={task.task_code} data-testid={`row-${task.task_code}`} data-treatment={task.treatment}>
                   <td>
-                    <code>{task.task_code}</code> {task.name}
+                    <TaskName name={task.name} code={task.task_code} />
                   </td>
                   <td>
                     {dayText(task.planned_start)} – {dayText(task.planned_finish)}

@@ -100,6 +100,9 @@ export interface DetailContribution {
   taskCode: string;
   taskId: string | null;
   name: string;
+  /** The project the task belongs to; null where the reader may not read the project (the task is then not named either). */
+  projectCode: string | null;
+  projectName: string | null;
   fraction: number;
   weight: number;
   score: number;
@@ -341,13 +344,16 @@ export class PwfScoreReads {
             tx.query<{ code: string; task_codes: string[] }>('select s.code, s.task_codes from machvon.staff_score_signal s where s.period_id = $1::uuid and s.membership_id = $2::uuid order by s.code', [row.period_id, row.membership_id]),
           )
         : [];
-    const readable = isSubject ? undefined : await this.readableProjects(tx, projects, [...new Set(row.contributions.map((one) => one.project_id))]);
+    // The project of each point, by code and name: two tasks of the same name in two projects are told apart by it. The person sees the projects of their own tasks; a reader only the projects they may read.
+    const projectIds = [...new Set(row.contributions.map((one) => one.project_id))];
+    const readable = await this.readableProjects(tx, isSubject ? undefined : projects, projectIds);
     const canWrite = row.period_status !== 'DRAFT';
     return {
       ...toSummary(row),
       contributions: row.contributions.map((one) => {
-        const visible = readable === undefined || readable.has(one.project_id);
-        return { taskCode: one.task_code, taskId: visible ? one.task_id : null, name: visible ? one.name : '', fraction: one.fraction, weight: one.weight, score: one.score, spans: one.spans.map((span) => ({ role: span.role, validFrom: span.valid_from, validTo: span.valid_to, sharePct: span.share_pct })) };
+        const project = readable.get(one.project_id);
+        const visible = isSubject || project !== undefined;
+        return { taskCode: one.task_code, taskId: visible ? one.task_id : null, name: visible ? one.name : '', projectCode: visible ? (project?.code ?? null) : null, projectName: visible ? (project?.name ?? null) : null, fraction: one.fraction, weight: one.weight, score: one.score, spans: one.spans.map((span) => ({ role: span.role, validFrom: span.valid_from, validTo: span.valid_to, sharePct: span.share_pct })) };
       }),
       excluded: row.excluded.map((one) => ({ taskCode: one.task_code, reason: one.reason })),
       flags: flags.map((one) => ({ code: one.code, taskCodes: one.task_codes })),
@@ -364,12 +370,12 @@ export class PwfScoreReads {
     };
   }
 
-  /** The projects among `ids` the caller may read (the source authorisation of a point). */
-  private async readableProjects(tx: TenantTx, projects: ScopeBuilder, ids: readonly string[]): Promise<Set<string>> {
-    if (ids.length === 0) return new Set();
-    const predicate = projects(2);
-    const rows = await tx.query<{ id: string }>(`select p.id from ${SCOPE_FROM} where p.id = any($1::uuid[]) and ${predicate.sql}`, [[...ids], ...predicate.params]);
-    return new Set(rows.map((row) => row.id));
+  /** The projects among `ids` the caller may read (the source authorisation of a point), with the code and the name of each; without a scope (the person reading their own line) every project of the ids. */
+  private async readableProjects(tx: TenantTx, projects: ScopeBuilder | undefined, ids: readonly string[]): Promise<Map<string, { code: string; name: string }>> {
+    if (ids.length === 0) return new Map();
+    const predicate = projects === undefined ? { sql: 'true', params: [] } : projects(2);
+    const rows = await tx.query<{ id: string; code: string; name: string }>(`select p.id, p.code, p.name from ${SCOPE_FROM} where p.id = any($1::uuid[]) and ${predicate.sql}`, [[...ids], ...predicate.params]);
+    return new Map(rows.map((row) => [row.id, { code: row.code, name: row.name }] as const));
   }
 
   /**

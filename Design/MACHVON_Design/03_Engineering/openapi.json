@@ -325299,6 +325299,30 @@
               "null"
             ]
           },
+          "roles": {
+            "type": "array",
+            "maxItems": 60,
+            "description": "Tên các vai trò do đơn vị tự đặt cho mẫu này: mã dùng ở bước và công việc, và tên để hiển thị. Bỏ trống: băm của mẫu không đổi",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "name"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                }
+              }
+            }
+          },
           "phases": {
             "type": "array",
             "items": {
@@ -326478,6 +326502,20 @@
                 },
                 "open": {
                   "type": "boolean"
+                },
+                "current": {
+                  "type": "boolean",
+                  "description": "Giai đoạn dự án đang ở: giai đoạn sớm nhất còn việc bắt buộc chưa xong. Đúng ở nhiều nhất một giai đoạn; không giai đoạn nào khi mọi giai đoạn đã xong"
+                },
+                "standing": {
+                  "type": "string",
+                  "enum": [
+                    "DONE",
+                    "CURRENT",
+                    "STARTED",
+                    "UPCOMING"
+                  ],
+                  "description": "Vị thế của giai đoạn trên dải giai đoạn: DONE đã xong việc bắt buộc; CURRENT giai đoạn hiện tại (duy nhất); STARTED giai đoạn sau đã có việc làm song song; UPCOMING chưa bắt đầu"
                 }
               }
             }
@@ -326924,6 +326962,13 @@
                   "items": {
                     "$ref": "#/components/schemas/PwfLegalBasisView"
                   }
+                },
+                "responsible_role_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên vai trò phụ trách bước theo danh mục vai trò của mẫu; null khi mẫu không khai tên cho mã này"
                 }
               }
             }
@@ -326977,6 +327022,26 @@
                   "string",
                   "null"
                 ]
+              }
+            }
+          },
+          "roles": {
+            "type": "array",
+            "description": "Tên các vai trò do mẫu tự đặt (mẫu đã chốt của workflow); rỗng khi mẫu không khai tên",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "name"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -328080,6 +328145,13 @@
                 },
                 "satisfied": {
                   "type": "boolean"
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên loại văn bản theo ấn bản (danh mục loại văn bản pháp lý); null khi không ấn bản nào biết mã này"
                 }
               }
             }
@@ -328753,6 +328825,13 @@
                   "string",
                   "null"
                 ]
+              },
+              "responsible_role_name": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Tên vai trò phụ trách bước theo danh mục vai trò của mẫu; null khi mẫu không khai tên cho mã này"
               }
             }
           },
@@ -328783,6 +328862,20 @@
             ],
             "format": "date",
             "description": "Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)"
+          },
+          "responsible_role_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Tên vai trò thực hiện theo danh mục vai trò của mẫu; null khi mẫu không khai tên cho mã này"
+          },
+          "approver_role_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Tên vai trò duyệt theo danh mục vai trò của mẫu; null khi không có vai trò duyệt hoặc mẫu không khai tên"
           }
         }
       },
@@ -331068,6 +331161,20 @@
                       }
                     }
                   }
+                },
+                "project_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Mã dự án của công việc; null khi người đọc không được đọc dự án"
+                },
+                "project_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên dự án của công việc, để phân biệt hai việc trùng tên của hai dự án; null khi người đọc không được đọc dự án"
                 }
               }
             }
@@ -332011,6 +332118,13 @@
               "UNKNOWN"
             ],
             "description": "Tình trạng của văn bản hôm nay theo danh mục; UNKNOWN khi danh mục không còn mã"
+          },
+          "superseded_by_number": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Số, ký hiệu của văn bản thay thế theo danh mục LEGAL_DOCUMENT; null khi không bị thay thế hoặc danh mục không có văn bản thay thế"
           }
         },
         "description": "Căn cứ pháp lý kèm văn bản của danh mục mà nó viện dẫn và tình trạng hiệu lực hôm nay (R45)"

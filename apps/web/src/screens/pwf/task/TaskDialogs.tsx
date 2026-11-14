@@ -46,7 +46,7 @@ export function TaskDialogs({ task, dialog, onClose, onResult }: TaskDialogsProp
       onResult(error);
     },
   };
-  const context = [{ label: t('pwf.task.dialog.task.label'), value: `${task.task_code} · ${task.name}` }];
+  const context = [{ label: t('pwf.task.dialog.task.label'), value: task.name }];
   const cancelLabel = t('pwf.task.dialog.cancel.action');
   const id = task.id;
   const version = task.version;
@@ -141,7 +141,7 @@ function CompleteDialog({ task, pending, onCancel, onConfirm }: { task: TaskDeta
     <ConfirmDialog
       open
       title={t('pwf.task.complete.title')}
-      context={[{ label: t('pwf.task.dialog.task.label'), value: `${task.task_code} · ${task.name}` }, ...(task.approver_role === null ? [] : [{ label: t('pwf.task.complete.approver.label'), value: t('pwf.task.complete.approver.text', { role: task.approver_role }) }])]}
+      context={[{ label: t('pwf.task.dialog.task.label'), value: task.name }, ...(task.approver_role === null ? [] : [{ label: t('pwf.task.complete.approver.label'), value: t('pwf.task.complete.approver.text', { role: task.approver_role }) }])]}
       confirmLabel={t('pwf.task.complete.action')}
       cancelLabel={t('pwf.task.dialog.cancel.action')}
       pending={pending}

@@ -231,6 +231,7 @@ export class PwfWorkflowReads {
         order: step.order,
         implicit: step.implicit,
         responsible_role: step.responsibleRole,
+        responsible_role_name: pwfWorkflow.roleNameOf(template, step.responsibleRole),
         status: mine.length === 0 ? 'NOT_APPLICABLE' : over === mine.length ? 'DONE' : mine.some((one) => one.status !== 'NOT_STARTED') ? 'IN_PROGRESS' : 'NOT_STARTED',
         standard_working_days: standardOf.get(`${step.phase}/${step.code}`) ?? 0,
         planned_start: starts[0] ?? null,
@@ -250,14 +251,16 @@ export class PwfWorkflowReads {
     });
     const counts: Record<string, number> = { NONE: 0, GREEN: 0, YELLOW: 0, RED: 0, UNKNOWN: 0 };
     for (const item of items) if (!item.excluded && item.tracked && item.status !== 'DONE' && item.status !== 'CANCELLED') counts[item.band.band] = (counts[item.band.band] ?? 0) + 1;
-    let openPhase: string | null = null;
+    // The one phase the project is at (kernel `phaseStandings`): `open` says a phase still has required work, which is true of several phases at once; `current` is true of exactly one, and `standing` says of the others whether they
+    // are done, have started in parallel, or are still to come.
+    const standings = new Map(pwfWorkflow.phaseStandings(template, tasks.map((one) => ({ phase: one.phaseCode, required: one.required, excluded: one.excluded, tracked: one.tracked, status: one.status }))).map((one) => [one.code, one] as const));
     const phases = template.phases.map((phase) => {
       const required = tasks.filter((one) => one.phaseCode === phase.code && one.required && !one.excluded && one.tracked);
       const done = required.filter((one) => one.status === 'DONE' || one.status === 'CANCELLED').length;
-      const open = done < required.length;
-      if (open && openPhase === null) openPhase = phase.code;
-      return { code: phase.code, name: phase.name, order: phase.order, gates: [...phase.gates], required_total: required.length, required_done: done, open };
+      const standing = standings.get(phase.code);
+      return { code: phase.code, name: phase.name, order: phase.order, gates: [...phase.gates], required_total: required.length, required_done: done, open: done < required.length, current: standing?.current ?? false, standing: standing?.standing ?? 'UPCOMING' };
     });
+    const openPhase = phases.find((phase) => phase.current)?.code ?? null;
     // A6: the one proposal that waits for a decision (the database keeps at most one per workflow), so the screen of the decision opens it without its id in the address.
     const pending = await tx.query<{ id: string; base_version: number; proposed_by: string; display_name: string | null }>(
       `select pr.id, pr.base_version, pr.proposed_by, u.display_name from machvon.project_reschedule_proposal pr left join machvon.tenant_user_directory u on u.tenant_id = pr.tenant_id and u.membership_id = pr.proposed_by
@@ -277,6 +280,8 @@ export class PwfWorkflowReads {
       adopted_on: row.adopted_on ?? null,
       open_phase: openPhase,
       phases,
+      // The names the frozen template gives its own roles (empty when it names none): a screen shows the name, the code is a small note.
+      roles: (template.roles ?? []).map((role) => ({ code: role.code, name: role.name })),
       steps,
       tasks: items.map((item) => ({ ...item, step_code: stepOf(item.task_code), checklist_total: checklistOf.get(item.id)?.total ?? 0, checklist_done: checklistOf.get(item.id)?.done ?? 0 })),
       standard_working_days: standard.totalWorkingDays,

@@ -51,19 +51,37 @@ const orderedPhases = (detail: WorkflowDetail): WorkflowPhase[] => [...detail.ph
 
 // ---- the stepper of the phases ------------------------------------------------------------------------------------------------------------------------------------------------
 
-/** The phases in order: before the open phase they are done, the open phase is current (late when one of its tasks is red, on hold when the workflow is), after it they are still to come. */
+export type PhaseStanding = NonNullable<WorkflowPhase['standing']>;
+
+/**
+ * Where a phase stands, as the server says it (`standing`: exactly one phase is CURRENT, the earliest with required work left; a later phase with work in parallel has STARTED). An answer kept from before the server said so is read by
+ * the same rule as far as it can be: the earliest phase that is still open is the current one, the ones before it are done and the ones after it are to come. `open` alone is never "here": several phases are open at once.
+ */
+export function phaseStandingOf(phase: WorkflowPhase, phases: readonly WorkflowPhase[]): PhaseStanding {
+  if (phase.standing !== undefined) return phase.standing;
+  const first = [...phases].sort((a, b) => a.order - b.order).find((one) => one.open);
+  if (first === undefined || phase.order < first.order) return 'DONE';
+  return phase.code === first.code ? 'CURRENT' : 'UPCOMING';
+}
+
+/** The phases in order: the one the project is at is current (late when one of its tasks is red, on hold when the workflow is), and it is the only one; the others are done, have started in parallel, or are still to come. */
 export function stepperSteps(detail: WorkflowDetail, t: T): StepperStep[] {
   const phases = orderedPhases(detail);
-  const open = phases.find((phase) => phase.open);
   return phases.map((phase): StepperStep => {
     const own = detail.tasks.filter((task) => task.phase_code === phase.code && isTracked(task));
     const note = t('pwf.flow.stepper.progress.text', { done: phase.required_done, total: phase.required_total });
-    if (phase.open) {
-      const status = detail.status === 'ON_HOLD' ? 'hold' : own.some((task) => healthOf(task) === 'late') ? 'late' : 'current';
-      return { code: phase.code, label: phase.name, status, current: true, note };
+    switch (phaseStandingOf(phase, phases)) {
+      case 'CURRENT': {
+        const status = detail.status === 'ON_HOLD' ? 'hold' : own.some((task) => healthOf(task) === 'late') ? 'late' : 'current';
+        return { code: phase.code, label: phase.name, status, current: true, note };
+      }
+      case 'STARTED':
+        return { code: phase.code, label: phase.name, status: 'started', note };
+      case 'DONE':
+        return { code: phase.code, label: phase.name, status: 'done', note };
+      case 'UPCOMING':
+        return { code: phase.code, label: phase.name, status: 'upcoming', note };
     }
-    const status = open === undefined || phase.order < open.order ? 'done' : 'upcoming';
-    return { code: phase.code, label: phase.name, status, note };
   });
 }
 

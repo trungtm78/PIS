@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { translator, useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import './pwf.css';
@@ -63,8 +64,37 @@ export function Named({ name, code }: { name: string; code?: string | null | und
   );
 }
 
-/** A role by its name; a role the catalogue has no name for is shown as its code, marked as a code. */
-export function RoleName({ code }: { code: string }) {
+/**
+ * The name of a task with its code as a small note UNDER it (owner review of 14/11/2026): on every list, table and card of the workflow screens the name is what a person reads, and the code (`PREP_DONE`) is a secondary line for
+ * whoever has to match it against a template or a report, never beside the name and never part of the link. `children` is the name as the place shows it (a link); `note` is what follows the code on its line (the critical mark).
+ */
+export function TaskName({ name, code, note, children }: { name: string; code: string; note?: ReactNode; children?: ReactNode }) {
+  return (
+    <span className="pwf-taskname">
+      <span className="pwf-taskname__name">{children ?? name}</span>
+      {code === '' || code === name ? null : (
+        <span className="pwf-code pwf-taskname__code" data-testid="task-code">
+          {code}
+          {note}
+        </span>
+      )}
+    </span>
+  );
+}
+
+/**
+ * A role by its name: the name the template gives it (`name`, a role a tenant made up itself), else the name of the shipped catalogue. Only a role neither of them names is shown as its code, marked as a code. The code stays on the
+ * element (`data-role`, and the tooltip) for whoever needs it.
+ */
+export function RoleName({ code, name }: { code: string; name?: string | null | undefined }) {
   const { t } = useTranslation();
+  const own = name?.trim() ?? '';
+  if (own !== '') {
+    return (
+      <span data-role={code} title={code}>
+        {own}
+      </span>
+    );
+  }
   return roleKnown(code) ? <span data-role={code}>{roleName(t, code)}</span> : <span className="pwf-code" data-role={code}>{code}</span>;
 }

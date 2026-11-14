@@ -59,7 +59,7 @@ describe('PWF-11: my score', () => {
   it('traces the score to tasks: the share, the weight, the score, the assignment span, and says "restricted" for a task it may not open', async () => {
     open();
     const card = await screen.findByTestId('my-period');
-    const link = within(card).getByRole('link', { name: /T1/ });
+    const link = within(card).getByRole('link', { name: 'Công việc 1' });
     expect(link.getAttribute('href')).toBe(`/pwf/pwf-04?id=${uuid(1001)}`);
     expect(within(card).getAllByText(text('pwfs.contribution.span.text', { role: text('pwf.role.responsible.word'), from: '01/10/2026', to: text('pwfs.contribution.open.text'), share: 50 })).length).toBeGreaterThan(0);
     expect(within(card).getAllByText('50%')).toHaveLength(2);

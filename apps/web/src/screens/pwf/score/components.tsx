@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
-import { gradeLook, gradeName, versionText } from '../codes';
+import { gradeLook, gradeName, versionText, TaskName } from '../codes';
 import { FigureInfo } from '../components';
 import { roleWord } from '../labels';
 import { dayText, stampText } from '../model';
@@ -153,6 +153,9 @@ function TaskFacts({ taskId }: { taskId: string }) {
   );
 }
 
+/** The project of a point as people name it: its name, else its code; null when the answer has neither (an answer kept from before the read named the project). */
+const projectOf = (contribution: Contribution): string | null => contribution.project_name ?? contribution.project_code ?? null;
+
 function TaskCell({ contribution }: { contribution: Contribution }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -167,9 +170,15 @@ function TaskCell({ contribution }: { contribution: Contribution }) {
   const taskId = contribution.task_id as string;
   return (
     <div>
-      <Link to={scoreTaskLink(taskId)}>
-        {contribution.task_code} · {contribution.name}
-      </Link>{' '}
+      <TaskName name={contribution.name} code={contribution.task_code}>
+        <Link to={scoreTaskLink(taskId)}>{contribution.name}</Link>
+        {/* Two tasks of the same name in two projects are told apart by the project, named under the task. */}
+        {projectOf(contribution) === null ? null : (
+          <span className="pwf-hint pwfs-project" data-testid="contribution-project" title={contribution.project_code ?? undefined}>
+            {projectOf(contribution)}
+          </span>
+        )}
+      </TaskName>{' '}
       <button type="button" className="ui-button ui-button--outline ui-button--small" aria-expanded={open} data-action={`facts-${contribution.task_code}`} onClick={() => setOpen(!open)}>
         {open ? t('pwfs.contribution.hideFacts.action') : t('pwfs.contribution.showFacts.action')}
       </button>

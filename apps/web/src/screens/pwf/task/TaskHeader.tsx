@@ -68,13 +68,13 @@ export function TaskHeader({ task, children }: { task: TaskDetail; children?: Re
           <dd data-testid="task-doer">
             {task.assignee?.display_name ?? t('pwf.task.assignee.none')}
             <span className="pwf-code">
-              <RoleName code={task.responsible_role} />
+              <RoleName code={task.responsible_role} name={task.responsible_role_name} />
             </span>
           </dd>
         </div>
         <div className="pwf-stats__item">
           <dt>{t('pwf6.task.approver.label')}</dt>
-          <dd data-testid="task-approver">{task.approver_role === null ? t('pwf.task.approver.none') : <RoleName code={task.approver_role} />}</dd>
+          <dd data-testid="task-approver">{task.approver_role === null ? t('pwf.task.approver.none') : <RoleName code={task.approver_role} name={task.approver_role_name} />}</dd>
         </div>
         {task.checklist.length === 0 ? null : (
           <div className="pwf-stats__item">

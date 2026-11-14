@@ -427,6 +427,7 @@ code {
 .ui-stepper__step--done .ui-stepper__circle { background: var(--ui-tone-soft); }
 .ui-stepper__step--current .ui-stepper__circle { background: var(--mv-color-primary); border-color: var(--mv-color-primary); color: var(--mv-color-surface); }
 .ui-stepper__step--late .ui-stepper__circle { background: var(--ui-tone-soft); }
+.ui-stepper__step--started .ui-stepper__circle { background: var(--ui-tone-soft); border-style: dashed; }
 .ui-stepper__text { display: flex; flex-direction: column; gap: 2px; }
 .ui-stepper__label { font-size: 14px; font-weight: 600; color: var(--mv-color-ink); }
 .ui-stepper__label.is-skipped { text-decoration: line-through; }

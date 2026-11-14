@@ -61,7 +61,7 @@ export function LegalBasisList({ basis, of, testId, origin }: LegalBasisListProp
           </dl>
           {isLapsed(one.state) ? (
             <p className="callout warning pwf-notice" role="status">
-              {one.superseded_by === null ? t('pwf.process.legal.lapsed.text') : t('pwf.process.legal.replaced.text', { code: one.superseded_by })}
+              {one.superseded_by === null ? t('pwf.process.legal.lapsed.text') : t('pwf.process.legal.replaced.text', { code: one.superseded_by_number ?? one.superseded_by })}
             </p>
           ) : null}
           {one.state === 'UNKNOWN' ? (

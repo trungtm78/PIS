@@ -14263,11 +14263,13 @@ final class PwfTemplateParams implements RequestModel {
     required this.projectType,
     required this.phases,
     required this.tasks,
+    this.roles,
     this.steps,
   });
 
   final String name;
   final Object? projectType;
+  final List<PwfTemplateParamsRolesItem>? roles;
   final List<PwfTemplateParamsPhasesItem> phases;
   final List<PwfTemplateParamsStepsItem>? steps;
   final List<PwfTemplateParamsTasksItem> tasks;
@@ -14276,6 +14278,7 @@ final class PwfTemplateParams implements RequestModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'name': name,
         'project_type': projectType,
+        if (roles != null) 'roles': roles,
         'phases': phases,
         if (steps != null) 'steps': steps,
         'tasks': tasks,
@@ -14298,6 +14301,22 @@ final class PwfTemplateParamsPhasesItem implements RequestModel {
         'code': code,
         'name': name,
         'gates': gates,
+      };
+}
+
+final class PwfTemplateParamsRolesItem implements RequestModel {
+  const PwfTemplateParamsRolesItem({
+    required this.code,
+    required this.name,
+  });
+
+  final String code;
+  final String name;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
       };
 }
 

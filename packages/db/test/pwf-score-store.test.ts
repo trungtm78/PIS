@@ -389,7 +389,11 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect(await readLine(viewer(HR, { readUnits: '*' }), otherLine)).toMatchObject({ scoreComputed: 97.5 });
       // The source authorisation: a reader who may not read the project of a task sees the points and not the task; the person sees their own tasks whatever the project scope says.
       const restricted = await readLine(viewer(MANAGER, { readUnits: DEPT }), workerLine, nothing);
-      expect(restricted.contributions.every((one) => one.taskId === null && one.name === '')).toBe(true);
+      expect(restricted.contributions.every((one) => one.taskId === null && one.name === '' && one.projectCode === null && one.projectName === null)).toBe(true);
+      // Two tasks of the same name in two projects are told apart by the project each point comes from (owner review of 14/11/2026).
+      const named = await readLine(viewer(MANAGER, { readUnits: DEPT }), workerLine, everything);
+      expect(named.contributions.every((one) => one.projectCode !== null && one.projectName === `Project ${one.projectCode}`)).toBe(true);
+      expect((await readLine(viewer(WORKER), workerLine, nothing)).contributions.every((one) => one.projectName !== null)).toBe(true);
       expect((await readLine(viewer(MANAGER, { readUnits: DEPT }), workerLine, everything)).contributions.every((one) => one.taskId !== null && one.name.startsWith('Task'))).toBe(true);
       expect((await readLine(viewer(WORKER), workerLine, nothing)).contributions.every((one) => one.taskId !== null)).toBe(true);
       // The lists: the unit, the person, and the former manager who has no reach left.
