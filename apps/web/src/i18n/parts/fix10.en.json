@@ -1,0 +1,12 @@
+{
+  "fix10.score.excluded.notDue": "Not due yet, not scored",
+  "fix10.score.problem.notEnded": "The period has not ended: lock it after its last day, or lock it early with a reason.",
+  "fix10.score.cutoff.notDue": "Tasks not due yet, not scored",
+  "fix10.score.cutoff.provisional": "Provisional as of {day}. The period is still running, so the scores will move; only tasks done or overdue by this day are scored.",
+  "fix10.score.cutoff.early": "The period was locked early; the figures are as of {day}. The reason is in the audit trail.",
+  "fix10.score.cutoff.final": "Figures as of {day}.",
+  "fix10.score.cutoff.notDueCount": "{count} tasks still inside their deadline are not scored and stay out of the denominator.",
+  "fix10.score.lock.reason": "Reason for the early lock",
+  "fix10.score.lock.reasonHint": "At least {min} characters. The reason is written to the audit trail.",
+  "fix10.score.lock.early": "This period ends on {day}. Locking it before it ends is an early lock: the figures are cut today and tasks still inside their deadline are not scored."
+}

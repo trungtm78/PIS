@@ -229,7 +229,9 @@ export function useComputePeriod() {
 
 export function useLockPeriod() {
   const client = useApiClient();
-  return useScoreCommand<{ id: string; version: number }>((input, attempt) => client.command('lockStaffScorePeriod', { path: { id: input.id }, ifMatchVersion: input.version, attempt }));
+  return useScoreCommand<{ id: string; version: number; earlyReason?: string | undefined }>((input, attempt) =>
+    client.command('lockStaffScorePeriod', { path: { id: input.id }, ...(input.earlyReason === undefined ? {} : { body: { early_reason: input.earlyReason } }), ifMatchVersion: input.version, attempt }),
+  );
 }
 
 export function useOfficializePeriod() {

@@ -50,8 +50,9 @@ describe('what a score figure says', () => {
   it('writes a score with at most two decimals and a dash for no score', () => {
     expect(scoreText(null)).toBe('–');
     expect(scoreText(82)).toBe('82');
-    expect(scoreText(82.5)).toBe('82.5');
-    expect(scoreText(82.25)).toBe('82.25');
+    expect(scoreText(82.5)).toBe('82,5');
+    expect(scoreText(82.25)).toBe('82,25');
+    expect(scoreText(8.06)).toBe('8,06');
   });
 
   it('knows a contribution of a task the viewer may not read by its missing id', () => {

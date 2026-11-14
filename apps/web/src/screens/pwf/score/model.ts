@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import type { components } from '@machvon/contracts';
 import type { Tone } from '../../../ui';
+import { decimalText } from '../../../i18n/format';
 import { dayText } from '../model';
 import type { FormProblem } from '../model';
 
@@ -105,10 +106,22 @@ export const effectiveScore = (line: { score_computed: number | null; score_adju
 
 export const hasAdjustedScore = (line: { score_computed: number | null; score_adjusted: number | null }): boolean => line.score_adjusted !== null && line.score_adjusted !== line.score_computed;
 
+/** A score as a person reads it: at most two decimals, in the decimal mark of the language (8,06 in Vietnamese), the same on every screen and on the phone. */
 export function scoreText(value: number | null): string {
-  if (value === null) return '–';
-  return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0$/, '');
+  return value === null ? '–' : decimalText(value);
 }
+
+/** The Vietnam day of an instant of the server (`as_of`): what "today" is for a rule that counts days. */
+export function vietnamDayOf(instant: string): string {
+  const at = Date.parse(instant);
+  return Number.isNaN(at) ? instant.slice(0, 10) : new Date(at + 7 * 3_600_000).toISOString().slice(0, 10);
+}
+
+/** R50: a draft is locked early while its period is not over (the last day included); the lock then asks for a reason that goes to the audit trail. */
+export const isEarlyLock = (period: { status: string; period_to: string; as_of: string }): boolean => period.status === 'DRAFT' && vietnamDayOf(period.as_of) <= period.period_to;
+
+/** The shortest reason an early lock takes (the scoring policy asks at least this much of any reason; the server holds the real bound). */
+export const EARLY_LOCK_REASON_MIN = 20;
 
 export function periodTone(status: PeriodStatus): Tone {
   switch (status) {
@@ -220,6 +233,7 @@ export type ScoreProblemKind =
   | 'versionConflict'
   | 'selfApproval'
   | 'periodOverlap'
+  | 'periodNotEnded'
   | 'shareInvalid'
   | 'calendarNotEffective'
   | 'periodLocked'
@@ -244,6 +258,7 @@ const KIND_BY_CODE: Readonly<Record<string, ScoreProblemKind>> = {
   STAFF_SCORE_SHARE_INVALID: 'shareInvalid',
   CALENDAR_NOT_EFFECTIVE: 'calendarNotEffective',
   STAFF_SCORE_PERIOD_LOCKED: 'periodLocked',
+  STAFF_SCORE_PERIOD_NOT_ENDED: 'periodNotEnded',
   STAFF_SCORE_ADJUSTMENT_INVALID: 'adjustmentInvalid',
   STAFF_SCORE_RESPONSE_WINDOW_CLOSED: 'windowClosed',
   WORKFLOW_ALREADY_RUNNING: 'inWorkflow',

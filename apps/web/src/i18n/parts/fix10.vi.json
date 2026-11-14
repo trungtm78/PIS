@@ -1,0 +1,12 @@
+{
+  "fix10.score.excluded.notDue": "Chưa đến hạn, chưa chấm",
+  "fix10.score.problem.notEnded": "Kỳ chưa kết thúc: chỉ chốt sau ngày cuối kỳ, hoặc chốt sớm kèm lý do.",
+  "fix10.score.cutoff.notDue": "Việc chưa đến hạn, chưa chấm",
+  "fix10.score.cutoff.provisional": "Tạm tính đến ngày {day}. Kỳ chưa kết thúc nên điểm còn thay đổi; chỉ chấm việc đã hoàn thành hoặc đã quá hạn tại ngày này.",
+  "fix10.score.cutoff.early": "Kỳ được chốt sớm, số liệu tính đến ngày {day}; lý do chốt sớm có trong nhật ký.",
+  "fix10.score.cutoff.final": "Số liệu tính đến ngày {day}.",
+  "fix10.score.cutoff.notDueCount": "{count} việc còn trong hạn chưa được chấm và nằm ngoài mẫu số.",
+  "fix10.score.lock.reason": "Lý do chốt sớm",
+  "fix10.score.lock.reasonHint": "Ít nhất {min} ký tự. Lý do được ghi vào nhật ký.",
+  "fix10.score.lock.early": "Kỳ này kết thúc ngày {day}. Chốt trước khi kỳ kết thúc là chốt sớm: số liệu cắt tại hôm nay, việc còn trong hạn không được chấm."
+}

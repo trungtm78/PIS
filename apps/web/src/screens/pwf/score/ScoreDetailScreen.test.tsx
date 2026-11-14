@@ -52,7 +52,7 @@ describe('PWF-13: the detail of a score', () => {
     await screen.findByRole('table');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(text('pwfs.detail.heading.text', { name: 'Trần Thị Bình' }));
     expect(h.read).toHaveBeenCalledWith('getStaffScoreLine', { path: { id: LINE_ID } });
-    expect(screen.getByTestId('score-computed').textContent).toBe('82.5');
+    expect(screen.getByTestId('score-computed').textContent).toBe('82,5');
     // A unit the register has no name for is said so with the short form of its id; the whole id stays on the element.
     expect(screen.getByTestId('unit-at').textContent).toBe(text('pwf6.score.unit.unnamed', { id: uuid(60).slice(0, 8) }));
     expect(screen.getByTestId('unit-at').getAttribute('title')).toBe(uuid(60));
@@ -105,7 +105,7 @@ describe('PWF-13: the detail of a score', () => {
   it('shows both scores when an adjustment moved the score', async () => {
     open({ line: theirs({ score_adjusted: 87 }) });
     await screen.findByRole('table');
-    expect(screen.getByTestId('score-computed').textContent).toBe('82.5');
+    expect(screen.getByTestId('score-computed').textContent).toBe('82,5');
     expect(screen.getByTestId('score-adjusted').textContent).toBe('87');
   });
 

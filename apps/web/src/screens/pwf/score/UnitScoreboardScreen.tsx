@@ -8,6 +8,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { dayText } from '../model';
+import { PeriodCutoffNote } from './PeriodScreen';
 import { LineStatePill, PeriodStatusPill, RatingPill, ScoreProblemBanner, SupportNotice } from './components';
 import { UnitSelect, useUnitNames } from './units';
 import { useExportPeriod, usePeriodLines, usePeriods, useScoreCacheGuard, useScoreIdentity } from './hooks';
@@ -113,6 +114,7 @@ function BoardContent({ route }: ScreenProps) {
       <StateBoundary state={screenState} onRetry={() => void periods.refetch()}>
         <SectionCard title={t('pwfs.board.period.title')} status={period === undefined ? undefined : <PeriodStatusPill status={period.status} />}>
           <PeriodPicker periods={all} chosen={chosen} onChoose={(id) => setParams({ period: id })} />
+          {period === undefined ? null : <PeriodCutoffNote period={period} />}
           {period === undefined ? null : <PeriodFacts period={period} />}
           {periods.hasNextPage ? (
             <button type="button" className="ui-button ui-button--outline ui-button--small" data-action="more-periods" onClick={() => void periods.fetchNextPage()}>

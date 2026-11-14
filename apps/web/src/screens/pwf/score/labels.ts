@@ -92,6 +92,8 @@ export function excludedReasonWord(t: T, reason: string): string {
       return t('pwfs.excluded.excluded.word');
     case 'NOT_STARTED':
       return t('pwfs.excluded.notStarted.word');
+    case 'NOT_DUE':
+      return t('fix10.score.excluded.notDue');
     default:
       return t('pwfs.excluded.other.word', { reason });
   }
@@ -126,6 +128,8 @@ export function scoreProblemText(t: T, problem: ScoreProblem): string {
       return t('pwfs.problem.calendarNotEffective.error');
     case 'periodLocked':
       return t('pwfs.problem.periodLocked.error');
+    case 'periodNotEnded':
+      return t('fix10.score.problem.notEnded');
     case 'adjustmentInvalid':
       return problem.field === undefined ? t('pwfs.problem.adjustmentInvalid.error') : t('pwfs.problem.adjustmentField.error', { field: problem.field });
     case 'windowClosed':

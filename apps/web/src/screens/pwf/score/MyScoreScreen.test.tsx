@@ -54,7 +54,7 @@ describe('PWF-11: my score', () => {
   it('shows the score of the period with its rating, the policy it follows, the hash and the day responses are accepted until', async () => {
     open();
     const card = await screen.findByTestId('my-period');
-    expect(within(card).getByTestId('score-computed').textContent).toBe('82.5');
+    expect(within(card).getByTestId('score-computed').textContent).toBe('82,5');
     // The grade is said in words; its code stays on the element.
     expect(within(card).getByTestId('rating').textContent).toBe(text('pwf6.grade.good.word'));
     expect(within(card).getByTestId('rating').getAttribute('data-rating')).toBe('GOOD');
@@ -110,8 +110,8 @@ describe('PWF-11: my score', () => {
       mine: page(myScore({ line: line({ score_computed: 82.5, score_adjusted: 85.5, adjustments: [adjustment(1, { status: 'APPROVED', decided_by: uuid(72), decided_at: '2027-01-08T02:00:00.000Z' }), adjustment(2, { points: -2, status: 'REJECTED', reason: 'Đề nghị không đủ căn cứ để điều chỉnh', decided_by: uuid(72), decided_at: '2027-01-08T03:00:00.000Z' })] }) })),
     });
     await screen.findByTestId('my-period');
-    expect(screen.getByTestId('score-computed').textContent).toBe('82.5');
-    expect(screen.getByTestId('score-adjusted').textContent).toBe('85.5');
+    expect(screen.getByTestId('score-computed').textContent).toBe('82,5');
+    expect(screen.getByTestId('score-adjusted').textContent).toBe('85,5');
     const list = screen.getByTestId('adjustments');
     expect(within(list).getByText(text('pwfs.adjustment.approved.word'))).toBeTruthy();
     expect(within(list).getByText(text('pwfs.adjustment.rejected.word'))).toBeTruthy();

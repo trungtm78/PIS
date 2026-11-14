@@ -14,6 +14,8 @@ afterEach(() => {
 
 const route = routeOf('PWF-14');
 const ok = { operation_id: uuid(9), status: 'LOCKED', resource_version: 5 };
+/** An instant after the last day of the period of the fixtures (31/12/2026): a lock then is not an early one. */
+const AFTER_THE_PERIOD = '2027-01-05T03:00:00.000Z';
 
 interface Setup {
   permissions?: readonly string[];
@@ -121,7 +123,7 @@ describe('PWF-14: locking and making official', () => {
   });
 
   it('asks for confirmation before locking and sends the version of the period as If-Match', async () => {
-    const h = open({ current: period({ status: 'DRAFT', snapshot_hash: null, locked_at: null, response_until: null, version: 3 }) });
+    const h = open({ current: period({ status: 'DRAFT', snapshot_hash: null, locked_at: null, response_until: null, version: 3, as_of: AFTER_THE_PERIOD }) });
     await detail();
     fireEvent.click(screen.getByRole('button', { name: text('pwfs.period.lock.action') }));
     const dialog = await screen.findByRole('dialog');
@@ -129,6 +131,42 @@ describe('PWF-14: locking and making official', () => {
     expect(h.command).not.toHaveBeenCalled();
     fireEvent.click(within(dialog).getByRole('button', { name: text('pwfs.period.lock.confirm') }));
     await waitFor(() => expect(h.command).toHaveBeenCalledWith('lockStaffScorePeriod', expect.objectContaining({ path: { id: PERIOD_ID }, ifMatchVersion: 3 })));
+  });
+
+  it('R50: says a draft of a running period is provisional with the day it is cut at, and locks it early only with a reason that is sent with the command', async () => {
+    const h = open({ current: period({ status: 'DRAFT', snapshot_hash: null, locked_at: null, response_until: null, version: 3, computed_as_of: '2026-11-12', provisional: true, not_due_task_count: 4, early_lock: false }) });
+    await detail();
+    const note = screen.getByTestId('period-cutoff');
+    expect(note.textContent).toContain(text('fix10.score.cutoff.provisional', { day: '12/11/2026' }));
+    expect(note.textContent).toContain(text('fix10.score.cutoff.notDueCount', { count: 4 }));
+    fireEvent.click(screen.getByRole('button', { name: text('pwfs.period.lock.action') }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByTestId('early-lock-note').textContent).toBe(text('fix10.score.lock.early', { day: '31/12/2026' }));
+    const confirm = within(dialog).getByRole('button', { name: text('pwfs.period.lock.confirm') }) as HTMLButtonElement;
+    expect(confirm.disabled).toBe(true);
+    const reason = within(dialog).getByLabelText(new RegExp(text('fix10.score.lock.reason')));
+    fireEvent.change(reason, { target: { value: 'too short' } });
+    expect(confirm.disabled).toBe(true);
+    fireEvent.change(reason, { target: { value: '  The unit is merged next week, so the period closes early.  ' } });
+    expect(confirm.disabled).toBe(false);
+    fireEvent.click(confirm);
+    await waitFor(() => expect(h.command).toHaveBeenCalledWith('lockStaffScorePeriod', expect.objectContaining({ path: { id: PERIOD_ID }, ifMatchVersion: 3, body: { early_reason: 'The unit is merged next week, so the period closes early.' } })));
+  });
+
+  it('R50: says a period locked early was, says nothing of a cutoff for a period computed before the rule, and names the refusal of a lock that came too soon', async () => {
+    open({ current: period({ computed_as_of: '2026-11-12', provisional: false, not_due_task_count: 0, early_lock: true }) });
+    await detail();
+    expect(screen.getByTestId('period-cutoff').textContent).toBe(text('fix10.score.cutoff.early', { day: '12/11/2026' }));
+    cleanup();
+    open();
+    await detail();
+    expect(screen.queryByTestId('period-cutoff')).toBeNull();
+    cleanup();
+    open({ current: period({ status: 'DRAFT', snapshot_hash: null, as_of: AFTER_THE_PERIOD }), commands: { lockStaffScorePeriod: refusal('STAFF_SCORE_PERIOD_NOT_ENDED', 409) } });
+    await detail();
+    fireEvent.click(screen.getByRole('button', { name: text('pwfs.period.lock.action') }));
+    fireEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: text('pwfs.period.lock.confirm') }));
+    expect((await screen.findByRole('alert')).textContent).toContain(text('fix10.score.problem.notEnded'));
   });
 
   it('can be cancelled without sending anything', async () => {
@@ -159,7 +197,7 @@ describe('PWF-14: locking and making official', () => {
   });
 
   it('offers to read the newer version after a conflict', async () => {
-    const h = open({ current: period({ status: 'DRAFT', snapshot_hash: null }), commands: { lockStaffScorePeriod: refusal('VERSION_CONFLICT', 409) } });
+    const h = open({ current: period({ status: 'DRAFT', snapshot_hash: null, as_of: AFTER_THE_PERIOD }), commands: { lockStaffScorePeriod: refusal('VERSION_CONFLICT', 409) } });
     await detail();
     fireEvent.click(screen.getByRole('button', { name: text('pwfs.period.lock.action') }));
     fireEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: text('pwfs.period.lock.confirm') }));

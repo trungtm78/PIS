@@ -12,7 +12,7 @@ import { FlagList, FlagsNote, PeriodStatusPill, PolicyBasis, ScoreProblemBanner,
 import { UnitSelect } from './units';
 import { useComputePeriod, useLockPeriod, useOfficializePeriod, usePeriod, usePeriods, useReloadScores, useScoreCacheGuard, useScoreIdentity, useSignals } from './hooks';
 import { scoreFormProblem } from './labels';
-import { EMPTY_PERIOD, SCORE_PERMISSIONS, describeScoreProblem, isScoreConflict, mayDo, mayWrite, periodBody, periodLink, rangeText, unitLink, validatePeriod } from './model';
+import { EARLY_LOCK_REASON_MIN, EMPTY_PERIOD, SCORE_PERMISSIONS, describeScoreProblem, isEarlyLock, isScoreConflict, mayDo, mayWrite, periodBody, periodLink, rangeText, unitLink, validatePeriod } from './model';
 import type { PeriodForm, PeriodPreview, ScorePeriod, ScoreProblem } from './model';
 import '../pwf.css';
 import './score.css';
@@ -166,11 +166,35 @@ function PreviewFacts({ preview }: { preview: PeriodPreview }) {
       <dd>{preview.not_rated_count}</dd>
       <dt>{t('pwfs.period.preview.excluded.label')}</dt>
       <dd>{preview.excluded_task_count}</dd>
+      {preview.not_due_task_count === undefined ? null : (
+        <>
+          <dt>{t('fix10.score.cutoff.notDue')}</dt>
+          <dd data-testid="preview-not-due">{preview.not_due_task_count}</dd>
+        </>
+      )}
       <dt>{t('pwfs.period.preview.signals.label')}</dt>
       <dd>{preview.signal_count}</dd>
       <dt>{t('pwfs.period.preview.hash.label')}</dt>
       <dd data-testid="preview-hash">{preview.preview_hash.slice(0, 16)}</dd>
     </dl>
+  );
+}
+
+/**
+ * R50: the day the figures of the period are cut at. A draft taken while its period runs is provisional and says so, with the number of tasks that are still inside their deadline and so were not read; a period
+ * locked before its last day says it was. A period computed before the rule has no cutoff to say and shows nothing.
+ */
+export function PeriodCutoffNote({ period }: { period: Pick<ScorePeriod, 'computed_as_of' | 'provisional' | 'not_due_task_count' | 'early_lock' | 'status'> }) {
+  const { t } = useTranslation();
+  if (period.computed_as_of === undefined || period.computed_as_of === null) return null;
+  const day = dayText(period.computed_as_of);
+  const notDue = period.not_due_task_count ?? 0;
+  const lead = period.provisional === true ? t('fix10.score.cutoff.provisional', { day }) : period.early_lock === true ? t('fix10.score.cutoff.early', { day }) : t('fix10.score.cutoff.final', { day });
+  return (
+    <p className={period.provisional === true || period.early_lock === true ? 'callout warning' : 'adm-kit-sub'} role="note" data-testid="period-cutoff">
+      {lead}
+      {notDue > 0 ? ` ${t('fix10.score.cutoff.notDueCount', { count: notDue })}` : ''}
+    </p>
   );
 }
 
@@ -204,9 +228,11 @@ function Detail({ period, canManage }: { period: ScorePeriod; canManage: boolean
     { label: t('pwfs.period.facts.range.label'), value: rangeText(period.period_from, period.period_to) },
     { label: t('pwfs.period.facts.lines.label'), value: String(period.line_count) },
   ];
+  const early = isEarlyLock(period);
   return (
     <>
       <SectionCard title={t('pwfs.period.detail.title', { range: rangeText(period.period_from, period.period_to) })} status={<PeriodStatusPill status={period.status} />}>
+        <PeriodCutoffNote period={period} />
         <dl className="pwf-facts" data-testid="period-detail">
           <dt>{t('pwfs.period.facts.policy.label')}</dt>
           <dd>
@@ -262,9 +288,15 @@ function Detail({ period, canManage }: { period: ScorePeriod; canManage: boolean
         cancelLabel={t('pwfs.common.cancel.action')}
         pending={lock.isPending}
         onCancel={() => setStep(undefined)}
-        onConfirm={() => void run(() => lock.mutateAsync({ id: period.id, version: period.version }))}
+        onConfirm={(reason) => void run(() => lock.mutateAsync({ id: period.id, version: period.version, earlyReason: early ? reason?.trim() : undefined }))}
+        {...(early ? { reason: { label: t('fix10.score.lock.reason'), required: true, minLength: EARLY_LOCK_REASON_MIN, hint: t('fix10.score.lock.reasonHint', { min: EARLY_LOCK_REASON_MIN }) } } : {})}
       >
         <p>{t('pwfs.period.lock.warning')}</p>
+        {early ? (
+          <p className="callout warning" role="note" data-testid="early-lock-note">
+            {t('fix10.score.lock.early', { day: dayText(period.period_to) })}
+          </p>
+        ) : null}
       </ConfirmDialog>
       <ConfirmDialog
         open={step === 'officialize'}
