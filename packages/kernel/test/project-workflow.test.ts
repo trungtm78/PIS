@@ -279,6 +279,16 @@ describe('references of a template: legal documents by edition, forms, evidence,
     expect(() => registerLegalDocTypeResolver({ edition: 'test-edition', resolve: () => undefined, list: () => [] })).toThrow();
   });
 
+  it('UAT-PWF-BND-12: a task that leaves out the five lists the contract makes optional is the same template as one that gives them empty: it is valid, and its hash is the hash of the full form', () => {
+    const full = template([task('TA', { legal_doc_types: [], form_templates: [], checklist: [], kpi_codes: [], when: [] }), task('TB', { legal_doc_types: [], form_templates: [], checklist: [], kpi_codes: [], when: [] })]);
+    const bare = { ...full, tasks: (full.tasks as Params[]).map(({ legal_doc_types: _legal, form_templates: _forms, checklist: _checklist, kpi_codes: _kpis, when: _when, ...rest }) => rest) };
+    for (const field of ['legal_doc_types', 'form_templates', 'checklist', 'kpi_codes', 'when']) expect((bare.tasks as Params[])[0]).not.toHaveProperty(field);
+    expect(() => validateRuleParams(PROJECT_WORKFLOW_RULE_TYPE, bare)).not.toThrow();
+    expect(templateHash(parseProjectWorkflowTemplate(bare))).toBe(templateHash(parseProjectWorkflowTemplate(full)));
+    // A list that is given must still be a list of the right things.
+    expect(() => validateRuleParams(PROJECT_WORKFLOW_RULE_TYPE, { ...bare, tasks: [{ ...(bare.tasks as Params[])[0], checklist: 'none' }, (bare.tasks as Params[])[1]] })).toThrow(DomainError);
+  });
+
   it('UAT-PWF-EDN-01: the public edition resolves the codes of the public investment catalogue and knows no other code; another edition adds its types through the registry, and the catalogue of the public edition is not touched by it', () => {
     const publicEdition = legalDocTypeResolvers().find((one) => one.edition === 'public');
     const before = publicEdition?.list().map((one) => one.code) ?? [];

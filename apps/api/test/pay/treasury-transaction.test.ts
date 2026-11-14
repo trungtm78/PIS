@@ -154,6 +154,25 @@ describe('confirmTreasuryManually, receiveTreasuryCallback and the reads of the 
       expect(inbox?.payload_reference).toMatch(/^tenants\/[^/]+\/webhook\//);
     });
 
+    it('UAT-AC10: the same callback sent twice with the same Idempotency-Key makes one transaction of 2,100,000,000 (source CALLBACK_MOCK) and the second answer is the first one, byte for byte; another event that claims the same voucher with other figures is 409 TREASURY_TRANSACTION_DUPLICATE and the count stays 1', async () => {
+      const fields = fieldsOf({ providerEventId: `EVT-KB-0001-${randomUUID().slice(0, 8)}`, documentNo: `CT-0001-${randomUUID().slice(0, 8)}`, documentDate: '2026-07-02', amountVnd: '2100000000' });
+      const body = pay.signedCallback(fields);
+      const key = `callback-evt-kb-0001-${randomUUID()}`;
+      const countOf = (): Promise<number> => pay.count('select count(*)::text as n from machvon.treasury_transaction where document_no = $1 and document_date = $2::date', [fields.documentNo, fields.documentDate]);
+      const first = await pay.call('POST', '/integrations/treasury/callbacks', { member: SERVICE, body, key });
+      expect(first.status).toBe(200);
+      expect(await pay.rows('select amount_vnd::text as amount, source_kind from machvon.treasury_transaction where id = $1::uuid', [first.json.resource_id])).toEqual([{ amount: '2100000000', source_kind: 'CALLBACK_MOCK' }]);
+      const second = await pay.call('POST', '/integrations/treasury/callbacks', { member: SERVICE, body, key });
+      expect(second.status).toBe(200);
+      expect(second.json).toEqual(first.json);
+      expect(await countOf()).toBe(1);
+      // EVT-KB-0002 claims the voucher CT-0001 of the same day and project with another amount: refused, and nothing is added (the paid total cannot double).
+      const other = await pay.call('POST', '/integrations/treasury/callbacks', { member: SERVICE, body: pay.signedCallback({ ...fields, providerEventId: `EVT-KB-0002-${randomUUID().slice(0, 8)}`, amountVnd: '2100000001' }) });
+      expect([other.status, other.json.code]).toEqual([409, 'TREASURY_TRANSACTION_DUPLICATE']);
+      expect(await countOf()).toBe(1);
+      expect(await pay.rows('select type from machvon.outbox_event where aggregate_id = $1', [first.json.resource_id])).toEqual([{ type: 'pay.treasury_transaction.confirmed.v1' }]);
+    });
+
     it('answers the first result for the same voucher under another event id, and refuses the same voucher with other content (409)', async () => {
       const fields = fieldsOf();
       const first = await pay.call('POST', '/integrations/treasury/callbacks', { member: SERVICE, body: pay.signedCallback(fields) });

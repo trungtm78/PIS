@@ -203,7 +203,7 @@ describe('the national project code: assignment by hand, reconciliation file and
   });
 
   describe('the block rule and the assignment by hand (AC-ST-PRJ-004-1)', () => {
-    it('AC-ST-PRJ-004-1: P-A-012 is BUDGETED without a code: start is 422 NATIONAL_CODE_REQUIRED, then 200 once the code is assigned, and under WARN 200 with the warning', async () => {
+    it('AC-ST-PRJ-004-1, UAT-AC206: P-A-012 is BUDGETED without a code: start is 422 NATIONAL_CODE_REQUIRED, then 200 once the code is assigned, and under WARN 200 with the warning', async () => {
       const target = await project('BUDGETED');
       const refused = await start(target);
       expect([refused.status, refused.json.code]).toEqual([422, 'NATIONAL_CODE_REQUIRED']);
@@ -224,7 +224,9 @@ describe('the national project code: assignment by hand, reconciliation file and
         const lenient = await project('BUDGETED');
         const warned = await start(lenient);
         expect(warned.status).toBe(200);
-        expect(warned.json).toMatchObject({ status: 'IMPLEMENTATION', warnings: ['NATIONAL_CODE_REQUIRED'] });
+        expect(warned.json).toMatchObject({ status: 'IMPLEMENTATION' });
+        expect((warned.json.warnings as Array<{ code: string; detail: string }>)[0]).toEqual({ code: 'NATIONAL_CODE_MISSING', detail: 'national_project_code' });
+        expect((warned.json.warnings as unknown[]).length).toBe(1);
         expect((await rows<{ safe_diff: Record<string, unknown> }>(`select safe_diff from machvon.audit_event where resource_id = $1 and action = 'project.stage_changed'`, [lenient.id]))[0]?.safe_diff).toMatchObject({ national_code_warning: true });
       } finally {
         await setRuleMode('BLOCK');

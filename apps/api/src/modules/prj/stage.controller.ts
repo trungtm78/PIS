@@ -21,7 +21,8 @@ import { PRJ_METRICS, PRJ_PIPELINE_CACHE } from './tokens';
 
 const READ_PERMISSION = PERMISSIONS.get_resources_project;
 const BOARD_ALL_STAGES = 'all';
-const NATIONAL_CODE_WARNING = 'NATIONAL_CODE_REQUIRED';
+// What the caller is told when the rule of the national code only warns (mode WARN): the same object and the same code the payment commands answer under that rule (PayPaymentWarning), so a client reads one shape. Until 2026-11 this command answered the bare string NATIONAL_CODE_REQUIRED, outside the contract and read by no screen.
+const NATIONAL_CODE_WARNING = { code: 'NATIONAL_CODE_MISSING', detail: 'national_project_code' } as const;
 
 /** The text of a query parameter, or undefined when it is absent; a parameter that is repeated or not text is a fault of the request. */
 function queryText(value: unknown, name: string): string | undefined {
@@ -94,7 +95,7 @@ export class ProjectStageController {
     return this.move(scope, access, id, 'cancelProject', body);
   }
 
-  private async move(scope: CommandScope, access: EffectiveAccess, id: string, command: StageCommand, body: Schemas['PrjStageCommand']): Promise<CommandResult & { warnings?: string[] }> {
+  private async move(scope: CommandScope, access: EffectiveAccess, id: string, command: StageCommand, body: Schemas['PrjStageCommand']): Promise<CommandResult & { warnings?: Array<{ code: string; detail: string }> }> {
     const now = new Date();
     const change = await this.stages.transition(scope.tx, {
       command,
@@ -115,7 +116,7 @@ export class ProjectStageController {
       await this.cache.invalidate(scope.tenant.tenantId);
     });
     // A rule that only flags a project without its national code lets the move through and says so, for the person and for the caller.
-    return change.nationalCodeWarning ? { ...commandResult(scope, change.to, change.version, change.projectId), warnings: [NATIONAL_CODE_WARNING] } : commandResult(scope, change.to, change.version, change.projectId);
+    return change.nationalCodeWarning ? { ...commandResult(scope, change.to, change.version, change.projectId), warnings: [{ ...NATIONAL_CODE_WARNING }] } : commandResult(scope, change.to, change.version, change.projectId);
   }
 }
 

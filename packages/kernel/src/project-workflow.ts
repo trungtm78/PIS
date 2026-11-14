@@ -251,13 +251,14 @@ const TASK: FieldSpec = object({
   priority: { kind: 'enum', values: TASK_PRIORITIES },
   predecessors: list(DEPENDENCY, 20),
   constraint: { ...object({ kind: { kind: 'enum', values: CONSTRAINT_KINDS }, offset_working_days: { kind: 'int', min: 0, max: 1095 } }), optional: true },
-  legal_doc_types: list(codeText(), 10),
-  form_templates: list(formCode, 10),
+  // The contract (PwfTemplateParams) lets these five lists be left out: an absent list is an empty one, and the normal form of the template (so its hash) is the same either way.
+  legal_doc_types: { ...list(codeText(), 10), optional: true },
+  form_templates: { ...list(formCode, 10), optional: true },
   form_policies: { ...list(FORM_POLICY, 10), optional: true },
   legal_basis: { ...list(LEGAL_BASIS, MAX_LEGAL_BASIS), optional: true },
-  checklist: list(CHECKLIST_ITEM, 30),
-  kpi_codes: list(codeText(), 10),
-  when: list(CONDITION, 5),
+  checklist: { ...list(CHECKLIST_ITEM, 30), optional: true },
+  kpi_codes: { ...list(codeText(), 10), optional: true },
+  when: { ...list(CONDITION, 5), optional: true },
 });
 
 const PHASE: FieldSpec = object({

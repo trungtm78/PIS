@@ -97,6 +97,14 @@ export async function referenceFactsOf(tx: TenantTx, params: unknown, now: Date)
  * The checks of a template that the person who writes it sees live (F1): the schema and the graph (the first defect), the references to document types and evidence kinds, and the quality flags that never block. With the facts of the
  * tenant (R45, R46) a legal ground that cites a document the catalogue does not have and a form pinned to a revision that is not approved are errors, and a ground whose document lapsed is a warning that never blocks.
  */
+/** Whether the refusal of the params of a template is the loop of its dependencies: the field refused is the predecessors of a task and the tasks do form a loop. */
+function isDependencyLoop(params: unknown, error: DomainError): boolean {
+  if (!/^tasks\[\d+\]\.predecessors$/.test(error.detail ?? '')) return false;
+  const tasks = Array.isArray((params as { tasks?: unknown } | null)?.tasks) ? ((params as { tasks: unknown[] }).tasks as Array<{ code?: unknown; predecessors?: unknown }>) : [];
+  const graph = tasks.map((one) => ({ code: String(one?.code), predecessors: (Array.isArray(one?.predecessors) ? one.predecessors : []).map((link) => ({ task: String((link as { task?: unknown } | null)?.task) })) }));
+  return pwfWorkflow.findDependencyCycle(graph) !== null;
+}
+
 export function validateTemplate(params: unknown, now: Date, facts?: TemplateReferenceFacts): Schemas['PwfTemplateValidation'] {
   const findings: Schemas['PwfTemplateValidation']['findings'] = [];
   let template: pwfWorkflow.ProjectWorkflowTemplate | undefined;
@@ -105,7 +113,8 @@ export function validateTemplate(params: unknown, now: Date, facts?: TemplateRef
     template = pwfWorkflow.parseProjectWorkflowTemplate(params);
   } catch (error) {
     if (!(error instanceof DomainError)) throw error;
-    findings.push({ code: error.code, path: error.detail ?? '', severity: 'ERROR' });
+    // The check of the rule names the field only; a loop of dependencies is said by its own code (BR-PWF-02), so the screen and the commands that follow can tell it from any other defect of the field.
+    findings.push({ code: isDependencyLoop(params, error) ? 'PWF_DEPENDENCY_CYCLE' : error.code, path: error.detail ?? '', severity: 'ERROR' });
   }
   if (template !== undefined) {
     const references: pwfWorkflow.TemplateReferences = facts === undefined ? {} : { legalDocument: (code) => facts.documents.has(code), formRevision: (form, revision) => facts.formRevisions.has(`${form}#${revision}`) };

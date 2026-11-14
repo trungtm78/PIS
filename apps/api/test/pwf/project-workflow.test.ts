@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
-import { ND30_A4_STANDARD, loadErrorRegistry, signTenantContext, vietnamDateOf } from '@machvon/kernel';
+import { ND30_A4_STANDARD, loadErrorRegistry, signTenantContext, validateRuleParams, vietnamDateOf } from '@machvon/kernel';
 import { BASELINE_PACK, applyBaseline } from '../../../../packages/db/src/master-baseline';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
@@ -169,7 +169,7 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
       const loop = { ...TEMPLATE, tasks: [{ ...TEMPLATE.tasks[0], predecessors: [{ task: 'MS_A', kind: 'FS', lag_working_days: 0 }] }, TEMPLATE.tasks[1]] };
       const bad = await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: loop });
       expect(bad.json.valid).toBe(false);
-      expect((bad.json.findings as Array<{ code: string }>)[0]?.code).toBe('GOVERNANCE_RULE_PARAMS_INVALID');
+      expect((bad.json.findings as Array<{ code: string }>)[0]?.code).toBe('PWF_DEPENDENCY_CYCLE');
     });
 
     it('previews the schedule of a template from a start day, with the tasks, the critical path and the calendar versions', async () => {
@@ -486,7 +486,11 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
       const refused = await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: loop });
       expect(refused.json.valid).toBe(false);
       const findings = refused.json.findings as Array<{ code: string; path: string; severity: string; detail: string }>;
-      expect(findings.some((one) => ['PROJECT_WORKFLOW_TEMPLATE_INVALID', 'GOVERNANCE_RULE_PARAMS_INVALID'].includes(one.code))).toBe(true);
+      expect(findings.filter((one) => one.severity === 'ERROR').map((one) => one.code)).toEqual(['PWF_DEPENDENCY_CYCLE']);
+      // Saving the same params as a rule is refused by the check of the rule, naming the same field.
+      expect(() => validateRuleParams('PROJECT_WORKFLOW_TEMPLATE', loop)).toThrow(expect.objectContaining({ code: 'GOVERNANCE_RULE_PARAMS_INVALID', detail: expect.stringMatching(/^tasks\[[01]\]\.predecessors$/) }));
+      // The preview of a template with the loop answers the code of the loop itself.
+      expect(await call('POST', '/project-workflow/templates/preview', { member: MANAGER, body: { params: loop, planned_start_date: '2026-11-02' } })).toMatchObject({ status: 422, json: { code: 'PWF_DEPENDENCY_CYCLE' } });
       // The refusal names the field that closes the loop: the predecessors of a task of the loop.
       expect(findings.filter((one) => one.severity === 'ERROR').map((one) => one.path)).toEqual([expect.stringMatching(/^tasks\[[01]\]\.predecessors/)]);
       const ok = await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: pair });
@@ -684,11 +688,6 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
             responsible_role: 'WORKER_ROLE',
             priority: 'NORMAL',
             predecessors: index === count - 1 ? Array.from({ length: links }, (_unused, link) => ({ task: code(link * chain), kind: 'SS', lag_working_days: 0 })) : index % chain === 0 ? [] : after(code(index - 1)),
-            legal_doc_types: [],
-            form_templates: [],
-            checklist: [],
-            kpi_codes: [],
-            when: [],
           }),
         ),
       });
