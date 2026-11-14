@@ -56,7 +56,7 @@
           "proof": "RUN_VERIFIED"
         },
         "clip-public-approvals": {
-          "proof": "WRITTEN_NOT_RUN"
+          "proof": "RUN_VERIFIED"
         },
         "clip-public-phone-work": {
           "proof": "RUN_VERIFIED"
