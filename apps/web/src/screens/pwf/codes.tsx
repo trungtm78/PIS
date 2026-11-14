@@ -32,7 +32,6 @@ export const templateName = (t: T, code: string): string => named(t, `pwf6.templ
 export const templateKnown = (code: string): boolean => translator.has(`pwf6.template.${codeKey(code)}.word`);
 export const kpiName = (t: T, code: string): string => named(t, `pwf6.kpi.${codeKey(code)}.word`, code);
 export const factName = (t: T, code: string): string => named(t, `pwf6.fact.${codeKey(code)}.word`, code);
-export const fieldName = (t: T, field: string): string => named(t, `pwf6.field.${codeKey(field)}.word`, field);
 
 /** "System default" for version 0 of a rule (the shipped default has no version of the tenant), else "version N". */
 export const versionText = (t: T, version: number | null | undefined): string => (version === null || version === undefined || version === 0 ? t('pwf6.version.default.text') : t('pwf6.version.numbered.text', { version }));

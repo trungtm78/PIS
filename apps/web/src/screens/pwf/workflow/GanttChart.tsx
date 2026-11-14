@@ -88,7 +88,7 @@ export function GanttChart({ rows, phases, today }: Props) {
             <div className="pwf-gantt__months">
               {scale.months.map((month) => (
                 <span key={month.key} className="pwf-gantt__month" style={{ width: `${(month.days / scale.days) * 100}%` }}>
-                  {month.days * dayWidth >= 64 ? t('pwf6.gantt.month.text', { month: String(month.month).padStart(2, '0'), year: month.year }) : month.days * dayWidth >= 28 ? String(month.month).padStart(2, '0') : ''}
+                  {month.days * dayWidth >= 116 ? t('pwf6.gantt.month.text', { month: String(month.month).padStart(2, '0'), year: month.year }) : month.days * dayWidth >= 64 ? `${String(month.month).padStart(2, '0')}/${month.year}` : month.days * dayWidth >= 28 ? String(month.month).padStart(2, '0') : ''}
                 </span>
               ))}
             </div>

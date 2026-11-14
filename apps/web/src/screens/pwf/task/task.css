@@ -196,3 +196,6 @@
   font-size: 13px;
   color: var(--mv-color-text-secondary);
 }
+.pwf-taskhead__title.heading {
+  display: block;
+}

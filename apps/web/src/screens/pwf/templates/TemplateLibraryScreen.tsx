@@ -10,7 +10,7 @@ import type { DataTableColumn } from '../../../ui';
 import { useCatalogue } from '../../adm/governance/hooks';
 import { statusText } from '../../adm/governance/labels';
 import type { RuleStatus } from '../../adm/governance/model';
-import { factName } from '../codes';
+import { factName, templateKnown, templateName } from '../codes';
 import { FigureInfo, UnverifiedLabel } from '../components';
 import { PATHS, PERMISSIONS, TEMPLATE_RULE_TYPE, dayText, editorLink, holds } from '../model';
 import { useTemplateCodes } from './hooks';
@@ -124,7 +124,7 @@ function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit:
           <span className="pwf-code">{row.code}</span>
           {row.summary?.projectType === null || row.summary?.projectType === undefined ? null : (
             <span className="pwf-hint">
-              {t('pwf6.lib.type.label')} <span>{factName(t, row.summary.projectType)}</span>
+              {t('pwf6.lib.type.label')} <span>{templateKnown(row.summary.projectType) ? templateName(t, row.summary.projectType) : factName(t, row.summary.projectType)}</span>
             </span>
           )}
           {row.unverified ? <UnverifiedLabel /> : null}

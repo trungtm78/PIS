@@ -127,7 +127,7 @@ export function StepsPanel({ detail, projectId }: { detail: WorkflowDetail; proj
         <ol className="pwf-phases">
           {groups.map((phase) => (
             <li key={phase.code} data-phase={phase.code}>
-              <details className="pwf-phase" open={detail.phases.find((one) => one.code === phase.code)?.open === true || groups.length === 1}>
+              <details className="pwf-phase" open={groups.length === 1}>
                 <summary className="pwf-step__head">
                   <h3>
                     {phase.order}. {phase.name}

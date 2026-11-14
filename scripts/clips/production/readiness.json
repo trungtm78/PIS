@@ -53,7 +53,7 @@
           "proof": "WRITTEN_NOT_RUN"
         },
         "clip-public-pwf-review": {
-          "proof": "WRITTEN_NOT_RUN"
+          "proof": "RUN_VERIFIED"
         },
         "clip-public-phone-work": {
           "proof": "RUN_VERIFIED"
