@@ -28,14 +28,18 @@ enum PwfBandKind {
 
 /// The deadline of a task in one band: the colour, the days left (negative when passed) and the unit the server counted them in.
 final class PwfBand {
-  const PwfBand({required this.kind, required this.unit, this.remainingDays, this.overdue = false, this.reason});
+  const PwfBand({required this.kind, required this.unit, this.remainingDays, this.overdue = false, this.dueToday, this.reason});
 
   final PwfBandKind kind;
   final int? remainingDays;
 
   /// `CALENDAR` or `WORKING`: the words of the label follow it ("3 working days left").
   final String unit;
+  /// The day of the deadline has passed (true from the calendar day after it, a worked day or not): what the server says, never a count below zero.
   final bool overdue;
+
+  /// Whether the deadline is today by the calendar; null when the server (or a copy kept before it said so) does not tell.
+  final bool? dueToday;
 
   /// `NO_DUE`, `FAR` or `CALENDAR_UNAVAILABLE` when the band is none or unknown.
   final String? reason;
@@ -49,7 +53,7 @@ PwfBand? parsePwfBand(Object? raw) {
   final PwfBandKind? kind = PwfBandKind.parse(record['band']);
   final String? unit = text(record['unit']);
   if (kind == null || (unit != 'CALENDAR' && unit != 'WORKING')) return null;
-  return PwfBand(kind: kind, unit: unit!, remainingDays: whole(record['remaining_days']), overdue: record['overdue'] == true, reason: filled(record['reason']));
+  return PwfBand(kind: kind, unit: unit!, remainingDays: whole(record['remaining_days']), overdue: record['overdue'] == true, dueToday: record['due_today'] is bool ? record['due_today'] as bool : null, reason: filled(record['reason']));
 }
 
 /// The state of a task as the workflow words it.

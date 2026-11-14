@@ -1620,6 +1620,8 @@
   "home.source.pwf.due_soon.title": "Công việc {task} của dự án {project} còn {days} ngày làm việc đến hạn",
   "home.source.pwf.due_today.title": "Công việc {task} của dự án {project} đến hạn hôm nay",
   "home.source.pwf.overdue.title": "Công việc {task} của dự án {project} quá hạn {days} ngày làm việc",
+  "home.source.pwf.overdue_now.title": "Công việc {task} của dự án {project} đã quá hạn",
+  "home.source.pwf.no_day_left.title": "Công việc {task} của dự án {project} không còn ngày làm việc nào trước hạn",
   "home.source.pwf.overdue.escalated.title": "Công việc {task} của dự án {project} quá hạn {days} ngày làm việc, đã tới ngày báo lên cấp quản lý",
   "home.source.pwf.milestone.title": "Mốc {task} của dự án {project} dự báo trễ {days} ngày so với đường cơ sở",
   "home.source.pwf.detail": "{code}, giai đoạn {phase}, hạn {date}",

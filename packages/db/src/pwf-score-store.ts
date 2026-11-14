@@ -27,6 +27,9 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 export interface PeriodRow {
   id: string;
   scopeUnitId: string;
+  /** The unit of the period by its code and name, for a screen that names it (never the bare id). */
+  scopeUnitCode: string | null;
+  scopeUnitName: string | null;
   periodKind: 'MONTH' | 'QUARTER' | 'YEAR';
   periodFrom: string;
   periodTo: string;
@@ -48,6 +51,8 @@ export interface PeriodRow {
 interface PeriodSql {
   id: string;
   scope_unit_id: string;
+  scope_unit_code: string | null;
+  scope_unit_name: string | null;
   period_kind: PeriodRow['periodKind'];
   period_from: string;
   period_to: string;
@@ -66,13 +71,15 @@ interface PeriodSql {
   version: number;
 }
 
-export const PERIOD_COLUMNS = `p.id, p.scope_unit_id, p.period_kind, p.period_from::text as period_from, p.period_to::text as period_to, p.status, p.policy_code, p.policy_rule_id, p.policy_version, p.preview_hash, p.snapshot_hash,
+export const PERIOD_COLUMNS = `p.id, p.scope_unit_id, (select u.code from machvon.organization_unit u where u.tenant_id = p.tenant_id and u.id = p.scope_unit_id) as scope_unit_code, (select u.name from machvon.organization_unit u where u.tenant_id = p.tenant_id and u.id = p.scope_unit_id) as scope_unit_name, p.period_kind, p.period_from::text as period_from, p.period_to::text as period_to, p.status, p.policy_code, p.policy_rule_id, p.policy_version, p.preview_hash, p.snapshot_hash,
   p.summary, p.locked_by, to_char(p.locked_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as locked_at, p.response_until::text as response_until,
   to_char(p.official_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as official_at, p.supersedes_period_id, p.version`;
 
 export const toPeriod = (row: PeriodSql): PeriodRow => ({
   id: row.id,
   scopeUnitId: row.scope_unit_id,
+  scopeUnitCode: row.scope_unit_code ?? null,
+  scopeUnitName: row.scope_unit_name ?? null,
   periodKind: row.period_kind,
   periodFrom: row.period_from,
   periodTo: row.period_to,
@@ -156,10 +163,23 @@ export class PwfScoreStore {
     const unit = units[0];
     if (unit === undefined) throw notFound();
     const prefix = unit.path.endsWith('/') ? unit.path : `${unit.path}/`;
-    const members = await tx.query<{ membership_id: string; unit_id: string }>(
-      'select m.id as membership_id, m.organization_id as unit_id from machvon.membership m join machvon.organization_unit u on u.tenant_id = m.tenant_id and u.id = m.organization_id where starts_with(u.path, $1) order by m.id',
+    // B11 (R49): the people who are scored are the STAFF of the unit and of the units under it, each person once. A guest of a contractor and a service account are not staff of the unit: they hold no line (a task they hold
+    // is still read, their share simply belongs to nobody who is scored). A person with several memberships in the subtree (one that ended and the one that replaced it, or two units) is one person: one line, under the
+    // membership that is live (else the newest), and what the ledger gave to the other memberships of the same person counts for that line.
+    const staff = await tx.query<{ membership_id: string; unit_id: string; user_id: string; live: boolean }>(
+      `select m.id as membership_id, m.organization_id as unit_id, m.user_id, (m.status in ('Invited', 'Active', 'Suspended')) as live
+         from machvon.membership m join machvon.organization_unit u on u.tenant_id = m.tenant_id and u.id = m.organization_id
+        where starts_with(u.path, $1) and m.membership_type = 'STAFF'
+        order by m.user_id, (m.status in ('Invited', 'Active', 'Suspended')) desc, m.valid_from desc, m.id`,
       [prefix],
     );
+    const personOf = new Map<string, string>();
+    const samePerson = new Map<string, string>();
+    for (const row of staff) {
+      if (!personOf.has(row.user_id)) personOf.set(row.user_id, row.membership_id);
+      samePerson.set(row.membership_id, personOf.get(row.user_id) as string);
+    }
+    const members = staff.filter((row) => samePerson.get(row.membership_id) === row.membership_id).map((row) => ({ membership_id: row.membership_id, unit_id: row.unit_id })).sort((left, right) => (left.membership_id < right.membership_id ? -1 : 1));
     // The standing of a task at the end of the period is read from the log of its requests to close, sends back and closes (as `readingOf` reads it), not from its present status: a task awaiting approval on the last day
     // and sent back the next month is still a candidate, and one whose finish was declared after the period is not done in it. A task whose log does not record the request is read from its row.
     const candidates = await tx.query<{ id: string }>(
@@ -181,7 +201,7 @@ export class PwfScoreStore {
                 and not (t.status = 'CANCELLED' and (t.cancelled_at at time zone 'Asia/Ho_Chi_Minh')::date <= $3::date))
           )
         order by t.id`,
-      [members.map((member) => member.membership_id), request.from, request.to],
+      [staff.map((member) => member.membership_id), request.from, request.to],
     );
     const bundles = await loadTaskBundles(tx, candidates.map((row) => row.id));
     const ordered = [...bundles.values()].sort((left, right) => (left.row.id < right.row.id ? -1 : 1));
@@ -214,7 +234,8 @@ export class PwfScoreStore {
         usedSets.set(resolved.code, { code: resolved.code, rule_id: resolved.ruleId, version: resolved.version });
       }
       if (reading.final) usedSets.set(resolved.code, { code: resolved.code, rule_id: resolved.ruleId, version: resolved.version });
-      tasks.push(taskOf(bundle, reading, kpi, request.from, request.to));
+      const task = taskOf(bundle, reading, kpi, request.from, request.to);
+      tasks.push({ ...task, assignments: task.assignments.map((one) => ({ ...one, membership_id: samePerson.get(one.membership_id) ?? one.membership_id })) });
     }
     const workflowIds = [...new Set(tasks.map((task) => task.workflow_id))].sort();
     const baselines = workflowIds.length === 0 ? [] : await tx.query<{ workflow_id: string; version: number; taken_on: string }>(

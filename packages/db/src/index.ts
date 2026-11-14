@@ -1933,7 +1933,7 @@ export type { GateOutcome, ProjectWorkflowGatePort } from './pwf-gate.ts';
 export { PwfWorkflowStore, factsOf } from './pwf-workflow-store.ts';
 export { PwfAssignmentReads, legalBasisView, selectionRecordOf } from './pwf-assignment.ts';
 export type { AssignmentRuleRef, LegalBasisView, LegalDocumentView, SelectionRecord as PwfSelectionRecord, SuggestionView as PwfSuggestionView, TemplateOption as PwfTemplateOption } from './pwf-assignment.ts';
-export { approvedFormRevision, currentFormRevisions, resolveFormRevision } from './pwf-form-revision.ts';
+export { approvedFormRevision, currentFormRevisions, knownFormCodes, resolveFormRevision } from './pwf-form-revision.ts';
 export type { CurrentFormRevision, FormRevision } from './pwf-form-revision.ts';
 export type { AdoptOutcome, AdoptRequest, AdoptTaskView, EvidenceDraft, ResolvedTemplate, StartRequest, Treatment, WorkflowResult as PwfWorkflowResult } from './pwf-workflow-store.ts';
 export { PwfTaskStore, peakShare, refreshSchedule } from './pwf-task-store.ts';

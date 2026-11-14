@@ -182,8 +182,20 @@ export interface RuleVersion {
 const STATUSES: readonly RuleStatus[] = ['DRAFT', 'SUBMITTED', 'APPROVED', 'RETIRED'];
 const PHASES: readonly RulePhase[] = ['DRAFT', 'SUBMITTED', 'NEVER_IN_FORCE', 'SCHEDULED', 'IN_FORCE', 'ENDED'];
 
+/** The names the server gave beside the ids of the people of a version (`created_by_name` and the like), by membership id: what `personText` says instead of a piece of an id. */
+const PERSON_NAMES = new Map<string, string>();
+export const personNameOf = (id: string): string | undefined => PERSON_NAMES.get(id);
+function rememberPeople(raw: Record<string, unknown>): void {
+  for (const field of ['created_by', 'submitted_by', 'approved_by', 'retired_by']) {
+    const id = raw[field];
+    const name = raw[`${field}_name`];
+    if (typeof id === 'string' && typeof name === 'string' && name.trim() !== '') PERSON_NAMES.set(id, name);
+  }
+}
+
 export function toVersion(raw: unknown): RuleVersion | undefined {
   if (!isRecord(raw)) return undefined;
+  rememberPeople(raw);
   const status = STATUSES.find((one) => one === raw.status);
   const phase = PHASES.find((one) => one === raw.phase);
   if (typeof raw.id !== 'string' || typeof raw.rule_type !== 'string' || typeof raw.code !== 'string' || status === undefined || phase === undefined || typeof raw.effective_from !== 'string') return undefined;

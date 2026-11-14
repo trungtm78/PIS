@@ -6,7 +6,7 @@ import { KitTable } from '../KitTable';
 import { useRuleMove } from './hooks';
 import { alertFieldText, blockText, legalText, moveRule, moveTitle, moveText, phaseLook, phaseText, problemText, reasonLabel, refusalText, severityText, statusText, unitText } from './labels';
 import type { Translate } from './labels';
-import { ALERT_TYPE, REASON_MAX, REASON_MIN, blankDraft, dayText, describeRefusal, momentText, shortId, sideBySide, unitOfField, updateAt } from './model';
+import { ALERT_TYPE, REASON_MAX, REASON_MIN, blankDraft, dayText, describeRefusal, momentText, personNameOf, shortId, sideBySide, unitOfField, updateAt } from './model';
 import type { Draft, FieldSpec, LegalStatus, Move, Problem, Refusal, RuleVersion, Schema } from './model';
 import './governance.css';
 
@@ -38,10 +38,10 @@ export function periodText(t: Translate, from: string, to: string | null): strin
   return to === null ? t('gova1.period.open', { from: dayText(from) }) : t('gova1.period.closed', { from: dayText(from), to: dayText(to) });
 }
 
-/** The person as the page can name them: "You" for the person who is signed in, else the start of the membership id (the audit log, ADM-11, names the person). */
+/** The person as the page can name them: "You" for the person who is signed in, else the name the server gave with the version, else (a server that gave none) the start of the membership id. */
 export function personText(t: Translate, id: string | null, me: string | undefined): string {
   if (id === null || id === '') return t('gova1.common.none');
-  return id === me ? t('gova1.common.you') : shortId(id);
+  return id === me ? t('gova1.common.you') : (personNameOf(id) ?? shortId(id));
 }
 
 /** The value of a param as text: yes/no, a number with its thousands, the text as it is; a list or object as compact JSON. */

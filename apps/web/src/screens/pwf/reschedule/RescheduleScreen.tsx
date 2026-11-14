@@ -16,7 +16,7 @@ import { ChangesView } from './ChangesView';
 import { DecisionPanel } from './DecisionPanel';
 import { ProposalForm } from './ProposalForm';
 import { useDecide, useProposal, usePropose, useSchedule, useWorkflow } from './hooks';
-import { decisionBody, emptyForm, hasFormErrors, heldFromAddress, heldFromPreview, isOpenProposal, proposeBody, validateForm } from './model';
+import { decisionBody, emptyForm, hasFormErrors, heldFromAddress, heldFromPreview, heldFromWorkflow, isOpenProposal, proposeBody, validateForm } from './model';
 import type { DecisionBody, HeldProposal, RescheduleForm } from './model';
 import '../pwf.css';
 import '../start/start.css';
@@ -98,7 +98,7 @@ function ReschedulePanel({ projectId, workflow, schedule }: PanelProps) {
 
   const [form, setForm] = useState<RescheduleForm>(emptyForm);
   const [attempted, setAttempted] = useState(false);
-  const [held, setHeld] = useState<HeldProposal | undefined>(() => heldFromAddress(params));
+  const [held, setHeld] = useState<HeldProposal | undefined>(() => heldFromAddress(params) ?? heldFromWorkflow(workflow));
   // A proposal named in the address is read from the server: its changes, reason and status come before the decision.
   const stored = useProposal(held === undefined || held.preview !== undefined ? undefined : held.id);
   useEffect(() => {

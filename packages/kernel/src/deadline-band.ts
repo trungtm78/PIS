@@ -70,7 +70,10 @@ export interface DeadlineBandResult {
   band: Band;
   /** Null when there is no deadline or the days cannot be counted. */
   remainingDays: number | null;
+  /** The day of the deadline has passed: true from the calendar day after it, whether or not that day is worked (a deadline of Friday is overdue on the Saturday, with 0 working days of lateness counted yet). */
   overdue: boolean;
+  /** The deadline is today, by the calendar: the only day a screen may say "due today". */
+  dueToday: boolean;
   unit: DeadlineUnit;
   reason?: 'NO_DUE' | 'FAR' | 'CALENDAR_UNAVAILABLE';
 }
@@ -153,7 +156,8 @@ export function remainingDays(input: RemainingInput): number | null {
   if (input.unit === 'CALENDAR') return dayNumber(input.dueOn) - dayNumber(input.today);
   if (dayNumber(input.dueOn) >= dayNumber(input.today)) return workingDaysBetween(input.calendars, input.today, input.dueOn) ?? null;
   const past = workingDaysBetween(input.calendars, input.dueOn, input.today);
-  return past === undefined ? null : -past;
+  // Never -0: over the days nobody works after the deadline the count is a plain 0.
+  return past === undefined ? null : past === 0 ? 0 : -past;
 }
 
 export interface DeadlineBandInput extends Omit<RemainingInput, 'dueOn'> {
@@ -163,12 +167,37 @@ export interface DeadlineBandInput extends Omit<RemainingInput, 'dueOn'> {
 
 export function deadlineBand(input: DeadlineBandInput): DeadlineBandResult {
   const { unit } = input;
-  if (input.dueOn === null) return { band: 'NONE', remainingDays: null, overdue: false, unit, reason: 'NO_DUE' };
+  if (input.dueOn === null) return { band: 'NONE', remainingDays: null, overdue: false, dueToday: false, unit, reason: 'NO_DUE' };
   const remaining = remainingDays({ dueOn: input.dueOn, today: input.today, unit, calendars: input.calendars });
-  if (remaining === null) return { band: 'UNKNOWN', remainingDays: null, overdue: false, unit, reason: 'CALENDAR_UNAVAILABLE' };
-  const band = bandOf(remaining, input.thresholds);
-  const result: DeadlineBandResult = { band, remainingDays: remaining, overdue: remaining < 0, unit };
+  if (remaining === null) return { band: 'UNKNOWN', remainingDays: null, overdue: false, dueToday: false, unit, reason: 'CALENDAR_UNAVAILABLE' };
+  // Overdue is a fact of the calendar, not of the count (R49): in working days the count stays 0 over the days nobody works after the deadline, and the deadline has passed all the same. An overdue deadline is red on every
+  // ladder ("red only once overdue" is the latest a red line can be), so the weekend after a missed Friday is never yellow and never "due today".
+  const overdue = dayNumber(input.dueOn) < dayNumber(input.today);
+  const band = overdue ? 'RED' : bandOf(remaining, input.thresholds);
+  const result: DeadlineBandResult = { band, remainingDays: remaining, overdue, dueToday: input.dueOn === input.today, unit };
   return band === 'NONE' ? { ...result, reason: 'FAR' } : result;
+}
+
+export type DeadlineWordingKind = 'NO_DUE' | 'FAR' | 'UNKNOWN' | 'OVERDUE_DAYS' | 'OVERDUE' | 'DUE_TODAY' | 'NO_DAY_LEFT' | 'DAYS_LEFT';
+
+export interface DeadlineWording {
+  kind: DeadlineWordingKind;
+  /** The days the words carry: the days of lateness (OVERDUE_DAYS), the days left (DAYS_LEFT), 0 for the three states of the day itself, null when nothing is counted. */
+  days: number | null;
+  unit: DeadlineUnit;
+}
+
+/**
+ * What a screen says of a deadline, from the result of `deadlineBand` alone (R49: one source for the web and the phone, so the words and the colour never disagree): how many days late; overdue with no working day of lateness
+ * counted yet (the weekend after the deadline); due today (the day of the deadline, and no other); no working day left before a deadline that is still ahead (it falls on a day nobody works); or how many days are left.
+ */
+export function deadlineWording(result: Pick<DeadlineBandResult, 'band' | 'remainingDays' | 'overdue' | 'dueToday' | 'unit'>): DeadlineWording {
+  const { unit } = result;
+  if (result.remainingDays === null) return { kind: result.band === 'UNKNOWN' ? 'UNKNOWN' : 'NO_DUE', days: null, unit };
+  if (result.band === 'NONE') return { kind: 'FAR', days: null, unit };
+  if (result.overdue) return result.remainingDays < 0 ? { kind: 'OVERDUE_DAYS', days: -result.remainingDays, unit } : { kind: 'OVERDUE', days: 0, unit };
+  if (result.remainingDays > 0) return { kind: 'DAYS_LEFT', days: result.remainingDays, unit };
+  return { kind: result.dueToday ? 'DUE_TODAY' : 'NO_DAY_LEFT', days: 0, unit };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

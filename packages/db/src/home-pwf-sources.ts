@@ -104,15 +104,15 @@ export class HomePwfSources {
       // The day is a parameter only when the view needs it (a parameter no part of the statement mentions cannot be typed by the database).
       mine: (me) => this.assignedTo(me, params.add(context.today)),
     });
-    const until = horizon === null ? '' : `and t.planned_finish <= ${params.add(horizon)}::date`;
-    const past = after === null ? '' : `and (t.planned_finish, t.id) > (${params.add(after.day)}::date, ${params.add(after.id)}::uuid)`;
+    const until = horizon === null ? '' : `and t.committed_finish <= ${params.add(horizon)}::date`;
+    const past = after === null ? '' : `and (t.committed_finish, t.id) > (${params.add(after.day)}::date, ${params.add(after.id)}::uuid)`;
     return context.tx.query<TaskSql>(
-      `select t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.planned_finish::text as due_on, t.baseline_finish::text as baseline_on, p.id as project_id, p.code as project_code, ou.path as unit_path
+      `select t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.committed_finish::text as due_on, t.baseline_finish::text as baseline_on, p.id as project_id, p.code as project_code, ou.path as unit_path
          from machvon.project_task t
          join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
          ${PROJECT_JOINS('t', 't.project_id')}
-        where t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS') and t.planned_finish is not null ${until} ${past} and ${visible}
-        order by t.planned_finish, t.id limit ${SOURCE_LIMIT}`,
+        where t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS') and t.committed_finish is not null ${until} ${past} and ${visible}
+        order by t.committed_finish, t.id limit ${SOURCE_LIMIT}`,
       params.values,
     );
   }
@@ -131,7 +131,7 @@ export class HomePwfSources {
         const result = pwfDeadlineBand.deadlineBand({ dueOn: row.due_on, today: context.today, unit: policy.unit, calendars, thresholds: pwfDeadlineBand.thresholdsFor(policy, { taskKind: row.kind, priority: row.priority, phase: row.phase_code }) });
         // No colour yet (far), or none can be given (the calendar of the year is not published): not a thing to act on today.
         if (result.band === 'NONE' || result.band === 'UNKNOWN' || result.remainingDays === null) continue;
-        items.push(this.itemOf(context, row, result.band, result.remainingDays, pwfDeadlineBand.shouldEscalate({ remaining: result.remainingDays, escalateAfterOverdueDays: policy.escalate_after_overdue_days })));
+        items.push(this.itemOf(context, row, result, pwfDeadlineBand.shouldEscalate({ remaining: result.remainingDays, escalateAfterOverdueDays: policy.escalate_after_overdue_days })));
         if (items.length >= SOURCE_LIMIT) return items;
       }
       const last = rows[rows.length - 1];
@@ -148,16 +148,26 @@ export class HomePwfSources {
         and a.valid_from <= ${today}::date and (a.valid_to is null or a.valid_to >= ${today}::date))`;
   }
 
-  private itemOf(context: SourceContext, row: TaskSql, band: pwfDeadlineBand.BandColor, remaining: number, escalated: boolean): SourceRow {
-    const overdue = remaining < 0;
+  private itemOf(context: SourceContext, row: TaskSql, result: pwfDeadlineBand.DeadlineBandResult, escalated: boolean): SourceRow {
+    // R49: the words follow the one wording of the kernel, so the alert, the board and the phone say the same of the same deadline. Overdue is the day of the deadline having passed, not a count below zero: over a weekend after
+    // the deadline no working day of lateness is counted yet, and the task is overdue all the same (never "due today").
+    const band = result.band as pwfDeadlineBand.BandColor;
+    const wording = pwfDeadlineBand.deadlineWording(result);
+    const overdue = result.overdue;
     const kind: WorkKind = overdue ? 'PWF_TASK_OVERDUE' : 'PWF_TASK_DUE_SOON';
     const facet = overdue ? (escalated ? 'OVERDUE_ESCALATED' : 'OVERDUE') : band;
-    const days = Math.abs(remaining);
-    const title = overdue
-      ? message(escalated ? 'home.source.pwf.overdue.escalated.title' : 'home.source.pwf.overdue.title', { task: row.name, project: row.project_code, days })
-      : remaining === 0
-        ? message('home.source.pwf.due_today.title', { task: row.name, project: row.project_code })
-        : message('home.source.pwf.due_soon.title', { task: row.name, project: row.project_code, days });
+    const days = wording.days ?? 0;
+    const named = { task: row.name, project: row.project_code };
+    const title =
+      wording.kind === 'OVERDUE_DAYS'
+        ? message(escalated ? 'home.source.pwf.overdue.escalated.title' : 'home.source.pwf.overdue.title', { ...named, days })
+        : wording.kind === 'OVERDUE'
+          ? message('home.source.pwf.overdue_now.title', named)
+          : wording.kind === 'DUE_TODAY'
+            ? message('home.source.pwf.due_today.title', named)
+            : wording.kind === 'NO_DAY_LEFT'
+              ? message('home.source.pwf.no_day_left.title', named)
+              : message('home.source.pwf.due_soon.title', { ...named, days });
     return {
       ...base(kind),
       id: `${row.id}:${row.schedule_version}`,
@@ -175,20 +185,20 @@ export class HomePwfSources {
     };
   }
 
-  /** The milestones of running workflows whose forecast day is past the day of the first baseline, or that sit on the critical path with their float spent (BR-PWF-25), for the one who answers for the project. */
+  /** The milestones of running workflows whose forecast day is past their official day (the schedule last released, R49) or the day of the first baseline, or that sit on the critical path with their float spent (BR-PWF-25), for the one who answers for the project. */
   private async milestonesAtRisk(context: SourceContext): Promise<SourceRow[]> {
     const params = new Params();
     const today = params.add(context.today);
     const visible = reach(params, context, { source: 'PROJECT_TASK', id: `(t.id::text || ':' || t.schedule_version::text || ':risk')`, tenant: 't', responsible: [], unit: false });
-    const rows = await context.tx.query<TaskSql & { slip: number }>(
-      `select t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.planned_finish::text as due_on, t.baseline_finish::text as baseline_on, p.id as project_id, p.code as project_code, ou.path as unit_path,
+    const rows = await context.tx.query<TaskSql & { slip: number; forecast_on: string }>(
+      `select t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.committed_finish::text as due_on, t.baseline_finish::text as baseline_on, t.planned_finish::text as forecast_on, p.id as project_id, p.code as project_code, ou.path as unit_path,
               (t.planned_finish - t.baseline_finish) as slip
          from machvon.project_task t
          join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
          ${PROJECT_JOINS('t', 't.project_id')}
-        where t.kind = 'MILESTONE' and t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS', 'AWAITING_APPROVAL') and t.planned_finish is not null and t.baseline_finish is not null
-          and (t.planned_finish > t.baseline_finish or (t.critical and coalesce(t.total_float, 0) < 0)) and t.planned_finish <= ${today}::date + ${MILESTONE_AHEAD_DAYS} and ${visible}
-        order by t.planned_finish, t.id limit ${SOURCE_LIMIT}`,
+        where t.kind = 'MILESTONE' and t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS', 'AWAITING_APPROVAL') and t.planned_finish is not null and t.committed_finish is not null and t.baseline_finish is not null
+          and (t.planned_finish > t.baseline_finish or t.planned_finish > t.committed_finish or (t.critical and coalesce(t.total_float, 0) < 0)) and t.committed_finish <= ${today}::date + ${MILESTONE_AHEAD_DAYS} and ${visible}
+        order by t.committed_finish, t.id limit ${SOURCE_LIMIT}`,
       params.values,
     );
     return rows.map(
@@ -198,7 +208,7 @@ export class HomePwfSources {
         dueOn: row.due_on,
         originalDueOn: row.baseline_on ?? row.due_on,
         title: message('home.source.pwf.milestone.title', { task: row.name, project: row.project_code, days: Math.max(0, Number(row.slip)) }),
-        subtitle: message('home.source.pwf.milestone.detail', { code: row.task_code, baseline: row.baseline_on ?? row.due_on, date: row.due_on }),
+        subtitle: message('home.source.pwf.milestone.detail', { code: row.task_code, baseline: row.baseline_on ?? row.due_on, date: row.forecast_on }),
         status: 'AT_RISK',
         severity: severityOf('PROJECT_TASK', 'MILESTONE_AT_RISK', context.rules),
         lifecycle: 'NEW',

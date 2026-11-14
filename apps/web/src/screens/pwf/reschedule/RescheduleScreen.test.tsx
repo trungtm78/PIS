@@ -223,6 +223,28 @@ describe('PWF-06: the decision of a second person', () => {
     expect((h.command.mock.calls[0]?.[1] as { ifMatchVersion: number }).ifMatchVersion).toBe(preview().base_version);
   });
 
+  it('A6: opens the proposal that waits on the project by itself, with nothing in the address, so that who decides finds it from the menu', async () => {
+    const h = serve(
+      { get_resources_project_id: projectBody(), getProjectWorkflow: { ...workflow(), pending_reschedule: { proposal_id: PROPOSAL_ID, base_version: preview().base_version } }, getProjectSchedule: schedule(), getProjectReschedule: preview() },
+      { decideProjectReschedule: { resource_id: PROPOSAL_ID, status: 'APPROVED', resource_version: 2 } },
+    );
+    mount(<RescheduleScreen route={route} />, h, ['pwf.read', 'pwf.schedule.approve'], `/pwf/pwf-06?id=${PROJECT_ID}`);
+    expect(await screen.findByTestId('proposal')).toBeTruthy();
+    await waitFor(() => expect(screen.queryByTestId('no-detail')).toBeNull());
+    expect(h.read.mock.calls.some((call) => call[0] === 'getProjectReschedule' && (call[1] as { path: { id: string } }).path.id === PROPOSAL_ID)).toBe(true);
+    fireEvent.click(screen.getByTestId('approve'));
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    const input = h.command.mock.calls[0]?.[1] as { path: unknown; ifMatchVersion: number };
+    expect(input.path).toEqual({ id: PROPOSAL_ID });
+    expect(input.ifMatchVersion).toBe(preview().base_version);
+  });
+
+  it('A6: a workflow with no proposal waiting opens the form, as before', async () => {
+    open({ workflow: { ...workflow(), pending_reschedule: null } });
+    await ready();
+    expect(screen.queryByTestId('proposal')).toBeNull();
+  });
+
   it('shows no decision to a person who may only propose, and no form to a person who may only decide', async () => {
     open({ permissions: ['pwf.read', 'pwf.schedule.propose'] });
     await propose();

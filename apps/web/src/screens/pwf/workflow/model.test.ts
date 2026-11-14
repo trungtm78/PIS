@@ -12,6 +12,7 @@ import {
   ganttMarks,
   ganttRange,
   gateRows,
+  gateStandingOf,
   healthOf,
   isStale,
   milestoneGroups,
@@ -184,6 +185,15 @@ describe('PWF-03 model: the list, the board and the gates', () => {
     ]);
     expect(columns[0]?.required).toEqual({ done: 1, total: 2 });
     expect(columns[2]?.required).toBeNull();
+  });
+
+  it('B15: a closed gate of a phase the project has not reached stands NOT_DUE; a server that tells no standing is read as open or closed', () => {
+    expect(gateStandingOf({ open: false, standing: 'NOT_DUE' }, undefined)).toBe('NOT_DUE');
+    expect(gateStandingOf({ open: false, standing: 'NOT_DUE' }, { target: 'closeProject', gated: true, open: false, missing: [], as_of: 'x', standing: 'CLOSED' })).toBe('CLOSED');
+    expect(gateStandingOf({ open: false }, undefined)).toBe('CLOSED');
+    expect(gateStandingOf({ open: true }, undefined)).toBe('OPEN');
+    expect(gateStandingOf({ open: false }, { target: 'closeProject', gated: false, open: true, missing: [], as_of: 'x' })).toBe('UNGATED');
+    expect(gateStandingOf({ open: false }, { target: 'closeProject', gated: true, open: true, missing: [], as_of: 'x' })).toBe('OPEN');
   });
 
   it('pairs each gate of the workflow with the assessment read for it, and says when one could not be read', () => {

@@ -13,6 +13,8 @@ import {
   dependencyDepth,
   findDependencyCycle,
   gateFor,
+  gateStanding,
+  openPhaseOf,
   legalDocTypeResolvers,
   parseProjectWorkflowTemplate,
   registerLegalDocTypeResolver,
@@ -373,6 +375,43 @@ describe('gateFor: a legal command of the project is open only when the required
     expect(result.missing.map((one) => `${one.task}:${one.reason}`)).toEqual(['A:NO_STATE', 'B:NO_STATE']);
     const withBranch = gateFor(graph, 'startProjectImplementation', { project_group: 'A' }, [state('A'), state('B')]);
     expect(withBranch.missing).toEqual([{ task: 'D', phase: 'P1', reason: 'NO_STATE' }]);
+  });
+
+  it('B15: a closed gate of a phase the project has not reached is NOT_DUE, never CLOSED; the phase it is in and the ones behind it are judged', () => {
+    const three = parseProjectWorkflowTemplate(
+      template(
+        [task('A', { phase: 'P1' }), task('E', { phase: 'P2' }), task('F', { phase: 'P3' }), task('G', { phase: 'P3', required: false })],
+        [
+          { code: 'P1', name: 'One', gates: ['startProjectImplementation'] },
+          { code: 'P2', name: 'Two', gates: ['completeProject'] },
+          { code: 'P3', name: 'Three', gates: ['closeProject', 'completeProject'] },
+        ],
+      ),
+    );
+    const rows = (done: string[]): Array<{ phase: string; required: boolean; excluded: boolean; tracked: boolean; status: string }> =>
+      three.tasks.map((one) => ({ phase: one.phase, required: one.required, excluded: false, tracked: true, status: done.includes(one.code) ? 'DONE' : 'NOT_STARTED' }));
+    const standing = (target: string, done: string[]): string => {
+      const verdict = gateFor(three, target, {}, done.map((code) => state(code)));
+      return gateStanding(three, target, verdict, openPhaseOf(three, rows(done))).standing;
+    };
+    expect(openPhaseOf(three, rows([]))).toBe('P1');
+    expect(openPhaseOf(three, rows(['A']))).toBe('P2');
+    expect(openPhaseOf(three, rows(['A', 'E', 'F']))).toBeNull();
+    // In phase one: its own gate is judged, the gates of the phases ahead are not due yet.
+    expect(standing('startProjectImplementation', [])).toBe('CLOSED');
+    expect(standing('completeProject', [])).toBe('NOT_DUE');
+    expect(standing('closeProject', [])).toBe('NOT_DUE');
+    expect(standing('suspendProject', [])).toBe('UNGATED');
+    // In phase two: the gate behind is open, the one of this phase is judged (it is listed by this phase too), the one ahead waits.
+    expect(standing('startProjectImplementation', ['A'])).toBe('OPEN');
+    expect(standing('completeProject', ['A'])).toBe('CLOSED');
+    expect(standing('closeProject', ['A'])).toBe('NOT_DUE');
+    // A phase that was passed with a task of an earlier phase reopened is judged again; everything done is open.
+    expect(standing('closeProject', ['A', 'E'])).toBe('CLOSED');
+    expect(standing('closeProject', ['A', 'E', 'F'])).toBe('OPEN');
+    expect(gateStanding(three, 'closeProject', gateFor(three, 'closeProject', {}, []), 'P1').phases).toEqual(['P3']);
+    // A task left out of the project or not tracked holds no phase open.
+    expect(openPhaseOf(three, rows([]).map((one) => (one.phase === 'P1' ? { ...one, tracked: false } : one)))).toBe('P2');
   });
 
   it('opens when every required task is done and approved, waived by an approved exception, or cancelled with approval', () => {

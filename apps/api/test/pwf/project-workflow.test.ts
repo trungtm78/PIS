@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
-import { loadErrorRegistry, signTenantContext, vietnamDateOf } from '@machvon/kernel';
+import { ND30_A4_STANDARD, loadErrorRegistry, signTenantContext, vietnamDateOf } from '@machvon/kernel';
 import { BASELINE_PACK, applyBaseline } from '../../../../packages/db/src/master-baseline';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
@@ -180,6 +180,38 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
       expect((preview.json.calendar_versions as unknown[]).length).toBeGreaterThan(0);
     });
 
+    it('A2: previews a template as the store keeps it, where a task without an approver has no approver_role at all (the template in force a screen sends back)', async () => {
+      const stored = { ...TEMPLATE, tasks: TEMPLATE.tasks.map(({ approver_role: approver, ...task }) => (approver === null ? task : { ...task, approver_role: approver })) };
+      expect(stored.tasks[1]).not.toHaveProperty('approver_role');
+      const preview = await call('POST', '/project-workflow/templates/preview', { member: MANAGER, body: { params: stored, planned_start_date: START } });
+      expect(preview.status).toBe(200);
+      expect((preview.json.tasks as unknown[]).length).toBe(2);
+      expect((await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: stored })).json).toMatchObject({ valid: true });
+    });
+
+    it('A4: a task names its forms by the code of the document store (hyphens); a code the store does not have is a warning that never blocks', async () => {
+      const layout = randomUUID();
+      await rows(
+        `insert into machvon.document_layout_profile (tenant_id, id, profile_code, revision, margins_mm, element_styles, signature_layout, number_field_layout, watermark_policy, legal_basis, effective_from, status, created_by, updated_by)
+         values ($1, $2, 'PWF5', 1, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, '{}'::jsonb, 'A basis', '2020-01-01', 'PUBLISHED', $3, $3)`,
+        [TENANT_A, layout, memberId(MANAGER), JSON.stringify(ND30_A4_STANDARD.marginsMm), JSON.stringify(ND30_A4_STANDARD.elementStyles), JSON.stringify(ND30_A4_STANDARD.signatureLayout), JSON.stringify(ND30_A4_STANDARD.numberFieldLayout)],
+      );
+      await rows(
+        `insert into machvon.document_template (tenant_id, id, template_code, revision, group_code, doc_type_code, title, layout_profile_id, body_blocks, placeholder_schema, legal_basis, watermark_text, content_sha256, effective_from, status, created_by, updated_by)
+         values ($1, gen_random_uuid(), 'DOC-QD-PHE-DUYET-DU-AN', 1, 'DECISION', 'QD', 'Quyết định phê duyệt dự án', $2, '[]'::jsonb, '{}'::jsonb, 'A basis', 'UNCONFIRMED', repeat('a', 64), date '2020-01-01', 'PUBLISHED', $3, $3)`,
+        [TENANT_A, layout, memberId(MANAGER)],
+      );
+      const withForms = (forms: string[]): typeof TEMPLATE => ({ ...TEMPLATE, tasks: [{ ...TEMPLATE.tasks[0]!, form_templates: forms }, TEMPLATE.tasks[1]!] }) as typeof TEMPLATE;
+      const known = await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: withForms(['DOC-QD-PHE-DUYET-DU-AN']) });
+      expect(known.json).toMatchObject({ valid: true, findings: [] });
+      const unknown = await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: withForms(['DOC-QD-PHE-DUYET-DU-AN', 'DOC-KHONG-CO']) });
+      expect(unknown.json.valid).toBe(true);
+      expect(unknown.json.findings).toEqual([{ code: 'FORM_TEMPLATE_UNKNOWN', path: 'tasks[0].form_templates[1]', severity: 'WARNING', detail: 'DOC-KHONG-CO' }]);
+      // What is not a code of the document store is refused by the contract before anything is read.
+      expect((await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: withForms(['doc qd']) })).status).toBe(422);
+      expect((await call('POST', '/project-workflow/templates/preview', { member: MANAGER, body: { params: withForms(['DOC-QD-PHE-DUYET-DU-AN']), planned_start_date: START } })).status).toBe(200);
+    });
+
     it('keeps the template commands for pwf.template.manage', async () => {
       expect((await call('POST', '/project-workflow/templates/validate', { member: READER, body: TEMPLATE })).status).toBe(403);
     });
@@ -213,6 +245,43 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
       await startFlow(id);
       expect((await detail(id, NOBODY)).status).toBe(403);
       expect((await detail(id, B_MANAGER, TENANT_B)).status).toBe(404);
+    });
+  });
+
+  describe('adoptProjectWorkflow (F3, R36)', () => {
+    const adopt = (projectId: string, body: Record<string, unknown>, member = MANAGER): Promise<Reply> =>
+      call('POST', `/projects/${projectId}/workflow/adopt`, { member, body: { template_code: 'APIFLOW', planned_start_date: START, effective_date: START, facts: { project_group: 'B' }, ...body } });
+
+    it('A1: a dry run answers the plan, writes no workflow and leaves an audit row of the preview; applying it then makes the workflow', async () => {
+      const id = await project('IMPLEMENTATION');
+      const tried = await adopt(id, { dry_run: true });
+      expect(tried).toMatchObject({ status: 200, json: { dry_run: true, applied: false, workflow_id: null, template_code: 'APIFLOW', effective_date: START } });
+      expect((tried.json.tasks as unknown[]).length).toBe(2);
+      expect((await rows('select 1 from machvon.project_workflow where project_id = $1::uuid', [id])).length).toBe(0);
+      const previews = await rows<{ diff: Record<string, unknown> }>('select safe_diff as diff from machvon.audit_event where resource_id = $1 and action = $2', [id, 'workflow.adoption_previewed']);
+      expect(previews.length).toBe(1);
+      expect(previews[0]?.diff).toMatchObject({ template_code: 'APIFLOW', effective_date: START, task_count: 2 });
+      expect((await rows('select 1 from machvon.outbox_event where type = $1 and payload ->> $2 = $3', ['pwf.workflow.adopted.v1', 'project_id', id])).length).toBe(0);
+
+      const applied = await adopt(id, { dry_run: false });
+      expect(applied).toMatchObject({ status: 200, json: { dry_run: false, applied: true, template_code: 'APIFLOW' } });
+      const workflowId = applied.json.workflow_id as string;
+      expect((await rows('select 1 from machvon.audit_event where resource_id = $1 and action = $2', [workflowId, 'workflow.adopted'])).length).toBe(1);
+      expect((await detail(id)).json).toMatchObject({ status: 'ACTIVE', template_code: 'APIFLOW' });
+    });
+
+    it('A1: a dry run names the past tasks that need a decision, and applying without deciding them is refused', async () => {
+      const id = await project('IMPLEMENTATION');
+      const late = `${YEAR}-12-21`;
+      const tried = await adopt(id, { dry_run: true, effective_date: late });
+      expect(tried.status).toBe(200);
+      expect((tried.json.findings as Array<{ code: string; task: string }>).some((one) => one.code === 'PAST_TASK_UNDECIDED' && one.task === 'TA')).toBe(true);
+      expect((await adopt(id, { dry_run: false, effective_date: late })).json.code).toBe('PWF_ADOPT_INVALID');
+    });
+
+    it('A1: a dry run is for who may adopt: a reader is refused', async () => {
+      const id = await project('IMPLEMENTATION');
+      expect((await adopt(id, { dry_run: true }, READER)).status).toBe(403);
     });
   });
 
@@ -270,6 +339,43 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
     });
   });
 
+  describe('B15: how a gate stands for the reader', () => {
+    it('says NOT_DUE for the closed gate of a phase the project has not reached, CLOSED for the gate of the phase it is in, and keeps refusing the command either way', async () => {
+      const staged = {
+        ...TEMPLATE,
+        name: 'Gate flow',
+        phases: [
+          { code: 'P1', name: 'Phase one', gates: ['startProjectImplementation'] },
+          { code: 'P2', name: 'Phase two', gates: ['closeProject'] },
+        ],
+        tasks: [
+          { ...TEMPLATE.tasks[0]!, approver_role: null, legal_doc_types: [] },
+          { ...TEMPLATE.tasks[0]!, code: 'TB', name: 'Task B', phase: 'P2', approver_role: null, legal_doc_types: [], predecessors: [{ task: 'TA', kind: 'FS', lag_working_days: 0 }] },
+        ],
+      };
+      await harness.owner(TENANT_A, [
+        [
+          `insert into machvon.governance_rule (tenant_id, rule_type, code, version, status, params, effective_from, reason, created_by, submitted_by, submitted_at, approved_by, approved_at)
+           values ($1, 'PROJECT_WORKFLOW_TEMPLATE', 'GATEFLOW', 1, 'APPROVED', $2::jsonb, date '2020-01-01', 'A template for the gates', $3, $4, now(), $5, now())`,
+          [TENANT_A, JSON.stringify(staged), memberId(MANAGER), memberId(WORKER), memberId(CHECKER)],
+        ],
+      ]);
+      const id = await project();
+      const started = await call('POST', `/projects/${id}/workflow`, { member: MANAGER, body: { template_code: 'GATEFLOW', planned_start_date: START, facts: { project_group: 'B' }, selection_reason: 'The gates of this project are the ones of GATEFLOW' } });
+      expect(started.status).toBe(200);
+      const seen = await detail(id, READER);
+      expect(seen.json.gates).toEqual([
+        { target: 'startProjectImplementation', open: false, missing_count: 1, standing: 'CLOSED', phases: ['P1'] },
+        { target: 'closeProject', open: false, missing_count: 1, standing: 'NOT_DUE', phases: ['P2'] },
+      ]);
+      const ahead = await call('GET', `/projects/${id}/workflow/gates/closeProject`, { member: READER });
+      expect(ahead.json).toMatchObject({ target: 'closeProject', gated: true, open: false, standing: 'NOT_DUE', phases: ['P2'] });
+      expect((ahead.json.missing as unknown[]).length).toBe(1);
+      expect((await call('GET', `/projects/${id}/workflow/gates/startProjectImplementation`, { member: READER })).json).toMatchObject({ open: false, standing: 'CLOSED', phases: ['P1'] });
+      expect((await call('GET', `/projects/${id}/workflow/gates/suspendProject`, { member: READER })).json).toMatchObject({ gated: false, open: true, standing: 'UNGATED', phases: [] });
+    });
+  });
+
   describe('moving the schedule over HTTP, and the board', () => {
     it('proposes, previews and is decided by another person with the version of the workflow; the second decision is a conflict', async () => {
       const id = await project();
@@ -277,6 +383,8 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
       const proposed = await call('POST', `/projects/${id}/workflow/reschedules`, { member: MANAGER, ifMatch: `"${started.json.resource_version}"`, body: { planned_start_date: `${YEAR}-11-16`, reason: 'The start of the project is moved by two weeks' } });
       expect(proposed).toMatchObject({ status: 200, json: { status: 'PROPOSED', base_version: started.json.resource_version } });
       const proposalId = proposed.json.proposal_id as string;
+      // A6: the workflow names the one proposal that waits, so the screen of the decision opens it by itself.
+      expect((await detail(id, CHECKER)).json.pending_reschedule).toMatchObject({ proposal_id: proposalId, base_version: started.json.resource_version, proposed_by: memberId(MANAGER) });
       // The second person reads the stored proposal before deciding it; a caller without pwf.read and another tenant do not.
       const stored = await call('GET', `/project-reschedules/${proposalId}`, { member: CHECKER });
       expect(stored).toMatchObject({ status: 200, json: { proposal_id: proposalId, status: 'PROPOSED', base_version: started.json.resource_version } });
@@ -287,7 +395,7 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
       const decided = await call('POST', `/project-reschedules/${proposalId}/decide`, { member: CHECKER, ifMatch: `"${started.json.resource_version}"`, body: { decision: 'APPROVE' } });
       expect(decided).toMatchObject({ status: 200, json: { status: 'APPROVED' } });
       expect((await call('POST', `/project-reschedules/${proposalId}/decide`, { member: CHECKER, ifMatch: `"${started.json.resource_version}"`, body: { decision: 'APPROVE' } })).json.code).toBe('PWF_SCHEDULE_VERSION_CONFLICT');
-      expect((await detail(id)).json).toMatchObject({ schedule_version: 2 });
+      expect((await detail(id)).json).toMatchObject({ schedule_version: 2, pending_reschedule: null });
     });
 
     it('UAT-PWF-BRD-01: shows the portfolio board with exact totals by official colour, the month calendar, the next milestones and the load by person', async () => {

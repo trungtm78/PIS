@@ -28,7 +28,7 @@ Widget buildMyTasksScreen(BuildContext context, ScreenContext screen) => const P
 enum PwfColourMode { personal, official }
 
 /// The groups of the list, in the order the person reads them.
-enum PwfGroup { late, soon, ok, far, unknown, done }
+enum PwfGroup { late, due, soon, ok, far, unknown, done }
 
 class PwfMyTasksScreen extends StatelessWidget {
   const PwfMyTasksScreen({super.key});
@@ -54,7 +54,8 @@ PwfGroup pwfGroupOf(PwfMyTask task, PwfColourMode mode) {
   if (task.status == PwfTaskStatus.done || task.status == PwfTaskStatus.cancelled) return PwfGroup.done;
   final PwfBand band = mode == PwfColourMode.personal ? task.personal : task.official;
   return switch (band.kind) {
-    PwfBandKind.red => PwfGroup.late,
+    // Red is not the same as late (R49): a task is under "late" only when its deadline has passed; a red one that is not overdue (due today, or inside the red line of the ladder) is "due".
+    PwfBandKind.red => band.overdue ? PwfGroup.late : PwfGroup.due,
     PwfBandKind.yellow => PwfGroup.soon,
     PwfBandKind.green => PwfGroup.ok,
     PwfBandKind.none => PwfGroup.far,
@@ -178,6 +179,7 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
 
   String _groupTitle(BuildContext context, PwfGroup group) => switch (group) {
         PwfGroup.late => context.t('mob.pwf.group.late'),
+        PwfGroup.due => context.t('mob.pwf.group.due'),
         PwfGroup.soon => context.t('mob.pwf.group.soon'),
         PwfGroup.ok => context.t('mob.pwf.group.ok'),
         PwfGroup.far => context.t('mob.pwf.group.far'),

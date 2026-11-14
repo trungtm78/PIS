@@ -58600,6 +58600,8 @@ final class PwfAssignmentPageResponseItemsItem implements ResponseModel {
     required this.reason,
     required this.assignedBy,
     required this.approvedBy,
+    this.assignedByName,
+    this.approvedByName,
     this.extra = const <String, Object?>{},
   });
 
@@ -58617,7 +58619,9 @@ final class PwfAssignmentPageResponseItemsItem implements ResponseModel {
       reason: requiredField(map, path, 'reason', asString),
       assignedBy: requiredField(map, path, 'assigned_by', asString),
       approvedBy: requiredField(map, path, 'approved_by', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'id', 'task_id', 'membership_id', 'display_name', 'role', 'valid_from', 'valid_to', 'share_pct', 'reason', 'assigned_by', 'approved_by'}, strict: true),
+      assignedByName: optionalField(map, path, 'assigned_by_name', nullable(asString)),
+      approvedByName: optionalField(map, path, 'approved_by_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'task_id', 'membership_id', 'display_name', 'role', 'valid_from', 'valid_to', 'share_pct', 'reason', 'assigned_by', 'approved_by', 'assigned_by_name', 'approved_by_name'}, strict: true),
     );
   }
 
@@ -58632,6 +58636,8 @@ final class PwfAssignmentPageResponseItemsItem implements ResponseModel {
   final String reason;
   final String assignedBy;
   final String? approvedBy;
+  final String? assignedByName;
+  final String? approvedByName;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -58649,6 +58655,8 @@ final class PwfAssignmentPageResponseItemsItem implements ResponseModel {
         'reason': reason,
         'assigned_by': assignedBy,
         'approved_by': approvedBy,
+        if (assignedByName != null) 'assigned_by_name': assignedByName,
+        if (approvedByName != null) 'approved_by_name': approvedByName,
         ...extra,
       };
 }
@@ -58866,6 +58874,7 @@ final class PwfDeadlineBoardResponseItemsItem implements ResponseModel {
     required this.band,
     required this.critical,
     required this.assignee,
+    this.forecastFinish,
     this.extra = const <String, Object?>{},
   });
 
@@ -58885,7 +58894,8 @@ final class PwfDeadlineBoardResponseItemsItem implements ResponseModel {
       band: requiredField(map, path, 'band', PwfDeadlineBoardResponseItemsItemBand.fromJson),
       critical: requiredField(map, path, 'critical', asBool),
       assignee: requiredField(map, path, 'assignee', nullable(PwfDeadlineBoardResponseItemsItemAssignee.fromJson)),
-      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'project_id', 'project_code', 'project_name', 'phase_code', 'kind', 'status', 'due_date', 'band', 'critical', 'assignee'}, strict: true),
+      forecastFinish: optionalField(map, path, 'forecast_finish', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'project_id', 'project_code', 'project_name', 'phase_code', 'kind', 'status', 'due_date', 'band', 'critical', 'assignee', 'forecast_finish'}, strict: true),
     );
   }
 
@@ -58902,6 +58912,7 @@ final class PwfDeadlineBoardResponseItemsItem implements ResponseModel {
   final PwfDeadlineBoardResponseItemsItemBand band;
   final bool critical;
   final PwfDeadlineBoardResponseItemsItemAssignee? assignee;
+  final String? forecastFinish;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -58921,6 +58932,7 @@ final class PwfDeadlineBoardResponseItemsItem implements ResponseModel {
         'band': band.toJson(),
         'critical': critical,
         'assignee': (assignee == null ? null : assignee!.toJson()),
+        if (forecastFinish != null) 'forecast_finish': forecastFinish,
         ...extra,
       };
 }
@@ -58962,6 +58974,7 @@ final class PwfDeadlineBoardResponseItemsItemBand implements ResponseModel {
     required this.unit,
     required this.overdue,
     this.reason,
+    this.dueToday,
     this.extra = const <String, Object?>{},
   });
 
@@ -58973,7 +58986,8 @@ final class PwfDeadlineBoardResponseItemsItemBand implements ResponseModel {
       unit: requiredField(map, path, 'unit', asString),
       overdue: requiredField(map, path, 'overdue', asBool),
       reason: optionalField(map, path, 'reason', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason'}, strict: true),
+      dueToday: optionalField(map, path, 'due_today', asBool),
+      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason', 'due_today'}, strict: true),
     );
   }
 
@@ -58982,6 +58996,7 @@ final class PwfDeadlineBoardResponseItemsItemBand implements ResponseModel {
   final String unit;
   final bool overdue;
   final String? reason;
+  final bool? dueToday;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -58993,6 +59008,7 @@ final class PwfDeadlineBoardResponseItemsItemBand implements ResponseModel {
         'unit': unit,
         'overdue': overdue,
         if (reason != null) 'reason': reason,
+        if (dueToday != null) 'due_today': dueToday,
         ...extra,
       };
 }
@@ -59264,6 +59280,8 @@ final class PwfGateAssessmentResponse implements ResponseModel {
     required this.open,
     required this.missing,
     required this.asOf,
+    this.standing,
+    this.phases,
     this.extra = const <String, Object?>{},
   });
 
@@ -59275,7 +59293,9 @@ final class PwfGateAssessmentResponse implements ResponseModel {
       open: requiredField(map, path, 'open', asBool),
       missing: requiredField(map, path, 'missing', asList(PwfGateAssessmentResponseMissingItem.fromJson)),
       asOf: requiredField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'target', 'gated', 'open', 'missing', 'as_of'}, strict: true),
+      standing: optionalField(map, path, 'standing', asString),
+      phases: optionalField(map, path, 'phases', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'target', 'gated', 'open', 'missing', 'as_of', 'standing', 'phases'}, strict: true),
     );
   }
 
@@ -59284,6 +59304,8 @@ final class PwfGateAssessmentResponse implements ResponseModel {
   final bool open;
   final List<PwfGateAssessmentResponseMissingItem> missing;
   final String asOf;
+  final String? standing;
+  final List<String>? phases;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59295,6 +59317,8 @@ final class PwfGateAssessmentResponse implements ResponseModel {
         'open': open,
         'missing': missing.map((e0) => e0.toJson()).toList(),
         'as_of': asOf,
+        if (standing != null) 'standing': standing,
+        if (phases != null) 'phases': phases,
         ...extra,
       };
 }
@@ -59688,6 +59712,7 @@ final class PwfMilestoneListResponseItemsItem implements ResponseModel {
     required this.forecastSlipDays,
     required this.atRisk,
     required this.band,
+    this.forecastDate,
     this.extra = const <String, Object?>{},
   });
 
@@ -59705,7 +59730,8 @@ final class PwfMilestoneListResponseItemsItem implements ResponseModel {
       forecastSlipDays: requiredField(map, path, 'forecast_slip_days', nullable(asInt)),
       atRisk: requiredField(map, path, 'at_risk', asBool),
       band: requiredField(map, path, 'band', PwfMilestoneListResponseItemsItemBand.fromJson),
-      extra: unknownFields(map, path, const <String>{'task_id', 'milestone_id', 'task_code', 'name', 'project_id', 'project_code', 'planned_date', 'baseline_date', 'forecast_slip_days', 'at_risk', 'band'}, strict: true),
+      forecastDate: optionalField(map, path, 'forecast_date', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'task_id', 'milestone_id', 'task_code', 'name', 'project_id', 'project_code', 'planned_date', 'baseline_date', 'forecast_slip_days', 'at_risk', 'band', 'forecast_date'}, strict: true),
     );
   }
 
@@ -59720,6 +59746,7 @@ final class PwfMilestoneListResponseItemsItem implements ResponseModel {
   final int? forecastSlipDays;
   final bool atRisk;
   final PwfMilestoneListResponseItemsItemBand band;
+  final String? forecastDate;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59737,6 +59764,7 @@ final class PwfMilestoneListResponseItemsItem implements ResponseModel {
         'forecast_slip_days': forecastSlipDays,
         'at_risk': atRisk,
         'band': band.toJson(),
+        if (forecastDate != null) 'forecast_date': forecastDate,
         ...extra,
       };
 }
@@ -59748,6 +59776,7 @@ final class PwfMilestoneListResponseItemsItemBand implements ResponseModel {
     required this.unit,
     required this.overdue,
     this.reason,
+    this.dueToday,
     this.extra = const <String, Object?>{},
   });
 
@@ -59759,7 +59788,8 @@ final class PwfMilestoneListResponseItemsItemBand implements ResponseModel {
       unit: requiredField(map, path, 'unit', asString),
       overdue: requiredField(map, path, 'overdue', asBool),
       reason: optionalField(map, path, 'reason', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason'}, strict: true),
+      dueToday: optionalField(map, path, 'due_today', asBool),
+      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason', 'due_today'}, strict: true),
     );
   }
 
@@ -59768,6 +59798,7 @@ final class PwfMilestoneListResponseItemsItemBand implements ResponseModel {
   final String unit;
   final bool overdue;
   final String? reason;
+  final bool? dueToday;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59779,6 +59810,7 @@ final class PwfMilestoneListResponseItemsItemBand implements ResponseModel {
         'unit': unit,
         'overdue': overdue,
         if (reason != null) 'reason': reason,
+        if (dueToday != null) 'due_today': dueToday,
         ...extra,
       };
 }
@@ -59789,6 +59821,8 @@ final class PwfMyTaskPageResponse implements ResponseModel {
     required this.nextCursor,
     required this.total,
     required this.asOf,
+    this.countsByBand,
+    this.overdueCount,
     this.extra = const <String, Object?>{},
   });
 
@@ -59799,7 +59833,9 @@ final class PwfMyTaskPageResponse implements ResponseModel {
       nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
       total: requiredField(map, path, 'total', asInt),
       asOf: requiredField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'total', 'as_of'}, strict: true),
+      countsByBand: optionalField(map, path, 'counts_by_band', PwfMyTaskPageResponseCountsByBand.fromJson),
+      overdueCount: optionalField(map, path, 'overdue_count', asInt),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'total', 'as_of', 'counts_by_band', 'overdue_count'}, strict: true),
     );
   }
 
@@ -59807,6 +59843,8 @@ final class PwfMyTaskPageResponse implements ResponseModel {
   final String? nextCursor;
   final int total;
   final String asOf;
+  final PwfMyTaskPageResponseCountsByBand? countsByBand;
+  final int? overdueCount;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59817,6 +59855,50 @@ final class PwfMyTaskPageResponse implements ResponseModel {
         'next_cursor': nextCursor,
         'total': total,
         'as_of': asOf,
+        if (countsByBand != null) 'counts_by_band': countsByBand!.toJson(),
+        if (overdueCount != null) 'overdue_count': overdueCount,
+        ...extra,
+      };
+}
+
+final class PwfMyTaskPageResponseCountsByBand implements ResponseModel {
+  const PwfMyTaskPageResponseCountsByBand({
+    required this.nONE,
+    required this.gREEN,
+    required this.yELLOW,
+    required this.rED,
+    required this.uNKNOWN,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfMyTaskPageResponseCountsByBand.fromJson(Object? json, [String path = 'PwfMyTaskPageResponseCountsByBand']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfMyTaskPageResponseCountsByBand(
+      nONE: requiredField(map, path, 'NONE', asInt),
+      gREEN: requiredField(map, path, 'GREEN', asInt),
+      yELLOW: requiredField(map, path, 'YELLOW', asInt),
+      rED: requiredField(map, path, 'RED', asInt),
+      uNKNOWN: requiredField(map, path, 'UNKNOWN', asInt),
+      extra: unknownFields(map, path, const <String>{'NONE', 'GREEN', 'YELLOW', 'RED', 'UNKNOWN'}, strict: true),
+    );
+  }
+
+  final int nONE;
+  final int gREEN;
+  final int yELLOW;
+  final int rED;
+  final int uNKNOWN;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'NONE': nONE,
+        'GREEN': gREEN,
+        'YELLOW': yELLOW,
+        'RED': rED,
+        'UNKNOWN': uNKNOWN,
         ...extra,
       };
 }
@@ -59834,6 +59916,7 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
     required this.personalBand,
     required this.critical,
     required this.version,
+    this.forecastFinish,
     this.extra = const <String, Object?>{},
   });
 
@@ -59851,7 +59934,8 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
       personalBand: requiredField(map, path, 'personal_band', nullable(PwfMyTaskPageResponseItemsItemPersonalBand.fromJson)),
       critical: requiredField(map, path, 'critical', asBool),
       version: requiredField(map, path, 'version', asInt),
-      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'project_id', 'project_code', 'status', 'due_date', 'official_band', 'personal_band', 'critical', 'version'}, strict: true),
+      forecastFinish: optionalField(map, path, 'forecast_finish', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'project_id', 'project_code', 'status', 'due_date', 'official_band', 'personal_band', 'critical', 'version', 'forecast_finish'}, strict: true),
     );
   }
 
@@ -59866,6 +59950,7 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
   final PwfMyTaskPageResponseItemsItemPersonalBand? personalBand;
   final bool critical;
   final int version;
+  final String? forecastFinish;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59883,6 +59968,7 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
         'personal_band': (personalBand == null ? null : personalBand!.toJson()),
         'critical': critical,
         'version': version,
+        if (forecastFinish != null) 'forecast_finish': forecastFinish,
         ...extra,
       };
 }
@@ -59894,6 +59980,7 @@ final class PwfMyTaskPageResponseItemsItemOfficialBand implements ResponseModel 
     required this.unit,
     required this.overdue,
     this.reason,
+    this.dueToday,
     this.extra = const <String, Object?>{},
   });
 
@@ -59905,7 +59992,8 @@ final class PwfMyTaskPageResponseItemsItemOfficialBand implements ResponseModel 
       unit: requiredField(map, path, 'unit', asString),
       overdue: requiredField(map, path, 'overdue', asBool),
       reason: optionalField(map, path, 'reason', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason'}, strict: true),
+      dueToday: optionalField(map, path, 'due_today', asBool),
+      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason', 'due_today'}, strict: true),
     );
   }
 
@@ -59914,6 +60002,7 @@ final class PwfMyTaskPageResponseItemsItemOfficialBand implements ResponseModel 
   final String unit;
   final bool overdue;
   final String? reason;
+  final bool? dueToday;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59925,6 +60014,7 @@ final class PwfMyTaskPageResponseItemsItemOfficialBand implements ResponseModel 
         'unit': unit,
         'overdue': overdue,
         if (reason != null) 'reason': reason,
+        if (dueToday != null) 'due_today': dueToday,
         ...extra,
       };
 }
@@ -59936,6 +60026,7 @@ final class PwfMyTaskPageResponseItemsItemPersonalBand implements ResponseModel 
     required this.unit,
     required this.overdue,
     this.reason,
+    this.dueToday,
     this.extra = const <String, Object?>{},
   });
 
@@ -59947,7 +60038,8 @@ final class PwfMyTaskPageResponseItemsItemPersonalBand implements ResponseModel 
       unit: requiredField(map, path, 'unit', asString),
       overdue: requiredField(map, path, 'overdue', asBool),
       reason: optionalField(map, path, 'reason', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason'}, strict: true),
+      dueToday: optionalField(map, path, 'due_today', asBool),
+      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason', 'due_today'}, strict: true),
     );
   }
 
@@ -59956,6 +60048,7 @@ final class PwfMyTaskPageResponseItemsItemPersonalBand implements ResponseModel 
   final String unit;
   final bool overdue;
   final String? reason;
+  final bool? dueToday;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59967,6 +60060,7 @@ final class PwfMyTaskPageResponseItemsItemPersonalBand implements ResponseModel 
         'unit': unit,
         'overdue': overdue,
         if (reason != null) 'reason': reason,
+        if (dueToday != null) 'due_today': dueToday,
         ...extra,
       };
 }
@@ -60511,6 +60605,8 @@ final class PwfScheduleResponseTasksItem implements ResponseModel {
     required this.finishVarianceDays,
     required this.findings,
     this.taskId,
+    this.dueStart,
+    this.dueFinish,
     this.extra = const <String, Object?>{},
   });
 
@@ -60535,7 +60631,9 @@ final class PwfScheduleResponseTasksItem implements ResponseModel {
       startVarianceDays: requiredField(map, path, 'start_variance_days', nullable(asInt)),
       finishVarianceDays: requiredField(map, path, 'finish_variance_days', nullable(asInt)),
       findings: requiredField(map, path, 'findings', asList(PwfScheduleResponseTasksItemFindingsItem.fromJson)),
-      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'phase_code', 'kind', 'state', 'start', 'finish', 'late_start', 'late_finish', 'total_float', 'free_float', 'critical', 'driving_predecessor', 'missing_year', 'start_variance_days', 'finish_variance_days', 'findings'}, strict: true),
+      dueStart: optionalField(map, path, 'due_start', nullable(asString)),
+      dueFinish: optionalField(map, path, 'due_finish', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'phase_code', 'kind', 'state', 'start', 'finish', 'late_start', 'late_finish', 'total_float', 'free_float', 'critical', 'driving_predecessor', 'missing_year', 'start_variance_days', 'finish_variance_days', 'findings', 'due_start', 'due_finish'}, strict: true),
     );
   }
 
@@ -60557,6 +60655,8 @@ final class PwfScheduleResponseTasksItem implements ResponseModel {
   final int? startVarianceDays;
   final int? finishVarianceDays;
   final List<PwfScheduleResponseTasksItemFindingsItem> findings;
+  final String? dueStart;
+  final String? dueFinish;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -60581,6 +60681,8 @@ final class PwfScheduleResponseTasksItem implements ResponseModel {
         'start_variance_days': startVarianceDays,
         'finish_variance_days': finishVarianceDays,
         'findings': findings.map((e0) => e0.toJson()).toList(),
+        if (dueStart != null) 'due_start': dueStart,
+        if (dueFinish != null) 'due_finish': dueFinish,
         ...extra,
       };
 }
@@ -60679,6 +60781,8 @@ final class PwfTaskDetailResponse implements ResponseModel {
     this.step,
     this.legalBasis,
     this.stepLegalBasis,
+    this.forecastStart,
+    this.forecastFinish,
     this.extra = const <String, Object?>{},
   });
 
@@ -60743,7 +60847,9 @@ final class PwfTaskDetailResponse implements ResponseModel {
       step: optionalField(map, path, 'step', nullable(PwfTaskDetailResponseStep.fromJson)),
       legalBasis: optionalField(map, path, 'legal_basis', asList(PwfLegalBasisViewResponse.fromJson)),
       stepLegalBasis: optionalField(map, path, 'step_legal_basis', asList(PwfLegalBasisViewResponse.fromJson)),
-      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'responsible_role', 'approver_role', 'duration_working_days', 'baseline_start', 'finish_variance_days', 'late_start', 'late_finish', 'free_float', 'actual_start', 'actual_finish', 'remaining_working_days', 'percent_complete', 'reschedule_count', 'estimate_vnd', 'actual_vnd', 'milestone_id', 'predecessors', 'checklist', 'legal_doc_types', 'form_templates', 'evidence', 'completion', 'exceptions', 'assignments', 'history', 'kpi_results', 'can_start', 'can_complete', 'can_approve', 'can_return', 'can_request_exception', 'can_resume', 'can_assign', 'as_of', 'step', 'legal_basis', 'step_legal_basis'}, strict: true),
+      forecastStart: optionalField(map, path, 'forecast_start', nullable(asString)),
+      forecastFinish: optionalField(map, path, 'forecast_finish', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'responsible_role', 'approver_role', 'duration_working_days', 'baseline_start', 'finish_variance_days', 'late_start', 'late_finish', 'free_float', 'actual_start', 'actual_finish', 'remaining_working_days', 'percent_complete', 'reschedule_count', 'estimate_vnd', 'actual_vnd', 'milestone_id', 'predecessors', 'checklist', 'legal_doc_types', 'form_templates', 'evidence', 'completion', 'exceptions', 'assignments', 'history', 'kpi_results', 'can_start', 'can_complete', 'can_approve', 'can_return', 'can_request_exception', 'can_resume', 'can_assign', 'as_of', 'step', 'legal_basis', 'step_legal_basis', 'forecast_start', 'forecast_finish'}, strict: true),
     );
   }
 
@@ -60805,6 +60911,8 @@ final class PwfTaskDetailResponse implements ResponseModel {
   final PwfTaskDetailResponseStep? step;
   final List<PwfLegalBasisViewResponse>? legalBasis;
   final List<PwfLegalBasisViewResponse>? stepLegalBasis;
+  final String? forecastStart;
+  final String? forecastFinish;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -60869,6 +60977,8 @@ final class PwfTaskDetailResponse implements ResponseModel {
         if (step != null) 'step': step!.toJson(),
         if (legalBasis != null) 'legal_basis': legalBasis!.map((e0) => e0.toJson()).toList(),
         if (stepLegalBasis != null) 'step_legal_basis': stepLegalBasis!.map((e0) => e0.toJson()).toList(),
+        if (forecastStart != null) 'forecast_start': forecastStart,
+        if (forecastFinish != null) 'forecast_finish': forecastFinish,
         ...extra,
       };
 }
@@ -60916,6 +61026,8 @@ final class PwfTaskDetailResponseAssignmentsItem implements ResponseModel {
     required this.reason,
     required this.assignedBy,
     required this.approvedBy,
+    this.assignedByName,
+    this.approvedByName,
     this.extra = const <String, Object?>{},
   });
 
@@ -60933,7 +61045,9 @@ final class PwfTaskDetailResponseAssignmentsItem implements ResponseModel {
       reason: requiredField(map, path, 'reason', asString),
       assignedBy: requiredField(map, path, 'assigned_by', asString),
       approvedBy: requiredField(map, path, 'approved_by', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'id', 'task_id', 'membership_id', 'display_name', 'role', 'valid_from', 'valid_to', 'share_pct', 'reason', 'assigned_by', 'approved_by'}, strict: true),
+      assignedByName: optionalField(map, path, 'assigned_by_name', nullable(asString)),
+      approvedByName: optionalField(map, path, 'approved_by_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'task_id', 'membership_id', 'display_name', 'role', 'valid_from', 'valid_to', 'share_pct', 'reason', 'assigned_by', 'approved_by', 'assigned_by_name', 'approved_by_name'}, strict: true),
     );
   }
 
@@ -60948,6 +61062,8 @@ final class PwfTaskDetailResponseAssignmentsItem implements ResponseModel {
   final String reason;
   final String assignedBy;
   final String? approvedBy;
+  final String? assignedByName;
+  final String? approvedByName;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -60965,6 +61081,8 @@ final class PwfTaskDetailResponseAssignmentsItem implements ResponseModel {
         'reason': reason,
         'assigned_by': assignedBy,
         'approved_by': approvedBy,
+        if (assignedByName != null) 'assigned_by_name': assignedByName,
+        if (approvedByName != null) 'approved_by_name': approvedByName,
         ...extra,
       };
 }
@@ -60976,6 +61094,7 @@ final class PwfTaskDetailResponseBand implements ResponseModel {
     required this.unit,
     required this.overdue,
     this.reason,
+    this.dueToday,
     this.extra = const <String, Object?>{},
   });
 
@@ -60987,7 +61106,8 @@ final class PwfTaskDetailResponseBand implements ResponseModel {
       unit: requiredField(map, path, 'unit', asString),
       overdue: requiredField(map, path, 'overdue', asBool),
       reason: optionalField(map, path, 'reason', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason'}, strict: true),
+      dueToday: optionalField(map, path, 'due_today', asBool),
+      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason', 'due_today'}, strict: true),
     );
   }
 
@@ -60996,6 +61116,7 @@ final class PwfTaskDetailResponseBand implements ResponseModel {
   final String unit;
   final bool overdue;
   final String? reason;
+  final bool? dueToday;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61007,6 +61128,7 @@ final class PwfTaskDetailResponseBand implements ResponseModel {
         'unit': unit,
         'overdue': overdue,
         if (reason != null) 'reason': reason,
+        if (dueToday != null) 'due_today': dueToday,
         ...extra,
       };
 }
@@ -61020,6 +61142,7 @@ final class PwfTaskDetailResponseChecklistItem implements ResponseModel {
     required this.done,
     required this.doneBy,
     required this.doneAt,
+    this.doneByName,
     this.extra = const <String, Object?>{},
   });
 
@@ -61033,7 +61156,8 @@ final class PwfTaskDetailResponseChecklistItem implements ResponseModel {
       done: requiredField(map, path, 'done', asBool),
       doneBy: requiredField(map, path, 'done_by', nullable(asString)),
       doneAt: requiredField(map, path, 'done_at', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'item_code', 'name', 'required', 'evidence_kinds', 'done', 'done_by', 'done_at'}, strict: true),
+      doneByName: optionalField(map, path, 'done_by_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'item_code', 'name', 'required', 'evidence_kinds', 'done', 'done_by', 'done_at', 'done_by_name'}, strict: true),
     );
   }
 
@@ -61044,6 +61168,7 @@ final class PwfTaskDetailResponseChecklistItem implements ResponseModel {
   final bool done;
   final String? doneBy;
   final String? doneAt;
+  final String? doneByName;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61057,6 +61182,7 @@ final class PwfTaskDetailResponseChecklistItem implements ResponseModel {
         'done': done,
         'done_by': doneBy,
         'done_at': doneAt,
+        if (doneByName != null) 'done_by_name': doneByName,
         ...extra,
       };
 }
@@ -61169,6 +61295,9 @@ final class PwfTaskDetailResponseEvidenceItem implements ResponseModel {
     required this.attachedAt,
     this.formTemplateRevision,
     this.formTemplateSha256,
+    this.attachedByName,
+    this.documentTitle,
+    this.documentSymbol,
     this.extra = const <String, Object?>{},
   });
 
@@ -61187,7 +61316,10 @@ final class PwfTaskDetailResponseEvidenceItem implements ResponseModel {
       attachedAt: requiredField(map, path, 'attached_at', asString),
       formTemplateRevision: optionalField(map, path, 'form_template_revision', nullable(asInt)),
       formTemplateSha256: optionalField(map, path, 'form_template_sha256', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'id', 'item_code', 'evidence_kind', 'document_id', 'legal_doc_type', 'form_template_code', 'external_ref', 'note', 'attached_by', 'attached_at', 'form_template_revision', 'form_template_sha256'}, strict: true),
+      attachedByName: optionalField(map, path, 'attached_by_name', nullable(asString)),
+      documentTitle: optionalField(map, path, 'document_title', nullable(asString)),
+      documentSymbol: optionalField(map, path, 'document_symbol', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'item_code', 'evidence_kind', 'document_id', 'legal_doc_type', 'form_template_code', 'external_ref', 'note', 'attached_by', 'attached_at', 'form_template_revision', 'form_template_sha256', 'attached_by_name', 'document_title', 'document_symbol'}, strict: true),
     );
   }
 
@@ -61203,6 +61335,9 @@ final class PwfTaskDetailResponseEvidenceItem implements ResponseModel {
   final String attachedAt;
   final int? formTemplateRevision;
   final String? formTemplateSha256;
+  final String? attachedByName;
+  final String? documentTitle;
+  final String? documentSymbol;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61221,6 +61356,9 @@ final class PwfTaskDetailResponseEvidenceItem implements ResponseModel {
         'attached_at': attachedAt,
         if (formTemplateRevision != null) 'form_template_revision': formTemplateRevision,
         if (formTemplateSha256 != null) 'form_template_sha256': formTemplateSha256,
+        if (attachedByName != null) 'attached_by_name': attachedByName,
+        if (documentTitle != null) 'document_title': documentTitle,
+        if (documentSymbol != null) 'document_symbol': documentSymbol,
         ...extra,
       };
 }
@@ -61241,6 +61379,8 @@ final class PwfTaskDetailResponseExceptionsItem implements ResponseModel {
     required this.decidedAt,
     required this.decisionNote,
     required this.version,
+    this.requestedByName,
+    this.decidedByName,
     this.extra = const <String, Object?>{},
   });
 
@@ -61261,7 +61401,9 @@ final class PwfTaskDetailResponseExceptionsItem implements ResponseModel {
       decidedAt: requiredField(map, path, 'decided_at', nullable(asString)),
       decisionNote: requiredField(map, path, 'decision_note', nullable(asString)),
       version: requiredField(map, path, 'version', asInt),
-      extra: unknownFields(map, path, const <String>{'id', 'task_id', 'kind', 'items', 'valid_from', 'valid_to', 'reason', 'evidence_ref', 'status', 'requested_by', 'decided_by', 'decided_at', 'decision_note', 'version'}, strict: true),
+      requestedByName: optionalField(map, path, 'requested_by_name', nullable(asString)),
+      decidedByName: optionalField(map, path, 'decided_by_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'task_id', 'kind', 'items', 'valid_from', 'valid_to', 'reason', 'evidence_ref', 'status', 'requested_by', 'decided_by', 'decided_at', 'decision_note', 'version', 'requested_by_name', 'decided_by_name'}, strict: true),
     );
   }
 
@@ -61279,6 +61421,8 @@ final class PwfTaskDetailResponseExceptionsItem implements ResponseModel {
   final String? decidedAt;
   final String? decisionNote;
   final int version;
+  final String? requestedByName;
+  final String? decidedByName;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61299,6 +61443,8 @@ final class PwfTaskDetailResponseExceptionsItem implements ResponseModel {
         'decided_at': decidedAt,
         'decision_note': decisionNote,
         'version': version,
+        if (requestedByName != null) 'requested_by_name': requestedByName,
+        if (decidedByName != null) 'decided_by_name': decidedByName,
         ...extra,
       };
 }
@@ -61376,6 +61522,7 @@ final class PwfTaskDetailResponseHistoryItem implements ResponseModel {
     required this.at,
     required this.actor,
     required this.reason,
+    this.actorName,
     this.extra = const <String, Object?>{},
   });
 
@@ -61387,7 +61534,8 @@ final class PwfTaskDetailResponseHistoryItem implements ResponseModel {
       at: requiredField(map, path, 'at', asString),
       actor: requiredField(map, path, 'actor', nullable(asString)),
       reason: requiredField(map, path, 'reason', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'id', 'kind', 'at', 'actor', 'reason'}, strict: true),
+      actorName: optionalField(map, path, 'actor_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'kind', 'at', 'actor', 'reason', 'actor_name'}, strict: true),
     );
   }
 
@@ -61396,6 +61544,7 @@ final class PwfTaskDetailResponseHistoryItem implements ResponseModel {
   final String at;
   final String? actor;
   final String? reason;
+  final String? actorName;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61407,6 +61556,7 @@ final class PwfTaskDetailResponseHistoryItem implements ResponseModel {
         'at': at,
         'actor': actor,
         'reason': reason,
+        if (actorName != null) 'actor_name': actorName,
         ...extra,
       };
 }
@@ -61656,6 +61806,8 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
     required this.assignee,
     required this.returnCount,
     required this.version,
+    this.forecastStart,
+    this.forecastFinish,
     this.extra = const <String, Object?>{},
   });
 
@@ -61683,7 +61835,9 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
       assignee: requiredField(map, path, 'assignee', nullable(PwfTaskPageResponseItemsItemAssignee.fromJson)),
       returnCount: requiredField(map, path, 'return_count', asInt),
       version: requiredField(map, path, 'version', asInt),
-      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version'}, strict: true),
+      forecastStart: optionalField(map, path, 'forecast_start', nullable(asString)),
+      forecastFinish: optionalField(map, path, 'forecast_finish', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'forecast_start', 'forecast_finish'}, strict: true),
     );
   }
 
@@ -61708,6 +61862,8 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
   final PwfTaskPageResponseItemsItemAssignee? assignee;
   final int returnCount;
   final int version;
+  final String? forecastStart;
+  final String? forecastFinish;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61735,6 +61891,8 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
         'assignee': (assignee == null ? null : assignee!.toJson()),
         'return_count': returnCount,
         'version': version,
+        if (forecastStart != null) 'forecast_start': forecastStart,
+        if (forecastFinish != null) 'forecast_finish': forecastFinish,
         ...extra,
       };
 }
@@ -61776,6 +61934,7 @@ final class PwfTaskPageResponseItemsItemBand implements ResponseModel {
     required this.unit,
     required this.overdue,
     this.reason,
+    this.dueToday,
     this.extra = const <String, Object?>{},
   });
 
@@ -61787,7 +61946,8 @@ final class PwfTaskPageResponseItemsItemBand implements ResponseModel {
       unit: requiredField(map, path, 'unit', asString),
       overdue: requiredField(map, path, 'overdue', asBool),
       reason: optionalField(map, path, 'reason', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason'}, strict: true),
+      dueToday: optionalField(map, path, 'due_today', asBool),
+      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason', 'due_today'}, strict: true),
     );
   }
 
@@ -61796,6 +61956,7 @@ final class PwfTaskPageResponseItemsItemBand implements ResponseModel {
   final String unit;
   final bool overdue;
   final String? reason;
+  final bool? dueToday;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61807,6 +61968,7 @@ final class PwfTaskPageResponseItemsItemBand implements ResponseModel {
         'unit': unit,
         'overdue': overdue,
         if (reason != null) 'reason': reason,
+        if (dueToday != null) 'due_today': dueToday,
         ...extra,
       };
 }
@@ -61962,6 +62124,7 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
     this.standardWorkingDays,
     this.lapsedLegalDocuments,
     this.selection,
+    this.pendingReschedule,
     this.extra = const <String, Object?>{},
   });
 
@@ -61991,7 +62154,8 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
       standardWorkingDays: optionalField(map, path, 'standard_working_days', asInt),
       lapsedLegalDocuments: optionalField(map, path, 'lapsed_legal_documents', asList(asString)),
       selection: optionalField(map, path, 'selection', asAny),
-      extra: unknownFields(map, path, const <String>{'id', 'project_id', 'template_code', 'template_rule_version', 'template_hash', 'unverified', 'status', 'planned_start_date', 'schedule_version', 'adopted_on', 'open_phase', 'phases', 'tasks', 'gates', 'counts_by_band', 'can_manage', 'can_propose_reschedule', 'version', 'as_of', 'steps', 'standard_working_days', 'lapsed_legal_documents', 'selection'}, strict: true),
+      pendingReschedule: optionalField(map, path, 'pending_reschedule', nullable(PwfWorkflowDetailResponsePendingReschedule.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'project_id', 'template_code', 'template_rule_version', 'template_hash', 'unverified', 'status', 'planned_start_date', 'schedule_version', 'adopted_on', 'open_phase', 'phases', 'tasks', 'gates', 'counts_by_band', 'can_manage', 'can_propose_reschedule', 'version', 'as_of', 'steps', 'standard_working_days', 'lapsed_legal_documents', 'selection', 'pending_reschedule'}, strict: true),
     );
   }
 
@@ -62018,6 +62182,7 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
   final int? standardWorkingDays;
   final List<String>? lapsedLegalDocuments;
   final Object? selection;
+  final PwfWorkflowDetailResponsePendingReschedule? pendingReschedule;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -62047,6 +62212,7 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
         if (standardWorkingDays != null) 'standard_working_days': standardWorkingDays,
         if (lapsedLegalDocuments != null) 'lapsed_legal_documents': lapsedLegalDocuments,
         if (selection != null) 'selection': selection,
+        if (pendingReschedule != null) 'pending_reschedule': pendingReschedule!.toJson(),
         ...extra,
       };
 }
@@ -62098,6 +62264,8 @@ final class PwfWorkflowDetailResponseGatesItem implements ResponseModel {
     required this.target,
     required this.open,
     required this.missingCount,
+    this.standing,
+    this.phases,
     this.extra = const <String, Object?>{},
   });
 
@@ -62107,13 +62275,17 @@ final class PwfWorkflowDetailResponseGatesItem implements ResponseModel {
       target: requiredField(map, path, 'target', asString),
       open: requiredField(map, path, 'open', asBool),
       missingCount: requiredField(map, path, 'missing_count', asInt),
-      extra: unknownFields(map, path, const <String>{'target', 'open', 'missing_count'}, strict: true),
+      standing: optionalField(map, path, 'standing', asString),
+      phases: optionalField(map, path, 'phases', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'target', 'open', 'missing_count', 'standing', 'phases'}, strict: true),
     );
   }
 
   final String target;
   final bool open;
   final int missingCount;
+  final String? standing;
+  final List<String>? phases;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -62123,6 +62295,46 @@ final class PwfWorkflowDetailResponseGatesItem implements ResponseModel {
         'target': target,
         'open': open,
         'missing_count': missingCount,
+        if (standing != null) 'standing': standing,
+        if (phases != null) 'phases': phases,
+        ...extra,
+      };
+}
+
+final class PwfWorkflowDetailResponsePendingReschedule implements ResponseModel {
+  const PwfWorkflowDetailResponsePendingReschedule({
+    required this.proposalId,
+    required this.baseVersion,
+    this.proposedBy,
+    this.proposedByName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfWorkflowDetailResponsePendingReschedule.fromJson(Object? json, [String path = 'PwfWorkflowDetailResponsePendingReschedule']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfWorkflowDetailResponsePendingReschedule(
+      proposalId: requiredField(map, path, 'proposal_id', asString),
+      baseVersion: requiredField(map, path, 'base_version', asInt),
+      proposedBy: optionalField(map, path, 'proposed_by', asString),
+      proposedByName: optionalField(map, path, 'proposed_by_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'proposal_id', 'base_version', 'proposed_by', 'proposed_by_name'}, strict: true),
+    );
+  }
+
+  final String proposalId;
+  final int baseVersion;
+  final String? proposedBy;
+  final String? proposedByName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'proposal_id': proposalId,
+        'base_version': baseVersion,
+        if (proposedBy != null) 'proposed_by': proposedBy,
+        if (proposedByName != null) 'proposed_by_name': proposedByName,
         ...extra,
       };
 }
@@ -62293,6 +62505,8 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
     this.stepCode,
     this.checklistTotal,
     this.checklistDone,
+    this.forecastStart,
+    this.forecastFinish,
     this.extra = const <String, Object?>{},
   });
 
@@ -62323,7 +62537,9 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
       stepCode: optionalField(map, path, 'step_code', nullable(asString)),
       checklistTotal: optionalField(map, path, 'checklist_total', asInt),
       checklistDone: optionalField(map, path, 'checklist_done', asInt),
-      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'step_code', 'checklist_total', 'checklist_done'}, strict: true),
+      forecastStart: optionalField(map, path, 'forecast_start', nullable(asString)),
+      forecastFinish: optionalField(map, path, 'forecast_finish', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'step_code', 'checklist_total', 'checklist_done', 'forecast_start', 'forecast_finish'}, strict: true),
     );
   }
 
@@ -62351,6 +62567,8 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
   final String? stepCode;
   final int? checklistTotal;
   final int? checklistDone;
+  final String? forecastStart;
+  final String? forecastFinish;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -62381,6 +62599,8 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
         if (stepCode != null) 'step_code': stepCode,
         if (checklistTotal != null) 'checklist_total': checklistTotal,
         if (checklistDone != null) 'checklist_done': checklistDone,
+        if (forecastStart != null) 'forecast_start': forecastStart,
+        if (forecastFinish != null) 'forecast_finish': forecastFinish,
         ...extra,
       };
 }
@@ -62422,6 +62642,7 @@ final class PwfWorkflowDetailResponseTasksItemBand implements ResponseModel {
     required this.unit,
     required this.overdue,
     this.reason,
+    this.dueToday,
     this.extra = const <String, Object?>{},
   });
 
@@ -62433,7 +62654,8 @@ final class PwfWorkflowDetailResponseTasksItemBand implements ResponseModel {
       unit: requiredField(map, path, 'unit', asString),
       overdue: requiredField(map, path, 'overdue', asBool),
       reason: optionalField(map, path, 'reason', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason'}, strict: true),
+      dueToday: optionalField(map, path, 'due_today', asBool),
+      extra: unknownFields(map, path, const <String>{'band', 'remaining_days', 'unit', 'overdue', 'reason', 'due_today'}, strict: true),
     );
   }
 
@@ -62442,6 +62664,7 @@ final class PwfWorkflowDetailResponseTasksItemBand implements ResponseModel {
   final String unit;
   final bool overdue;
   final String? reason;
+  final bool? dueToday;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -62453,6 +62676,7 @@ final class PwfWorkflowDetailResponseTasksItemBand implements ResponseModel {
         'unit': unit,
         'overdue': overdue,
         if (reason != null) 'reason': reason,
+        if (dueToday != null) 'due_today': dueToday,
         ...extra,
       };
 }
@@ -66706,6 +66930,8 @@ final class StaffScoreLinePageResponseItemsItem implements ResponseModel {
     required this.effectiveWeight,
     required this.hasAdjustment,
     required this.hasOpenResponse,
+    this.unitCodeAtPeriod,
+    this.unitNameAtPeriod,
     this.extra = const <String, Object?>{},
   });
 
@@ -66725,7 +66951,9 @@ final class StaffScoreLinePageResponseItemsItem implements ResponseModel {
       effectiveWeight: requiredField(map, path, 'effective_weight', asNum),
       hasAdjustment: requiredField(map, path, 'has_adjustment', asBool),
       hasOpenResponse: requiredField(map, path, 'has_open_response', asBool),
-      extra: unknownFields(map, path, const <String>{'id', 'period_id', 'membership_id', 'display_name', 'unit_id_at_period', 'score_computed', 'score_adjusted', 'rating', 'state', 'rated_task_count', 'effective_weight', 'has_adjustment', 'has_open_response'}, strict: true),
+      unitCodeAtPeriod: optionalField(map, path, 'unit_code_at_period', nullable(asString)),
+      unitNameAtPeriod: optionalField(map, path, 'unit_name_at_period', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'period_id', 'membership_id', 'display_name', 'unit_id_at_period', 'score_computed', 'score_adjusted', 'rating', 'state', 'rated_task_count', 'effective_weight', 'has_adjustment', 'has_open_response', 'unit_code_at_period', 'unit_name_at_period'}, strict: true),
     );
   }
 
@@ -66742,6 +66970,8 @@ final class StaffScoreLinePageResponseItemsItem implements ResponseModel {
   final num effectiveWeight;
   final bool hasAdjustment;
   final bool hasOpenResponse;
+  final String? unitCodeAtPeriod;
+  final String? unitNameAtPeriod;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -66761,6 +66991,8 @@ final class StaffScoreLinePageResponseItemsItem implements ResponseModel {
         'effective_weight': effectiveWeight,
         'has_adjustment': hasAdjustment,
         'has_open_response': hasOpenResponse,
+        if (unitCodeAtPeriod != null) 'unit_code_at_period': unitCodeAtPeriod,
+        if (unitNameAtPeriod != null) 'unit_name_at_period': unitNameAtPeriod,
         ...extra,
       };
 }
@@ -66789,6 +67021,8 @@ final class StaffScoreLineResponse implements ResponseModel {
     required this.version,
     required this.asOf,
     this.flags,
+    this.unitCodeAtPeriod,
+    this.unitNameAtPeriod,
     this.extra = const <String, Object?>{},
   });
 
@@ -66817,7 +67051,9 @@ final class StaffScoreLineResponse implements ResponseModel {
       canRespond: requiredField(map, path, 'can_respond', asBool),
       version: requiredField(map, path, 'version', asInt),
       asOf: requiredField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'id', 'period_id', 'membership_id', 'display_name', 'unit_id_at_period', 'score_computed', 'score_adjusted', 'rating', 'state', 'rated_task_count', 'effective_weight', 'period_status', 'contributions', 'excluded', 'flags', 'adjustments', 'responses', 'basis', 'can_request_adjustment', 'can_respond', 'version', 'as_of'}, strict: true),
+      unitCodeAtPeriod: optionalField(map, path, 'unit_code_at_period', nullable(asString)),
+      unitNameAtPeriod: optionalField(map, path, 'unit_name_at_period', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'period_id', 'membership_id', 'display_name', 'unit_id_at_period', 'score_computed', 'score_adjusted', 'rating', 'state', 'rated_task_count', 'effective_weight', 'period_status', 'contributions', 'excluded', 'flags', 'adjustments', 'responses', 'basis', 'can_request_adjustment', 'can_respond', 'version', 'as_of', 'unit_code_at_period', 'unit_name_at_period'}, strict: true),
     );
   }
 
@@ -66843,6 +67079,8 @@ final class StaffScoreLineResponse implements ResponseModel {
   final bool canRespond;
   final int version;
   final String asOf;
+  final String? unitCodeAtPeriod;
+  final String? unitNameAtPeriod;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -66871,6 +67109,8 @@ final class StaffScoreLineResponse implements ResponseModel {
         'can_respond': canRespond,
         'version': version,
         'as_of': asOf,
+        if (unitCodeAtPeriod != null) 'unit_code_at_period': unitCodeAtPeriod,
+        if (unitNameAtPeriod != null) 'unit_name_at_period': unitNameAtPeriod,
         ...extra,
       };
 }
@@ -66887,6 +67127,8 @@ final class StaffScoreLineResponseAdjustmentsItem implements ResponseModel {
     required this.decidedBy,
     required this.decidedAt,
     required this.version,
+    this.requestedByName,
+    this.decidedByName,
     this.extra = const <String, Object?>{},
   });
 
@@ -66903,7 +67145,9 @@ final class StaffScoreLineResponseAdjustmentsItem implements ResponseModel {
       decidedBy: requiredField(map, path, 'decided_by', nullable(asString)),
       decidedAt: requiredField(map, path, 'decided_at', nullable(asString)),
       version: requiredField(map, path, 'version', asInt),
-      extra: unknownFields(map, path, const <String>{'id', 'line_id', 'points', 'reason', 'evidence_ref', 'status', 'requested_by', 'decided_by', 'decided_at', 'version'}, strict: true),
+      requestedByName: optionalField(map, path, 'requested_by_name', nullable(asString)),
+      decidedByName: optionalField(map, path, 'decided_by_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'line_id', 'points', 'reason', 'evidence_ref', 'status', 'requested_by', 'decided_by', 'decided_at', 'version', 'requested_by_name', 'decided_by_name'}, strict: true),
     );
   }
 
@@ -66917,6 +67161,8 @@ final class StaffScoreLineResponseAdjustmentsItem implements ResponseModel {
   final String? decidedBy;
   final String? decidedAt;
   final int version;
+  final String? requestedByName;
+  final String? decidedByName;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -66933,6 +67179,8 @@ final class StaffScoreLineResponseAdjustmentsItem implements ResponseModel {
         'decided_by': decidedBy,
         'decided_at': decidedAt,
         'version': version,
+        if (requestedByName != null) 'requested_by_name': requestedByName,
+        if (decidedByName != null) 'decided_by_name': decidedByName,
         ...extra,
       };
 }
@@ -67100,6 +67348,7 @@ final class StaffScoreLineResponseResponsesItem implements ResponseModel {
     required this.handledAt,
     required this.conclusion,
     required this.approvalInstanceId,
+    this.handledByName,
     this.extra = const <String, Object?>{},
   });
 
@@ -67115,7 +67364,8 @@ final class StaffScoreLineResponseResponsesItem implements ResponseModel {
       handledAt: requiredField(map, path, 'handled_at', nullable(asString)),
       conclusion: requiredField(map, path, 'conclusion', nullable(asString)),
       approvalInstanceId: requiredField(map, path, 'approval_instance_id', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'id', 'line_id', 'body', 'status', 'submitted_at', 'handled_by', 'handled_at', 'conclusion', 'approval_instance_id'}, strict: true),
+      handledByName: optionalField(map, path, 'handled_by_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'line_id', 'body', 'status', 'submitted_at', 'handled_by', 'handled_at', 'conclusion', 'approval_instance_id', 'handled_by_name'}, strict: true),
     );
   }
 
@@ -67128,6 +67378,7 @@ final class StaffScoreLineResponseResponsesItem implements ResponseModel {
   final String? handledAt;
   final String? conclusion;
   final String? approvalInstanceId;
+  final String? handledByName;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -67143,6 +67394,7 @@ final class StaffScoreLineResponseResponsesItem implements ResponseModel {
         'handled_at': handledAt,
         'conclusion': conclusion,
         'approval_instance_id': approvalInstanceId,
+        if (handledByName != null) 'handled_by_name': handledByName,
         ...extra,
       };
 }
@@ -67402,6 +67654,8 @@ final class StaffScorePeriodResponse implements ResponseModel {
     required this.openResponseCount,
     required this.version,
     required this.asOf,
+    this.scopeUnitCode,
+    this.scopeUnitName,
     this.extra = const <String, Object?>{},
   });
 
@@ -67427,7 +67681,9 @@ final class StaffScorePeriodResponse implements ResponseModel {
       openResponseCount: requiredField(map, path, 'open_response_count', asInt),
       version: requiredField(map, path, 'version', asInt),
       asOf: requiredField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'id', 'scope_unit_id', 'period_kind', 'period_from', 'period_to', 'status', 'policy_code', 'policy_rule_id', 'policy_version', 'snapshot_hash', 'locked_by', 'locked_at', 'response_until', 'official_at', 'supersedes_period_id', 'line_count', 'open_response_count', 'version', 'as_of'}, strict: true),
+      scopeUnitCode: optionalField(map, path, 'scope_unit_code', nullable(asString)),
+      scopeUnitName: optionalField(map, path, 'scope_unit_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'scope_unit_id', 'period_kind', 'period_from', 'period_to', 'status', 'policy_code', 'policy_rule_id', 'policy_version', 'snapshot_hash', 'locked_by', 'locked_at', 'response_until', 'official_at', 'supersedes_period_id', 'line_count', 'open_response_count', 'version', 'as_of', 'scope_unit_code', 'scope_unit_name'}, strict: true),
     );
   }
 
@@ -67450,6 +67706,8 @@ final class StaffScorePeriodResponse implements ResponseModel {
   final int openResponseCount;
   final int version;
   final String asOf;
+  final String? scopeUnitCode;
+  final String? scopeUnitName;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -67475,6 +67733,8 @@ final class StaffScorePeriodResponse implements ResponseModel {
         'open_response_count': openResponseCount,
         'version': version,
         'as_of': asOf,
+        if (scopeUnitCode != null) 'scope_unit_code': scopeUnitCode,
+        if (scopeUnitName != null) 'scope_unit_name': scopeUnitName,
         ...extra,
       };
 }
