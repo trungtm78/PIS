@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { decimalText } from '../../../i18n/format';
 import { DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { gradeLook, gradeName, versionText, TaskName } from '../codes';
@@ -101,7 +102,7 @@ export function ScoreFigure({ line }: ScoreFigureProps) {
         </p>
       )}
       <p className="adm-kit-sub" data-testid="sample">
-        {t('pwfs.figure.sample.text', { count: line.rated_task_count, weight: line.effective_weight })}
+        {t('pwfs.figure.sample.text', { count: line.rated_task_count, weight: decimalText(line.effective_weight) })}
       </p>
     </div>
   );
@@ -121,7 +122,7 @@ export function ScoreInfo({ basis, asOf }: { basis: ScoreLine['basis']; asOf: st
   );
 }
 
-const percentText = (fraction: number): string => `${Math.round(fraction * 10_000) / 100}%`;
+const percentText = (fraction: number): string => `${decimalText(fraction * 100)}%`;
 
 /** The results of the KPIs of one task of a line, each with the formula, the value, the score and the facts it was computed from; read when the person opens them. */
 function TaskFacts({ taskId }: { taskId: string }) {
@@ -228,7 +229,7 @@ export function ContributionsTable({ contributions }: { contributions: readonly 
       ),
     },
     { key: 'fraction', header: t('pwfs.contribution.col.fraction'), align: 'right', render: (row) => percentText(row.fraction) },
-    { key: 'weight', header: t('pwfs.contribution.col.weight'), align: 'right', render: (row) => row.weight },
+    { key: 'weight', header: t('pwfs.contribution.col.weight'), align: 'right', render: (row) => decimalText(row.weight, 3) },
     { key: 'score', header: t('pwfs.contribution.col.score'), align: 'right', render: (row) => scoreText(row.score) },
   ];
   return (

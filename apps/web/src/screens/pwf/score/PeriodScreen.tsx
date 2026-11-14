@@ -39,6 +39,7 @@ function PeriodContent({ route }: ScreenProps) {
   const screenState = !mayRead ? 'denied' : state;
   const columns: DataTableColumn<ScorePeriod>[] = [
     { key: 'range', header: t('pwfs.period.col.range'), render: (row) => <Link to={periodLink(row.id)}>{rangeText(row.period_from, row.period_to)}</Link> },
+    { key: 'unit', header: t('shots3.period.col.unit'), render: (row) => row.scope_unit_name ?? row.scope_unit_code ?? '–' },
     { key: 'status', header: t('pwfs.period.col.status'), render: (row) => <PeriodStatusPill status={row.status} /> },
     { key: 'lines', header: t('pwfs.period.col.lines'), align: 'right', render: (row) => row.line_count },
     { key: 'open', header: t('pwfs.period.col.open'), align: 'right', render: (row) => row.open_response_count },
@@ -56,7 +57,7 @@ function PeriodContent({ route }: ScreenProps) {
         {canManage ? <ComputeCard onDone={(preview) => setParams({ id: preview.period.id })} /> : null}
         <SectionCard title={t('pwfs.period.list.title')}>
           <div className="pwf-free">
-            <DataTable columns={columns} rows={rows} rowKey={(row) => row.id} caption={t('pwfs.period.caption.text')} state={rows.length === 0 ? 'empty' : 'ready'} />
+            <DataTable columns={columns} rows={rows} rowKey={(row) => row.id} caption={t('pwfs.period.caption.text')} stacked state={rows.length === 0 ? 'empty' : 'ready'} />
           </div>
           {periods.hasNextPage ? (
             <button type="button" className="ui-button ui-button--outline ui-button--small" data-action="more-periods" onClick={() => void periods.fetchNextPage()}>
@@ -234,6 +235,8 @@ function Detail({ period, canManage }: { period: ScorePeriod; canManage: boolean
       <SectionCard title={t('pwfs.period.detail.title', { range: rangeText(period.period_from, period.period_to) })} status={<PeriodStatusPill status={period.status} />}>
         <PeriodCutoffNote period={period} />
         <dl className="pwf-facts" data-testid="period-detail">
+          <dt>{t('shots3.period.col.unit')}</dt>
+          <dd data-testid="period-unit">{period.scope_unit_name ?? period.scope_unit_code ?? '–'}</dd>
           <dt>{t('pwfs.period.facts.policy.label')}</dt>
           <dd>
             <PolicyBasis code={period.policy_code} version={period.policy_version} />

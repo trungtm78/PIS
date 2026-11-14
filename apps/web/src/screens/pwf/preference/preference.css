@@ -75,3 +75,51 @@
 .pwfp-levelgroup { border: 0; margin: 0; padding: 0; min-width: 0; }
 .pwfp-levelgroup > legend { padding: 0; margin-bottom: var(--mv-space-8); font-weight: 700; }
 .pwfp-raised { margin: var(--mv-space-8) 0 0; font-size: 13px; color: var(--mv-color-text-secondary); }
+
+/* On a narrow screen (640 px and less) the head of the small tables may wrap, and the list of my tasks is read down the page: each task a card of lines "label: value" (the label is the header of its column, from
+   data-label), the same way the stacked DataTable of the kit does it. Before, the five columns were squeezed and the last two fell off the side. */
+@media (max-width: 640px) {
+  .pwfp-table th {
+    white-space: normal;
+  }
+  .pwfp-table--cards,
+  .pwfp-table--cards tbody,
+  .pwfp-table--cards tr,
+  .pwfp-table--cards td {
+    display: block;
+    width: 100%;
+  }
+  .pwfp-table--cards thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .pwfp-table--cards tr {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--mv-color-border);
+  }
+  .pwfp-table.pwfp-table--cards td {
+    display: grid;
+    grid-template-columns: minmax(96px, 38%) minmax(0, 1fr);
+    column-gap: 8px;
+    height: auto;
+    padding: 4px 0;
+    border: 0;
+    overflow-wrap: anywhere;
+  }
+  .pwfp-table--cards td::before {
+    content: attr(data-label);
+    grid-column: 1;
+    grid-row: 1 / span 12;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--mv-color-text-secondary);
+  }
+  .pwfp-table--cards td > * {
+    grid-column: 2;
+    min-width: 0;
+  }
+}

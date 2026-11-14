@@ -82,6 +82,8 @@
 }
 .pwf-facts dd {
   margin: 0;
+  /* A hash or a code without a space breaks inside its line instead of pushing the page sideways. */
+  overflow-wrap: anywhere;
 }
 .pwf-pills {
   display: inline-flex;
@@ -93,4 +95,10 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+}
+
+/* The facts a KPI was computed from are long strings without a space: they break inside their cell, so the table of the results never runs off the side of the page. */
+.pwf-input dd {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }

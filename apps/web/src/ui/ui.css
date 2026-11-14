@@ -500,15 +500,18 @@ code {
 @media (max-width: 640px) {
   .ui-table--stacked, .ui-table--stacked tbody, .ui-table--stacked tfoot, .ui-table--stacked .ui-table__row, .ui-table--stacked .ui-table__cell { display: block; width: 100%; }
   .ui-table--stacked thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .ui-table--stacked .ui-table__row { padding: var(--mv-space-12); border-bottom: 1px solid var(--mv-color-border); }
+  .ui-table--stacked .ui-table__row { display: flex; flex-direction: column; padding: var(--mv-space-12); border-bottom: 1px solid var(--mv-color-border); }
   .ui-table--stacked .ui-table__row:hover .ui-table__cell { background: transparent; }
-  .ui-table--stacked .ui-table__cell { min-height: 0; padding: var(--mv-space-4) 0; border-bottom: 0; background: transparent; text-align: left; position: static; box-shadow: none; overflow-wrap: anywhere; }
-  .ui-table--stacked .ui-table__cell[data-label] { display: grid; grid-template-columns: minmax(96px, 38%) minmax(0, 1fr); gap: var(--mv-space-8); align-items: start; }
-  .ui-table--stacked .ui-table__cell[data-label]::before { content: attr(data-label); font-size: 12px; font-weight: 700; color: var(--mv-color-text-secondary); }
-  .ui-table--stacked .ui-table__cell:first-child { font-weight: 700; padding-bottom: var(--mv-space-8); }
-  .ui-table--stacked .ui-table__row[data-severity] > .ui-table__cell:first-child { box-shadow: none; padding-left: var(--mv-space-8); border-left: 4px solid var(--mv-color-info); }
-  .ui-table--stacked .ui-table__row[data-severity='URGENT'] > .ui-table__cell:first-child { border-left-color: var(--mv-color-danger); }
-  .ui-table--stacked .ui-table__row[data-severity='ACTION'] > .ui-table__cell:first-child { border-left-color: var(--mv-color-warning); }
+  /* `height: auto`: the page gives every td 44 px, and a cell laid out as a block does not grow past a height the way a table cell does, so two lines of text ran over the next cell. */
+  .ui-table--stacked .ui-table__cell { height: auto; min-height: 0; padding: var(--mv-space-4) 0; border-bottom: 0; background: transparent; text-align: left; position: static; box-shadow: none; overflow-wrap: anywhere; }
+  /* The label takes the left column for as many rows as the cell has parts; every part of the value goes to the right column, one under the other. */
+  .ui-table--stacked .ui-table__cell[data-label] { display: grid; grid-template-columns: minmax(96px, 38%) minmax(0, 1fr); column-gap: var(--mv-space-8); row-gap: 0; align-items: start; }
+  .ui-table--stacked .ui-table__cell[data-label]::before { content: attr(data-label); grid-column: 1; grid-row: 1 / span 12; font-size: 12px; font-weight: 700; color: var(--mv-color-text-secondary); }
+  .ui-table--stacked .ui-table__cell[data-label] > * { grid-column: 2; min-width: 0; }
+  .ui-table--stacked .ui-table__cell[data-card-title] { order: -1; font-weight: 700; padding-bottom: var(--mv-space-8); }
+  .ui-table--stacked .ui-table__row[data-severity] > .ui-table__cell[data-card-title] { box-shadow: none; padding-left: var(--mv-space-8); border-left: 4px solid var(--mv-color-info); }
+  .ui-table--stacked .ui-table__row[data-severity='URGENT'] > .ui-table__cell[data-card-title] { border-left-color: var(--mv-color-danger); }
+  .ui-table--stacked .ui-table__row[data-severity='ACTION'] > .ui-table__cell[data-card-title] { border-left-color: var(--mv-color-warning); }
   .ui-table-scroll:has(> .ui-table--stacked) { max-height: none; overflow: visible; }
 }
 
