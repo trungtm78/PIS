@@ -53,7 +53,7 @@
           "proof": "WRITTEN_NOT_RUN"
         },
         "clip-public-phone-work": {
-          "proof": "WRITTEN_NOT_RUN"
+          "proof": "RUN_VERIFIED"
         }
       },
       "chapters": {
@@ -527,7 +527,7 @@
           "proof": "RUN_VERIFIED"
         },
         "clip-ent-phone-work": {
-          "proof": "WRITTEN_NOT_RUN"
+          "proof": "RUN_VERIFIED"
         },
         "clip-ent-execution": {
           "proof": "WRITTEN_NOT_RUN"
