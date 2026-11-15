@@ -70,3 +70,8 @@
   outline: 2px solid var(--mv-color-focus);
   outline-offset: 2px;
 }
+
+/* The second-factor prompt opens over the review: both overlays are children of the body, and the review (z-index 90) would otherwise cover the prompt (60) and take its clicks (UAT-NFR-SECURITY-02). */
+.theme-review-overlay ~ .catalog.command-mode {
+  z-index: 95;
+}

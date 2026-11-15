@@ -514,6 +514,22 @@ describe('SAS-04 review, publish and restore', () => {
     expect(screen.getByRole('dialog')).toBeTruthy();
   });
 
+  it('UAT-NFR-SECURITY-02: Escape in the second-factor prompt closes the prompt only, and the prompt stands beside the review, not inside it', async () => {
+    world.draft = { revision: 2, config: { ...THEME, primary: '#112233' } };
+    open({ command: flow((operation) => (operation === 'publishSystemTenantTheme' ? problem(403, 'MFA_REQUIRED') : undefined)) });
+    await loaded();
+    await userEvent.click(screen.getByRole('button', { name: vi_['sas.theme.review.action'] }));
+    const dialog = await screen.findByRole('dialog');
+    await userEvent.click(await within(dialog).findByRole('checkbox'));
+    await userEvent.click(within(dialog).getByRole('button', { name: vi_['sas.theme.review.apply.confirm'] }));
+    const prompt = await screen.findByRole('alertdialog', { name: vi_['adm.roles.stepUp.title'] });
+    // The stylesheet lifts the prompt over the review by this order: the overlay of the prompt follows the overlay of the review in the body.
+    expect(document.querySelector('.theme-review-overlay ~ .catalog.command-mode')?.contains(prompt)).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+    expect(screen.getByRole('dialog')).toBeTruthy();
+  });
+
   it('asks the screen to reload when the base version moved (VERSION_CONFLICT on publish)', async () => {
     world.draft = { revision: 2, config: { ...THEME, primary: '#112233' } };
     const { h } = open({ command: flow((operation) => (operation === 'publishSystemTenantTheme' ? problem(409, 'VERSION_CONFLICT', { current_version: 3 }) : undefined)) });
