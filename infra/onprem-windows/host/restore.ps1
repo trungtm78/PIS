@@ -1,4 +1,4 @@
-# Restores the two databases from one backup directory of backup.ps1. EVERYTHING written after that backup is lost.
+# Restores the two databases and the uploaded objects from one backup directory of backup.ps1. EVERYTHING written after that backup is lost.
 #
 #   restore.ps1 -Backup C:\ProgramData\MACHVON\backups\<stamp>-<label> -Confirm RESTORE
 #
@@ -37,6 +37,28 @@ try {
   }
 } finally {
   Remove-Item -Recurse -Force $spool -ErrorAction SilentlyContinue
+}
+# The uploaded objects of the backup replace the present ones (the api and the workers are stopped). A backup taken before objects.zip existed holds none:
+# the objects of the host are then left as they are, and the restored rows may point at files that are no longer there.
+$archive = Join-Path $Backup 'objects.zip'
+if (Test-Path -LiteralPath $archive) {
+  Say 'restoring the uploaded objects'
+  $objects = Get-ObjectsDirectory
+  $unpacked = Join-Path $script:StateDir 'restore-objects'
+  Remove-Item -Recurse -Force $unpacked -ErrorAction SilentlyContinue
+  New-Item -ItemType Directory $unpacked | Out-Null
+  try {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($archive, $unpacked)
+    # /MIR removes what the backup does not hold; the files take the access list of the volume (the service user may modify). Robocopy: below 8 is success.
+    $previous = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    try { & robocopy $unpacked $objects /MIR /R:2 /W:2 /NFL /NDL /NJH /NJS /NP | Out-Null } finally { $ErrorActionPreference = $previous }
+    if ($LASTEXITCODE -ge 8) { Fail "copying the uploaded objects ended with robocopy status $LASTEXITCODE" }
+  } finally {
+    Remove-Item -Recurse -Force $unpacked -ErrorAction SilentlyContinue
+  }
+} else {
+  Say 'this backup holds no objects.zip: the uploaded objects are left as they are'
 }
 Say 'starting every service'
 Compose up --detach

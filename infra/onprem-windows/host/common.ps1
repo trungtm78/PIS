@@ -55,6 +55,17 @@ function Compose {
   try { & docker compose --env-file $script:EnvFile -f $script:ComposeFile @args 2>&1 | ForEach-Object { "$_" } } finally { $ErrorActionPreference = $previous }
 }
 
+# The directory of the host that holds the uploaded objects: the volume the api service mounts at C:\data\objects. The files are plain files under the Docker
+# data directory, which administrators of the host can read and write.
+function Get-ObjectsDirectory {
+  $api = Compose ps --all --quiet api | Select-Object -First 1
+  if (-not $api) { Fail 'the api container does not exist' }
+  $mounts = (Get-Native { & docker inspect $api --format '{{json .Mounts}}' }) -join '' | ConvertFrom-Json
+  $source = ($mounts | Where-Object { $_.Destination -ieq 'C:\data\objects' } | Select-Object -First 1).Source
+  if (-not $source -or -not (Test-Path -LiteralPath $source -PathType Container)) { Fail 'the volume of the uploaded objects was not found' }
+  return $source
+}
+
 function Assert-Compose([string]$What) { if ($LASTEXITCODE -ne 0) { Fail "$What ended with status $LASTEXITCODE" } }
 
 function Get-Setting([string]$Name) {

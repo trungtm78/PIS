@@ -1,4 +1,4 @@
-# Dumps the two databases (the product and Keycloak) to <root>\backups, outside every Docker volume, and removes the dumps that are older than the retention.
+# Dumps the two databases (the product and Keycloak) and archives the uploaded objects to <root>\backups, outside every Docker volume, and removes the dumps that are older than the retention.
 #
 #   backup.ps1 [-Label daily] [-RetentionDays 14]
 #
@@ -31,15 +31,23 @@ try {
   New-Item -ItemType Directory $target | Out-Null
   # Copied, not moved: a copy takes the access list of the backup directory (administrators only), a moved file would keep the one of the spool.
   Get-ChildItem $spool -File | Copy-Item -Destination $target
+  # The uploaded objects (documents, evidence, signed files): the rows of the dump point at them, so they belong to the same backup. Archived after the dumps:
+  # an object uploaded in between has no row in the dump and is harmless, the opposite order could leave a row without its file.
+  Add-Type -AssemblyName System.IO.Compression.FileSystem
+  [System.IO.Compression.ZipFile]::CreateFromDirectory((Get-ObjectsDirectory), (Join-Path $target 'objects.zip'), [System.IO.Compression.CompressionLevel]::Optimal, $false)
+} catch {
+  # A backup directory that is not complete must not stay: it would look like a backup.
+  if (Test-Path -LiteralPath $target) { Remove-Item -Recurse -Force $target -ErrorAction SilentlyContinue }
+  throw
 } finally {
   Remove-Item -Recurse -Force $spool -ErrorAction SilentlyContinue
 }
 $sums = @()
 foreach ($file in Get-ChildItem $target -File) {
-  if ($file.Length -eq 0) { Remove-Item -Recurse -Force $target; Fail "the dump file $($file.Name) is empty" }
+  if ($file.Length -eq 0) { Remove-Item -Recurse -Force $target; Fail "the backup file $($file.Name) is empty" }
   $sums += ((Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLower() + '  ' + $file.Name)
 }
-if ($sums.Count -ne 3) { Remove-Item -Recurse -Force $target; Fail 'the dump is incomplete' }
+if ($sums.Count -ne 4) { Remove-Item -Recurse -Force $target; Fail 'the backup is incomplete' }
 Write-TextFile (Join-Path $target 'SHA256SUMS') (($sums -join "`n") + "`n")
 Write-TextFile (Join-Path $target 'release.txt') ((Get-Setting 'MACHVON_VERSION') + "`n")
 $size = [math]::Round((Get-ChildItem $target -File | Measure-Object Length -Sum).Sum / 1MB, 1)
