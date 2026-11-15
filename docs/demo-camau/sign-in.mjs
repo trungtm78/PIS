@@ -22,3 +22,24 @@ export async function signIn(page, origin, account, { timeout = 90_000 } = {}) {
   await page.waitForTimeout(1500);
   return { otpAsked, choseOrganization, path: new URL(page.url()).pathname };
 }
+
+/**
+ * Opens a screen of the application by its address. The application keeps its session in memory only, so a page that is loaded anew shows the "Đăng nhập" card first;
+ * the session of the realm (its cookies) then signs the person in again without asking. Returns true when the screen (`[data-screen-id]`) is shown.
+ */
+export async function openScreen(page, origin, path, screenId, { timeout = 60_000 } = {}) {
+  await page.goto(`${origin}${path}`, { waitUntil: 'domcontentloaded', timeout });
+  const gate = page.getByRole('button', { name: 'Đăng nhập', exact: true }).first();
+  const screen = page.locator(`[data-screen-id="${screenId}"]`).first();
+  await gate.or(screen).first().waitFor({ timeout }).catch(() => undefined);
+  if (await gate.isVisible().catch(() => false)) {
+    await gate.click();
+    await page.waitForURL((url) => url.origin === origin && !url.pathname.startsWith('/idp/') && url.pathname !== '/auth/callback', { timeout });
+    const choose = page.getByRole('button', { name: /Chọn tổ chức|Vào tổ chức|Chọn/u }).first();
+    await screen.or(choose).first().waitFor({ timeout }).catch(() => undefined);
+    if (!(await screen.isVisible().catch(() => false)) && (await choose.isVisible().catch(() => false))) await choose.click();
+  }
+  const shown = await screen.waitFor({ timeout }).then(() => true, () => false);
+  await page.waitForLoadState('networkidle', { timeout }).catch(() => undefined);
+  return shown;
+}

@@ -149,3 +149,46 @@ Sản phẩm không có lệnh xóa ngay một tenant: `startTenantOffboarding` 
 Những chỗ là quy ước của bộ dữ liệu, không phải tổ chức thật: đơn vị "Khối Ban quản lý dự án chuyên ngành" là nút gom trong cây (ba Ban thật thuộc thẳng UBND tỉnh; các nhóm seed cần
 một đơn vị có đơn vị con); mọi dự án minh họa đứng tên một chủ đầu tư (Ban Quản lý dự án xây dựng tỉnh Cà Mau); "Kho bạc Nhà nước khu vực Cà Mau" là tên minh họa;
 mã số thuế của nhà thầu minh họa dùng đầu số của bộ hướng dẫn; tên việc trong mẫu quy trình của sản phẩm (ví dụ nhắc "Sở Kế hoạch và Đầu tư") là dữ liệu nền của sản phẩm, không thuộc bộ dữ liệu này.
+
+## 8. Bổ sung sau lần nạp thật trên bản cài (2026-11-16)
+
+Những điều dưới đây chỉ lộ ra khi nạp trên bản cài chạy image phát hành; mục 4 và 5 vẫn đúng, đọc kèm mục này.
+
+**8.1 Ký số của bản demo (`MACHVON_DEMO_SIGNING`).** Sản phẩm chưa có adapter của một tổ chức chứng thực thật: trên bản cài, lãnh đạo không ký được, cơ quan không đóng dấu
+được, nên không văn bản nào được phát hành, và mọi việc cần "quyết định đã phát hành" (duyệt kế hoạch lựa chọn nhà thầu, rồi gói thầu, hợp đồng, thanh toán) đứng lại.
+Bản cài DEMO được bật một bộ thay thế: tổ chức chứng thực minh họa dùng một lần, chỉ bản cài này tin; phiên ký tự được chấp thuận; chứng thư do nó cấp luôn được trả lời
+"chưa bị thu hồi". Chữ ký làm ra **không có giá trị pháp lý**. Công tắc chỉ bật được khi `MACHVON_DEPLOYMENT_PURPOSE=demo`; sai cấu hình thì API từ chối khởi động.
+
+```
+# máy phát triển: tạo tệp tổ chức chứng thực (có khóa riêng của các danh tính minh họa) và tệp chứng thư công khai
+cd apps/api
+node --import ./scripts/ts-register.mjs scripts/demo-pki.ts --out <tmp>/demo_pki --certificates <tmp>/demo-pki-certificates.json \
+  --authority "PIS Demo Root CA (khong co gia tri phap ly)" --signer "leader|Tran Thi Bich|<don vi>" --signer "organization|Uy ban nhan dan tinh Ca Mau"
+scp <tmp>/demo_pki Administrator@<máy chủ>:C:/pis-setup/demo_pki      # rồi xóa tệp ở máy phát triển
+# máy chủ
+powershell -ExecutionPolicy Bypass -File C:\ProgramData\MACHVON\host\demo-signing.ps1 -Mode on -PkiFile C:\pis-setup\demo_pki -IAcceptThisIsADemonstration
+# máy phát triển, sau khi đã có tenant và người (demo-tenant): đăng ký chứng thư bằng lệnh chính thức registerSigningCertificate
+ssh ... "type ...\demo-credentials.json" | node scripts/demo-signing-register.mjs --dataset camau --api https://<PUBLIC_HOST>/api --credentials - --certificates <tmp>/demo-pki-certificates.json
+```
+
+Tệp nằm ở `secrets\api\demo_pki` và được image nạp theo quy ước tệp bí mật (`MACHVON_DEMO_PKI_FILE`, chỉ đặt khi công tắc bật). Sau mỗi lần xóa sạch (mục 5) chứng thư đã đăng ký
+mất theo cơ sở dữ liệu: đăng ký lại bằng lệnh cuối. Tệp văn bản của DOC đang ở bộ nhớ của tiến trình API (sản phẩm chưa nối kho đối tượng cho DOC): sau khi `api` khởi động lại,
+văn bản đã phát hành vẫn có hiệu lực nhưng tệp PDF của chúng không tải lại được.
+
+**8.2 Mật khẩu demo dùng chung.** `demo-tenant.ps1 -DemoPassword <mật khẩu>` đặt MỘT mật khẩu cho mọi tài khoản demo (kể cả chủ sở hữu), không tạm thời, và đặt lại ở mỗi lần chạy,
+nên nạp lại vẫn ra đúng mật khẩu ấy. Không có tham số thì mỗi tài khoản một mật khẩu 13 chữ và số. Realm của bản này không có chính sách mật khẩu nên không phải nới gì.
+Mật khẩu dùng chung chỉ dành cho bản demo; không ghi nó vào repo. Kiểm đăng nhập thật của từng tài khoản: `... | node docs/demo-camau/login-check.mjs`.
+Tệp giao khách hàng (ngoài git): `... | node scripts/demo-accounts-xlsx.mjs --credentials - --api https://<PUBLIC_HOST>/api --out <tệp .xlsx>` (quyền của từng tài khoản được đọc từ bản cài).
+
+**8.3 Thứ tự đúng của một lần xóa và nạp lại.**
+
+1. `demo-reset.ps1 -Confirm RESET-DEMO-DATA` (từ bản 1.0.5 nó kết thúc mọi phiên của realm trước khi xóa người, để trình duyệt còn cookie của người cũ không gặp trang lỗi).
+2. `first-accounts.ps1 -InputFile <first-accounts.camau.json>` (tenant "UBND tỉnh Cà Mau", chủ sở hữu `demo`, quản trị hệ thống `quantri.hethong`).
+3. `demo-tenant.ps1 -InputFile ... [-Tools ...] -DemoPassword <mật khẩu>`; mặc định nó lấy chủ sở hữu từ `first-accounts.json` khi không có `demo-account.json`.
+4. `docker restart machvon-workers-1`: việc nền `master-baseline-sync` chạy khi `workers` khởi động, nên tenant mới có danh mục địa bàn sau vài phút (không phải 6 giờ).
+5. `demo-signing-register.mjs` (mục 8.1), rồi `clip-seed preflight`, `apply`, `verify`.
+
+**8.4 Bộ nhớ của lần nạp.** Các nhóm seed ghi sổ và các bước "chỉ làm một lần" vào `<thư mục nhà>/.clip-seed/<máy chủ>-<tenant>` (hoặc `--state-dir`); thư mục này phải còn giữa các lần
+`apply` trên cùng một tenant, nếu mất thì lần chạy lại vấp các bước không lặp lại được (ví dụ xác nhận pháp lý một mẫu đã xác nhận). Trong đó không có mật khẩu hay token.
+
+**8.5 Tên người.** Realm hiển thị `firstName lastName`; tên tiếng Việt viết họ trước, nên công cụ đặt họ và tên đệm vào `firstName`, tên vào `lastName` ("Nguyễn Văn An").

@@ -7,7 +7,7 @@ import { DocumentFilesController } from './document-files.controller';
 import { DocumentVersionReadsController, DocumentsController } from './documents.controller';
 import { demoSigningOfEnvironment } from './demo-signing';
 import type { DemoSigning } from './demo-signing';
-import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from './file-port';
+import { DOCUMENT_FILE_PORT, documentFilePortOfEnvironment } from './file-port';
 import type { DocumentFilePort } from './file-port';
 import type { MetricsSink } from '@machvon/kernel';
 import { DossierReadsController, DossiersController } from './dossier.controller';
@@ -100,7 +100,8 @@ export const docModule = defineModule({
     // The end of the workflow of a review: the final command of the business type document.review.
     DocumentReviewBinding,
     // The object storage of the platform replaces the in-memory adapter when it is bound (KERNEL-024).
-    { provide: DOCUMENT_FILE_PORT, useValue: new MockDocumentFilePort() },
+    // On an installation (MACHVON_OBJECT_ROOT) the files of DOC live in a directory of the object volume, so they survive a restart and the workers see what the API wrote.
+    { provide: DOCUMENT_FILE_PORT, useFactory: () => documentFilePortOfEnvironment(process.env) },
     // Fonts and fixed texts are read when the application starts, not when this file is imported.
     { provide: DOC_RESOURCES, useFactory: (): RendererResources => loadRendererResources() },
     { provide: PDF_RENDERER, useFactory: (resources: RendererResources): PdfLibRenderer => new PdfLibRenderer(resources), inject: [DOC_RESOURCES] },

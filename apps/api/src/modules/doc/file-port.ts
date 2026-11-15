@@ -1,3 +1,7 @@
+import { createHash, randomUUID } from 'node:crypto';
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+
 export interface StoredFile {
   bytes: Uint8Array;
   mime: string;
@@ -55,4 +59,60 @@ export class MockDocumentFilePort implements DocumentFilePort {
     const expiresAt = new Date(now.getTime() + ttlSeconds * 1000);
     return Promise.resolve({ url: `mock://documents/${encodeURIComponent(key)}?expires=${Math.floor(expiresAt.getTime() / 1000)}`, expiresAt });
   }
+}
+
+/**
+ * The adapter on a directory of the installation (the volume of uploaded objects): what DOC stores survives a restart of the process and is seen by every process that
+ * mounts the same directory (the API and the workers), which the in-memory adapter cannot give. One file for the bytes and one for the mime type, under the SHA-256 of the
+ * key (a key is a path of the product, never a path of the disk). Written once, through a temporary name, so a reader never sees half a file.
+ * The signed URL keeps the form of the MOCK adapter until the object storage of the platform serves downloads (KERNEL-024).
+ */
+export class DirectoryDocumentFilePort implements DocumentFilePort {
+  constructor(private readonly root: string) {}
+
+  private pathOf(key: string): string {
+    const name = createHash('sha256').update(key, 'utf8').digest('hex');
+    return join(this.root, name.slice(0, 2), name);
+  }
+
+  async put(key: string, bytes: Uint8Array, mime: string): Promise<void> {
+    const path = this.pathOf(key);
+    const existing = await this.get(key);
+    if (existing !== undefined) {
+      if (Buffer.from(existing.bytes).equals(Buffer.from(bytes)) && existing.mime === mime) return;
+      throw new Error('an object is written once');
+    }
+    await mkdir(dirname(path), { recursive: true });
+    const temporary = `${path}.${randomUUID()}.tmp`;
+    await writeFile(temporary, bytes);
+    await writeFile(`${path}.mime`, mime, 'utf8');
+    await rename(temporary, path);
+  }
+
+  async get(key: string): Promise<StoredFile | undefined> {
+    const path = this.pathOf(key);
+    try {
+      const [bytes, mime] = await Promise.all([readFile(path), readFile(`${path}.mime`, 'utf8')]);
+      return { bytes: new Uint8Array(bytes), mime };
+    } catch (error) {
+      if ((error as { code?: string }).code === 'ENOENT') return undefined;
+      throw error;
+    }
+  }
+
+  async signedUrl(key: string, ttlSeconds: number, now: Date): Promise<SignedUrl> {
+    if ((await this.get(key)) === undefined) throw new Error('no such object');
+    if (!Number.isInteger(ttlSeconds) || ttlSeconds < 1) throw new RangeError('ttl must be a positive number of seconds');
+    const expiresAt = new Date(now.getTime() + ttlSeconds * 1000);
+    return { url: `mock://documents/${encodeURIComponent(key)}?expires=${Math.floor(expiresAt.getTime() / 1000)}`, expiresAt };
+  }
+}
+
+/**
+ * The file port of this process: the directory `doc-files` of the object root when the installation names one (`MACHVON_OBJECT_ROOT`), the in-memory adapter otherwise
+ * (a development or test process, which keeps nothing).
+ */
+export function documentFilePortOfEnvironment(env: NodeJS.ProcessEnv): DocumentFilePort {
+  const root = (env.MACHVON_OBJECT_ROOT ?? '').trim();
+  return root === '' ? new MockDocumentFilePort() : new DirectoryDocumentFilePort(join(root, 'doc-files'));
 }

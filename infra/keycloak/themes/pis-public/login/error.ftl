@@ -8,11 +8,11 @@
     <#elseif section = "form">
         <div id="kc-error-message">
             <p class="instruction">${kcSanitize(message.summary)?no_esc}</p>
-            <#assign pisBack = "/">
-            <#if client?? && client.baseUrl?has_content><#assign pisBack = client.baseUrl></#if>
+            <#-- The home screen of the application on this host, with the mark that starts a new sign-in. The address names a screen (not "/"): the redirect of the
+                 root address would drop the mark. The realm and the application are served by the same host. -->
             <p class="instruction">${msg("pisSignInAgainHint")}</p>
             <p>
-                <a id="pis-sign-in-again" class="pf-v5-c-button pf-m-primary pf-m-block" href="${pisBack}<#if pisBack?contains('?')>&<#else>?</#if>signin=fresh">${msg("pisSignInAgain")}</a>
+                <a id="pis-sign-in-again" class="pf-v5-c-button pf-m-primary pf-m-block" href="/home/home-01?signin=fresh">${msg("pisSignInAgain")}</a>
             </p>
         </div>
     </#if>

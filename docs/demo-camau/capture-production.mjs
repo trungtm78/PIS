@@ -7,7 +7,7 @@ import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { signIn } from './sign-in.mjs';
+import { openScreen, signIn } from './sign-in.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const { chromium } = createRequire(join(HERE, '..', '..', 'apps', 'web', 'package.json'))('@playwright/test');
@@ -33,7 +33,9 @@ export const SCREENS = [
   ['12-bang-deadline', '/pwf/pwf-07', 'PWF-07 Bảng deadline toàn danh mục'],
   ['13-bang-diem-don-vi', '/pwf/pwf-12', 'PWF-12 Bảng điểm đơn vị'],
   ['14-cay-to-chuc', '/adm/adm-01', 'ADM-01 Cây tổ chức'],
-  ['15-van-ban-di', '/doc/doc-03', 'DOC Văn bản đi'],
+  ['15-van-ban-di', '/doc/doc-03', 'DOC-03 Danh sách văn bản đi'],
+  ['16-theo-doi-phe-duyet', '/adm/adm-18', 'ADM-18 Theo dõi quy trình phê duyệt'],
+  ['17-ban-chi-dao', '/ban/ban-01', 'BAN-01 Bảng điều hành Ban chỉ đạo'],
 ];
 
 const browser = await chromium.launch();
@@ -53,7 +55,7 @@ try {
     if (only !== undefined && !only.has(file.slice(0, 2))) continue;
     errors.length = 0;
     failed.length = 0;
-    await page.goto(`${credentials.origin}${path}`, { waitUntil: 'networkidle', timeout: 90_000 }).catch((error) => errors.push(`goto: ${String(error.message).slice(0, 100)}`));
+    const shown = await openScreen(page, credentials.origin, path, title.split(' ')[0]).catch((error) => { errors.push(`open: ${String(error.message).slice(0, 100)}`); return false; });
     await page.waitForTimeout(2500);
     const sideways = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
     const body = await page.evaluate(() => document.body.innerText);
