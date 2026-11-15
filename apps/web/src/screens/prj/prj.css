@@ -225,3 +225,8 @@ fieldset.formgrid {
   margin: 0;
   min-inline-size: 0;
 }
+
+/* The fields of the profile of a project keep a row apart: a label never touches the field above it (lane fix12). */
+.prj-grid .formgrid {
+  row-gap: 12px;
+}

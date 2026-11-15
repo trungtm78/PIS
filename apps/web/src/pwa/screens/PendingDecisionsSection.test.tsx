@@ -152,6 +152,15 @@ describe('the pending decisions in the approval queue (PWF 20.9)', () => {
     expect(screen.queryByTestId('pending-decisions')).toBeNull();
   });
 
+  it('names a response to a score by its kind and never by the code of the business type or of the table', async () => {
+    open([], { tasks: [approvalTask(1, { business_type: 'score.response', resource: { type: 'staff_score_response', id: id(900) } })] });
+    const card = await screen.findByRole('heading', { level: 2, name: word('fix12.inbox.kind.response') });
+    const row = card.closest('li') as HTMLElement;
+    expect(row.textContent).toContain(word('fix12.inbox.record.response'));
+    expect(row.textContent).not.toContain('score.response');
+    expect(row.textContent).not.toContain('staff_score_response');
+  });
+
   it('has no serious accessibility violation', async () => {
     const { container } = open([completion(5), exception(6)]);
     await screen.findByTestId('pending-decisions');

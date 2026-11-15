@@ -133,7 +133,7 @@ export class PwfPendingDecisionReads {
         { code: 'DUE_DATE', value: row.due_on },
         { code: 'VALID_FROM', value: row.valid_from },
         { code: 'VALID_TO', value: row.valid_to },
-        { code: 'WAIVED_ITEMS', value: Array.isArray(row.items) && row.items.length > 0 ? row.items.length : null },
+        ...(Array.isArray(row.items) && row.items.length > 0 ? [{ code: 'WAIVED_ITEMS', value: row.items.length }] : []),
       ],
       body: row.reason,
       target: { screen: 'PWF-04', id: row.task_id },

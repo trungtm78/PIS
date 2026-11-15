@@ -33,5 +33,7 @@
   "fix12.apvException.waive.word": "Waive a requirement",
   "fix12.apvException.cancel.word": "Cancel the task",
   "fix12.apvException.pause.word": "Pause the task",
-  "fix12.apvException.delay.word": "Delay from outside"
+  "fix12.apvException.delay.word": "Delay from outside",
+  "fix12.inbox.kind.response": "Response to a score",
+  "fix12.inbox.record.response": "Response of the person scored"
 }

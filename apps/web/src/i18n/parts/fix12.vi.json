@@ -33,5 +33,7 @@
   "fix12.apvException.waive.word": "Miễn một yêu cầu",
   "fix12.apvException.cancel.word": "Hủy việc",
   "fix12.apvException.pause.word": "Tạm dừng việc",
-  "fix12.apvException.delay.word": "Chậm do bên ngoài"
+  "fix12.apvException.delay.word": "Chậm do bên ngoài",
+  "fix12.inbox.kind.response": "Phản hồi về điểm đánh giá",
+  "fix12.inbox.record.response": "Phản hồi của người được chấm"
 }
