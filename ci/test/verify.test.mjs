@@ -269,6 +269,17 @@ test('mobile-tests runs flutter test in the Dart package and passes when it pass
   assert.deepEqual(seen.filter((call) => call.line === 'flutter test').map((call) => call.cwd), [join(root, 'packages', 'mobile-tokens')]);
 });
 
+test('mobile-tests runs flutter test in the time zone of Vietnam, as the Mobile workflow does (a UTC runner reads the moments of the screens 7 hours early)', () => {
+  const root = mobileWorkspace();
+  const zones = [];
+  const run = (command, args, options) => {
+    if (command === 'flutter' && args[0] === 'test') zones.push(options?.env?.TZ);
+    return OK;
+  };
+  runVerification({ root, base: 'b', run, config: {} });
+  assert.deepEqual(zones, ['Asia/Ho_Chi_Minh']);
+});
+
 test('mobile-tests fails the run when flutter test fails, unless it is configured as not required', () => {
   const root = mobileWorkspace();
   const responses = { 'flutter test': { status: 1, stdout: 'Some tests failed.', stderr: '' } };

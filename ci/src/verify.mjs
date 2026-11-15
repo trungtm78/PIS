@@ -21,6 +21,7 @@ const PRODUCT_COMMANDS = [
 ];
 const DESIGN_TOOLS_DIR = 'Design/MACHVON_Design/work/tools';
 const MOBILE_PACKAGE_DIRS = ['packages/mobile-tokens', 'packages/mobile-api-client', 'apps/mobile'];
+export const MOBILE_TEST_TIME_ZONE = 'Asia/Ho_Chi_Minh';
 const BLOCKING_SEVERITY = /\b(Critical|High)\b/;
 const RECOMMENDATION = /^Recommendation:/m;
 
@@ -88,7 +89,10 @@ function mobileTestsStage(run, root, { required = true } = {}) {
   const packageDirs = MOBILE_PACKAGE_DIRS.map((dir) => join(root, dir)).filter((dir) => existsSync(join(dir, 'pubspec.yaml')));
   if (packageDirs.length === 0) return skipped;
   if (run('flutter', ['--version'], { cwd: packageDirs[0] }).status !== 0) return skipped;
-  const stages = packageDirs.map((packageDir) => commandStage('mobile-tests', run('flutter', ['test'], { cwd: packageDir }), { required }));
+  // The screens that show a moment "in the time zone of the phone" are tested for the Vietnam hour (UTC+7, the zone of the machines the tests were written on). A hosted Linux runner is UTC and reads every such
+  // moment 7 hours early, so the run is given the zone the Mobile workflow gives it (.github/workflows/mobile.yml, "Test (with coverage)"); Windows ignores TZ and keeps the zone of the machine.
+  const env = { ...process.env, TZ: MOBILE_TEST_TIME_ZONE };
+  const stages = packageDirs.map((packageDir) => commandStage('mobile-tests', run('flutter', ['test'], { cwd: packageDir, env }), { required }));
   const failed = stages.filter((item) => item.status !== 'pass');
   if (failed.length === 0) return stages[0];
   return { ...failed[0], output: failed.map((item) => item.output).join('\n') };
