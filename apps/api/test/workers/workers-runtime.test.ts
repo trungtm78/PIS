@@ -121,6 +121,8 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
       expect((await eventOf(unit)).status).toBe('PENDING');
       timers.fire(RELAY_DELAY);
       await until(async () => (await eventOf(unit)).status === 'PUBLISHED', 'the relay to publish the event');
+      // The run is recorded after its work: on a slow runner the event is seen published a moment before the history holds the run.
+      await until(async () => api.workers?.history('outbox-relay').length === 1, 'the relay run to be recorded');
       expect(api.workers?.history('outbox-relay').map((run) => run.outcome)).toEqual(['SUCCESS']);
     }, TEST_TIMEOUT);
 
