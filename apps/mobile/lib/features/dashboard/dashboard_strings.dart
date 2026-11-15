@@ -247,7 +247,7 @@ const StringTable dashboardStrings = StringTable(
     'mob.home.stat.warnings.label': 'Cảnh báo mở',
     'mob.home.stat.explanations.label': 'Giải trình quá hạn',
     'mob.home.stat.reallocations.label': 'Điều chuyển chờ duyệt',
-    'mob.home.stat.watch.text': 'Cần theo dõi',
+    'mob.home.stat.watch.text': 'Lưu ý',
     'mob.home.stat.overdue.text': 'Quá hạn',
     'mob.home.details.title': 'Số liệu và công thức',
     'mob.alert.group.none.label': 'Chưa có hạn',

@@ -38,6 +38,9 @@ const WORKERS = [OWNER, MAKER] as const;
  */
 const ACCOUNTABLE = CHECKER;
 const CONSULTED = ['treasuryMaker', 'docHead', 'unitAdmin'] as const;
+/** The officer who holds only the system role of the staff (STAFF_MEMBER, R55): neither leader nor project officer, and the home "Việc hôm nay" of the phone is made of the tasks given to them. */
+const STAFFER = 'projectViewer';
+const STAFFER_TASKS = 4;
 /** The department whose provisional period is left as a draft (R50): the planning department, the unit of the leader, of two officers and, below it, of the project board. */
 const DRAFT_PERIOD_UNIT = 'CB-SKHDT';
 /** The smallest sample the province rates a person on: three tasks of the quarter (the built-in policy says five, which a quarter of eight workflows gives to the two people who do the work only). */
@@ -718,6 +721,25 @@ async function reschedules(ctx: SeedContext, ids: Record<string, string>): Promi
   await propose('DA-PWF-02', 1, 'Dời ngày bắt đầu một ngày theo lịch họp thống nhất danh mục thiết bị với các trường', true);
 }
 
+/**
+ * The tasks of the officer who holds only the role of the staff: the first tasks of the open workflows that nobody holds yet (they begin later), given to them as the one who does them from today. The home of the phone of
+ * a person with no authority to decide reads these (MOB-08), the list `getMyTasks` and the reminders of their own levels. One task per project at most, so that the list is of several projects; a rerun finds them given and does nothing.
+ */
+async function staffTasks(ctx: SeedContext, ids: Record<string, string>): Promise<void> {
+  const mine = await ctx.get<{ items?: unknown[] }>(STAFFER, '/me/project-tasks');
+  if ((mine.items ?? []).length > 0) return;
+  let given = 0;
+  for (const projectId of Object.values(ids)) {
+    if (given >= STAFFER_TASKS) break;
+    const next = (await tasksOf(ctx, projectId)).find((task) => task.status === 'NOT_STARTED' && str(task.planned_start) >= ctx.today);
+    if (next === undefined) continue;
+    const reply = await ctx.attempt(OWNER, 'POST', `/project-tasks/${next.id}/assignments`, { membership_id: ctx.person(STAFFER).membershipId, role: 'RESPONSIBLE', valid_from: ctx.today, share_pct: 100, reason: 'Giao việc cho cán bộ của Ban phụ trách trực tiếp theo phân công của dự án' });
+    if (!reply.ok) continue;
+    given += 1;
+    ctx.record({ module: 'PWF', kind: 'project-task', id: next.id, code: next.task_code, note: `given to ${ctx.nameOf(STAFFER)}, who holds only the role of the staff`, screen: 'PWF-04' });
+  }
+}
+
 /** The reminders of the person of the phone: thresholds of their own (earlier than the official ones) and the days they are reminded on. */
 async function preference(ctx: SeedContext): Promise<void> {
   const now = await ctx.get<Obj>(OWNER, '/me/deadline-preference');
@@ -771,6 +793,12 @@ async function scores(ctx: SeedContext): Promise<void> {
       const asked = await ctx.attempt<CommandReply>(OWNER, 'POST', `/staff-score-lines/${str(officer.id)}/adjustments`, { points: 3, reason: 'Chủ động xử lý hồ sơ thay đồng nghiệp nghỉ ốm trong hai tuần, bảo đảm tiến độ của dự án', evidence_ref: 'Biên bản họp giao ban tuần 45' });
       if (asked.ok) await decideBy(ctx, [CHECKER, 'unitAdmin', MAKER], `/staff-score-adjustments/${asked.json.resource_id}/decide`, { decision: 'APPROVE', note: 'Đồng ý theo đề nghị, đã xem biên bản giao ban' }, asked.json.resource_version);
     }
+  }
+  // An adjustment that WAITS (R54, the unified approval inbox of the leader): the officer of the project board asks for it on the score of somebody else, the leader decides it. Not the person scored and not the one who asked.
+  const subject = lines.find((line) => line.membership_id !== ctx.person(OWNER).membershipId && line.membership_id !== ctx.person(MAKER).membershipId && line.score_computed !== null && line.score_computed !== undefined);
+  if (subject !== undefined) {
+    const detail = await ctx.get<Obj>(OWNER, `/staff-score-lines/${str(subject.id)}`);
+    if (arr(detail.adjustments).length === 0) await ctx.attempt<CommandReply>(MAKER, 'POST', `/staff-score-lines/${str(subject.id)}/adjustments`, { points: -2, reason: 'Hồ sơ nộp thiếu một chứng từ phải bổ sung sau khi duyệt, đề nghị trừ điểm theo quy chế chấm điểm', evidence_ref: 'Biên bản kiểm tra hồ sơ tuần 45' });
   }
   // A response of the officer to their own score, handled by the owner.
   if (officer !== undefined) {
@@ -830,6 +858,7 @@ export async function seedClipPwfReview(ctx: SeedContext): Promise<void> {
     await ctx.step('PWF', `tasks done, waiting for approval, sent back, late and under way in the workflow of ${spec.code}`, () => play(ctx, spec, id, turn));
   }
   await ctx.step('PWF', 'the working group of every open task: a leader who answers for it, an officer who is asked (PWF-16, PWF-12)', () => teams(ctx, ids));
+  await ctx.step('PWF', 'the tasks of the officer who holds only the role of the staff (MOB-08, the home "Việc hôm nay")', () => staffTasks(ctx, ids));
   await ctx.step('PWF', 'a task handed over two days before its deadline (PWF-16, a signal of PWF-14)', () => handover(ctx, ids));
   await ctx.step('PWF', 'a reschedule waiting and one approved (PWF-06)', () => reschedules(ctx, ids));
   // After the evidence was made from revision 1: the form is revised, and the task says a newer revision exists.

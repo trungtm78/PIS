@@ -1202,9 +1202,6 @@ const DOCS_PEOPLE: DocsPerson[] = JSON.parse(readFileSync(resolve(REPO_ROOT, 'ap
 /** The people who are members of tenant A: everyone but the operator of the platform. */
 const TENANT_PEOPLE = DOCS_PEOPLE.filter((person) => person.plane !== 'control');
 
-/** What every member of staff reads about themselves (lane fix11, R53): the parts of "Việc hôm nay". None of them reads a scope. */
-const STAFF_OWN_READS: readonly string[] = ['session.self', 'profile.self', 'notification.self', 'pwf.task.work', 'pwf.preference.own', 'approval_task.read'];
-
 /** The roles of a unit made from the permissions the tests use: the staff of the project board do the work, the leader decides, the accountant pays. */
 function docsRoles(): Array<{ n: number; code: string; permissions: string[]; rank: number }> {
   const unique = (roles: ReadonlyArray<{ permissions: readonly string[] }>): string[] => [...new Set(roles.flatMap((role) => role.permissions))];
@@ -1212,13 +1209,14 @@ function docsRoles(): Array<{ n: number; code: string; permissions: string[]; ra
   // Demo only: with DEMO_ANTHROPIC_API_KEY set the unit roles also hold the AI gateway permissions (llm.*), so that a maker and a checker exist for the AI registry.
   const platform = (process.env.DEMO_ANTHROPIC_API_KEY ?? '') === '' ? /^(system|llm|license|subscription|support|control|internal|edge)./ : /^(system|license|subscription|support|control|internal|edge)./;
   const everything = [...new Set([...unique(E2E_ROLES), ...Object.values(PERMISSIONS)])].filter((permission) => !platform.test(permission));
-  const deciding = (permission: string): boolean => /approve|publish|decide|certify|sign|review|accept|confirm/.test(permission);
+  // A maker asks for a publication of a dashboard (`bi.publish.request`): asking is the officer's step, deciding is the leader's.
+  const deciding = (permission: string): boolean => /approve|publish|decide|certify|sign|review|accept|confirm/.test(permission) && permission !== 'bi.publish.request';
   return [
     { n: 901, code: 'CAN_BO_BAN_QLDA', permissions: everything.filter((permission) => !deciding(permission)), rank: 45 },
     { n: 902, code: 'LANH_DAO_SO', permissions: everything.filter((permission) => deciding(permission) || permission.endsWith('.read')), rank: 65 },
-    // Lane fix11 (R53): a member of staff who decides nothing reads what is THEIRS on the home of the phone: their workflow tasks, the approvals that wait for them, their notifications and their own reminder levels.
-    // The accountant holds the payment rights and these reads of her own, and nothing of the scope (no `home.read`): her home is "Việc hôm nay" with her own parts, never a refusal.
-    { n: 903, code: 'KE_TOAN_THANH_TOAN', permissions: unique([...PAY_ROLES, ...PAYMENT_ROLES, ...LEDGER_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, { permissions: STAFF_OWN_READS }]), rank: 40 },
+    // The accountant holds the payment rights. What every member of staff reads about themselves (their tasks, the approvals that wait for them, their notifications, their reminder levels: the parts of "Việc hôm nay") is the system
+    // role STAFF_MEMBER, which the staff of this stack receive like the staff of any tenant (lane fix12, R55), so this role carries none of it.
+    { n: 903, code: 'KE_TOAN_THANH_TOAN', permissions: unique([...PAY_ROLES, ...PAYMENT_ROLES, ...LEDGER_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES]), rank: 40 },
     // Persona grants of the clip stack (the system roles AUDITOR and SECURITY_ADMIN hold none of these): the auditor reads the inspections, recommendations, red flags, gifts and the ranking of investors (AUD-02, 06, 11, 14, 16, 17);
     // the security administrator reads the permanent delegations, the acting grants and the period scopes (ADM-25, 26, 27) and asks for them; the second person who approves is the owner. Reading and asking only.
     { n: 904, code: 'THANH_TRA_KIEM_TOAN', permissions: everything.filter((permission) => /^aud.(read|standing.read|redflag.read|gift.read|sod.read|whistle.read)$/.test(permission) || permission === 'project.read' || permission === 'audit_event.read'), rank: 28 },
@@ -1272,6 +1270,8 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
     return [
       { n: 900 + index, user: person.key, role: person.role ?? 'MEMBER', kind, refs },
       ...(person.key === 'capApprover' ? [{ n: 950, user: person.key, role: 'LEADER', kind: 'TENANT' as const, refs: [] }] : []),
+      // The base role of the staff (R55) is given to the people of the staff as the invitation gives it: not to the account that stands for "nobody" (a person with no rights, whom the negative cases use), and not twice to the one whose role it is.
+      ...(person.key === 'nobody' || person.role === 'STAFF_MEMBER' || person.plane !== undefined ? [] : [{ n: 1000 + index, user: person.key, role: 'STAFF_MEMBER', kind: 'TENANT' as const, refs: [] }]),
       ...(person.extraRoles ?? []).map((role, order) => ({ n: 960 + index * 4 + order, user: person.key, role, kind, refs })),
     ];
   });

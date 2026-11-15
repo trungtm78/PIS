@@ -45,6 +45,19 @@ async function tryCommand(ctx: SeedContext, person: string, path: string, body?:
   return reply.ok ? reply.json : undefined;
 }
 
+/**
+ * Like `tryCommand`, for a command the product refuses by ITS OWN rule at this point of the data, which the seed leaves out on purpose and says why (`skip`, not a refusal the seed tolerated): the refusal must be the
+ * expected code, any other is still written as a warning.
+ */
+async function tryOrSkip(ctx: SeedContext, person: string, path: string, body: unknown, expected: string, why: string, version?: number): Promise<CommandReply | undefined> {
+  const reply = await ctx.call<CommandReply>(person, 'POST', path, body ?? {}, version === undefined ? {} : { version });
+  if (reply.ok) return reply.json;
+  const code = String((reply.json as unknown as Obj).code ?? '');
+  if (code === expected) ctx.skip(`${path.replace(/[0-9a-f]{8}-[0-9a-f-]{27}/g, ':id')}: left out on purpose, ${why}`);
+  else ctx.warn(`POST ${path} -> HTTP ${reply.status} ${reply.text.slice(0, 300)}`);
+  return undefined;
+}
+
 /** A letter that stands for a paper (certificate scan, decision, notice). */
 async function paper(ctx: SeedContext, symbol: string, title: string, sender: string, issuedOn: string): Promise<string> {
   return (await ctx.letter({ symbol, title, sender, issuedOn, person: MAKER })).documentId;
@@ -436,7 +449,12 @@ async function seedPerformance(c: Ctx, contracts: Map<string, Obj>): Promise<voi
           if (criteria[key]?.score === null || criteria[key]?.score === undefined) overrides[key] = { score: spec.scores[index] ?? 80, reason: 'Chưa đủ thời gian quan sát tự động; cán bộ hợp đồng đánh giá trực tiếp theo biên bản kiểm tra hiện trường quý 3/2026.' };
         });
         moved = await tryCommand(ctx, LEADER, `/contract-rating-proposals/${pid}/adopt`, { note: 'Chấp thuận xếp hạng theo đề xuất.', overrides }, version);
-        if (moved !== undefined) await tryCommand(ctx, LEADER, `/vendor/rating-proposals/${pid}/publication`, { kind: 'INITIAL', receipt: `MSC-DG-2026-00${spec.contract.endsWith('XL01') ? '412' : '413'}` });
+      } else if (state === 'ADOPTED') {
+        // The result is published by somebody other than the leader who adopted it (a person does not publish their own decision: 403 SELF_APPROVAL_DENIED).
+        moved = await tryCommand(ctx, CHECKER, `/vendor/rating-proposals/${pid}/publication`, { kind: 'INITIAL', receipt: `MSC-DG-2026-00${spec.contract.endsWith('XL01') ? '412' : '413'}` });
+        if (moved === undefined) break;
+        proposal = await readProposal();
+        break;
       } else {
         ctx.warn(`rating proposal ${spec.contract} is in state ${state}`);
       }
@@ -502,6 +520,9 @@ async function seedInvestigation(c: Ctx): Promise<void> {
   ctx.record({ module: 'VND', screen: 'VND-13', kind: 'investigation', id: 'vnd-13', code: 'VND-13', note: `link scan, ${after.length} leads` });
 }
 
+const PORTAL_NOT_BOUND = 'CONTRACTOR_PORTAL_NOT_BOUND';
+const PORTAL_WHY = 'the contractor has no portal account yet (its contact accepts the invitation as its own identity, which this stack plays for one contractor in the contractor-portal group), so a request or a plan of remediation has nobody to answer it';
+
 // ---- VND-20 / VND-21 / VND-23: contractor portal (staff side) and remediation ------------------------------------------------------------
 
 async function seedPortal(c: Ctx, contracts: Map<string, Obj>): Promise<void> {
@@ -515,23 +536,23 @@ async function seedPortal(c: Ctx, contracts: Map<string, Obj>): Promise<void> {
       { key: 'tanPhat', name: 'Võ Minh Tâm', email: 'sales@tanphat-pressure.example.test', basis: 'TAX_AUTHORITY_RECORD', approve: false },
     ];
     for (const spec of specs) {
-      const made = await tryCommand(ctx, MAKER, '/vendor/portal/invitations', { contractor_id: c.idOf(spec.key), contact_email: spec.email, contact_name: spec.name, contact_basis: spec.basis, basis_reference: `Hồ sơ năng lực HSNL/2026 của ${NAME[spec.key]}` });
+      const made = await tryCommand(ctx, MAKER, '/vendor/portal/invitations', { contractor_id: c.idOf(spec.key), contact_email: spec.email, contact_name: spec.name, contact_basis: spec.basis, ...(spec.basis === 'REGISTRY_EMAIL' ? {} : { basis_reference: `Hồ sơ năng lực HSNL/2026 của ${NAME[spec.key]}` }) });
       if (made !== undefined && spec.approve) await tryCommand(ctx, CHECKER, `/vendor/portal/invitations/${made.resource_id}/approval`, { note: 'Đã gọi điện xác nhận người nhận lời mời với người đại diện theo pháp luật.' }, made.resource_version);
     }
   }
   const requests = ((await ctx.get<Obj>(MAKER, '/vendor/portal/requests')).items ?? []) as Obj[];
   if (requests.length === 0) {
     const xl02 = contracts.get('HD-PMDT105-XL02');
-    await tryCommand(ctx, MAKER, `/vendor/contractors/${c.idOf('minhPhat')}/portal-requests`, { kind: 'EVALUATION_RESPONSE', title: 'Phản hồi kết quả đánh giá thực hiện hợp đồng quý 3/2026', body: 'Đề nghị nhà thầu có ý kiến về kết quả đánh giá thực hiện hợp đồng HD-PMDT105-XL02 trong 20 ngày.', ...(xl02 === undefined ? {} : { subject_type: 'CONTRACT', subject_id: String(xl02.id) }), due_on: ctx.day(12) });
-    await tryCommand(ctx, MAKER, `/vendor/contractors/${c.idOf('namViet')}/portal-requests`, { kind: 'CERTIFICATE_UPLOAD', title: 'Bổ sung chứng chỉ an toàn lao động đã gia hạn', body: 'Chứng chỉ ATLD của cán bộ an toàn sắp hết hạn trong 30 ngày, đề nghị nhà thầu tải lên bản gia hạn.', due_on: ctx.day(20) });
-    await tryCommand(ctx, MAKER, `/vendor/contractors/${c.idOf('tanPhat')}/portal-requests`, { kind: 'PROFILE_UPDATE', title: 'Cập nhật hồ sơ năng lực: chứng nhận ISO 9001 đã hết hạn', body: 'Đề nghị nhà thầu cập nhật chứng nhận hệ thống quản lý chất lượng còn hiệu lực.', due_on: ctx.day(-2) });
+    await tryOrSkip(ctx, MAKER, `/vendor/contractors/${c.idOf('minhPhat')}/portal-requests`, { kind: 'EVALUATION_RESPONSE', title: 'Phản hồi kết quả đánh giá thực hiện hợp đồng quý 3/2026', body: 'Đề nghị nhà thầu có ý kiến về kết quả đánh giá thực hiện hợp đồng HD-PMDT105-XL02 trong 20 ngày.', ...(xl02 === undefined ? {} : { subject_type: 'CONTRACT', subject_id: String(xl02.id) }), due_on: ctx.day(12) }, PORTAL_NOT_BOUND, PORTAL_WHY);
+    await tryOrSkip(ctx, MAKER, `/vendor/contractors/${c.idOf('namViet')}/portal-requests`, { kind: 'CERTIFICATE_UPLOAD', title: 'Bổ sung chứng chỉ an toàn lao động đã gia hạn', body: 'Chứng chỉ ATLD của cán bộ an toàn sắp hết hạn trong 30 ngày, đề nghị nhà thầu tải lên bản gia hạn.', due_on: ctx.day(20) }, PORTAL_NOT_BOUND, PORTAL_WHY);
+    await tryOrSkip(ctx, MAKER, `/vendor/contractors/${c.idOf('tanPhat')}/portal-requests`, { kind: 'PROFILE_UPDATE', title: 'Cập nhật hồ sơ năng lực: chứng nhận ISO 9001 đã hết hạn', body: 'Đề nghị nhà thầu cập nhật chứng nhận hệ thống quản lý chất lượng còn hiệu lực.', due_on: ctx.day(-2) }, PORTAL_NOT_BOUND, PORTAL_WHY);
   }
   const plans = ((await ctx.get<Obj>(MAKER, '/vendor/remediation-plans')).items ?? []) as Obj[];
   if (plans.length === 0) {
     const xl02 = contracts.get('HD-PMDT105-XL02');
     const tb = contracts.get('HD-PMTB164-TB01');
     const make = async (key: Key, contract: Obj | undefined, body: Record<string, unknown>, start: boolean): Promise<void> => {
-      const made = await tryCommand(ctx, MAKER, `/vendor/contractors/${c.idOf(key)}/remediation-plans`, { ...body, ...(contract === undefined ? {} : { contract_id: String(contract.id) }) });
+      const made = await tryOrSkip(ctx, MAKER, `/vendor/contractors/${c.idOf(key)}/remediation-plans`, { ...body, ...(contract === undefined ? {} : { contract_id: String(contract.id) }) }, PORTAL_NOT_BOUND, PORTAL_WHY);
       if (made !== undefined && start) await tryCommand(ctx, CHECKER, `/vendor/remediation-plans/${made.resource_id}/start`, {}, made.resource_version);
     };
     await make('minhPhat', xl02, { title: 'Kế hoạch khắc phục chậm tiến độ lắp đặt thiết bị', objective: 'Đưa tiến độ lắp đặt cụm máy nén trở lại đúng tiến độ hợp đồng và không phát sinh thêm vi phạm an toàn.', trigger_kind: 'POOR_EVALUATION', actions: [{ description: 'Nộp tiến độ bù cho các hạng mục chậm, có xác nhận của tư vấn giám sát', due_on: ctx.day(7) }, { description: 'Bổ sung thêm một tổ lắp đặt và cán bộ an toàn chuyên trách tại công trường', due_on: ctx.day(14) }, { description: 'Tổ chức huấn luyện an toàn làm việc trên cao cho toàn bộ công nhân', due_on: ctx.day(10) }] }, true);

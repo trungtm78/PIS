@@ -207,6 +207,8 @@ export class SeedContext {
   readonly people: Record<string, Person>;
   readonly ledger: LedgerEntry[] = [];
   readonly warnings: string[] = [];
+  /** The omissions made on purpose, each with its reason (see `skip`). */
+  readonly skipped: string[] = [];
   readonly stackDir: string;
   readonly info: StackInfoFile;
   private readonly sessionKey: Buffer;
@@ -495,6 +497,13 @@ export class SeedContext {
   /** Writes a line of the ledger: what was made (or found), for the report and for the screens' check. */
   record(entry: Omit<LedgerEntry, 'group'> & { group?: string }): void {
     this.ledger.push({ group: this.group, ...entry });
+  }
+
+  /** What a group leaves out ON PURPOSE, with the reason: the data the product's own rules do not allow at that point (a week before the plan of the project was published, a stack with no provider). It is no refusal the seed tolerated: it is written apart, in `skipped`, and never counted as a warning. */
+  skip(message: string): void {
+    const line = `[${this.group}/${this.module || '-'}] ${message}`;
+    if (!this.skipped.includes(line)) this.skipped.push(line);
+    this.log(`  = ${line}`);
   }
 
   warn(message: string): void {

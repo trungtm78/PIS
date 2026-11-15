@@ -609,7 +609,10 @@ async function seedMembers(ctx: SeedContext): Promise<void> {
     if (role !== undefined) {
       const withRole = await ctx.call(OWNER, 'POST', '/memberships/invitations', { ...body, initial_grants: [{ role_id: asString(role.id), scope_kind: 'UNIT_ONLY', scope_ref_ids: [unitId] }] });
       if (withRole.ok) continue;
-      ctx.warn(`ADM: invitation of ${member.name} with the role ${member.role} refused (HTTP ${withRole.status} ${withRole.text.slice(0, 160)}): invited with the default role`);
+      // The role of the project board holds every permission of the catalogue that does not decide (the anonymous operations of the public portal among them), which no role of the tenant can hold: granting it is an escalation
+      // the product refuses even to the owner, so the person is invited with the default roles of the staff, on purpose.
+      if (String(withRole.json.code ?? '') === 'ROLE_ESCALATION_DENIED') ctx.skip(`ADM: the role ${member.role} of ${member.name} is left out on purpose (a role that holds a permission its granter does not hold is refused as an escalation): invited with the default roles of the staff`);
+      else ctx.warn(`ADM: invitation of ${member.name} with the role ${member.role} refused (HTTP ${withRole.status} ${withRole.text.slice(0, 160)}): invited with the default role`);
     }
     await tolerate(ctx, `invite ${member.name}`, async () => ctx.expectOk(await ctx.call(OWNER, 'POST', '/memberships/invitations', body), `invite ${member.name}`));
   }

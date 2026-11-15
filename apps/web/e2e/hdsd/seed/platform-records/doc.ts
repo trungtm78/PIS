@@ -390,7 +390,8 @@ async function afterwards(ctx: SeedContext, plan: OutgoingPlan, state: State, re
         const timeline = await ctx.get<Obj>(DRAFTER, `/documents/${state.documentId}/timeline`);
         const version = (timeline.versions as Obj[] | undefined)?.slice(-1)[0];
         if (version === undefined) return { skipped: true, overall: null, ok: null };
-        const reply = await ctx.attempt(DRAFTER, 'POST', `/document-versions/${version.id}/signature-verifications`, { policy: 'STRICT' });
+        // Verifying a signature is the right `doc.signature.verify` of the owner of the tenant: the officer of the project board writes and sends the document, and holds no right that names a signature.
+        const reply = await ctx.attempt(OWNER, 'POST', `/document-versions/${version.id}/signature-verifications`, { policy: 'STRICT' });
         return { skipped: false, overall: String(reply.json.overall ?? ''), ok: reply.ok };
       });
       break;
@@ -732,8 +733,9 @@ async function fillDossiers(ctx: SeedContext, issued: Map<string, State>): Promi
       return { ok: reply.ok };
     });
     if (plan.end === 'handed-over' && closed.ok) {
+      // The day of the handover is the moment of the command: never before the closure that was written a moment ago (the product refuses a handover that precedes its closure, 422 `handed_over_at`) and never after the clock of the stack.
       await once(ctx, `doc.dossier.${plan.key}.handed`, async () => {
-        const reply = await ctx.attempt(DRAFTER, 'POST', `/dossiers/${dossierId}/handover`, { archive_ref: `LT-2026/${plan.code}`, handed_over_at: new Date(Date.now() - 1000).toISOString() }, { version: await dossierVersion(ctx, dossierId) });
+        const reply = await ctx.attempt(DRAFTER, 'POST', `/dossiers/${dossierId}/handover`, { archive_ref: `LT-2026/${plan.code}`, handed_over_at: new Date().toISOString() }, { version: await dossierVersion(ctx, dossierId) });
         return { ok: reply.ok };
       });
     }

@@ -140,7 +140,7 @@ export async function seedClipEnterpriseLegal(ctx: SeedContext): Promise<void> {
 
       const history = await ctx.list<Obj>(MAKER, `/projects/${id}/revisions`);
       if (history.some((row) => row.status === 'IN_REVIEW')) {
-        ctx.warn(`${code} has a revision waiting for its decision: its legal dossier is left as it is`);
+        ctx.skip(`${code}: left out on purpose, a revision waits for its decision (the product allows one at a time) and the legal dossier is left as it is`);
         continue;
       }
       const recorded = new Set(history.map((row) => String(((row.decision_document ?? {}) as Obj).id ?? '')));

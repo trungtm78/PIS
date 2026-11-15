@@ -3,6 +3,7 @@ import type { Obj, SeedContext } from '../context.ts';
 import { asObj } from '../context.ts';
 import { masterRecord } from '../base.ts';
 import { clipPlan } from './plan.ts';
+import { ensureMonthlyPeriods } from './public-payments.ts';
 
 /**
  * Group `clip-public-disbursement`: the money side of the province, through the real paths. The Treasury office is published as master data and its
@@ -80,8 +81,8 @@ function monthEnd(year: number, month: number): string {
 }
 
 async function closeAndFreeze(ctx: SeedContext, block: DisbursementBlock): Promise<void> {
-  await ctx.attempt(MAKER, 'POST', '/reporting-periods/generate', { calendar_code: 'DEFAULT', fiscal_year: block.fiscalYear, period_type: 'MONTH' });
-  const periods = await ctx.list<Obj>(MAKER, '/resources/reporting_period');
+  // The year is laid once (the payments group of the dataset laid it): generated here only when no month is there.
+  const periods = await ensureMonthlyPeriods(ctx, block.fiscalYear);
   const months = periods.filter((row) => row.period_type === 'MONTH' && Number(row.fiscal_year) === block.fiscalYear).sort((a, b) => String(a.starts_on ?? a.start_date).localeCompare(String(b.starts_on ?? b.start_date)));
   ctx.log(`  [dis] ${months.length} monthly periods, first ${JSON.stringify(months[0] ?? {}).slice(0, 240)}`);
   for (const [index, period] of months.entries()) {
