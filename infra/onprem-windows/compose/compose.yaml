@@ -105,6 +105,10 @@ services:
         source: ${MACHVON_SECRETS_DIR}\db
         target: C:\run\secrets
         read_only: true
+      # Where a dump is written before the host moves it into its backup directory (host\backup.ps1); empty between two backups.
+      - type: bind
+        source: ${MACHVON_BACKUP_SPOOL}
+        target: C:\backup
     healthcheck:
       test: ["CMD", "C:\\pgsql\\bin\\pg_isready.exe", "--quiet", "--host", "127.0.0.1", "--username", "machvon_owner", "--dbname", "machvon"]
       interval: 10s

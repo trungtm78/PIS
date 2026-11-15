@@ -3,7 +3,7 @@
 #   backup.ps1 [-Label daily] [-RetentionDays 14]
 #
 # pg_dump custom format (compressed, restorable table by table with pg_restore), plus the roles as SQL WITHOUT their passwords (the passwords are the secret files).
-# The dump runs inside the db container and is streamed to the host; a dump that is empty or that pg_restore cannot list is deleted and the script fails.
+# The dump runs inside the db container; a dump that is empty or that pg_restore cannot list is deleted and the script fails.
 # pgBackRest (continuous WAL archive, point-in-time recovery) has no Windows build: the recovery point of this deployment is the last dump.
 # The backup directory is readable by administrators only. Copy it to another machine or site on a schedule of your own: a backup on the same disk is not a backup.
 param([string]$Label = 'manual', [int]$RetentionDays = 14)
@@ -16,19 +16,23 @@ $db = Compose ps --quiet db | Select-Object -First 1
 if (-not $db) { Fail 'the db service does not run' }
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $target = Join-Path $script:BackupDir "$stamp-$Label"
-New-Item -ItemType Directory $target | Out-Null
-$inside = "C:\pgdata\dump-$stamp"
+# The container writes into the spool directory of the host (mounted at C:\backup, writable by ContainerUser); the host then moves the files into the backup
+# directory, which no container can read.
+Protect-Directory $script:BackupSpool -ContainersModify
+$spool = Join-Path $script:BackupSpool $stamp
+New-Item -ItemType Directory $spool | Out-Null
+$inside = "C:\backup\$stamp"
 try {
-  Invoke-Native 'creating the dump directory' { & docker exec $db cmd /S /C "mkdir $inside" }
   foreach ($database in @('machvon', 'keycloak')) {
     Invoke-Native "pg_dump of $database" { & docker exec $db 'C:\pgsql\bin\pg_dump.exe' --host 127.0.0.1 --username machvon_owner --format custom --compress 6 --file "$inside\$database.dump" $database }
     Invoke-Native "pg_restore --list of $database" { & docker exec $db 'C:\pgsql\bin\pg_restore.exe' --list --file NUL "$inside\$database.dump" }
   }
   Invoke-Native 'pg_dumpall of the roles' { & docker exec $db 'C:\pgsql\bin\pg_dumpall.exe' --host 127.0.0.1 --username machvon_owner --roles-only --no-role-passwords --file "$inside\roles.sql" }
-  # The files are copied out of the volume by docker (binary safe), then removed from it.
-  Invoke-Native 'copying the dump to the host' { & docker cp "${db}:$inside\." $target }
+  New-Item -ItemType Directory $target | Out-Null
+  # Copied, not moved: a copy takes the access list of the backup directory (administrators only), a moved file would keep the one of the spool.
+  Get-ChildItem $spool -File | Copy-Item -Destination $target
 } finally {
-  Invoke-Quiet { & docker exec $db cmd /S /C "if exist $inside rmdir /S /Q $inside" }
+  Remove-Item -Recurse -Force $spool -ErrorAction SilentlyContinue
 }
 $sums = @()
 foreach ($file in Get-ChildItem $target -File) {

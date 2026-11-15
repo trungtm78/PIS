@@ -47,7 +47,7 @@ $hostName = ($manifest.publicHost -split ':')[0]
 $port = if ($manifest.publicHost -match ':(\d+)$') { $Matches[1] } else { '443' }
 if (-not (Test-Path $script:EnvFile)) {
   $text = (Get-Content (Join-Path $source 'compose\env.template') -Raw).Replace("`r`n", "`n")
-  $values = @{ MACHVON_EDITION = $manifest.edition; WINDOWS_TAG = (Get-Content (Join-Path $source 'images.json') -Raw | ConvertFrom-Json).windowsTag; PUBLIC_HOST = $manifest.publicHost; PUBLIC_HOSTNAME = $hostName; WEB_HTTPS_PORT = $port; CONTROL_HOST = $manifest.publicHost; MACHVON_SECRETS_DIR = $script:SecretsDir }
+  $values = @{ MACHVON_EDITION = $manifest.edition; WINDOWS_TAG = (Get-Content (Join-Path $source 'images.json') -Raw | ConvertFrom-Json).windowsTag; PUBLIC_HOST = $manifest.publicHost; PUBLIC_HOSTNAME = $hostName; WEB_HTTPS_PORT = $port; CONTROL_HOST = $manifest.publicHost; MACHVON_SECRETS_DIR = $script:SecretsDir; MACHVON_BACKUP_SPOOL = $script:BackupSpool }
   foreach ($name in $values.Keys) { $text = [regex]::Replace($text, "(?m)^$name=.*$", ("$name=" + $values[$name]).Replace('$', '$$')) }
   Write-TextFile $script:EnvFile $text
   Say "the environment file was created: $script:EnvFile"
@@ -56,6 +56,8 @@ if (-not (Test-Path $script:EnvFile)) {
 }
 
 Say '3/9 secret files and certificate'
+Protect-Directory $script:BackupDir
+Protect-Directory $script:BackupSpool -ContainersModify
 & (Join-Path $hostScripts 'secrets.ps1') -Version $version
 if (-not (Test-Path (Join-Path $script:SecretsDir 'web\tls_cert'))) { & (Join-Path $hostScripts 'certificate.ps1') -Mode private -HostName $hostName }
 

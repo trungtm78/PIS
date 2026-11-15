@@ -7,7 +7,8 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { COMPILE_OPTIONS, RESOLVE_LOADER, compileSource, isCompiled, isShipped, main, manifestOf, parseOrigin, shipTree, windowsNginx } from './onprem-windows-pack.mjs';
 import { loadSecretFiles } from '../infra/onprem-windows/docker/secret-files.mjs';
-import { AdminError, KeycloakAdmin, main as keycloakAdmin } from '../infra/onprem-windows/tools/keycloak-admin.mjs';
+import { inputProblems, newPassword, readInvitations } from '../infra/onprem-windows/tools/first-accounts.mjs';
+import { AdminError, KeycloakAdmin, base32, main as keycloakAdmin, newTotpSecret, otpauthOf } from '../infra/onprem-windows/tools/keycloak-admin.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const { transformSync } = createRequire(join(REPO_ROOT, 'apps', 'api', 'package.json'))('@swc/core');
@@ -160,22 +161,73 @@ test('keycloak-admin switches the directory federation off and on, keeping the r
   assert.deepEqual(JSON.parse(stub.calls.filter((call) => call.key.startsWith('PUT'))[1].body).config.enabled, ['true']);
 });
 
-test('keycloak-admin creates a person with the password of the file and the realm role, and says so without the password', async () => {
+test('keycloak-admin creates a person with the password and a provisioned one-time password, clears the enrolment action, grants the role, and prints neither secret', async () => {
   const stub = keycloakStub({
     ...TOKEN,
     'POST /idp/admin/realms/machvon/users': { status: 201 },
     'GET /idp/admin/realms/machvon/users?exact=true&username=First.Admin': { status: 200, body: [{ id: 'u1', username: 'first.admin' }] },
-    'PUT /idp/admin/realms/machvon/users/u1/reset-password': { status: 204 },
+    'GET /idp/admin/realms/machvon/users/u1/credentials': { status: 200, body: [{ type: 'password' }, { type: 'otp' }] },
+    'GET /idp/admin/realms/machvon/users/u1': { status: 200, body: { id: 'u1', username: 'first.admin', email: 'a@example.vn', requiredActions: ['CONFIGURE_TOTP', 'UPDATE_PROFILE'] } },
+    'PUT /idp/admin/realms/machvon/users/u1': { status: 204 },
     'GET /idp/admin/realms/machvon/roles/SystemAdmin': { status: 200, body: { id: 'r1', name: 'SystemAdmin' } },
     'POST /idp/admin/realms/machvon/users/u1/role-mappings/realm': { status: 204 },
   });
   const lines = [];
-  const status = await keycloakAdmin(['create-user', '--username', 'First.Admin', '--email', 'a@example.vn', '--first-name', 'First', '--last-name', 'Admin', '--password-file', 'f', '--realm-role', 'SystemAdmin'], { env: {}, fetch: stub.fetch, log: (line) => lines.push(line), read: () => 'the-password' });
+  const files = { pw: 'the-password', otp: 'Abcdefghij0123456789' };
+  const status = await keycloakAdmin(['create-user', '--username', 'First.Admin', '--email', 'a@example.vn', '--first-name', 'First', '--last-name', 'Admin', '--password-file', 'pw', '--totp-secret-file', 'otp', '--realm-role', 'SystemAdmin'], { env: {}, fetch: stub.fetch, log: (line) => lines.push(line), read: (path) => files[path] ?? 'admin-password' });
   assert.equal(status, 0);
-  assert.deepEqual(JSON.parse(stub.calls.find((call) => call.key.endsWith('reset-password')).body), { type: 'password', value: 'the-password', temporary: false });
+  const created = JSON.parse(stub.calls.find((call) => call.key === 'POST /idp/admin/realms/machvon/users').body);
+  assert.deepEqual(created.credentials[0], { type: 'password', value: 'the-password', temporary: false });
+  assert.equal(created.credentials[1].type, 'otp');
+  assert.deepEqual(JSON.parse(created.credentials[1].secretData), { value: 'Abcdefghij0123456789' });
+  assert.deepEqual(JSON.parse(created.credentials[1].credentialData), { subType: 'totp', digits: 6, counter: 0, period: 30, algorithm: 'HmacSHA1' });
+  assert.deepEqual(JSON.parse(stub.calls.find((call) => call.key === 'PUT /idp/admin/realms/machvon/users/u1').body), { id: 'u1', username: 'first.admin', email: 'a@example.vn', requiredActions: ['UPDATE_PROFILE'] });
   assert.deepEqual(JSON.parse(stub.calls.at(-1).body), [{ id: 'r1', name: 'SystemAdmin' }]);
-  assert.match(lines[0], /First\.Admin created, realm role SystemAdmin/);
-  assert.ok(!lines.join('\n').includes('the-password'));
+  assert.match(lines[0], /First\.Admin created with a password and a one-time password, realm role SystemAdmin/);
+  assert.ok(!lines.join('\n').includes('the-password') && !lines.join('\n').includes('Abcdefghij'));
+});
+
+test('keycloak-admin refuses a person that exists, a secret that is not one, and credentials that were not stored; delete-user removes a person', async () => {
+  const lines = [];
+  const log = (line) => lines.push(line);
+  const args = ['create-user', '--username', 'a.b', '--email', 'a@example.vn', '--first-name', 'A', '--last-name', 'B', '--password-file', 'pw', '--totp-secret-file', 'otp'];
+  const read = (secret) => (path) => ({ pw: 'p', otp: secret })[path] ?? 'x';
+  const exists = keycloakStub({ ...TOKEN, 'POST /idp/admin/realms/machvon/users': { status: 409, body: { errorMessage: 'exists' } } });
+  assert.equal(await keycloakAdmin(args, { env: {}, fetch: exists.fetch, log, read: read('Abcdefghij0123456789') }), 1);
+  assert.match(lines.at(-1), /exists already/);
+  assert.equal(await keycloakAdmin(args, { env: {}, fetch: exists.fetch, log, read: read('short') }), 1);
+  assert.match(lines.at(-1), /20 to 64 letters and digits/);
+  const lost = keycloakStub({ ...TOKEN, 'POST /idp/admin/realms/machvon/users': { status: 201 }, 'GET /idp/admin/realms/machvon/users?exact=true&username=a.b': { status: 200, body: [{ id: 'u2', username: 'a.b' }] }, 'GET /idp/admin/realms/machvon/users/u2/credentials': { status: 200, body: [{ type: 'password' }] } });
+  assert.equal(await keycloakAdmin(args, { env: {}, fetch: lost.fetch, log, read: read('Abcdefghij0123456789') }), 1);
+  assert.match(lines.at(-1), /credentials of a\.b were not stored \(found: password\)/);
+  const removal = keycloakStub({ ...TOKEN, 'GET /idp/admin/realms/machvon/users?exact=true&username=a.b': { status: 200, body: [{ id: 'u2', username: 'a.b' }] }, 'DELETE /idp/admin/realms/machvon/users/u2': { status: 204 }, 'GET /idp/admin/realms/machvon/users?exact=true&username=no.one': { status: 200, body: [] } });
+  assert.equal(await keycloakAdmin(['delete-user', '--username', 'a.b'], { env: {}, fetch: removal.fetch, log, read: () => 'x' }), 0);
+  assert.match(lines.at(-1), /a\.b removed/);
+  assert.equal(await keycloakAdmin(['delete-user', '--username', 'no.one'], { env: {}, fetch: removal.fetch, log, read: () => 'x' }), 0);
+  assert.match(lines.at(-1), /no\.one does not exist/);
+  assert.equal(await keycloakAdmin(['delete-user'], { env: {}, fetch: removal.fetch, log, read: () => 'x' }), 2);
+});
+
+test('the one-time password secret is twenty letters and digits, and the address of an authenticator carries it in base32', () => {
+  assert.match(newTotpSecret(), /^[A-Za-z0-9]{20}$/);
+  assert.notEqual(newTotpSecret(), newTotpSecret());
+  // RFC 4648: the base32 of the ASCII secret of the RFC 6238 test vectors.
+  assert.equal(base32('12345678901234567890'), 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ');
+  assert.equal(otpauthOf({ issuerName: 'MACHVON host:8443', username: 'a.b', secret: '12345678901234567890' }), 'otpauth://totp/MACHVON%20host%3A8443:a.b?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&issuer=MACHVON%20host%3A8443&algorithm=SHA1&digits=6&period=30');
+});
+
+test('first-accounts checks its input file and makes passwords a person can type', () => {
+  const person = (username) => ({ username, email: `${username}@example.vn`, firstName: 'A', lastName: 'B' });
+  const input = { systemAdmin: person('sys.admin'), owner: person('the.owner'), tenant: { code: 'so-xd', name: 'So Xay dung', rootUnitName: 'So Xay dung', subdomain: 'so-xd' }, members: [{ ...person('a.member'), role: 'SPECIALIST' }] };
+  assert.deepEqual(inputProblems(input), []);
+  assert.ok(inputProblems({}).length >= 6);
+  assert.deepEqual(inputProblems({ ...input, members: [{ ...person('the.owner'), role: 'SPECIALIST' }] }), ['a user name is used twice', 'an e-mail address is used twice']);
+  assert.deepEqual(inputProblems({ ...input, members: [person('a.member')] }), ['members[0].role (the code of a role of the tenant) is missing']);
+  assert.deepEqual(inputProblems({ ...input, tenant: { ...input.tenant, code: 'X' } }), ['tenant.code must be 3 to 31 lower-case letters, digits or dashes']);
+  assert.match(newPassword(), /^[a-km-np-zA-HJ-NP-Z2-9]{16}-aA7#$/);
+  assert.notEqual(newPassword(), newPassword());
+  const files = { 'b.json': '{"to_email":"b@x.vn","n":2}', 'a.json': '{"to_email":"a@x.vn","n":1}', 'note.txt': 'no' };
+  assert.deepEqual(readInvitations('dir', { list: () => Object.keys(files), read: (path) => files[path.split(/[\\/]/).pop()] }).map((entry) => entry.n), [1, 2]);
 });
 
 test('keycloak-admin reports a refused sign-in, a missing option and an unknown command', async () => {
@@ -185,7 +237,7 @@ test('keycloak-admin reports a refused sign-in, a missing option and an unknown 
   assert.equal(await keycloakAdmin(['disable-directory'], { env: {}, fetch: refused.fetch, log, read: () => 'x' }), 1);
   assert.match(lines.at(-1), /FAILED the first administrator cannot sign in: 401 invalid_grant/);
   assert.equal(await keycloakAdmin(['create-user', '--username', 'a'], { env: {}, fetch: refused.fetch, log, read: () => 'x' }), 2);
-  assert.match(lines.at(-1), /missing --email, --first-name, --last-name, --password-file/);
+  assert.match(lines.at(-1), /missing --email, --first-name, --last-name, --password-file, --totp-secret-file/);
   assert.equal(await keycloakAdmin(['what'], { env: {}, fetch: refused.fetch, log, read: () => 'x' }), 2);
   assert.equal(await keycloakAdmin(['create-user', '--bad'], { env: {}, fetch: refused.fetch, log, read: () => 'x' }), 2);
   const admin = new KeycloakAdmin({ base: 'http://keycloak:8080/idp/', realm: 'machvon', username: 'a', password: 'b', fetch: keycloakStub({ ...TOKEN, 'GET /idp/admin/realms/machvon/x': { status: 500, body: { error: 'boom' } } }).fetch });

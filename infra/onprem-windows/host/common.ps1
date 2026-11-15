@@ -10,6 +10,8 @@ $script:ComposeFile = Join-Path $script:ComposeDir 'compose.yaml'
 $script:EnvFile = Join-Path $script:ComposeDir '.env'
 $script:SecretsDir = Join-Path $script:MachvonRoot 'secrets'
 $script:BackupDir = Join-Path $script:MachvonRoot 'backups'
+# Mounted into the db container at C:\backup: a dump is written here by the container and moved out by the host at once.
+$script:BackupSpool = Join-Path $script:MachvonRoot 'backup-spool'
 $script:StateDir = Join-Path $script:MachvonRoot 'state'
 $script:LogDir = Join-Path $script:MachvonRoot 'logs'
 # The well-known identifier of ContainerUser of a process-isolated Windows container.
@@ -89,9 +91,10 @@ function New-RandomBase64([int]$Bytes) {
   return [Convert]::ToBase64String($buffer)
 }
 
-# A directory only administrators and the system may use. With -Containers, ContainerUser may read it (the secret directory of one service).
+# A directory only administrators and the system may use. With -Containers, ContainerUser may read it (the secret directory of one service);
+# with -ContainersModify it may also write there (the spool the database container writes its dumps to).
 function Protect-Directory {
-  param([Parameter(Mandatory)][string]$Path, [switch]$Containers)
+  param([Parameter(Mandatory)][string]$Path, [switch]$Containers, [switch]$ContainersModify)
   New-Item -ItemType Directory -Force $Path | Out-Null
   # The access list is written through .NET: the host has no account NAME for the identifier of ContainerUser, which icacls would insist on.
   $acl = New-Object Security.AccessControl.DirectorySecurity
@@ -100,8 +103,9 @@ function Protect-Directory {
   foreach ($sid in @('S-1-5-18', 'S-1-5-32-544')) {
     $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule((New-Object Security.Principal.SecurityIdentifier($sid)), 'FullControl', $inherit, 'None', 'Allow')))
   }
-  if ($Containers) {
-    $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule((New-Object Security.Principal.SecurityIdentifier($script:ContainerUserSid)), 'ReadAndExecute', $inherit, 'None', 'Allow')))
+  if ($Containers -or $ContainersModify) {
+    $rights = if ($ContainersModify) { 'Modify' } else { 'ReadAndExecute' }
+    $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule((New-Object Security.Principal.SecurityIdentifier($script:ContainerUserSid)), $rights, $inherit, 'None', 'Allow')))
   }
   [IO.Directory]::SetAccessControl($Path, $acl)
 }

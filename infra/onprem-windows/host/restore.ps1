@@ -21,10 +21,14 @@ if (-not $db) { Fail 'the db service does not run' }
 Say 'stopping the services that use the databases'
 Compose stop web workers api keycloak
 Assert-Compose 'stopping the services'
-$inside = 'C:\pgdata\restore-in'
+# The backup is copied into the spool directory the db container sees at C:\backup, restored from there, and removed from it.
+Protect-Directory $script:BackupSpool -ContainersModify
+$spool = Join-Path $script:BackupSpool 'restore-in'
+Remove-Item -Recurse -Force $spool -ErrorAction SilentlyContinue
+New-Item -ItemType Directory $spool | Out-Null
+$inside = 'C:\backup\restore-in'
 try {
-  Invoke-Quiet { & docker exec $db cmd /S /C "if exist $inside rmdir /S /Q $inside" }
-  Invoke-Native 'copying the backup into the database container' { & docker cp $Backup "${db}:$inside" }
+  Copy-Item (Join-Path $Backup '*.dump') $spool
   foreach ($entry in @(@{ name = 'machvon'; owner = 'machvon_owner' }, @{ name = 'keycloak'; owner = 'keycloak' })) {
     Say "restoring $($entry.name)"
     $sql = "DROP DATABASE IF EXISTS $($entry.name) WITH (FORCE); CREATE DATABASE $($entry.name) OWNER $($entry.owner);"
@@ -32,7 +36,7 @@ try {
     Invoke-Native "pg_restore of $($entry.name)" { & docker exec $db 'C:\pgsql\bin\pg_restore.exe' --host 127.0.0.1 --username machvon_owner --dbname $entry.name --exit-on-error "$inside\$($entry.name).dump" }
   }
 } finally {
-  Invoke-Quiet { & docker exec $db cmd /S /C "if exist $inside rmdir /S /Q $inside" }
+  Remove-Item -Recurse -Force $spool -ErrorAction SilentlyContinue
 }
 Say 'starting every service'
 Compose up --detach
