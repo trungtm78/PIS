@@ -151,6 +151,10 @@ function seededPublic(plan) {
     '/advances/overdue': [{ id: 1 }],
     '/resources/metric_definition': [{ status: 'CERTIFIED' }, { status: 'CERTIFIED' }],
     '/bi/dashboards': plan.bi.dashboards.map((entry) => ({ code: entry.code, status: 'PUBLISHED' })),
+    // The unified approval inbox of the leader (four kinds of PWF waiting outside the engine, PWF 20.9), the response to a score that waits inside it, and the tasks of the officer who holds only the role of the staff.
+    '/me/pending-decisions': ['pwf.task.completion', 'pwf.task.exception', 'pwf.reschedule', 'pwf.score.adjustment'].map((kind) => ({ kind })),
+    '/resources/approval_task': [{ business_type: 'score.response' }],
+    '/me/project-tasks': [{ id: 1 }, { id: 2 }],
   };
   const gets = {
     '/egp/connection': { record_counts: { KHLCNT: 12, TBMT: 7 } },
@@ -185,6 +189,10 @@ test('verify passes on a fully seeded stack and fails, naming the check, when on
   const projects = judgeAll(await verifyChecks(plan, readerOf(short)));
   assert.equal(projects.ok, false);
   assert.ok(projects.results.some((result) => !result.ok && result.name.includes('IMPLEMENTATION')));
+  const noInbox = { ...seeded, lists: { ...seeded.lists, '/me/pending-decisions': [{ kind: 'pwf.task.completion' }] } };
+  assert.ok(judgeAll(await verifyChecks(plan, readerOf(noInbox))).results.some((result) => !result.ok && result.name === 'inbox: pwf.reschedule waits for the leader'));
+  const noStaffTasks = { ...seeded, lists: { ...seeded.lists, '/me/project-tasks': [] } };
+  assert.ok(judgeAll(await verifyChecks(plan, readerOf(noStaffTasks))).results.some((result) => !result.ok && result.name === 'the officer with only the role of the staff has tasks of their own'));
   const noCritical = { ...seeded, lists: { ...seeded.lists, '/home/warnings': [{ severity: 'INFO' }, { severity: 'WARNING' }] } };
   assert.ok(judgeAll(await verifyChecks(plan, readerOf(noCritical))).results.some((result) => !result.ok && result.name === 'warnings CRITICAL'));
   const unpublished = { ...seeded, lists: { ...seeded.lists, '/bi/dashboards': [] } };

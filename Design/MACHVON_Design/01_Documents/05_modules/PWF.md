@@ -621,6 +621,7 @@ Tab "Đã xong" của MOB-80 đọc cùng màn nên có số đếm trước khi
 
 ### 20.9 Chưa làm trong làn này
 
+- **(ĐÃ LÀM ở mục 21, làn fix12, 15/11/2026: R54 hộp phê duyệt hợp nhất, R55 vai nhân viên mặc định; seed đã rà; ảnh đã chụp lại.)** Phần dưới là hiện trạng trước làn fix12.
 - **Hộp Phê duyệt hợp nhất cho các phê duyệt khác của PWF** (duyệt hoàn thành việc, đề nghị dời lịch, ngoại lệ checklist hoặc chứng từ, điều chỉnh điểm). Các loại này không qua bộ máy phê duyệt của ADM mà dùng lệnh riêng (`approveProjectTaskCompletion`, `returnProjectTask`, `decideProjectTaskException`, `decideProjectReschedule`, `decideStaffScoreAdjustment`), người duyệt xác định theo quyền trong phạm vi chứ không theo một người được giao. Hướng đã chọn, chưa cài: một nguồn đọc hợp nhất ở ADM (`listMyPendingDecisions`) do các phân hệ đăng ký, mỗi mục mang `ApprovalRecordSummary` và trỏ tới đúng lệnh nghiệp vụ hiện có (không tạo đường duyệt thứ hai); web và MOB-23/24 gộp hai nguồn. Cơ chế tóm tắt ở 20.3 đã sẵn cho việc này (mã dữ kiện `TASK`, `DUE_DATE`, `PROPOSED_FINISH`, `POINTS`, `EXCEPTION_KIND` đã có nhãn ở hai màn).
 - Seed (7 lệnh bị từ chối ở bản công, 39 dòng cảnh báo ở bản doanh nghiệp) chưa rà: cần dựng stack và chạy seed để kiểm.
 - Các mục nhẹ 17, 18, 23 của README (cột cuối bị cắt ở PWF-06 và PWF-03, khối "Cập nhật thông tin" ở PRJ-03, ô ngày theo ngôn ngữ trình duyệt).
