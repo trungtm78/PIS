@@ -6,6 +6,9 @@
 # UAT 2026-11-13 (same AVD, software graphics, debug build of the merge of PR 2): 2 runs, 2 failed the wait. That was not only time: the heading below merged with the
 # texts of the alerts into one node, so this whole-text wait could match at no speed (fixed in the application: a heading is a node of its own). Not re-run; no verdict for a phone.
 # Lane fix11 (2026-11-15): the wait now matches the first block of the loaded home (its title), which is on the first screen for a leader and for an officer on both editions.
+# Lane fb (2026-11-15, same AVD, debug build of the public edition, after UAT run 4 failed 2 of 2 on both editions): the mark is right. The home of the person of the flow has the title "Tổng quan" as a node of
+#   its own on the first screen (read with uiautomator); it is simply not there within 2.5 s on this emulator: 3 samples of this flow failed, and 4 timed samples of scripts/run_cold_start_samples.sh were
+#   8.8 to 9.3 s (one hierarchy dump alone costs about 3 s here). The emulator gives no verdict; the budget stays 2.5 s and the verdict stays NOT RUN until a phone of the matrix runs it.
 # Supports: AC-ST-MOB-040-2 / UAT-NFR-PERFORMANCE-02, the 2.5 s budget of the main content after a cold start.
 # One run of this flow is ONE sample: it fails when the loaded content of the home screen is not visible within the budget, so a pass says "this sample
 # was within 2.5 s as seen by Maestro" (the polling of Maestro adds up to a few hundred ms: the verdict is made from the

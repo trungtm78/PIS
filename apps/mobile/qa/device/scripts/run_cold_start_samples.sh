@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# STATUS: NOT RUN. Written on a host with no device; nobody has run this script on a phone.
+# STATUS: NOT RUN on any phone of the matrix. Run on the emulator "guide" only (Android 15, debug build of the public edition, lane fb, 2026-11-15): 4 samples, 8780 to 9270 ms, which says nothing about a phone
+# (one dump alone costs about 3 s there). Before that every sample taken from Git Bash on Windows said 15000: the path of the dump was rewritten (fixed below, MSYS_NO_PATHCONV).
 #
 # Cold start samples on one Android device for AC-ST-MOB-040-2 / UAT-NFR-PERFORMANCE-02.
 #
@@ -20,6 +21,8 @@
 # Preconditions: the build is installed, signed in to a seeded tenant, the same network as the matrix document says, the phone
 # charged and cool (let it rest 2 minutes between devices), no other app in the foreground. Prints CSV lines on stdout only.
 set -euo pipefail
+# The dump path below is a path of the device, not of this machine: Git Bash on Windows would rewrite it (`adb shell cat /sdcard/...` then reads nothing and every sample says 15000).
+export MSYS_NO_PATHCONV=1
 
 label="${1:?usage: $0 <device-label> [runs] [adb serial]}"
 runs="${2:-25}"

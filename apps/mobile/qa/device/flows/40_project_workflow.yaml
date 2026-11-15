@@ -1,6 +1,10 @@
 # STATUS: RUN ON AN EMULATOR ONLY (lane shots3, 2026-11-15, emulator "guide", Android 15, debug builds, clean stacks with the whole clip seed, through scripts/run_40_project_workflow.sh); NOT RUN on any phone of the matrix:
 #   public edition: PASSED to the end (41 s). enterprise edition: PASSED to the end (41 s), the score of the person included (the enterprise seed now closes a period: MOB-81 shows 70 on two tasks).
 #   In both runs the API port was refused when the task was ready and opened again when the command was queued (results/<label>/40_offline.log).
+# Lane fb (2026-11-15, same AVD, debug build of the public edition, clean stack with the whole clip seed): through scripts/run_40_project_workflow.sh PASSED to the end (44 s); with a plain `maestro test`
+#   it stopped at "Bạn đang ngoại tuyến.*", which is what UAT 2026-11-15 run 4 saw on both editions (its harness ran the flow without the script). Nothing in the application or in the words changed: the banner
+#   stands above a detail screen too (the shell hides only the five tabs there). ON AN EMULATOR THIS FLOW IS RUN THROUGH THE SCRIPT ONLY: airplane mode leaves the loopback and the `adb reverse` tunnel up, the
+#   application still reaches the API and is truly online, so no banner comes; the script refuses the API port on the device for the offline half. A plain `maestro test` is for a phone on its own network.
 # Lane fix9 (2026-11-14), the runs before:
 #   public edition: PASSED to the end (the list, the task, the completion queued offline and sent, my score). The run before it ticked the mandatory item "Hồ sơ đầy đủ theo danh mục" on the
 #     phone and stopped at the line "sẽ gửi khi có mạng" because the screen was scrolled down (the flow now scrolls up to it); the passing run opened the next task, which had no open item.
@@ -24,7 +28,7 @@
 #     A task whose blocker is a missing document or form is not handled here (the flow then stops at "Hoàn thành việc", which stays off: that is a true stop, give the task its evidence first).
 #   - enterprise edition: the list answered CONTRACT_MISMATCH (the phone refused `personal_band: null`); fixed in the application (pwf_models.dart), nothing to do with this flow.
 # The offline half needs the airplane mode, which Maestro sets with the commands below. The application notices the lost radio within 7 s (it reads the interfaces every 2 s); a command given
-# before that is sent at once on an emulator (adb reverse keeps the loopback up in airplane mode), so the flow waits for the offline banner before it completes the task.
+# before that is sent at once, so the flow waits for the offline banner before it completes the task. On an emulator airplane mode alone never brings the banner (see the header): run the script.
 # Matching: Maestro matches a regex against the whole text of a node, and a row of a list is one node whose text is its spoken label
 # ("<task>, <project>, <code>, <deadline words>, hạn dd/mm/yyyy, Theo cài đặt của bạn"), so the row texts are matched with ".*" around them.
 # Run:   maestro test --format junit --output results/<device>/40_workflow.xml flows/40_project_workflow.yaml
@@ -83,6 +87,7 @@ appId: vn.machvon.app
 - assertNotVisible: 'Còn [0-9]+ điều kiện chưa đủ để hoàn thành.'
 - assertNotVisible: 'Một lệnh của bạn chưa được ghi.*'
 - setAirplaneMode: enabled
+# A stop here on an emulator means the flow was run without scripts/run_40_project_workflow.sh (the API is still reached through adb reverse): not a fault of the application.
 - extendedWaitUntil:
     visible: 'Bạn đang ngoại tuyến.*'
     timeout: 15000
