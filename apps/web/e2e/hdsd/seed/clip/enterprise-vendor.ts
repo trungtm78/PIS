@@ -451,7 +451,8 @@ async function seedPerformance(c: Ctx, contracts: Map<string, Obj>): Promise<voi
         moved = await tryCommand(ctx, LEADER, `/contract-rating-proposals/${pid}/adopt`, { note: 'Chấp thuận xếp hạng theo đề xuất.', overrides }, version);
       } else if (state === 'ADOPTED') {
         // The result is published by somebody other than the leader who adopted it (a person does not publish their own decision: 403 SELF_APPROVAL_DENIED).
-        moved = await tryCommand(ctx, CHECKER, `/vendor/rating-proposals/${pid}/publication`, { kind: 'INITIAL', receipt: `MSC-DG-2026-00${spec.contract.endsWith('XL01') ? '412' : '413'}` });
+        // A result already published (a rerun) stays published: the product answers 409 PERFORMANCE_PUBLICATION_DUPLICATE and that is the state wanted.
+        moved = await tryOrSkip(ctx, CHECKER, `/vendor/rating-proposals/${pid}/publication`, { kind: 'INITIAL', receipt: `MSC-DG-2026-00${spec.contract.endsWith('XL01') ? '412' : '413'}` }, 'PERFORMANCE_PUBLICATION_DUPLICATE', 'the result of the rating is already published');
         if (moved === undefined) break;
         proposal = await readProposal();
         break;
@@ -530,9 +531,9 @@ async function seedPortal(c: Ctx, contracts: Map<string, Obj>): Promise<void> {
   const invitations = ((await ctx.get<Obj>(MAKER, '/vendor/portal/invitations')).items ?? []) as Obj[];
   if (invitations.length === 0) {
     const specs: Array<{ key: Key; name: string; email: string; basis: 'REGISTRY_EMAIL' | 'REPRESENTATIVE_LETTER' | 'TAX_AUTHORITY_RECORD'; approve: boolean }> = [
-      { key: 'namViet', name: 'Lê Hoàng Nam', email: 'contact@namviet-ic.example.test', basis: 'REGISTRY_EMAIL', approve: false },
+      { key: 'namViet', name: 'Lê Hoàng Nam', email: 'contact@namviet-ic.example.test', basis: 'REPRESENTATIVE_LETTER', approve: false },
       { key: 'minhPhat', name: 'Trần Quốc Bảo', email: 'lienhe@minhphat-cokhi.example.test', basis: 'REPRESENTATIVE_LETTER', approve: false },
-      { key: 'baoAn', name: 'Đỗ Thị Thanh Mai', email: 'office@baoan-tvtk.example.test', basis: 'REGISTRY_EMAIL', approve: false },
+      { key: 'baoAn', name: 'Đỗ Thị Thanh Mai', email: 'office@baoan-tvtk.example.test', basis: 'REPRESENTATIVE_LETTER', approve: false },
       { key: 'tanPhat', name: 'Võ Minh Tâm', email: 'sales@tanphat-pressure.example.test', basis: 'TAX_AUTHORITY_RECORD', approve: false },
     ];
     for (const spec of specs) {
