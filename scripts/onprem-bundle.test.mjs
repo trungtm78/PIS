@@ -310,3 +310,39 @@ test('the egress firewall script prints rules that allow the object store and th
   assert.equal(spawnSync('sh', [script, 'only', 'three'], { encoding: 'utf8', env }).status, 2);
   assert.match(readFileSync(join(REPO_ROOT, 'infra', 'onprem', 'compose', 'compose.yaml'), 'utf8'), /172\.29\.250\.0\/24/, 'the subnet of the script is the one of the compose file');
 });
+
+test('a bundle for one architecture builds the product images for it alone, says so in the manifest and is held to it by verify', () => {
+  const root = scratchRoot();
+  const out = join(temp('machvon-bundle-one-'), 'bundle');
+  const calls = [];
+  const result = buildBundle({ ...options(root, out), platforms: ['linux/amd64'], run: fakeRun((path) => (/keycloak|clamav/.test(path) ? flat('amd64', 'arm64') : flat('amd64')), calls) });
+  assert.equal(result.ok, true, JSON.stringify(result.findings));
+  for (const call of calls.filter((entry) => entry[0] === 'docker')) assert.equal(call[call.indexOf('--platform') + 1], 'linux/amd64');
+  // A third-party image is still copied whole: the compose file names it by the digest of its index.
+  for (const call of calls.filter((entry) => entry[0] === 'skopeo')) assert.ok(call.includes('--all'));
+  assert.deepEqual(JSON.parse(readFileSync(join(out, 'manifest.json'), 'utf8')).platforms, ['linux/amd64']);
+  assert.deepEqual(verifyBundle(out), []);
+
+  const wrong = join(temp('machvon-bundle-one-wrong-'), 'bundle');
+  buildBundle({ ...options(root, wrong), platforms: ['linux/amd64'], run: fakeRun(() => flat('arm64')) });
+  assert.ok(verifyBundle(wrong).some((entry) => entry.code === 'BUNDLE_IMAGE_ARCH_MISSING' && entry.detail === 'api: linux/amd64'));
+
+  assert.deepEqual(codes(buildBundle({ ...options(root, 'out'), platforms: ['linux/riscv64'], dryRun: true }).findings), ['BUNDLE_PLATFORMS_INCOMPLETE']);
+  const manifestPath = join(out, 'manifest.json');
+  for (const platforms of [[], ['linux/s390x']]) {
+    writeFileSync(manifestPath, JSON.stringify({ ...JSON.parse(readFileSync(manifestPath, 'utf8')), platforms }));
+    assert.ok(verifyBundle(out).some((entry) => entry.code === 'BUNDLE_MANIFEST_INVALID' && entry.detail === 'platforms'));
+  }
+  const lines = [];
+  assert.equal(main(['plan', '--version', '1.2.3', '--public-host', 'machvon.example.vn', '--platform', 'linux/arm64', '--locale', 'en'], { log: (line) => lines.push(line) }), 0);
+  assert.ok(lines.filter((line) => line.startsWith('build ')).every((line) => line.includes('--platform linux/arm64 ')));
+});
+
+test('the bundle carries the first-tenant script with the files it imports', () => {
+  for (const file of ['scripts/onprem-first-tenant.mjs', 'scripts/onprem-messages.mjs', 'scripts/messages/onprem.vi.json', 'scripts/messages/onprem.en.json', 'docs/runbooks/deploy-web-quickstart.md']) {
+    assert.ok(BUNDLE_TREES.includes(file), file);
+    assert.ok(existsSync(join(REPO_ROOT, file)), file);
+  }
+  const imports = [...readFileSync(join(REPO_ROOT, 'scripts', 'onprem-first-tenant.mjs'), 'utf8').matchAll(/from '(\.[^']+)'/g)].map((match) => match[1]);
+  assert.deepEqual(imports, ['./onprem-messages.mjs']);
+});

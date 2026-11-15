@@ -15,7 +15,7 @@ const HOST_NAME = /^(?=.{1,253}$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-
 const EDITIONS = new Set(['public', 'enterprise']);
 const BLOCK = 512;
 /** What the bundle carries of the repository, at the same relative paths, so that the compose file finds its neighbours unchanged. */
-export const BUNDLE_TREES = ['infra/onprem/compose', 'infra/onprem/config', 'infra/onprem/docker/secret-env.sh', 'infra/onprem/systemd', 'infra/onprem/images.json', 'infra/onprem/secrets.json', 'infra/onprem/secrets-bi.json', 'infra/keycloak/onprem', 'infra/backup', 'docs/runbooks/infra'];
+export const BUNDLE_TREES = ['infra/onprem/compose', 'infra/onprem/config', 'infra/onprem/docker/secret-env.sh', 'infra/onprem/systemd', 'infra/onprem/images.json', 'infra/onprem/secrets.json', 'infra/onprem/secrets-bi.json', 'infra/keycloak/onprem', 'infra/backup', 'docs/runbooks/infra', 'docs/runbooks/deploy-web-quickstart.md', 'scripts/onprem-first-tenant.mjs', 'scripts/onprem-messages.mjs', 'scripts/messages/onprem.vi.json', 'scripts/messages/onprem.en.json'];
 export const BUNDLE_SCRIPTS = ['install.sh', 'rollback.sh'];
 
 export const FINDING_CODES = [
@@ -60,9 +60,9 @@ function* filesUnder(directory) {
 const toPosix = (path) => path.split(sep).join('/');
 
 /** The plan of a build, as data: one entry per command. Nothing is run here; the tests and `plan` read it. */
-export function buildPlan({ images, version, publicHost, edition, out }) {
+export function buildPlan({ images, version, publicHost, edition, out, platforms: chosen = images.platforms }) {
   const steps = [];
-  const platforms = images.platforms.join(',');
+  const platforms = chosen.join(',');
   for (const image of images.built) {
     const archive = posix.join('images', `${image.name}-${version}.oci.tar`);
     const args = ['buildx', 'build', '--platform', platforms, '--file', image.dockerfile, '--tag', `${image.repository}:${version}`, '--output', `type=oci,dest=${toPosix(join(out, archive))},name=${image.repository}:${version}`];
@@ -70,7 +70,8 @@ export function buildPlan({ images, version, publicHost, edition, out }) {
     args.push('.');
     steps.push({ kind: 'build', name: image.name, command: 'docker', args, archive, ref: `${image.repository}:${version}` });
   }
-  // Only runtime images are exported: a base image is a layer inside the images built from it and is never started on its own.
+  // Only runtime images are exported: a base image is a layer inside the images built from it and is never started on its own. A third-party image is always copied whole
+  // (--all), also into a bundle for one platform: the compose file names it by the digest of its index, which only the whole index has.
   for (const image of images.thirdParty.filter(runs)) {
     const archive = posix.join('images', `${image.name}-${image.tag}.oci.tar`);
     const ref = `${image.reference}:${image.tag}`;
@@ -165,20 +166,25 @@ function loadImages(root) {
   return valid ? images : undefined;
 }
 
-const defaultRun = (command, args, options = {}) => spawnSync(command, args, { encoding: 'utf8', maxBuffer: 1 << 28, ...options });
+/** The build and copy commands write their progress to the terminal of the person who runs the build: a multi-platform build takes many minutes and its errors are many lines. */
+const defaultRun = (command, args, options = {}) => spawnSync(command, args, { encoding: 'utf8', stdio: ['ignore', 'inherit', 'inherit'], ...options });
 
 /**
  * Builds the offline bundle into `out`: every image of images.json as an OCI archive for linux/amd64 and linux/arm64 (the product images built with buildx, the third-party images copied by digest
  * with skopeo), the CycloneDX SBOM, the deployment files, `install.sh` and `rollback.sh`, `manifest.json` and `SHA256SUMS`. The build runs on the vendor build host with network access;
  * the bundle itself is installed with none. `run` and `sbom` are injected so that the tests run no daemon.
+ * `platforms` narrows the images of the product to some of the platforms of images.json (a bundle for the one architecture of a customer, half the size): the manifest records the
+ * choice and `verify` holds every archive to it. Left out, the bundle serves every platform.
  */
-export function buildBundle({ root = REPO_ROOT, out, version, publicHost, edition = 'public', dryRun = false, run = defaultRun, sbom = generateSbom, now = () => new Date() }) {
+export function buildBundle({ root = REPO_ROOT, out, version, publicHost, edition = 'public', platforms, dryRun = false, run = defaultRun, sbom = generateSbom, now = () => new Date() }) {
   const problems = checkOptions({ version, publicHost, edition });
   const images = loadImages(root);
   if (images === undefined) problems.push(finding('BUNDLE_IMAGES_FILE_INVALID', 'infra/onprem/images.json'));
   if (images !== undefined && !REQUIRED_PLATFORMS.every((platform) => images.platforms.includes(platform))) problems.push(finding('BUNDLE_PLATFORMS_INCOMPLETE', images.platforms.join(',')));
+  const chosen = platforms === undefined || platforms.length === 0 ? images?.platforms : [...new Set(platforms)];
+  if (images !== undefined && !chosen.every((platform) => images.platforms.includes(platform))) problems.push(finding('BUNDLE_PLATFORMS_INCOMPLETE', chosen.join(',')));
   if (problems.length > 0) return { ok: false, findings: problems, steps: [] };
-  const steps = buildPlan({ images, version, publicHost, edition, out });
+  const steps = buildPlan({ images, version, publicHost, edition, out, platforms: chosen });
   if (dryRun) return { ok: true, findings: [], steps };
 
   mkdirSync(join(out, 'images'), { recursive: true });
@@ -205,7 +211,7 @@ export function buildBundle({ root = REPO_ROOT, out, version, publicHost, editio
     return { name: step.name, ref: step.ref, kind: step.kind, file: step.archive, platforms: platforms === undefined ? [] : [...platforms].sort(), sha256: sha256File(join(out, step.archive)) };
   });
   const digests = Object.fromEntries(images.thirdParty.map((image) => [image.name, image.digest]));
-  writeFileSync(join(out, 'manifest.json'), `${JSON.stringify({ schema: 1, product: 'machvon', version, edition, publicHost, builtAt: now().toISOString(), platforms: images.platforms, images: archives, thirdPartyDigests: digests }, null, 2)}\n`);
+  writeFileSync(join(out, 'manifest.json'), `${JSON.stringify({ schema: 1, product: 'machvon', version, edition, publicHost, builtAt: now().toISOString(), platforms: chosen, images: archives, thirdPartyDigests: digests }, null, 2)}\n`);
   writeSums(out);
   return { ok: true, findings: [], steps };
 }
@@ -246,6 +252,9 @@ export function verifyBundle(directory) {
   }
   const version = existsSync(join(directory, 'VERSION')) ? readFileSync(join(directory, 'VERSION'), 'utf8').trim() : '';
   if (version !== manifest.version) findings.push(finding('BUNDLE_MANIFEST_INVALID', 'VERSION differs from manifest.json'));
+  // What the manifest promises is what every archive must hold: both platforms, or the named ones of a bundle built for one architecture. A manifest that promises none, or one the product does not build, is not valid.
+  const promised = Array.isArray(manifest.platforms) ? manifest.platforms : REQUIRED_PLATFORMS;
+  if (promised.length === 0 || !promised.every((platform) => REQUIRED_PLATFORMS.includes(platform))) findings.push(finding('BUNDLE_MANIFEST_INVALID', 'platforms'));
   const required = readJson(join(directory, 'infra', 'onprem', 'images.json'));
   const expected = required === undefined ? [] : [...(required.built ?? []).map((image) => image.name), ...(required.thirdParty ?? []).filter(runs).map((image) => image.name)];
   for (const name of expected) if (!manifest.images.some((image) => image.name === name)) findings.push(finding('BUNDLE_IMAGE_MISSING', name));
@@ -257,7 +266,7 @@ export function verifyBundle(directory) {
     }
     const platforms = ociPlatforms(path);
     if (platforms === undefined) findings.push(finding('BUNDLE_IMAGE_UNREADABLE', String(image.file)));
-    else for (const platform of REQUIRED_PLATFORMS) if (!platforms.has(platform)) findings.push(finding('BUNDLE_IMAGE_ARCH_MISSING', `${image.name}: ${platform}`));
+    else for (const platform of promised) if (!platforms.has(platform)) findings.push(finding('BUNDLE_IMAGE_ARCH_MISSING', `${image.name}: ${platform}`));
   }
   return findings;
 }
@@ -268,7 +277,7 @@ export function main(argv, { log = console.log, run = defaultRun, sbom = generat
     parsed = parseArgs({
       args: argv,
       allowPositionals: true,
-      options: { root: { type: 'string', default: REPO_ROOT }, out: { type: 'string', default: 'dist/onprem' }, version: { type: 'string' }, 'public-host': { type: 'string' }, edition: { type: 'string', default: 'public' }, locale: { type: 'string', default: DEFAULT_LOCALE }, 'dry-run': { type: 'boolean', default: false } },
+      options: { root: { type: 'string', default: REPO_ROOT }, out: { type: 'string', default: 'dist/onprem' }, version: { type: 'string' }, 'public-host': { type: 'string' }, edition: { type: 'string', default: 'public' }, platform: { type: 'string', multiple: true }, locale: { type: 'string', default: DEFAULT_LOCALE }, 'dry-run': { type: 'boolean', default: false } },
     });
   } catch {
     log(loadOnpremMessages(DEFAULT_LOCALE)['bundle.usage']);
@@ -291,7 +300,7 @@ export function main(argv, { log = console.log, run = defaultRun, sbom = generat
   if (command === 'build' || command === 'plan') {
     const root = resolve(values.root);
     const out = resolve(root, values.out);
-    const result = buildBundle({ root, out, version: values.version, publicHost: values['public-host'], edition: values.edition, dryRun: command === 'plan' || values['dry-run'], run, sbom });
+    const result = buildBundle({ root, out, version: values.version, publicHost: values['public-host'], edition: values.edition, platforms: (values.platform ?? []).flatMap((entry) => entry.split(',')).filter((entry) => entry !== ''), dryRun: command === 'plan' || values['dry-run'], run, sbom });
     for (const step of result.steps) log(format(messages['bundle.step'], { kind: step.kind, name: step.name, command: `${step.command} ${step.args.join(' ')}` }));
     report(result.findings);
     log(result.ok ? format(messages[command === 'plan' || values['dry-run'] ? 'bundle.plan.done' : 'bundle.build.done'], { out: values.out, version: values.version }) : messages['bundle.build.fail']);

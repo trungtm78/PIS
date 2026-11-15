@@ -50,6 +50,9 @@ x-api-environment: &api-environment
   MACHVON_PORTAL_SCAN: CLAMAV
   MACHVON_CLAMD_HOST: clamav
   MACHVON_CLAMD_PORT: "3310"
+  # Invitations (the first owner of a tenant, members): the app network has no route out, so no e-mail relay is reachable. Each invitation is written as one file into this volume;
+  # the operator reads it on the host and hands the link to the invited person (docs/runbooks/deploy-web-quickstart.md, the first tenant).
+  MACHVON_INVITATION_OUTBOX_DIR: /var/lib/machvon/invitations
 
 x-backup-environment: &backup-environment
   PGBACKREST_REPO1_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT}
@@ -126,6 +129,7 @@ services:
       - pgbackrest_archive_cipher_pass
       - backup_archive_s3_access_key
       - backup_archive_s3_secret_key
+      - backup_s3_ca_cert
     healthcheck:
       test: ["CMD", "pg_isready", "--quiet", "--host", "/var/run/postgresql", "--username", "machvon_owner", "--dbname", "machvon"]
       interval: 10s
@@ -235,6 +239,8 @@ services:
     read_only: true
     tmpfs:
       - /tmp:size=64m,mode=1777
+    volumes:
+      - invitations:/var/lib/machvon/invitations
     environment:
       <<: *api-environment
       WORKERS_ENABLED: "false"
@@ -267,6 +273,8 @@ services:
     read_only: true
     tmpfs:
       - /tmp:size=64m,mode=1777
+    volumes:
+      - invitations:/var/lib/machvon/invitations
     environment:
       <<: *api-environment
       WORKERS_ENABLED: "true"
@@ -385,6 +393,7 @@ services:
       - pgbackrest_archive_cipher_pass
       - backup_archive_s3_access_key
       - backup_archive_s3_secret_key
+      - backup_s3_ca_cert
     deploy:
       resources:
         limits:
@@ -408,6 +417,7 @@ volumes:
   pgdata: {}
   clamav_db: {}
   pgsocket: {}
+  invitations: {}
 
 secrets:
   db_owner_password:
@@ -452,3 +462,5 @@ secrets:
     file: ${MACHVON_SECRETS_DIR}/backup_archive_s3_access_key
   backup_archive_s3_secret_key:
     file: ${MACHVON_SECRETS_DIR}/backup_archive_s3_secret_key
+  backup_s3_ca_cert:
+    file: ${MACHVON_SECRETS_DIR}/backup_s3_ca_cert
