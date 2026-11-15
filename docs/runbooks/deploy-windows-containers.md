@@ -291,6 +291,13 @@ Tạo lại `workers` làm các việc nền đếm lại chu kỳ (riêng `mast
   kiểm đăng nhập phải hỏi OTP, và đổi mật khẩu các tài khoản đã dùng trong lúc demo.
 - Khóa tạm sau 5 lần sai mật khẩu, thời hạn phiên, PKCE, HTTPS và phân quyền theo vai trò **không** bị nới.
 
+**Rollback về bản trước 1.0.2:** chạy `single-factor.ps1 -Mode off` **trước** rồi mới `rollback.ps1`. Bản cũ không biết công tắc này: API của nó đòi lại yếu tố thứ hai
+trong khi realm vẫn dừng sau mật khẩu, nên chủ sở hữu tenant sẽ không chọn được tổ chức (`MFA_REQUIRED`). Image Keycloak cũ cũng không có theme `pis-public`:
+trang đăng nhập trở về giao diện mặc định của Keycloak cho tới khi tiến lại 1.0.2.
+
+Đã kiểm trên máy chủ demo sau khi cài 1.0.2 (2026-11-15): đăng nhập web ở 1440 px và 390 px chỉ bằng tên + mật khẩu, không có trang OTP, token định danh `acr=aal1`;
+chủ sở hữu chọn được tổ chức và vào Tổng quan; `grantRole` (step-up) trả 201; danh mục địa bàn (34 dòng `AREA`) có ngay sau khi `workers` khởi động. Ảnh: `docs/demo-camau/login/`.
+
 Khi bật lại 2FA: người đã có OTP (các tài khoản tạo bằng `first-accounts.ps1`, `keycloak-admin.ps1 create-user`) đăng nhập lại bằng mật khẩu + mã như trước; người được
 tạo trong lúc demo mà chưa có OTP phải được quản trị cấp OTP (mục 9, điểm 1).
 
