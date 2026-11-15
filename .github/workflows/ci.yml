@@ -87,6 +87,11 @@ jobs:
         if: failure()
         run: node scripts/ci-annotate.mjs "$RUNNER_TEMP/gates.log" gates --title "Protocol gates"
 
+      # The same log read for the Dart tests of the mobile gate: the gates pattern shows that a test failed, this one names it.
+      - name: Name the failures (mobile tests of the gates)
+        if: failure()
+        run: node scripts/ci-annotate.mjs "$RUNNER_TEMP/gates.log" dart --title "Protocol gates, Dart tests"
+
       # Supply chain gate (docs/runbooks/supply-chain.md): pinned sources, a lockfile that matches every manifest, the
       # CycloneDX SBOM of the lockfile, and the production dependency audit (reported as SKIPPED when the registry is
       # unreachable, never as a pass).
