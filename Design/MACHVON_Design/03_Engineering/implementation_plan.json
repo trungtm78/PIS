@@ -61253,7 +61253,8 @@
       "operations": [
         "getDeadlineBoard",
         "getDeadlineCalendar",
-        "getUpcomingMilestones"
+        "getUpcomingMilestones",
+        "exportDeadlineBoard"
       ],
       "tables": [],
       "nfr": [
@@ -61913,7 +61914,9 @@
         "requestStaffScoreAdjustment",
         "decideStaffScoreAdjustment",
         "handleStaffScoreResponse",
-        "exportStaffScorePeriod"
+        "exportStaffScorePeriod",
+        "getStaffScoreOverview",
+        "listMyPendingDecisions"
       ],
       "tables": [],
       "nfr": [
