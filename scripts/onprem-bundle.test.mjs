@@ -353,3 +353,21 @@ test('the compose file sets the process limit where Compose accepts it beside th
   assert.doesNotMatch(compose, /^\s*pids_limit:/m);
   assert.equal([...compose.matchAll(/^ {10}pids: \d+$/gm)].length, 6, 'db, keycloak, clamav, api, workers and web each have a process limit');
 });
+
+test('the realm lets a person without a second factor reach the enrolment, and asks an enrolled person for a factor (found by the smoke run)', () => {
+  const realm = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'keycloak', 'onprem', 'machvon-realm.json'), 'utf8'));
+  const flow = (alias) => realm.authenticationFlows.find((entry) => entry.alias === alias);
+  const steps = (alias) => flow(alias).authenticationExecutions.map((entry) => `${entry.requirement} ${entry.authenticator ?? entry.flowAlias}`);
+  // Alternatives with nothing enrolled fail the whole sign-in ("Invalid username or password"): they only run for a person who has one of them.
+  for (const entry of realm.authenticationFlows) {
+    const alternatives = entry.authenticationExecutions.filter((step) => step.requirement === 'ALTERNATIVE' && ['auth-otp-form', 'webauthn-authenticator'].includes(step.authenticator));
+    if (alternatives.length > 0) assert.ok(entry.authenticationExecutions.some((step) => step.authenticator === 'conditional-user-configured' && step.requirement === 'REQUIRED'), entry.alias);
+  }
+  assert.deepEqual(steps('machvon member factor'), ['REQUIRED conditional-user-role', 'CONDITIONAL machvon member enrolled factor', 'CONDITIONAL machvon member first enrolment']);
+  // A required one-time code that is not enrolled makes Keycloak add the enrolment (CONFIGURE_TOTP): nobody ends a sign-in with a password alone.
+  assert.deepEqual(steps('machvon member first enrolment'), ['REQUIRED conditional-sub-flow-executed', 'REQUIRED auth-otp-form']);
+  const condition = realm.authenticatorConfig.find((entry) => entry.alias === 'machvon no enrolled factor');
+  assert.deepEqual(condition.config, { flow_to_check: 'machvon member enrolled factor', check_result: 'not-executed' });
+  assert.ok(realm.requiredActions.some((action) => action.alias === 'CONFIGURE_TOTP' && action.enabled));
+  for (const entry of realm.authenticationFlows) for (const step of entry.authenticationExecutions) if (step.flowAlias !== undefined) assert.ok(flow(step.flowAlias) !== undefined, step.flowAlias);
+});

@@ -14,7 +14,7 @@ Preconditions: the offline bundle of the release candidate (`onprem-install.md`)
 
 - [ ] The log of `keycloak` shows the realm `machvon` imported with no error and no warning about an unresolved `${...}` placeholder.
 - [ ] `https://<host>/idp/realms/<realm>/.well-known/openid-configuration` answers.
-- [ ] The realm has the 7 authentication flows of the file, the browser flow is `machvon browser`, level 1 and level 2 conditions exist.
+- [ ] The realm has the 9 authentication flows of the file, the browser flow is `machvon browser`, level 1 and level 2 conditions exist.
 - [ ] The LDAP provider `corporate-directory` connects (Test connection) over LDAPS with the CA in `ldap_ca_cert`; a user of the test directory appears after the first sign-in.
 - [ ] A test user in a `MACHVON-*` group gets exactly the roles of `ad-group-role-map.json`; a user in another group gets none.
 - [ ] Mandatory second factor: first sign-in forces the TOTP enrolment; a platform role forces WebAuthn (`identity-test-plan.md`).

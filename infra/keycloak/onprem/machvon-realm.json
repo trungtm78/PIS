@@ -543,6 +543,13 @@
         "condUserRole": "mfa-webauthn-required",
         "negate": "true"
       }
+    },
+    {
+      "alias": "machvon no enrolled factor",
+      "config": {
+        "flow_to_check": "machvon member enrolled factor",
+        "check_result": "not-executed"
+      }
     }
   ],
   "authenticationFlows": [
@@ -685,7 +692,7 @@
     },
     {
       "alias": "machvon member factor",
-      "description": "Everyone else: a one-time code (TOTP) or a security key (WebAuthn), whichever is enrolled.",
+      "description": "Everyone else: a one-time code (TOTP) or a security key (WebAuthn), whichever is enrolled; a person who has enrolled neither is sent to the enrolment of the one-time code.",
       "providerId": "basic-flow",
       "topLevel": false,
       "builtIn": false,
@@ -694,6 +701,36 @@
           "authenticator": "conditional-user-role",
           "authenticatorFlow": false,
           "authenticatorConfig": "machvon not platform staff",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "userSetupAllowed": false
+        },
+        {
+          "flowAlias": "machvon member enrolled factor",
+          "authenticatorFlow": true,
+          "requirement": "CONDITIONAL",
+          "priority": 20,
+          "userSetupAllowed": false
+        },
+        {
+          "flowAlias": "machvon member first enrolment",
+          "authenticatorFlow": true,
+          "requirement": "CONDITIONAL",
+          "priority": 30,
+          "userSetupAllowed": false
+        }
+      ]
+    },
+    {
+      "alias": "machvon member enrolled factor",
+      "description": "Runs when the person has enrolled a one-time code or a security key: one of the enrolled ones is asked for.",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "conditional-user-configured",
+          "authenticatorFlow": false,
           "requirement": "REQUIRED",
           "priority": 10,
           "userSetupAllowed": false
@@ -710,6 +747,30 @@
           "authenticatorFlow": false,
           "requirement": "ALTERNATIVE",
           "priority": 30,
+          "userSetupAllowed": false
+        }
+      ]
+    },
+    {
+      "alias": "machvon member first enrolment",
+      "description": "Runs when no second factor was asked for because none is enrolled: the one-time code is required, so the person must enrol it (required action CONFIGURE_TOTP) before the sign-in ends.",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "conditional-sub-flow-executed",
+          "authenticatorFlow": false,
+          "authenticatorConfig": "machvon no enrolled factor",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "userSetupAllowed": false
+        },
+        {
+          "authenticator": "auth-otp-form",
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 20,
           "userSetupAllowed": false
         }
       ]
