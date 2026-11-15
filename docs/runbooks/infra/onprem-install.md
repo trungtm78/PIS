@@ -50,7 +50,7 @@ Create each file named in `infra/onprem/secrets.json` under `MACHVON_SECRETS_DIR
 ```
 groupadd --gid 1900 machvon-secrets
 chgrp -R 1900 "$MACHVON_SECRETS_DIR" && chmod 0750 "$MACHVON_SECRETS_DIR" && chmod 0440 "$MACHVON_SECRETS_DIR"/*
-chown 999 "$MACHVON_SECRETS_DIR/keycloak_db_password"     # the database init script reads it as the postgres user (uid 999)
+chown 999 "$MACHVON_SECRETS_DIR/keycloak_db_password" "$MACHVON_SECRETS_DIR/backup_s3_ca_cert"     # read by the postgres user (uid 999): the database init script, and pgBackRest at every WAL push
 ```
 
 `install.sh` refuses to start when a file has another group, is not group-readable or is readable by others. The file lists who reads each secret, how to generate it and its rotation period. Nothing secret is written into the compose file, the environment file or an image: services read `NAME_FILE` variables through `secret-env`. Escrow `pgbackrest_cipher_pass` offline with two custodians before the first backup: without it no backup can be read.

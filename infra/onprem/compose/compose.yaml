@@ -50,6 +50,9 @@ x-api-environment: &api-environment
   MACHVON_PORTAL_SCAN: CLAMAV
   MACHVON_CLAMD_HOST: clamav
   MACHVON_CLAMD_PORT: "3310"
+  # Invitations (the first owner of a tenant, members): the app network has no route out, so no e-mail relay is reachable. Each invitation is written as one file into this volume;
+  # the operator reads it on the host and hands the link to the invited person (docs/runbooks/deploy-web-quickstart.md, the first tenant).
+  MACHVON_INVITATION_OUTBOX_DIR: /var/lib/machvon/invitations
 
 x-backup-environment: &backup-environment
   PGBACKREST_REPO1_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT}
@@ -126,6 +129,7 @@ services:
       - pgbackrest_archive_cipher_pass
       - backup_archive_s3_access_key
       - backup_archive_s3_secret_key
+      - backup_s3_ca_cert
     healthcheck:
       test: ["CMD", "pg_isready", "--quiet", "--host", "/var/run/postgresql", "--username", "machvon_owner", "--dbname", "machvon"]
       interval: 10s
@@ -137,9 +141,9 @@ services:
         limits:
           cpus: "${DB_CPUS}"
           memory: ${DB_MEMORY}
+          pids: 512
         reservations:
           memory: 2g
-    pids_limit: 512
     stop_grace_period: 60s
 
   keycloak:
@@ -192,15 +196,22 @@ services:
         limits:
           cpus: "${KEYCLOAK_CPUS}"
           memory: ${KEYCLOAK_MEMORY}
+          pids: 512
         reservations:
           memory: 1g
-    pids_limit: 512
 
   # clamd for the malware scan of uploads. The app network has no route out, so signatures are NOT fetched here: they ship in the image of the release (the bundle is rebuilt at least monthly,
   # docs/runbooks/infra/malware-scan.md) or are placed in the clamav_db volume by the operator.
   clamav:
     image: docker.io/clamav/clamav:1.4.6@sha256:cbc30de94b6e9b33ac14136ff45306cee02a1f9ae522394a3cc5b9215d1affe9
     <<: *hardening
+    # The entrypoint of the image starts as root, gives the signature and socket directories to the clamav user and starts clamd as that user: without these it restarts for ever.
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
     networks: [app]
     environment:
       CLAMAV_NO_FRESHCLAMD: "true"
@@ -221,7 +232,7 @@ services:
         limits:
           cpus: "${CLAMAV_CPUS}"
           memory: ${CLAMAV_MEMORY}
-    pids_limit: 256
+          pids: 256
 
   api:
     image: machvon/api:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
@@ -235,6 +246,10 @@ services:
     read_only: true
     tmpfs:
       - /tmp:size=64m,mode=1777
+      # The cache of the native addon of the TypeScript loader (SWC_NATIVE_BINDING_CACHE of the image): written and executed at every start, by the service user only.
+      - /app/.swc-native:size=256m,mode=0700,uid=1000,gid=1000,exec
+    volumes:
+      - invitations:/var/lib/machvon/invitations
     environment:
       <<: *api-environment
       WORKERS_ENABLED: "false"
@@ -251,9 +266,9 @@ services:
         limits:
           cpus: "${API_CPUS}"
           memory: ${API_MEMORY}
+          pids: 512
         reservations:
           memory: 512m
-    pids_limit: 512
 
   workers:
     image: machvon/workers:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
@@ -267,6 +282,10 @@ services:
     read_only: true
     tmpfs:
       - /tmp:size=64m,mode=1777
+      # The cache of the native addon of the TypeScript loader (SWC_NATIVE_BINDING_CACHE of the image): written and executed at every start, by the service user only.
+      - /app/.swc-native:size=256m,mode=0700,uid=1000,gid=1000,exec
+    volumes:
+      - invitations:/var/lib/machvon/invitations
     environment:
       <<: *api-environment
       WORKERS_ENABLED: "true"
@@ -282,9 +301,9 @@ services:
         limits:
           cpus: "${WORKERS_CPUS}"
           memory: ${WORKERS_MEMORY}
+          pids: 512
         reservations:
           memory: 512m
-    pids_limit: 512
 
   web:
     image: machvon/web:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
@@ -319,9 +338,9 @@ services:
         limits:
           cpus: "${WEB_CPUS}"
           memory: ${WEB_MEMORY}
+          pids: 256
         reservations:
           memory: 64m
-    pids_limit: 256
 
   # One-shot jobs, started by hand or by the host timers (profile "tools"): they are not part of `docker compose up`.
   migrate:
@@ -385,6 +404,7 @@ services:
       - pgbackrest_archive_cipher_pass
       - backup_archive_s3_access_key
       - backup_archive_s3_secret_key
+      - backup_s3_ca_cert
     deploy:
       resources:
         limits:
@@ -408,6 +428,7 @@ volumes:
   pgdata: {}
   clamav_db: {}
   pgsocket: {}
+  invitations: {}
 
 secrets:
   db_owner_password:
@@ -452,3 +473,5 @@ secrets:
     file: ${MACHVON_SECRETS_DIR}/backup_archive_s3_access_key
   backup_archive_s3_secret_key:
     file: ${MACHVON_SECRETS_DIR}/backup_archive_s3_secret_key
+  backup_s3_ca_cert:
+    file: ${MACHVON_SECRETS_DIR}/backup_s3_ca_cert
