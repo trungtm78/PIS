@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { OidcError, buildAuthorizationRequest, checkNonce, createLoginStore, discover, exchangeCode, parseCallback, refreshIdentity } from './client';
+import { OidcError, buildAuthorizationRequest, buildEndSessionUrl, checkNonce, createLoginStore, discover, exchangeCode, parseCallback, refreshIdentity } from './client';
 import type { OidcConfig, OidcEndpoints } from './client';
 
 const CONFIG: OidcConfig = { issuer: 'https://idp.example/realms/machvon', clientId: 'machvon-web', redirectUri: 'https://app.example/auth/callback' };
@@ -184,5 +184,22 @@ describe('createLoginStore', () => {
     const store = createLoginStore(broken);
     expect(() => store.save(pending)).toThrow(expect.objectContaining({ code: 'login_state_unavailable' }) as Error);
     expect(store.take()).toBeUndefined();
+  });
+});
+
+describe('buildEndSessionUrl', () => {
+  it('sends the browser to the end-session endpoint of the provider with the client, the identity token and the way back', () => {
+    const url = new URL(buildEndSessionUrl({ ...CONFIG, uiLocales: 'vi' }, { ...ENDPOINTS, end_session_endpoint: 'https://idp.example/realms/machvon/protocol/openid-connect/logout' }, { idToken: 'id.token.value', returnTo: 'https://app.example/' }) ?? '');
+    expect(`${url.origin}${url.pathname}`).toBe('https://idp.example/realms/machvon/protocol/openid-connect/logout');
+    expect(url.searchParams.get('client_id')).toBe('machvon-web');
+    expect(url.searchParams.get('id_token_hint')).toBe('id.token.value');
+    expect(url.searchParams.get('post_logout_redirect_uri')).toBe('https://app.example/');
+    expect(url.searchParams.get('ui_locales')).toBe('vi');
+  });
+
+  it('gives nothing for a provider that announces no end-session endpoint, and leaves the token out when there is none', () => {
+    expect(buildEndSessionUrl(CONFIG, ENDPOINTS, { returnTo: 'https://app.example/' })).toBeUndefined();
+    const url = new URL(buildEndSessionUrl(CONFIG, { ...ENDPOINTS, end_session_endpoint: 'https://idp.example/logout' }, { returnTo: 'https://app.example/' }) ?? '');
+    expect(url.searchParams.has('id_token_hint')).toBe(false);
   });
 });

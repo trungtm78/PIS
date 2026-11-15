@@ -152,3 +152,31 @@ small,
 body {
   font-family: var(--mv-font-family, 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif);
 }
+
+/* The sign-out entries of the shell: beside the avatar of the top bar and under the account card of the sidebar. They take the colour of the bar they stand in. */
+.topbar-signout {
+  margin-left: 8px;
+  padding: 6px 12px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.account-signout {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px 12px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}

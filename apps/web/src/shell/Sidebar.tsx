@@ -5,6 +5,7 @@ import { BrandMark } from '../brand/BrandMark';
 import { useTranslation } from '../i18n';
 import type { NavLink, NavigationModel } from '../navigation/model';
 import type { WebRoute } from '../routes/types';
+import { useSession } from '../session/SessionContext';
 import type { SessionTenant, SessionUser } from '../session/SessionContext';
 import { Icon } from './Icon';
 import { labelText } from './labels';
@@ -74,6 +75,7 @@ function trapTab(event: KeyboardEvent<HTMLElement>): void {
 /** The single business sidebar of the prototype: tenant identity, personal links, modules, pinned screens, footer. */
 export function Sidebar(props: SidebarProps) {
   const { t } = useTranslation();
+  const { signOut } = useSession();
   const { navigation, route, tenant, user } = props;
   // Modules whose shortcuts the user opened or closed by hand; the current module is open until the user closes it.
   const [overrides, setOverrides] = useState<ReadonlyMap<string, boolean>>(new Map());
@@ -237,6 +239,11 @@ export function Sidebar(props: SidebarProps) {
             </span>
             <span aria-hidden="true">···</span>
           </Link>
+        )}
+        {user === undefined || signOut === undefined ? null : (
+          <button type="button" className="account-signout" onClick={() => signOut()} aria-label={t('shell.account.signOut.label', { name: user.displayName })}>
+            <span>{t('shell.account.signOut.action')}</span>
+          </button>
         )}
       </footer>
     </aside>

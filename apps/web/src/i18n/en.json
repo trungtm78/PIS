@@ -3060,6 +3060,8 @@
   "shell.tenant.switch.label": "Switch tenant",
   "shell.account.role.text": "Organisation member",
   "shell.account.open.label": "{initials} {name} {role}: my account",
+  "shell.account.signOut.action": "Sign out",
+  "shell.account.signOut.label": "Sign out of the account {name}",
   "shell.library.all.title": "All applications",
   "shell.library.all.subtitle": "Choose a business area or search for the function you need.",
   "shell.library.admin.title": "Administration & configuration",

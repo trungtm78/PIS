@@ -3060,6 +3060,8 @@
   "shell.tenant.switch.label": "Chuyển tenant",
   "shell.account.role.text": "Thành viên tổ chức",
   "shell.account.open.label": "{initials} {name} {role}: tài khoản của tôi",
+  "shell.account.signOut.action": "Đăng xuất",
+  "shell.account.signOut.label": "Đăng xuất khỏi tài khoản {name}",
   "shell.library.all.title": "Tất cả ứng dụng",
   "shell.library.all.subtitle": "Chọn nghiệp vụ hoặc tìm trực tiếp chức năng cần dùng.",
   "shell.library.admin.title": "Quản trị & cấu hình",

@@ -76,7 +76,7 @@ describe('OidcSessionProvider', () => {
     return null;
   }
 
-  function mount(overrides: { random?: () => Uint8Array } = {}): void {
+  function mount(overrides: { random?: () => Uint8Array; endpoints?: OidcEndpoints } = {}): void {
     const apiFetch = ((input: RequestInfo | URL, init?: RequestInit) => {
       const url = new URL(String(input));
       const headers = new Headers(init?.headers);
@@ -94,7 +94,7 @@ describe('OidcSessionProvider', () => {
     }) as typeof fetch;
     const tokenFetch = ((_url: RequestInfo | URL, init?: RequestInit) => Promise.resolve(tokenEndpoint(Object.fromEntries(new URLSearchParams(String(init?.body)))))) as typeof fetch;
     render(
-      <OidcSessionProvider config={CONFIG} endpoints={ENDPOINTS} apiBaseUrl={API} loginStore={loginStore} redirect={(url) => redirected.push(url)} apiFetch={apiFetch} tokenFetch={tokenFetch} now={() => nowMs} random={overrides.random}>
+      <OidcSessionProvider config={CONFIG} endpoints={overrides.endpoints ?? ENDPOINTS} apiBaseUrl={API} loginStore={loginStore} redirect={(url) => redirected.push(url)} apiFetch={apiFetch} tokenFetch={tokenFetch} now={() => nowMs} random={overrides.random}>
         <Probe />
       </OidcSessionProvider>,
     );
@@ -429,6 +429,34 @@ describe('OidcSessionProvider', () => {
     expect(session.identity).toBeUndefined();
     expect(session.tenant).toBeUndefined();
     expect(await session.getSession()).toBeUndefined();
+  });
+
+  it('signOut also ends the session of the person at the provider: the browser leaves for its end-session endpoint and comes back to the application', async () => {
+    mount({ endpoints: { ...ENDPOINTS, end_session_endpoint: 'https://idp.test/logout' } });
+    await signedIn();
+    await select(TENANT_A);
+    const before = redirected.length;
+    act(() => session.signOut?.());
+    // Out of the application at once, whatever the provider does next.
+    expect(session.status).toBe('signedOut');
+    await waitFor(() => expect(redirected.length).toBe(before + 1));
+    const url = new URL(redirected.at(-1) ?? 'https://x.test/');
+    expect(`${url.origin}${url.pathname}`).toBe('https://idp.test/logout');
+    expect(url.searchParams.get('client_id')).toBe('machvon-web');
+    expect(url.searchParams.get('post_logout_redirect_uri')).toBe(`${window.location.origin}/`);
+    expect((url.searchParams.get('id_token_hint') ?? '').split('.')).toHaveLength(3);
+  });
+
+  it('signOut stays local for a provider that offers no way to end a session', async () => {
+    mount();
+    await signedIn();
+    const before = redirected.length;
+    act(() => session.signOut?.());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(redirected.length).toBe(before);
+    expect(session.status).toBe('signedOut');
   });
 
   it('refuses to select a tenant before any sign-in', async () => {

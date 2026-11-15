@@ -73,6 +73,20 @@ export async function discover(issuer: string, fetcher: Fetcher = (url, init) =>
   };
 }
 
+/**
+ * The address that ends the session of the person at the provider (RP-initiated logout): the provider forgets its own session, so that the next sign-in asks for the
+ * password again and another account can be used, and sends the browser back to the application. Undefined when the provider announces no such endpoint.
+ */
+export function buildEndSessionUrl(config: OidcConfig, endpoints: OidcEndpoints, options: { idToken?: string | undefined; returnTo: string }): string | undefined {
+  if (endpoints.end_session_endpoint === undefined) return undefined;
+  const url = new URL(endpoints.end_session_endpoint);
+  url.searchParams.set('client_id', config.clientId);
+  url.searchParams.set('post_logout_redirect_uri', options.returnTo);
+  if (options.idToken !== undefined) url.searchParams.set('id_token_hint', options.idToken);
+  if (config.uiLocales !== undefined) url.searchParams.set('ui_locales', config.uiLocales);
+  return url.toString();
+}
+
 export interface AuthorizationRequest {
   url: string;
   state: string;

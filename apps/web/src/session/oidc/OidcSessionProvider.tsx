@@ -9,7 +9,7 @@ import type { SessionAssurance, SessionIdentity, SessionMode, SessionStatus, Ses
 import { expiresAtMs, payloadOf, renewalDelayMs } from '../tenant-token';
 import { assuranceOfClaims } from './assurance';
 import { translator } from '../../i18n';
-import { OidcError, buildAuthorizationRequest, checkNonce, createLoginStore, discover, exchangeCode, parseCallback, refreshIdentity } from './client';
+import { OidcError, buildAuthorizationRequest, buildEndSessionUrl, checkNonce, createLoginStore, discover, exchangeCode, parseCallback, refreshIdentity } from './client';
 import type { IdentityTokens, LoginStore, OidcConfig, OidcEndpoints } from './client';
 import type { RandomOctets } from './pkce';
 
@@ -185,6 +185,21 @@ export default function OidcSessionProvider({
     },
     [config, endpointsOf, random, redirect, store],
   );
+
+  /**
+   * Signing out: what this tab holds is forgotten first (whatever follows, the person is out of the application), then the browser goes to the provider to end ITS session
+   * and comes back to the application. A provider that cannot be reached, or that offers no way to end a session, leaves the local sign-out.
+   */
+  const signOut = useCallback(() => {
+    const idToken = identityRef.current?.token;
+    forgetEverything();
+    void endpointsOf()
+      .then((endpoints) => {
+        const url = buildEndSessionUrl({ ...config, uiLocales: translator.getLocale() }, endpoints, { idToken, returnTo: `${window.location.origin}/` });
+        if (url !== undefined) (redirect ?? ((target: string) => window.location.assign(target)))(url);
+      })
+      .catch(() => undefined);
+  }, [config, endpointsOf, forgetEverything, redirect]);
 
   const adoptIdentity = useCallback(
     (tokens: IdentityTokens, previousRefresh?: string) => {
@@ -377,13 +392,13 @@ export default function OidcSessionProvider({
       tenantToken,
       mode,
       signIn,
-      signOut: forgetEverything,
+      signOut,
       completeSignIn,
       loadCandidates,
       selectTenant,
       acceptInvitation,
     }),
-    [tenant, tenants, user, switchTenant, getSession, requestStepUp, status, identity, assurance, tenantToken, mode, signIn, forgetEverything, completeSignIn, loadCandidates, selectTenant, acceptInvitation],
+    [tenant, tenants, user, switchTenant, getSession, requestStepUp, status, identity, assurance, tenantToken, mode, signIn, signOut, completeSignIn, loadCandidates, selectTenant, acceptInvitation],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

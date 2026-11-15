@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { FormEvent, RefObject } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../i18n';
+import { useSession } from '../session/SessionContext';
 import type { SessionUser } from '../session/SessionContext';
 import { AlertBell } from '../ui/alerts';
 import { Breadcrumb } from './Breadcrumb';
@@ -69,6 +70,8 @@ export function TopBar(props: TopBarProps) {
   };
 
   const user = props.user;
+  // Signing out is offered wherever the session can do it (a session without a provider signs out of this tab only).
+  const { signOut } = useSession();
   return (
     <header className="topbar workspace-topbar">
       <button
@@ -121,6 +124,11 @@ export function TopBar(props: TopBarProps) {
         <Link to={props.accountPath} className="topbar-avatar" aria-label={t('shell.topbar.account.label', { initials: user.initials, name: user.displayName })}>
           {user.initials}
         </Link>
+      )}
+      {user === undefined || signOut === undefined ? null : (
+        <button type="button" className="topbar-signout" onClick={() => signOut()} aria-label={t('shell.account.signOut.label', { name: user.displayName })}>
+          {t('shell.account.signOut.action')}
+        </button>
       )}
     </header>
   );
