@@ -54,9 +54,11 @@ describe('the theme of a tenant on the control plane (BR-SAS-17)', () => {
   const objectRoot = mkdtempSync(join(tmpdir(), 'machvon-sec-theme-'));
   let app: RunningApp;
 
-  async function call(method: string, path: string, options: { roles?: string[]; audience?: string; payload?: unknown; raw?: { body: Buffer; contentType: string }; ifMatch?: string; admin?: string } = {}): Promise<Reply> {
+  async function call(method: string, path: string, options: { roles?: string[]; audience?: string; payload?: unknown; raw?: { body: Buffer; contentType: string }; ifMatch?: string; admin?: string; secondFactor?: { aal: string; aal2At?: string } } = {}): Promise<Reply> {
     const token = signTenantContext({ tenantId: PLATFORM_TENANT_ID, membershipId: options.admin ?? SA_01, scopeVersion: 0 }, SIGNING_KEY);
-    const headers: Record<string, string> = { [TENANT_HEADER]: token, [CLAIMS_HEADER]: JSON.stringify({ aud: options.audience ?? 'control', roles: options.roles ?? ['SystemAdmin'] }) };
+    // Unless a test says otherwise the System Admin signed in with the second factor just now: publishing a theme is a step-up operation (x-step-up aal2).
+    const secondFactor = options.secondFactor ?? { aal: 'aal2', aal2At: new Date().toISOString() };
+    const headers: Record<string, string> = { [TENANT_HEADER]: token, [CLAIMS_HEADER]: JSON.stringify({ aud: options.audience ?? 'control', roles: options.roles ?? ['SystemAdmin'], ...secondFactor }) };
     if (options.raw !== undefined) headers['content-type'] = options.raw.contentType;
     else if (method !== 'GET') headers['content-type'] = 'application/json';
     if (method !== 'GET') headers['idempotency-key'] = `key-${randomUUID()}`;
@@ -80,8 +82,8 @@ describe('the theme of a tenant on the control plane (BR-SAS-17)', () => {
   const draftPath = (tenantId: string): string => `/system/tenants/${tenantId}/theme/draft`;
   const review = (tenantId: string, draftRevision: number, baseVersion: number, roles?: string[]): Promise<Reply> =>
     call('POST', `/system/tenants/${tenantId}/theme/reviews`, { payload: { draftRevision, baseVersion }, roles });
-  const publish = (tenantId: string, reviewToken: string, baseVersion: number, roles?: string[]): Promise<Reply> =>
-    call('POST', `/system/tenants/${tenantId}/theme/publish`, { payload: { reviewToken, baseVersion }, roles });
+  const publish = (tenantId: string, reviewToken: string, baseVersion: number, roles?: string[], secondFactor?: { aal: string; aal2At?: string }): Promise<Reply> =>
+    call('POST', `/system/tenants/${tenantId}/theme/publish`, { payload: { reviewToken, baseVersion }, roles, secondFactor });
   const currentVersion = async (tenantId: string): Promise<number> =>
     Number((await harness.admin((client) => client.query<{ v: string }>('select current_version::text as v from machvon.tenant_theme_pointer where tenant_id = $1', [tenantId]))).rows[0]?.v);
   const draftRevisionOf = async (tenantId: string): Promise<number | undefined> => {
@@ -147,7 +149,7 @@ describe('the theme of a tenant on the control plane (BR-SAS-17)', () => {
     expect(await currentVersion(b)).toBe(1);
   });
 
-  it('the control plane theme is closed to the tenant plane, and a review of another tenant or one already spent publishes nothing: 403 SCOPE_DENIED for the four tenant calls, 409 REVIEW_INVALID for the two reviews, the theme stays at version 3', async () => {
+  it('UAT-NFR-SECURITY-02: the control plane theme is closed to the tenant plane, and a review of another tenant or one already spent publishes nothing: 403 SCOPE_DENIED for the four tenant calls, 409 REVIEW_INVALID for the two reviews, the theme stays at version 3', async () => {
     const a = await themedTenant();
     const b = await themedTenant();
     await publishChange(a, { primary: '#112233' }, 1, 1);
@@ -186,7 +188,29 @@ describe('the theme of a tenant on the control plane (BR-SAS-17)', () => {
     expect(await currentVersion(b)).toBe(1);
   });
 
+  it('UAT-NFR-SECURITY-02: a System Admin who signed in with the password only, or whose second factor is older than the step-up window, is refused 403 MFA_REQUIRED at the publication, nothing is published and the review is not spent', async () => {
+    const a = await themedTenant();
+    assertStatus(await call('PUT', draftPath(a), { payload: themeWith({ primary: '#445566' }), ifMatch: '"0"' }), 200);
+    const reviewed = await review(a, 1, 1);
+    assertStatus(reviewed, 200);
+    const token = reviewed.json.reviewToken as string;
+    const deniedBefore = await deniedAudits('authz.denied:publishSystemTenantTheme');
+
+    assertStatus(await publish(a, token, 1, undefined, { aal: 'aal1' }), 403, 'MFA_REQUIRED');
+    const stale = new Date(Date.now() - 16 * 60_000).toISOString();
+    assertStatus(await publish(a, token, 1, undefined, { aal: 'aal2', aal2At: stale }), 403, 'MFA_REQUIRED');
+    expect(await currentVersion(a)).toBe(1);
+    expect(await draftRevisionOf(a)).toBe(1);
+    expect(await deniedAudits('authz.denied:publishSystemTenantTheme')).toBe(deniedBefore + 2);
+    expect(await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.theme.published.v1'", [a])).toBe(0);
+
+    // With a fresh second factor the same review publishes: it was the missing factor that refused, and the refusals did not spend the review.
+    assertStatus(await publish(a, token, 1), 200);
+    expect(await currentVersion(a)).toBe(2);
+  });
+
   it('the checks of this suite can go red: a check fed the wrong answer throws', () => {
+    expectCheckFails(() => assertStatus({ status: 200, json: {} }, 403, 'MFA_REQUIRED'));
     expectCheckFails(() => assertStatus({ status: 200, json: {} }, 403, 'SCOPE_DENIED'));
     expectCheckFails(() => assertStatus({ status: 409, json: { code: 'VERSION_CONFLICT' } }, 409, 'REVIEW_INVALID'));
   });

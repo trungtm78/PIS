@@ -1140,8 +1140,8 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "finding: no step-up (WebAuthn/aal2) is required to publish a theme on the control plane"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/security-theme-control.test.ts"
       },
       "module": "NFR"
     },

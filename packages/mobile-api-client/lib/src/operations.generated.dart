@@ -1320,7 +1320,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'publishRoutingPolicy': OperationDescriptor(method: 'POST', path: '/conversation-routing-policies/{policyId}/publish', versioned: true, stepUp: null, permission: 'omni.policy.manage'),
   'publishSecurityPolicy': OperationDescriptor(method: 'POST', path: '/security-policies/{policyId}/publish', versioned: true, stepUp: null, permission: 'adm.security.approve'),
   'publishSurvivorshipRule': OperationDescriptor(method: 'POST', path: '/survivorship-rules/{id}/publish', versioned: true, stepUp: null, permission: 'master.survivorship.approve'),
-  'publishSystemTenantTheme': OperationDescriptor(method: 'POST', path: '/system/tenants/{tenantId}/theme/publish', versioned: false, stepUp: null, permission: 'system.theme.manage'),
+  'publishSystemTenantTheme': OperationDescriptor(method: 'POST', path: '/system/tenants/{tenantId}/theme/publish', versioned: false, stepUp: 'aal2', permission: 'system.theme.manage'),
   'publishWorkCalendar': OperationDescriptor(method: 'POST', path: '/work-calendars/{calendarId}/publish', versioned: true, stepUp: null, permission: 'adm.calendar.manage'),
   'publishWorkflowVersion': OperationDescriptor(method: 'POST', path: '/workflow-definitions/{workflowVersionId}/publish', versioned: true, stepUp: null, permission: 'adm.workflow.publish'),
   'pushFinanceFeedBatch': OperationDescriptor(method: 'POST', path: '/finance-feed/push', versioned: false, stepUp: null, permission: 'fin.feed.push'),

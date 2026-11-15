@@ -27304,6 +27304,7 @@
         "x-required-role": "SystemAdmin",
         "x-tenant-source": "validated target + control-plane policy",
         "x-plane": "control",
+        "x-step-up": "aal2",
         "parameters": [
           {
             "name": "tenantId",
@@ -27402,7 +27403,8 @@
           "REVIEW_INVALID",
           "VERSION_CONFLICT",
           "IDEMPOTENCY_CONFLICT",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "MFA_REQUIRED"
         ],
         "x-deprecated-error-aliases": {
           "REVIEW_STALE": "REVIEW_INVALID"

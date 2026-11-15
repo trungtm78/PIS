@@ -80,7 +80,7 @@ interface Mounted {
   queries: QueryClient;
 }
 
-function open(options: { permissions?: readonly string[] | undefined; mode?: 'FULL' | 'READ_ONLY'; command?: (operation: string, input: unknown) => unknown; read?: (operation: string, input: unknown) => unknown; path?: string } = {}): Mounted {
+function open(options: { permissions?: readonly string[] | undefined; mode?: 'FULL' | 'READ_ONLY'; command?: (operation: string, input: unknown) => unknown; read?: (operation: string, input: unknown) => unknown; path?: string; requestStepUp?: () => Promise<void> } = {}): Mounted {
   const h = harness(options.read ?? answer, options.command);
   const upload = vi.fn(() => Promise.resolve({ assetId: ASSET, scanStatus: 'clean', contentHash: 'b'.repeat(64), contentType: 'image/png' }));
   const client = { ...h.client, upload } as unknown as ApiClient;
@@ -93,6 +93,7 @@ function open(options: { permissions?: readonly string[] | undefined; mode?: 'FU
     getSession: () => Promise.resolve({ token: 'token' }),
     permissions: 'permissions' in options ? options.permissions : ADMIN,
     ...(options.mode === undefined ? {} : { mode: options.mode }),
+    ...(options.requestStepUp === undefined ? {} : { requestStepUp: options.requestStepUp }),
   };
   const queries = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   render(
@@ -466,6 +467,51 @@ describe('SAS-04 review, publish and restore', () => {
     await userEvent.click(within(dialog).getByRole('button', { name: vi_['sas.theme.error.reviewAgain.action'] }));
     await waitFor(() => expect(commandsOf(h, 'reviewSystemTenantTheme')).toHaveLength(2));
     expect(within(dialog).queryByRole('alert')).toBeNull();
+  });
+
+  it('UAT-NFR-SECURITY-02: a publication refused with MFA_REQUIRED asks for the second factor, publishes nothing until it is given, and then sends the same review once more', async () => {
+    world.draft = { revision: 2, config: { ...THEME, primary: '#112233' } };
+    let steppedUp = false;
+    const requestStepUp = vi.fn(() => {
+      steppedUp = true;
+      return Promise.resolve();
+    });
+    const { h } = open({ requestStepUp, command: flow((operation) => (operation === 'publishSystemTenantTheme' && !steppedUp ? problem(403, 'MFA_REQUIRED') : undefined)) });
+    await loaded();
+    await userEvent.click(screen.getByRole('button', { name: vi_['sas.theme.review.action'] }));
+    const dialog = await screen.findByRole('dialog');
+    await userEvent.click(await within(dialog).findByRole('checkbox'));
+    await userEvent.click(within(dialog).getByRole('button', { name: vi_['sas.theme.review.apply.confirm'] }));
+
+    const prompt = await screen.findByRole('alertdialog', { name: vi_['adm.roles.stepUp.title'] });
+    expect(within(dialog).queryByRole('alert')).toBeNull();
+    expect(requestStepUp).not.toHaveBeenCalled();
+    expect(commandsOf(h, 'publishSystemTenantTheme')).toHaveLength(1);
+    expect(screen.queryByText(fill(vi_['sas.theme.status.published.text'], { version: 2 }))).toBeNull();
+
+    await userEvent.click(within(prompt).getByRole('button', { name: vi_['adm.roles.stepUp.confirm.action'] }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(requestStepUp).toHaveBeenCalledTimes(1);
+    expect(commandsOf(h, 'publishSystemTenantTheme')).toHaveLength(2);
+    expect(commandsOf(h, 'publishSystemTenantTheme')[1]).toEqual(expect.objectContaining({ path: { tenantId: TENANT_A }, body: { reviewToken: 't'.repeat(43), baseVersion: 1 } }));
+    expect(screen.getByText(fill(vi_['sas.theme.status.published.text'], { version: 2 }))).toBeTruthy();
+  });
+
+  it('UAT-NFR-SECURITY-02: declining the second factor publishes nothing and leaves the review open', async () => {
+    world.draft = { revision: 2, config: { ...THEME, primary: '#112233' } };
+    const requestStepUp = vi.fn(() => Promise.resolve());
+    const { h } = open({ requestStepUp, command: flow((operation) => (operation === 'publishSystemTenantTheme' ? problem(403, 'MFA_REQUIRED') : undefined)) });
+    await loaded();
+    await userEvent.click(screen.getByRole('button', { name: vi_['sas.theme.review.action'] }));
+    const dialog = await screen.findByRole('dialog');
+    await userEvent.click(await within(dialog).findByRole('checkbox'));
+    await userEvent.click(within(dialog).getByRole('button', { name: vi_['sas.theme.review.apply.confirm'] }));
+    const prompt = await screen.findByRole('alertdialog', { name: vi_['adm.roles.stepUp.title'] });
+    await userEvent.click(within(prompt).getByRole('button', { name: vi_['adm.roles.stepUp.cancel.action'] }));
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+    expect(requestStepUp).not.toHaveBeenCalled();
+    expect(commandsOf(h, 'publishSystemTenantTheme')).toHaveLength(1);
+    expect(screen.getByRole('dialog')).toBeTruthy();
   });
 
   it('asks the screen to reload when the base version moved (VERSION_CONFLICT on publish)', async () => {
