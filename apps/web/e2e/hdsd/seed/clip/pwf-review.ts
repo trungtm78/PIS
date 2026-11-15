@@ -815,11 +815,12 @@ async function scores(ctx: SeedContext): Promise<void> {
       if (asked.ok) await decideBy(ctx, [CHECKER, 'unitAdmin', MAKER], `/staff-score-adjustments/${asked.json.resource_id}/decide`, { decision: 'APPROVE', note: 'Đồng ý theo đề nghị, đã xem biên bản giao ban' }, asked.json.resource_version);
     }
   }
-  // An adjustment that WAITS (R54, the unified approval inbox of the leader): the officer of the project board asks for it on the score of somebody else, the leader decides it. Not the person scored and not the one who asked.
+  // An adjustment that WAITS (R54, the unified approval inbox of the leader): the owner, who reads the scores of the whole tenant, asks for it on the score of somebody else and the leader decides it. Not the person scored and not the one who asked.
+  // The officer of the project board holds no right over the score of another person (R33: the person, the direct manager, the human resources), so it is not theirs to ask.
   const subject = lines.find((line) => line.membership_id !== ctx.person(OWNER).membershipId && line.membership_id !== ctx.person(MAKER).membershipId && line.score_computed !== null && line.score_computed !== undefined);
   if (subject !== undefined) {
     const detail = await ctx.get<Obj>(OWNER, `/staff-score-lines/${str(subject.id)}`);
-    if (arr(detail.adjustments).length === 0) await ctx.attempt<CommandReply>(MAKER, 'POST', `/staff-score-lines/${str(subject.id)}/adjustments`, { points: -2, reason: 'Hồ sơ nộp thiếu một chứng từ phải bổ sung sau khi duyệt, đề nghị trừ điểm theo quy chế chấm điểm', evidence_ref: 'Biên bản kiểm tra hồ sơ tuần 45' });
+    if (arr(detail.adjustments).length === 0) await ctx.attempt<CommandReply>(OWNER, 'POST', `/staff-score-lines/${str(subject.id)}/adjustments`, { points: -2, reason: 'Hồ sơ nộp thiếu một chứng từ phải bổ sung sau khi duyệt, đề nghị trừ điểm theo quy chế chấm điểm', evidence_ref: 'Biên bản kiểm tra hồ sơ tuần 45' });
   }
   // A response of the officer to their own score, handled by the owner.
   if (officer !== undefined) {

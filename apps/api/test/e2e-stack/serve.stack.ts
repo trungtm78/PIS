@@ -1202,6 +1202,12 @@ const DOCS_PEOPLE: DocsPerson[] = JSON.parse(readFileSync(resolve(REPO_ROOT, 'ap
 /** The people who are members of tenant A: everyone but the operator of the platform. */
 const TENANT_PEOPLE = DOCS_PEOPLE.filter((person) => person.plane !== 'control');
 
+/**
+ * The scores of staff are private to three roles (R33, BR-PWF-40): the person scored, the direct manager of the unit of the period and the human resources. An officer of the project board is neither of the last two,
+ * so of the scores the role keeps the person's own only. UAT run 4 (TC-UAT-PWF-13, TC-UAT-PWF-SEC-03, -04, -05): the role held read_unit, read_hr and export over the whole tenant and read every line.
+ */
+const scoreOfOthers = (permission: string): boolean => permission.startsWith('staff_score.') && permission !== 'staff_score.read_own';
+
 /** The roles of a unit made from the permissions the tests use: the staff of the project board do the work, the leader decides, the accountant pays. */
 function docsRoles(): Array<{ n: number; code: string; permissions: string[]; rank: number }> {
   const unique = (roles: ReadonlyArray<{ permissions: readonly string[] }>): string[] => [...new Set(roles.flatMap((role) => role.permissions))];
@@ -1212,7 +1218,7 @@ function docsRoles(): Array<{ n: number; code: string; permissions: string[]; ra
   // A maker asks for a publication of a dashboard (`bi.publish.request`): asking is the officer's step, deciding is the leader's.
   const deciding = (permission: string): boolean => /approve|publish|decide|certify|sign|review|accept|confirm/.test(permission) && permission !== 'bi.publish.request';
   return [
-    { n: 901, code: 'CAN_BO_BAN_QLDA', permissions: everything.filter((permission) => !deciding(permission)), rank: 45 },
+    { n: 901, code: 'CAN_BO_BAN_QLDA', permissions: everything.filter((permission) => !deciding(permission) && !scoreOfOthers(permission)), rank: 45 },
     { n: 902, code: 'LANH_DAO_SO', permissions: everything.filter((permission) => deciding(permission) || permission.endsWith('.read')), rank: 65 },
     // The accountant holds the payment rights. What every member of staff reads about themselves (their tasks, the approvals that wait for them, their notifications, their reminder levels: the parts of "Việc hôm nay") is the system
     // role STAFF_MEMBER, which the staff of this stack receive like the staff of any tenant (lane fix12, R55), so this role carries none of it.

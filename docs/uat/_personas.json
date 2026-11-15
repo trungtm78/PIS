@@ -550,7 +550,7 @@
         "pwf"
       ],
       "fixture_user": "projectManager",
-      "basis": "holds project.read, project.create, project.update, pwf.read and pwf.workflow.manage (role E2E_PROJECT_MANAGER of the stack)"
+      "basis": "holds project.read, project.create, project.update, pwf.read and pwf.workflow.manage (role E2E_PROJECT_MANAGER of the plain stack; CAN_BO_BAN_QLDA of the docs stack the UAT runs on, which holds of staff_score only read_own, R33)"
     },
     "quan-ly-truc-tiep": {
       "modules": [
