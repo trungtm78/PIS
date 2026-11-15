@@ -3,6 +3,8 @@ STATUS: IN_PROGRESS
 
 ## Triển khai 2026-11-15 (chủ sở hữu: 'làm đi', giao toàn quyền): VPS10352 giữ Windows Server 2025; SSH chỉ bằng khóa; tính năng Containers đã bật, máy đã khởi động lại, trang WordPress của Laragon tự lên lại (2 scheduled task Laragon-*). Làn win1: Docker Engine + container Windows (PostgreSQL, API, web/proxy, Keycloak), HTTPS cổng 8443 với tên 180-93-34-176.sslip.io, APK trỏ về server, runbook docs/runbooks/deploy-windows-containers.md. Làn dock1: gói Linux trên runner GitHub (cho server Linux sau này).
 
+## Đã triển khai 2026-11-15 21:40: bản công chạy bằng container Windows trên VPS10352 tại https://180-93-34-176.sslip.io:8443 (6 container, Let's Encrypt, chỉ mở 22/3389/8443; runbook docs/runbooks/deploy-windows-containers.md; tài khoản demo ở C:\ProgramData\MACHVON\secretsdmin trên server; APK thử ở Design/Requirments/apk). Yêu cầu mới của chủ sở hữu: xóa dữ liệu demo cũ, bộ demo mới là tỉnh Cà Mau (tên hệ thống giữ nguyên), tài khoản demo đủ quyền, UAT ngay trên bản demo production (làn camau1). Chưa đạt: createProject chờ master-baseline-sync; sao lưu chưa thử khôi phục.
+
 ## Quyết định 2026-11-15 (chủ sở hữu): triển khai PHẢI bằng Docker (gói on-prem). Máy phát triển không có Docker/WSL (cần quyền quản trị + khởi động lại, việc của chủ máy), nên gói được chạy thật trên runner Linux của GitHub Actions (làn dock1: workflow dựng image, compose up, install.sh, kiểm sức khỏe, tạo tenant đầu tiên, rollback).
 
 # PROGRESS
