@@ -1,4 +1,12 @@
-STATUS: IN_PROGRESS
+STATUS: BLOCKED
+
+
+## Blocker (2026-11-15 18:10)
+
+1. Vấn đề chính xác: mã web đã xanh trên máy (e2e bản công 967 đạt, 53 đỏ đều là ảnh nền visual.spec.ts chờ chủ sở hữu duyệt; build hai bản, typecheck, lint, architecture, i18n đạt; main d5d782038), nhưng KHÔNG có đường triển khai nào lên server đã được chạy thật: gói on-prem (infra/onprem: onprem-bundle build, install.sh, compose, Dockerfile, nginx, nhập realm Keycloak) chỉ qua kiểm tĩnh vì máy này không có Docker; bản production bắt buộc Keycloak + LDAPS + hai kho S3 và chưa có đăng nhập control-plane trên web để tạo tenant đầu tiên (docs/runbooks/deploy-web-quickstart.md mục 9). UAT lượt bốn vẫn NO-GO (bản công 1148/8/43 theo lần chạy lại, doanh nghiệp 1480/7/60); phần còn lại là ca cần hạ tầng thật, tính năng chưa có hoặc lệch mã lỗi cần chủ nghiệp vụ quyết (docs/uat/LANE-uatcase2.md).
+2. Đã thử: (a) kiểm tĩnh và unit test của gói on-prem (infra:check đạt) — không chứng minh được gói chạy; (b) chạy từ mã nguồn bằng stack phát triển (e2e stack, phiên ?devUser=) — chạy tốt nhưng không phải cấu hình production (không có xác thực thật), chỉ hợp cho demo như lượt 2026-11-10 (scripts/demo-enterprise.mjs); (c) bốn lượt UAT + năm đợt viết kịch bản — độ phủ đạt 96% nhưng G2/G13 không thể đạt bằng máy.
+3. Đề xuất: nếu server là để DEMO/duyệt nội bộ: triển khai từ mã nguồn bằng trình khởi chạy demo (làm thêm bản cho 'Hệ thống quản lý đầu tư công' từ scripts/demo-enterprise.mjs), xong trong ngày. Nếu là server PRODUCTION: cần một máy có Docker để chạy thử gói on-prem trước, kèm Keycloak/LDAPS/S3 của bên vận hành.
+4. Câu hỏi đóng: Server sắp deploy là (A) server demo/duyệt nội bộ, chạy từ mã nguồn với đăng nhập phát triển, hay (B) server production có Docker + Keycloak thật?
 
 # PROGRESS
 
