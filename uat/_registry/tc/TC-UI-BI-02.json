@@ -45,9 +45,18 @@
       "reason": "khong-co-kich-ban",
       "repro": null,
       "duration_ms": 0
+    },
+    {
+      "run_id": "uat-2026-11-16-production-demo",
+      "at": "2026-11-16T06:54:12+07:00",
+      "build": "894ab209f6",
+      "status": "FAIL",
+      "reason": "failed",
+      "repro": "2/2",
+      "duration_ms": 3760
     }
   ],
   "flake_rate": 0.0,
-  "fail_runs": 0,
+  "fail_runs": 1,
   "untrusted": false
 }
