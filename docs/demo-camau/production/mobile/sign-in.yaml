@@ -1,0 +1,23 @@
+# Signs a demo account in on the phone, on the demo installation (the page of the realm in Vietnamese, one factor): maestro test -e IDP_USER=... -e IDP_PASSWORD=... sign-in.yaml
+# Never commit values: the accounts are handed over outside the repository.
+appId: vn.machvon.app
+---
+# The data of the app is cleared and its language set to Vietnamese before this flow: adb shell pm clear vn.machvon.app ; adb shell cmd locale set-app-locales vn.machvon.app --locales vi-VN
+- launchApp
+- tapOn: 'Đăng nhập bằng SSO'
+- extendedWaitUntil:
+    visible:
+      id: username
+    timeout: 40000
+- tapOn:
+    id: username
+- inputText: ${IDP_USER}
+- tapOn:
+    id: password
+- inputText: ${IDP_PASSWORD}
+- hideKeyboard
+- tapOn:
+    id: kc-login
+- extendedWaitUntil:
+    visible: 'Trang chủ'
+    timeout: 60000

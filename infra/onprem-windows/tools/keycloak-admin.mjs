@@ -150,7 +150,21 @@ export class KeycloakAdmin {
         if ((page ?? []).length < 100) break;
       }
     }
-    return { requirement, defaultAction: required, released };
+    // The clients of the product ask for the level of the second factor (`default.acr.values`, `minimum.acr.value`: aal2). With one factor nobody can reach that level:
+    // a browser that already holds a session of the realm (a page loaded anew, a second tab) would be shown "the user name or the password is wrong" before typing
+    // anything, because the session it has is of level 1 and the step that raises it is switched off. The clients then ask for the level that exists (aal1), and are
+    // given their level back with the second factor.
+    const level = required ? 'aal2' : 'aal1';
+    let clients = 0;
+    const { body: listed } = await this.call('GET', '/clients?max=500');
+    for (const client of listed ?? []) {
+      const attributes = client.attributes ?? {};
+      const names = ['default.acr.values', 'minimum.acr.value'].filter((name) => attributes[name] !== undefined && attributes[name] !== '' && attributes[name] !== level);
+      if (names.length === 0) continue;
+      await this.call('PUT', `/clients/${client.id}`, { ...client, attributes: { ...attributes, ...Object.fromEntries(names.map((name) => [name, level])) } });
+      clients += 1;
+    }
+    return { requirement, defaultAction: required, released, clients, level };
   }
 
   /** Sets the password of a person of the realm (not temporary); the other credentials of the person are kept. */

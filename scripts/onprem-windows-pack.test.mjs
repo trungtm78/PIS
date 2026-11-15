@@ -316,8 +316,11 @@ test('keycloak-admin writes the presentation of the release into the running rea
 test('keycloak-admin single-factor on stops the browser flow after the password and releases the pending enrolments; off restores the second factor', async () => {
   const executions = '/idp/admin/realms/machvon/authentication/flows/machvon%20browser%20forms/executions';
   const action = '/idp/admin/realms/machvon/authentication/required-actions/CONFIGURE_TOTP';
-  const answers = (requirement, defaultAction) => ({
+  const client = (level) => ({ id: 'c1', clientId: 'machvon-web', attributes: { 'pkce.code.challenge.method': 'S256', 'default.acr.values': level, 'minimum.acr.value': level } });
+  const answers = (requirement, defaultAction, level = defaultAction ? 'aal2' : 'aal1') => ({
     ...TOKEN,
+    'GET /idp/admin/realms/machvon/clients?max=500': { status: 200, body: [client(level), { id: 'c2', clientId: 'account', attributes: {} }] },
+    'PUT /idp/admin/realms/machvon/clients/c1': { status: 204 },
     [`GET ${executions}`]: { status: 200, body: [{ id: 'e1', displayName: 'machvon level 1', level: 0, requirement: 'CONDITIONAL' }, { id: 'e2', displayName: SECOND_FACTOR.step, level: 0, requirement, authenticationFlow: true }, { id: 'e3', displayName: SECOND_FACTOR.step, level: 1, requirement: 'REQUIRED' }] },
     [`PUT ${executions}`]: { status: 202 },
     [`GET ${action}`]: { status: 200, body: { alias: 'CONFIGURE_TOTP', enabled: true, defaultAction, priority: 10 } },
@@ -333,6 +336,8 @@ test('keycloak-admin single-factor on stops the browser flow after the password 
     [`PUT ${executions}`, { id: 'e2', displayName: SECOND_FACTOR.step, level: 0, requirement: 'DISABLED', authenticationFlow: true }],
     [`PUT ${action}`, { alias: 'CONFIGURE_TOTP', enabled: true, defaultAction: false, priority: 10 }],
     ['PUT /idp/admin/realms/machvon/users/u1', { id: 'u1', username: 'a', requiredActions: ['UPDATE_PROFILE'] }],
+    // The clients ask for the level that exists with one factor: a browser that already holds a session of the realm is not refused.
+    ['PUT /idp/admin/realms/machvon/clients/c1', client('aal1')],
   ]);
   assert.match(lines[0], /DEMONSTRATION MODE, one factor.*DISABLED; 1 pending/);
 
@@ -341,6 +346,7 @@ test('keycloak-admin single-factor on stops the browser flow after the password 
   assert.deepEqual(puts(off), [
     [`PUT ${executions}`, { id: 'e2', displayName: SECOND_FACTOR.step, level: 0, requirement: 'CONDITIONAL', authenticationFlow: true }],
     [`PUT ${action}`, { alias: 'CONFIGURE_TOTP', enabled: true, defaultAction: true, priority: 10 }],
+    ['PUT /idp/admin/realms/machvon/clients/c1', client('aal2')],
   ]);
   // No person is read or changed on the way back, and a realm that is already as asked is not written at all.
   assert.ok(!off.calls.some((call) => call.key.includes('/users')));

@@ -11,14 +11,8 @@ export async function signIn(page, origin, account, { timeout = 90_000 } = {}) {
   await Promise.all([page.waitForURL((url) => url.origin === origin && !url.pathname.startsWith('/idp/'), { timeout }), page.locator('#kc-login').click()]);
   await page.waitForLoadState('networkidle', { timeout });
   const otpAsked = (await page.locator('input[name="otp"]').count()) > 0;
-  // A person who belongs to one organisation is still asked to choose it on this release.
-  let choseOrganization = false;
-  const choose = page.getByRole('button', { name: /Chọn tổ chức|Vào tổ chức|Chọn/u }).first();
-  if (/\/iam\//u.test(new URL(page.url()).pathname) && (await choose.count()) > 0) {
-    await choose.click();
-    await page.waitForLoadState('networkidle', { timeout });
-    choseOrganization = true;
-  }
+  // A person who belongs to one organisation lands on the home screen without choosing it (from release 1.0.5).
+  const choseOrganization = false;
   await page.waitForTimeout(1500);
   return { otpAsked, choseOrganization, path: new URL(page.url()).pathname };
 }
@@ -35,9 +29,6 @@ export async function openScreen(page, origin, path, screenId, { timeout = 60_00
   if (await gate.isVisible().catch(() => false)) {
     await gate.click();
     await page.waitForURL((url) => url.origin === origin && !url.pathname.startsWith('/idp/') && url.pathname !== '/auth/callback', { timeout });
-    const choose = page.getByRole('button', { name: /Chọn tổ chức|Vào tổ chức|Chọn/u }).first();
-    await screen.or(choose).first().waitFor({ timeout }).catch(() => undefined);
-    if (!(await screen.isVisible().catch(() => false)) && (await choose.isVisible().catch(() => false))) await choose.click();
   }
   const shown = await screen.waitFor({ timeout }).then(() => true, () => false);
   await page.waitForLoadState('networkidle', { timeout }).catch(() => undefined);
