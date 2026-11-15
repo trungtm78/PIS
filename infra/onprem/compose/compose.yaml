@@ -246,6 +246,8 @@ services:
     read_only: true
     tmpfs:
       - /tmp:size=64m,mode=1777
+      # The cache of the native addon of the TypeScript loader (SWC_NATIVE_BINDING_CACHE of the image): written and executed at every start, by the service user only.
+      - /app/.swc-native:size=256m,mode=0700,uid=1000,gid=1000,exec
     volumes:
       - invitations:/var/lib/machvon/invitations
     environment:
@@ -280,6 +282,8 @@ services:
     read_only: true
     tmpfs:
       - /tmp:size=64m,mode=1777
+      # The cache of the native addon of the TypeScript loader (SWC_NATIVE_BINDING_CACHE of the image): written and executed at every start, by the service user only.
+      - /app/.swc-native:size=256m,mode=0700,uid=1000,gid=1000,exec
     volumes:
       - invitations:/var/lib/machvon/invitations
     environment:
