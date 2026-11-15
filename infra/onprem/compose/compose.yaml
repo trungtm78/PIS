@@ -166,6 +166,8 @@ services:
       KC_HTTP_ENABLED: "true"
       KC_HTTP_RELATIVE_PATH: /idp
       KC_PROXY_HEADERS: xforwarded
+      # One Keycloak on one host: no cluster to discover. With the clustered default a recreated container waits twenty seconds for the member it replaced before it starts alone.
+      KC_CACHE: local
       KC_TRUSTSTORE_PATHS: /run/secrets/ldap_ca_cert
       REALM_NAME: ${OIDC_REALM}
       WEBAUTHN_RP_ID: ${PUBLIC_HOST}

@@ -38,6 +38,7 @@ const saveState = () => writeFileSync(options.state, JSON.stringify(state, null,
 const failures = [];
 const say = (line) => console.log(line);
 async function check(name, run) {
+  const started = Date.now();
   try {
     const note = await run();
     say(`PASS ${name}${note === undefined ? '' : `: ${note}`}`);
@@ -45,6 +46,11 @@ async function check(name, run) {
   } catch (error) {
     failures.push(name);
     say(`FAIL ${name}: ${String(error?.message ?? error).slice(0, 1200)}`);
+    // What the services said while the check ran: the reason of a refused sign-in or request is in their logs, and a later step may recreate the containers.
+    for (const service of ['keycloak', 'api', 'workers']) {
+      const lines = compose(['logs', '--no-color', '--no-log-prefix', '--since', `${Math.ceil((Date.now() - started) / 1000) + 2}s`, service]).stdout.split('\n').filter((line) => /WARN|ERROR|error|Error/.test(line)).slice(-6);
+      for (const line of lines) say(`  log of ${service}: ${line.slice(0, 500)}`);
+    }
     return false;
   }
 }
@@ -159,12 +165,14 @@ async function stackChecks() {
   });
 }
 
-const KCADM = ['exec', '-T', '-e', 'KC_CLI_PASSWORD', 'keycloak', '/opt/keycloak/bin/kcadm.sh'];
-const kc = (args) => compose([...KCADM, ...args, '--config', '/tmp/kcadm.config'], { env: { KC_CLI_PASSWORD: readFileSync(join(SECRETS_DIR, 'keycloak_admin_password'), 'utf8').trim() } });
+// kcadm reads a password it is not given as an option from KC_CLI_PASSWORD: the password of the administrator at the sign-in, the new password of a person at set-password.
+// No password is ever an argument of a process. Every other call runs without the variable.
+const kc = (args, password) =>
+  compose(['exec', '-T', ...(password === undefined ? [] : ['-e', 'KC_CLI_PASSWORD']), 'keycloak', '/opt/keycloak/bin/kcadm.sh', ...args, '--config', '/tmp/kcadm.config'], password === undefined ? {} : { env: { KC_CLI_PASSWORD: password } });
 
 async function identityAdministration() {
   const signedIn = await check('identity: the administration is reached from the host only, inside the container (kcadm), with the first administrator', () => {
-    ok(kc(['config', 'credentials', '--server', 'http://127.0.0.1:8080/idp', '--realm', 'master', '--user', setting('KEYCLOAK_ADMIN_USER')]), 'kcadm config credentials');
+    ok(kc(['config', 'credentials', '--server', 'http://127.0.0.1:8080/idp', '--realm', 'master', '--user', setting('KEYCLOAK_ADMIN_USER')], readFileSync(join(SECRETS_DIR, 'keycloak_admin_password'), 'utf8').trim()), 'kcadm config credentials');
   });
   if (!signedIn) return false;
   await check('identity: the realm was imported whole, with no placeholder left unresolved', () => {
@@ -202,7 +210,12 @@ function ensureUser(name, { email, role }) {
   const user = state.users[name];
   const created = kc(['create', 'users', '-r', REALM, '-s', `username=${name}`, '-s', 'enabled=true', '-s', `email=${email}`, '-s', 'emailVerified=true', '-s', 'firstName=Smoke', '-s', `lastName=${name}`]);
   expect(created.status === 0 || /exists/i.test(created.stderr), `creating ${name}: ${created.stderr.trim()}`);
-  ok(kc(['set-password', '-r', REALM, '--username', name, '--new-password', user.password]), `the password of ${name}`);
+  ok(kc(['set-password', '-r', REALM, '--username', name], user.password), `the password of ${name}`);
+  const stored = JSON.parse(ok(kc(['get', 'users', '-r', REALM, '-q', `username=${name}`, '-q', 'exact=true']), `reading ${name}`))[0];
+  expect(stored?.enabled === true && stored.emailVerified === true, `${name} is not an enabled person with a verified e-mail`);
+  const credentials = JSON.parse(ok(kc(['get', `users/${stored.id}/credentials`, '-r', REALM]), `the credentials of ${name}`)).map((credential) => credential.type);
+  say(`  ${name}: required actions [${(stored.requiredActions ?? []).join(',')}], credentials [${credentials.join(',')}], federation link ${stored.federationLink ?? 'none'}`);
+  expect(credentials.includes('password'), `${name} has no password credential`);
   if (role !== undefined) ok(kc(['add-roles', '-r', REALM, '--uusername', name, '--rolename', role]), `the role of ${name}`);
   saveState();
   return user;
