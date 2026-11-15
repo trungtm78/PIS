@@ -268,9 +268,9 @@
         "T-PWF-16"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "WEB-E2E",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/pwf-workflow-store.test.ts",
+        "note": "Đo ở tầng cơ sở dữ liệu (store của lệnh adoptProjectWorkflow, PostgreSQL thật): chạy thử không ghi gì, áp dụng là một giao dịch, việc NOT_TRACKED đóng và không có đồng hồ, việc đang dở giữ ngày bắt đầu thực và thời lượng còn lại, việc NOT_TRACKED không vào KPI hay điểm người. Màn PWF-05 không được điều khiển trong kịch bản này (hợp đồng màn hình: TC-UI-PWF-05)."
       }
     },
     {

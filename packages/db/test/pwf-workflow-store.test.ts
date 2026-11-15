@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { pwfSchedule, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
+import { pwfKpi, pwfSchedule, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
 import { BASELINE_PACK, applyBaseline } from '../src/master-baseline';
 import { GovernanceRuleStore } from '../src/governance-rule-store';
 import { PrjAppraisalStore } from '../src/prj-appraisal-store';
@@ -9,6 +9,8 @@ import { PrjStageStore } from '../src/prj-stage-store';
 import type { ProjectLessonsPort } from '../src/prj-stage-store';
 import { SqlProjectWorkflowGate } from '../src/pwf-gate';
 import { PwfDeadlineReads } from '../src/pwf-deadline-reads';
+import { PwfKpiStore } from '../src/pwf-kpi-store';
+import { PwfScoreStore } from '../src/pwf-score-store';
 import { PwfRescheduleStore } from '../src/pwf-reschedule-store';
 import { pinPublishedCalendars } from '../src/pwf-schedule-support';
 import { PwfTaskReads } from '../src/pwf-task-reads';
@@ -361,6 +363,118 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       // A done task needs the evidence of its types.
       const q = await project({ status: 'IMPLEMENTATION' });
       expect(await refusal(adopt(q.id, { pastTasks: [{ taskCode: 'TA', treatment: 'DONE', evidence: [] }, { taskCode: 'MS_A', treatment: 'NOT_TRACKED' }] }, false))).toMatchObject({ code: 'PWF_ADOPT_INVALID', status: 422 });
+    });
+    it('UAT-PWF-04: a running project is taken in with an effective date: the dry run writes nothing, the apply is all or nothing, a task not tracked is closed with no clock, the task under way keeps its real start and what is left of it, and the task not tracked is in no KPI and in no score of a person', async () => {
+      const EFFECTIVE = `${YEAR}-11-09`;
+      const AT = new Date(`${YEAR}-11-12T03:00:00Z`);
+      const flow = {
+        name: 'Adoption flow',
+        phases: [{ code: 'P1', name: 'Phase one', gates: [] }],
+        tasks: [
+          { code: 'P_OLD', name: 'Past task one', phase: 'P1', kind: 'TASK', duration_working_days: 3, required: true, responsible_role: 'WORKER_ROLE', priority: 'NORMAL', predecessors: [], legal_doc_types: [], form_templates: [], checklist: [], kpi_codes: [], when: [] },
+          {
+            code: 'P_DONE', name: 'Past task two', phase: 'P1', kind: 'TASK', duration_working_days: 3, required: true, responsible_role: 'WORKER_ROLE', priority: 'NORMAL', predecessors: [{ task: 'P_OLD', kind: 'FS', lag_working_days: 0 }],
+            legal_doc_types: ['FEASIBILITY_REPORT'], form_templates: [], checklist: [], kpi_codes: [], when: [],
+          },
+          { code: 'P_NOW', name: 'Task under way', phase: 'P1', kind: 'TASK', duration_working_days: 10, required: true, responsible_role: 'WORKER_ROLE', priority: 'NORMAL', predecessors: [{ task: 'P_DONE', kind: 'FS', lag_working_days: 0 }], legal_doc_types: [], form_templates: [], checklist: [], kpi_codes: [], when: [] },
+        ],
+      };
+      const rule = (type: string, code: string, params: unknown): Promise<unknown> =>
+        owner(
+          `insert into machvon.governance_rule (tenant_id, rule_type, code, version, status, params, effective_from, reason, created_by, submitted_by, submitted_at, approved_by, approved_at)
+           values ($1, $2, $3, 1, 'APPROVED', $4::jsonb, date '2020-01-01', 'A rule for the adoption case', $5, $6, now(), $7, now())`,
+          [TENANT_A, type, code, JSON.stringify(params), memberId(MANAGER), memberId(WORKER), memberId(CHECKER)],
+        );
+      await rule('PROJECT_WORKFLOW_TEMPLATE', 'ADOPT04', flow);
+      await rule('STAFF_SCORING_POLICY', 'ADOPT04POL', { ...pwfKpi.DEFAULT_STAFF_SCORING_PARAMS, min_rated_tasks: 1, min_effective_weight: 0.5 });
+      const wide = <R extends object>(sql: string, params: unknown[] = []): Promise<R[]> => harness.owner<R>(TENANT_A, [["select set_config('app.scope_units', '*', false)"], [sql, params]]);
+      const p = await project({ status: 'IMPLEMENTATION' });
+      const take = (over: Record<string, unknown>, dryRun: boolean) =>
+        as((tx) => workflows.adopt(tx, { projectId: p.id, templateCode: 'ADOPT04', plannedStartDate: `${YEAR}-10-01`, effectiveDate: EFFECTIVE, dryRun, facts: { project_group: 'B' }, actor: memberId(MANAGER), scopes, now: AT, ...over } as never));
+      const written = async (): Promise<number[]> => [
+        (await owner('select 1 from machvon.project_workflow where project_id = $1::uuid', [p.id])).length,
+        (await owner('select 1 from machvon.project_task where project_id = $1::uuid', [p.id])).length,
+      ];
+
+      // Step 1 to 3: the dry run answers the plan and names every task that ended before the effective date; nothing is written, with or without the decisions.
+      const preview = await take({}, true);
+      expect(preview).toMatchObject({ dryRun: true, applied: false, workflow: null, effectiveDate: EFFECTIVE });
+      expect(preview.tasks.filter((one) => one.needsDecision).map((one) => one.taskCode)).toEqual(['P_OLD', 'P_DONE', 'P_NOW']);
+      expect(await written()).toEqual([0, 0]);
+      const paper = await document();
+      const underWay = { taskCode: 'P_NOW', actualStart: `${YEAR}-11-03`, remainingWorkingDays: 4 };
+      const decisions = {
+        pastTasks: [
+          { taskCode: 'P_OLD', treatment: 'NOT_TRACKED' },
+          { taskCode: 'P_DONE', treatment: 'DONE', actualStart: `${YEAR}-10-06`, actualFinish: `${YEAR}-10-08`, evidence: [{ evidenceKind: 'DOCUMENT', documentId: paper, legalDocType: 'FEASIBILITY_REPORT' }] },
+        ],
+        inProgressTasks: [underWay],
+      };
+      // What is left of the task under way is laid from the effective date on the working calendar (Monday to Friday, no holiday): it ends on its fourth working day.
+      const lastDay = new Date(`${EFFECTIVE}T00:00:00Z`);
+      for (let left = underWay.remainingWorkingDays; ; lastDay.setUTCDate(lastDay.getUTCDate() + 1)) {
+        if (lastDay.getUTCDay() !== 0 && lastDay.getUTCDay() !== 6) left -= 1;
+        if (left === 0) break;
+      }
+      const finishOfRest = lastDay.toISOString().slice(0, 10);
+      const read = await take(decisions, true);
+      expect(read).toMatchObject({ dryRun: true, applied: false, workflow: null, findings: [] });
+      expect(read.tasks.map((one) => [one.taskCode, one.treatment, one.needsDecision])).toEqual([['P_OLD', 'NOT_TRACKED', false], ['P_DONE', 'DONE', false], ['P_NOW', 'IN_PROGRESS', false]]);
+      expect(read.tasks.find((one) => one.taskCode === 'P_NOW')).toMatchObject({ plannedStart: underWay.actualStart, plannedFinish: finishOfRest });
+      expect(await written()).toEqual([0, 0]);
+
+      // Step 4: the apply is one transaction. One decision that cannot stand (done without its evidence) and nothing at all is written.
+      const flawed = { ...decisions, pastTasks: [decisions.pastTasks[0], { taskCode: 'P_DONE', treatment: 'DONE', evidence: [] }] };
+      expect(await refusal(take(flawed, false))).toMatchObject({ code: 'PWF_ADOPT_INVALID', status: 422 });
+      expect(await written()).toEqual([0, 0]);
+      const applied = await take(decisions, false);
+      expect(applied).toMatchObject({ dryRun: false, applied: true });
+      expect(await written()).toEqual([1, 3]);
+      const id = applied.workflow?.id as string;
+      expect(await owner('select adopted_on::text as adopted_on from machvon.project_workflow where id = $1::uuid', [id])).toEqual([{ adopted_on: EFFECTIVE }]);
+      expect(await owner('select kind from machvon.project_schedule_version where workflow_id = $1::uuid', [id])).toEqual([{ kind: 'ADOPTION' }]);
+
+      // The task not tracked is closed for good and has no clock: it is not on the deadline board, and nobody can work on it.
+      const old = await taskOf(id, 'P_OLD');
+      expect(old).toMatchObject({ status: 'DONE', tracked: false, remaining_working_days: null });
+      expect(await refusal(as((tx) => tasks.start(tx, { taskId: old.id as string, expectedVersion: Number(old.version), actor: memberId(WORKER), scopes, today: EFFECTIVE }), WORKER))).toMatchObject({ status: 409 });
+      const board = ((await as((tx) => deadlines.board(tx, everything, { projectId: p.id }, { limit: 50 }, AT))) as { items: Array<{ task_code: string; due_date: string }> }).items;
+      expect(board.map((one) => [one.task_code, one.due_date])).toEqual([['P_NOW', finishOfRest]]);
+      // The task taken in as done keeps its real days; the task under way keeps its real start and what is left of it.
+      expect(await taskOf(id, 'P_DONE')).toMatchObject({ status: 'DONE', tracked: true, actual_start: `${YEAR}-10-06`, actual_finish: `${YEAR}-10-08` });
+      expect(await taskOf(id, 'P_NOW')).toMatchObject({ status: 'IN_PROGRESS', tracked: true, actual_start: underWay.actualStart, remaining_working_days: 4, planned_finish: finishOfRest, actual_finish: null });
+
+      // Step 5: the period that holds the effective date. The same person held the three tasks.
+      const idOf = async (code: string): Promise<string> => (await taskOf(id, code)).id as string;
+      for (const code of ['P_OLD', 'P_DONE', 'P_NOW']) {
+        await owner(
+          `insert into machvon.project_task_assignment (tenant_id, task_id, membership_id, role, valid_from, valid_to, share_pct, reason, assigned_by) values ($1, $2::uuid, $3::uuid, 'RESPONSIBLE', '2020-01-01', null, 100, 'Held for the case', $4::uuid)`,
+          [TENANT_A, await idOf(code), memberId(WORKER), memberId(MANAGER)],
+        );
+      }
+      const kpis = new PwfKpiStore();
+      const pending = await as((tx) => kpis.pendingTaskIds(tx, 1000));
+      expect(pending).toContain(await idOf('P_DONE'));
+      expect(pending).not.toContain(await idOf('P_OLD'));
+      await as((tx) => kpis.record(tx, pending, AT));
+      const resultsOf = async (code: string): Promise<number> => (await wide('select 1 from machvon.task_kpi_result where task_id = $1::uuid', [await idOf(code)])).length;
+      expect(await resultsOf('P_DONE')).toBeGreaterThan(0);
+      expect(await resultsOf('P_OLD')).toBe(0);
+
+      const quarter = { scopeUnitId: unitId(DEPARTMENT), periodFrom: `${YEAR}-10-01`, periodTo: `${YEAR}-12-31`, policyCode: 'ADOPT04POL', actor: memberId(MANAGER), units: '*', now: AT };
+      const partsOf = async (periodId: string): Promise<{ scored: string[]; excluded: string[] }> => {
+        const [line] = await wide<{ excluded: Array<{ task_code: string; reason: string }>; contributions: Array<{ task_code: string }> }>(
+          'select excluded, contributions from machvon.staff_score_line where period_id = $1::uuid and membership_id = $2::uuid',
+          [periodId, memberId(WORKER)],
+        );
+        return { scored: (line?.contributions ?? []).map((one) => one.task_code).sort(), excluded: (line?.excluded ?? []).map((one) => `${one.task_code}:${one.reason}`).sort() };
+      };
+      const computed = await as((tx) => new PwfScoreStore().compute(tx, quarter));
+      expect(await partsOf(computed.period.id)).toEqual({ scored: ['P_DONE'], excluded: ['P_NOW:NOT_DUE'] });
+      // The check can go red: the very same task, once it is tracked, is read into the score of the person. So it was the adoption that kept it out.
+      await owner('update machvon.project_task set tracked = true where id = $1::uuid', [await idOf('P_OLD')]);
+      const control = await as((tx) => new PwfScoreStore().compute(tx, quarter));
+      expect((await partsOf(control.period.id)).scored).toEqual(['P_DONE', 'P_OLD']);
     });
   });
 
