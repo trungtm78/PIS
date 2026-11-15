@@ -87,7 +87,7 @@ export async function signIn({ authUrl, redirectUri, username, password, secrets
     const oneTime = forms.find((form) => 'otp' in form.inputs);
     if (credentials !== undefined) {
       if (step > 1) throw new Error(`the sign-in form came back: ${pageSummary(html)}`);
-      log(`page: user name and password (${credentials.id})`);
+      log(`page: user name and password (${credentials.id}; fields ${Object.keys(credentials.inputs).join(',')}; cookies ${[...jar.keys()].join(',')})`);
       current = credentials.action;
       response = await request(credentials.action, { ...credentials.inputs, username, password });
     } else if (enrolment !== undefined) {

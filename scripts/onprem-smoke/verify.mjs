@@ -205,7 +205,7 @@ async function identityAdministration() {
   return true;
 }
 
-function ensureUser(name, { email, role }) {
+async function ensureUser(name, { email, role }) {
   if (state.users[name] === undefined) state.users[name] = { username: name, email, password: `Smoke-${randomBytes(12).toString('base64url')}` };
   const user = state.users[name];
   const created = kc(['create', 'users', '-r', REALM, '-s', `username=${name}`, '-s', 'enabled=true', '-s', `email=${email}`, '-s', 'emailVerified=true', '-s', 'firstName=Smoke', '-s', `lastName=${name}`]);
@@ -216,6 +216,11 @@ function ensureUser(name, { email, role }) {
   const credentials = JSON.parse(ok(kc(['get', `users/${stored.id}/credentials`, '-r', REALM]), `the credentials of ${name}`)).map((credential) => credential.type);
   say(`  ${name}: required actions [${(stored.requiredActions ?? []).join(',')}], credentials [${credentials.join(',')}], federation link ${stored.federationLink ?? 'none'}`);
   expect(credentials.includes('password'), `${name} has no password credential`);
+  // The password is the one this run knows: the built-in command line client of the realm takes it, and stops only at the second factor the person has not enrolled yet.
+  const probe = await fetch(`${ISSUER}/protocol/openid-connect/token`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'password', client_id: 'admin-cli', username: name, password: user.password }).toString() });
+  const answer = await probe.json().catch(() => ({}));
+  say(`  ${name}: password probe ${probe.status} ${answer.error ?? ''} ${answer.error_description ?? ''}`);
+  expect(probe.status === 200 || answer.error_description === 'Account is not fully set up', `the password of ${name} is not accepted: ${answer.error_description}`);
   if (role !== undefined) ok(kc(['add-roles', '-r', REALM, '--uusername', name, '--rolename', role]), `the role of ${name}`);
   saveState();
   return user;
@@ -236,9 +241,9 @@ const api = (path, { token, method = 'GET', body, key } = {}) =>
 async function firstTenantChecks() {
   let admin;
   let owner;
-  const users = await check('identity: test people are created by the administrator (a system administrator and the future owner of the tenant)', () => {
-    admin = ensureUser('smoke-sysadmin', { email: 'sysadmin@smoke.test', role: 'SystemAdmin' });
-    owner = ensureUser('smoke-owner', { email: 'owner@smoke.test' });
+  const users = await check('identity: test people are created by the administrator (a system administrator and the future owner of the tenant)', async () => {
+    admin = await ensureUser('smoke-sysadmin', { email: 'sysadmin@smoke.test', role: 'SystemAdmin' });
+    owner = await ensureUser('smoke-owner', { email: 'owner@smoke.test' });
   });
   if (!users) return;
 
