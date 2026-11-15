@@ -19,7 +19,7 @@ LABEL org.opencontainers.image.title="machvon-api-windows" `
       org.opencontainers.image.description="MACHVON api and workers for Windows containers"
 COPY --from=node C:\node C:\node
 COPY api/app C:\app
-COPY infra/onprem-windows/docker/secret-env.mjs infra/onprem-windows/docker/secret-files.mjs infra/onprem-windows/docker/link-workspaces.mjs C:\app\
+COPY infra/onprem-windows/docker/secret-env.mjs infra/onprem-windows/docker/secret-files.mjs infra/onprem-windows/docker/link-workspaces.mjs C:/app/
 COPY tools C:\app\tools
 ENV NODE_ENV=production `
     PORT=3000 `

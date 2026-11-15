@@ -1,5 +1,6 @@
 STATUS: IN_PROGRESS
 
+## Demo Cà Mau 2026-11-15 (đêm): server chạy bản 1.0.2 (trang đăng nhập tiếng Việt nền mới, tắt 2FA cho demo theo yêu cầu chủ sở hữu, mật khẩu chung cho 10 tài khoản demo). Tệp Excel gửi khách đã soát nội dung (4 trang: Truy cập, Tài khoản, Quyền theo vai, Kịch bản xem thử) ở Design/Requirments/demo-account (không commit). Làn camau1 còn chạy: xóa dữ liệu cũ, nạp bộ Cà Mau lên server, kiểm 10 tài khoản, UAT trên bản demo production, APK mới, sửa trang lỗi cookie cũ và tiếng Việt mặc định của trang đăng nhập. CI Security đỏ do Trivy DS-0011 ở 3 Dockerfile Windows (đường dẫn COPY kết thúc bằng dấu \): đã đổi sang dấu /.
 
 ## Triển khai 2026-11-15 (chủ sở hữu: 'làm đi', giao toàn quyền): VPS10352 giữ Windows Server 2025; SSH chỉ bằng khóa; tính năng Containers đã bật, máy đã khởi động lại, trang WordPress của Laragon tự lên lại (2 scheduled task Laragon-*). Làn win1: Docker Engine + container Windows (PostgreSQL, API, web/proxy, Keycloak), HTTPS cổng 8443 với tên 180-93-34-176.sslip.io, APK trỏ về server, runbook docs/runbooks/deploy-windows-containers.md. Làn dock1: gói Linux trên runner GitHub (cho server Linux sau này).
 

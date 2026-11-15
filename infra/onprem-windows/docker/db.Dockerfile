@@ -40,7 +40,7 @@ FROM mcr.microsoft.com/windows/nanoserver:${WINDOWS_TAG}
 LABEL org.opencontainers.image.title="machvon-db-windows" `
       org.opencontainers.image.description="PostgreSQL 18 with pgvector for Windows containers"
 COPY --from=build C:\pgsql C:\pgsql
-COPY db-entrypoint.cmd db-init.sql C:\pgsql\machvon\
+COPY db-entrypoint.cmd db-init.sql C:/pgsql/machvon/
 ENV PGDATA=C:\pgdata\data
 USER ContainerUser
 EXPOSE 5432
