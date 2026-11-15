@@ -241,12 +241,15 @@ export async function main(argv, { env = process.env, log = (line) => process.st
       const root = (units.items ?? []).find((unit) => unit.parent_id === null || unit.parent_id === undefined) ?? (units.items ?? [])[0];
       if (root === undefined) throw new SetupError('the tenant has no unit');
       const roles = await answerOf(await api('/resources/role_definition?limit=200', { token }), 'reading the roles');
+      // The base role of every person (their own profile, the theme, the synchronisation of the mobile application): the named role does not carry it.
+      const memberRole = (roles.items ?? []).find((entry) => entry.code === 'MEMBER');
+      const base = memberRole === undefined ? [] : [{ role_id: memberRole.id, scope_kind: 'TENANT' }];
       for (const member of waiting) {
         const role = (roles.items ?? []).find((entry) => entry.code === member.role);
         if (role === undefined) throw new SetupError(`the tenant has no role ${member.role} (it has: ${(roles.items ?? []).map((entry) => entry.code).join(', ')})`);
         if (state.people[member.username].invited !== true) {
           await answerOf(
-            await api('/memberships/invitations', { method: 'POST', token, key: randomUUID(), body: { email: member.email, display_name: `${member.lastName} ${member.firstName}`.trim(), organization_unit_id: root.id, initial_grants: [{ role_id: role.id, scope_kind: 'UNIT_SUBTREE', scope_ref_ids: [root.id] }] } }),
+            await api('/memberships/invitations', { method: 'POST', token, key: randomUUID(), body: { email: member.email, display_name: `${member.lastName} ${member.firstName}`.trim(), organization_unit_id: root.id, initial_grants: [{ role_id: role.id, scope_kind: 'UNIT_SUBTREE', scope_ref_ids: [root.id] }, ...base] } }),
             `inviting ${member.username}`,
           );
           state.people[member.username].invited = true;

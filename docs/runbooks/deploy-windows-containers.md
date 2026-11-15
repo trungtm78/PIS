@@ -198,6 +198,17 @@ Ba điều phát hiện khi cài, thuộc về **sản phẩm** (đã xử lý t
 3. **Không có lệnh nào đăng ký khóa ký license.** Bước `LICENSE_PILOT` hỏng với `SIGNING_KEY_UNAVAILABLE` cho tới khi khóa công khai có trong `machvon.license_signing_key`.
    `control-plane.ps1` đăng ký khóa công khai suy ra từ tệp bí mật (hiệu lực 3 năm; tới hạn phải xoay khóa theo `docs/runbooks/infra/secrets-rotation.md`).
 
+4. **Danh mục dùng chung (địa bàn, ngành...) tới tenant mới chậm tới 6 giờ.** Việc nền `master-baseline-sync` chạy lần đầu sau đúng một chu kỳ 6 giờ kể từ khi
+   `workers` khởi động (khởi động lại `workers` là đếm lại từ đầu), và không có lệnh nào kích hoạt nó. Trước lúc đó tenant chưa có danh mục địa bàn nên
+   `createProject` chưa gọi được (trường bắt buộc `area_master_version_id`); tenant tự thêm địa bàn cũng bị từ chối (`POLICY_LOCKED`) vì loại này chỉ mở rộng từ danh mục nền.
+5. **Bảng vai trò hệ thống còn mỏng** (nhiều dòng ghi "PENDING SIGN-OFF" trong `packages/db/src/system-roles.ts`): `SPECIALIST`, `INVESTOR_OFFICER` chưa có quyền nào,
+   quyền xem hồ sơ cá nhân (`profile.self`) chỉ nằm trong vai trò `MEMBER`. `first-accounts.mjs` vì vậy cấp thêm `MEMBER` (phạm vi tenant) cho mỗi thành viên nó mời.
+
+Đã kiểm trên bản cài 2026-11-15 (từ máy ngoài máy chủ): web và API qua chứng thư Let's Encrypt; đăng nhập OIDC mật khẩu + OTP (`acr=aal2`) ở client `machvon-web`
+và `machvon-mobile`; lệnh ghi `createOrganizationUnit`, `grantRole` rồi đọc lại; APK bản profile trên emulator Android đăng nhập qua trình duyệt hệ thống và nạp Trang chủ;
+sao lưu, tác vụ hằng ngày, nâng cấp 1.0.0 lên 1.0.1, rollback về 1.0.0 và tiến lại 1.0.1 (mỗi lần khoảng 2 đến 3 phút); container tự lên lại sau khi dịch vụ Docker khởi động lại.
+Chưa kiểm: `createProject` (lý do ở điểm 4), `restore.ps1` trên dữ liệu thật, khởi động lại cả máy, gia hạn chứng thư thật (mới chạy nhánh "chưa tới hạn").
+
 Giới hạn khác:
 
 - Quản trị hệ thống đầu tiên chỉ có OTP. Chính sách của sản phẩm cho nhân sự mặt điều khiển là WebAuthn (nhóm `MACHVON-SYSTEM-ADMINS`): thêm người đó vào nhóm và ghi danh khóa bảo mật khi sẵn sàng.

@@ -32,4 +32,4 @@ Wait-Healthy -Services @('web') -Seconds 120
 Write-TextFile (Join-Path $script:StateDir 'previous-version') "$current`n"
 Write-Log 'rollback' "$current -> $Version"
 Compose ps
-Say "done: release $Version runs. The database keeps the schema of $current."
+Say "done: release $Version runs (before: $current). The schema of the database was not changed."
