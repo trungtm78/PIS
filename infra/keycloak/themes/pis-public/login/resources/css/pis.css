@@ -1,0 +1,680 @@
+/*
+ * The sign-in pages of the public edition. Identity of the product (design.md, design_tokens.json: "Xanh dầu điều hành", Be Vietnam Pro bundled in ../fonts).
+ * Loaded after PatternFly 5 and the sheet of keycloak.v2: the rules below re-skin their classes, the templates of the pages are not changed.
+ * Contrast (WCAG AA): ink #122D3B on white 13.9:1, secondary #5B6E77 on white 5.4:1, white on primary #007D77 5.1:1, white / #C4D5DC on the panel >= 9:1.
+ */
+:root {
+  --pis-ink: #122D3B;
+  --pis-deep: #102E3B;
+  --pis-primary: #007D77;
+  --pis-primary-hover: #00635E;
+  --pis-primary-soft: #EDF7F5;
+  --pis-mint: #7FE0D6;
+  --pis-bar: #2FB5A8;
+  --pis-gold: #E0AA52;
+  --pis-bg: #F3F6F5;
+  --pis-surface: #FFFFFF;
+  --pis-muted: #5B6E77;
+  --pis-border: #DDE6E7;
+  --pis-border-strong: #8FA3AB;
+  --pis-danger: #A63838;
+  --pis-font: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif;
+
+  --pf-v5-global--FontFamily--text: var(--pis-font);
+  --pf-v5-global--FontFamily--heading: var(--pis-font);
+  --pf-v5-global--FontFamily--sans-serif: var(--pis-font);
+  --pf-v5-global--primary-color--100: var(--pis-primary);
+  --pf-v5-global--primary-color--200: var(--pis-primary-hover);
+  --pf-v5-global--active-color--100: var(--pis-primary);
+  --pf-v5-global--link--Color: var(--pis-primary);
+  --pf-v5-global--link--Color--hover: var(--pis-primary-hover);
+  --pf-v5-global--Color--100: var(--pis-ink);
+  --pf-v5-global--Color--200: var(--pis-muted);
+  --pf-v5-global--danger-color--100: var(--pis-danger);
+}
+
+html.login-pf,
+.login-pf body.pis-body {
+  height: auto;
+  min-height: 100%;
+}
+
+.login-pf body.pis-body {
+  margin: 0;
+  background: var(--pis-bg);
+  color: var(--pis-ink);
+  font-family: var(--pis-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.pis-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ---------- the presentation panel (wide screens only) ---------- */
+.pis-hero {
+  display: none;
+  position: relative;
+  overflow: hidden;
+  color: #FFFFFF;
+  background: linear-gradient(152deg, #0A222D 0%, #102E3B 34%, #0D4A52 68%, #0A746F 100%);
+  padding: clamp(32px, 4vw, 64px);
+  flex-direction: column;
+  isolation: isolate;
+}
+
+.pis-hero__art {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('../img/hero-art.svg') right bottom / cover no-repeat;
+}
+
+.pis-hero__top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pis-hero__logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.pis-hero__mark {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #E3EEF1;
+}
+
+.pis-hero__content {
+  margin-top: clamp(40px, 9vh, 112px);
+  max-width: 560px;
+}
+
+.pis-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  padding: 6px 14px 6px 12px;
+  border: 1px solid rgba(127, 224, 214, 0.42);
+  border-radius: 999px;
+  background: rgba(10, 34, 45, 0.45);
+  color: var(--pis-mint);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pis-hero__eyebrow::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pis-mint);
+  box-shadow: 0 0 0 4px rgba(127, 224, 214, 0.22);
+}
+
+.pis-hero__title {
+  margin: 0;
+  font-size: clamp(34px, 3.5vw, 54px);
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.pis-hero__lead {
+  margin: 20px 0 0;
+  max-width: 480px;
+  color: #D5E3E8;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.6;
+}
+
+.pis-hero__points {
+  list-style: none;
+  margin: 32px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+  max-width: 460px;
+}
+
+.pis-hero__points li {
+  position: relative;
+  padding-left: 36px;
+  color: #F2F7F8;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.pis-hero__points li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M6.2 11.4l3.1 3.1 6.5-7' fill='none' stroke='%237FE0D6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 22px 22px no-repeat,
+    rgba(127, 224, 214, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(127, 224, 214, 0.45);
+}
+
+.pis-hero__foot {
+  margin: auto 0 0;
+  padding-top: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #C4D5DC;
+  font-size: 14px;
+}
+
+.pis-hero__foot::before {
+  content: '';
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--pis-gold);
+}
+
+/* ---------- the card ---------- */
+.pis-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 32px 16px 24px;
+  background: var(--pis-bg);
+  isolation: isolate;
+}
+
+/* Narrow screens have no presentation panel: a band of the same colours and artwork stands behind the top of the card. */
+.pis-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 232px;
+  z-index: -1;
+  background:
+    url('../img/hero-art.svg') right bottom / 520px auto no-repeat,
+    linear-gradient(152deg, #0A222D 0%, #102E3B 40%, #0D4A52 78%, #0A746F 100%);
+}
+
+.pis-panel .pf-v5-c-login {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  background: none;
+}
+
+.pis-panel .pf-v5-c-login__container {
+  display: block;
+  width: 100%;
+  max-width: 440px;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.pis-panel .pf-v5-c-login__main {
+  margin: 0;
+  background: var(--pis-surface);
+  border: 1px solid var(--pis-border);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(16, 46, 59, 0.06), 0 18px 44px -18px rgba(16, 46, 59, 0.30);
+  overflow: hidden;
+}
+
+.pis-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 28px 0;
+}
+
+.pis-brand__logo {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 11px;
+}
+
+#kc-header-wrapper.pis-brand__name {
+  color: var(--pis-ink) !important;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: left;
+  white-space: normal;
+  text-wrap: balance;
+}
+
+.pis-panel .pf-v5-c-login__main-header,
+.pis-panel div.pf-v5-c-login__main-header {
+  display: block;
+  border-top: 0;
+  padding: 22px 28px 0;
+}
+
+.pis-panel #kc-page-title {
+  margin: 0;
+  color: var(--pis-ink);
+  font-family: var(--pis-font);
+  font-size: 26px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.pis-panel .pf-v5-c-login__main-body {
+  padding: 20px 28px 28px;
+}
+
+.pis-panel .pf-v5-c-login__main-footer {
+  padding: 0;
+  margin: 0;
+}
+
+.pis-panel .pf-v5-c-login__main-footer:empty {
+  display: none;
+}
+
+/* language choice: a quiet control under the card */
+.pis-foot .pf-v5-c-login__main-header-utilities {
+  flex: 0 0 100%;
+  display: flex;
+  justify-content: center;
+  margin: 6px 0 0;
+}
+
+.pis-foot .pf-v5-c-form-control {
+  width: auto;
+  min-width: 148px;
+  background: transparent;
+}
+
+.pis-foot .pf-v5-c-form-control::before {
+  border-color: var(--pis-border-strong);
+}
+
+.pis-foot .pf-v5-c-form-control > select {
+  min-height: 44px;
+  font-size: 14px;
+}
+
+/* ---------- form ---------- */
+.pis-panel .pf-v5-c-form {
+  gap: 18px;
+}
+
+.pis-panel .pf-v5-c-form__label-text {
+  color: var(--pis-ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pis-panel .pf-v5-c-form-control {
+  --pf-v5-c-form-control--BackgroundColor: #FFFFFF;
+  --pf-v5-c-form-control--Color: var(--pis-ink);
+  --pf-v5-c-form-control--FontSize: 16px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.pis-panel .pf-v5-c-form-control::before {
+  border: 1px solid var(--pis-border-strong);
+  border-radius: 10px;
+}
+
+.pis-panel .pf-v5-c-form-control::after {
+  border: 0;
+}
+
+.pis-panel .pf-v5-c-form-control > input,
+.pis-panel .pf-v5-c-form-control > select {
+  min-height: 46px;
+  padding-inline: 14px;
+  border-radius: 10px;
+  color: var(--pis-ink);
+  font-family: var(--pis-font);
+  font-size: 16px;
+}
+
+.pis-panel .pf-v5-c-form-control:hover::before {
+  border-color: var(--pis-ink);
+}
+
+.pis-panel .pf-v5-c-form-control:focus-within::before {
+  border-color: var(--pis-primary);
+  box-shadow: 0 0 0 3px rgba(0, 125, 119, 0.28);
+}
+
+.pis-panel .pf-v5-c-form-control > :focus-visible {
+  outline: 2px solid var(--pis-primary);
+  outline-offset: -2px;
+}
+
+.pis-panel .pf-v5-c-form-control.pf-m-error::before {
+  border-color: var(--pis-danger);
+}
+
+.pis-panel .pf-v5-c-form-control.pf-m-readonly {
+  --pf-v5-c-form-control--BackgroundColor: var(--pis-bg);
+}
+
+/* password with its show / hide button */
+.pis-panel .pf-v5-c-input-group {
+  gap: 8px;
+}
+
+.pis-panel .pf-v5-c-button.pf-m-control {
+  min-width: 46px;
+  min-height: 46px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  color: var(--pis-muted);
+}
+
+.pis-panel .pf-v5-c-button.pf-m-control::after {
+  border: 1px solid var(--pis-border-strong);
+  border-radius: 10px;
+}
+
+.pis-panel .pf-v5-c-button.pf-m-control:hover {
+  color: var(--pis-ink);
+}
+
+.pis-panel .pf-v5-c-button.pf-m-control:hover::after {
+  border-color: var(--pis-ink);
+}
+
+/* buttons */
+.pis-panel .pf-v5-c-button {
+  min-height: 46px;
+  border-radius: 10px;
+  font-family: var(--pis-font);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pis-panel .pf-v5-c-button.pf-m-primary,
+.pis-panel input.pf-v5-c-button.pf-m-primary {
+  background: var(--pis-primary);
+  color: #FFFFFF;
+  border: 0;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.pis-panel .pf-v5-c-button.pf-m-primary:hover {
+  background: var(--pis-primary-hover);
+}
+
+.pis-panel .pf-v5-c-button.pf-m-primary:disabled {
+  background: #9DB4B8;
+  cursor: progress;
+}
+
+.pis-panel .pf-v5-c-button.pf-m-secondary {
+  color: var(--pis-primary);
+}
+
+.pis-panel .pf-v5-c-button.pf-m-secondary::after {
+  border-color: var(--pis-primary);
+  border-radius: 10px;
+}
+
+.pis-panel .pf-v5-c-button.pf-m-link {
+  color: var(--pis-primary);
+}
+
+.pis-panel .pf-v5-c-button:focus-visible,
+.pis-panel a:focus-visible,
+.pis-panel input[type='checkbox']:focus-visible {
+  outline: 3px solid var(--pis-primary);
+  outline-offset: 2px;
+}
+
+.pis-panel .pf-v5-c-form__actions {
+  margin: 0;
+  gap: 12px;
+}
+
+.pis-panel .pf-v5-c-form__actions > * {
+  margin: 0;
+}
+
+/* links, texts, alerts */
+.pis-panel a {
+  color: var(--pis-primary);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+.pis-panel a:hover {
+  color: var(--pis-primary-hover);
+}
+
+.pis-panel .pf-v5-c-helper-text a,
+.pis-panel #kc-info-message a,
+.pis-panel #kc-error-message a,
+.pis-panel p.instruction a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.pis-panel p.instruction {
+  margin: 0 0 20px;
+}
+
+.pis-panel .instruction,
+.pis-panel #kc-info-message p,
+.pis-panel #kc-error-message p {
+  color: var(--pis-ink);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.pis-panel .pf-v5-c-helper-text__item-text.pf-m-error,
+.pis-panel .pf-v5-c-helper-text__item.pf-m-error {
+  color: var(--pis-danger);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pis-panel .pf-v5-c-alert {
+  border-radius: 10px;
+  box-shadow: none;
+  border: 1px solid var(--pis-border);
+  border-inline-start: 4px solid var(--pis-primary);
+  background: var(--pis-primary-soft);
+}
+
+.pis-panel .pf-v5-c-alert.pf-m-danger {
+  border-color: #E7C9C9;
+  border-inline-start-color: var(--pis-danger);
+  background: #FBF1F1;
+}
+
+.pis-panel .pf-v5-c-alert.pf-m-warning {
+  border-color: #EBD9B8;
+  border-inline-start-color: #9A5B00;
+  background: #FCF6EA;
+}
+
+.pis-panel .pf-v5-c-alert__icon:empty {
+  display: none;
+}
+
+.pis-panel .pf-v5-c-alert__title {
+  color: var(--pis-ink);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.pis-panel .pf-v5-c-list,
+.pis-panel ol#kc-totp-settings {
+  color: var(--pis-ink);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.pis-panel #kc-totp-secret-qr-code {
+  display: block;
+  margin: 12px 0;
+  border: 1px solid var(--pis-border);
+  border-radius: 10px;
+}
+
+.pis-panel .pf-v5-c-check__label {
+  color: var(--pis-ink);
+  font-size: 15px;
+}
+
+.pis-panel .pf-v5-c-check__input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--pis-primary);
+}
+
+.pis-panel .kc-login-tooltip .kc-tooltip-text {
+  left: auto;
+  right: 0;
+  top: -40px;
+  background: var(--pis-ink);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.pis-panel .kc-login-tooltip .kc-tooltip-text::after {
+  display: none;
+}
+
+/* ---------- footer ---------- */
+.pis-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 10px;
+  max-width: 440px;
+  color: var(--pis-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ---------- widths ---------- */
+@media (max-width: 380px) {
+  .pis-panel {
+    padding-inline: 12px;
+  }
+
+  .pis-brand,
+  .pis-panel div.pf-v5-c-login__main-header {
+    padding-inline: 20px;
+  }
+
+  .pis-panel .pf-v5-c-login__main-body {
+    padding: 18px 20px 24px;
+  }
+
+  .pis-panel #kc-page-title {
+    font-size: 24px;
+  }
+}
+
+@media (min-width: 600px) {
+  .pis-panel {
+    padding: 48px 24px 32px;
+  }
+
+  .pis-brand {
+    padding: 36px 40px 0;
+  }
+
+  .pis-panel div.pf-v5-c-login__main-header {
+    padding: 24px 40px 0;
+  }
+
+  .pis-panel .pf-v5-c-login__main-body {
+    padding: 22px 40px 40px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pis-shell {
+    grid-template-columns: minmax(0, 1.15fr) minmax(480px, 1fr);
+  }
+
+  .pis-hero {
+    display: flex;
+  }
+
+  /* A narrow panel: the artwork keeps to the lower part so that the growth line stays clear of the texts. */
+  .pis-hero__art {
+    background-size: 100% 56%;
+  }
+
+  .pis-panel::before {
+    display: none;
+  }
+
+  .pis-panel .pf-v5-c-login__main {
+    box-shadow: 0 1px 2px rgba(16, 46, 59, 0.05), 0 24px 56px -28px rgba(16, 46, 59, 0.28);
+  }
+}
+
+@media (min-width: 1280px) {
+  .pis-hero__art {
+    background-size: cover;
+  }
+}
+
+@media (min-width: 1600px) {
+  .pis-shell {
+    grid-template-columns: minmax(0, 1.3fr) minmax(560px, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pis-panel * {
+    transition: none !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .pis-hero__art,
+  .pis-panel::before {
+    display: none;
+  }
+}
+
+/* the read-only user name above the second step (one-time code, password change) keeps the rhythm of the form */
+.pis-panel .pf-v5-c-login__main-body > .pf-v5-c-form,
+.pis-panel .pf-v5-c-login__main-body > div > .pf-v5-c-form {
+  margin-bottom: 18px;
+}

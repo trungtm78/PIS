@@ -1,7 +1,7 @@
 import { createPrivateKey } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { DEFAULT_EDITION, isEdition } from '@machvon/kernel';
+import { DEFAULT_EDITION, PRODUCTION_ENVIRONMENTS, isEdition } from '@machvon/kernel';
 import type { Edition } from '@machvon/kernel';
 
 const FIELD_KEY_BYTES = 32;
@@ -45,11 +45,27 @@ export interface Config {
    * them: each job has one owner at a time (database advisory lock). Switch it off for a process that only serves requests.
    */
   workersEnabled: boolean;
+  /**
+   * The scheduled jobs this process runs once right after its start, besides their periods (`WORKERS_RUN_AT_START`, names separated by commas; none when unset).
+   * A job otherwise runs for the first time one whole period after the start: the baseline of the catalogues (`master-baseline-sync`, six hours) reaches a new
+   * tenant at once where an installation names it here. A name the process does not schedule is logged and skipped.
+   */
+  workersRunAtStart: readonly string[];
   /** Where the license signing key (the provisioning saga issues the pilot license with it) is read from; the key is read when first needed. */
   licenseKeys: { keyId: string | undefined; keyPath: string | undefined; retiredKeyId: string | undefined; retiredPublicKeyPath: string | undefined };
   /** The product edition this process serves (`MACHVON_EDITION`; public when unset): which modules are mounted (ENT-0). */
   edition: Edition;
+  /**
+   * The demonstration mode with ONE factor (`MACHVON_DEMO_SINGLE_FACTOR=true`; off when unset): a session opened with the password alone counts as a session with a
+   * second factor, so the roles the security policy holds to a second factor (BR-IAM-11) can enter and the step-up commands answer. It weakens the product on purpose,
+   * for an installation that only shows it: it is accepted only where `MACHVON_DEPLOYMENT_PURPOSE=demo` says so and `MACHVON_ENVIRONMENT` does not name production or dr.
+   */
+  demoSingleFactor: boolean;
 }
+
+/** The line the process writes at its start when the demonstration mode with one factor is on. */
+export const DEMO_SINGLE_FACTOR_WARNING =
+  'WARNING: MACHVON_DEMO_SINGLE_FACTOR is on. A password alone is accepted as a second factor (step-up commands and roles that need MFA included). This installation is a DEMONSTRATION and must not hold real data.';
 
 export interface ConfigProblem {
   name: string;
@@ -214,7 +230,22 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
     return word === 'false' || word === '0' ? false : undefined;
   });
 
+  const workersRunAtStart = optional<readonly string[]>('WORKERS_RUN_AT_START', [], 'job names (lower-case letters, digits and hyphens) separated by commas', (value) => {
+    const names = value.split(',').map((name) => name.trim());
+    return names.every((name) => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(name)) && new Set(names).size === names.length ? names : undefined;
+  });
+
   const edition = optional<Edition>('MACHVON_EDITION', DEFAULT_EDITION, 'public or enterprise', (value) => (isEdition(value) ? value : undefined));
+
+  // The demonstration mode with one factor is never switched on by an accident: the word must be exactly `true`, the installation must declare itself a demonstration,
+  // and an environment that is named production or dr refuses it.
+  const demoSingleFactor = optional<boolean>('MACHVON_DEMO_SINGLE_FACTOR', false, 'true or false', (value) => (value === 'true' ? true : value === 'false' ? false : undefined));
+  if (demoSingleFactor) {
+    const purpose = read('MACHVON_DEPLOYMENT_PURPOSE');
+    if (purpose !== 'demo') fail('MACHVON_DEPLOYMENT_PURPOSE', purpose === undefined ? 'missing' : 'malformed', 'demo, because MACHVON_DEMO_SINGLE_FACTOR is true (the mode exists for demonstrations only)');
+    const environment = read('MACHVON_ENVIRONMENT');
+    if (environment !== undefined && PRODUCTION_ENVIRONMENTS.includes(environment)) fail('MACHVON_DEMO_SINGLE_FACTOR', 'malformed', 'false where MACHVON_ENVIRONMENT names production or dr');
+  }
 
   const alertWebhookUrl = read('ALERT_WEBHOOK_URL');
   if (alertWebhookUrl !== undefined && !urlWith(alertWebhookUrl, ['https:', 'http:'])) fail('ALERT_WEBHOOK_URL', 'malformed', 'an http(s) URL of the alert webhook');
@@ -237,6 +268,7 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
     alertWebhookUrl,
     telemetry: { exporter, otlpEndpoint, serviceName: read('OTEL_SERVICE_NAME') ?? 'machvon-api' },
     workersEnabled,
+    workersRunAtStart,
     licenseKeys: {
       keyId: read('LICENSE_SIGNING_KEY_ID'),
       keyPath: read('LICENSE_SIGNING_KEY_PEM_PATH'),
@@ -244,5 +276,6 @@ export function loadConfig(env: Env, io: ConfigIo = fileIo): Config {
       retiredPublicKeyPath: read('LICENSE_RETIRED_KEY_PUBLIC_PEM_PATH'),
     },
     edition,
+    demoSingleFactor,
   };
 }

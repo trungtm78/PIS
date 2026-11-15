@@ -11,6 +11,8 @@
 #     installation is registered (control-plane.ps1 says why);
 #   6 every service starts and must become healthy;
 #   7 unless -KeepDirectory: the directory federation of the realm is switched off when no directory is configured (LDAP_URL still names directory.invalid);
+#     the presentation of the realm the pack carries for its edition (name, login theme, languages) is written into the running realm, and the browser flow of the
+#     realm is set to what MACHVON_DEMO_SINGLE_FACTOR of the environment file says (the second factor at every sign-in unless that is `true`);
 #   8 the firewall rule of the HTTPS port and the daily task (backup, certificate renewal, signatures, log rotation) are registered;
 #   9 the pack is deleted (unless -KeepPack): the host keeps images, volumes, configuration and secrets, never sources.
 param(
@@ -106,6 +108,14 @@ if (-not $KeepDirectory -and (Get-Setting 'LDAP_URL') -match 'directory\.invalid
   & (Join-Path $hostScripts 'keycloak-admin.ps1') disable-directory
 } else {
   Say '7/9 the directory federation of the realm is left as it is'
+}
+
+& (Join-Path $hostScripts 'keycloak-admin.ps1') apply-presentation
+if ((Get-Setting 'MACHVON_DEMO_SINGLE_FACTOR') -eq 'true') {
+  Say 'DEMONSTRATION MODE (MACHVON_DEMO_SINGLE_FACTOR=true): people sign in with the password alone'
+  & (Join-Path $hostScripts 'keycloak-admin.ps1') single-factor on
+} else {
+  & (Join-Path $hostScripts 'keycloak-admin.ps1') single-factor off
 }
 
 Say '8/9 firewall rule and daily task'

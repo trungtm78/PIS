@@ -212,4 +212,45 @@ describe('loadConfig', () => {
     );
     expect(config.licenseKeys).toEqual({ keyId: 'kid-2026', keyPath: '/keys/license.pem', retiredKeyId: 'kid-2025', retiredPublicKeyPath: '/keys/retired.pub' });
   });
+  it('names the jobs to run once at the start, and refuses a list that is not job names', () => {
+    expect(loadConfig(GOOD, io).workersRunAtStart).toEqual([]);
+    expect(loadConfig({ ...GOOD, WORKERS_RUN_AT_START: 'master-baseline-sync, audit-seal' }, io).workersRunAtStart).toEqual(['master-baseline-sync', 'audit-seal']);
+    for (const wrong of ['Master Baseline', 'a,,b', 'a,a', 'job;drop']) {
+      expect(failure({ ...GOOD, WORKERS_RUN_AT_START: wrong }).problems).toEqual([expect.objectContaining({ name: 'WORKERS_RUN_AT_START', problem: 'malformed' })]);
+    }
+  });
+
+  describe('the demonstration mode with one factor', () => {
+    it('is off unless MACHVON_DEMO_SINGLE_FACTOR says true', () => {
+      expect(loadConfig(GOOD, io).demoSingleFactor).toBe(false);
+      expect(loadConfig({ ...GOOD, MACHVON_DEMO_SINGLE_FACTOR: 'false' }, io).demoSingleFactor).toBe(false);
+      expect(loadConfig({ ...GOOD, MACHVON_DEMO_SINGLE_FACTOR: ' ' }, io).demoSingleFactor).toBe(false);
+      // The declaration alone switches nothing on.
+      expect(loadConfig({ ...GOOD, MACHVON_DEPLOYMENT_PURPOSE: 'demo' }, io).demoSingleFactor).toBe(false);
+    });
+
+    it('is on for an installation that declares itself a demonstration', () => {
+      expect(loadConfig({ ...GOOD, MACHVON_DEMO_SINGLE_FACTOR: 'true', MACHVON_DEPLOYMENT_PURPOSE: 'demo' }, io).demoSingleFactor).toBe(true);
+      expect(loadConfig({ ...GOOD, MACHVON_DEMO_SINGLE_FACTOR: 'true', MACHVON_DEPLOYMENT_PURPOSE: 'demo', MACHVON_ENVIRONMENT: 'staging' }, io).demoSingleFactor).toBe(true);
+    });
+
+    it('refuses to start with the mode on where the installation does not declare itself a demonstration', () => {
+      expect(failure({ ...GOOD, MACHVON_DEMO_SINGLE_FACTOR: 'true' }).problems).toEqual([expect.objectContaining({ name: 'MACHVON_DEPLOYMENT_PURPOSE', problem: 'missing' })]);
+      expect(failure({ ...GOOD, MACHVON_DEMO_SINGLE_FACTOR: 'true', MACHVON_DEPLOYMENT_PURPOSE: 'production' }).problems).toEqual([expect.objectContaining({ name: 'MACHVON_DEPLOYMENT_PURPOSE', problem: 'malformed' })]);
+    });
+
+    it('refuses the mode where the environment is named production or dr, even with the declaration', () => {
+      for (const environment of ['production', 'dr']) {
+        expect(failure({ ...GOOD, MACHVON_DEMO_SINGLE_FACTOR: 'true', MACHVON_DEPLOYMENT_PURPOSE: 'demo', MACHVON_ENVIRONMENT: environment }).problems).toEqual([
+          expect.objectContaining({ name: 'MACHVON_DEMO_SINGLE_FACTOR', problem: 'malformed' }),
+        ]);
+      }
+    });
+
+    it('refuses a word that is not true or false, instead of guessing', () => {
+      for (const word of ['1', 'yes', 'TRUE', 'on']) {
+        expect(failure({ ...GOOD, MACHVON_DEMO_SINGLE_FACTOR: word, MACHVON_DEPLOYMENT_PURPOSE: 'demo' }).problems).toEqual([expect.objectContaining({ name: 'MACHVON_DEMO_SINGLE_FACTOR', problem: 'malformed' })]);
+      }
+    });
+  });
 });

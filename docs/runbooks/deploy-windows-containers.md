@@ -79,7 +79,8 @@ Gói gồm: `web/dist` (web đã build cho đúng một địa chỉ công khai)
 
 `install.ps1` làm chín bước, dừng ở bước đầu tiên hỏng, chạy lại được: kiểm gói và dựng image; chép tệp máy chủ và tạo `.env` (lần đầu); tạo bí mật còn thiếu
 và chứng thư tạm; (nâng cấp) sao lưu; khởi động `db`, **chạy migration**, đặt mật khẩu ba vai trò ứng dụng, đăng ký placement và khóa ký license (`control-plane.ps1`);
-khởi động mọi dịch vụ và chờ healthy; tắt liên kết thư mục LDAP khi chưa có thư mục; đăng ký quy tắc tường lửa và tác vụ hằng ngày; **xóa gói**.
+khởi động mọi dịch vụ và chờ healthy; tắt liên kết thư mục LDAP khi chưa có thư mục, ghi phần trình bày của realm theo bản (mục 12) và đặt luồng đăng nhập
+theo `MACHVON_DEMO_SINGLE_FACTOR` (mục 11); đăng ký quy tắc tường lửa và tác vụ hằng ngày; **xóa gói**.
 
 Lần dựng image `db` đầu tiên cài bộ công cụ C++ của Microsoft trong một tầng build để biên dịch pgvector: khoảng 20 đến 30 phút. Các lần sau dùng lại tầng đã có.
 
@@ -201,6 +202,9 @@ Ba điều phát hiện khi cài, thuộc về **sản phẩm** (đã xử lý t
 4. **Danh mục dùng chung (địa bàn, ngành...) tới tenant mới chậm tới 6 giờ.** Việc nền `master-baseline-sync` chạy lần đầu sau đúng một chu kỳ 6 giờ kể từ khi
    `workers` khởi động (khởi động lại `workers` là đếm lại từ đầu), và không có lệnh nào kích hoạt nó. Trước lúc đó tenant chưa có danh mục địa bàn nên
    `createProject` chưa gọi được (trường bắt buộc `area_master_version_id`); tenant tự thêm địa bàn cũng bị từ chối (`POLICY_LOCKED`) vì loại này chỉ mở rộng từ danh mục nền.
+   **Từ bản 1.0.2:** biến `WORKERS_RUN_AT_START` (danh sách tên việc nền, mặc định của bản cài này là `master-baseline-sync`) cho `workers` chạy các việc đó một lần
+   ngay khi khởi động, dưới cùng khóa và cùng sổ lượt chạy như một lượt theo chu kỳ; danh mục tới tenant sau vài giây, không còn phải chờ 6 giờ. Muốn chạy lại ngay:
+   `docker compose ... up -d --force-recreate --no-deps workers`.
 5. **Bảng vai trò hệ thống còn mỏng** (nhiều dòng ghi "PENDING SIGN-OFF" trong `packages/db/src/system-roles.ts`): `SPECIALIST`, `INVESTOR_OFFICER` chưa có quyền nào,
    quyền xem hồ sơ cá nhân (`profile.self`) chỉ nằm trong vai trò `MEMBER`. `first-accounts.mjs` vì vậy cấp thêm `MEMBER` (phạm vi tenant) cho mỗi thành viên nó mời.
 
@@ -245,5 +249,63 @@ curl -H "Authorization: Bearer $TOKEN" https://<PUBLIC_HOST>/api/resources/organ
 thao tác có phiên bản kèm `If-Match: "<version>"`. Token hết hạn sau vài phút: gặp 401 thì gọi lại script. Cùng một người đăng nhập sai 5 lần liên tiếp sẽ bị Keycloak khóa tạm.
 Các tài khoản mẫu khác (quản trị hệ thống, quản trị đơn vị, lãnh đạo, chuyên viên, cán bộ chủ đầu tư) ở `secrets\admin\first-accounts.json`, cùng dạng trường.
 
-Lưu ý cho làn nạp dữ liệu: cho tới khi việc nền `master-baseline-sync` chạy lần đầu (mục 9, điểm 4) tenant chưa có danh mục địa bàn, nên `createProject` chưa gọi được.
-Đừng khởi động lại `workers` trong lúc chờ: mỗi lần khởi động lại là đếm lại 6 giờ.
+Lưu ý cho làn nạp dữ liệu: `createProject` cần danh mục địa bàn, do việc nền `master-baseline-sync` đưa tới tenant. Từ bản 1.0.2 việc này chạy ngay mỗi lần `workers`
+khởi động (mục 9, điểm 4); ở bản cũ hơn phải chờ 6 giờ và không được khởi động lại `workers` trong lúc chờ.
+
+Khi bản cài bật **chế độ demo một yếu tố** (mục 11) thì đăng nhập chỉ còn tên + mật khẩu: bước 1 không có trang OTP, token định danh mang `acr=aal1`, và trường
+`totpSecret` trong tệp tài khoản không còn được hỏi tới (vẫn giữ để dùng lại khi bật 2FA). `scripts/onprem-api-token.mjs` chạy được ở cả hai chế độ.
+
+## 11. Chế độ demo một yếu tố (tắt 2FA trên bản DEMO)
+
+**Quyết định (chủ sở hữu, 2026-11-15):** máy chủ demo `180-93-34-176.sslip.io:8443` chạy ở chế độ một yếu tố để người xem đăng nhập chỉ bằng tên + mật khẩu.
+Đây là công tắc **của bản cài**, không phải mặc định của sản phẩm: tệp realm (`infra/keycloak/onprem/machvon-realm.json`), chính sách bảo mật của tenant
+(`mfa_required_roles`, BR-IAM-11) và các thao tác step-up (`x-step-up: aal2`) trong mã **không đổi**; test giữ chúng (`scripts/onprem-windows-pack.test.mjs`).
+
+Công tắc gồm hai nửa, phải đi cùng nhau:
+
+| Nửa | Ở đâu | Khi bật |
+|---|---|---|
+| Keycloak (realm đang chạy) | `keycloak-admin.ps1 single-factor on` | bước cấp 2 `machvon level 2` của luồng `machvon browser forms` thành `DISABLED`: đăng nhập dừng sau mật khẩu, token mang `acr=aal1` (Keycloak không nói dối về mức xác thực); `CONFIGURE_TOTP` thôi là hành động mặc định và được gỡ khỏi những người đang chờ. OTP và khóa đã cấp của mọi người **được giữ nguyên** |
+| API và workers | `.env`: `MACHVON_DEMO_SINGLE_FACTOR=true` **và** `MACHVON_DEPLOYMENT_PURPOSE=demo` | mọi token hợp lệ được coi như phiên vừa qua yếu tố thứ hai: vai trò thuộc `mfa_required_roles` (ví dụ `TENANT_OWNER`) chọn được tenant, thao tác step-up (`grantRole`, phát hành theme...) không còn trả `403 MFA_REQUIRED` |
+
+Hàng rào: API **từ chối khởi động** (mã thoát 78, nêu tên biến) nếu `MACHVON_DEMO_SINGLE_FACTOR=true` mà thiếu `MACHVON_DEPLOYMENT_PURPOSE=demo`, hoặc nếu
+`MACHVON_ENVIRONMENT` khai `production`/`dr`, hoặc nếu giá trị không đúng chữ `true`/`false`; khi chạy ở chế độ này mỗi lần khởi động API ghi một dòng
+`WARNING: MACHVON_DEMO_SINGLE_FACTOR is on...` ra nhật ký (`docker logs machvon-api-1`). Mặc định của mẫu `.env` là `false`.
+
+```
+# bật (chỉ trên bản demo, không có dữ liệu thật)
+powershell -ExecutionPolicy Bypass -File C:\ProgramData\MACHVON\host\single-factor.ps1 -Mode on -IAcceptThisIsADemonstration
+# bật lại 2FA (trạng thái của sản phẩm)
+powershell -ExecutionPolicy Bypass -File C:\ProgramData\MACHVON\host\single-factor.ps1 -Mode off
+```
+
+Script ghi hai biến vào `.env`, tạo lại `api` và `workers`, rồi đổi luồng của realm đang chạy; `install.ps1` của các bản sau đọc lại `.env` và giữ đúng chế độ đã chọn.
+Tạo lại `workers` làm các việc nền đếm lại chu kỳ (riêng `master-baseline-sync` chạy ngay, mục 9 điểm 4).
+
+**Rủi ro đã chấp nhận, và vì sao chỉ dành cho demo:**
+
+- Mật khẩu lộ là mất tài khoản: không còn lớp thứ hai, kể cả với chủ sở hữu tenant, quản trị bảo mật và quản trị hệ thống (client `machvon-control` dùng chung luồng).
+- Step-up mất tác dụng: cấp vai trò, phát hành theme, duyệt... chạy được bằng phiên mật khẩu, không hỏi lại. Nhật ký kiểm toán vẫn ghi đủ, nhưng ghi mức `aal2` cho các phiên này
+  vì API coi chúng là đủ mức; phân biệt bằng dòng cảnh báo lúc khởi động và sổ `logs\single-factor.log` (thời điểm bật/tắt).
+- Không được nhập dữ liệu thật hay nối thư mục AD thật khi công tắc còn bật. Trước khi chuyển một bản cài thành bản dùng thật: chạy `single-factor.ps1 -Mode off`,
+  kiểm đăng nhập phải hỏi OTP, và đổi mật khẩu các tài khoản đã dùng trong lúc demo.
+- Khóa tạm sau 5 lần sai mật khẩu, thời hạn phiên, PKCE, HTTPS và phân quyền theo vai trò **không** bị nới.
+
+Khi bật lại 2FA: người đã có OTP (các tài khoản tạo bằng `first-accounts.ps1`, `keycloak-admin.ps1 create-user`) đăng nhập lại bằng mật khẩu + mã như trước; người được
+tạo trong lúc demo mà chưa có OTP phải được quản trị cấp OTP (mục 9, điểm 1).
+
+## 12. Giao diện đăng nhập của bản công
+
+Bản công có theme đăng nhập riêng `pis-public` (`infra/keycloak/themes/pis-public`, kế thừa `keycloak.v2` của Keycloak 26.5): hai phần (bảng giới thiệu bên trái ẩn dưới
+1024 px, thẻ đăng nhập bên phải), màu "Xanh dầu điều hành", phông Be Vietnam Pro nhúng trong theme (không gọi CDN), tiếng Việt cho mọi trang của luồng (đăng nhập,
+mã một lần, thiết lập OTP, đổi mật khẩu, lỗi, hết hạn, đăng xuất) và tiếng Anh khi trình duyệt để tiếng Anh. Tên hiển thị là "Hệ thống quản lý đầu tư công"; bản công
+không hiện tên mã ở trang nào của người dùng. Bản doanh nghiệp không nhận theme này và giữ nguyên realm.
+
+- Gói `--edition public` chép theme vào `infra/keycloak/themes` (image Keycloak `COPY` vào `C:\keycloak\themes`) và chép phần trình bày của realm
+  (`infra/keycloak/onprem/presentation.public.json`: `displayName`, `loginTheme`, `internationalizationEnabled`, `supportedLocales`, `defaultLocale`,
+  tên bên tin cậy WebAuthn) cạnh công cụ quản trị. Tệp realm chỉ được nhập ở lần khởi động đầu, nên `install.ps1` ghi phần trình bày vào realm **đang chạy** bằng
+  `keycloak-admin.ps1 apply-presentation` (chỉ nhận các trường trình bày; không đổi được luồng hay chính sách).
+- Sửa theme: sửa tệp, đóng gói bản mới, cài. Khi nâng Keycloak, so `template.ftl` của theme với `theme/keycloak.v2/login/template.ftl` của bản mới.
+- Tên trong ứng dụng xác thực: OTP cấp từ bản 1.0.2 mang tên "Hệ thống quản lý đầu tư công <máy chủ>"; mục đã nhập trước đó vẫn hiện tên cũ trên điện thoại của người dùng
+  (tên này nằm trong ứng dụng xác thực, máy chủ không đổi được) và vẫn dùng bình thường. Muốn đổi thì người dùng sửa tên mục trong ứng dụng.
+- Bản Linux (`infra/onprem`) chưa nối theme này vào image Keycloak của nó.

@@ -1,4 +1,4 @@
-import { ConfigError, loadConfig } from './config/config';
+import { ConfigError, DEMO_SINGLE_FACTOR_WARNING, loadConfig } from './config/config';
 import { bootstrap } from './bootstrap';
 
 const EXIT_CONFIG = 78;
@@ -17,6 +17,8 @@ export async function run(env: Record<string, string | undefined> = process.env)
     process.stderr.write(`${error.message}\n`);
     return EXIT_CONFIG;
   }
+  if (config.demoSingleFactor) process.stderr.write(`${DEMO_SINGLE_FACTOR_WARNING}
+`);
   const api = await bootstrap(config);
   process.stdout.write(`machvon-api listening on port ${api.port}\n`);
   await new Promise<void>((resolve) => {

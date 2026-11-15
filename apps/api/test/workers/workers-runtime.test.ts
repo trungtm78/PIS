@@ -385,6 +385,15 @@ describe('the background workers of the real API process (N1: ST-ADM-002, ST-KER
       expect(Date.now() - began).toBeLessThan(5_000);
     }, TEST_TIMEOUT);
 
+    it('runs a job named in WORKERS_RUN_AT_START once right after the start, without a tick of its period, and skips a name it does not schedule', async () => {
+      const api = await start({ WORKERS_RUN_AT_START: 'master-baseline-sync,no-such-job' });
+      await until(() => (api.workers?.history('master-baseline-sync').length ?? 0) > 0, 'the run at the start');
+      expect(api.workers?.history('master-baseline-sync').map((run) => run.outcome)).toEqual(['SUCCESS']);
+      // No other job ran: no timer was turned.
+      expect(api.workers?.history().map((run) => run.name)).toEqual(['master-baseline-sync']);
+      expect(lines.map((line) => JSON.parse(line) as { message?: string; job?: string }).filter((entry) => entry.message === 'job to run at start is not scheduled in this process')).toEqual([expect.objectContaining({ job: 'no-such-job' })]);
+    }, TEST_TIMEOUT);
+
     it('starts nothing when WORKERS_ENABLED is off: no timer, no workers, and the event waits', async () => {
       const api = await start({ WORKERS_ENABLED: 'false' });
       expect(api.workers).toBeUndefined();

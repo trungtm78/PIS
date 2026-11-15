@@ -34,6 +34,11 @@ export interface JwksTokenVerifierOptions {
   /** Tolerated clock difference in seconds, at most 60; default 30. */
   clockSkewSeconds?: number;
   now?: () => Date;
+  /**
+   * The demonstration mode with one factor (`Config.demoSingleFactor`): every verified token counts as a session whose second factor was given just now, whatever
+   * `acr` and `amr` say. Off by default; the configuration accepts it only for an installation that declares itself a demonstration.
+   */
+  singleFactorCountsAsSecond?: boolean;
 }
 
 const MODES = new Set(['FULL', 'READ_ONLY']);
@@ -58,6 +63,12 @@ export class JwksTokenVerifier implements TokenVerifier {
     this.tenantAudience = options.tenantAudience ?? DEFAULT_TENANT_AUDIENCE;
   }
 
+  /** The assurance the claims prove; in the demonstration mode with one factor a verified token is taken as a fresh second factor. */
+  private assurance(payload: Record<string, unknown>): { assurance: 'aal1' | 'aal2'; aal2At?: Date } {
+    if (this.options.singleFactorCountsAsSecond === true) return { assurance: 'aal2', aal2At: this.clock() };
+    return assuranceOf(payload);
+  }
+
   async verifyIdentity(token: string): Promise<VerifiedIdentity> {
     const parsed = parseJwt(token);
     await this.checkSignature(parsed, (kid) => this.options.jwks.keyFor(kid));
@@ -80,7 +91,7 @@ export class JwksTokenVerifier implements TokenVerifier {
       ...(email === undefined ? {} : { email }),
       ...(typeof payload.email_verified === 'boolean' ? { emailVerified: payload.email_verified } : {}),
       sessionId,
-      ...assuranceOf(payload),
+      ...this.assurance(payload),
       audience: forControl ? 'control-client' : 'tenant-client',
       roles: forControl ? realmRoles(payload) : [],
     };
@@ -116,7 +127,7 @@ export class JwksTokenVerifier implements TokenVerifier {
     return {
       tenant: { tenantId, membershipId, scopeVersion },
       sessionId,
-      ...assuranceOf(payload),
+      ...this.assurance(payload),
       audience,
       mode: mode as 'FULL' | 'READ_ONLY',
       roles: stringList(payload.roles),

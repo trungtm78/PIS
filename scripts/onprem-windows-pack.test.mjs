@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { COMPILE_OPTIONS, RESOLVE_LOADER, compileSource, isCompiled, isShipped, main, manifestOf, parseOrigin, shipTree, windowsNginx } from './onprem-windows-pack.mjs';
+import { COMPILE_OPTIONS, EDITION_IDENTITY, RESOLVE_LOADER, compileSource, copyIdentity, isCompiled, isShipped, main, manifestOf, parseOrigin, shipTree, windowsNginx } from './onprem-windows-pack.mjs';
 import { loadSecretFiles } from '../infra/onprem-windows/docker/secret-files.mjs';
 import { inputProblems, newPassword, readInvitations } from '../infra/onprem-windows/tools/first-accounts.mjs';
-import { AdminError, KeycloakAdmin, base32, main as keycloakAdmin, newTotpSecret, otpauthOf } from '../infra/onprem-windows/tools/keycloak-admin.mjs';
+import { AdminError, KeycloakAdmin, PRESENTATION_FIELDS, SECOND_FACTOR, base32, main as keycloakAdmin, newTotpSecret, otpauthOf, productLabel } from '../infra/onprem-windows/tools/keycloak-admin.mjs';
 
 const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 const { transformSync } = createRequire(join(REPO_ROOT, 'apps', 'api', 'package.json'))('@swc/core');
@@ -242,4 +242,133 @@ test('keycloak-admin reports a refused sign-in, a missing option and an unknown 
   assert.equal(await keycloakAdmin(['create-user', '--bad'], { env: {}, fetch: refused.fetch, log, read: () => 'x' }), 2);
   const admin = new KeycloakAdmin({ base: 'http://keycloak:8080/idp/', realm: 'machvon', username: 'a', password: 'b', fetch: keycloakStub({ ...TOKEN, 'GET /idp/admin/realms/machvon/x': { status: 500, body: { error: 'boom' } } }).fetch });
   await assert.rejects(admin.call('GET', '/x'), AdminError);
+});
+
+const properties = (path) => Object.fromEntries(readFileSync(path, 'utf8').split(/\r?\n/).filter((line) => /^[^#\s][^=]*=/.test(line)).map((line) => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]));
+const PUBLIC_THEME = join(REPO_ROOT, 'infra', 'keycloak', 'themes', 'pis-public', 'login');
+
+test('the pack of the public edition carries its login theme and the presentation of the realm; the enterprise pack carries neither', (t) => {
+  const out = scratch(t);
+  assert.deepEqual(copyIdentity({ out: join(out, 'public'), edition: 'public' }), ['pis-public']);
+  assert.ok(existsSync(join(out, 'public', 'infra', 'keycloak', 'machvon-realm.json')));
+  assert.ok(existsSync(join(out, 'public', 'infra', 'keycloak', 'themes', 'pis-public', 'login', 'theme.properties')));
+  const presentation = JSON.parse(readFileSync(join(out, 'public', 'tools', 'infra', 'onprem-windows', 'tools', 'realm-presentation.json'), 'utf8'));
+  assert.equal(presentation.loginTheme, 'pis-public');
+  assert.deepEqual(copyIdentity({ out: join(out, 'enterprise'), edition: 'enterprise' }), []);
+  // The themes directory exists in every pack (the Dockerfile copies it) and holds no theme for an edition without one.
+  assert.deepEqual(readdirSync(join(out, 'enterprise', 'infra', 'keycloak', 'themes')), ['README.md']);
+  assert.ok(!existsSync(join(out, 'enterprise', 'tools')));
+  // The realm file of the product is the same for both: an edition is presented by the overlay, never by a second realm file.
+  assert.equal(readFileSync(join(out, 'enterprise', 'infra', 'keycloak', 'machvon-realm.json'), 'utf8'), readFileSync(join(out, 'public', 'infra', 'keycloak', 'machvon-realm.json'), 'utf8'));
+});
+
+test('the presentation and the login theme of the public edition say the names of its manifest, and never the code name', async () => {
+  const { PUBLIC_EDITION_MANIFEST: manifest } = await import('../packages/kernel/src/edition.ts');
+  const presentation = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'keycloak', EDITION_IDENTITY.public.presentation), 'utf8'));
+  assert.deepEqual(Object.keys(presentation).filter((name) => !PRESENTATION_FIELDS.includes(name)), []);
+  assert.equal(presentation.displayName, manifest.productName.vi);
+  assert.equal(presentation.displayNameHtml, manifest.productName.vi);
+  assert.equal(presentation.defaultLocale, 'vi');
+  assert.deepEqual(presentation.supportedLocales, ['vi', 'en']);
+  assert.ok(EDITION_IDENTITY.public.themes.includes(presentation.loginTheme));
+  const vi = properties(join(PUBLIC_THEME, 'messages', 'messages_vi.properties'));
+  const en = properties(join(PUBLIC_THEME, 'messages', 'messages_en.properties'));
+  assert.equal(vi.pisProductName, manifest.productName.vi);
+  assert.equal(en.pisProductName, manifest.productName.en);
+  assert.equal(vi.pisShortName, manifest.brand.launcherName.vi);
+  assert.equal(en.pisShortName, manifest.brand.launcherName.en);
+  assert.equal(vi.pisTagline, manifest.brand.tagline.vi);
+  assert.equal(en.pisTagline, manifest.brand.tagline.en);
+  // Every text the template of the theme asks for exists in both languages.
+  const template = readFileSync(join(PUBLIC_THEME, 'template.ftl'), 'utf8');
+  for (const key of new Set([...template.matchAll(/msg\("(pis[A-Za-z0-9]+)"\)/g)].map((match) => match[1]))) {
+    assert.ok(vi[key] !== undefined && vi[key] !== '', `messages_vi misses ${key}`);
+    assert.ok(en[key] !== undefined && en[key] !== '', `messages_en misses ${key}`);
+  }
+  for (const file of ['template.ftl', 'theme.properties', 'messages/messages_vi.properties', 'messages/messages_en.properties', 'resources/css/pis.css', 'resources/img/hero-art.svg']) {
+    const text = readFileSync(join(PUBLIC_THEME, file), 'utf8').split(/\r?\n/).filter((line) => !/^\s*(#|\/\/|\/\*|\*|<#--|<!--)/.test(line)).join('\n');
+    assert.ok(!/machvon/i.test(text.replace(/kc\.org\.name/g, '')), `${file} shows the code name`);
+    assert.ok(!/https?:\/\/(?!www\.w3\.org\/)/.test(text), `${file} loads from another origin`);
+  }
+  // The fonts are files of the theme (no CDN): every file the sheet names exists.
+  for (const [, font] of readFileSync(join(PUBLIC_THEME, 'resources', 'css', 'fonts.css'), 'utf8').matchAll(/url\('\.\.\/fonts\/([^']+)'\)/g)) assert.ok(existsSync(join(PUBLIC_THEME, 'resources', 'fonts', font)), font);
+});
+
+test('keycloak-admin writes the presentation of the release into the running realm, and nothing where the release carries none', async () => {
+  const stub = keycloakStub({ ...TOKEN, 'PUT /idp/admin/realms/machvon': { status: 204 } });
+  const lines = [];
+  const options = { env: {}, fetch: stub.fetch, log: (line) => lines.push(line), read: () => 'admin-password' };
+  const presentation = { displayName: 'Hệ thống quản lý đầu tư công', loginTheme: 'pis-public', internationalizationEnabled: true, supportedLocales: ['vi', 'en'], defaultLocale: 'vi' };
+  assert.equal(await keycloakAdmin(['apply-presentation'], { ...options, readJson: () => presentation }), 0);
+  assert.deepEqual(JSON.parse(stub.calls.find((call) => call.key === 'PUT /idp/admin/realms/machvon').body), presentation);
+  assert.match(lines[0], /displayName, loginTheme/);
+  const before = stub.calls.length;
+  assert.equal(await keycloakAdmin(['apply-presentation'], { ...options, readJson: () => undefined }), 0);
+  assert.equal(stub.calls.length, before);
+  assert.match(lines[1], /nothing changed/);
+  // A presentation is how the realm looks: it may not carry a field of how the realm authenticates.
+  assert.equal(await keycloakAdmin(['apply-presentation'], { ...options, readJson: () => ({ displayName: 'x', browserFlow: 'browser', sslRequired: 'none' }) }), 1);
+  assert.match(lines[2], /may not set browserFlow, sslRequired/);
+  assert.equal(await keycloakAdmin(['apply-presentation'], { ...options, readJson: () => ['x'] }), 1);
+  assert.equal(stub.calls.filter((call) => call.key.startsWith('PUT')).length, 1);
+});
+
+test('keycloak-admin single-factor on stops the browser flow after the password and releases the pending enrolments; off restores the second factor', async () => {
+  const executions = '/idp/admin/realms/machvon/authentication/flows/machvon%20browser%20forms/executions';
+  const action = '/idp/admin/realms/machvon/authentication/required-actions/CONFIGURE_TOTP';
+  const answers = (requirement, defaultAction) => ({
+    ...TOKEN,
+    [`GET ${executions}`]: { status: 200, body: [{ id: 'e1', displayName: 'machvon level 1', level: 0, requirement: 'CONDITIONAL' }, { id: 'e2', displayName: SECOND_FACTOR.step, level: 0, requirement, authenticationFlow: true }, { id: 'e3', displayName: SECOND_FACTOR.step, level: 1, requirement: 'REQUIRED' }] },
+    [`PUT ${executions}`]: { status: 202 },
+    [`GET ${action}`]: { status: 200, body: { alias: 'CONFIGURE_TOTP', enabled: true, defaultAction, priority: 10 } },
+    [`PUT ${action}`]: { status: 204 },
+    'GET /idp/admin/realms/machvon/users?first=0&max=100': { status: 200, body: [{ id: 'u1', username: 'a', requiredActions: ['CONFIGURE_TOTP', 'UPDATE_PROFILE'] }, { id: 'u2', username: 'b', requiredActions: [] }, { id: 'u3', username: 'c' }] },
+    'PUT /idp/admin/realms/machvon/users/u1': { status: 204 },
+  });
+  const lines = [];
+  const on = keycloakStub(answers('CONDITIONAL', true));
+  assert.equal(await keycloakAdmin(['single-factor', 'on'], { env: {}, fetch: on.fetch, log: (line) => lines.push(line), read: () => 'admin-password' }), 0);
+  const puts = (stub) => stub.calls.filter((call) => call.key.startsWith('PUT')).map((call) => [call.key, JSON.parse(call.body)]);
+  assert.deepEqual(puts(on), [
+    [`PUT ${executions}`, { id: 'e2', displayName: SECOND_FACTOR.step, level: 0, requirement: 'DISABLED', authenticationFlow: true }],
+    [`PUT ${action}`, { alias: 'CONFIGURE_TOTP', enabled: true, defaultAction: false, priority: 10 }],
+    ['PUT /idp/admin/realms/machvon/users/u1', { id: 'u1', username: 'a', requiredActions: ['UPDATE_PROFILE'] }],
+  ]);
+  assert.match(lines[0], /DEMONSTRATION MODE, one factor.*DISABLED; 1 pending/);
+
+  const off = keycloakStub(answers('DISABLED', false));
+  assert.equal(await keycloakAdmin(['single-factor', 'off'], { env: {}, fetch: off.fetch, log: (line) => lines.push(line), read: () => 'admin-password' }), 0);
+  assert.deepEqual(puts(off), [
+    [`PUT ${executions}`, { id: 'e2', displayName: SECOND_FACTOR.step, level: 0, requirement: 'CONDITIONAL', authenticationFlow: true }],
+    [`PUT ${action}`, { alias: 'CONFIGURE_TOTP', enabled: true, defaultAction: true, priority: 10 }],
+  ]);
+  // No person is read or changed on the way back, and a realm that is already as asked is not written at all.
+  assert.ok(!off.calls.some((call) => call.key.includes('/users')));
+  const already = keycloakStub(answers('CONDITIONAL', true));
+  assert.equal(await keycloakAdmin(['single-factor', 'off'], { env: {}, fetch: already.fetch, log: () => {}, read: () => 'admin-password' }), 0);
+  assert.deepEqual(puts(already), []);
+
+  assert.equal(await keycloakAdmin(['single-factor'], { env: {}, fetch: on.fetch, log: (line) => lines.push(line), read: () => 'x' }), 2);
+  assert.equal(await keycloakAdmin(['single-factor', 'maybe'], { env: {}, fetch: on.fetch, log: (line) => lines.push(line), read: () => 'x' }), 2);
+  // A realm that is not the one of the product is not guessed at.
+  const foreign = keycloakStub({ ...TOKEN, [`GET ${executions}`]: { status: 200, body: [{ id: 'x', displayName: 'forms', level: 0, requirement: 'REQUIRED' }] } });
+  assert.equal(await keycloakAdmin(['single-factor', 'on'], { env: {}, fetch: foreign.fetch, log: (line) => lines.push(line), read: () => 'x' }), 1);
+  assert.ok(!foreign.calls.some((call) => call.key.startsWith('PUT')));
+});
+
+test('the realm file of the product still asks every member for the second factor: the demonstration mode exists only in a running realm', () => {
+  const realm = JSON.parse(readFileSync(join(REPO_ROOT, 'infra', 'keycloak', 'onprem', 'machvon-realm.json'), 'utf8'));
+  const forms = realm.authenticationFlows.find((flow) => flow.alias === SECOND_FACTOR.flow);
+  assert.equal(forms.authenticationExecutions.find((execution) => execution.flowAlias === SECOND_FACTOR.step).requirement, 'CONDITIONAL');
+  assert.equal(realm.requiredActions.find((action) => action.alias === SECOND_FACTOR.action).defaultAction, true);
+  for (const client of realm.clients) assert.equal(client.attributes['minimum.acr.value'], 'aal2', client.clientId);
+  const compose = readFileSync(join(REPO_ROOT, 'infra', 'onprem-windows', 'compose', 'compose.yaml'), 'utf8');
+  assert.match(compose, /MACHVON_DEMO_SINGLE_FACTOR: \$\{MACHVON_DEMO_SINGLE_FACTOR:-false\}/);
+  assert.match(readFileSync(join(REPO_ROOT, 'infra', 'onprem-windows', 'compose', 'env.template'), 'utf8'), /^MACHVON_DEMO_SINGLE_FACTOR=false$/m);
+});
+
+test('productLabel is the display name of the presentation of the release, or the code name where the release carries none', () => {
+  assert.equal(productLabel(() => ({ displayName: ' Hệ thống quản lý đầu tư công ' })), 'Hệ thống quản lý đầu tư công');
+  assert.equal(productLabel(() => undefined), 'MACHVON');
+  assert.equal(productLabel(() => ({ displayName: '' })), 'MACHVON');
 });

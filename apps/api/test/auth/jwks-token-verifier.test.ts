@@ -195,6 +195,42 @@ describe('JwksTokenVerifier', () => {
     });
   });
 
+  describe('the demonstration mode with one factor', () => {
+    const demo = (): JwksTokenVerifier =>
+      new JwksTokenVerifier({
+        issuer: h.provider.issuer,
+        identityAudience: IDENTITY_AUDIENCE,
+        controlAudience: CONTROL_AUDIENCE,
+        jwks: h.source,
+        tenantTokenKeys: async () => [h.tenantKey.publicJwk],
+        tenantIssuer: TENANT_ISSUER,
+        now: () => h.clock.now,
+        singleFactorCountsAsSecond: true,
+      });
+
+    it('takes a password alone as a second factor given now, for an identity token', async () => {
+      const result = await demo().verifyIdentity(identity({ acr: 'aal1', amr: ['pwd'], auth_time: NOW_SECONDS - 3600 }));
+      expect(result.assurance).toBe('aal2');
+      expect(result.aal2At).toEqual(h.clock.now);
+    });
+
+    it('takes a tenant token of a session with one factor as fresh for a step-up', async () => {
+      const issuer = newIssuer(issuerKey(h.tenantKey));
+      const token = (await issuer.issue({ tenant: TENANT, sessionId: SESSION_ID, assurance: 'aal1', mode: 'FULL', now: NOW })).accessToken;
+      expect((await h.verifier.verifyTenantToken(token)).assurance).toBe('aal1');
+      expect(await demo().verifyTenantToken(token)).toMatchObject({ assurance: 'aal2', aal2At: h.clock.now });
+    });
+
+    it('still refuses a token that is not valid: the mode changes the assurance, nothing else', async () => {
+      expect(await failure(demo().verifyIdentity(identity({ exp: NOW_SECONDS - 600 })))).toBeDefined();
+      expect(await failure(demo().verifyIdentity(identity({ aud: 'someone-else' })))).toBeDefined();
+    });
+
+    it('is off by default: the same token is aal1', async () => {
+      expect((await h.verifier.verifyIdentity(identity({ acr: 'aal1', amr: ['pwd'] }))).assurance).toBe('aal1');
+    });
+  });
+
   describe('identity details', () => {
     it('reads the e-mail and ignores roles of an identity token for the tenant client', async () => {
       const result = await h.verifier.verifyIdentity(identity({ realm_access: { roles: ['SystemAdmin'] } }));

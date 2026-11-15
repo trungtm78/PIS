@@ -10,15 +10,31 @@
 //       one line each). The realm asks for a second factor at every sign-in and offers no enrolment to a person without one, so the administrator provisions it;
 //       the person gets both and puts the secret into an authenticator application (the tool prints nothing of either). A person that exists is refused.
 //   keycloak-admin.mjs delete-user --username <name>
+//   keycloak-admin.mjs apply-presentation [--file <json>]
+//       Writes the presentation of the realm the pack carries for its edition (display name, login theme, languages; realm-presentation.json beside this file,
+//       written by scripts/onprem-windows-pack.mjs) into the RUNNING realm: the realm file is imported once, at the first start, so a later release reaches the realm here.
+//       A pack without that file (the enterprise edition keeps the realm as its file says) changes nothing.
+//   keycloak-admin.mjs single-factor on | off
+//       `on` is the DEMONSTRATION mode with one factor (MACHVON_DEMO_SINGLE_FACTOR=true of the installation, docs/runbooks/deploy-windows-containers.md): the browser
+//       flow of the running realm stops after the password (its level-2 step is DISABLED), a new person is not asked to configure a one-time password and the pending
+//       request of that kind is taken from every person. `off` puts the realm back as the product ships it: the second factor at every sign-in. The realm file of the
+//       product is never changed, and the credentials of the people (their one-time passwords, their keys) are kept in both directions.
 //
 // The administrator is the first administrator of Keycloak (KEYCLOAK_ADMIN_USER, password file KEYCLOAK_ADMIN_PASSWORD_FILE). Nothing secret is printed.
 import { randomBytes } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
 export class AdminError extends Error {}
+
+/** Where the realm of the product asks for the second factor (infra/keycloak/onprem/machvon-realm.json): the level-2 step of the browser forms, and the action a new person gets. */
+export const SECOND_FACTOR = { flow: 'machvon browser forms', step: 'machvon level 2', action: 'CONFIGURE_TOTP' };
+/** The presentation of the realm for the edition of the pack, beside this file in the image (absent in a pack whose edition keeps the realm file as it is). */
+export const PRESENTATION_FILE = fileURLToPath(new URL('./realm-presentation.json', import.meta.url));
+/** What a presentation may set: how the realm looks and reads, nothing of how it authenticates. */
+export const PRESENTATION_FIELDS = ['displayName', 'displayNameHtml', 'loginTheme', 'emailTheme', 'internationalizationEnabled', 'supportedLocales', 'defaultLocale', 'webAuthnPolicyRpEntityName'];
 
 const firstLine = (path) => readFileSync(path, 'utf8').split(/\r?\n/)[0];
 
@@ -80,7 +96,7 @@ export class KeycloakAdmin {
   async createUser({ username, email, firstName, lastName, password, totpSecret, realmRole }) {
     const credentials = [{ type: 'password', value: password, temporary: false }];
     if (totpSecret !== undefined) {
-      credentials.push({ type: 'otp', userLabel: 'MACHVON', secretData: JSON.stringify({ value: totpSecret }), credentialData: JSON.stringify({ subType: 'totp', digits: 6, counter: 0, period: 30, algorithm: 'HmacSHA1' }) });
+      credentials.push({ type: 'otp', userLabel: productLabel(), secretData: JSON.stringify({ value: totpSecret }), credentialData: JSON.stringify({ subType: 'totp', digits: 6, counter: 0, period: 30, algorithm: 'HmacSHA1' }) });
     }
     const created = await this.call('POST', '/users', { username, email, firstName, lastName, enabled: true, emailVerified: true, credentials });
     if (created.status === 409) throw new AdminError(`the person ${username}, or a person with that e-mail address, exists already`);
@@ -102,6 +118,41 @@ export class KeycloakAdmin {
     return user.id;
   }
 
+  /** Writes the given fields of the realm (a partial representation: Keycloak keeps every field that is not named). */
+  async applyPresentation(presentation) {
+    await this.call('PUT', '', presentation);
+    return Object.keys(presentation);
+  }
+
+  /**
+   * Whether the browser flow of the running realm asks for the second factor. `false` is the demonstration mode with one factor: the level-2 step of the flow is
+   * DISABLED (the sign-in ends after the password, the tokens say `aal1`), `CONFIGURE_TOTP` is no default action any more and is taken from the people it waits for.
+   * `true` restores what the realm file of the product says. Returns what was changed.
+   */
+  async setSecondFactor(required) {
+    const flow = `/authentication/flows/${encodeURIComponent(SECOND_FACTOR.flow)}/executions`;
+    const { body: executions } = await this.call('GET', flow);
+    const step = (executions ?? []).find((execution) => execution.displayName === SECOND_FACTOR.step && execution.level === 0);
+    if (step === undefined) throw new AdminError(`the flow "${SECOND_FACTOR.flow}" of the realm has no step "${SECOND_FACTOR.step}": this is not the realm of the product`);
+    const requirement = required ? 'CONDITIONAL' : 'DISABLED';
+    if (step.requirement !== requirement) await this.call('PUT', flow, { ...step, requirement });
+    const { body: action } = await this.call('GET', `/authentication/required-actions/${SECOND_FACTOR.action}`);
+    if (action !== undefined && action.defaultAction !== required) await this.call('PUT', `/authentication/required-actions/${SECOND_FACTOR.action}`, { ...action, defaultAction: required });
+    let released = 0;
+    if (!required) {
+      for (let first = 0; ; first += 100) {
+        const { body: page } = await this.call('GET', `/users?first=${first}&max=100`);
+        for (const user of page ?? []) {
+          if (!(user.requiredActions ?? []).includes(SECOND_FACTOR.action)) continue;
+          await this.call('PUT', `/users/${user.id}`, { ...user, requiredActions: user.requiredActions.filter((name) => name !== SECOND_FACTOR.action) });
+          released += 1;
+        }
+        if ((page ?? []).length < 100) break;
+      }
+    }
+    return { requirement, defaultAction: required, released };
+  }
+
   /** Removes a person of the realm by user name; false when there is no such person. */
   async deleteUser(username) {
     const { body: found } = await this.call('GET', `/users?exact=true&username=${encodeURIComponent(username)}`);
@@ -110,6 +161,15 @@ export class KeycloakAdmin {
     await this.call('DELETE', `/users/${user.id}`);
     return true;
   }
+}
+
+/**
+ * The name of the product a person reads beside a one-time password (in the authenticator application, in the account pages): the display name of the presentation
+ * of the edition, or the code name where the release carries none. Entries a person imported earlier keep the name they were imported with.
+ */
+export function productLabel(readJson = (path) => (existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : undefined)) {
+  const name = readJson(PRESENTATION_FILE)?.displayName;
+  return typeof name === 'string' && name.trim() !== '' ? name.trim() : 'MACHVON';
 }
 
 /** A secret of a one-time password as Keycloak makes them: twenty letters and digits. */
@@ -137,12 +197,13 @@ export function otpauthOf({ issuerName, username, secret }) {
   return `otpauth://totp/${encodeURIComponent(issuerName)}:${encodeURIComponent(username)}?secret=${base32(secret)}&issuer=${encodeURIComponent(issuerName)}&algorithm=SHA1&digits=6&period=30`;
 }
 
-export async function main(argv, { env = process.env, log = (line) => process.stdout.write(`${line}\n`), fetch = globalThis.fetch, read = firstLine } = {}) {
+export async function main(argv, { env = process.env, log = (line) => process.stdout.write(`${line}\n`), fetch = globalThis.fetch, read = firstLine, readJson = (path) => (existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : undefined) } = {}) {
   const [command, ...rest] = argv;
-  const options = { username: { type: 'string' }, email: { type: 'string' }, 'first-name': { type: 'string' }, 'last-name': { type: 'string' }, 'password-file': { type: 'string' }, 'totp-secret-file': { type: 'string' }, 'realm-role': { type: 'string' } };
+  const options = { username: { type: 'string' }, email: { type: 'string' }, 'first-name': { type: 'string' }, 'last-name': { type: 'string' }, 'password-file': { type: 'string' }, 'totp-secret-file': { type: 'string' }, 'realm-role': { type: 'string' }, file: { type: 'string' } };
   let values;
+  let positionals;
   try {
-    ({ values } = parseArgs({ args: rest, options, allowPositionals: false }));
+    ({ values, positionals } = parseArgs({ args: rest, options, allowPositionals: command === 'single-factor' }));
   } catch (error) {
     log(`keycloak-admin: ${error.message}`);
     return 2;
@@ -180,7 +241,33 @@ export async function main(argv, { env = process.env, log = (line) => process.st
       log(`keycloak-admin: ${values.username} ${(await admin.deleteUser(values.username)) ? 'removed' : 'does not exist'}`);
       return 0;
     }
-    log('keycloak-admin: commands are disable-directory, enable-directory, create-user, delete-user');
+    if (command === 'apply-presentation') {
+      const presentation = readJson(values.file ?? PRESENTATION_FILE);
+      if (presentation === undefined) {
+        log('keycloak-admin: this release carries no presentation of the realm: nothing changed');
+        return 0;
+      }
+      if (presentation === null || typeof presentation !== 'object' || Array.isArray(presentation)) throw new AdminError('the presentation of the realm must be a JSON object');
+      const unknown = Object.keys(presentation).filter((name) => !PRESENTATION_FIELDS.includes(name));
+      if (unknown.length > 0) throw new AdminError(`the presentation of the realm may not set ${unknown.join(', ')}`);
+      log(`keycloak-admin: presentation of the realm written: ${(await admin.applyPresentation(presentation)).join(', ')}`);
+      return 0;
+    }
+    if (command === 'single-factor') {
+      const [word, ...more] = positionals;
+      if ((word !== 'on' && word !== 'off') || more.length > 0) {
+        log('keycloak-admin: single-factor takes on or off');
+        return 2;
+      }
+      const result = await admin.setSecondFactor(word === 'off');
+      log(
+        word === 'on'
+          ? `keycloak-admin: DEMONSTRATION MODE, one factor: the second factor of the browser flow is ${result.requirement}; ${result.released} pending request(s) to configure a one-time password removed`
+          : `keycloak-admin: the second factor of the browser flow is ${result.requirement} again (every sign-in asks for it)`,
+      );
+      return 0;
+    }
+    log('keycloak-admin: commands are disable-directory, enable-directory, create-user, delete-user, apply-presentation, single-factor');
     return 2;
   } catch (error) {
     if (!(error instanceof AdminError)) throw error;

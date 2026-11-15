@@ -1,6 +1,8 @@
 # Runs tools\keycloak-admin.mjs of the api image in a one-shot container on the compose network (the administration of Keycloak is not on the public edge).
 #
 #   keycloak-admin.ps1 disable-directory | enable-directory
+#   keycloak-admin.ps1 apply-presentation        (name, login theme and languages of the realm, as the release carries them for its edition)
+#   keycloak-admin.ps1 single-factor on | off    (the demonstration mode with one factor: use host\single-factor.ps1, which also sets the API)
 #   keycloak-admin.ps1 create-user --username <name> --email <address> --first-name <text> --last-name <text> --password-file C:\run\admin\<file> [--realm-role SystemAdmin]
 #
 # The container mounts secrets\keycloak (read-only) and secrets\admin at C:\run\admin (where a password file of a person is put before `create-user`).

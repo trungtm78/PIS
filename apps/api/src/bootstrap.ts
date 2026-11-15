@@ -188,6 +188,7 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
       jwks: new HttpJwksSource({ jwksUri }),
       tenantTokenKeys: async () => (await issuer.publicKeys()).keys,
       tenantIssuer: config.tenantToken.issuer,
+      singleFactorCountsAsSecond: config.demoSingleFactor,
     });
     const authOptions: AuthGuardOptions = { verifier, denyList, controlAudience: config.oidc.controlAudience };
     const tracer = new Tracer({ exporter: exporterOf(config, overrides) });
@@ -311,7 +312,7 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           // An enterprise process mails the issued report forms by schedule through the channel port (ENT-4d); a public process binds nothing.
           ...(config.edition === 'enterprise' ? { reportMailRunner: await loadReportMailJob({ tenants, registry: app.get<ChannelAdapterRegistry>(CHANNEL_ADAPTERS, { strict: false }) }) } : {}),
         },
-        { ...(overrides.timers === undefined ? {} : { timers: overrides.timers }), ...(overrides.workerLog === undefined ? {} : { log: overrides.workerLog }) },
+        { ...(overrides.timers === undefined ? {} : { timers: overrides.timers }), ...(overrides.workerLog === undefined ? {} : { log: overrides.workerLog }), runAtStart: config.workersRunAtStart },
       );
     }
     let stopping: Promise<void> | undefined;

@@ -9,6 +9,9 @@
 //   api/app         the API as COMPILED JavaScript (types, comments and tests removed; the files keep their names so that every relative path of the product holds),
 //                   the production dependencies for win32-x64, the migrations and the two design files the migration job reads;
 //   infra, tools    the Dockerfiles, the compose file and the host scripts of infra/onprem-windows, the realm of Keycloak and the first-tenant tool;
+//                   for the public edition also its login theme (infra/keycloak/themes/pis-public) and the presentation of the realm (display name, theme,
+//                   languages: infra/keycloak/onprem/presentation.public.json), which host\install.ps1 writes into the running realm. The enterprise edition
+//                   keeps the realm as its file says: its pack carries neither;
 //   VERSION, manifest.json (every file with its SHA-256).
 // The pack is copied to the server, the images are built there, and the pack is deleted (infra/onprem-windows/host/build-images.ps1).
 import { spawnSync } from 'node:child_process';
@@ -219,10 +222,30 @@ function buildApi({ out, transformSync }) {
   return counts;
 }
 
-function copyInfra({ out }) {
+/** The login themes and the presentation of the realm an edition ships with (paths below infra/keycloak of the repository); an edition that is not named ships none. */
+export const EDITION_IDENTITY = { public: { themes: ['pis-public'], presentation: 'onprem/presentation.public.json' } };
+
+/**
+ * Copies what the Keycloak image and the administration tool need for the edition: the realm file as it is, the themes of the edition below `infra/keycloak/themes`
+ * (the directory always exists: the Dockerfile copies it) and the presentation of the realm beside the administration tool. Returns the names of the themes.
+ */
+export function copyIdentity({ out, edition, root = REPO_ROOT }) {
+  const source = join(root, 'infra', 'keycloak');
+  const themes = join(out, 'infra', 'keycloak', 'themes');
+  mkdirSync(themes, { recursive: true });
+  cpSync(join(source, 'onprem', 'machvon-realm.json'), join(out, 'infra', 'keycloak', 'machvon-realm.json'));
+  writeFileSync(join(themes, 'README.md'), 'The login themes of the edition this pack was made for (scripts/onprem-windows-pack.mjs). None means the themes of Keycloak.\n');
+  const identity = EDITION_IDENTITY[edition];
+  if (identity === undefined) return [];
+  for (const theme of identity.themes) cpSync(join(source, 'themes', theme), join(themes, theme), { recursive: true });
+  const tools = join(out, 'tools', 'infra', 'onprem-windows', 'tools');
+  mkdirSync(tools, { recursive: true });
+  cpSync(join(source, identity.presentation), join(tools, 'realm-presentation.json'));
+  return identity.themes;
+}
+
+function copyInfra({ out, edition }) {
   cpSync(join(REPO_ROOT, 'infra', 'onprem-windows'), join(out, 'infra', 'onprem-windows'), { recursive: true });
-  mkdirSync(join(out, 'infra', 'keycloak'), { recursive: true });
-  cpSync(join(REPO_ROOT, 'infra', 'keycloak', 'onprem', 'machvon-realm.json'), join(out, 'infra', 'keycloak', 'machvon-realm.json'));
   // The tools an operator runs with the Node of the api image, at the relative paths they have in the repository (they import each other): the first tenant,
   // the sign-in helper, and the administration tools of this deployment.
   const tools = join(out, 'tools');
@@ -231,6 +254,7 @@ function copyInfra({ out }) {
     cpSync(join(REPO_ROOT, 'scripts', file), join(tools, 'scripts', file));
   }
   cpSync(join(REPO_ROOT, 'infra', 'onprem-windows', 'tools'), join(tools, 'infra', 'onprem-windows', 'tools'), { recursive: true });
+  copyIdentity({ out, edition });
 }
 
 export async function main(argv, { log = console.log } = {}) {
@@ -263,7 +287,7 @@ export async function main(argv, { log = console.log } = {}) {
   writeEdge({ out, origin });
   log('onprem-windows-pack: api (production dependencies, compiled sources)');
   const counts = buildApi({ out, transformSync });
-  copyInfra({ out });
+  copyInfra({ out, edition: values.edition });
   writeFileSync(join(out, 'VERSION'), `${values.version}\n`);
   const manifest = { version: values.version, edition: values.edition, publicOrigin: origin.origin, publicHost: origin.host, platform: `${process.platform}-${process.arch}`, node: process.version, files: manifestOf(out) };
   writeFileSync(join(out, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);

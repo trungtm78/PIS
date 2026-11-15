@@ -33,6 +33,13 @@ x-api-environment: &api-environment
   TENANT_TOKEN_SIGNING_KEY_PEM_PATH: C:\run\secrets\tenant_token_signing_key
   WEB_BASE_URL: https://${PUBLIC_HOST}
   MACHVON_EDITION: ${MACHVON_EDITION}
+  # The DEMONSTRATION mode with one factor (docs/runbooks/deploy-windows-containers.md, "Chế độ demo một yếu tố"). Off unless the environment file says true AND
+  # declares the installation a demonstration: the API refuses to start with the first without the second.
+  MACHVON_DEMO_SINGLE_FACTOR: ${MACHVON_DEMO_SINGLE_FACTOR:-false}
+  MACHVON_DEPLOYMENT_PURPOSE: ${MACHVON_DEPLOYMENT_PURPOSE:-}
+  # Scheduled jobs that also run once right after the start of the workers (they otherwise wait one whole period): the baseline of the catalogues reaches a new
+  # tenant at once instead of six hours after the last restart.
+  WORKERS_RUN_AT_START: ${WORKERS_RUN_AT_START:-master-baseline-sync}
   DATABASE_URL_APP_FILE: C:\run\secrets\database_url_app
   DATABASE_URL_CONTROL_FILE: C:\run\secrets\database_url_control
   DATABASE_URL_OUTBOX_RELAY_FILE: C:\run\secrets\database_url_outbox_relay

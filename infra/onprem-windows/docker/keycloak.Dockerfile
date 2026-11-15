@@ -2,6 +2,8 @@
 # Build context: the `infra` directory of the build pack (docker build -f infra/onprem-windows/docker/keycloak.Dockerfile infra).
 # Keycloak for WINDOWS containers (process isolation): the distribution of the Keycloak project on a Java 21 runtime of Eclipse Temurin, on Nano Server, as ContainerUser.
 # Same version as the Linux deployment (infra/onprem/compose/compose.yaml). The realm of the product is copied in and imported at the first start (--import-realm).
+# The login themes of the edition of the pack (keycloak/themes; the public edition ships pis-public) are copied into the themes directory of the server: a theme is
+# only files, the realm selects it by name (host\install.ps1 writes the presentation of the realm with tools\keycloak-admin.mjs apply-presentation).
 # The server is built here for PostgreSQL and the /idp path, so that the start does not rewrite the installation (start --optimized).
 ARG WINDOWS_TAG=ltsc2025
 
@@ -26,6 +28,7 @@ LABEL org.opencontainers.image.title="machvon-keycloak-windows" `
 COPY --from=build C:\java C:\java
 COPY --from=build C:\keycloak C:\keycloak
 COPY keycloak/machvon-realm.json C:\keycloak\data\import\machvon-realm.json
+COPY keycloak/themes C:\keycloak\themes
 COPY onprem-windows/docker/keycloak-entrypoint.cmd C:\keycloak\bin\machvon-entrypoint.cmd
 ENV JAVA_HOME=C:\java `
     KC_DB=postgres `

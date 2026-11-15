@@ -17,7 +17,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { KeycloakAdmin, newTotpSecret, otpauthOf } from './keycloak-admin.mjs';
+import { KeycloakAdmin, newTotpSecret, otpauthOf, productLabel } from './keycloak-admin.mjs';
 import { authorizationUrl, codeOf, exchangeCode, issuerOf, main as firstTenant, pkcePair } from '../../../scripts/onprem-first-tenant.mjs';
 import { signIn } from '../../../scripts/onprem-smoke/keycloak-login.mjs';
 
@@ -131,7 +131,7 @@ export async function main(argv, { env = process.env, log = (line) => process.st
     for (const person of people) {
       if (state.people[person.username] === undefined) {
         const secret = newTotpSecret();
-        state.people[person.username] = { username: person.username, email: person.email, kind: person.kind, password: newPassword(), totpSecret: secret, otpauth: otpauthOf({ issuerName: `MACHVON ${publicHost}`, username: person.username, secret }) };
+        state.people[person.username] = { username: person.username, email: person.email, kind: person.kind, password: newPassword(), totpSecret: secret, otpauth: otpauthOf({ issuerName: `${productLabel()} ${publicHost}`, username: person.username, secret }) };
         save();
       }
       if (state.people[person.username].inRealm !== true) {

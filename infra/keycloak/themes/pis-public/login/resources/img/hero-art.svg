@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1000" preserveAspectRatio="xMaxYMax slice">
+  <!-- Drawn for this theme (no third-party artwork): a dot grid, thin data lines, capital columns and a growth line with softly lit nodes. -->
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.1" fill="#FFFFFF" fill-opacity="0.09"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="1"/>
+    </linearGradient>
+    <mask id="dotsMask"><rect width="900" height="1000" fill="url(#fade)"/></mask>
+    <linearGradient id="bar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7FE0D6" stop-opacity="0.62"/>
+      <stop offset="1" stop-color="#2FB5A8" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="barSoft" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C4D5DC" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#C4D5DC" stop-opacity="0.03"/>
+    </linearGradient>
+    <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7FE0D6" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#7FE0D6" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7FE0D6" stop-opacity="0.15"/>
+      <stop offset="0.35" stop-color="#7FE0D6" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="1"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#7FE0D6" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#7FE0D6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#2FB5A8" stop-opacity="0.38"/>
+      <stop offset="1" stop-color="#2FB5A8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <circle cx="760" cy="760" r="420" fill="url(#halo)"/>
+  <rect width="900" height="1000" fill="url(#dots)" mask="url(#dotsMask)"/>
+
+  <!-- rings: the reach of the network -->
+  <g fill="none" stroke="#FFFFFF" stroke-opacity="0.07">
+    <circle cx="900" cy="60" r="180"/>
+    <circle cx="900" cy="60" r="300"/>
+    <circle cx="900" cy="60" r="430"/>
+  </g>
+
+  <!-- data lines -->
+  <g fill="none" stroke="#7FE0D6" stroke-opacity="0.26" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M900 204 H770 L742 232 H640"/>
+    <path d="M900 316 H820 L792 344 H700 L672 372"/>
+    <path d="M0 668 H96 L124 696 H236"/>
+    <path d="M0 772 H60 L88 800 H212 L240 828 H292"/>
+    <path d="M430 1000 V952 L458 924"/>
+    <path d="M612 150 V92 L640 64 H730"/>
+  </g>
+  <g fill="#7FE0D6" fill-opacity="0.55">
+    <circle cx="640" cy="232" r="3.5"/>
+    <circle cx="672" cy="372" r="3.5"/>
+    <circle cx="236" cy="696" r="3.5"/>
+    <circle cx="292" cy="828" r="3.5"/>
+    <circle cx="612" cy="150" r="3.5"/>
+    <circle cx="730" cy="64" r="3.5"/>
+  </g>
+  <g>
+    <circle cx="770" cy="204" r="16" fill="url(#glow)"/>
+    <circle cx="770" cy="204" r="4" fill="#E9FBF8"/>
+    <circle cx="124" cy="696" r="14" fill="url(#glow)"/>
+    <circle cx="124" cy="696" r="3.5" fill="#E9FBF8"/>
+  </g>
+
+  <!-- capital columns, their base line and the growth line; lifted so that the caption of the panel stands free below the base line -->
+  <g transform="translate(0 -72)">
+  <g>
+    <rect x="352" y="822" width="40" height="88" rx="8" fill="url(#barSoft)"/>
+    <rect x="416" y="786" width="40" height="124" rx="8" fill="url(#barSoft)"/>
+    <rect x="480" y="800" width="40" height="110" rx="8" fill="url(#bar)"/>
+    <rect x="544" y="728" width="40" height="182" rx="8" fill="url(#barSoft)"/>
+    <rect x="608" y="676" width="40" height="234" rx="8" fill="url(#bar)"/>
+    <rect x="672" y="700" width="40" height="210" rx="8" fill="url(#barSoft)"/>
+    <rect x="736" y="596" width="40" height="314" rx="8" fill="url(#bar)"/>
+    <rect x="800" y="512" width="40" height="398" rx="8" fill="url(#bar)"/>
+  </g>
+  <rect x="336" y="920" width="520" height="4" rx="2" fill="#E0AA52" fill-opacity="0.9"/>
+
+  <!-- growth line -->
+  <path d="M250 800 L372 772 L436 730 L500 748 L564 672 L628 618 L692 640 L756 536 L820 446 L900 392 V910 H250 Z" fill="url(#area)"/>
+  <path d="M250 800 L372 772 L436 730 L500 748 L564 672 L628 618 L692 640 L756 536 L820 446 L900 392" fill="none" stroke="url(#line)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g>
+    <circle cx="436" cy="730" r="4" fill="#BFF1EB"/>
+    <circle cx="564" cy="672" r="4" fill="#BFF1EB"/>
+    <circle cx="628" cy="618" r="20" fill="url(#glow)"/>
+    <circle cx="628" cy="618" r="5" fill="#FFFFFF"/>
+    <circle cx="756" cy="536" r="4.5" fill="#E9FBF8"/>
+    <circle cx="820" cy="446" r="30" fill="url(#glow)"/>
+    <circle cx="820" cy="446" r="6.5" fill="#FFFFFF"/>
+    <circle cx="820" cy="446" r="12" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="1.2"/>
+  </g>
+  </g>
+</svg>

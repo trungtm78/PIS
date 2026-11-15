@@ -159,6 +159,11 @@ export interface WorkersOptions {
   intervalSeconds?: Partial<Record<JobName, number>>;
   /** Where one JSON line per failed tick goes; defaults to standard error. */
   log?: (line: string) => void;
+  /**
+   * Jobs that also run once right after the start, under their lock like every run (`Config.workersRunAtStart`). A name that is not scheduled in this process is
+   * logged and skipped.
+   */
+  runAtStart?: readonly string[];
 }
 
 export interface RunningWorkers {
@@ -431,10 +436,26 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   }
   scheduler.start();
 
+  // The runs asked for at the start: the same `runOnce` a tick makes (one owner at a time, recorded in the history), without waiting one period for the first.
+  const scheduled = new Set(runner.names());
+  const atStart = Promise.all(
+    (options.runAtStart ?? []).map(async (name) => {
+      if (!scheduled.has(name)) {
+        log(JSON.stringify({ level: 'warn', message: 'job to run at start is not scheduled in this process', job: name }));
+        return;
+      }
+      try {
+        await runner.runOnce(name);
+      } catch (error) {
+        onError(name, error);
+      }
+    }),
+  );
+
   let stopping: Promise<void> | undefined;
   return {
     jobs: runner.names(),
     history: (name) => runner.history(name),
-    stop: () => (stopping ??= scheduler.stop()),
+    stop: () => (stopping ??= Promise.all([scheduler.stop(), atStart]).then(() => undefined)),
   };
 }
