@@ -5,6 +5,8 @@ import fixtures from '../../support/e2e-fixtures.json' with { type: 'json' };
 import people from '../../support/docs-people.json' with { type: 'json' };
 import { STACK_DIR, STACK_INFO_PATH } from '../../support/stack-paths.ts';
 import { pdfWithText } from '../pdf.ts';
+import { localizer, rewriteDeep } from './localize.ts';
+import type { LocalizePair, Localizer } from './localize.ts';
 import TEXTS from './data/context.json' with { type: 'json' };
 import { textsOf } from '../../support/texts.ts';
 
@@ -93,6 +95,32 @@ export interface StackInfoFile {
   apiPort: number;
   tenants: { A: string; B: string; C: string };
   units: { A: Record<string, string> };
+}
+
+/**
+ * The people of an installation that has no development session (CLIP_CREDENTIALS, a JSON text the caller puts in the environment and never on a disk of this machine): each person of
+ * docs-people.json by key, with the account of the realm and the membership the installation gave them. scripts/clip-seed-auth.mjs signs them in.
+ */
+export interface SeedCredentials {
+  origin: string;
+  tenantId: string;
+  people: Record<string, { username: string; password: string; totpSecret: string; membershipId: string }>;
+}
+
+interface TokenBroker {
+  token: (person: string) => Promise<string>;
+  forget: (person: string) => void;
+}
+
+/** The words of the dataset of the plan file (its `localize.pairs`), or no rewrite at all. An unreadable plan changes nothing. */
+function wordsOfPlan(): Localizer {
+  const file = process.env.CLIP_PLAN_FILE;
+  if (file === undefined || file === '') return localizer(undefined);
+  try {
+    return localizer((JSON.parse(readFileSync(file, 'utf8')) as { localize?: { pairs?: LocalizePair[] } }).localize?.pairs);
+  } catch {
+    return localizer(undefined);
+  }
 }
 
 /** A failed step: it names its module, the command, the HTTP status and the body of the answer. */
@@ -213,14 +241,22 @@ export class SeedContext {
   readonly info: StackInfoFile;
   private readonly sessionKey: Buffer;
   private readonly base: string;
+  /** The words of the dataset (localize.ts): what is sent is rewritten forward, what is read is rewritten backward. */
+  private readonly words: Localizer;
+  /** Set on an installation without the development session: the accounts of the people. */
+  private readonly credentials: SeedCredentials | undefined;
+  private broker: TokenBroker | undefined;
   private calls = 0;
   /** Logs one line per step to this function (the runner prints; the Playwright spec prints too). */
   log: (line: string) => void = (line) => void process.stdout.write(`${line}\n`);
 
   constructor(options: { asOf?: Date } = {}) {
     const key = process.env.E2E_SESSION_KEY;
-    if (key === undefined || key === '') throw new SeedError('E2E_SESSION_KEY is not set (it must be the key the stack was started with)');
-    this.sessionKey = Buffer.from(key, 'base64');
+    const credentials = process.env.CLIP_CREDENTIALS;
+    this.credentials = credentials === undefined || credentials === '' ? undefined : (JSON.parse(credentials) as SeedCredentials);
+    if (this.credentials === undefined && (key === undefined || key === '')) throw new SeedError('E2E_SESSION_KEY is not set (it must be the key the stack was started with)');
+    this.sessionKey = Buffer.from(key ?? '', 'base64');
+    this.words = wordsOfPlan();
     this.info = JSON.parse(readFileSync(STACK_INFO_PATH, 'utf8')) as StackInfoFile;
     // CLIP_API_URL points the seeds at an API that is not on the loopback port of the stack info (scripts/clip-seed.mjs apply --api).
     this.base = (process.env.CLIP_API_URL ?? '') === '' ? `http://127.0.0.1:${this.info.apiPort}` : String(process.env.CLIP_API_URL).replace(/\/+$/u, '');
@@ -229,6 +265,12 @@ export class SeedContext {
     this.today = vietnamDate(this.asOf);
     this.people = Object.fromEntries(
       (people as Array<{ key: string; name: string; initials: string; unit: number; role: string; plane?: 'control' | 'guest' }>).map((person) => {
+        if (this.credentials !== undefined) {
+          // On an installation the membership is the one the installation gave the person; a person of the control plane or a guest of the vendor portal may have no account there.
+          const account = this.credentials.people[person.key];
+          if (account === undefined && person.plane === undefined) throw new SeedError(`the person ${person.key} has no account in the credentials`);
+          return [person.key, { ...person, membershipId: account?.membershipId ?? '' }];
+        }
         const fixture = fixtures.users.find((user) => user.key === person.key);
         if (fixture === undefined) throw new SeedError(`the person ${person.key} has no fixture account (e2e-fixtures.json)`);
         return [person.key, { ...person, membershipId: fixture.membershipId }];
@@ -267,6 +309,22 @@ export class SeedContext {
   token(person: string): string {
     const payload = Buffer.from(JSON.stringify({ tenantId: this.info.tenants.A, membershipId: this.person(person).membershipId, scopeVersion: 1, aal: 'aal2', aal2At: new Date().toISOString(), exp: Math.floor(Date.now() / 1000) + 300 }), 'utf8').toString('base64url');
     return `${payload}.${createHmac('sha256', this.sessionKey).update(payload).digest('base64url')}`;
+  }
+
+  /**
+   * The bearer token of a person: the development session token of the stack, or, on an installation (CLIP_CREDENTIALS), the tenant token the person gets by signing in at the realm
+   * (scripts/clip-seed-auth.mjs keeps it until it is about to end, also between the processes of one apply).
+   */
+  private async bearer(person: string): Promise<string> {
+    if (this.credentials === undefined) return this.token(person);
+    if (this.broker === undefined) {
+      // The path is computed so that the compiler does not follow it: the module is plain JavaScript of the scripts directory.
+      const file = new URL('../../../../../scripts/clip-seed-auth.mjs', import.meta.url).href;
+      const module = (await import(file)) as { brokerOf: (credentials: SeedCredentials, options: { cacheFile?: string }) => TokenBroker };
+      this.broker = module.brokerOf(this.credentials, { cacheFile: process.env.CLIP_TOKEN_CACHE });
+    }
+    this.person(person);
+    return this.broker.token(person);
   }
 
   // ---- dates
@@ -329,10 +387,10 @@ export class SeedContext {
   private async send<T>(person: string, method: Method, path: string, body: unknown, options: CallOptions, form?: FormData): Promise<Reply<T>> {
     const query = Object.entries(options.query ?? {})
       .filter((entry): entry is [string, string | number | boolean] => entry[1] !== undefined)
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(typeof value === 'string' ? this.words.forward(value) : String(value))}`)
       .join('&');
     const url = `${this.base}${path}${query === '' ? '' : `${path.includes('?') ? '&' : '?'}${query}`}`;
-    const headers: Record<string, string> = { authorization: `Bearer ${this.token(person)}`, accept: 'application/json, application/problem+json', ...options.headers };
+    const headers: Record<string, string> = { authorization: `Bearer ${await this.bearer(person)}`, accept: 'application/json, application/problem+json', ...options.headers };
     if (form === undefined && method !== 'GET' && method !== 'DELETE') headers['content-type'] = 'application/json';
     if (method !== 'GET') headers['idempotency-key'] = options.idempotencyKey ?? randomUUID();
     const version = versionOf(options.version);
@@ -342,14 +400,21 @@ export class SeedContext {
       const response = await fetch(url, {
         method,
         headers,
-        body: form ?? (method === 'GET' || method === 'DELETE' ? undefined : JSON.stringify(body ?? {})),
+        body: form ?? (method === 'GET' || method === 'DELETE' ? undefined : JSON.stringify(this.words.active ? rewriteDeep(body ?? {}, this.words.forward) : (body ?? {}))),
       });
       const text = await response.text();
       let json: unknown = {};
       try {
         json = text === '' ? {} : JSON.parse(text);
+        if (this.words.active) json = rewriteDeep(json, this.words.backward);
       } catch {
         json = {};
+      }
+      // A tenant token of an installation lives five minutes: one that ended on the way is renewed once.
+      if (response.status === 401 && this.broker !== undefined && attempt === 0) {
+        this.broker.forget(person);
+        headers.authorization = `Bearer ${await this.bearer(person)}`;
+        continue;
       }
       const busy = response.status === 409 && /IDEMPOTENCY_IN_PROGRESS/u.test(text);
       if ((busy || response.status === 429 || response.status === 503) && attempt < 6) {
@@ -371,8 +436,11 @@ export class SeedContext {
   /** A multipart upload (the file endpoints: /document-files, /report-files, ...). */
   upload<T = Obj>(person: string, path: string, file: Upload, options: CallOptions = {}): Promise<Reply<T>> {
     const form = new FormData();
-    form.append(file.field ?? 'file', new Blob([new Uint8Array(file.buffer)], { type: file.mime ?? 'application/pdf' }), file.filename);
-    for (const [name, value] of Object.entries(file.fields ?? {})) form.append(name, value);
+    // A file of text (a statement, a feed) carries the words of the guide like a body does; any other file is sent as it is.
+    const textual = this.words.active && /^text\/|json|csv|xml/u.test(file.mime ?? '');
+    const buffer = textual ? Buffer.from(this.words.forward(file.buffer.toString('utf8')), 'utf8') : file.buffer;
+    form.append(file.field ?? 'file', new Blob([new Uint8Array(buffer)], { type: file.mime ?? 'application/pdf' }), this.words.forward(file.filename));
+    for (const [name, value] of Object.entries(file.fields ?? {})) form.append(name, this.words.forward(value));
     return this.send<T>(person, 'POST', path, undefined, options, form);
   }
 
@@ -435,7 +503,7 @@ export class SeedContext {
 
   /** A small valid PDF with some lines of text (a scanned letter, a decision, a report). */
   pdf(...lines: string[]): Buffer {
-    return pdfWithText(lines);
+    return pdfWithText(lines.map((line) => this.words.forward(line)));
   }
 
   sha256(buffer: Buffer): string {

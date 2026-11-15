@@ -62,3 +62,4 @@ Design/Requirments/
 
 # What a failed golden comparison writes next to the test (flutter_test): never committed.
 apps/mobile/test/**/failures/
+.demo-public/

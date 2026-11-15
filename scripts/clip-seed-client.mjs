@@ -18,10 +18,12 @@ export function membershipOfPerson(fixturesPath, key) {
   return found.membershipId;
 }
 
-/** `new ApiReader({ base, key, tenantId, fixturesPath })`: `get(person, path, query)` and `list(person, path, query)` (every row of a cursor list). */
+/** `new ApiReader({ base, key, tenantId, fixturesPath })` (or `{ base, tokenOf }` on an installation): `get(person, path, query)` and `list(person, path, query)` (every row of a cursor list). */
 export class ApiReader {
-  constructor({ base, key, tenantId, fixturesPath, fetchImpl = fetch }) {
+  constructor({ base, key, tenantId, fixturesPath, fetchImpl = fetch, tokenOf }) {
     this.base = base.replace(/\/+$/u, '');
+    // On an installation without the development session the caller gives `tokenOf(person)` (scripts/clip-seed-auth.mjs); the key and the fixtures are then not used.
+    this.tokenOf = tokenOf;
     this.key = key;
     this.tenantId = tenantId;
     this.fixturesPath = fixturesPath;
@@ -34,7 +36,7 @@ export class ApiReader {
       .filter(([, value]) => value !== undefined)
       .map(([name, value]) => `${encodeURIComponent(name)}=${encodeURIComponent(String(value))}`)
       .join('&');
-    const token = sessionToken({ key: this.key, tenantId: this.tenantId, membershipId: membershipOfPerson(this.fixturesPath, person) });
+    const token = this.tokenOf === undefined ? sessionToken({ key: this.key, tenantId: this.tenantId, membershipId: membershipOfPerson(this.fixturesPath, person) }) : await this.tokenOf(person);
     this.calls += 1;
     const response = await this.fetchImpl(`${this.base}${path}${search === '' ? '' : `?${search}`}`, { headers: { authorization: `Bearer ${token}`, accept: 'application/json' } });
     const text = await response.text();
