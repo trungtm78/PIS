@@ -5,6 +5,8 @@ import { FileService } from '../files';
 import { defineModule } from '../module-descriptor';
 import { DocumentFilesController } from './document-files.controller';
 import { DocumentVersionReadsController, DocumentsController } from './documents.controller';
+import { demoSigningOfEnvironment } from './demo-signing';
+import type { DemoSigning } from './demo-signing';
 import { DOCUMENT_FILE_PORT, MockDocumentFilePort } from './file-port';
 import type { DocumentFilePort } from './file-port';
 import type { MetricsSink } from '@machvon/kernel';
@@ -36,7 +38,7 @@ import { SignaturesController } from './signatures.controller';
 import { TransmittalController, TransmittalReadsController } from './transmittal.controller';
 import { UnconfiguredSigningPort } from './signing-adapters';
 import { DocumentTemplatesController } from './templates.controller';
-import { DOC_CLOCK, DOC_EMAIL_CHANNEL, DOC_INTEROP_CODEC, DOC_INTEROP_TRANSPORT, DOC_METRICS, DOC_RESOURCES, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from './tokens';
+import { DEMO_SIGNING, DOC_CLOCK, DOC_EMAIL_CHANNEL, DOC_INTEROP_CODEC, DOC_INTEROP_TRANSPORT, DOC_METRICS, DOC_RESOURCES, DOC_REVOCATION, DOC_SIGNING_PORT, DOC_STATE_TEXT, DOC_TRUST_STORE, PDF_RENDERER } from './tokens';
 import { StaticTrustStoreProvider, UnavailableRevocationPort, loadTrustAnchors } from './trust-anchors';
 import { DocumentCommentsController } from './repository-comments.controller';
 import { ProjectDocumentFilesController, ProjectDocumentsController } from './repository.controller';
@@ -103,11 +105,18 @@ export const docModule = defineModule({
     { provide: DOC_RESOURCES, useFactory: (): RendererResources => loadRendererResources() },
     { provide: PDF_RENDERER, useFactory: (resources: RendererResources): PdfLibRenderer => new PdfLibRenderer(resources), inject: [DOC_RESOURCES] },
     // The trust anchors per regime come from the directory named by MACHVON_TRUST_ANCHORS_DIR (none: nothing is trusted).
-    { provide: DOC_TRUST_STORE, useFactory: () => new StaticTrustStoreProvider(loadTrustAnchors(process.env.MACHVON_TRUST_ANCHORS_DIR)) },
+    // The stand-in of the certification authority of a DEMONSTRATION installation (demo-signing.ts): nothing unless the environment asks for it, and then only where the
+    // installation declares itself a demonstration; a wrong setting stops the start.
+    { provide: DEMO_SIGNING, useFactory: () => demoSigningOfEnvironment(process.env) },
+    {
+      provide: DOC_TRUST_STORE,
+      useFactory: (demo?: DemoSigning) => new StaticTrustStoreProvider([...loadTrustAnchors(process.env.MACHVON_TRUST_ANCHORS_DIR), ...(demo === undefined ? [] : [demo.anchor])]),
+      inject: [DEMO_SIGNING],
+    },
     // No OCSP/CRL adapter exists yet: revocation then reads UNKNOWN, which the report shows as INDETERMINATE.
     { provide: DOC_REVOCATION, useValue: new UnavailableRevocationPort() },
     // No certification authority adapter exists yet (DOC-SPK-01): signing answers PROVIDER_UNAVAILABLE until one is bound.
-    { provide: DOC_SIGNING_PORT, useValue: new UnconfiguredSigningPort() },
+    { provide: DOC_SIGNING_PORT, useFactory: (demo?: DemoSigning) => demo?.port ?? new UnconfiguredSigningPort(), inject: [DEMO_SIGNING] },
     // No mail transport exists yet: an email distribution is FAILED with the reason and can be sent again once an adapter is bound.
     { provide: DOC_EMAIL_CHANNEL, useValue: new UnconfiguredEmailChannel() },
     // No gateway adapter of the LGSP exists yet (the specification of the pilot tenant is open, CXN-06): every send says the provider cannot be reached, and a message waits, fails with that reason and ends DEAD with its alert.

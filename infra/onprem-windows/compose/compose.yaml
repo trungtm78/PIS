@@ -37,6 +37,11 @@ x-api-environment: &api-environment
   # declares the installation a demonstration: the API refuses to start with the first without the second.
   MACHVON_DEMO_SINGLE_FACTOR: ${MACHVON_DEMO_SINGLE_FACTOR:-false}
   MACHVON_DEPLOYMENT_PURPOSE: ${MACHVON_DEPLOYMENT_PURPOSE:-}
+  # The DEMONSTRATION stand-in of the certification authority (docs/runbooks/demo-data-camau.md, "Ký số của bản demo"): documents are signed with the identities of the
+  # file secrets\api\demo_pki, which only this installation trusts. Off unless the environment file says true; the API refuses to start with it on where the
+  # installation does not declare itself a demonstration, or where the file is missing.
+  MACHVON_DEMO_SIGNING: ${MACHVON_DEMO_SIGNING:-false}
+  MACHVON_DEMO_PKI_FILE: C:\run\secrets\demo_pki
   # Scheduled jobs that also run once right after the start of the workers (they otherwise wait one whole period): the baseline of the catalogues reaches a new
   # tenant at once instead of six hours after the last restart.
   WORKERS_RUN_AT_START: ${WORKERS_RUN_AT_START:-master-baseline-sync}
