@@ -15,7 +15,8 @@ RUN curl.exe -fsSL --retry 3 -o C:\nginx.zip $env:NGINX_URL; `
     Remove-Item -Recurse -Force C:\nginx\html, C:\nginx\contrib, C:\nginx\docs -ErrorAction SilentlyContinue; `
     Get-ChildItem C:\nginx\conf -Exclude mime.types | Remove-Item -Recurse -Force
 
-FROM mcr.microsoft.com/windows/nanoserver:${WINDOWS_TAG}
+# Server Core, not Nano Server: nginx for Windows needs USER32.dll, which Nano Server does not have (nginx.exe ends with 0xC0000135 there).
+FROM mcr.microsoft.com/windows/servercore:${WINDOWS_TAG}
 LABEL org.opencontainers.image.title="machvon-web-windows" `
       org.opencontainers.image.description="MACHVON web and edge for Windows containers"
 COPY --from=nginx C:\nginx C:\nginx

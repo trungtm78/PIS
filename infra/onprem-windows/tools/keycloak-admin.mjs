@@ -83,7 +83,7 @@ export class KeycloakAdmin {
   }
 }
 
-export async function main(argv, { env = process.env, log = console.log, fetch = globalThis.fetch, read = firstLine } = {}) {
+export async function main(argv, { env = process.env, log = (line) => process.stdout.write(`${line}\n`), fetch = globalThis.fetch, read = firstLine } = {}) {
   const [command, ...rest] = argv;
   const options = { username: { type: 'string' }, email: { type: 'string' }, 'first-name': { type: 'string' }, 'last-name': { type: 'string' }, 'password-file': { type: 'string' }, 'realm-role': { type: 'string' } };
   let values;

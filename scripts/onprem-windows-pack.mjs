@@ -24,6 +24,8 @@ const EXACT_VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const EDITIONS = new Set(['public', 'enterprise']);
 export const REALM = 'machvon';
 export const WEB_CLIENT = 'machvon-web';
+/** The scripts of the repository the tools of the image import. */
+export const TOOL_SCRIPTS = ['onprem-first-tenant.mjs', 'onprem-messages.mjs', 'messages/onprem.vi.json', 'messages/onprem.en.json', 'onprem-smoke/keycloak-login.mjs'];
 
 /** The compiler options of the API loader (apps/api/scripts/ts-loader.mjs) without source maps, and with comments and white space removed. */
 export const COMPILE_OPTIONS = {
@@ -221,15 +223,14 @@ function copyInfra({ out }) {
   cpSync(join(REPO_ROOT, 'infra', 'onprem-windows'), join(out, 'infra', 'onprem-windows'), { recursive: true });
   mkdirSync(join(out, 'infra', 'keycloak'), { recursive: true });
   cpSync(join(REPO_ROOT, 'infra', 'keycloak', 'onprem', 'machvon-realm.json'), join(out, 'infra', 'keycloak', 'machvon-realm.json'));
-  // The tools an operator runs with the node of the API image: the first tenant, and the sign-in helper the first-users script of this deployment uses.
+  // The tools an operator runs with the Node of the api image, at the relative paths they have in the repository (they import each other): the first tenant,
+  // the sign-in helper, and the administration tools of this deployment.
   const tools = join(out, 'tools');
-  mkdirSync(join(tools, 'messages'), { recursive: true });
-  mkdirSync(join(tools, 'onprem-smoke'), { recursive: true });
-  for (const file of ['onprem-first-tenant.mjs', 'onprem-messages.mjs', 'messages/onprem.vi.json', 'messages/onprem.en.json', 'onprem-smoke/keycloak-login.mjs']) {
-    cpSync(join(REPO_ROOT, 'scripts', file), join(tools, file));
+  for (const file of TOOL_SCRIPTS) {
+    mkdirSync(dirname(join(tools, 'scripts', file)), { recursive: true });
+    cpSync(join(REPO_ROOT, 'scripts', file), join(tools, 'scripts', file));
   }
-  // The administration tools of this deployment (the same directory of the image).
-  for (const file of readdirSync(join(REPO_ROOT, 'infra', 'onprem-windows', 'tools'))) cpSync(join(REPO_ROOT, 'infra', 'onprem-windows', 'tools', file), join(tools, file));
+  cpSync(join(REPO_ROOT, 'infra', 'onprem-windows', 'tools'), join(tools, 'infra', 'onprem-windows', 'tools'), { recursive: true });
 }
 
 export async function main(argv, { log = console.log } = {}) {

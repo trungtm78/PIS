@@ -28,7 +28,8 @@ ARG PGVECTOR_SHA256
 RUN curl.exe -fsSL --retry 3 -o C:\pgvector.tar.gz $env:PGVECTOR_URL; `
     if ((Get-FileHash C:\pgvector.tar.gz -Algorithm SHA256).Hash -ne $env:PGVECTOR_SHA256) { throw 'the pgvector archive does not have the pinned SHA-256' }; `
     New-Item -ItemType Directory C:\pgvector | Out-Null; tar.exe -xzf C:\pgvector.tar.gz -C C:\pgvector --strip-components 1; `
-    cmd /c 'call C:\BuildTools\VC\Auxiliary\Build\vcvars64.bat && cd /d C:\pgvector && set "PGROOT=C:\pgsql" && nmake /NOLOGO /F Makefile.win && nmake /NOLOGO /F Makefile.win install'; `
+    $env:PGROOT = 'C:\pgsql'; `
+    cmd /c 'call C:\BuildTools\VC\Auxiliary\Build\vcvars64.bat && cd /d C:\pgvector && nmake /NOLOGO /F Makefile.win && nmake /NOLOGO /F Makefile.win install'; `
     if ($LASTEXITCODE -ne 0) { throw 'pgvector did not build' }; `
     if (-not (Test-Path C:\pgsql\lib\vector.dll)) { throw 'vector.dll was not installed' }; `
     $runtime = @(Get-ChildItem 'C:\BuildTools\VC\Redist\MSVC\*\x64\Microsoft.VC*.CRT\*.dll'); `

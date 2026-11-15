@@ -13,6 +13,6 @@ $arguments = @(
   '--volume', ((Join-Path $script:SecretsDir 'keycloak') + ':C:\run\secrets:ro'),
   '--volume', ((Join-Path $script:SecretsDir 'admin') + ':C:\run\admin:ro'),
   '--env', ('KEYCLOAK_ADMIN_USER=' + (Get-Setting 'KEYCLOAK_ADMIN_USER')), '--env', ('OIDC_REALM=' + (Get-Setting 'OIDC_REALM')),
-  '--entrypoint', 'C:\node\node.exe', "machvon/api-windows:$version", 'C:\app\tools\keycloak-admin.mjs'
+  '--entrypoint', 'C:\node\node.exe', "machvon/api-windows:$version", 'C:\app\tools\infra\onprem-windows\tools\keycloak-admin.mjs'
 ) + $args
 Invoke-Native 'keycloak-admin' { & docker @arguments }
