@@ -300,7 +300,7 @@ export async function main(argv, { log = console.log, fetch = globalThis.fetch, 
   } catch (error) {
     if (!(error instanceof FirstTenantError)) throw error;
     // The one refusal with a cause on the host: no active shared placement in the region asked for.
-    const code = error.detail.includes('PLACEMENT_UNAVAILABLE') ? 'PLACEMENT_UNAVAILABLE' : error.code;
+    const code = error.code === 'API_REFUSED' && error.detail.includes('PLACEMENT_UNAVAILABLE') ? 'PLACEMENT_UNAVAILABLE' : error.code;
     log(format(messages[`tenant.error.${code}`] ?? messages['tenant.error.API_REFUSED'], { detail: error.detail }));
     return 1;
   }
