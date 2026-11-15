@@ -111,5 +111,6 @@
   "tenant.error.API_REFUSED": "API từ chối yêu cầu: {detail}",
   "tenant.error.PLAN_NOT_PUBLISHED": "không có bản Published nào của gói {detail}",
   "tenant.error.PROVISIONING_FAILED": "khởi tạo thất bại ở {detail}: đọc log của workers, rồi thử lại từ danh sách tenant (SAS-01) hoặc bằng retryTenantProvisioning",
-  "tenant.error.PROVISIONING_TIMEOUT": "tenant chưa Active ({detail}): kiểm tra dịch vụ workers có healthy không, rồi chạy lại đúng lệnh này (không tạo tenant thứ hai)"
+  "tenant.error.PROVISIONING_TIMEOUT": "tenant chưa Active ({detail}): kiểm tra dịch vụ workers có healthy không, rồi chạy lại đúng lệnh này (không tạo tenant thứ hai)",
+  "tenant.error.PLACEMENT_UNAVAILABLE": "không có nơi đặt cơ sở dữ liệu nào nhận tenant ở vùng đó ({detail}): truyền --region đúng giá trị MACHVON_REGION của bản cài (install.sh đăng ký nơi đặt; chạy lại nếu bảng trống)"
 }

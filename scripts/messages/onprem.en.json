@@ -111,5 +111,6 @@
   "tenant.error.API_REFUSED": "the API refused the request: {detail}",
   "tenant.error.PLAN_NOT_PUBLISHED": "no Published revision of plan {detail}",
   "tenant.error.PROVISIONING_FAILED": "provisioning failed at {detail}: read the logs of the workers, then retry from the tenant list (SAS-01) or with retryTenantProvisioning",
-  "tenant.error.PROVISIONING_TIMEOUT": "the tenant is not Active yet ({detail}): check that the workers service is healthy, then run the same command again (it does not request a second tenant)"
+  "tenant.error.PROVISIONING_TIMEOUT": "the tenant is not Active yet ({detail}): check that the workers service is healthy, then run the same command again (it does not request a second tenant)",
+  "tenant.error.PLACEMENT_UNAVAILABLE": "no database placement accepts a tenant in that region ({detail}): pass --region with the value of MACHVON_REGION of the installation (install.sh registers the placement; run it again if the table is empty)"
 }

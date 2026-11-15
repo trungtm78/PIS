@@ -153,3 +153,12 @@ test('every message of the script exists in both languages', () => {
     for (const code of ['CALLBACK_INVALID', 'SIGN_IN_REFUSED', 'TOKEN_REFUSED', 'UNREACHABLE', 'NOT_SIGNED_IN', 'NOT_ALLOWED', 'API_REFUSED', 'PLAN_NOT_PUBLISHED', 'PROVISIONING_FAILED', 'PROVISIONING_TIMEOUT']) assert.ok(messages[`tenant.error.${code}`], `${locale}: ${code}`);
   }
 });
+
+test('a refusal for want of a placement names the region setting of the installation', async () => {
+  const world = installation({ tenantStatus: 422 });
+  const original = world.fetch;
+  world.fetch = async (url, init) => (new URL(url).pathname === '/api/system/tenants' && init?.method === 'POST' ? json(422, { code: 'PLACEMENT_UNAVAILABLE' }) : original(url, init));
+  const { status, lines } = await run(ARGS, world);
+  assert.equal(status, 1);
+  assert.match(lines.at(-1), /MACHVON_REGION/);
+});

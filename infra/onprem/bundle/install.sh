@@ -141,6 +141,18 @@ for role in app control outbox_relay; do
   printf "ALTER ROLE machvon_%s PASSWORD '%s';\n" "${role}" "${password}" | ${COMPOSE} exec -T db psql --quiet --username machvon_owner --dbname machvon >/dev/null
 done
 
+# A tenant is created in a placement: the database it lives in. A one-host installation has exactly one, its own database, shared by its tenants (kind POOL). Nothing else registers it,
+# and without it no tenant can be requested (PLACEMENT_UNAVAILABLE). Registered once: an installation that already has an active shared placement is left as it is.
+REGION=$(sed -n 's/^MACHVON_REGION=//p' "${ENV_FILE}" | tail -n 1 | tr -d '\r')
+REGION="${REGION:-vn-south}"
+case "${REGION}" in
+  vn-north|vn-south) ;;
+  *) fail "MACHVON_REGION must be vn-north or vn-south" ;;
+esac
+say "7a/8 registering the database of this installation as the shared placement of its tenants (region ${REGION})"
+printf "INSERT INTO machvon.placement (id, kind, region, db_cluster_ref, kms_key_ref, status) SELECT gen_random_uuid(), 'POOL', '%s', 'onprem-db', 'secret://onprem/field_encryption_keys', 'Active' WHERE NOT EXISTS (SELECT 1 FROM machvon.placement WHERE kind = 'POOL' AND status = 'Active');\n" "${REGION}" \
+  | ${COMPOSE} exec -T db psql --quiet --set ON_ERROR_STOP=1 --username machvon_owner --dbname machvon >/dev/null
+
 if [ "${WITH_BI}" -eq 1 ]; then
   say "7b/8 the audit role of the BI port (every view of the schema machvon_bi is audited by pgaudit)"
   ${COMPOSE} exec -T db psql --quiet --set ON_ERROR_STOP=1 --username machvon_owner --dbname machvon < infra/onprem/config/bi-audit-setup.sql >/dev/null

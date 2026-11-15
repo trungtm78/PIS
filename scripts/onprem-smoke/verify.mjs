@@ -160,6 +160,10 @@ async function stackChecks() {
     expect(/stanza: machvon/.test(info), 'pgbackrest info names no stanza');
     return info.split('\n').filter((line) => /status|backup\/|full backup|repo\d/.test(line)).map((line) => line.trim()).join(' ; ').slice(0, 500);
   });
+  await check('first tenant: the script of the bundle starts on the host with the api image alone (no Node on the host) and prints its usage', () => {
+    const result = sh('docker', ['run', '--rm', '--network', 'host', '--entrypoint', 'node', '--volume', `${join(options.bundle, 'scripts')}:/s:ro`, `machvon/api:${VERSION}`, '/s/onprem-first-tenant.mjs', '--locale', 'en']);
+    expect(result.status === 2 && result.stdout.includes('usage: node scripts/onprem-first-tenant.mjs') && result.stdout.includes('--public-host'), `status ${result.status}: ${(result.stdout + result.stderr).trim().slice(0, 300)}`);
+  });
   await check('scan: the API is told to scan uploads with clamd', () => {
     expect(ok(compose(['exec', '-T', 'api', 'node', '-e', 'console.log(process.env.MACHVON_SCAN_ADAPTER)']), 'api').trim() === 'clamav', 'MACHVON_SCAN_ADAPTER is not clamav');
   });

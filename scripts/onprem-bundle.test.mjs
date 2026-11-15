@@ -371,3 +371,12 @@ test('the realm lets a person without a second factor reach the enrolment, and a
   assert.ok(realm.requiredActions.some((action) => action.alias === 'CONFIGURE_TOTP' && action.enabled));
   for (const entry of realm.authenticationFlows) for (const step of entry.authenticationExecutions) if (step.flowAlias !== undefined) assert.ok(flow(step.flowAlias) !== undefined, step.flowAlias);
 });
+
+test('the install script registers the database of the installation as the shared placement, once, after the migrations (found by the smoke run)', () => {
+  const install = readFileSync(join(REPO_ROOT, 'infra', 'onprem', 'bundle', 'install.sh'), 'utf8');
+  const at = install.indexOf('INSERT INTO machvon.placement');
+  assert.ok(at > install.indexOf('run --rm migrate') && at < install.indexOf('8/8 starting every service'));
+  assert.match(install, /'POOL', '%s', 'onprem-db', 'secret:\/\/onprem\/field_encryption_keys', 'Active' WHERE NOT EXISTS \(SELECT 1 FROM machvon\.placement WHERE kind = 'POOL' AND status = 'Active'\)/);
+  assert.match(install, /vn-north\|vn-south\) ;;/, 'the region goes into a statement: only the two known values pass');
+  assert.match(readFileSync(join(REPO_ROOT, 'infra', 'onprem', 'compose', 'env.template'), 'utf8'), /^MACHVON_REGION=vn-south$/m);
+});
