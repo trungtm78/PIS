@@ -110,8 +110,9 @@ Sau đó: giao cho từng người mục của họ trong `secrets\admin\first-a
 Thêm người về sau: tạo tài khoản bằng `host\keycloak-admin.ps1 create-user ... --password-file ... --totp-secret-file ...` (hai tệp đặt trong `secrets\admin`,
 mỗi tệp một dòng; mã OTP là 20 chữ và số), rồi chủ sở hữu hoặc quản trị đơn vị mời người đó ở màn ADM-02 của web.
 
-Dữ liệu minh họa (dự án, hợp đồng mẫu) **không** được nạp vào bản này. Nếu cần một môi trường demo có dữ liệu, dùng bộ nạp của bản demo
-(`npm run demo:enterprise`, `scripts/clips/`, xem `docs/demo/demo-enterprise.md`) trên một cài đặt riêng, không nạp vào cơ sở dữ liệu thật.
+Dữ liệu minh họa (dự án, hợp đồng mẫu) **không** được nạp bởi bản cài này. Với một bản cài **demo**, bộ dữ liệu demo tỉnh Cà Mau được nạp, xóa và nạp lại theo
+`docs/runbooks/demo-data-camau.md` (tenant demo bằng `host\demo-tenant.ps1`, nạp bằng `scripts/clip-seed.mjs --credentials`, xóa sạch có sao lưu bằng `host\demo-reset.ps1`).
+Không nạp dữ liệu minh họa vào cơ sở dữ liệu thật.
 
 ## 5. Chứng thư HTTPS
 

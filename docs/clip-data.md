@@ -4,6 +4,12 @@ The two intro clips (public investment, province of Cao Bang; enterprise edition
 maker-checker and approval flows, no SQL into business tables, no mock screens. This layer builds that data, repeatably. All names and figures are ILLUSTRATIVE demo data, never real customer data.
 Everything is deterministic from the seed of the dataset. The clips are in Vietnamese only: every word the groups write into the product comes from the fixtures (`scripts/fixtures/clip-data/*.json`), the code holds keys.
 
+> **Demo data of the public edition (2026-11-15):** the default demo dataset is now `camau` (the province of Cà Mau after the merger of 2025), not `public` (Cao Bằng).
+> `camau` is a dataset of the kind `public`: the same groups and phases, with a catalogue of 32 named projects (45 with the 13 of the base groups), its own tenant
+> ("UBND tỉnh Cà Mau": units, role names, accounts) and `localize.pairs`, the words that replace the ones the seed groups of the guide hold. Every figure and every name of a
+> person in it is ILLUSTRATIVE: nothing is real data of the province. How it is loaded, wiped and loaded again, on the development stack and on an installation that runs the
+> released images (the people sign in at the realm; no development session): `docs/runbooks/demo-data-camau.md`. `public` and `enterprise` below are unchanged and still feed the clips and their tests.
+
 ## Parts
 
 | Part | Where | What |

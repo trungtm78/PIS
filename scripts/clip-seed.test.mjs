@@ -100,9 +100,12 @@ test('the stage mix must add up to the number of extra projects', () => {
   assert.throws(() => buildPlan({ ...dataset, extraProjects: dataset.extraProjects + 1 }), /stageMix adds up/u);
 });
 
-test('an unknown dataset is refused by name and the two datasets have their groups', () => {
+test('an unknown dataset is refused by name and the datasets have their groups', () => {
   assert.throws(() => loadDataset('nope'), /unknown dataset/u);
-  assert.deepEqual(DATASETS, ['public', 'enterprise']);
+  assert.deepEqual(DATASETS, ['public', 'enterprise', 'camau']);
+  // The demo data of Cà Mau runs the groups and the phases of the public kind.
+  assert.equal(DATASET_GROUPS.camau, DATASET_GROUPS.public);
+  assert.equal(DATASET_PHASES.camau, DATASET_PHASES.public);
   assert.ok(DATASET_GROUPS.public.includes('base') && DATASET_GROUPS.public.includes('capital'));
 });
 

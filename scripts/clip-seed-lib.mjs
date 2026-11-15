@@ -3,8 +3,15 @@
 // readings of the real read operations against the expectations of the dataset. Nothing here touches the network or the clock.
 
 import { createHash } from 'node:crypto';
+import { localizer, rewriteDeep, roundTripFaults } from '../apps/web/e2e/hdsd/seed/localize.ts';
 
-export const DATASETS = ['public', 'enterprise'];
+/**
+ * The dataset files (scripts/fixtures/clip-data/<name>.json). `camau` is the demo data of the public edition (the province of Cà Mau): it is a dataset of the kind `public`
+ * (its `dataset` field), with a catalogue of named projects, the tenant of the demo and the words that replace the ones of the guide. `public` is the older set of the clips.
+ */
+export const DATASETS = ['public', 'enterprise', 'camau'];
+/** The dataset a demo of an edition is loaded with when none is named. */
+export const DEFAULT_DEMO_DATASET = { public: 'camau', enterprise: 'enterprise' };
 
 /** The groups of the enterprise dataset, in order: portfolio, capital of the year (lines for the packages), funding, directives, accounting file, report forms, documents, procurement, contracts, process tree, disbursement, the frozen enterprise snapshot, BI, the triage of the warnings. */
 export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-capital-prior', 'clip-ent-snapshot-prior', 'clip-ent-crosscheck', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust', 'clip-ent-execution', 'clip-ent-issues', 'clip-ent-lifecycle', 'clip-ent-weekly', 'clip-ent-capplus', 'clip-ent-legal', 'clip-ent-rights', 'clip-ent-bi2', 'clip-ent-vendor', 'clip-ent-ops', 'clip-ent-admin', 'clip-ent-platform', 'clip-ent-audit', 'clip-ent-mobile', 'clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal', 'clip-ent-phone-work'];
@@ -65,6 +72,10 @@ export const DATASET_PHASES = {
     { clockDays: 0, groups: ['clip-ent-phone-work'] },
   ],
 };
+
+// The demo data of Cà Mau is a dataset of the kind `public`: the same groups, in the same phases.
+DATASET_GROUPS.camau = DATASET_GROUPS.public;
+DATASET_PHASES.camau = DATASET_PHASES.public;
 
 /** The phases cut down to the groups asked for (all when none is asked), dropping the empty ones. */
 export function phasesFor(dataset, groups) {
@@ -137,6 +148,7 @@ function spread(total, order, room, shares) {
  * appropriations those lines draw on. Every funded project gets a national code and lines that fit the room of the appropriations.
  */
 export function buildPortfolio(dataset, baseRoom) {
+  if (Array.isArray(dataset.projectCatalogue)) return buildCataloguePortfolio(dataset, baseRoom);
   const rng = createRng(streamSeed(dataset.seed, 'portfolio'));
   const places = [...dataset.existingAreas, ...dataset.extraAreas];
   const reserved = new Set(dataset.reservedProjectCodes);
@@ -201,6 +213,59 @@ export function buildPortfolio(dataset, baseRoom) {
       for (const line of made) lines.push({ project: code, appropriation: line.appropriation, billions: line.billions });
       spec.planBillions = made.reduce((sum, line) => sum + line.billions, 0);
       plan = spec.planBillions;
+      spec.leader = index % 3 === 0 ? 'capApprover' : 'projectManager';
+    }
+    projects.push(spec);
+  }
+  return { projects, lines, room };
+}
+
+/**
+ * The portfolio of a dataset that names its projects one by one (`projectCatalogue`: code, name, area, sector, type, amount and stage of each): nothing of a project is drawn,
+ * only the share of the year plan and the order of the sources are. The same rules as the generated portfolio hold: a funded project gets a national code and lines inside the
+ * room of the appropriations.
+ */
+export function buildCataloguePortfolio(dataset, baseRoom) {
+  const rng = createRng(streamSeed(dataset.seed, 'portfolio'));
+  const areas = new Set([...dataset.existingAreas, ...dataset.extraAreas].map((area) => area.key));
+  const sectors = new Set(dataset.sectors.map((sector) => sector.code));
+  const reserved = new Set(dataset.reservedProjectCodes);
+  if (dataset.projectCatalogue.length !== dataset.extraProjects) throw new Error(`the catalogue holds ${dataset.projectCatalogue.length} projects, extraProjects says ${dataset.extraProjects}`);
+  const counts = {};
+  for (const entry of dataset.projectCatalogue) counts[entry.target] = (counts[entry.target] ?? 0) + 1;
+  for (const stage of STAGES) if ((counts[stage] ?? 0) !== (dataset.stageMix[stage] ?? 0)) throw new Error(`the catalogue has ${counts[stage] ?? 0} projects in ${stage}, stageMix says ${dataset.stageMix[stage] ?? 0}`);
+  const room = { ...baseRoom };
+  const order = Object.keys(dataset.funding.shares);
+  const projects = [];
+  const lines = [];
+  let national = 7_894_000;
+  for (const [index, entry] of dataset.projectCatalogue.entries()) {
+    if (reserved.has(entry.code)) throw new Error(`the catalogue reuses the reserved code ${entry.code}`);
+    if (!areas.has(entry.area)) throw new Error(`${entry.code} names the unknown area ${entry.area}`);
+    if (!sectors.has(entry.sector)) throw new Error(`${entry.code} names the unknown sector ${entry.sector}`);
+    if (!STAGES.includes(entry.target)) throw new Error(`${entry.code} names the unknown stage ${entry.target}`);
+    const startYear = entry.startYear ?? (entry.target === 'COMPLETED' ? 2025 : entry.target === 'IMPLEMENTATION' || entry.target === 'BUDGETED' ? 2026 : 2027);
+    const spec = {
+      code: entry.code,
+      name: entry.name,
+      area: entry.area,
+      sector: entry.sector,
+      type: entry.type ?? 'NEW_BUILD',
+      totalBillions: entry.totalBillions,
+      startYear,
+      endYear: entry.endYear ?? startYear + (entry.totalBillions > 100 ? 3 : 2),
+      target: entry.target,
+      group: groupOf(entry.totalBillions),
+    };
+    if (FUNDED.has(entry.target)) {
+      national += 1;
+      spec.national = String(national);
+      const [shareLow, shareHigh] = dataset.funding.planShareOfTotal;
+      const want = Math.max(2, Math.round(entry.totalBillions * (shareLow + rng.next() * (shareHigh - shareLow))));
+      const { lines: made } = spread(want, rng.shuffle(order), room, dataset.funding.shares);
+      if (made.length === 0) throw new Error(`the appropriations have no room left for ${entry.code}`);
+      for (const line of made) lines.push({ project: entry.code, appropriation: line.appropriation, billions: line.billions });
+      spec.planBillions = made.reduce((sum, line) => sum + line.billions, 0);
       spec.leader = index % 3 === 0 ? 'capApprover' : 'projectManager';
     }
     projects.push(spec);
@@ -488,6 +553,10 @@ export function buildPlan(dataset) {
       committee: dataset.committee,
       procurement: { legalBasis: dataset.procurement.legalBasis, note: dataset.procurement.note, decisionLetter: dataset.procurement.decisionLetter, plans: buildProcurement(dataset, portfolio.projects, portfolio.lines) },
       expect: summarise(dataset, portfolio),
+      // A demo dataset of another province: its name, its tenant (units, roles, accounts) and the words that replace the ones of the guide.
+      ...(dataset.variant === undefined ? {} : { variant: dataset.variant }),
+      ...(dataset.tenant === undefined ? {} : { tenant: dataset.tenant }),
+      ...(dataset.localize === undefined ? {} : { localize: dataset.localize }),
     };
   }
   if (dataset.dataset === 'enterprise') {
@@ -548,6 +617,25 @@ function summarise(dataset, portfolio) {
   };
 }
 
+/**
+ * The plan as the seed process must be given it. The seed groups live in the words of the guide and everything they send is rewritten into the words of the dataset
+ * (apps/web/e2e/hdsd/seed/localize.ts), so the words of the dataset in the plan are first taken back; `localize` itself is kept as it is. A plan without pairs is returned unchanged.
+ */
+export function planForSeeds(plan) {
+  if (plan.localize === undefined) return plan;
+  const words = localizer(plan.localize.pairs);
+  // `tenant` is about the installation (units by the key the seeds ask them by, accounts): the seed groups never read it, and its keys are words of the guide already.
+  const { localize, tenant, ...rest } = plan;
+  return { ...rewriteDeep(rest, words.backward), ...(tenant === undefined ? {} : { tenant }), localize };
+}
+
+/** The words of a plan that would not come back unchanged from the seed process (see planForSeeds): empty when the pairs are sound for this plan. */
+export function localizeFaults(plan) {
+  if (plan.localize === undefined) return [];
+  const rest = { ...plan, localize: undefined, tenant: undefined };
+  return roundTripFaults(rest, localizer(plan.localize.pairs));
+}
+
 /** A short digest of a plan: two runs of the same dataset must print the same digest. */
 export function planDigest(plan) {
   return createHash('sha256').update(JSON.stringify(plan)).digest('hex').slice(0, 16);
@@ -563,6 +651,7 @@ export function checkPlan(plan) {
     if (FUNDED.has(project.target) && (project.national === undefined || project.planBillions === undefined)) problems.push(`${project.code} is funded but has no national code or plan`);
     if (project.endYear <= project.startYear) problems.push(`${project.code} ends before it starts`);
   }
+  for (const text of localizeFaults(plan)) problems.push(`the words of the dataset change on their way through the seeds: "${text.slice(0, 80)}"`);
   if (plan.dataset !== 'public') return problems;
   const drawn = {};
   for (const line of plan.lines) {

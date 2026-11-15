@@ -262,9 +262,13 @@ export async function pwfInboxChecks(plan, reader) {
   const waiting = await safe(() => reader.list('owner', '/me/pending-decisions'));
   const tasks = await safe(() => reader.list('owner', '/resources/approval_task', { mine: 'true', status: 'Pending' }));
   const officer = await safe(() => reader.list('projectViewer', '/me/project-tasks'));
-  const kinds = ['pwf.task.completion', 'pwf.task.exception', 'pwf.reschedule', 'pwf.score.adjustment'];
+  // The adjustment of a score is asked for by the owner (the officer holds no right over the score of somebody else, R33) and nobody decides what they asked for themselves: it waits in the inbox of the
+  // leader who decides it, and is read there.
+  const leader = await safe(() => reader.list('capApprover', '/me/pending-decisions'));
+  const kinds = ['pwf.task.completion', 'pwf.task.exception', 'pwf.reschedule'];
   return [
     ...kinds.map((kind) => ({ name: `inbox: ${kind} waits for the leader`, value: waiting === undefined ? undefined : waiting.filter((row) => row.kind === kind).length, min: 1 })),
+    { name: 'inbox: pwf.score.adjustment waits for the leader', value: leader === undefined ? undefined : leader.filter((row) => row.kind === 'pwf.score.adjustment').length, min: 1 },
     { name: 'inbox: a response to a score waits for the leader', value: tasks === undefined ? undefined : tasks.filter((row) => row.business_type === 'score.response').length, min: 1 },
     { name: 'the officer with only the role of the staff has tasks of their own', value: officer?.length, min: 1 },
   ];

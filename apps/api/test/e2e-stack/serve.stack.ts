@@ -106,8 +106,25 @@ const STANDARD_PLAN = '00000000-0000-4000-9000-000000000001';
 /** The theme defaults of the prototype (SAS-04): what a tenant shows until a System Admin brands it. */
 /** The enterprise clip (MACHVON_EDITION=enterprise with the docs seed) shows the brand of the enterprise, never the province of the public clip. */
 const ENTERPRISE_BRAND = process.env.MACHVON_EDITION === 'enterprise' && process.env.E2E_SEED === 'docs';
+
+/**
+ * A demo dataset of the public edition may give the docs stack its own tenant (E2E_TENANT_PROFILE names the dataset file, scripts/fixtures/clip-data/<name>.json, whose `tenant` part is read):
+ * the name and code of the tenant, the stored code and name of the five units the seeds ask for by key, more units of the organisation and the names of the unit roles. The name of the product
+ * (title, header) is never part of a profile. Without the variable nothing changes.
+ */
+interface TenantProfile {
+  code: string;
+  name: string;
+  units: Array<{ key?: string; code: string; name: string; parent?: string; investor?: boolean }>;
+  roles?: Record<string, string>;
+}
+const TENANT_PROFILE: TenantProfile | undefined =
+  !ENTERPRISE_BRAND && process.env.E2E_SEED === 'docs' && (process.env.E2E_TENANT_PROFILE ?? '') !== ''
+    ? (JSON.parse(readFileSync(String(process.env.E2E_TENANT_PROFILE), 'utf8')) as { tenant: TenantProfile }).tenant
+    : undefined;
+const TENANT_A_NAME = ENTERPRISE_BRAND ? 'Đạm Phú Mỹ' : (TENANT_PROFILE?.name ?? 'Cao Bằng');
 const SEED_THEME: ThemeConfig = {
-  name: ENTERPRISE_BRAND ? 'Đạm Phú Mỹ' : 'Cao Bằng',
+  name: TENANT_A_NAME,
   title: ENTERPRISE_BRAND ? 'Phần mềm quản lý đầu tư xây dựng' : 'Hệ Thống Lý Dự Án Đầu Tư Công',
   subtitle: ENTERPRISE_BRAND ? 'Không gian quản lý đầu tư xây dựng' : 'Không gian quản lý đầu tư công',
   header: ENTERPRISE_BRAND ? 'Cổng quản lý đầu tư xây dựng' : 'Cổng quản lý đầu tư công',
@@ -194,7 +211,20 @@ const UNITS: Record<TenantName, UnitSeed[]> = {
 
 /** The unit codes the enterprise demo shows (the register of units, the context bars): Đạm Phú Mỹ's own, not the province's. The seed keeps asking for a unit by the key of UNITS; only the stored code differs. */
 const ENTERPRISE_UNIT_CODES: Readonly<Record<string, string>> = { 'CB-HQ': 'DPM-HQ', 'CB-SKHDT': 'DPM-KHDT', 'CB-STC': 'DPM-TCKT', 'CB-SKHDT-VP': 'DPM-KHDT-VP', 'CB-SKHDT-QLDA': 'DPM-KHDT-QLDA' };
-const storedCode = (key: string): string => (ENTERPRISE_BRAND ? (ENTERPRISE_UNIT_CODES[key] ?? key) : key);
+const storedCode = (key: string): string => (ENTERPRISE_BRAND ? (ENTERPRISE_UNIT_CODES[key] ?? key) : (TENANT_PROFILE?.units.find((unit) => unit.key === key)?.code ?? key));
+
+// The profile of a demo dataset renames the five units of tenant A and adds its own (each under a unit named by key or by code).
+if (TENANT_PROFILE !== undefined) {
+  const base = UNITS.A;
+  for (const unit of base) unit.name = TENANT_PROFILE.units.find((candidate) => candidate.key === unit.code)?.name ?? unit.name;
+  let n = base.length;
+  for (const extra of TENANT_PROFILE.units.filter((unit) => unit.key === undefined)) {
+    const parent = base.find((unit) => unit.code === extra.parent || storedCode(unit.code) === extra.parent) ?? base[0];
+    if (parent === undefined) continue;
+    n += 1;
+    base.push({ n, code: extra.code, name: extra.name, parent: parent.n, chain: [...parent.chain, n] });
+  }
+}
 
 /** The catalogue maker and checker of the master data flows: two roles, since no system role holds the master permissions but the owner's. */
 const MASTER_ROLES = [
@@ -1256,14 +1286,14 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
   }
   for (const role of DOCS ? docsRoles() : E2E_ROLES) {
     statements.push([
-      "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $3, $4, $5, 'Active', $6)",
-      [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR],
+      "insert into machvon.role_definition (tenant_id, id, code, name, permissions, rank, status, created_by) values ($1, $2, $3, $7, $4, $5, 'Active', $6)",
+      [tenantId, roleId(role.n), role.code, role.permissions, role.rank, ACTOR, (name === 'A' ? TENANT_PROFILE?.roles?.[role.code] : undefined) ?? role.code],
     ]);
   }
   if (name === 'B') statements.push(...providerFixtures(tenantId));
   if (name === 'A' && !DOCS) statements.push(...issueFixtures(tenantId), ...investmentFixtures(tenantId), ...governanceFixtures(tenantId), ...deliveryFixtures(tenantId), ...docDraftFixtures(tenantId));
   // The units that owe the reports of the investors in the monitoring calendar (MNE-01): the Office and the Project Management Board of the Department.
-  if (name === 'A') statements.push(["update machvon.organization_unit set is_investor = true where tenant_id = $1 and code = any($2::text[])", [tenantId, [storedCode('CB-SKHDT-VP'), storedCode('CB-SKHDT-QLDA')]]]);
+  if (name === 'A') statements.push(["update machvon.organization_unit set is_investor = true where tenant_id = $1 and code = any($2::text[])", [tenantId, [storedCode('CB-SKHDT-VP'), storedCode('CB-SKHDT-QLDA'), ...(TENANT_PROFILE?.units.filter((unit) => unit.investor === true).map((unit) => unit.code) ?? [])]]]);
   await asOwner(database, tenantId, statements);
   // The tenant that the browser flows use starts from the baseline the platform publishes (catalogues and rule data), as a provisioned tenant does.
   if (name === 'A') await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => applyBaseline(tx, BASELINE_PACK, ACTOR));
@@ -1573,7 +1603,7 @@ const PLACEMENT_NORTH = '00000000-0000-4000-8000-0000000000c1';
 /** The first published theme (version 1) of the three fixture tenants, as the provisioning saga will leave it: the prototype defaults under the name of the tenant. */
 async function seedThemes(control: ControlDatabase): Promise<void> {
   const themes = new ThemeStore();
-  const names: Readonly<Record<TenantName, string>> = { A: ENTERPRISE_BRAND ? 'Đạm Phú Mỹ' : 'Cao Bằng', B: 'Lào Cai', C: 'Hà Giang' };
+  const names: Readonly<Record<TenantName, string>> = { A: TENANT_A_NAME, B: 'Lào Cai', C: 'Hà Giang' };
   for (const name of Object.keys(names) as TenantName[]) {
     const tenantId = fixtures.tenants[name];
     const config = { ...SEED_THEME, name: names[name] };
@@ -1591,8 +1621,8 @@ async function seedPlacement(database: TestDatabase): Promise<void> {
     );
     // Tenant A is already a registered, Active tenant of the control plane, so the registry and the entitlement view have a row to show.
     await client.query(
-      "insert into machvon.tenant (id, code, name, status, placement_id, region, governing_body_type, isolation_mode) values ($1, 'cao-bang', '" + (ENTERPRISE_BRAND ? 'Đạm Phú Mỹ' : 'Cao Bằng') + "', 'Active', $2, 'vn-north', 'PROVINCE', 'POOL') on conflict do nothing",
-      [fixtures.tenants.A, PLACEMENT_NORTH],
+      "insert into machvon.tenant (id, code, name, status, placement_id, region, governing_body_type, isolation_mode) values ($1, $3, $4, 'Active', $2, 'vn-north', 'PROVINCE', 'POOL') on conflict do nothing",
+      [fixtures.tenants.A, PLACEMENT_NORTH, TENANT_PROFILE?.code ?? 'cao-bang', TENANT_A_NAME],
     );
     // The tenant chooser lists the registered tenants a person belongs to: B is Active, C is suspended for non-payment (a read-only session).
     const others: Array<[string, string, string, string, string | null]> = [
@@ -1823,6 +1853,8 @@ class HealthController {
 class E2eRootModule {}
 
 export interface StackInfo {
+  /** The unit roles of the docs stack (code, rank, permissions), so that a demo installation can make the same roles through the product's own commands. */
+  docsRoles?: Array<{ code: string; rank: number; permissions: string[] }>;
   apiPort: number;
   /** A superuser connection for the tests' own assertions about rows. */
   adminUrl: string;
@@ -2125,7 +2157,7 @@ describe('e2e API stack', () => {
         },
       );
       const listening = (app.getHttpServer().address() as AddressInfo).port;
-      const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, idpIssuer: idp.issuer, documents: outgoing.documents,
+      const info: StackInfo = { apiPort: listening, adminUrl: database.adminUrl, tenants: fixtures.tenants, planVersionId: STANDARD_PLAN, units: { A: unitIds('A'), B: unitIds('B'), C: unitIds('C') }, ...(DOCS ? { docsRoles: docsRoles().map((role) => ({ code: role.code, rank: role.rank, permissions: role.permissions })) } : {}), idpIssuer: idp.issuer, documents: outgoing.documents,
         provider: {
           name: 'smtp-relay',
           channel: 'EMAIL',
