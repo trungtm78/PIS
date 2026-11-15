@@ -26,9 +26,12 @@ if ($Mode -eq 'on') {
     Move-Item (Resolve-Path $PkiFile).Path $target -Force
   }
   if (-not (Test-Path $target)) { Fail 'there is no authority file yet: give -PkiFile <file made by apps/api/scripts/demo-pki.ts>' }
+  # The path inside the container: the image loads the file into the environment of the application before it starts.
+  Set-Setting 'MACHVON_DEMO_PKI_FILE' 'C:\run\secrets\demo_pki'
   Set-Setting 'MACHVON_DEMO_SIGNING' 'true'
 } else {
   Set-Setting 'MACHVON_DEMO_SIGNING' 'false'
+  Set-Setting 'MACHVON_DEMO_PKI_FILE' ''
 }
 Compose config --quiet
 Assert-Compose 'docker compose config (the compose file of this release does not know the demonstration signing: install a release that does)'

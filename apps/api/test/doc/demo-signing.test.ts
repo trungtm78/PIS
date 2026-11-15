@@ -62,6 +62,9 @@ describe('the signing of a demonstration installation', () => {
     expect(signing?.fingerprints).toHaveLength(2);
     expect(warnings).toHaveLength(1);
     expect(warnings[0]).toMatch(/^WARNING: MACHVON_DEMO_SIGNING is on\./);
+    // An image hands the content of the secret file over in the variable without the suffix: no file is read then.
+    const loaded = await demoSigningOfEnvironment({ MACHVON_DEMO_SIGNING: 'true', MACHVON_DEPLOYMENT_PURPOSE: 'demo', MACHVON_DEMO_PKI: file }, () => { throw new Error('no file must be read'); }, warn);
+    expect(loaded?.fingerprints).toEqual(signing?.fingerprints);
     // The private keys never reach the log.
     expect(warnings[0]).not.toContain('PRIVATE KEY');
   });

@@ -16,7 +16,7 @@ import type { SessionRef, SigningPort, SigningRequest } from './signing-port';
  * The certificates are registered through the product's own command (registerSigningCertificate), like real ones.
  *
  * It is never on by accident: `MACHVON_DEMO_SIGNING` must be exactly `true`, the installation must declare itself a demonstration (`MACHVON_DEPLOYMENT_PURPOSE=demo`), an
- * environment named production or dr refuses it, and the file (`MACHVON_DEMO_PKI_FILE`) must be there. Anything else stops the start, naming the variable.
+ * environment named production or dr refuses it, and the file (`MACHVON_DEMO_PKI_FILE`, a secret file of the installation) must be there. Anything else stops the start, naming the variable.
  * A signature made here proves nothing outside the demonstration: the authority is trusted by this installation alone.
  */
 
@@ -105,11 +105,14 @@ export async function demoSigningOfEnvironment(env: NodeJS.ProcessEnv, read: (pa
   if (word !== 'true') throw new Error('MACHVON_DEMO_SIGNING must be true or false');
   if (env.MACHVON_DEPLOYMENT_PURPOSE !== 'demo') throw new Error('MACHVON_DEPLOYMENT_PURPOSE must be demo, because MACHVON_DEMO_SIGNING is true (the stand-in of the certification authority exists for demonstrations only)');
   if (PRODUCTION_ENVIRONMENTS.includes(env.MACHVON_ENVIRONMENT ?? '')) throw new Error('MACHVON_DEMO_SIGNING must be false where MACHVON_ENVIRONMENT names production or dr');
+  // The images load a secret file into the variable without the suffix (NAME_FILE=<path> becomes NAME=<content>, infra/*/docker/secret-env): the content is taken from
+  // MACHVON_DEMO_PKI when it is there, and read from the file MACHVON_DEMO_PKI_FILE names otherwise (a process started without that loader).
+  const content = env.MACHVON_DEMO_PKI ?? '';
   const path = (env.MACHVON_DEMO_PKI_FILE ?? '').trim();
-  if (path === '') throw new Error('MACHVON_DEMO_PKI_FILE must name the demonstration authority file, because MACHVON_DEMO_SIGNING is true');
+  if (content === '' && path === '') throw new Error('MACHVON_DEMO_PKI_FILE must name the demonstration authority file, because MACHVON_DEMO_SIGNING is true');
   let file: DemoPkiFile;
   try {
-    file = JSON.parse(read(path)) as DemoPkiFile;
+    file = JSON.parse(content === '' ? read(path) : content) as DemoPkiFile;
   } catch {
     // The path identifies the problem; the content (private keys) is never echoed.
     throw new Error('MACHVON_DEMO_PKI_FILE cannot be read as a demonstration authority file');
