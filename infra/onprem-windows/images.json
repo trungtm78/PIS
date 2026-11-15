@@ -1,0 +1,55 @@
+{
+  "description": "What the Windows images are built from (host/build-images.ps1 passes these to the Dockerfiles as build arguments; every archive is checked against its SHA-256 inside the build). Versions follow the Linux deployment (infra/onprem/images.json): PostgreSQL 18.6, Keycloak 26.5.2, Node 24.22.2, nginx 1.30.6, ClamAV 1.4.6.",
+  "windowsTag": "ltsc2025",
+  "images": ["db", "keycloak", "clamav", "api", "web"],
+  "artifacts": {
+    "POSTGRES": {
+      "version": "18.6-1",
+      "url": "https://get.enterprisedb.com/postgresql/postgresql-18.6-1-windows-x64-binaries.zip",
+      "sha256": "fbe23da234ee31547bf8a36d29dfd81e82b849df2d2b78d2eecb43d360252f8c",
+      "source": "EDB, the Windows binaries the PostgreSQL project links to (no checksum is published; pinned at first download, 2026-11-15)"
+    },
+    "PGVECTOR": {
+      "version": "0.8.7",
+      "url": "https://github.com/pgvector/pgvector/archive/refs/tags/v0.8.7.tar.gz",
+      "sha256": "cac0b10c360f05b2d521200105ba3697e773d4cd3731f5a915a7e37ebe0bea85",
+      "source": "pgvector source of the tag, compiled in the db image against the PostgreSQL binaries above"
+    },
+    "NODE": {
+      "version": "24.22.2",
+      "url": "https://nodejs.org/dist/v24.22.2/node-v24.22.2-win-x64.zip",
+      "sha256": "ca1bff5d8ead13c9f2ea404a176db46bd430704d5b5113734049fa365e7799e2",
+      "source": "nodejs.org, equal to SHASUMS256.txt of the release"
+    },
+    "KEYCLOAK": {
+      "version": "26.5.2",
+      "url": "https://github.com/keycloak/keycloak/releases/download/26.5.2/keycloak-26.5.2.zip",
+      "sha256": "738af06f44dec072f04b6f6cb0a7232d626b84fd84865c253803a10c44013aa0",
+      "source": "Keycloak release; the SHA-1 of the same file equals the published keycloak-26.5.2.zip.sha1"
+    },
+    "JAVA": {
+      "version": "21.0.13+9",
+      "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.13%2B9/OpenJDK21U-jre_x64_windows_hotspot_21.0.13_9.zip",
+      "sha256": "2332c0b4cff6bed722da3567c91d5e47568bcba863fa4945d0a8d6fc76158628",
+      "source": "Eclipse Temurin 21 runtime, equal to the checksum of the Adoptium API"
+    },
+    "NGINX": {
+      "version": "1.30.6",
+      "url": "https://nginx.org/download/nginx-1.30.6.zip",
+      "sha256": "c6ee35edb0a861063323f709192ae50d1eefaf2ea7d00678bd2b22d8542dc61e",
+      "source": "nginx.org, nginx for Windows (pinned at first download, 2026-11-15)"
+    },
+    "CLAMAV": {
+      "version": "1.4.6",
+      "url": "https://github.com/Cisco-Talos/clamav/releases/download/clamav-1.4.6/clamav-1.4.6.win.x64.zip",
+      "sha256": "57b6fd1d60cd87bafe800f97407ecdef0576d36b3900b8b7abcfbbabe88295fd",
+      "source": "ClamAV release of Cisco Talos (pinned at first download, 2026-11-15)"
+    },
+    "WIN_ACME": {
+      "version": "2.4.1.2444",
+      "url": "https://github.com/win-acme/win-acme/releases/download/v2.4.1/win-acme.v2.4.1.2444.x64.pluggable.zip",
+      "sha256": "2faa095ea5264191a219b6935d56e59e2ef6153ab651d919e009ecfe72371630",
+      "source": "win-acme release, used on the host by host/certificate.ps1 (not in an image)"
+    }
+  }
+}

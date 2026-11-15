@@ -1,0 +1,297 @@
+# MACHVON on ONE Windows Server host with WINDOWS containers (process isolation; Docker Engine, docker compose v2.24 or newer).
+# For a host that cannot run Linux containers (no nested virtualisation). The Linux deployment (infra/onprem/compose/compose.yaml) stays the reference;
+# docs/runbooks/deploy-windows-containers.md lists what differs and why.
+#
+# Rules this file keeps:
+#   - the images of the product carry ${MACHVON_VERSION} (required, never "latest"); they are built on the host from a build pack and exist only there;
+#   - every secret is a FILE under ${MACHVON_SECRETS_DIR}\<service>, mounted read-only at C:\run\secrets of that service only, read through NAME_FILE variables;
+#     no secret value is written here or in the environment file;
+#   - every long-running service runs as ContainerUser (no administrator inside the container), has a health check, a memory and a processor limit, and restarts always;
+#   - ONLY the web edge publishes a port (HTTPS). The database, Keycloak (with its administration console) and clamd are reached on the compose network only;
+#   - addresses are fixed, because nginx resolves the api and Keycloak once, at its start, and a restarted Windows container may otherwise get another address.
+name: machvon
+
+x-service: &service
+  isolation: process
+  user: ContainerUser
+  restart: always
+  logging:
+    driver: json-file
+    options:
+      max-size: 20m
+      max-file: "5"
+
+x-api-environment: &api-environment
+  NODE_ENV: production
+  PORT: "3000"
+  OIDC_ISSUER: https://${PUBLIC_HOST}/idp/realms/${OIDC_REALM}
+  OIDC_JWKS_URI: http://keycloak:8080/idp/realms/${OIDC_REALM}/protocol/openid-connect/certs
+  OIDC_IDENTITY_AUDIENCE: machvon-api
+  OIDC_CONTROL_AUDIENCE: machvon-control
+  TENANT_TOKEN_ISSUER: https://${PUBLIC_HOST}/api
+  TENANT_TOKEN_KEY_ID: ${TENANT_TOKEN_KEY_ID}
+  TENANT_TOKEN_SIGNING_KEY_PEM_PATH: C:\run\secrets\tenant_token_signing_key
+  WEB_BASE_URL: https://${PUBLIC_HOST}
+  MACHVON_EDITION: ${MACHVON_EDITION}
+  DATABASE_URL_APP_FILE: C:\run\secrets\database_url_app
+  DATABASE_URL_CONTROL_FILE: C:\run\secrets\database_url_control
+  DATABASE_URL_OUTBOX_RELAY_FILE: C:\run\secrets\database_url_outbox_relay
+  OUTBOX_SIGNING_KEY_FILE: C:\run\secrets\outbox_signing_key
+  FIELD_ENCRYPTION_KEYS_FILE: C:\run\secrets\field_encryption_keys
+  LICENSE_SIGNING_KEY_ID: ${LICENSE_SIGNING_KEY_ID}
+  LICENSE_SIGNING_KEY_PEM_PATH: C:\run\secrets\license_signing_key
+  # Malware scan of every upload (HSKT YCK.07): clamd on the compose network; unreachable or unconfigured means files stay PENDING and portal uploads are refused.
+  MACHVON_SCAN_ADAPTER: clamav
+  MACHVON_PORTAL_SCAN: CLAMAV
+  MACHVON_CLAMD_HOST: clamav
+  MACHVON_CLAMD_PORT: "3310"
+  # Uploaded objects and the invitations handed to the operator live on volumes (the root file system of a container is lost when it is replaced).
+  MACHVON_OBJECT_ROOT: C:\data\objects
+  MACHVON_INVITATION_OUTBOX_DIR: C:\data\invitations
+
+x-api-volumes: &api-volumes
+  - type: bind
+    source: ${MACHVON_SECRETS_DIR}\api
+    target: C:\run\secrets
+    read_only: true
+  - objects:C:\data\objects
+  - invitations:C:\data\invitations
+
+services:
+  # Runs once before everything else: the named volumes are created with the access list of the Docker data directory, which gives ContainerUser nothing.
+  # This gives the service user (S-1-5-93-2-2, ContainerUser) modify on each volume; it is the only container that runs as an administrator, and it has no network.
+  volumes-init:
+    image: mcr.microsoft.com/windows/nanoserver:${WINDOWS_TAG}
+    isolation: process
+    user: ContainerAdministrator
+    restart: "no"
+    network_mode: none
+    command:
+      - cmd
+      - /S
+      - /C
+      - "for %V in (pgdata objects invitations weblogs clamav) do @icacls C:\\v\\%V /grant *S-1-5-93-2-2:(OI)(CI)M /Q || exit 1"
+    volumes:
+      - pgdata:C:\v\pgdata
+      - objects:C:\v\objects
+      - invitations:C:\v\invitations
+      - weblogs:C:\v\weblogs
+      - clamav_db:C:\v\clamav
+
+  db:
+    image: machvon/db-windows:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    <<: *service
+    depends_on:
+      volumes-init:
+        condition: service_completed_successfully
+    networks:
+      machvon:
+        ipv4_address: 172.29.240.10
+    # Logical WAL as in the Linux deployment (the sync service reads it). No WAL archive here: pgBackRest has no Windows build, backups are dumps (host\backup.ps1).
+    command:
+      - -c
+      - wal_level=logical
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - shared_buffers=${DB_SHARED_BUFFERS}
+      - -c
+      - max_connections=${DB_MAX_CONNECTIONS}
+    volumes:
+      - pgdata:C:\pgdata
+      - type: bind
+        source: ${MACHVON_SECRETS_DIR}\db
+        target: C:\run\secrets
+        read_only: true
+    healthcheck:
+      test: ["CMD", "C:\\pgsql\\bin\\pg_isready.exe", "--quiet", "--host", "127.0.0.1", "--username", "machvon_owner", "--dbname", "machvon"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 120s
+    cpus: ${DB_CPUS}
+    mem_limit: ${DB_MEMORY}
+    stop_grace_period: 60s
+
+  keycloak:
+    image: machvon/keycloak-windows:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    <<: *service
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      machvon:
+        ipv4_address: 172.29.240.11
+    environment:
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD_FILE: C:\run\secrets\keycloak_db_password
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER}
+      KC_BOOTSTRAP_ADMIN_PASSWORD_FILE: C:\run\secrets\keycloak_admin_password
+      KC_HOSTNAME: https://${PUBLIC_HOST}/idp
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      JAVA_OPTS_KC_HEAP: -XX:MaxRAMPercentage=70 -XX:InitialRAMPercentage=50
+      REALM_NAME: ${OIDC_REALM}
+      # The relying party of WebAuthn is a host NAME: no port.
+      WEBAUTHN_RP_ID: ${PUBLIC_HOSTNAME}
+      TENANT_HOST: ${PUBLIC_HOST}
+      CONTROL_HOST: ${CONTROL_HOST}
+      # The realm file names a directory federation. Where there is no directory yet these stay placeholders and host\install.ps1 switches the federation
+      # provider OFF in the running realm (docs/runbooks/deploy-windows-containers.md); the realm file of the product is not changed.
+      LDAP_URL: ${LDAP_URL}
+      LDAP_BIND_DN: ${LDAP_BIND_DN}
+      LDAP_BIND_CREDENTIAL_FILE: C:\run\secrets\ldap_bind_credential
+      LDAP_USERS_DN: ${LDAP_USERS_DN}
+      LDAP_GROUPS_DN: ${LDAP_GROUPS_DN}
+    volumes:
+      - type: bind
+        source: ${MACHVON_SECRETS_DIR}\keycloak
+        target: C:\run\secrets
+        read_only: true
+    healthcheck:
+      # The realm answers its discovery document: the server is up and the imported realm exists.
+      test: ["CMD", "C:\\Windows\\System32\\curl.exe", "--fail", "--silent", "--output", "NUL", "http://127.0.0.1:8080/idp/realms/${OIDC_REALM}/.well-known/openid-configuration"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 240s
+    cpus: ${KEYCLOAK_CPUS}
+    mem_limit: ${KEYCLOAK_MEMORY}
+
+  clamav:
+    image: machvon/clamav-windows:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    <<: *service
+    depends_on:
+      volumes-init:
+        condition: service_completed_successfully
+    networks:
+      machvon:
+        ipv4_address: 172.29.240.12
+    volumes:
+      - clamav_db:C:\clamav\database
+    healthcheck:
+      test: ["CMD", "C:\\clamav\\clamdscan.exe", "--config-file=C:\\clamav\\clamd.conf", "--ping", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 600s
+    cpus: ${CLAMAV_CPUS}
+    mem_limit: ${CLAMAV_MEMORY}
+
+  api:
+    image: machvon/api-windows:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    <<: *service
+    depends_on:
+      db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      machvon:
+        ipv4_address: 172.29.240.13
+    environment:
+      <<: *api-environment
+      WORKERS_ENABLED: "false"
+      MAX_BODY_BYTES: ${API_MAX_BODY_BYTES}
+    volumes: *api-volumes
+    healthcheck:
+      test: ["CMD", "C:\\node\\node.exe", "-e", "fetch('http://127.0.0.1:3000/health/ready').then((r)=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+    cpus: ${API_CPUS}
+    mem_limit: ${API_MEMORY}
+
+  workers:
+    image: machvon/api-windows:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    <<: *service
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      machvon:
+        ipv4_address: 172.29.240.14
+    environment:
+      <<: *api-environment
+      WORKERS_ENABLED: "true"
+    volumes: *api-volumes
+    healthcheck:
+      test: ["CMD", "C:\\node\\node.exe", "-e", "fetch('http://127.0.0.1:3000/health/live').then((r)=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+    cpus: ${WORKERS_CPUS}
+    mem_limit: ${WORKERS_MEMORY}
+
+  web:
+    image: machvon/web-windows:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    <<: *service
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      machvon:
+        ipv4_address: 172.29.240.15
+    # The ONE published port of the installation: HTTPS. The clear-text port 8080 of the edge (health check, redirect) is not published.
+    ports:
+      - "${WEB_HTTPS_PORT}:8443"
+    volumes:
+      - type: bind
+        source: ${MACHVON_SECRETS_DIR}\web
+        target: C:\run\secrets
+        read_only: true
+      - weblogs:C:\nginx\logs
+    healthcheck:
+      test: ["CMD", "C:\\Windows\\System32\\curl.exe", "--fail", "--silent", "--output", "NUL", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    cpus: ${WEB_CPUS}
+    mem_limit: ${WEB_MEMORY}
+
+  # One-shot job, started by host\install.ps1 and host\update.ps1 (profile "tools"): it is not part of `docker compose up`.
+  migrate:
+    image: machvon/api-windows:${MACHVON_VERSION:?set MACHVON_VERSION to the release being installed}
+    profiles: [tools]
+    isolation: process
+    user: ContainerUser
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [machvon]
+    working_dir: C:\app
+    command: ["packages/db/src/cli.ts", "migrate", "--root", "C:\\app"]
+    environment:
+      DATABASE_URL_FILE: C:\run\secrets\database_url_owner
+      MACHVON_DB_PROFILE: production
+    volumes:
+      - type: bind
+        source: ${MACHVON_SECRETS_DIR}\migrate
+        target: C:\run\secrets
+        read_only: true
+    cpus: 1
+    mem_limit: 1g
+
+networks:
+  machvon:
+    driver: nat
+    ipam:
+      config:
+        - subnet: 172.29.240.0/24
+          gateway: 172.29.240.1
+
+volumes:
+  pgdata: {}
+  objects: {}
+  invitations: {}
+  weblogs: {}
+  clamav_db: {}
