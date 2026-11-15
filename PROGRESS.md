@@ -1,12 +1,7 @@
-STATUS: BLOCKED
+STATUS: IN_PROGRESS
 
 
-## Blocker (2026-11-15 20:00)
-
-1. Vấn đề chính xác: chủ sở hữu giữ Windows Server 2025 trên VPS10352 và giao tự quyết. Đã bật SSH chỉ bằng khóa (khóa ~/.ssh/pis_vps10352 trên máy phát triển, tường lửa mở cổng 22). VPS là máy ảo VMware KHÔNG lộ ảo hóa lồng (VMMonitorModeExtensions=False), nên WSL 2/Hyper-V và container Linux không chạy được. Đường Docker còn lại là container Windows (cách ly tiến trình) với Docker Engine, cần bật tính năng Containers và KHỞI ĐỘNG LẠI máy. Trên máy đang có Laragon (Apache 80/443, MySQL 3306) chạy trang Phuongnam.Group (WordPress) từ 07/11 dưới phiên đăng nhập, không phải dịch vụ và không tự khởi động: khởi động lại sẽ làm trang đó dừng cho tới khi có người đăng nhập và bật lại Laragon; Apache của Laragon cũng đang giữ cổng 80/443 mà hệ thống mới cần.
-2. Đã thử: khảo sát chỉ đọc qua SSH (CPU, tính năng, cổng, tiến trình); làn dock1 chứng minh gói container Linux trên runner GitHub (không áp dụng được cho VPS này nếu không có ảo hóa lồng).
-3. Đề xuất: (a) chuyển gói sang image Windows (API node, nginx, PostgreSQL, Keycloak trên nền Windows Server Core/Nano), Docker Engine cho Windows, chỉ mở 443 (và 8443 nếu 443 phải nhường cho Laragon); mã nguồn không nằm trên server, chỉ image đã build; (b) trước khi khởi động lại: đăng ký Laragon tự chạy khi máy khởi động để trang Phuongnam.Group tự lên lại; (c) song song gửi yêu cầu CloudNest bật ảo hóa lồng để về lâu dài dùng container Linux chuẩn.
-4. Câu hỏi đóng: Cho phép khởi động lại VPS10352 tối nay để bật Docker (trang Phuongnam.Group gián đoạn vài phút, tôi sẽ cấu hình để tự lên lại) — CÓ hay KHÔNG?
+## Triển khai 2026-11-15 (chủ sở hữu: 'làm đi', giao toàn quyền): VPS10352 giữ Windows Server 2025; SSH chỉ bằng khóa; tính năng Containers đã bật, máy đã khởi động lại, trang WordPress của Laragon tự lên lại (2 scheduled task Laragon-*). Làn win1: Docker Engine + container Windows (PostgreSQL, API, web/proxy, Keycloak), HTTPS cổng 8443 với tên 180-93-34-176.sslip.io, APK trỏ về server, runbook docs/runbooks/deploy-windows-containers.md. Làn dock1: gói Linux trên runner GitHub (cho server Linux sau này).
 
 ## Quyết định 2026-11-15 (chủ sở hữu): triển khai PHẢI bằng Docker (gói on-prem). Máy phát triển không có Docker/WSL (cần quyền quản trị + khởi động lại, việc của chủ máy), nên gói được chạy thật trên runner Linux của GitHub Actions (làn dock1: workflow dựng image, compose up, install.sh, kiểm sức khỏe, tạo tenant đầu tiên, rollback).
 
