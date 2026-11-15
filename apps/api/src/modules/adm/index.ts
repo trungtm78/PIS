@@ -5,7 +5,7 @@ import { BackupRequestCommandsController, BackupRequestReadsController } from '.
 import { BACKUP_STATE_PORT, backupStateFromEnvironment } from './backup-state.port';
 import { PeriodScopeCommandsController, PeriodScopeReadsController } from './period-scope.controller';
 import { StandingDelegationCommandsController, StandingDelegationReadsController } from './standing-delegation.controller';
-import { ApprovalCommandsController, ApprovalTaskReadsController, WorkflowInstanceReadsController, WorkflowVersionReadsController } from './approval.controller';
+import { ApprovalCommandsController, ApprovalTaskReadsController, MyPendingDecisionsController, WorkflowInstanceReadsController, WorkflowVersionReadsController } from './approval.controller';
 import { APPROVAL_PUSH_SOURCES, ApprovalHoldService, ApprovalPushSources } from './approval-hold.service';
 import { APPROVAL_FINAL_COMMANDS, ApprovalBootGuard, ApprovalService, FinalCommandRegistry } from './approval.service';
 import { AuditDetailPoliciesController, AuditEventDetailController, LogCapacityController } from './audit-detail.controller';
@@ -78,6 +78,7 @@ export const admModule = defineModule({
     WorkflowVersionReadsController,
     WorkflowInstanceReadsController,
     ApprovalTaskReadsController,
+    MyPendingDecisionsController,
     DelegationCommandsController,
     DelegationReadsController,
     UnitReorganizationCommandsController,

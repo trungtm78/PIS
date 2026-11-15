@@ -31,6 +31,15 @@ export interface SourceRow extends WorkItem {
   native?: NativeClock;
 }
 
+/**
+ * What the unified approval inbox judges the pending decisions of PWF by, for one reader: the projects of `pwf.task.approve` and of `pwf.schedule.approve`, and the units of `staff_score.approve` (read in the transaction).
+ */
+export interface WorkDecisionScopes {
+  taskApprove: ScopeBuilder;
+  scheduleApprove: ScopeBuilder;
+  scoreUnits: (tx: TenantTx) => Promise<string>;
+}
+
 export interface SourceContext {
   tx: TenantTx;
   membershipId: string;
@@ -48,6 +57,8 @@ export interface SourceContext {
    * reader who holds the permission that role reads them with; the scope of the reader still judges the place an item is about. Absent: the reader holds nothing.
    */
   holds?: (permission: string, wholeTenant?: boolean) => boolean;
+  /** The reach of the reader over the decisions of the project workflow that are not tasks of the approval engine (PWF 20.9); absent: none is read. */
+  decisionScopes?: WorkDecisionScopes;
 }
 
 /** The most one source gives (a person with more than this has a list that says it is cut: the counts are then a lower bound). */

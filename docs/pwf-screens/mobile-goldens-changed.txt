@@ -1,10 +1,16 @@
-Lane fix11 (15/11/2026): 2 golden images changed. The Windows copies were generated again in this lane; the Linux copies must be generated again on Linux (CI).
+Lane fix12 (15/11/2026): 3 golden images changed. The Windows copies were generated again in this lane; the Linux copies must be generated again on Linux (CI).
 
-apps/mobile/test/golden/goldens/pwf_score_light.png
-apps/mobile/test/golden/goldens/pwf_score_dark.png
+apps/mobile/test/golden/goldens/home_leader_light.png
+apps/mobile/test/golden/goldens/home_leader_dark.png
+apps/mobile/test/golden/goldens/home_leader_offline.png
 
 Linux copies to regenerate:
-apps/mobile/test/golden/goldens-linux/pwf_score_light.png
-apps/mobile/test/golden/goldens-linux/pwf_score_dark.png
+apps/mobile/test/golden/goldens-linux/home_leader_light.png
+apps/mobile/test/golden/goldens-linux/home_leader_dark.png
+apps/mobile/test/golden/goldens-linux/home_leader_offline.png
 
-Why: MOB-81 names a task left out of the score by its name and says the reason in words. Tests: test/golden/pwf_golden_test.dart, "golden score in the light mode" and "golden score in the dark mode". Every other golden test passed unchanged on Windows.
+Why: the label of the band of the open-warnings cell of the leader's home is "Luu y" (Lưu ý) instead of "Cần theo dõi", which wrapped to two lines; the cell is one line shorter. Tests: test/golden/home_golden_test.dart, "golden of the home of a leader" (light, dark, offline). The Windows copy of home_leader_text200.png and every other golden passed unchanged.
+
+Windows check of the previous lane's Linux regeneration (run 43632453689): before this lane's label change the Windows goldens of the home matched the code at 233a2fadf (the whole home_golden_test passed), so no Windows copy needed regenerating for that run.
+
+Also changed, not a golden: test/golden/approval_golden_test.dart answers the new read of the inbox (/me/pending-decisions) with an empty page, so the approval goldens keep their pixels.

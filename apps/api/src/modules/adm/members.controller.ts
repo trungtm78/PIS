@@ -20,6 +20,8 @@ import type { InvitationMailer } from './invitation-mailer';
 const INVITE_PERMISSION = PERMISSIONS.inviteMember;
 const MANAGE_PERMISSION = PERMISSIONS.endMembership;
 const DEFAULT_ROLE = 'MEMBER';
+/** The role of the people of the STAFF for what concerns themselves (their tasks, scores, approvals and reminders): every invited member receives it, with the grants the inviter chose or the default role (PWF 20.9). */
+const STAFF_ROLE = 'STAFF_MEMBER';
 const SESSIONS_REVOKED_REASON = 'MEMBERSHIP_CHANGED';
 
 type Lifecycle = 'suspend' | 'reactivate' | 'end';
@@ -75,6 +77,8 @@ export class MembersController {
       invitedBy: scope.tenant.membershipId,
     });
     const roleCodes = await this.grantInitialRoles(scope, access, member.id, unit, body.initial_grants ?? [], now);
+    // The base of every person of the STAFF: it is not a privilege the inviter hands out (it reads and does only what concerns the person themselves), so it is given with whatever else was chosen.
+    if (!roleCodes.includes(STAFF_ROLE)) roleCodes.push(...(await this.grantStaffRole(scope, member.id)));
 
     const invitation = await issueInvitation(scope, this.members, { membershipId: member.id, email: body.email, now });
     await scope.emit({
@@ -173,6 +177,25 @@ export class MembersController {
       reason: 'default role of an invitation',
     });
     return [DEFAULT_ROLE];
+  }
+
+  /**
+   * The role of the STAFF, over the whole tenant: every right in it is judged against the person themselves (the tasks they were given, their own scores, the approvals given to them), so a wide scope opens nothing
+   * of anybody else, and a task given to them in another unit is read all the same. Nothing when the tenant has none (a tenant seeded before it, whose migration has not run).
+   */
+  private async grantStaffRole(scope: CommandScope, membershipId: string): Promise<string[]> {
+    const role = await this.members.activeRoleByCode(scope.tx, STAFF_ROLE);
+    if (role === undefined) return [];
+    await this.roles.insertGrant(scope.tx, {
+      membershipId,
+      roleId: role.id,
+      scopeKind: 'TENANT',
+      scopeRefIds: [],
+      paths: [],
+      grantedBy: scope.tenant.membershipId,
+      reason: 'default role of the staff',
+    });
+    return [STAFF_ROLE];
   }
 
   private async change(scope: CommandScope, access: EffectiveAccess, membershipId: string, action: Lifecycle, reason: string): Promise<CommandResult> {

@@ -27404,6 +27404,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/pending-decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hộp phê duyệt hợp nhất: hồ sơ của các phân hệ đang chờ tôi quyết định ngoài bộ máy phê duyệt (PWF 20.9) */
+        get: operations["listMyPendingDecisions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -50777,6 +50794,49 @@ export interface components {
                 screen: string;
                 id: string;
             } | null;
+        };
+        /** @description Một hồ sơ của phân hệ đang chờ NGƯỜI ĐỌC quyết định mà không phải là việc của bộ máy phê duyệt (PWF 20.9): không ai được giao, người có quyền của lệnh trong phạm vi của hồ sơ thì quyết. Quyết định là lệnh nghiệp vụ nêu trong actions (quyền, phạm vi, luật không tự duyệt, khóa idempotency và audit của chính lệnh đó), gửi kèm If-Match = version. */
+        PendingDecision: {
+            /** @description <kind>:<id của hồ sơ> */
+            id: string;
+            /** @description pwf.task.completion, pwf.task.exception, pwf.reschedule hoặc pwf.score.adjustment */
+            kind: string;
+            resource: {
+                type: string;
+                /** Format: uuid */
+                id: string;
+            };
+            /** @description Phiên bản gửi kèm lệnh quyết định (If-Match) */
+            version: number;
+            /** Format: date-time */
+            submitted_at: string;
+            initiator: {
+                name: string | null;
+            };
+            /**
+             * Format: date-time
+             * @description Hạn xử lý khi loại hồ sơ có đồng hồ; null khi không có
+             */
+            due_at: string | null;
+            overdue: boolean;
+            summary: components["schemas"]["ApprovalRecordSummary"];
+            actions: {
+                /** @enum {string} */
+                decision: "approve" | "return" | "reject";
+                /** @description operationId của lệnh nghiệp vụ thực hiện quyết định */
+                operation_id: string;
+                reason_required: boolean;
+                reason_min: number;
+                reason_max: number;
+            }[];
+        };
+        /** @description Các hồ sơ chờ người đọc quyết định ngoài bộ máy phê duyệt, cũ nhất trước. Nguồn không đọc được nêu tên trong unavailable_sources (không bao giờ hiện thành 'không có gì chờ'); truncated là true khi một nguồn chạm giới hạn. */
+        PendingDecisionList: {
+            items: components["schemas"]["PendingDecision"][];
+            unavailable_sources: string[];
+            truncated: boolean;
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -219504,6 +219564,98 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PwfDeadlineExport"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listMyPendingDecisions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PendingDecisionList"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

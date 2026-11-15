@@ -18,6 +18,9 @@ const FACT_KEYS = {
   POINTS: 'points',
   EXCEPTION_KIND: 'exceptionKind',
 } as const;
+/** The facts the unified inbox added (lane fix12), worded in their own part. */
+const FACT_KEYS_V12 = { ACTUAL_FINISH: 'actualFinish', VALID_FROM: 'validFrom', VALID_TO: 'validTo', WAIVED_ITEMS: 'waivedItems', FINISH_SHIFT_DAYS: 'finishShiftDays', CHANGED_TASKS: 'changedTasks' } as const;
+const EXCEPTION_KEYS = { WAIVE_REQUIREMENT: 'waive', CANCEL_TASK: 'cancel', PAUSE: 'pause', EXTERNAL_DELAY: 'delay' } as const;
 const STATUS_KEYS = { DRAFT: 'draft', LOCKED: 'locked', OFFICIAL: 'official' } as const;
 const RATING_KEYS = { EXCELLENT: 'excellent', GOOD: 'good', FAIR: 'fair', WEAK: 'weak' } as const;
 const STATE_KEYS = { RATED: 'rated', SMALL_SAMPLE: 'smallSample', NOT_RATED: 'notRated' } as const;
@@ -40,6 +43,7 @@ function factValue(t: T, fact: SummaryFact, locale: string): string {
   if (fact.value === null) return t('fix11.apv.fact.none');
   if (typeof fact.value === 'number') return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'vi-VN', { maximumFractionDigits: 2 }).format(fact.value);
   if (fact.code === 'RATING') return known(RATING_KEYS, fact.value) ? t(`fix11.apvRating.${RATING_KEYS[fact.value]}.word`) : fact.value;
+  if (fact.code === 'EXCEPTION_KIND') return known(EXCEPTION_KEYS, fact.value) ? t(`fix12.apvException.${EXCEPTION_KEYS[fact.value]}.word`) : t('fix12.inbox.kind.exception');
   if (fact.code === 'SCORE_STATE') return known(STATE_KEYS, fact.value) ? t(`fix11.apvState.${STATE_KEYS[fact.value]}.word`) : t('fix11.apvState.notRated.word');
   return summaryDay(fact.value);
 }
@@ -84,6 +88,11 @@ export function RecordSummaryFacts({ summary, sender }: { summary: RecordSummary
           known(FACT_KEYS, fact.code) ? (
             <div key={fact.code} className="pwa-fact-pair" style={{ display: 'contents' }}>
               <dt>{t(`fix11.apvFact.${FACT_KEYS[fact.code]}.label`)}</dt>
+              <dd data-fact={fact.code}>{factValue(t, fact, locale)}</dd>
+            </div>
+          ) : known(FACT_KEYS_V12, fact.code) ? (
+            <div key={fact.code} className="pwa-fact-pair" style={{ display: 'contents' }}>
+              <dt>{t(`fix12.apvFact.${FACT_KEYS_V12[fact.code]}.label`)}</dt>
               <dd data-fact={fact.code}>{factValue(t, fact, locale)}</dd>
             </div>
           ) : null,

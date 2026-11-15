@@ -29,6 +29,7 @@ void _reads(ScriptedServer server, {Map<String, Object?>? task, List<Map<String,
   server
     ..on('GET', '/resources/approval_task', (_) => page(tasks ?? <Object?>[one]))
     ..on('GET', '/resources/organization_unit', (_) => unitsPage())
+    ..on('GET', '/me/pending-decisions', (_) => pendingPage(<Object?>[]))
     ..on('GET', '/resources/approval_task/t-1', (_) => one)
     ..on('GET', '/resources/organization_unit/u-bql1', (_) => <String, Object?>{'id': 'u-bql1', 'name': 'Ban QLDA giao thông'})
     ..on('GET', '/reports/rep-2', (_) => reportRevision('rep-2', 2, secondRevision, supersedes: 'rep-1', amendment: 'Điều chỉnh số liệu vốn năm', attachments: <Object?>[attachment()]))

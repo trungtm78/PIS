@@ -225,7 +225,7 @@ class Run {
       }
       if (code === 'PLAN_VERSION_NOT_EFFECTIVE') {
         // The plan of the project was published after the period ended (its effective instant is the day it was published): that week cannot be reported.
-        if (!this.noPlan.has(job.code)) this.ctx.warn(`${job.code}: no capital plan was in force at the end of the period (${project.code}), the report of that period is left out`);
+        if (!this.noPlan.has(job.code)) this.ctx.skip(`${job.code}: left out on purpose, no capital plan was in force at the end of the period (${project.code}: the plan was published after it ended, and a report needs a plan in force)`);
         this.noPlan.add(job.code);
         return undefined;
       }

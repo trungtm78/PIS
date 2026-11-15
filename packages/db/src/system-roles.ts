@@ -65,6 +65,12 @@ export const SYSTEM_ROLES: readonly SystemRole[] = [
   { code: 'GUEST_CONTRACTOR', name: key('GUEST_CONTRACTOR'), rank: 10, permissions: ['contract.read', 'vnd.portal.read', 'vnd.portal.respond', 'vnd.portal.certificate', 'vnd.portal.reconfirm', 'vnd.portal.remediation', 'vnd.portal.upload'], guestAllowed: true },
   // PORTAL-2: the guest bound to a contractor of the registry without a contract. Only the portal rights: no contract.read, which on a wide scope would show contracts.
   { code: 'PORTAL_CONTRACTOR', name: key('PORTAL_CONTRACTOR'), rank: 10, permissions: ['vnd.portal.read', 'vnd.portal.respond', 'vnd.portal.certificate', 'vnd.portal.reconfirm', 'vnd.portal.remediation', 'vnd.portal.upload'], guestAllowed: true },
+  // PWF 20.9 and lane fix12 (decision of the coordinator by the rule of the owner, deepest governance): what every member of the STAFF of a tenant reads and does for THEMSELVES, and nothing about anybody else: the tasks assigned
+  // to them (`pwf.task.work`: the command still demands the ledger of assignments, a task nobody gave them is 403), their own scores, their notifications, the approvals that wait for them (`approval_task.read` lists only the
+  // tasks given to them unless they run workflows), the reminder thresholds they set, and the unified inbox of what waits for their decision (`session.self`). Every STAFF membership receives it when it is created and the
+  // migration V3042 gives it to those that exist. It is for people of the tenant: a guest or a contractor (membership GUEST_CONTRACTOR) never receives it and `guestAllowed` is false, so MEMBER, which is also the base role of
+  // guests, does not carry workflow rights.
+  { code: 'STAFF_MEMBER', name: key('STAFF_MEMBER'), rank: 6, permissions: ['session.self', 'notification.self', 'pwf.task.work', 'staff_score.read_own', 'approval_task.read', 'pwf.preference.own'], guestAllowed: false },
   // PENDING SIGN-OFF: the table names the notification box and the personal profile; the help of IAM-08 is asked for by every member (ST-IAM-007), so they raise and read their own support tickets.
   { code: 'MEMBER', name: key('MEMBER'), rank: 5, permissions: ['notification.self', 'profile.self', 'session.self', 'support.ticket.create', 'support.ticket.read', 'tenant.theme.read', 'sync.submit', 'sync.upload'], guestAllowed: true },
 ];

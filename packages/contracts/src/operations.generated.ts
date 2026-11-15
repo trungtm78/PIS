@@ -1069,6 +1069,7 @@ export const OPERATIONS = {
   "listMyConsents": { method: "get", path: "/me/consents", versioned: false, stepUp: null, permission: "notification.self" },
   "listMyDevices": { method: "get", path: "/me/devices", versioned: false, stepUp: null, permission: "session.self" },
   "listMyNotifications": { method: "get", path: "/me/notifications", versioned: false, stepUp: null, permission: "notification.self" },
+  "listMyPendingDecisions": { method: "get", path: "/me/pending-decisions", versioned: false, stepUp: null, permission: "session.self" },
   "listMySessions": { method: "get", path: "/me/sessions", versioned: false, stepUp: null, permission: "session.self" },
   "listNotificationEventTypes": { method: "get", path: "/notification-event-types", versioned: false, stepUp: null, permission: "notification.publish" },
   "listNotificationTestRecipients": { method: "get", path: "/notification-test-recipients", versioned: false, stepUp: null, permission: "notification.template.manage" },

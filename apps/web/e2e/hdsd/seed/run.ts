@@ -21,6 +21,7 @@ try {
   const summary = await runSeed(ctx, groups);
   process.stdout.write(`\nseed done in ${(summary.ms / 1000).toFixed(1)} s, ${summary.calls} calls\n`);
   for (const group of summary.groups) process.stdout.write(`  ${group.name}: ${(group.ms / 1000).toFixed(1)} s, ledger ${group.ledger}\n`);
+  if (summary.skipped.length > 0) process.stdout.write(`${summary.skipped.length} things left out on purpose:\n${summary.skipped.map((line) => `  ${line}`).join('\n')}\n`);
   if (summary.warnings.length > 0) process.stdout.write(`${summary.warnings.length} refusals the seeds tolerated:\n${summary.warnings.map((line) => `  ${line}`).join('\n')}\n`);
 } catch (error) {
   process.stderr.write(`\nseed FAILED: ${error instanceof Error ? error.message : String(error)}\n`);

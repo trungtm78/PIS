@@ -125,6 +125,8 @@ export const GROUPS: SeedGroup[] = [
 export interface SeedSummary {
   groups: Array<{ name: string; ms: number; ledger: string }>;
   warnings: string[];
+  /** What the groups left out on purpose, with the reason: not refusals, not warnings. */
+  skipped: string[];
   calls: number;
   ms: number;
 }
@@ -152,5 +154,5 @@ export async function runSeed(ctx: SeedContext, names?: readonly string[]): Prom
       done.push({ name: group.name, ms: Date.now() - groupStarted, ledger: ctx.flushLedger(group.name) });
     }
   }
-  return { groups: done, warnings: ctx.warnings, calls: ctx.callCount, ms: Date.now() - started };
+  return { groups: done, warnings: ctx.warnings, skipped: ctx.skipped, calls: ctx.callCount, ms: Date.now() - started };
 }

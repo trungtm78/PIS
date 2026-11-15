@@ -1,3 +1,4 @@
+import { decimalText } from '../../../i18n/format';
 import { useTranslation } from '../../../i18n';
 import { DataTable, SectionCard } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
@@ -29,7 +30,7 @@ export function Comparison({ membershipId, enabled }: { membershipId: string | u
       // The rating in words, as everywhere else on the score screens (the code of the band, WEAK, used to show here).
       render: (row) => (row.state === 'RATED' && row.rating !== null ? <RatingPill rating={row.rating} /> : <LineStatePill state={row.state} />),
     },
-    { key: 'sample', header: t('pwfs.compare.col.sample'), align: 'right', render: (row) => t('pwfs.compare.sample.text', { count: row.rated_task_count, weight: row.effective_weight }) },
+    { key: 'sample', header: t('pwfs.compare.col.sample'), align: 'right', render: (row) => t('pwfs.compare.sample.text', { count: row.rated_task_count, weight: decimalText(row.effective_weight) }) },
     {
       key: 'change',
       header: t('pwfs.compare.col.change'),

@@ -10,6 +10,7 @@ import { browserPushDeps, usePushControl } from '../usePushControl';
 import type { PushControlDeps, PushControlState } from '../usePushControl';
 import { READ_PERMISSION } from './approval-model';
 import { useApprovalQueue } from './approval-hooks';
+import { usePendingDecisions } from './pending-hooks';
 import './pwa.css';
 
 export const APPROVALS_PATH = '/m/approvals';
@@ -58,8 +59,10 @@ export default function PwaStartScreen({ pushDeps, manualInstall }: PwaStartScre
   const { permissions } = useSession();
   const mayRead = permissions === undefined || permissions.includes(READ_PERMISSION);
   const queue = useApprovalQueue(mayRead);
-  const pending = queue.data?.length;
-  const late = queue.data?.filter((task) => task.overdue).length ?? 0;
+  const extra = usePendingDecisions(mayRead);
+  // The count of "needs action" holds the records of PWF that wait for the person too (PWF 20.9).
+  const pending = queue.data === undefined ? undefined : queue.data.length + (extra.data?.items.length ?? 0);
+  const late = (queue.data?.filter((task) => task.overdue).length ?? 0) + (extra.data?.items.filter((item) => item.overdue).length ?? 0);
 
   return (
     <section className="pwa-screen" data-screen-id="PWA-01" aria-labelledby="screen-title">

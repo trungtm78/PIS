@@ -107,7 +107,7 @@ class ApprovalCommands {
 }
 
 /// What a refusal means to the person, for the words of the screen.
-enum DecisionProblem { selfApproval, stepUp, notAuthorized, alreadyDecided, versionConflict, notRunning, periodLocked, licenseExpired, denied, notFound, validation, sessionEnded, general }
+enum DecisionProblem { selfApproval, stepUp, notAuthorized, alreadyDecided, versionConflict, notRunning, periodLocked, licenseExpired, denied, notFound, validation, sessionEnded, general, maker, moved }
 
 DecisionProblem problemOf(String code) {
   switch (code) {

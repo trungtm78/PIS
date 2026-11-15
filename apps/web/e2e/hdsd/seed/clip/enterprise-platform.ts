@@ -218,7 +218,13 @@ async function recordConsents(ctx: SeedContext): Promise<void> {
     const known = await ctx.attempt<{ items?: Obj[] }>(consent.person, 'GET', '/me/consents');
     const rows = known.json.items ?? [];
     if (rows.some((row) => row.channel === consent.channel && row.purpose === consent.purpose)) continue;
-    const given = await ctx.attempt(consent.person, 'POST', '/me/consents', { channel: consent.channel, purpose: consent.purpose, consent_text_version: 'v2026.1', capture_method: 'IN_APP' });
+    const given = await ctx.call(consent.person, 'POST', '/me/consents', { channel: consent.channel, purpose: consent.purpose, consent_text_version: 'v2026.1', capture_method: 'IN_APP' });
+    // A consent is recorded for a channel whose identity of the person is verified; where the verification cannot run the product refuses it, and the seed leaves it out and says so.
+    if (!given.ok && String((given.json as Obj).code ?? '') === 'CHANNEL_IDENTITY_UNVERIFIED') {
+      ctx.skip(`the consent of ${ctx.nameOf(consent.person)} to ${consent.channel} is left out on purpose: the identity of the person on that channel is unverified (${NO_CONSUMER})`);
+      continue;
+    }
+    if (!given.ok) ctx.warn(`POST /me/consents -> HTTP ${given.status} ${given.text.slice(0, 300)}`);
     if (given.ok && consent.withdraw !== undefined) {
       await ctx.attempt(consent.person, 'POST', `/me/consents/${String(given.json.resource_id)}/withdraw`, { reason: consent.withdraw }, { version: given.json as never });
     }
@@ -252,10 +258,13 @@ async function setChannelLimits(ctx: SeedContext): Promise<void> {
 async function testSend(ctx: SeedContext): Promise<void> {
   const template = await ctx.find(MAKER, '/resources/notification_template_version', (row) => row.code === 'dn-nhac-han-bao-cao-tuan-email' && row.status === 'Active');
   if (template === undefined) return;
-  await ctx.attempt(MAKER, 'POST', `/notification-templates/${String(template.id)}/test-sends`, {
+  const sent = await ctx.call(MAKER, 'POST', `/notification-templates/${String(template.id)}/test-sends`, {
     test_recipient_ids: [ctx.person(MAKER).membershipId, ctx.person(CHECKER).membershipId],
     sample_variables: { tuan: '45', don_vi: 'Ban Quản lý dự án', han_nop: '13/11/2026' },
   });
+  if (sent.ok) return;
+  if (String((sent.json as Obj).code ?? '') === 'TEST_RECIPIENT_NOT_ALLOWED') ctx.skip(`the test send of the template is left out on purpose: a test goes only to people whose channel is verified (${NO_CONSUMER})`);
+  else ctx.warn(`POST test-sends -> HTTP ${sent.status} ${sent.text.slice(0, 300)}`);
 }
 
 /** The people open their inbox: two thirds of what has come is read, and what asks for an acknowledgement is acknowledged by some of them. */
@@ -300,7 +309,9 @@ async function seedNotLate(ctx: SeedContext): Promise<void> {
       try {
         await runCampaign(ctx, spec);
       } catch (error) {
-        ctx.warn(`campaign "${spec.name}" stopped: ${error instanceof Error ? error.message.slice(0, 260) : String(error)}`);
+        const why = error instanceof Error ? error.message.slice(0, 260) : String(error);
+        if (why.includes('CHANNEL_UNVERIFIED')) ctx.skip(`campaign "${spec.name}" stops before its decision, left on purpose: its channel is unverified (${NO_CONSUMER})`);
+        else ctx.warn(`campaign "${spec.name}" stopped: ${why}`);
       }
     }
   });
@@ -333,7 +344,7 @@ async function connectAccounts(ctx: SeedContext): Promise<void> {
     });
     if (active === undefined) {
       verifierAnswers = false;
-      ctx.warn(`the channel account ${spec.externalId} did not become Active (channel verification consumer missing?)`);
+      ctx.skip(`the channel account ${spec.externalId} stays in verification, left on purpose: ${NO_CONSUMER}`);
       continue;
     }
     if (spec.autoReply !== undefined) await ctx.attempt(MAKER, 'PUT', `/channel-accounts/${connected.resource_id}`, { auto_reply_text: spec.autoReply, reason: 'Câu trả lời tự động ngoài giờ làm việc' }, { version: versionOf(active) });
@@ -463,13 +474,14 @@ function instant(ctx: SeedContext, daysAgo: number, hour: number, offsetMinutes 
   return new Date(Date.UTC(y, m - 1, d, hour - 7, offsetMinutes));
 }
 
+const NO_CONSUMER = 'the stack runs no channel verification consumer (the adapter of a provider that answers a verification), so a channel account stays in verification and what needs an active channel cannot be made';
 const MARK = 'ent-omni';
 
 /** The messages are the same ids on every run (the provider id is the idempotency key), so a second run changes nothing. */
 async function receiveMessages(ctx: SeedContext): Promise<void> {
   const mail = await ctx.find(MAKER, '/resources/channel_account', (row) => row.external_account_id === MAIL.externalId);
   if (mail === undefined || mail.status !== 'Active') {
-    ctx.warn('the e-mail account is not Active: no conversation can be received');
+    ctx.skip(`no conversation of the e-mail account is received, left on purpose: ${NO_CONSUMER}`);
     return;
   }
   for (const thread of THREADS) {

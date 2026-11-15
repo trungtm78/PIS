@@ -6,7 +6,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useOrgUnits } from '../../screens/adm/org-tree/hooks';
-import { businessTypeLabel } from '../../screens/adm/approvals/labels';
+import { approvalTypeLabel } from './approval-labels';
 import { DeadlineCountdown, SectionCard, StatusPill } from '../../ui';
 import { clock, todayOf } from '../../ui/alerts/format';
 import { useDecideTask } from './approval-hooks';
@@ -178,7 +178,7 @@ function DetailContent({ taskId }: { taskId: string }) {
               >
                 <dl className="pwa-facts" data-testid="summary">
                   <dt>{t('pwa2.approvalDetail.field.type')}</dt>
-                  <dd>{businessTypeLabel(t, record.businessType)}</dd>
+                  <dd>{approvalTypeLabel(t, record.businessType)}</dd>
                   {reportFigures === undefined ? (
                     <>
                       <dt>{t('pwa.approvals.field.record')}</dt>

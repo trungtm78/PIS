@@ -1072,6 +1072,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listMyConsents': ConsentPageResponse.fromJson,
   'listMyDevices': ListMyDevicesResponse.fromJson,
   'listMyNotifications': NotificationPageResponse.fromJson,
+  'listMyPendingDecisions': PendingDecisionListResponse.fromJson,
   'listMySessions': ListMySessionsResponse.fromJson,
   'listNotificationEventTypes': NotificationEventTypePageResponse.fromJson,
   'listNotificationTestRecipients': NotificationTestRecipientsResponse.fromJson,
@@ -5160,6 +5161,248 @@ final class AnalysisRunViewResponseTimelineItem implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'step': step,
         'state': state,
+        ...extra,
+      };
+}
+
+final class ApprovalRecordSummaryResponse implements ResponseModel {
+  const ApprovalRecordSummaryResponse({
+    required this.kind,
+    required this.subject,
+    required this.unit,
+    required this.project,
+    required this.period,
+    required this.facts,
+    required this.body,
+    required this.target,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ApprovalRecordSummaryResponse.fromJson(Object? json, [String path = 'ApprovalRecordSummaryResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ApprovalRecordSummaryResponse(
+      kind: requiredField(map, path, 'kind', asString),
+      subject: requiredField(map, path, 'subject', nullable(ApprovalRecordSummaryResponseSubject.fromJson)),
+      unit: requiredField(map, path, 'unit', nullable(ApprovalRecordSummaryResponseUnit.fromJson)),
+      project: requiredField(map, path, 'project', nullable(ApprovalRecordSummaryResponseProject.fromJson)),
+      period: requiredField(map, path, 'period', nullable(ApprovalRecordSummaryResponsePeriod.fromJson)),
+      facts: requiredField(map, path, 'facts', asList(ApprovalRecordSummaryResponseFactsItem.fromJson)),
+      body: requiredField(map, path, 'body', nullable(asString)),
+      target: requiredField(map, path, 'target', nullable(ApprovalRecordSummaryResponseTarget.fromJson)),
+      extra: unknownFields(map, path, const <String>{'kind', 'subject', 'unit', 'project', 'period', 'facts', 'body', 'target'}, strict: true),
+    );
+  }
+
+  final String kind;
+  final ApprovalRecordSummaryResponseSubject? subject;
+  final ApprovalRecordSummaryResponseUnit? unit;
+  final ApprovalRecordSummaryResponseProject? project;
+  final ApprovalRecordSummaryResponsePeriod? period;
+  final List<ApprovalRecordSummaryResponseFactsItem> facts;
+  final String? body;
+  final ApprovalRecordSummaryResponseTarget? target;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'subject': (subject == null ? null : subject!.toJson()),
+        'unit': (unit == null ? null : unit!.toJson()),
+        'project': (project == null ? null : project!.toJson()),
+        'period': (period == null ? null : period!.toJson()),
+        'facts': facts.map((e0) => e0.toJson()).toList(),
+        'body': body,
+        'target': (target == null ? null : target!.toJson()),
+        ...extra,
+      };
+}
+
+final class ApprovalRecordSummaryResponseFactsItem implements ResponseModel {
+  const ApprovalRecordSummaryResponseFactsItem({
+    required this.code,
+    required this.value,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ApprovalRecordSummaryResponseFactsItem.fromJson(Object? json, [String path = 'ApprovalRecordSummaryResponseFactsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ApprovalRecordSummaryResponseFactsItem(
+      code: requiredField(map, path, 'code', asString),
+      value: requiredField(map, path, 'value', asAny),
+      extra: unknownFields(map, path, const <String>{'code', 'value'}, strict: true),
+    );
+  }
+
+  final String code;
+  final Object? value;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'value': value,
+        ...extra,
+      };
+}
+
+final class ApprovalRecordSummaryResponsePeriod implements ResponseModel {
+  const ApprovalRecordSummaryResponsePeriod({
+    required this.from,
+    required this.to,
+    required this.status,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ApprovalRecordSummaryResponsePeriod.fromJson(Object? json, [String path = 'ApprovalRecordSummaryResponsePeriod']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ApprovalRecordSummaryResponsePeriod(
+      from: requiredField(map, path, 'from', asString),
+      to: requiredField(map, path, 'to', asString),
+      status: requiredField(map, path, 'status', asString),
+      extra: unknownFields(map, path, const <String>{'from', 'to', 'status'}, strict: true),
+    );
+  }
+
+  final String from;
+  final String to;
+  final String status;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'from': from,
+        'to': to,
+        'status': status,
+        ...extra,
+      };
+}
+
+final class ApprovalRecordSummaryResponseProject implements ResponseModel {
+  const ApprovalRecordSummaryResponseProject({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ApprovalRecordSummaryResponseProject.fromJson(Object? json, [String path = 'ApprovalRecordSummaryResponseProject']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ApprovalRecordSummaryResponseProject(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', asString),
+      name: requiredField(map, path, 'name', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String code;
+  final String name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
+        ...extra,
+      };
+}
+
+final class ApprovalRecordSummaryResponseSubject implements ResponseModel {
+  const ApprovalRecordSummaryResponseSubject({
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ApprovalRecordSummaryResponseSubject.fromJson(Object? json, [String path = 'ApprovalRecordSummaryResponseSubject']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ApprovalRecordSummaryResponseSubject(
+      name: requiredField(map, path, 'name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'name'}, strict: true),
+    );
+  }
+
+  final String? name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'name': name,
+        ...extra,
+      };
+}
+
+final class ApprovalRecordSummaryResponseTarget implements ResponseModel {
+  const ApprovalRecordSummaryResponseTarget({
+    required this.screen,
+    required this.id,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ApprovalRecordSummaryResponseTarget.fromJson(Object? json, [String path = 'ApprovalRecordSummaryResponseTarget']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ApprovalRecordSummaryResponseTarget(
+      screen: requiredField(map, path, 'screen', asString),
+      id: requiredField(map, path, 'id', asString),
+      extra: unknownFields(map, path, const <String>{'screen', 'id'}, strict: true),
+    );
+  }
+
+  final String screen;
+  final String id;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'screen': screen,
+        'id': id,
+        ...extra,
+      };
+}
+
+final class ApprovalRecordSummaryResponseUnit implements ResponseModel {
+  const ApprovalRecordSummaryResponseUnit({
+    required this.id,
+    required this.code,
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ApprovalRecordSummaryResponseUnit.fromJson(Object? json, [String path = 'ApprovalRecordSummaryResponseUnit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ApprovalRecordSummaryResponseUnit(
+      id: requiredField(map, path, 'id', asString),
+      code: requiredField(map, path, 'code', nullable(asString)),
+      name: requiredField(map, path, 'name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'id', 'code', 'name'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String? code;
+  final String? name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'code': code,
+        'name': name,
         ...extra,
       };
 }
@@ -52616,6 +52859,204 @@ final class PayTreasuryTrackingPageResponse implements ResponseModel {
         'items': items.map((e0) => e0.toJson()).toList(),
         'next_cursor': nextCursor,
         'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class PendingDecisionListResponse implements ResponseModel {
+  const PendingDecisionListResponse({
+    required this.items,
+    required this.unavailableSources,
+    required this.truncated,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PendingDecisionListResponse.fromJson(Object? json, [String path = 'PendingDecisionListResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PendingDecisionListResponse(
+      items: requiredField(map, path, 'items', asList(PendingDecisionResponse.fromJson)),
+      unavailableSources: requiredField(map, path, 'unavailable_sources', asList(asString)),
+      truncated: requiredField(map, path, 'truncated', asBool),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'unavailable_sources', 'truncated', 'as_of'}, strict: true),
+    );
+  }
+
+  final List<PendingDecisionResponse> items;
+  final List<String> unavailableSources;
+  final bool truncated;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'unavailable_sources': unavailableSources,
+        'truncated': truncated,
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class PendingDecisionResponse implements ResponseModel {
+  const PendingDecisionResponse({
+    required this.id,
+    required this.kind,
+    required this.resource,
+    required this.version,
+    required this.submittedAt,
+    required this.initiator,
+    required this.dueAt,
+    required this.overdue,
+    required this.summary,
+    required this.actions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PendingDecisionResponse.fromJson(Object? json, [String path = 'PendingDecisionResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PendingDecisionResponse(
+      id: requiredField(map, path, 'id', asString),
+      kind: requiredField(map, path, 'kind', asString),
+      resource: requiredField(map, path, 'resource', PendingDecisionResponseResource.fromJson),
+      version: requiredField(map, path, 'version', asInt),
+      submittedAt: requiredField(map, path, 'submitted_at', asString),
+      initiator: requiredField(map, path, 'initiator', PendingDecisionResponseInitiator.fromJson),
+      dueAt: requiredField(map, path, 'due_at', nullable(asString)),
+      overdue: requiredField(map, path, 'overdue', asBool),
+      summary: requiredField(map, path, 'summary', ApprovalRecordSummaryResponse.fromJson),
+      actions: requiredField(map, path, 'actions', asList(PendingDecisionResponseActionsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'kind', 'resource', 'version', 'submitted_at', 'initiator', 'due_at', 'overdue', 'summary', 'actions'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String kind;
+  final PendingDecisionResponseResource resource;
+  final int version;
+  final String submittedAt;
+  final PendingDecisionResponseInitiator initiator;
+  final String? dueAt;
+  final bool overdue;
+  final ApprovalRecordSummaryResponse summary;
+  final List<PendingDecisionResponseActionsItem> actions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'kind': kind,
+        'resource': resource.toJson(),
+        'version': version,
+        'submitted_at': submittedAt,
+        'initiator': initiator.toJson(),
+        'due_at': dueAt,
+        'overdue': overdue,
+        'summary': summary.toJson(),
+        'actions': actions.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class PendingDecisionResponseActionsItem implements ResponseModel {
+  const PendingDecisionResponseActionsItem({
+    required this.decision,
+    required this.operationId,
+    required this.reasonRequired,
+    required this.reasonMin,
+    required this.reasonMax,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PendingDecisionResponseActionsItem.fromJson(Object? json, [String path = 'PendingDecisionResponseActionsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PendingDecisionResponseActionsItem(
+      decision: requiredField(map, path, 'decision', asString),
+      operationId: requiredField(map, path, 'operation_id', asString),
+      reasonRequired: requiredField(map, path, 'reason_required', asBool),
+      reasonMin: requiredField(map, path, 'reason_min', asInt),
+      reasonMax: requiredField(map, path, 'reason_max', asInt),
+      extra: unknownFields(map, path, const <String>{'decision', 'operation_id', 'reason_required', 'reason_min', 'reason_max'}, strict: true),
+    );
+  }
+
+  final String decision;
+  final String operationId;
+  final bool reasonRequired;
+  final int reasonMin;
+  final int reasonMax;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        'operation_id': operationId,
+        'reason_required': reasonRequired,
+        'reason_min': reasonMin,
+        'reason_max': reasonMax,
+        ...extra,
+      };
+}
+
+final class PendingDecisionResponseInitiator implements ResponseModel {
+  const PendingDecisionResponseInitiator({
+    required this.name,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PendingDecisionResponseInitiator.fromJson(Object? json, [String path = 'PendingDecisionResponseInitiator']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PendingDecisionResponseInitiator(
+      name: requiredField(map, path, 'name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'name'}, strict: true),
+    );
+  }
+
+  final String? name;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'name': name,
+        ...extra,
+      };
+}
+
+final class PendingDecisionResponseResource implements ResponseModel {
+  const PendingDecisionResponseResource({
+    required this.type_,
+    required this.id,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PendingDecisionResponseResource.fromJson(Object? json, [String path = 'PendingDecisionResponseResource']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PendingDecisionResponseResource(
+      type_: requiredField(map, path, 'type', asString),
+      id: requiredField(map, path, 'id', asString),
+      extra: unknownFields(map, path, const <String>{'type', 'id'}, strict: true),
+    );
+  }
+
+  final String type_;
+  final String id;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'type': type_,
+        'id': id,
         ...extra,
       };
 }

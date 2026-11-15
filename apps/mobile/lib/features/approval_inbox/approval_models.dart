@@ -1,5 +1,6 @@
 import '../../core/format/format.dart';
 import '../read_support/wire.dart';
+import 'pending_decisions.dart';
 
 /// The permission that decides an approval task; the server judges it again, and demands a fresh second factor for it.
 const String decidePermission = 'approval.decide';
@@ -158,15 +159,24 @@ ApprovalTask? parseApprovalTask(Object? raw) {
 
 /// The tasks waiting for the person, the late ones first and then by deadline.
 final class ApprovalInbox {
-  const ApprovalInbox({required this.tasks, required this.unitNames, this.asOf});
+  const ApprovalInbox({required this.tasks, required this.unitNames, this.asOf, this.pending = const <PendingDecision>[], this.pendingUnavailable = false});
 
   final List<ApprovalTask> tasks;
+
+  /// The records of the modules that wait for the person outside the engine (PWF 20.9), listed with the tasks and counted with them.
+  final List<PendingDecision> pending;
+
+  /// The module sources of those records could not be read: said on the screen, never shown as "nothing waits".
+  final bool pendingUnavailable;
+
+  /// Everything that waits for the person: the tasks of the engine and the pending records.
+  int get waitingCount => tasks.length + pending.length;
 
   /// The names of the units, by id; a unit the reader may not read is not in it and its id is never shown as a name.
   final Map<String, String> unitNames;
   final String? asOf;
 
-  int get overdueCount => tasks.where((ApprovalTask task) => task.overdue).length;
+  int get overdueCount => tasks.where((ApprovalTask task) => task.overdue).length + pending.where((PendingDecision one) => one.overdue).length;
 }
 
 /// The inbox from `{items: [task, ...], as_of, units: {items: [unit, ...]} | null}`, or null when it is not one.
@@ -189,6 +199,8 @@ ApprovalInbox? parseApprovalInbox(Object? raw) {
         if (filled(asRecord(unit)?['id']) case final String id when filled(asRecord(unit)?['name']) != null) id: asRecord(unit)!['name']! as String,
     },
     asOf: filled(body['as_of']),
+    pending: <PendingDecision>[for (final Object? item in listOf(body['pending'])) ?parsePendingDecision(item)],
+    pendingUnavailable: body['pending_unavailable'] == true,
   );
 }
 

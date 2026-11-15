@@ -1744,6 +1744,8 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'getKpiOperations',
         'getMyStaffScore',
         'getMyTasks',
+        // PWF 20.9: the unified approval inbox reads the records of PWF that wait for the caller (an ADM read fed by the source PWF registers).
+        'listMyPendingDecisions',
         'getProjectReschedule',
         'getProjectSchedule',
         'getProjectTask',

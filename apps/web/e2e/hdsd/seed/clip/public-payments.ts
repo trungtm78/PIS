@@ -31,9 +31,23 @@ async function activeContract(ctx: SeedContext, packageCode: string): Promise<Ob
   return found !== undefined && found.status === 'ACTIVE' ? found : undefined;
 }
 
+/**
+ * The monthly periods of a fiscal year are generated once: the payments and the disbursement of one dataset both need them, and the second asking is the product's own refusal (409 PERIOD_OVERLAP: the year is already
+ * laid). The periods are read first and the year is generated only when it holds none, so that no refusal is expected and none is written off.
+ */
+export async function ensureMonthlyPeriods(ctx: SeedContext, fiscalYear: number): Promise<Obj[]> {
+  const read = (): Promise<Obj[]> => ctx.list<Obj>(MAKER, '/resources/reporting_period');
+  const monthsOf = (rows: Obj[]): Obj[] => rows.filter((row) => row.period_type === 'MONTH' && Number(row.fiscal_year) === fiscalYear);
+  let periods = await read();
+  if (monthsOf(periods).length === 0) {
+    await ctx.attempt(MAKER, 'POST', '/reporting-periods/generate', { calendar_code: 'DEFAULT', fiscal_year: fiscalYear, period_type: 'MONTH' });
+    periods = await read();
+  }
+  return periods;
+}
+
 export async function reportingPeriodId(ctx: SeedContext, fiscalYear: number): Promise<string | undefined> {
-  await ctx.attempt(MAKER, 'POST', '/reporting-periods/generate', { calendar_code: 'DEFAULT', fiscal_year: fiscalYear, period_type: 'MONTH' });
-  const periods = await ctx.list<Obj>(MAKER, '/resources/reporting_period');
+  const periods = await ensureMonthlyPeriods(ctx, fiscalYear);
   const month = periods.filter((row) => row.period_type === 'MONTH' && Number(row.fiscal_year) === fiscalYear).sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)))[0];
   return month === undefined ? undefined : String(month.id);
 }

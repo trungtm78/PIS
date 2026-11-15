@@ -337,10 +337,14 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect(days).toBeLessThan(7.1);
 
       const grants = await admin<{ code: string; scope_kind: string }>(
-        'select r.code, g.scope_kind from machvon.role_grant g join machvon.role_definition r on r.id = g.role_id where g.membership_id = $1',
+        'select r.code, g.scope_kind from machvon.role_grant g join machvon.role_definition r on r.id = g.role_id where g.membership_id = $1 order by r.code',
         [membershipId],
       );
-      expect(grants).toEqual([{ code: 'MEMBER', scope_kind: 'UNIT_ONLY' }]);
+      // MEMBER is what every member needs to sign in; STAFF_MEMBER is what a person of the staff reads and does for themselves (their tasks, scores, approvals, reminders): MEMBER on the unit of the person, STAFF_MEMBER over the tenant because each of its rights is judged against the person themselves (PWF 20.9).
+      expect(grants).toEqual([
+        { code: 'MEMBER', scope_kind: 'UNIT_ONLY' },
+        { code: 'STAFF_MEMBER', scope_kind: 'TENANT' },
+      ]);
       expect(await events('iam.membership.invited.v1')).toBe(before + 1);
       expect(await audits('membership.invite')).toBeGreaterThanOrEqual(1);
     });
@@ -413,7 +417,8 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
         'select r.code from machvon.role_grant g join machvon.role_definition r on r.id = g.role_id where g.membership_id = $1',
         [allowed.json.resource_id],
       );
-      expect(granted).toEqual([{ code: 'UNIT_ADMIN' }]);
+      // What the inviter chose, and the base role of the staff, which is no privilege (it reads and does only what concerns the person) and so is given with it (PWF 20.9).
+      expect(granted.map((row) => row.code).sort()).toEqual(['STAFF_MEMBER', 'UNIT_ADMIN']);
     });
 
     it.each([
