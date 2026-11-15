@@ -17,7 +17,7 @@ FROM mcr.microsoft.com/windows/servercore:${WINDOWS_TAG}
 LABEL org.opencontainers.image.title="machvon-clamav-windows" `
       org.opencontainers.image.description="clamd for Windows containers"
 COPY --from=build C:\clamav C:\clamav
-COPY clamd.conf clamd-client.conf freshclam.conf clamav-entrypoint.cmd C:\clamav\
+COPY clamd.conf clamd-client.conf freshclam.conf clamav-entrypoint.cmd C:/clamav/
 USER ContainerAdministrator
 RUN mkdir C:\clamav\database C:\clamav\temp && icacls C:\clamav\database /grant *S-1-5-93-2-2:(OI)(CI)M /Q && icacls C:\clamav\temp /grant *S-1-5-93-2-2:(OI)(CI)M /Q
 # freshclam checks the certificate of database.clamav.net against the root store of Windows, and a container starts with an almost empty one (a host fills it on

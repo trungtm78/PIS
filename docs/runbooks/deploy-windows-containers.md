@@ -139,11 +139,11 @@ powershell -ExecutionPolicy Bypass -File C:\ProgramData\MACHVON\host\restore.ps1
 ```
 
 - Tác vụ `MACHVON daily` (SYSTEM, 02:30 mỗi đêm, `host\daily.ps1`): sao lưu, gia hạn chứng thư khi tới hạn, cập nhật chữ ký ClamAV, xoay nhật ký truy cập (giữ 30 ngày).
-- Mỗi bản sao lưu là một thư mục `backups\<yyyyMMdd-HHmmss>-<nhãn>`: `machvon.dump`, `keycloak.dump` (pg_dump dạng custom), `roles.sql` (vai trò, không có mật khẩu),
+- Mỗi bản sao lưu là một thư mục `backups\<yyyyMMdd-HHmmss>-<nhãn>`: `machvon.dump`, `keycloak.dump` (pg_dump dạng custom), `roles.sql` (vai trò, không có mật khẩu), `objects.zip` (tệp tải lên, từ 2026-11-16),
   `SHA256SUMS`, `release.txt`. Giữ 14 ngày. Bản sao lưu nằm **ngoài** mọi volume Docker nhưng vẫn trên cùng ổ đĩa: hãy chép thư mục `backups` sang máy khác theo lịch riêng.
-- `restore.ps1` kiểm checksum, sao lưu trạng thái hiện tại (`before-restore`), dừng các dịch vụ dùng cơ sở dữ liệu, tạo lại hai cơ sở dữ liệu từ bản sao lưu rồi khởi động lại.
+- `restore.ps1` kiểm checksum, sao lưu trạng thái hiện tại (`before-restore`), dừng các dịch vụ dùng cơ sở dữ liệu, tạo lại hai cơ sở dữ liệu từ bản sao lưu, thay tệp tải lên bằng nội dung `objects.zip` (nếu bản sao lưu có tệp này) rồi khởi động lại.
   Mọi thứ ghi sau bản sao lưu đó bị mất.
-- Tệp tải lên (volume `machvon_objects`) **chưa** nằm trong bản sao lưu này; sao chép `C:\ProgramData\docker\volumes\machvon_objects` theo lịch riêng khi bắt đầu có tệp.
+- Đã thử 2026-11-16: checksum của một bản sao lưu khớp và `pg_restore` vào một cơ sở dữ liệu tạm chạy không lỗi (630 bảng); `backup.ps1` mới ghi `objects.zip` đủ 296 tệp của volume. Chưa thử: `restore.ps1` trọn vẹn trên server (lệnh này thay toàn bộ dữ liệu đang chạy).
 - Bí mật (`secrets\`) phải được giữ riêng, ngoại tuyến: bản sao lưu không chứa chúng.
 
 ## 7. Cập nhật phiên bản và rollback
