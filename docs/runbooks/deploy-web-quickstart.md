@@ -42,7 +42,7 @@ node scripts/onprem-bundle.mjs verify dist/onprem
 
 `plan` chỉ in các lệnh. `build` in tiến trình của docker ra màn hình và tạo thư mục gói: `images/*.oci.tar` (`machvon/api`, `machvon/workers`, `machvon/web`, `machvon/db`, Keycloak, ClamAV), `VERSION`, `manifest.json`,
 `SHA256SUMS`, `sbom.cdx.json`, `install.sh`, `rollback.sh`, cây `infra/`, các runbook và `scripts/onprem-first-tenant.mjs`. Bỏ `--platform` thì gói chứa cả amd64 lẫn arm64 (lâu hơn nhiều vì build giả lập).
-Trên máy 4 vCPU, build gói một kiến trúc mất khoảng 1 phút rưỡi. Chép cả thư mục sang máy chủ, ví dụ `/opt/machvon/1.0.0`.
+Trên máy 4 vCPU, build gói một kiến trúc mất khoảng 2 phút. Chép cả thư mục sang máy chủ, ví dụ `/opt/machvon/1.0.0`.
 
 ## 4. Biến môi trường và tệp bí mật (máy chủ)
 
@@ -53,6 +53,8 @@ Sao chép `infra/onprem/compose/env.template` thành `/etc/machvon/compose.env` 
 | `MACHVON_EDITION` | `public` hoặc `enterprise`: phải khớp với bản đã build |
 | `PUBLIC_HOST`, `CONTROL_HOST` | tên miền của web và của mặt điều khiển (`PUBLIC_HOST` phải đúng tên đã build) |
 | `MACHVON_SECRETS_DIR`, `MACHVON_SECRETS_GID` | thư mục tệp bí mật (`/etc/machvon/secrets`) và nhóm được đọc (1900) |
+| `MACHVON_REGION` | vùng của các tenant (`vn-north` hoặc `vn-south`); `install.sh` đăng ký cơ sở dữ liệu của bản cài ở vùng này |
+| `LICENSE_SIGNING_KEY_ID`, `TENANT_TOKEN_KEY_ID` | tên của hai khóa ký; đổi khóa ký license thì đổi cả tên rồi chạy lại `install.sh` |
 | `LDAP_URL`, `LDAP_BIND_DN`, `LDAP_USERS_DN`, `LDAP_GROUPS_DN` | thư mục người dùng (`ldaps://...:636`) |
 | `BACKUP_S3_ENDPOINT`, `BACKUP_S3_BUCKET`, `BACKUP_S3_REGION` và ba biến `BACKUP_ARCHIVE_S3_*` | hai kho sao lưu; endpoint là `tên-máy` hoặc `tên-máy:cổng`, không có `https://` |
 | các biến còn lại | giữ giá trị mẫu (`MACHVON_VERSION` do `install.sh` tự đặt; `MACHVON_BI=off`) |
@@ -102,8 +104,8 @@ sh install.sh --env-file /etc/machvon/compose.env
 ```
 
 `install.sh` chạy bằng root, làm tám bước và dừng ở bước đầu tiên hỏng: kiểm `SHA256SUMS`, nạp ảnh từ gói (không tải gì từ Internet), kiểm tệp bí mật và tệp compose, (nâng cấp: sao lưu đầy đủ),
-khởi động `db` và tạo kho pgBackRest, **chạy migration**, đặt mật khẩu các vai trò cơ sở dữ liệu, khởi động mọi dịch vụ và chờ health check (300 giây). Chạy lại được nhiều lần.
-Trên máy 4 vCPU cả lệnh mất khoảng 2 phút rưỡi.
+khởi động `db` và tạo kho pgBackRest, **chạy migration**, đặt mật khẩu các vai trò cơ sở dữ liệu, đăng ký nơi đặt cơ sở dữ liệu (`MACHVON_REGION`) và khóa ký license (`LICENSE_SIGNING_KEY_ID`), khởi động mọi dịch vụ và chờ health check (300 giây). Chạy lại được nhiều lần.
+Trên máy 4 vCPU cả lệnh mất khoảng 2 phút.
 
 Chạy riêng migration khi cần (cùng lệnh mà `install.sh` dùng):
 
@@ -218,8 +220,58 @@ Rollback khởi động lại ảnh của bản trước, KHÔNG lùi lược đ
 sh /opt/machvon/<bản trước>/rollback.sh /opt/machvon/<bản trước> --env-file /etc/machvon/compose.env
 ```
 
-Trên máy 4 vCPU: nâng cấp khoảng 1 phút rưỡi, rollback dưới 1 phút. Nếu dữ liệu bị hỏng thì không rollback: khôi phục theo `docs/runbooks/infra/restore-drill.md`.
+Trên máy 4 vCPU: nâng cấp khoảng 1 phút 10 giây, rollback dưới 1 phút. Nếu dữ liệu bị hỏng thì không rollback: khôi phục theo `docs/runbooks/infra/restore-drill.md`.
 
 ## 9. Đã chạy thật và chưa kiểm chứng
 
-RUN_EVIDENCE_PLACEHOLDER
+### 9.1 Đã chạy thật trên máy Linux (GitHub Actions, `ubuntu-24.04`, 4 vCPU, 16 GB RAM, Docker 28.0.4, Compose 2.38.2)
+
+Workflow `On-prem smoke` (`.github/workflows/onprem-smoke.yml`) build gói THẬT rồi cài nó như một máy chủ khách: RUN_REF.
+Thứ khách hàng mang tới được dựng tạm trong runner (`scripts/onprem-smoke/prepare.sh`): OpenLDAP qua LDAPS, kho S3 MinIO qua TLS với hai bucket có object lock, một CA thử, chứng thư và 22 tệp bí mật ngẫu nhiên.
+Các bước dưới đây đều xanh trong lượt đó:
+
+| Bước | Đã chứng minh |
+|---|---|
+| `onprem-bundle.mjs build` + `verify` | Bốn Dockerfile build được; Keycloak và ClamAV chép theo digest; `SHA256SUMS` khớp (gói A và gói B) |
+| `sh install.sh` (cài mới) | Nạp ảnh từ gói, KHÔNG tải ảnh nào từ registry (theo dõi `docker events`); kiểm tệp bí mật; `db` lên; pgBackRest tạo kho trên cả hai bucket qua TLS; 470 migration; mật khẩu ba vai trò; đăng ký nơi đặt và khóa ký license; sáu dịch vụ `healthy` |
+| Kiểm sức khỏe | `/healthz`; HTTP chuyển sang HTTPS; trang web và tài nguyên qua TLS với đủ header an toàn; bản web trỏ đúng issuer; `/api/health/ready` và `/live`; API trả 401 khi không có token và khi token giả; `/idp/admin` trả 404 |
+| Cơ sở dữ liệu và sao lưu | Số migration đã áp bằng số tệp; ba vai trò đăng nhập được bằng mật khẩu trong tệp bí mật; `pgbackrest check` (WAL tới cả hai kho) |
+| Keycloak | Realm nhập đủ, không còn biến chưa thay; `kcadm.sh` trong container; liên kết thư mục kết nối và bind được qua LDAPS bằng CA của `ldap_ca_cert` |
+| Đăng nhập OIDC thật | Mã ủy quyền + PKCE qua nginx, mật khẩu, đăng ký TOTP ở lần đầu, nhập TOTP ở các lần sau; token có `acr=aal2`, đúng `aud` |
+| Tenant đầu tiên | `scripts/onprem-first-tenant.mjs` (chạy được bằng ảnh `api`, không cần Node trên máy chủ): đăng nhập client `machvon-control`, `POST /system/tenants`, `workers` chạy hết các bước, tenant `Active` |
+| Người dùng đầu tiên | Tệp lời mời có trong volume, chỉ tài khoản dịch vụ đọc được; trang chấp nhận được phục vụ; chủ sở hữu đăng nhập và chấp nhận; nhận phiên của tenant; đọc được hồ sơ |
+| Nâng cấp (`install.sh` của gói B) | Sao lưu đầy đủ lên kho + `check` trước khi migrate; ghi lại phiên bản trước; sáu dịch vụ chạy bản B; chủ sở hữu đăng nhập lại, chọn tenant, đọc hồ sơ |
+| `sh rollback.sh` | Sáu dịch vụ chạy lại bản A với cơ sở dữ liệu giữ nguyên; chủ sở hữu đăng nhập lại, chọn tenant, đọc hồ sơ |
+
+Thời gian đo được: build gói một kiến trúc khoảng 2 phút, cài mới khoảng 2 phút, nâng cấp khoảng 1 phút 10 giây, rollback dưới 1 phút.
+
+### 9.2 Lỗi của gói mà lượt chạy thật đã tìm ra và đã sửa
+
+Trước lượt chạy này gói chỉ qua kiểm tĩnh; cài lần đầu trên máy thật sẽ dừng ở từng điểm sau:
+
+1. `compose.yaml`: `pids_limit` đặt cạnh `deploy.resources.limits` bị Compose từ chối ("can't set distinct values"). Đã chuyển thành `deploy.resources.limits.pids`.
+2. `clamav` khởi động lại mãi (`chown: Operation not permitted`): entrypoint của ảnh cần `CHOWN`, `SETUID`, `SETGID`, `DAC_OVERRIDE`, `FOWNER`. Đã thêm.
+3. `api` và `workers` không khởi động: addon gốc của `@swc/core` cần một thư mục cache ghi được và chạy được, trong khi hệ tệp gốc chỉ đọc và `/tmp` là `noexec`. Đã thêm một tmpfs riêng (`/app/.swc-native`) và `SWC_NATIVE_BINDING_CACHE`.
+4. pgBackRest không có cách tin CA nội bộ của kho S3. Đã thêm tệp bí mật `backup_s3_ca_cert`.
+5. Realm: người chưa đăng ký xác thực lần hai KHÔNG BAO GIỜ đăng nhập được ("Invalid username or password"), tức mọi thành viên ở lần đăng nhập đầu. Đã sửa luồng `machvon member factor` để lần đầu dẫn tới bước đăng ký TOTP.
+6. Không có nơi đặt cơ sở dữ liệu nào được đăng ký nên không tạo được tenant (`PLACEMENT_UNAVAILABLE`). `install.sh` nay đăng ký cơ sở dữ liệu của bản cài (`MACHVON_REGION`).
+7. Khóa ký license chưa được đăng ký nên khởi tạo tenant dừng ở bước license (`SIGNING_KEY_UNAVAILABLE`). `install.sh` nay đăng ký nửa công khai của khóa.
+8. Lời mời không bao giờ tới người nhận (bộ gửi thư là bản giả trong bộ nhớ). Đã thêm hộp thư đi dạng tệp (mục 7.4).
+9. Bản `enterprise` không build được và không khởi động được: gói `@machvon/edition-enterprise` không được cài vào ảnh. Đã sửa ba Dockerfile.
+10. `create-bucket.sh` dừng trên MinIO ở lệnh `put-public-access-block` (kho không hỗ trợ). Nay chỉ cảnh báo, các thiết lập bất biến vẫn được áp.
+11. Keycloak chạy chế độ cụm trên một máy: mỗi lần tạo lại container chờ thêm 20 giây. Đã đặt `KC_CACHE=local`.
+
+### 9.3 CHƯA kiểm chứng
+
+- **Máy chủ thật của chủ sở hữu**: mọi thứ ở 9.1 chạy trên runner dùng một lần, tên miền giả trỏ về `127.0.0.1`, chứng thư của CA thử. DNS thật, chứng thư thật, tường lửa của máy chủ và trình duyệt thật của người dùng chưa đi qua lần nào.
+- **Active Directory thật**: thư mục thử là OpenLDAP rỗng. Kết nối và bind LDAPS đã chứng minh; nhập người dùng, nhập nhóm `MACHVON-*` thành vai trò, và đăng nhập bằng mật khẩu AD thì CHƯA (realm cấu hình theo thuộc tính của AD). Người đăng nhập trong lượt chạy là người dùng tạo tay trong Keycloak.
+- **WebAuthn**: vai trò mặt điều khiển bắt buộc khóa bảo mật khi lấy từ nhóm AD. Lượt chạy gán `SystemAdmin` trực tiếp (không kèm dấu `mfa-webauthn-required`) và dùng TOTP; đăng ký và đăng nhập bằng khóa bảo mật chưa chạy.
+- **Trình duyệt**: đăng nhập được thực hiện bằng script đọc và gửi các form của Keycloak, không phải trình duyệt. Luồng của bản web (chuyển hướng, `/auth/callback`, màn chấp nhận lời mời, chọn tenant trên giao diện) chưa được bấm thử trên bản production; API đứng sau các màn đó thì đã chạy.
+- **Mặt điều khiển trên web**: bản web production vẫn chưa có đăng nhập cho client `machvon-control`; các màn SAS chưa dùng được bằng trình duyệt. Tenant tạo bằng script (mục 7.3).
+- **Chế độ không có thư mục**: chưa có cấu hình chính thức để cài mà không có LDAPS; cách tạo người dùng tay ở mục 7.2 là đường tạm đã chạy thật nhưng chưa có chính sách mật khẩu cho tài khoản cục bộ.
+- **Gửi thư**: không có. Lời mời và mọi thông báo qua email cần người vận hành chuyển tay (mục 7.4).
+- **Giao diện quản trị Keycloak qua trình duyệt**: chưa có đường vào chính thức; chỉ có `kcadm.sh` (mục 7.1).
+- **Khôi phục từ bản sao lưu**, sao lưu vi sai và gia tăng, bucket lưu trữ hằng tháng, bộ hẹn giờ systemd, tường lửa đường ra (`egress-firewall.sh --apply`), cổng đọc cho BI: chưa chạy. `lab-install-checklist.md` mục D, E, F, G2 vẫn phải làm trên máy thật.
+- **Quét mã độc**: `clamav` lên và `healthy`, API được cấu hình dùng nó; chưa tải thử tệp EICAR. Chữ ký trong ảnh có thể cũ (log cảnh báo "older than 7 days").
+- **Máy chủ arm64**: ARM64_STATUS
+- **Tải và độ bền**: không có phép đo hiệu năng nào; cỡ máy tối thiểu là cỡ đã chạy được chức năng, không phải cỡ đã đo cho số người dùng thật.

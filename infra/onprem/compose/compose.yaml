@@ -205,7 +205,7 @@ services:
   # clamd for the malware scan of uploads. The app network has no route out, so signatures are NOT fetched here: they ship in the image of the release (the bundle is rebuilt at least monthly,
   # docs/runbooks/infra/malware-scan.md) or are placed in the clamav_db volume by the operator.
   clamav:
-    image: docker.io/clamav/clamav:1.4.6@sha256:cbc30de94b6e9b33ac14136ff45306cee02a1f9ae522394a3cc5b9215d1affe9
+    image: docker.io/clamav/clamav-debian:1.4.6@sha256:aedee9daad6b069b26adad61af7ec50a41efe33fd8eff7f985c1f31e3a6ae9de
     <<: *hardening
     # The entrypoint of the image starts as root, gives the signature and socket directories to the clamav user and starts clamd as that user: without these it restarts for ever.
     cap_add:
