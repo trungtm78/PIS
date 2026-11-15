@@ -64,7 +64,7 @@ The images carry what the migrations and the API need and nothing else: the data
 3. Create the secret files.
 4. Limit the way out: the database (WAL archive and backups), the backup runs and Keycloak (the directory) are the only services with a route out of the host, through the `egress` network (fixed subnet 172.29.250.0/24); the app and data networks have none. Apply the host firewall rules that allow that subnet to the object store and the directory only: `sh infra/onprem/config/egress-firewall.sh <object store host> <port> <directory host> <port> --apply` (without `--apply` it prints the rules for review).
 5. Create the backup bucket (`infra/backup/bucket/create-bucket.sh`) as the object store administrator; create the writer identity with `writer-policy.json`.
-6. `sh install.sh`. It checks the bundle again, loads the images, checks the secret files and the compose file, starts the database, creates the pgBackRest stanza, runs the migrations, sets the passwords of the database roles from the secret files, starts every service and waits for all health checks.
+6. `sh install.sh`. It checks the bundle again, loads the images, checks the secret files and the compose file, starts the database, creates the pgBackRest stanza, runs the migrations, sets the passwords of the database roles from the secret files, registers the database of the installation as the shared placement of its tenants (`MACHVON_REGION`), starts every service and waits for all health checks.
 7. Install the systemd units from `infra/onprem/systemd/` (`machvon-backup-full.timer`, `machvon-backup-incr.timer`, `machvon-backup-verify.timer`) and enable the timers. The backup commands use `/etc/machvon/compose.env` (a copy of the `.env`) and `/opt/machvon/current` (a link to the installed bundle).
 
 ### Optional: the read-only BI port
@@ -72,6 +72,8 @@ The images carry what the migrations and the API need and nothing else: the data
 The database publishes nothing outside the host. For Power BI or the Data Lakehouse of the customer there is an opt-in, closed-by-default read-only port (`MACHVON_BI=on`, `sh install.sh --with-bi`): one named listen address, a host firewall allowlist, TLS 1.2 or newer, SCRAM, only the BI group role reachable from outside, a connection limit, and a pgaudit trail shipped off the host. It is not part of a normal install; read `bi-port.md` first and do not switch it on before the customer has named the addresses, the certificate and the audit sink (PX-11).
 
 ## After the install
+
+The first tenant, its owner and the administration of Keycloak have their own procedure, with the script of the bundle: `docs/runbooks/deploy-web-quickstart.md`, section 7 (`scripts/onprem-first-tenant.mjs`, the invitation outbox, `kcadm.sh`).
 
 1. First Keycloak administrator: sign in once with `KEYCLOAK_ADMIN_USER` and its secret, create named administrators with WebAuthn, then disable the bootstrap account.
 2. Import check: federation test and full sync, then the cases of `docs/security/identity-test-plan.md`.
@@ -91,6 +93,6 @@ Every long-running service has a health check (database `pg_isready`; Keycloak t
 - Phone application: Flutter builds arm64 for Android (`arm64-v8a`, the default of `flutter build apk` and app bundles) and for iOS (arm64 devices; the simulator on Apple silicon is arm64 too). Keep `x86_64` Android only for emulators on x86 development machines; the store builds ship `arm64-v8a` (and `armeabi-v7a` while the minimum Android version needs it). A plugin without an arm64 binary fails the build, which `.github/workflows/mobile.yml` shows.
 - Development on Windows, macOS (Intel and Apple silicon) and Linux: the scripts are plain Node 24 and POSIX shell; the lockfile resolves the platform packages of every operating system.
 
-## Not covered by the lane that wrote this
+## What was run, and what was not
 
-The compose file, the Dockerfiles, the nginx configuration, the install script and the realm import were validated by static checks and unit tests only. They were not run: no Docker, no Compose, no Keycloak and no PostgreSQL server were started. The first installation on a lab host is where they are proven; fix what it shows in the files and their tests.
+The bundle is built, installed, upgraded and rolled back on a Linux runner by the workflow `On-prem smoke` (`.github/workflows/onprem-smoke.yml`, `scripts/onprem-smoke/`), against a test directory over LDAPS and a test object store over TLS: `docs/runbooks/deploy-web-quickstart.md`, section 9, lists what that proves and the faults it found in these files. Not run anywhere yet: a real Active Directory (user and group import), WebAuthn, the egress firewall, the restore drill, the BI port, an arm64 host. The lab checklist stays the place where those are proven.

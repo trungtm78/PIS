@@ -153,8 +153,29 @@ say "7a/8 registering the database of this installation as the shared placement 
 printf "INSERT INTO machvon.placement (id, kind, region, db_cluster_ref, kms_key_ref, status) SELECT gen_random_uuid(), 'POOL', '%s', 'onprem-db', 'secret://onprem/field_encryption_keys', 'Active' WHERE NOT EXISTS (SELECT 1 FROM machvon.placement WHERE kind = 'POOL' AND status = 'Active');\n" "${REGION}" \
   | ${COMPOSE} exec -T db psql --quiet --set ON_ERROR_STOP=1 --username machvon_owner --dbname machvon >/dev/null
 
+# A license is signed with the key of the secret file license_signing_key, and the API signs only with a key whose public half is registered and inside its validity window: nothing
+# else registers it, and without it the provisioning of a tenant stops at its trial license (SIGNING_KEY_UNAVAILABLE). The public half is derived inside the api image (the host needs
+# no tool) and registered under LICENSE_SIGNING_KEY_ID for two years. A new key gets a new id; the same id with another key is refused, because licenses signed before would stop verifying.
+LICENSE_KEY_ID=$(sed -n 's/^LICENSE_SIGNING_KEY_ID=//p' "${ENV_FILE}" | tail -n 1 | tr -d '\r')
+case "${LICENSE_KEY_ID}" in
+  ''|*[!A-Za-z0-9._-]*) fail "LICENSE_SIGNING_KEY_ID must be 1 to 64 letters, digits, dots, dashes or underscores" ;;
+esac
+say "7b/8 registering the public half of the license signing key ${LICENSE_KEY_ID}"
+LICENSE_PUBLIC_PEM=$(${COMPOSE} run --rm --no-deps -T --entrypoint node api -e "process.stdout.write(require('node:crypto').createPublicKey(require('node:fs').readFileSync('/run/secrets/license_signing_key')).export({ type: 'spki', format: 'pem' }))") \
+  || fail "license_signing_key is not a private key the api image can read (openssl genpkey -algorithm ed25519)"
+case "${LICENSE_PUBLIC_PEM}" in
+  "-----BEGIN PUBLIC KEY-----"*) ;;
+  *) fail "cannot derive the public half of license_signing_key" ;;
+esac
+${COMPOSE} exec -T db psql --quiet --set ON_ERROR_STOP=1 --set "key_id=${LICENSE_KEY_ID}" --set "public_pem=${LICENSE_PUBLIC_PEM}" --username machvon_owner --dbname machvon >/dev/null <<'SQL' || fail "the license signing key ${LICENSE_KEY_ID} is registered with another key: give the new key a new LICENSE_SIGNING_KEY_ID"
+INSERT INTO machvon.license_signing_key (id, algorithm, public_key_pem, kms_key_ref, status, not_before, not_after)
+VALUES (:'key_id', 'EdDSA', :'public_pem', 'secret://onprem/license_signing_key', 'Active', now(), now() + interval '730 days')
+ON CONFLICT (id) DO NOTHING;
+SELECT 1 / (CASE WHEN public_key_pem = :'public_pem' THEN 1 ELSE 0 END) FROM machvon.license_signing_key WHERE id = :'key_id';
+SQL
+
 if [ "${WITH_BI}" -eq 1 ]; then
-  say "7b/8 the audit role of the BI port (every view of the schema machvon_bi is audited by pgaudit)"
+  say "7c/8 the audit role of the BI port (every view of the schema machvon_bi is audited by pgaudit)"
   ${COMPOSE} exec -T db psql --quiet --set ON_ERROR_STOP=1 --username machvon_owner --dbname machvon < infra/onprem/config/bi-audit-setup.sql >/dev/null
 fi
 

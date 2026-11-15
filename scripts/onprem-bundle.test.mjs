@@ -380,3 +380,13 @@ test('the install script registers the database of the installation as the share
   assert.match(install, /vn-north\|vn-south\) ;;/, 'the region goes into a statement: only the two known values pass');
   assert.match(readFileSync(join(REPO_ROOT, 'infra', 'onprem', 'compose', 'env.template'), 'utf8'), /^MACHVON_REGION=vn-south$/m);
 });
+
+test('the install script registers the public half of the license signing key under its id before the services start (found by the smoke run)', () => {
+  const install = readFileSync(join(REPO_ROOT, 'infra', 'onprem', 'bundle', 'install.sh'), 'utf8');
+  const at = install.indexOf('INSERT INTO machvon.license_signing_key');
+  assert.ok(at > install.indexOf('run --rm migrate') && at < install.indexOf('8/8 starting every service'));
+  assert.match(install, /createPublicKey\(require\('node:fs'\)\.readFileSync\('\/run\/secrets\/license_signing_key'\)\)/, 'the public half comes from the secret file, inside the api image');
+  assert.match(install, /''\|\*\[!A-Za-z0-9\._-\]\*\) fail "LICENSE_SIGNING_KEY_ID/, 'the id is checked before it goes to psql');
+  assert.match(install, /ON CONFLICT \(id\) DO NOTHING;\nSELECT 1 \/ \(CASE WHEN public_key_pem = :'public_pem' THEN 1 ELSE 0 END\)/, 'the same id with another key stops the install');
+  assert.doesNotMatch(install, /BEGIN PRIVATE KEY/);
+});
