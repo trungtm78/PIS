@@ -36,8 +36,11 @@ foreach ($file in @('first-accounts.json', 'demo-account.json', 'demo-credential
   $path = Join-Path $admin $file
   if (-not (Test-Path $path)) { continue }
   $json = Get-Content $path -Raw | ConvertFrom-Json
-  if ($json.username) { $names += [string]$json.username }
-  if ($json.people) { foreach ($entry in $json.people.PSObject.Properties) { if ($entry.Value.username) { $names += [string]$entry.Value.username } } }
+  # Strict mode: a property is asked for only where it exists.
+  if ($json.PSObject.Properties['username']) { $names += [string]$json.username }
+  if ($json.PSObject.Properties['people']) {
+    foreach ($entry in $json.people.PSObject.Properties) { if ($entry.Value.PSObject.Properties['username']) { $names += [string]$entry.Value.username } }
+  }
   New-Item -ItemType Directory $kept -Force | Out-Null
   Move-Item $path (Join-Path $kept $file) -Force
 }

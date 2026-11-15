@@ -17,7 +17,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { newPassword, readInvitations } from './first-accounts.mjs';
+import { readInvitations } from './first-accounts.mjs';
 import { KeycloakAdmin, newTotpSecret, otpauthOf } from './keycloak-admin.mjs';
 import { authorizationUrl, codeOf, exchangeCode, issuerOf, pkcePair } from '../../../scripts/onprem-first-tenant.mjs';
 import { signIn } from '../../../scripts/onprem-smoke/keycloak-login.mjs';
@@ -28,6 +28,32 @@ export const INVITATION_GRANT_LIMIT = 5;
 const GRANT_REASON = 'Vai trò của người dùng minh họa trong tenant demo';
 
 export class DemoError extends Error {}
+
+/**
+ * A password a person can type at a demonstration: thirteen letters and digits without look-alikes (no 0 O 1 l I), with a lower-case letter, an upper-case letter and a digit.
+ * Random (about 74 bits); the accounts of a demonstration are handed over on paper and typed by hand.
+ */
+export function demoPassword(random = randomBytes) {
+  const classes = ['abcdefghjkmnpqrstuvwxyz', 'ABCDEFGHJKLMNPQRSTUVWXYZ', '23456789'];
+  const all = classes.join('');
+  for (;;) {
+    let text = '';
+    for (const byte of random(64)) if (byte < 216 && text.length < 13) text += all[byte % 54];
+    if (text.length === 13 && classes.every((letters) => [...text].some((letter) => letters.includes(letter)))) return text;
+  }
+}
+
+/**
+ * The account of the tenant owner from the file given as `--owner`: either the account itself ({ origin, username, password, totpSecret, tenantId, membershipId }) or the
+ * output of first-accounts.mjs, where the owner of the input is looked up among its people.
+ */
+export function ownerOf(file, input) {
+  if (typeof file?.people !== 'object' || file.people === null) return file;
+  const username = input?.people?.find?.((person) => person.owner === true)?.username;
+  const entry = file.people[username];
+  if (entry === undefined) return { origin: file.origin, tenantId: file.tenantId };
+  return { origin: file.origin, tenantId: file.tenantId, username: entry.username, password: entry.password, totpSecret: entry.totpSecret, membershipId: entry.membershipId, ...(entry.otpauth === undefined ? {} : { otpauth: entry.otpauth }) };
+}
 
 /** What is wrong with the input and the owner account, as sentences; empty when they can be used. */
 export function inputProblems(input, owner) {
@@ -48,7 +74,7 @@ export function inputProblems(input, owner) {
  * `identityToken(person)` sign people in, `admin` is the Keycloak administration, `invitationFor(email)` waits for the invitation of the outbox.
  * `state` is the content of the output file and `save()` writes it; both are updated after every step that must not be done twice.
  */
-export async function provision({ input, owner, state, save, api, ownerToken, identityToken, admin, invitationFor, say, today = () => new Date().toISOString().slice(0, 10), publicHost = '' }) {
+export async function provision({ input, owner, state, save, api, ownerToken, identityToken, admin, invitationFor, say, today = () => new Date().toISOString().slice(0, 10), publicHost = '', ownerPasswordChanged = () => {} }) {
   const answerOf = async (response, what) => {
     const text = await response.text();
     if (!response.ok) throw new DemoError(`${what} answered ${response.status}: ${text.slice(0, 400)}`);
@@ -119,6 +145,14 @@ export async function provision({ input, owner, state, save, api, ownerToken, id
   state.people ??= {};
   state.realm ??= {};
   const ownerPerson = input.people.find((person) => person.owner === true);
+  // The owner gets a password of the demonstration once (the account was made with a long one); the sign-ins that follow use it.
+  if (state.ownerPasswordSet !== true) {
+    const password = demoPassword();
+    await admin.setPassword(owner.username, password);
+    owner.password = password;
+    ownerPasswordChanged(password);
+    state.ownerPasswordSet = true;
+  }
   state.people[ownerPerson.person] = { username: owner.username, password: owner.password, totpSecret: owner.totpSecret, membershipId: owner.membershipId, displayName: ownerPerson.displayName, title: ownerPerson.title, ...(ownerPerson.sample === true ? { sample: true } : {}), otpauth: owner.otpauth ?? otpauthOf({ issuerName: `MACHVON ${publicHost}`, username: owner.username, secret: owner.totpSecret }) };
   save();
   const specOf = (person, grant) => {
@@ -127,7 +161,7 @@ export async function provision({ input, owner, state, save, api, ownerToken, id
     return { role_id: roleId.get(grant.role), scope_kind: grant.scope, ...(grant.scope === 'TENANT' ? {} : { scope_ref_ids: [unit] }) };
   };
   for (const person of input.people.filter((entry) => entry.owner !== true)) {
-    const entry = (state.people[person.person] ??= { username: person.username, password: newPassword(), totpSecret: newTotpSecret(), displayName: person.displayName, title: person.title, ...(person.sample === true ? { sample: true } : {}) });
+    const entry = (state.people[person.person] ??= { username: person.username, password: demoPassword(), totpSecret: newTotpSecret(), displayName: person.displayName, title: person.title, ...(person.sample === true ? { sample: true } : {}) });
     entry.otpauth ??= otpauthOf({ issuerName: `MACHVON ${publicHost}`, username: person.username, secret: entry.totpSecret });
     const progress = (state.realm[person.username] ??= {});
     save();
@@ -171,7 +205,8 @@ export async function main(argv, { env = process.env, log = (line) => process.st
   }
   const json = (path) => JSON.parse(readFileSync(path, 'utf8').replace(/^\uFEFF/, ''));
   const input = json(values.input);
-  const owner = json(values.owner);
+  const ownerFile = json(values.owner);
+  const owner = ownerOf(ownerFile, input);
   const problems = inputProblems(input, owner);
   if (problems.length > 0) {
     for (const problem of problems) say(problem);
@@ -204,12 +239,12 @@ export async function main(argv, { env = process.env, log = (line) => process.st
   // The tenant token of the owner lives five minutes: it is taken again a minute before it ends.
   let kept;
   const ownerToken = async () => {
-    if (kept !== undefined && kept.until > Date.now()) return kept.token;
+    if (kept !== undefined && kept.until > Date.now() && kept.password === owner.password) return kept.token;
     const identity = await identityOf(owner.username, owner.password, owner.totpSecret);
     const response = await api('/me/session/tenant-selection', { method: 'POST', token: identity, body: { tenant_id: owner.tenantId, membership_id: owner.membershipId }, key: randomUUID() });
     const body = await response.json().catch(() => ({}));
     if (!response.ok || typeof body.access_token !== 'string') throw new DemoError(`the tenant session of the owner was refused: ${response.status} ${body.code ?? ''}`.trim());
-    kept = { token: body.access_token, until: Date.now() + (Number(body.expires_in ?? 300) - 60) * 1000 };
+    kept = { token: body.access_token, password: owner.password, until: Date.now() + (Number(body.expires_in ?? 300) - 60) * 1000 };
     return kept.token;
   };
   const invitationFor = async (email) => {
@@ -220,9 +255,16 @@ export async function main(argv, { env = process.env, log = (line) => process.st
     }
     throw new DemoError(`no invitation for ${email} appeared in the outbox`);
   };
+  // The new password of the owner is written back to the file the account came from, so that no file keeps a password that no longer works.
+  const ownerPasswordChanged = (password) => {
+    if (typeof ownerFile.people === 'object' && ownerFile.people !== null) ownerFile.people[owner.username].password = password;
+    else ownerFile.password = password;
+    writeFileSync(values.owner, `${JSON.stringify(ownerFile, null, 2)}
+`);
+  };
   try {
     const admin = new KeycloakAdmin({ base: env.KEYCLOAK_INTERNAL_URL ?? 'http://keycloak:8080/idp', realm, username: env.KEYCLOAK_ADMIN_USER ?? '', password: readFileSync(env.KEYCLOAK_ADMIN_PASSWORD_FILE ?? 'C:\\run\\secrets\\keycloak_admin_password', 'utf8').split(/\r?\n/)[0], fetch });
-    await provision({ input, owner, state, save, api, ownerToken, identityToken: (person, entry) => identityOf(person.username, entry.password, entry.totpSecret), admin, invitationFor, say, publicHost });
+    await provision({ input, owner, state, save, api, ownerToken, identityToken: (person, entry) => identityOf(person.username, entry.password, entry.totpSecret), admin, invitationFor, say, publicHost, ownerPasswordChanged });
     say(`done: ${Object.keys(state.people).length} people of the tenant ${owner.tenantId}; the credentials are in the output file (administrators only)`);
     return 0;
   } catch (error) {

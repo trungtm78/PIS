@@ -153,6 +153,14 @@ export class KeycloakAdmin {
     return { requirement, defaultAction: required, released };
   }
 
+  /** Sets the password of a person of the realm (not temporary); the other credentials of the person are kept. */
+  async setPassword(username, password) {
+    const { body: found } = await this.call('GET', `/users?exact=true&username=${encodeURIComponent(username)}`);
+    const user = (found ?? []).find((entry) => entry.username === username.toLowerCase());
+    if (user === undefined) throw new AdminError(`the person ${username} does not exist`);
+    await this.call('PUT', `/users/${user.id}/reset-password`, { type: 'password', value: password, temporary: false });
+  }
+
   /** Removes a person of the realm by user name; false when there is no such person. */
   async deleteUser(username) {
     const { body: found } = await this.call('GET', `/users?exact=true&username=${encodeURIComponent(username)}`);

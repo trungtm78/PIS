@@ -17,7 +17,11 @@ param([Parameter(Mandatory)][string]$InputFile, [string]$OwnerAccount = '', [str
 Assert-Administrator
 $admin = Join-Path $script:SecretsDir 'admin'
 Protect-Directory $admin
-if ($OwnerAccount -eq '') { $OwnerAccount = Join-Path $admin 'demo-account.json' }
+if ($OwnerAccount -eq '') {
+  # The account of the owner alone when there is one, else the output of first-accounts.ps1 (the tool finds the owner of the input among its people).
+  $OwnerAccount = Join-Path $admin 'demo-account.json'
+  if (-not (Test-Path $OwnerAccount)) { $OwnerAccount = Join-Path $admin 'first-accounts.json' }
+}
 if (-not (Test-Path $OwnerAccount)) { Fail "the owner account $OwnerAccount does not exist" }
 Copy-Item (Resolve-Path $InputFile).Path (Join-Path $admin 'demo-tenant.input.json') -Force
 $ownerInside = 'C:\run\admin\' + (Split-Path -Leaf $OwnerAccount)

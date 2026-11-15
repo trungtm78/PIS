@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { localizer, rewriteDeep, roundTripFaults } from '../apps/web/e2e/hdsd/seed/localize.ts';
-import { INVITATION_GRANT_LIMIT, inputProblems, provision } from '../infra/onprem-windows/tools/demo-tenant.mjs';
+import { INVITATION_GRANT_LIMIT, demoPassword, inputProblems, ownerOf, provision } from '../infra/onprem-windows/tools/demo-tenant.mjs';
 import { TOKEN_MARGIN_SECONDS, brokerOf, credentialProblems, readCredentials } from './clip-seed-auth.mjs';
 import { ApiReader } from './clip-seed-client.mjs';
 import { DEFAULT_DEMO_DATASET, FUNDED, buildPlan, checkPlan, localizeFaults, planDigest, planForSeeds } from './clip-seed-lib.mjs';
@@ -270,24 +270,26 @@ const smallInput = () => ({
 function run(input, product, state = {}) {
   const lines = [];
   const created = [];
+  const passwords = [];
   return provision({
     input,
-    owner: OWNER,
+    owner: { ...OWNER, ...(state.people?.owner?.password === undefined ? {} : { password: state.people.owner.password }) },
     state,
     save: () => {},
     api: product.api,
     ownerToken: async () => 'owner-token',
     identityToken: async (person) => `id-${person.username}`,
-    admin: { createUser: async (user) => void created.push(user) },
+    admin: { createUser: async (user) => void created.push(user), setPassword: async (username, password) => void passwords.push([username, password]) },
+    ownerPasswordChanged: (password) => passwords.push(['written back', password]),
     invitationFor: async (email) => product.invitations.get(email),
     say: (line) => lines.push(line),
     publicHost: 'demo.example:8443',
-  }).then((result) => ({ result, lines, created }));
+  }).then((result) => ({ result, lines, created, passwords }));
 }
 
 test('the tenant tool names the root unit, makes the units and the roles, creates the person with a one-time password, invites with five roles and grants the rest', async () => {
   const product = fakeProduct();
-  const { result, lines, created } = await run(smallInput(), product);
+  const { result, lines, created, passwords } = await run(smallInput(), product);
   assert.deepEqual(product.units.map((unit) => [unit.code, unit.name]), [['CM-UBND', 'UBND tỉnh'], ['CM-BAN', 'Ban']]);
   const rename = product.calls.find((call) => call.method === 'PUT');
   assert.equal(rename.ifMatch, '"3"');
@@ -312,6 +314,10 @@ test('the tenant tool names the root unit, makes the units and the roles, create
   assert.equal(result.origin, OWNER.origin);
   assert.equal(result.tenantId, OWNER.tenantId);
   assert.equal(result.people.owner.membershipId, OWNER.membershipId);
+  // The owner got a password of the demonstration, set in the realm and written back to the file of the account; the new person has one from the start.
+  assert.match(result.people.owner.password, /^[a-km-zA-HJ-NP-Z2-9]{13}$/u);
+  assert.deepEqual(passwords, [['demo', result.people.owner.password], ['written back', result.people.owner.password]]);
+  assert.match(created[0].password, /^[a-km-zA-HJ-NP-Z2-9]{13}$/u);
   assert.equal(result.people.projectManager.membershipId, MEMBERSHIP_OF['id-canbo']);
   assert.match(result.people.projectManager.otpauth, /^otpauth:\/\/totp\//u);
   assert.equal(credentialProblems(result, ['owner', 'projectManager']).length, 0);
@@ -323,6 +329,8 @@ test('a second run of the tenant tool does nothing twice', async () => {
   const before = product.calls.length;
   const second = await run(smallInput(), product, first.result);
   assert.equal(second.created.length, 0);
+  assert.deepEqual(second.passwords, []);
+  assert.equal(second.result.people.owner.password, first.result.people.owner.password);
   assert.deepEqual(product.calls.slice(before).filter((call) => call.method !== 'GET'), []);
   assert.equal(second.result.people.projectManager.password, first.result.people.projectManager.password);
 });
@@ -571,4 +579,18 @@ test('the seed context of an installation sends the token of the broker, the wor
     await new Promise((done) => server.close(done));
     rmSync(directory, { recursive: true, force: true });
   }
+});
+
+test('a password of the demonstration is thirteen letters and digits a person can type, and the owner is found in the output of the first accounts', () => {
+  for (let index = 0; index < 50; index += 1) {
+    const password = demoPassword();
+    assert.match(password, /^[a-km-zA-HJ-NP-Z2-9]{13}$/u);
+    assert.ok(/[a-z]/u.test(password) && /[A-Z]/u.test(password) && /[2-9]/u.test(password));
+  }
+  assert.notEqual(demoPassword(), demoPassword());
+  const first = { origin: 'https://h:8443', tenantId: 't', people: { sysadmin: { username: 'sysadmin', password: 'a' }, demo: { username: 'demo', password: 'b', totpSecret: 'c', membershipId: 'm', otpauth: 'otpauth://x' } } };
+  assert.deepEqual(ownerOf(first, smallInput()), { origin: 'https://h:8443', tenantId: 't', username: 'demo', password: 'b', totpSecret: 'c', membershipId: 'm', otpauth: 'otpauth://x' });
+  assert.deepEqual(ownerOf(OWNER, smallInput()), OWNER);
+  // An output of the first accounts without the owner of the input gives an account the checks refuse.
+  assert.match(inputProblems(smallInput(), ownerOf({ origin: 'o', tenantId: 't', people: {} }, smallInput())).join('; '), /the owner account has no username/u);
 });
