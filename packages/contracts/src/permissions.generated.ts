@@ -1777,6 +1777,7 @@ export const STEP_UP = {
   "decideApprovalTask": "aal2",
   "decideStandingDelegationRequest": "aal2",
   "grantRole": "aal2",
+  "publishSystemTenantTheme": "aal2",
   "revokeRoleGrant": "aal2",
 } as const;
 

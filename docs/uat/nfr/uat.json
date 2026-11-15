@@ -1140,8 +1140,8 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "finding: no step-up (WebAuthn/aal2) is required to publish a theme on the control plane"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/security-theme-control.test.ts"
       },
       "module": "NFR"
     },
@@ -1299,7 +1299,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "The secret scan of the pipeline (gitleaks in .github/workflows/security.yml, run in Docker) and the image scan (Trivy with the secret scanner, images.yml) run only in GitHub Actions on a pushed branch and a built image; neither is runnable here. The local push gate (ci/src/scan.mjs + rules.mjs) does report file and line without echoing the secret, but it is only one of the three parts. The product masks logged credentials as [redacted] / [REDACTED] (alert-sinks.ts, audit-detail.ts), not as ***, and there is no provider-call log test with a key. Needs a CI run on a test branch with a fake AKIA string and PEM, plus an image scan."
+        "reason": "The secret scan of the pipeline (gitleaks in .github/workflows/security.yml, run in Docker) and the image scan (Trivy with the secret scanner, images.yml) run only in GitHub Actions on a pushed branch and a built image; neither is runnable here. The local push gate (ci/src/scan.mjs + rules.mjs) does report file and line without echoing the secret, but it is only one of the three parts. The product masks logged credentials as [redacted] / [REDACTED] (alert-sinks.ts, audit-detail.ts), not as ***, and there is no provider-call log test with a key. Needs a CI run on a test branch with a fake AKIA string and PEM, plus an image scan. Measured by machine (lane fc, scripts/uat-nfr-security.test.mjs, tests named UAT-NFR-SECURITY-06): the push gate goes red on a fake AKIA key and a fake PEM key at the file and line of each without repeating the secret, and the pipeline declares the gitleaks scan of the whole history (redacted, exit code 1) and the Trivy secret scanner on every image with exit code 1. A green result of those tests is NOT the whole case: the red run of the hosted pipeline, the scan of a built image and its build environment, and the provider log with the key shown as *** stay manual."
       },
       "module": "NFR"
     },

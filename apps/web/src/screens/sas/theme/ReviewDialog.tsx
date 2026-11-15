@@ -1,7 +1,10 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
+import { useSession } from '../../../session/SessionContext';
 import { NavigationDialog } from '../../../shell/NavigationDialog';
+import { isStepUpRequired } from '../../adm/roles/errors';
+import { StepUpPrompt } from '../../adm/roles/StepUpPrompt';
 import { useRequestReview, usePublishTheme } from './hooks';
 import type { ReviewIntent } from './hooks';
 import { describeProblem, fieldLabel, issueMessage, problemMessage } from './labels';
@@ -47,6 +50,7 @@ export function ReviewDialog({ tenantId, tenantName, baseVersion, target, onClos
   const titleId = useId();
   const request = useRequestReview();
   const publish = usePublishTheme();
+  const session = useSession();
   const started = useRef(false);
   const [reason, setReason] = useState('');
   const [reasonTooShort, setReasonTooShort] = useState(false);
@@ -80,10 +84,17 @@ export function ReviewDialog({ tenantId, tenantName, baseVersion, target, onClos
 
   const reviewed = request.data;
   const issues = reviewed === undefined ? [] : themeIssues(reviewed.candidate);
-  const failure: ProblemView | undefined = request.isError ? describeProblem(request.error) : publish.isError ? describeProblem(publish.error) : undefined;
+  // A publication is a step-up operation: when the second factor is too old the server refuses before anything runs, and the person is asked for it instead of being shown a failure.
+  const stepUpAsked = publish.isError && isStepUpRequired(publish.error);
+  const failure: ProblemView | undefined = request.isError ? describeProblem(request.error) : publish.isError && !stepUpAsked ? describeProblem(publish.error) : undefined;
   const confirm = (): void => {
     if (reviewed === undefined || !confirmed || issues.length > 0 || publish.isPending) return;
     publish.mutate({ tenantId, token: reviewed.reviewToken, baseVersion: reviewed.baseVersion }, { onSuccess: onPublished });
+  };
+  const confirmStepUp = async (): Promise<void> => {
+    await session.requestStepUp?.();
+    publish.reset();
+    confirm();
   };
 
   const heading = restoring ? t('sas.theme.review.restore.title', { version: target.sourceVersion }) : t('sas.theme.review.draft.title');
@@ -226,6 +237,7 @@ export function ReviewDialog({ tenantId, tenantName, baseVersion, target, onClos
           </div>
         )}
       </section>
+      {stepUpAsked ? <StepUpPrompt onConfirm={() => void confirmStepUp()} onCancel={() => publish.reset()} /> : null}
     </NavigationDialog>
   );
 }

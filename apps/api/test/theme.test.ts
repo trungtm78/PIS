@@ -83,7 +83,8 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
     const token = signTenantContext({ tenantId: PLATFORM_TENANT_ID, membershipId: options.admin ?? ADMIN_A, scopeVersion: 0 }, SIGNING_KEY);
     const headers: Record<string, string> = {
       [TENANT_HEADER]: token,
-      [CLAIMS_HEADER]: JSON.stringify({ aud: options.audience ?? 'control', roles: options.roles ?? ['SystemAdmin'] }),
+      // The second factor is fresh: publishing a theme is a step-up operation (x-step-up aal2).
+      [CLAIMS_HEADER]: JSON.stringify({ aud: options.audience ?? 'control', roles: options.roles ?? ['SystemAdmin'], aal: 'aal2', aal2At: new Date().toISOString() }),
     };
     if (options.raw === undefined && method !== 'GET') headers['content-type'] = 'application/json';
     if (options.raw !== undefined) headers['content-type'] = options.raw.contentType;

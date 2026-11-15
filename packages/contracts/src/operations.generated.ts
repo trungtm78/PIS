@@ -1318,7 +1318,7 @@ export const OPERATIONS = {
   "publishRoutingPolicy": { method: "post", path: "/conversation-routing-policies/{policyId}/publish", versioned: true, stepUp: null, permission: "omni.policy.manage" },
   "publishSecurityPolicy": { method: "post", path: "/security-policies/{policyId}/publish", versioned: true, stepUp: null, permission: "adm.security.approve" },
   "publishSurvivorshipRule": { method: "post", path: "/survivorship-rules/{id}/publish", versioned: true, stepUp: null, permission: "master.survivorship.approve" },
-  "publishSystemTenantTheme": { method: "post", path: "/system/tenants/{tenantId}/theme/publish", versioned: false, stepUp: null, permission: "system.theme.manage" },
+  "publishSystemTenantTheme": { method: "post", path: "/system/tenants/{tenantId}/theme/publish", versioned: false, stepUp: "aal2", permission: "system.theme.manage" },
   "publishWorkCalendar": { method: "post", path: "/work-calendars/{calendarId}/publish", versioned: true, stepUp: null, permission: "adm.calendar.manage" },
   "publishWorkflowVersion": { method: "post", path: "/workflow-definitions/{workflowVersionId}/publish", versioned: true, stepUp: null, permission: "adm.workflow.publish" },
   "pushFinanceFeedBatch": { method: "post", path: "/finance-feed/push", versioned: false, stepUp: null, permission: "fin.feed.push" },

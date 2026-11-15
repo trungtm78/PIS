@@ -270,6 +270,10 @@ test.describe('SAS-04 tenant theme', () => {
     await expect(dialog.getByRole('button', { name: vi['sas.theme.review.apply.confirm'] })).toBeDisabled();
     await dialog.getByRole('checkbox').check();
     await dialog.getByRole('button', { name: vi['sas.theme.review.apply.confirm'] }).click();
+    // Publishing a theme is a step-up operation (aal2): the server asks for the second factor, the administrator confirms and the same review is sent again.
+    const stepUp = page.getByRole('alertdialog', { name: vi['adm.roles.stepUp.title'] });
+    await expect(stepUp).toBeVisible();
+    await stepUp.getByRole('button', { name: vi['adm.roles.stepUp.confirm.action'] }).click();
     await expect(page.getByText(vi['sas.theme.status.published.text'].replace('{version}', '2'))).toBeVisible();
     expect(await versionsOf(id)).toEqual([
       { version: '1', source_version: null, reason: null },
@@ -319,6 +323,10 @@ test.describe('SAS-04 tenant theme', () => {
     await sql("update machvon.tenant_theme_review set expires_at = now() - interval '1 second' where tenant_id = $1", [id]);
     await dialog.getByRole('checkbox').check();
     await dialog.getByRole('button', { name: vi['sas.theme.review.apply.confirm'] }).click();
+    // Publishing a theme is a step-up operation (aal2): the server asks for the second factor, the administrator confirms and the same review is sent again.
+    const stepUp = page.getByRole('alertdialog', { name: vi['adm.roles.stepUp.title'] });
+    await expect(stepUp).toBeVisible();
+    await stepUp.getByRole('button', { name: vi['adm.roles.stepUp.confirm.action'] }).click();
     await expect(dialog.getByText(vi['sas.theme.error.reviewInvalid.text'])).toBeVisible();
     expect(await versionsOf(id)).toHaveLength(1);
     await dialog.getByRole('button', { name: vi['sas.theme.error.reviewAgain.action'] }).click();
