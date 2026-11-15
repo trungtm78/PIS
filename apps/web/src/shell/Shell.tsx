@@ -19,6 +19,7 @@ import type { LibraryScope } from './AppLibrary';
 import { FavouritesDialog } from './FavouritesDialog';
 import { useFavourites } from './favourites';
 import { ModuleDirectory } from './ModuleDirectory';
+import { NewVersionBar } from './NewVersionBar';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { useFocusFirstInvalid } from './useFocusFirstInvalid';
@@ -108,6 +109,7 @@ function StaffShell() {
 
   return (
     <div className="app workspace-app" id="screen-capture">
+      <NewVersionBar />
       <Sidebar
         navigation={navigation}
         route={route}

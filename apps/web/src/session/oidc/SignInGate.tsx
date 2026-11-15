@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { VersionLabel } from '../../shell/NewVersionBar';
 import { useSignInAttempt } from './useSignInAttempt';
 
 /** The query mark the error page of the provider adds to its way back. */
@@ -39,6 +40,9 @@ export function SignInGate() {
       <button type="button" className="primary" onClick={() => attempt.start({ returnTo: withoutFreshMark(location.pathname, location.search) })}>
         {t('session.oidc.signIn.action')}
       </button>
+      <p>
+        <VersionLabel />
+      </p>
     </div>
   );
 }

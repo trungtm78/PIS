@@ -9,6 +9,7 @@ import { useSession } from '../session/SessionContext';
 import type { SessionTenant, SessionUser } from '../session/SessionContext';
 import { Icon } from './Icon';
 import { labelText } from './labels';
+import { VersionLabel } from './NewVersionBar';
 import { TenantSwitcher } from './TenantSwitcher';
 
 export interface SidebarProps {
@@ -245,6 +246,7 @@ export function Sidebar(props: SidebarProps) {
             <span>{t('shell.account.signOut.action')}</span>
           </button>
         )}
+        <VersionLabel />
       </footer>
     </aside>
   );

@@ -372,3 +372,14 @@ test('productLabel is the display name of the presentation of the release, or th
   assert.equal(productLabel(() => undefined), 'MACHVON');
   assert.equal(productLabel(() => ({ displayName: '' })), 'MACHVON');
 });
+
+test('the web build is stamped with the release and the commit, and the edge never stores version.json', async () => {
+  const { commitOf, versionDocument } = await import('./onprem-windows-pack.mjs');
+  assert.equal(versionDocument('1.0.7', 'abc123def'), '{"version":"1.0.7","commit":"abc123def"}\n');
+  assert.equal(commitOf('.', () => ({ status: 0, stdout: 'abc123def\n' })), 'abc123def');
+  assert.equal(commitOf('.', () => ({ status: 128, stdout: '' })), '');
+  const edge = readFileSync(join(REPO_ROOT, 'infra', 'onprem', 'nginx', 'default.conf.template'), 'utf8');
+  assert.match(edge, /location = \/version\.json \{[^}]*Cache-Control "no-store" always;/u);
+  const pack = readFileSync(join(REPO_ROOT, 'scripts', 'onprem-windows-pack.mjs'), 'utf8');
+  assert.match(pack, /VITE_APP_VERSION: version, VITE_APP_COMMIT: commit/u);
+});

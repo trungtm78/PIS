@@ -165,13 +165,28 @@ function workspaceDirectories() {
   return found;
 }
 
-function buildWeb({ out, origin, edition }) {
+/** The short commit the pack is built from, or '' outside a git checkout. */
+export function commitOf(root = REPO_ROOT, spawn = spawnSync) {
+  const result = spawn('git', ['rev-parse', '--short=9', 'HEAD'], { cwd: root, encoding: 'utf8' });
+  return result.status === 0 ? String(result.stdout).trim() : '';
+}
+
+/** `version.json` of a web build: what a running tab compares with the release it was loaded from. */
+export function versionDocument(version, commit) {
+  return `${JSON.stringify({ version, commit })}
+`;
+}
+
+function buildWeb({ out, origin, edition, version }) {
   const dist = join(out, 'web', 'dist');
+  const commit = commitOf();
   run('npx', ['vite', 'build', '--outDir', dist, '--emptyOutDir'], {
     cwd: join(REPO_ROOT, 'apps', 'web'),
-    env: { ...process.env, VITE_EDITION: edition, VITE_API_BASE_URL: '/api', VITE_OIDC_CLIENT_ID: WEB_CLIENT, VITE_OIDC_ISSUER: `${origin}/idp/realms/${REALM}` },
+    // The release and the commit are stamped into the build (shown to the person, and compared with version.json by a running tab).
+    env: { ...process.env, VITE_EDITION: edition, VITE_API_BASE_URL: '/api', VITE_OIDC_CLIENT_ID: WEB_CLIENT, VITE_OIDC_ISSUER: `${origin}/idp/realms/${REALM}`, VITE_APP_VERSION: version, VITE_APP_COMMIT: commit },
   });
   if (!existsSync(join(dist, 'index.html'))) throw new Error('the web build wrote no index.html');
+  writeFileSync(join(dist, 'version.json'), versionDocument(version, commit), 'utf8');
 }
 
 function writeEdge({ out, origin }) {
@@ -283,7 +298,7 @@ export async function main(argv, { log = console.log } = {}) {
   mkdirSync(out, { recursive: true });
   const { transformSync } = createRequire(join(REPO_ROOT, 'apps', 'api', 'package.json'))('@swc/core');
   log(`onprem-windows-pack: web (${values.edition}, ${origin.origin})`);
-  buildWeb({ out, origin: origin.origin, edition: values.edition });
+  buildWeb({ out, origin: origin.origin, edition: values.edition, version: values.version });
   writeEdge({ out, origin });
   log('onprem-windows-pack: api (production dependencies, compiled sources)');
   const counts = buildApi({ out, transformSync });

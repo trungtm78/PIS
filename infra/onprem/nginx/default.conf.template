@@ -39,6 +39,12 @@ server {
         include /etc/nginx/snippets/security-headers.conf;
         add_header Cache-Control "no-cache" always;
     }
+    # What release the server holds now: a running tab asks for it to learn that a newer one was installed, so it is never stored.
+    location = /version.json {
+        include /etc/nginx/snippets/security-headers.conf;
+        add_header Cache-Control "no-store" always;
+        try_files $uri =404;
+    }
     location /assets/ {
         include /etc/nginx/snippets/security-headers.conf;
         add_header Cache-Control "public, max-age=31536000, immutable" always;
