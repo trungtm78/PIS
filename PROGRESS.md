@@ -1,12 +1,12 @@
 STATUS: BLOCKED
 
 
-## Blocker (2026-11-15 19:00)
+## Blocker (2026-11-15 20:00)
 
-1. Vấn đề chính xác: server đích là VPS10352 (180.93.34.176, Windows Server 2025, 16 vCPU, 32 GB RAM, 250 GB SSD, CloudNest HCM). Gói Docker của sản phẩm là container LINUX (PostgreSQL, API node, nginx, Keycloak). Từ máy phát triển chỉ thấy cổng 3389 (RDP) mở; 22, 80, 443, 5985, 5986 đều đóng, nên không có đường chạy lệnh từ xa. Docker cho container Linux trên Windows Server cần ảo hóa lồng (WSL 2/Hyper-V) mà chưa biết VPS này có bật không.
-2. Đã thử: đăng nhập cổng quản lý CloudNest (chỉ đọc: cấu hình, hệ điều hành, cổng); quét cổng 22/80/443/3389/5985/5986; làn dock1 đang chứng minh gói trên runner Linux của GitHub Actions.
-3. Đề xuất: cài lại VPS thành Ubuntu Server 24.04 (Docker chạy gốc, an toàn và ổn định nhất cho gói này; mất toàn bộ dữ liệu đang có trên VPS), mở SSH bằng khóa, rồi triển khai gói đã chứng minh; hoặc giữ Windows và bật OpenSSH + WSL 2 nếu nhà cung cấp cho ảo hóa lồng.
-4. Câu hỏi đóng: Cho phép cài lại VPS10352 thành Ubuntu 24.04 (xóa sạch dữ liệu hiện có trên máy) — CÓ hay KHÔNG (giữ Windows)?
+1. Vấn đề chính xác: chủ sở hữu giữ Windows Server 2025 trên VPS10352 và giao tự quyết. Đã bật SSH chỉ bằng khóa (khóa ~/.ssh/pis_vps10352 trên máy phát triển, tường lửa mở cổng 22). VPS là máy ảo VMware KHÔNG lộ ảo hóa lồng (VMMonitorModeExtensions=False), nên WSL 2/Hyper-V và container Linux không chạy được. Đường Docker còn lại là container Windows (cách ly tiến trình) với Docker Engine, cần bật tính năng Containers và KHỞI ĐỘNG LẠI máy. Trên máy đang có Laragon (Apache 80/443, MySQL 3306) chạy trang Phuongnam.Group (WordPress) từ 07/11 dưới phiên đăng nhập, không phải dịch vụ và không tự khởi động: khởi động lại sẽ làm trang đó dừng cho tới khi có người đăng nhập và bật lại Laragon; Apache của Laragon cũng đang giữ cổng 80/443 mà hệ thống mới cần.
+2. Đã thử: khảo sát chỉ đọc qua SSH (CPU, tính năng, cổng, tiến trình); làn dock1 chứng minh gói container Linux trên runner GitHub (không áp dụng được cho VPS này nếu không có ảo hóa lồng).
+3. Đề xuất: (a) chuyển gói sang image Windows (API node, nginx, PostgreSQL, Keycloak trên nền Windows Server Core/Nano), Docker Engine cho Windows, chỉ mở 443 (và 8443 nếu 443 phải nhường cho Laragon); mã nguồn không nằm trên server, chỉ image đã build; (b) trước khi khởi động lại: đăng ký Laragon tự chạy khi máy khởi động để trang Phuongnam.Group tự lên lại; (c) song song gửi yêu cầu CloudNest bật ảo hóa lồng để về lâu dài dùng container Linux chuẩn.
+4. Câu hỏi đóng: Cho phép khởi động lại VPS10352 tối nay để bật Docker (trang Phuongnam.Group gián đoạn vài phút, tôi sẽ cấu hình để tự lên lại) — CÓ hay KHÔNG?
 
 ## Quyết định 2026-11-15 (chủ sở hữu): triển khai PHẢI bằng Docker (gói on-prem). Máy phát triển không có Docker/WSL (cần quyền quản trị + khởi động lại, việc của chủ máy), nên gói được chạy thật trên runner Linux của GitHub Actions (làn dock1: workflow dựng image, compose up, install.sh, kiểm sức khỏe, tạo tenant đầu tiên, rollback).
 
