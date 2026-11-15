@@ -722,6 +722,27 @@ async function reschedules(ctx: SeedContext, ids: Record<string, string>): Promi
 }
 
 /**
+ * A completion that waits for the LEADER (R54, the unified approval inbox): the owner is who answers for the whole province, so one task the officer of the project board holds and that is still inside its deadline is handed in
+ * by the officer, with its evidence, and waits. The approver is a second person who did no work on it; the owner did none, so it waits for the owner as well as for the leader of the department. A rerun finds one waiting and does nothing.
+ */
+async function awaitingLeader(ctx: SeedContext, ids: Record<string, string>): Promise<void> {
+  const waiting = await ctx.get<{ items?: Obj[] }>(OWNER, '/me/pending-decisions');
+  if ((waiting.items ?? []).some((one) => one.kind === 'pwf.task.completion')) return;
+  const officer = ctx.person(MAKER).membershipId;
+  for (const projectId of Object.values(ids)) {
+    for (const task of await tasksOf(ctx, projectId)) {
+      if (task.status !== 'IN_PROGRESS' || str(task.planned_finish) < ctx.today) continue;
+      const lines = await ctx.list<Obj>(OWNER, `/project-tasks/${task.id}/assignments`);
+      if (!lines.some((line) => line.role === 'RESPONSIBLE' && line.membership_id === officer && (line.valid_to === null || line.valid_to === undefined))) continue;
+      await work(ctx, task.id, MAKER, 'ALL');
+      if (!(await complete(ctx, task.id, MAKER))) continue;
+      ctx.record({ module: 'PWF', kind: 'project-task', id: task.id, code: task.task_code, note: 'handed in by the officer of the project board, waits for the approval of its completion by the leader', screen: 'PWF-04' });
+      return;
+    }
+  }
+}
+
+/**
  * The tasks of the officer who holds only the role of the staff: the first tasks of the open workflows that nobody holds yet (they begin later), given to them as the one who does them from today. The home of the phone of
  * a person with no authority to decide reads these (MOB-08), the list `getMyTasks` and the reminders of their own levels. One task per project at most, so that the list is of several projects; a rerun finds them given and does nothing.
  */
@@ -804,7 +825,8 @@ async function scores(ctx: SeedContext): Promise<void> {
   if (officer !== undefined) {
     const detail = await ctx.get<Obj>(MAKER, `/staff-score-lines/${str(officer.id)}`);
     const waiting = arr(detail.responses).find((one) => ['OPEN', 'SUBMITTED', 'PENDING'].includes(str(one.status)));
-    if (waiting !== undefined) await decideBy(ctx, [OWNER, CHECKER], `/staff-score-responses/${str(waiting.id)}/handle`, { outcome: 'KEEP', conclusion: 'Ghi nhận giải trình; giữ nguyên điểm, sẽ xét khi đánh giá cuối năm' }, Number(waiting.version ?? 1));
+    // A response that runs the approval workflow of the tenant (`approval_instance_id`) waits in the approval inbox of the leader: the direct way of handling it is refused by the product while the workflow runs, and it is left for the leader to decide there.
+    if (waiting !== undefined && !waiting.approval_instance_id) await decideBy(ctx, [OWNER, CHECKER], `/staff-score-responses/${str(waiting.id)}/handle`, { outcome: 'KEEP', conclusion: 'Ghi nhận giải trình; giữ nguyên điểm, sẽ xét khi đánh giá cuối năm' }, Number(waiting.version ?? 1));
     if (arr(detail.responses).length === 0) {
       const sent = await ctx.attempt<CommandReply>(MAKER, 'POST', `/staff-score-lines/${str(officer.id)}/responses`, { body: 'Việc thẩm định bị trả lại do chờ ý kiến của cơ quan phối hợp, không do chậm trễ của người thực hiện; đề nghị xem xét khi đánh giá' });
       if (sent.ok) await decideBy(ctx, [OWNER, CHECKER], `/staff-score-responses/${sent.json.resource_id}/handle`, { outcome: 'KEEP', conclusion: 'Ghi nhận giải trình; giữ nguyên điểm, sẽ xét khi đánh giá cuối năm' }, sent.json.resource_version);
@@ -861,6 +883,7 @@ export async function seedClipPwfReview(ctx: SeedContext): Promise<void> {
   await ctx.step('PWF', 'the tasks of the officer who holds only the role of the staff (MOB-08, the home "Việc hôm nay")', () => staffTasks(ctx, ids));
   await ctx.step('PWF', 'a task handed over two days before its deadline (PWF-16, a signal of PWF-14)', () => handover(ctx, ids));
   await ctx.step('PWF', 'a reschedule waiting and one approved (PWF-06)', () => reschedules(ctx, ids));
+  await ctx.step('PWF', 'a completion that waits for the leader (PWF-04, the unified approval inbox)', () => awaitingLeader(ctx, ids));
   // After the evidence was made from revision 1: the form is revised, and the task says a newer revision exists.
   await ctx.step('DOC', `a second revision of the form ${FORMS[0].code}`, () => publishForm(ctx, FORMS[0], 2));
   await ctx.step('PWF', 'the reminders of the person of the phone (PWF-15, MOB-82)', () => preference(ctx));
