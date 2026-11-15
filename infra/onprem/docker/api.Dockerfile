@@ -34,8 +34,13 @@ COPY --chmod=0755 infra/onprem/docker/secret-env.sh /usr/local/bin/secret-env
 RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 # The outbox of invitations (MACHVON_INVITATION_OUTBOX_DIR): the named volume mounted here takes the owner and the mode of this directory the first time it is used.
 RUN mkdir -p /var/lib/machvon/invitations && chown node:node /var/lib/machvon/invitations && chmod 0700 /var/lib/machvon/invitations
+# The native addon of @swc/core (the loader of the TypeScript sources) is a compressed carrier that writes the real addon into a cache at its first load. The service runs with a
+# read-only root file system and a /tmp that is not executable, so the first load is done here, into a directory of the image owned by the service user: the service only reads it.
+ENV SWC_NATIVE_BINDING_CACHE=/app/.swc-native
+RUN mkdir -p /app/.swc-native && chown node:node /app/.swc-native && chmod 0700 /app/.swc-native
 USER node
 WORKDIR /app/apps/api
+RUN node -e "require('@swc/core').transformSync('const a: number = 1', { jsc: { parser: { syntax: 'typescript' } } })"
 EXPOSE 3000
 # Liveness only: it asks nothing of the database, so a database outage does not restart healthy processes (docs/runbooks/api-runtime.md).
 HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=3 \

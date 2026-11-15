@@ -205,6 +205,13 @@ services:
   clamav:
     image: docker.io/clamav/clamav:1.4.6@sha256:cbc30de94b6e9b33ac14136ff45306cee02a1f9ae522394a3cc5b9215d1affe9
     <<: *hardening
+    # The entrypoint of the image starts as root, gives the signature and socket directories to the clamav user and starts clamd as that user: without these it restarts for ever.
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
     networks: [app]
     environment:
       CLAMAV_NO_FRESHCLAMD: "true"
