@@ -651,7 +651,7 @@ async function incomingLetters(ctx: SeedContext, registerId: string, dossiers: M
       }
       if (reached('assigned')) {
         const handler = plan.handler ?? 'projectManager';
-        const assigned = await ctx.command(OWNER, `/incoming-documents/${id}/assignment`, { assigned_unit_id: ctx.unitId(plan.unit ?? 'CB-SKHDT-QLDA'), assignee_user_id: ctx.person(handler).membershipId, leader_directive: plan.directive, due_on: ctx.day(plan.dueInDays ?? 5) }, { version });
+        const assigned = await ctx.command(OWNER, `/incoming-documents/${id}/assignment`, { assigned_unit_id: ctx.unitId(plan.unit ?? 'CB-SKHDT-QLDA'), assignee_user_id: ctx.person(handler).userId, leader_directive: plan.directive, due_on: ctx.day(plan.dueInDays ?? 5) }, { version });
         version = assigned.resource_version;
       }
       if (reached('processing')) {

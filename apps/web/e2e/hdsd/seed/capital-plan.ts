@@ -7,6 +7,15 @@ import { textsWithOverlay } from './overlay.ts';
 
 const tx = textsWithOverlay('capital-plan', TEXTS);
 
+/** How long ago the annual plan took effect (scripts/clip-seed-lib.mjs runs this group with the clock of the stack that many days back). */
+export const PLAN_EFFECTIVE_DAYS_AGO = 80;
+
+/** The first instant of the day PLAN_EFFECTIVE_DAYS_AGO days before the real day, in Vietnam: never in the future of the server, whether its clock was moved back or not. */
+export function planEffectiveAt(now: Date = new Date()): string {
+  const day = new Date(now.getTime() + 7 * 3_600_000 - PLAN_EFFECTIVE_DAYS_AGO * 86_400_000).toISOString().slice(0, 10);
+  return `${day}T00:00:00+07:00`;
+}
+
 /**
  * The capital of the year 2026 of the province: the decisions that assign it (appropriations of the central and the local budget, the carry-over of
  * 2025, the support of the centre), the capital plan of the year drafted by the project manager, submitted, decided by the leader and published
@@ -167,7 +176,9 @@ export async function planOfTheYear(ctx: SeedContext): Promise<void> {
   }
   if (current.status === 'APPROVED') {
     const decision = await ctx.letter({ symbol: tx('symbol.023'), title: tx('title.024'), issuedOn: '2026-01-12', sender: PROVINCE });
-    await ctx.command('capApprover', `/plans/${String(current.id)}/publish`, { decision_document_id: decision.documentId }, { version: Number(current.version) });
+    // The plan is in force from the day of its decision, PLAN_EFFECTIVE_DAYS_AGO days ago: the snapshots of the periods that closed since then find a plan in force. On the
+    // development stack the clock is moved back by as much for this group; an installation cannot move its clock, and the command takes the day (`effective_at`).
+    await ctx.command('capApprover', `/plans/${String(current.id)}/publish`, { decision_document_id: decision.documentId, effective_at: planEffectiveAt() }, { version: Number(current.version) });
   }
   ctx.record({ module: 'CAP', screen: 'CAP-03', kind: 'capital-plan', id: String(current.id), code: 'KHV-2026', note: 'published' });
 }

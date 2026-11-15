@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { createHmac, createHash, randomUUID } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -38,6 +39,11 @@ export interface Person {
   unit: number;
   role: string;
   membershipId: string;
+  /**
+   * The account of the person (what a command names as `..._user_id`). On the development stack an account and its membership carry the same id; on an installation they do
+   * not, and the caller gives the accounts in the stack info (`users`: membership id to user id).
+   */
+  userId: string;
   /** `control`: a person of the control plane (the platform operator), who has an account and no membership in the tenant. `guest`: a vendor portal account. Absent for a member of a unit. */
   plane?: 'control' | 'guest';
 }
@@ -95,6 +101,8 @@ export interface StackInfoFile {
   apiPort: number;
   tenants: { A: string; B: string; C: string };
   units: { A: Record<string, string> };
+  /** Only on an installation: the account of each membership. */
+  users?: Record<string, string>;
 }
 
 /**
@@ -269,11 +277,12 @@ export class SeedContext {
           // On an installation the membership is the one the installation gave the person; a person of the control plane or a guest of the vendor portal may have no account there.
           const account = this.credentials.people[person.key];
           if (account === undefined && person.plane === undefined) throw new SeedError(`the person ${person.key} has no account in the credentials`);
-          return [person.key, { ...person, membershipId: account?.membershipId ?? '' }];
+          const membershipId = account?.membershipId ?? '';
+          return [person.key, { ...person, membershipId, userId: this.info.users?.[membershipId] ?? membershipId }];
         }
         const fixture = fixtures.users.find((user) => user.key === person.key);
         if (fixture === undefined) throw new SeedError(`the person ${person.key} has no fixture account (e2e-fixtures.json)`);
-        return [person.key, { ...person, membershipId: fixture.membershipId }];
+        return [person.key, { ...person, membershipId: fixture.membershipId, userId: fixture.membershipId }];
       }),
     );
   }
@@ -363,6 +372,14 @@ export class SeedContext {
 
   /** The legal confirmation of a layout profile is an act outside the product; the stack (POST /__e2e/layout-confirmation) stands in for the legal officer. False when the stack has no such route. */
   async confirmLayout(profileCode: string, reference: string): Promise<boolean> {
+    // On a demonstration installation the operator may name a command that records the confirmation there (scripts/clip-seed.mjs --layout-confirm-command): it is run with the
+    // profile code and the reference, and its exit status says whether the confirmation is recorded.
+    const command = process.env.CLIP_LAYOUT_CONFIRM_COMMAND;
+    if (command !== undefined && command !== '') {
+      if (!/^[A-Za-z0-9_.-]+$/u.test(profileCode) || !/^[A-Za-z0-9 _./:-]+$/u.test(reference)) return false;
+      const done = spawnSync(`${command} ${profileCode} "${reference}"`, { shell: true, stdio: 'inherit' });
+      return done.status === 0;
+    }
     try {
       const response = await fetch(`${this.base}/__e2e/layout-confirmation`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ profile_code: profileCode, legal_confirmation_ref: reference }) });
       if (!response.ok) return false;

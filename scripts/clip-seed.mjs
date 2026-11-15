@@ -112,7 +112,7 @@ async function listAs(api, broker, person, path, query = {}, fetchImpl = fetch) 
  * What the seed groups read from the stack info file, made for an installation: the tenant and the id of each unit of the dataset, under the key the seeds ask it by
  * (a unit without a key under its code). A unit of the dataset the installation does not have is an error that names it: infra/onprem-windows/tools/demo-tenant.mjs makes them.
  */
-export function installationInfo(dataset, credentials, units) {
+export function installationInfo(dataset, credentials, units, memberships = []) {
   const byCode = new Map(units.map((unit) => [String(unit.code), String(unit.id)]));
   const missing = [];
   const map = {};
@@ -122,7 +122,9 @@ export function installationInfo(dataset, credentials, units) {
     else map[unit.key ?? unit.code] = id;
   }
   if (missing.length > 0) throw new Error(`the installation has no unit ${missing.join(', ')} (make the tenant of the demo first: docs/runbooks/demo-data-camau.md)`);
-  return { apiPort: 0, tenants: { A: credentials.tenantId, B: credentials.tenantId, C: credentials.tenantId }, units: { A: map } };
+  // The account of each membership: a command that names a person by `..._user_id` wants the account, which on an installation is not the membership.
+  const users = Object.fromEntries(memberships.filter((row) => typeof row.id === 'string' && typeof (row.user_account_id ?? row.user_id) === 'string').map((row) => [row.id, row.user_account_id ?? row.user_id]));
+  return { apiPort: 0, tenants: { A: credentials.tenantId, B: credentials.tenantId, C: credentials.tenantId }, units: { A: map }, users };
 }
 
 /** The province of the dataset in the master catalogue of the tenant, in force: the platform baseline reaches a new tenant only when the worker job `master-baseline-sync` has run (every six hours). */
@@ -243,9 +245,16 @@ async function applyPlan(flags, dataset, plan, installation) {
     }
     const units = await listAs(flags.api, installation.broker, 'owner', '/resources/organization_unit');
     const path = join(installation.directory, 'stack-info.json');
-    writeFileSync(path, `${JSON.stringify(installationInfo(dataset, installation.credentials, units), null, 2)}\n`, 'utf8');
+    const memberships = await listAs(flags.api, installation.broker, 'owner', '/resources/membership');
+    writeFileSync(path, `${JSON.stringify(installationInfo(dataset, installation.credentials, units, memberships), null, 2)}\n`, 'utf8');
     stack = { path };
-    childEnv = { CLIP_CREDENTIALS: JSON.stringify(installation.credentials), CLIP_TOKEN_CACHE: installation.cacheFile, E2E_SESSION_KEY: '' };
+    childEnv = {
+      CLIP_CREDENTIALS: JSON.stringify(installation.credentials),
+      CLIP_TOKEN_CACHE: installation.cacheFile,
+      E2E_SESSION_KEY: '',
+      // The legal confirmation of the demo layout is an act outside the product: on a demonstration installation the operator names the command that records it there.
+      ...(typeof flags['layout-confirm-command'] === 'string' ? { CLIP_LAYOUT_CONFIRM_COMMAND: flags['layout-confirm-command'] } : {}),
+    };
   }
   const planFile = join(dirname(stack.path), `clip-plan.${plan.variant ?? plan.dataset}.json`);
   // The seed groups are given the plan in the words of the guide; what they send is rewritten into the words of the dataset (planForSeeds).

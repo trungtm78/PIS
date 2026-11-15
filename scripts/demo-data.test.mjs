@@ -617,3 +617,20 @@ test('the memory of the seed groups of an installation stays between the runs, i
   assert.notEqual(stateDirectoryOf({}, { ...CREDENTIALS, tenantId: '00000000-0000-4000-8000-00000000000b' }, home), stateDirectoryOf({}, CREDENTIALS, home));
   assert.equal(stateDirectoryOf({ 'state-dir': join(home, 'x') }, CREDENTIALS, home), join(home, 'x'));
 });
+
+test('the stack info of an installation names the account of each membership, which a command that takes a user id needs', () => {
+  const dataset = camau();
+  const units = dataset.tenant.units.map((unit, index) => ({ id: `id-${index}`, code: unit.code }));
+  const info = installationInfo(dataset, CREDENTIALS, units, [{ id: 'm-1', user_account_id: 'u-1' }, { id: 'm-2', user_id: 'u-2' }, { id: 'm-3' }]);
+  assert.deepEqual(info.users, { 'm-1': 'u-1', 'm-2': 'u-2' });
+  assert.deepEqual(installationInfo(dataset, CREDENTIALS, units).users, {});
+});
+
+test('the annual plan takes effect eighty days before the real day, at the first instant of that day in Vietnam', async () => {
+  const { PLAN_EFFECTIVE_DAYS_AGO, planEffectiveAt } = await import('../apps/web/e2e/hdsd/seed/capital-plan.ts');
+  assert.equal(PLAN_EFFECTIVE_DAYS_AGO, 80);
+  assert.equal(planEffectiveAt(new Date('2026-11-16T02:00:00Z')), '2026-08-28T00:00:00+07:00');
+  // Late in the evening in Vietnam is already the next day there.
+  assert.equal(planEffectiveAt(new Date('2026-11-16T18:30:00Z')), '2026-08-29T00:00:00+07:00');
+  assert.ok(new Date(planEffectiveAt()).getTime() < Date.now() - 79 * 86_400_000);
+});
