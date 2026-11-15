@@ -3058,7 +3058,7 @@
   "shell.tenant.workspace.text": "Workspace",
   "shell.tenant.home.label": "{monogram}: {name} home",
   "shell.tenant.switch.label": "Switch tenant",
-  "shell.account.role.text": "Manager · Demo",
+  "shell.account.role.text": "Organisation member",
   "shell.account.open.label": "{initials} {name} {role}: my account",
   "shell.library.all.title": "All applications",
   "shell.library.all.subtitle": "Choose a business area or search for the function you need.",

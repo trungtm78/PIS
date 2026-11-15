@@ -12,6 +12,10 @@ export interface OidcConfig {
   loginHint?: string;
   /** Asks for a stronger authentication, for example `aal2` for the second factor. */
   acrValues?: string;
+  /** The language of the pages of the provider (`ui_locales`): the language of the application, whatever the browser announces. */
+  uiLocales?: string;
+  /** `login` asks the provider for a new sign-in whatever session its cookies name (the way out of a session of the provider that no longer works). */
+  prompt?: 'login';
 }
 
 export interface OidcEndpoints {
@@ -92,6 +96,8 @@ export async function buildAuthorizationRequest(config: OidcConfig, endpoints: O
   url.searchParams.set('code_challenge_method', 'S256');
   if (config.loginHint !== undefined) url.searchParams.set('login_hint', config.loginHint);
   if (config.acrValues !== undefined) url.searchParams.set('acr_values', config.acrValues);
+  if (config.uiLocales !== undefined) url.searchParams.set('ui_locales', config.uiLocales);
+  if (config.prompt !== undefined) url.searchParams.set('prompt', config.prompt);
   return { url: url.toString(), state, nonce, verifier };
 }
 

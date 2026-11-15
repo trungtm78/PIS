@@ -55,6 +55,7 @@ final class PkceSession {
     required List<String> scopes,
     String? acrValues,
     String? loginHint,
+    String uiLocales = 'vi',
   }) =>
       authorizationEndpoint.replace(queryParameters: <String, String>{
         ...authorizationEndpoint.queryParameters,
@@ -68,6 +69,8 @@ final class PkceSession {
         'code_challenge_method': 'S256',
         if (acrValues != null) 'acr_values': acrValues,
         if (loginHint != null) 'login_hint': loginHint,
+        // The pages of the provider speak the language of the app (Vietnamese), whatever the system browser announces.
+        'ui_locales': uiLocales,
       });
 
   /// The form body of the token request: the verifier proves that the app that asked is the app that exchanges.

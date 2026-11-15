@@ -48,6 +48,8 @@ $names = @($names | Where-Object { $_ -match '^[a-z][a-z0-9._-]{2,40}$' } | Sort
 if ($KeepPeople) {
   Say "  -KeepPeople: $($names.Count) people stay in the realm (their files are in $kept)"
 } else {
+  # Every session of the realm is ended first: a browser that still holds the cookie of a person who is removed would otherwise be shown an error instead of the sign-in form.
+  & (Join-Path $PSScriptRoot 'keycloak-admin.ps1') logout-all
   foreach ($name in $names) {
     & (Join-Path $PSScriptRoot 'keycloak-admin.ps1') delete-user --username $name
   }

@@ -8,6 +8,7 @@ import { SessionContext } from '../SessionContext';
 import type { SessionAssurance, SessionIdentity, SessionMode, SessionStatus, SessionTenant, SessionTenantToken, SessionUser, SessionValue, TenantCandidate } from '../SessionContext';
 import { expiresAtMs, payloadOf, renewalDelayMs } from '../tenant-token';
 import { assuranceOfClaims } from './assurance';
+import { translator } from '../../i18n';
 import { OidcError, buildAuthorizationRequest, checkNonce, createLoginStore, discover, exchangeCode, parseCallback, refreshIdentity } from './client';
 import type { IdentityTokens, LoginStore, OidcConfig, OidcEndpoints } from './client';
 import type { RandomOctets } from './pkce';
@@ -165,11 +166,14 @@ export default function OidcSessionProvider({
   }, [clearRenewal]);
 
   const signIn = useCallback(
-    async (options?: { returnTo?: string; acrValues?: string; loginHint?: string }) => {
+    async (options?: { returnTo?: string; acrValues?: string; loginHint?: string; prompt?: 'login' }) => {
       const endpoints = await endpointsOf();
       const request = await buildAuthorizationRequest(
         {
           ...config,
+          // The pages of the provider speak the language of the application, not the one the browser announces.
+          uiLocales: translator.getLocale(),
+          ...(options?.prompt === undefined ? {} : { prompt: options.prompt }),
           ...(options?.acrValues === undefined ? {} : { acrValues: options.acrValues }),
           ...(options?.loginHint === undefined || options.loginHint === '' ? {} : { loginHint: options.loginHint }),
         },

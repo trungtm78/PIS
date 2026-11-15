@@ -161,6 +161,11 @@ export class KeycloakAdmin {
     await this.call('PUT', `/users/${user.id}/reset-password`, { type: 'password', value: password, temporary: false });
   }
 
+  /** Ends every session of the realm: every browser must sign in again, and a cookie of an earlier session names nothing. */
+  async logoutAll() {
+    await this.call('POST', '/logout-all');
+  }
+
   /** Removes a person of the realm by user name; false when there is no such person. */
   async deleteUser(username) {
     const { body: found } = await this.call('GET', `/users?exact=true&username=${encodeURIComponent(username)}`);
@@ -239,6 +244,11 @@ export async function main(argv, { env = process.env, log = (line) => process.st
       if (!/^[A-Za-z0-9]{20,64}$/.test(totpSecret)) throw new AdminError('the one-time password secret must be 20 to 64 letters and digits');
       await admin.createUser({ username: values.username, email: values.email, firstName: values['first-name'], lastName: values['last-name'], password: read(values['password-file']), totpSecret, realmRole: values['realm-role'] });
       log(`keycloak-admin: ${values.username} created with a password and a one-time password${values['realm-role'] === undefined ? '' : `, realm role ${values['realm-role']}`}`);
+      return 0;
+    }
+    if (command === 'logout-all') {
+      await admin.logoutAll();
+      log('keycloak-admin: every session of the realm was ended');
       return 0;
     }
     if (command === 'delete-user') {

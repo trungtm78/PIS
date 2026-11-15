@@ -45,6 +45,15 @@ describe('the signing of a demonstration installation', () => {
     expect(payload).not.toBe('PENDING');
     expect(await messageOf(signing.port.startSession({ digestSha256: DIGEST, certificateFingerprint: 'f'.repeat(64), correlationId: randomUUID() }))).toContain('CERTIFICATE_NOT_ACTIVE');
     expect(await messageOf(loadDemoSigning({ ...file, schema: 'other' as 'demo-pki/1' }))).toContain('not a demo-pki/1 file');
+    // Revocation: GOOD for what this authority issued, and the answer of the product's own port for everything else (another authority, bytes that are no certificate).
+    const unknown = { check: (): Promise<{ status: 'UNKNOWN' }> => Promise.resolve({ status: 'UNKNOWN' }) };
+    const revocation = signing.revocation(unknown);
+    const der = (text: string): Buffer => new X509Certificate(text).raw;
+    expect(await revocation.check({ certificate: der(file.identities[0]?.certificate ?? ''), issuer: der(file.authority), at: new Date() })).toEqual({ status: 'GOOD' });
+    expect(await revocation.check({ certificate: der(file.timestamp.certificate), issuer: null, at: new Date() })).toEqual({ status: 'GOOD' });
+    const other = await createDemoPki(NAMES, { authorityName: 'Another Root CA' });
+    expect(await revocation.check({ certificate: der(other.identities[0]?.certificate ?? ''), issuer: der(other.authority), at: new Date() })).toEqual({ status: 'UNKNOWN' });
+    expect(await revocation.check({ certificate: Buffer.from('not a certificate'), issuer: null, at: new Date() })).toEqual({ status: 'UNKNOWN' });
   });
 
   it('is off unless the environment says true, and then only for an installation that declares itself a demonstration', async () => {

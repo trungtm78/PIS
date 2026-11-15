@@ -3,7 +3,7 @@ import { useSession } from '../SessionContext';
 
 export interface SignInAttempt {
   /** Starts the sign-in; a failure (provider unreachable, discovery refused) is kept instead of thrown. */
-  start(options?: { returnTo?: string; acrValues?: string; loginHint?: string }): void;
+  start(options?: { returnTo?: string; acrValues?: string; loginHint?: string; prompt?: 'login' }): void;
   /** The last start failed before the browser left for the provider. */
   failed: boolean;
 }
@@ -20,7 +20,7 @@ export function useSignInAttempt(): SignInAttempt {
     };
   }, []);
   const start = useCallback(
-    (options?: { returnTo?: string; acrValues?: string; loginHint?: string }) => {
+    (options?: { returnTo?: string; acrValues?: string; loginHint?: string; prompt?: 'login' }) => {
       setFailed(false);
       Promise.resolve()
         .then(() => signIn?.(options))

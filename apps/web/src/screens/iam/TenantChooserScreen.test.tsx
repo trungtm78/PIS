@@ -123,6 +123,24 @@ describe('IAM-04 tenant chooser', () => {
     expect((within(cardOf('Cao Bằng')).getByRole('button') as HTMLButtonElement).disabled).toBe(false);
   });
 
+  it('chooses the organisation by itself for a person who belongs to one only, once, and continues at the home screen', async () => {
+    const { selectTenant } = mount({ candidates: [ACTIVE] });
+    expect(await screen.findByText('home')).toBeTruthy();
+    expect(selectTenant).toHaveBeenCalledTimes(1);
+    expect(selectTenant).toHaveBeenCalledWith(ACTIVE);
+  });
+
+  it('chooses nothing by itself when the only organisation cannot be worked in, or when the choice fails: the card and the message stay', async () => {
+    const suspended = mount({ candidates: [SUSPENDED] });
+    await screen.findAllByRole('article');
+    expect(suspended.selectTenant).not.toHaveBeenCalled();
+    cleanup();
+    const refused = mount({ candidates: [ACTIVE], selectTenant: vi.fn(() => Promise.reject(problem('TENANT_SUSPENDED'))) });
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    expect(refused.selectTenant).toHaveBeenCalledTimes(1);
+    expect(cardOf('Cao Bằng')).toBeTruthy();
+  });
+
   it('chooses once for a double click and then continues at the home screen', async () => {
     let finish: () => void = () => undefined;
     const selectTenant = vi.fn(() => new Promise<void>((resolve) => (finish = resolve)));

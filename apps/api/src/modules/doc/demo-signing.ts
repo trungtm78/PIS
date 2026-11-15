@@ -6,6 +6,7 @@ import { MockCertificateAuthority, MockTimestampAuthority, OID } from './mock-pk
 import type { Identity } from './mock-pki';
 import { MockSigningDirectory } from './signing-adapters';
 import { MockSigningPort } from './signing-port';
+import type { RevocationAnswer, RevocationPort, RevocationQuery } from './pades-verifier';
 import type { SessionRef, SigningPort, SigningRequest } from './signing-port';
 
 /**
@@ -42,6 +43,11 @@ export interface DemoPkiFile {
 export interface DemoSigning {
   port: SigningPort;
   anchor: TrustAnchor;
+  /**
+   * The demonstration authority runs no OCSP responder and publishes no revocation list: for a certificate IT issued, this stand-in answers GOOD (nothing it issued is ever
+   * revoked); for every other certificate it answers what `otherwise` answers (the port of the product: "cannot tell" until an adapter exists).
+   */
+  revocation: (otherwise: RevocationPort) => RevocationPort;
   /** SHA-256 fingerprints of the identities that can sign. */
   fingerprints: string[];
 }
@@ -92,7 +98,20 @@ export async function loadDemoSigning(file: DemoPkiFile, clock: () => Date = () 
     directory.register(fingerprint, new MockSigningPort({ identity, clock, timestamps }));
     fingerprints.push(fingerprint);
   }
-  return { port: directory, anchor: { regime: 'PUBLIC_CA', certificate: new X509Certificate(file.authority).raw }, fingerprints };
+  const authority = new X509Certificate(file.authority);
+  const revocation = (otherwise: RevocationPort): RevocationPort => ({
+    check: async (query: RevocationQuery): Promise<RevocationAnswer> => {
+      let issued = false;
+      try {
+        const certificate = new X509Certificate(query.certificate);
+        issued = certificate.checkIssued(authority) && certificate.verify(authority.publicKey);
+      } catch {
+        issued = false;
+      }
+      return issued ? { status: 'GOOD' } : otherwise.check(query);
+    },
+  });
+  return { port: directory, anchor: { regime: 'PUBLIC_CA', certificate: authority.raw }, fingerprints, revocation };
 }
 
 /**

@@ -114,7 +114,7 @@ export const docModule = defineModule({
       inject: [DEMO_SIGNING],
     },
     // No OCSP/CRL adapter exists yet: revocation then reads UNKNOWN, which the report shows as INDETERMINATE.
-    { provide: DOC_REVOCATION, useValue: new UnavailableRevocationPort() },
+    { provide: DOC_REVOCATION, useFactory: (demo?: DemoSigning) => (demo === undefined ? new UnavailableRevocationPort() : demo.revocation(new UnavailableRevocationPort())), inject: [DEMO_SIGNING] },
     // No certification authority adapter exists yet (DOC-SPK-01): signing answers PROVIDER_UNAVAILABLE until one is bound.
     { provide: DOC_SIGNING_PORT, useFactory: (demo?: DemoSigning) => demo?.port ?? new UnconfiguredSigningPort(), inject: [DEMO_SIGNING] },
     // No mail transport exists yet: an email distribution is FAILED with the reason and can be sent again once an adapter is bound.

@@ -34,6 +34,16 @@ describe('discover', () => {
 });
 
 describe('buildAuthorizationRequest', () => {
+  it('names the language of the pages of the provider and asks for a new sign-in only when told to', async () => {
+    const plain = new URL((await buildAuthorizationRequest(CONFIG, ENDPOINTS)).url);
+    expect(plain.searchParams.has('ui_locales')).toBe(false);
+    expect(plain.searchParams.has('prompt')).toBe(false);
+    const fresh = new URL((await buildAuthorizationRequest({ ...CONFIG, uiLocales: 'vi', prompt: 'login' }, ENDPOINTS)).url);
+    expect(fresh.searchParams.get('ui_locales')).toBe('vi');
+    expect(fresh.searchParams.get('prompt')).toBe('login');
+  });
+
+
   it('asks for the authorization code with PKCE S256, the state and the nonce', async () => {
     const request = await buildAuthorizationRequest(CONFIG, ENDPOINTS);
     const url = new URL(request.url);

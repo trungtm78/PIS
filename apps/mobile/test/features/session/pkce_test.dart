@@ -45,6 +45,7 @@ void main() {
       expect(url.queryParameters['state'], session.state);
       expect(url.queryParameters['nonce'], session.nonce);
       expect(url.queryParameters.containsKey('acr_values'), isFalse);
+      expect(url.queryParameters['ui_locales'], 'vi');
       expect(url.queryParameters.containsKey('client_secret'), isFalse);
       expect(url.toString(), isNot(contains(session.verifier)));
     });
