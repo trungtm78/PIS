@@ -1,12 +1,13 @@
 // The first accounts of an installation, made through the official paths of the product, without a browser:
-//   1 the people of the input file are created in the realm (administration API of Keycloak, inside the compose network), each with a random password;
-//   2 the system administrator signs in at the control client (password, then the one-time password the realm makes every person enrol at the first sign-in) and
+//   1 the people of the input file are created in the realm (administration API of Keycloak, inside the compose network), each with a random password and a
+//     one-time password credential (the realm asks for the second factor at every sign-in and offers no enrolment to a person who has none);
+//   2 the system administrator signs in at the control client (password, then the one-time password) and
 //     scripts/onprem-first-tenant.mjs requests the first tenant (requestTenantProvisioning) and waits until the workers made it Active;
 //   3 the owner signs in at the web client and accepts the invitation the product wrote for the owner (the invitation outbox volume);
 //   4 the owner invites every member of the input file into the root unit with the named role (inviteMember), and each member signs in and accepts.
 // host\first-accounts.ps1 runs this file with the Node of the api image in a one-shot container. The result is ONE file, readable by administrators of the host only:
 // for each person the user name, the password and the secret of the one-time password (with an otpauth:// address an authenticator application imports).
-// Hand each person their own entry, have them change the password and enrol their own second factor, then delete the file.
+// Hand each person their own entry (they import the otpauth:// address into an authenticator application and change the password), then delete the file.
 //
 //   first-accounts.mjs --input C:\run\admin\first-accounts.input.json --output C:\run\admin\first-accounts.json --invitations C:\data\invitations
 //
@@ -16,7 +17,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { KeycloakAdmin } from './keycloak-admin.mjs';
+import { KeycloakAdmin, newTotpSecret, otpauthOf } from './keycloak-admin.mjs';
 import { authorizationUrl, codeOf, exchangeCode, issuerOf, main as firstTenant, pkcePair } from '../../../scripts/onprem-first-tenant.mjs';
 import { signIn } from '../../../scripts/onprem-smoke/keycloak-login.mjs';
 
@@ -67,11 +68,6 @@ export function newPassword(random = randomBytes) {
   return `${text}-aA7#`;
 }
 
-/** The address an authenticator application imports: the secret is the text Keycloak showed at the enrolment (already base32). */
-export function otpauthOf({ issuerName, username, secret }) {
-  return `otpauth://totp/${encodeURIComponent(issuerName)}:${encodeURIComponent(username)}?secret=${secret}&issuer=${encodeURIComponent(issuerName)}&algorithm=SHA1&digits=6&period=30`;
-}
-
 /** The invitations of the outbox directory (one JSON object per file), newest last. */
 export function readInvitations(directory, { list = readdirSync, read = (path) => readFileSync(path, 'utf8') } = {}) {
   return list(directory)
@@ -101,11 +97,17 @@ export async function main(argv, { env = process.env, log = (line) => process.st
   const save = () => writeFileSync(values.output, `${JSON.stringify(state, null, 2)}\n`);
   const say = (line) => log(`first-accounts: ${line}`);
 
-  const api = (path, { token, method = 'GET', body, key } = {}) =>
+  const api = (path, { token, method = 'GET', body, key, ifMatch } = {}) =>
     fetch(`${origin}/api${path}`, {
       method,
       redirect: 'manual',
-      headers: { accept: 'application/json', ...(token === undefined ? {} : { authorization: `Bearer ${token}` }), ...(body === undefined ? {} : { 'content-type': 'application/json' }), ...(key === undefined ? {} : { 'idempotency-key': key }) },
+      headers: {
+        accept: 'application/json',
+        ...(token === undefined ? {} : { authorization: `Bearer ${token}` }),
+        ...(body === undefined ? {} : { 'content-type': 'application/json' }),
+        ...(key === undefined ? {} : { 'idempotency-key': key }),
+        ...(ifMatch === undefined || ifMatch === null ? {} : { 'if-match': ifMatch }),
+      },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
   const answerOf = async (response, what) => {
@@ -113,20 +115,12 @@ export async function main(argv, { env = process.env, log = (line) => process.st
     if (!response.ok) throw new SetupError(`${what} answered ${response.status}: ${text.slice(0, 300)}`);
     return text === '' ? undefined : JSON.parse(text);
   };
-  const remember = (person) => {
-    const totp = state.totp[person.username];
-    if (totp?.secret !== undefined) {
-      state.people[person.username].totpSecret = totp.secret;
-      state.people[person.username].otpauth = otpauthOf({ issuerName: `MACHVON ${publicHost}`, username: person.username, secret: totp.secret });
-    }
-    save();
-  };
   /** A sign-in of a person at a public client with PKCE: the tokens of the person. */
   const signInAt = async (person, clientId, redirectUri) => {
     const { verifier, challenge } = pkcePair();
     const nonce = randomBytes(16).toString('base64url');
     const callback = await signIn({ authUrl: authorizationUrl({ issuer, redirectUri, state: nonce, challenge, clientId }), redirectUri, username: person.username, password: state.people[person.username].password, secrets: state.totp, fetch, sleep });
-    remember(person);
+    save();
     return exchangeCode({ issuer, redirectUri, code: codeOf(callback, nonce), verifier, clientId, fetch });
   };
 
@@ -136,22 +130,51 @@ export async function main(argv, { env = process.env, log = (line) => process.st
     const people = [{ ...input.systemAdmin, realmRole: 'SystemAdmin', kind: 'system administrator' }, { ...input.owner, kind: 'tenant owner' }, ...input.members.map((member) => ({ ...member, kind: `member (${member.role})` }))];
     for (const person of people) {
       if (state.people[person.username] === undefined) {
-        state.people[person.username] = { username: person.username, email: person.email, kind: person.kind, password: newPassword() };
+        const secret = newTotpSecret();
+        state.people[person.username] = { username: person.username, email: person.email, kind: person.kind, password: newPassword(), totpSecret: secret, otpauth: otpauthOf({ issuerName: `MACHVON ${publicHost}`, username: person.username, secret }) };
         save();
       }
       if (state.people[person.username].inRealm !== true) {
-        await admin.ensureUser({ username: person.username, email: person.email, firstName: person.firstName, lastName: person.lastName, password: state.people[person.username].password, realmRole: person.realmRole });
+        // The person gets the second factor here: the realm offers no enrolment at the first sign-in (tools/keycloak-admin.mjs, createUser).
+        await admin.createUser({ username: person.username, email: person.email, firstName: person.firstName, lastName: person.lastName, password: state.people[person.username].password, totpSecret: state.people[person.username].totpSecret, realmRole: person.realmRole });
+        state.totp[person.username] = { secret: state.people[person.username].totpSecret };
         state.people[person.username].inRealm = true;
         save();
         say(`  ${person.username}: created`);
       }
     }
 
-    if (state.tenantId === undefined) {
+    if (state.tenantId === undefined && state.requestedTenantId !== undefined) {
+      // An earlier run requested the tenant and its provisioning failed: the cause was repaired by the operator, the failed step is tried again (retryTenantProvisioning).
+      say(`2/4 the tenant ${state.requestedTenantId} was requested before: its provisioning is tried again`);
+      const tokens = await signInAt(input.systemAdmin, 'machvon-control', `https://${controlHost}/auth/callback`);
+      const read = () => api(`/system/tenants/${state.requestedTenantId}`, { token: tokens.accessToken });
+      let response = await read();
+      let detail = await answerOf(response, 'reading the tenant');
+      if (detail.status === 'Failed') {
+        await answerOf(
+          await api(`/system/tenants/${state.requestedTenantId}/provisioning/retry`, { method: 'POST', token: tokens.accessToken, key: randomUUID(), ifMatch: `"${detail.version}"`, body: { reason: 'The cause of the failed provisioning step was repaired by the operator of the installation.' } }),
+          'retrying the provisioning',
+        );
+      }
+      for (let attempt = 0; attempt < 80 && detail.status !== 'Active'; attempt += 1) {
+        await sleep(3000);
+        response = await read();
+        detail = await answerOf(response, 'reading the tenant');
+        if (detail.status === 'Failed') {
+          const failed = Object.entries(detail.provisioning?.steps ?? {}).find(([, step]) => step?.status === 'FAILED') ?? (detail.provisioning?.steps ?? []).find?.((step) => step?.status === 'FAILED');
+          throw new SetupError(`the provisioning failed again at ${detail.provisioning?.current_step ?? ''}: ${JSON.stringify(failed ?? '').slice(0, 200)}`);
+        }
+      }
+      if (detail.status !== 'Active') throw new SetupError(`the tenant is ${detail.status} after the wait`);
+      state.tenantId = state.requestedTenantId;
+      save();
+      say(`  the tenant is Active: ${state.tenantId}`);
+    } else if (state.tenantId === undefined) {
       say('2/4 the first tenant (scripts/onprem-first-tenant.mjs, signed in as the system administrator)');
       const lines = [];
       const status = await firstTenant(
-        ['--public-host', publicHost, '--control-host', controlHost, '--realm', realm, '--code', input.tenant.code, '--name', input.tenant.name, '--owner-email', input.owner.email, '--root-unit-name', input.tenant.rootUnitName, '--subdomain', input.tenant.subdomain, '--wait-seconds', '600', '--locale', 'en'],
+        ['--public-host', publicHost, '--control-host', controlHost, '--realm', realm, '--code', input.tenant.code, '--name', input.tenant.name, '--owner-email', input.owner.email, '--root-unit-name', input.tenant.rootUnitName, '--subdomain', input.tenant.subdomain, '--region', env.MACHVON_REGION ?? 'vn-south', '--wait-seconds', '600', '--locale', 'en'],
         {
           fetch,
           log: (line) => {
@@ -162,13 +185,18 @@ export async function main(argv, { env = process.env, log = (line) => process.st
           ask: async () => {
             const redirectUri = `https://${controlHost}/auth/callback`;
             const callback = await signIn({ authUrl: lines.find((line) => line.includes('/protocol/openid-connect/auth?')), redirectUri, username: input.systemAdmin.username, password: state.people[input.systemAdmin.username].password, secrets: state.totp, fetch, sleep });
-            remember(input.systemAdmin);
+            save();
             return callback;
           },
         },
       );
       state.tenantId = /is Active: ([0-9a-f-]{36})/.exec(lines.join('\n'))?.[1];
-      if (status !== 0 || state.tenantId === undefined) throw new SetupError(`the first tenant was not created: ${lines.slice(-2).join(' / ')}`);
+      if (status !== 0 || state.tenantId === undefined) {
+        state.tenantId = undefined;
+        state.requestedTenantId = /tenant requested: ([0-9a-f-]{36})/.exec(lines.join('\n'))?.[1];
+        save();
+        throw new SetupError(`the first tenant was not created: ${lines.filter((line) => !line.includes('code_challenge')).slice(-1).join('')}`);
+      }
       save();
     } else {
       say(`2/4 the tenant exists already: ${state.tenantId}`);
@@ -209,10 +237,10 @@ export async function main(argv, { env = process.env, log = (line) => process.st
         ownerSession = await answerOf(await api('/me/session/tenant-selection', { method: 'POST', token: tokens.accessToken, body: { tenant_id: state.tenantId, membership_id: state.people[input.owner.username].membershipId }, key: randomUUID() }), 'choosing the tenant');
       }
       const token = ownerSession.access_token;
-      const units = await answerOf(await api('/organization-units?limit=50', { token }), 'reading the units');
+      const units = await answerOf(await api('/resources/organization_unit?limit=50', { token }), 'reading the units');
       const root = (units.items ?? []).find((unit) => unit.parent_id === null || unit.parent_id === undefined) ?? (units.items ?? [])[0];
       if (root === undefined) throw new SetupError('the tenant has no unit');
-      const roles = await answerOf(await api('/roles?limit=200', { token }), 'reading the roles');
+      const roles = await answerOf(await api('/resources/role_definition?limit=200', { token }), 'reading the roles');
       for (const member of waiting) {
         const role = (roles.items ?? []).find((entry) => entry.code === member.role);
         if (role === undefined) throw new SetupError(`the tenant has no role ${member.role} (it has: ${(roles.items ?? []).map((entry) => entry.code).join(', ')})`);

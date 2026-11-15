@@ -7,7 +7,8 @@
 #   2 the host files (compose file, scripts) are copied to <root> (C:\ProgramData\MACHVON), the environment file is created once from the template;
 #   3 the secret files that do not exist are created; without a certificate a private one is made so that the edge can start (certificate.ps1 replaces it);
 #   4 upgrade only: a dump of the databases (backup.ps1), and the release that runs is remembered for rollback.ps1;
-#   5 the database starts, the migrations run, the passwords of the three application roles are set from the secret files;
+#   5 the database starts, the migrations run, the passwords of the three application roles are set from the secret files, the placement of this
+#     installation is registered (control-plane.ps1 says why);
 #   6 every service starts and must become healthy;
 #   7 unless -KeepDirectory: the directory federation of the realm is switched off when no directory is configured (LDAP_URL still names directory.invalid);
 #   8 the firewall rule of the HTTPS port and the daily task (backup, certificate renewal, signatures, log rotation) are registered;
@@ -88,6 +89,8 @@ foreach ($role in @('app', 'control', 'outbox_relay')) {
   "ALTER ROLE machvon_$role PASSWORD '$($Matches[1])';" | & docker exec -i $db 'C:\pgsql\bin\psql.exe' --quiet --set ON_ERROR_STOP=1 --host 127.0.0.1 --username machvon_owner --dbname machvon | Out-Null
   if ($LASTEXITCODE -ne 0) { Fail "cannot set the password of machvon_$role" }
 }
+
+& (Join-Path $hostScripts 'control-plane.ps1')
 
 Say '6/9 every service'
 Compose up --detach --remove-orphans

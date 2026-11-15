@@ -32,6 +32,7 @@ $arguments = @(
   '--volume', ($admin + ':C:\run\admin'),
   '--volume', 'machvon_invitations:C:\data\invitations:ro',
   '--env', ('KEYCLOAK_ADMIN_USER=' + (Get-Setting 'KEYCLOAK_ADMIN_USER')), '--env', ('OIDC_REALM=' + (Get-Setting 'OIDC_REALM')),
+  '--env', ('MACHVON_REGION=' + (Get-Setting 'MACHVON_REGION')),
   '--env', ('PUBLIC_HOST=' + (Get-Setting 'PUBLIC_HOST')), '--env', ('CONTROL_HOST=' + (Get-Setting 'CONTROL_HOST')),
   # The certificate of the edge may be one of a private authority: its chain is trusted by this one process, in addition to the public authorities.
   '--env', 'NODE_EXTRA_CA_CERTS=C:\run\web\tls_cert',

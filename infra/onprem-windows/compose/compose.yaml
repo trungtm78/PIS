@@ -176,7 +176,7 @@ services:
     volumes:
       - clamav_db:C:\clamav\database
     healthcheck:
-      test: ["CMD", "C:\\clamav\\clamdscan.exe", "--config-file=C:\\clamav\\clamd.conf", "--ping", "1"]
+      test: ["CMD", "C:\\clamav\\clamdscan.exe", "--config-file=C:\\clamav\\clamd-client.conf", "--ping", "1"]
       interval: 30s
       timeout: 10s
       retries: 5

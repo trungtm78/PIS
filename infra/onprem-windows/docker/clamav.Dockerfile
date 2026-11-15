@@ -17,7 +17,7 @@ FROM mcr.microsoft.com/windows/servercore:${WINDOWS_TAG}
 LABEL org.opencontainers.image.title="machvon-clamav-windows" `
       org.opencontainers.image.description="clamd for Windows containers"
 COPY --from=build C:\clamav C:\clamav
-COPY clamd.conf freshclam.conf clamav-entrypoint.cmd C:\clamav\
+COPY clamd.conf clamd-client.conf freshclam.conf clamav-entrypoint.cmd C:\clamav\
 USER ContainerAdministrator
 RUN mkdir C:\clamav\database C:\clamav\temp && icacls C:\clamav\database /grant *S-1-5-93-2-2:(OI)(CI)M /Q && icacls C:\clamav\temp /grant *S-1-5-93-2-2:(OI)(CI)M /Q
 # freshclam checks the certificate of database.clamav.net against the root store of Windows, and a container starts with an almost empty one (a host fills it on
@@ -27,5 +27,5 @@ USER ContainerUser
 WORKDIR C:\clamav
 EXPOSE 3310
 HEALTHCHECK --interval=30s --timeout=10s --start-period=600s --retries=5 `
-  CMD ["C:\\clamav\\clamdscan.exe", "--config-file=C:\\clamav\\clamd.conf", "--ping", "1"]
+  CMD ["C:\\clamav\\clamdscan.exe", "--config-file=C:\\clamav\\clamd-client.conf", "--ping", "1"]
 ENTRYPOINT ["C:\\Windows\\System32\\cmd.exe", "/S", "/C", "C:\\clamav\\clamav-entrypoint.cmd"]
