@@ -133,7 +133,10 @@ services:
       KC_HOSTNAME: https://${PUBLIC_HOST}/idp
       KC_HTTP_ENABLED: "true"
       KC_PROXY_HEADERS: xforwarded
-      JAVA_OPTS_KC_HEAP: -XX:MaxRAMPercentage=70 -XX:InitialRAMPercentage=50
+      # One node: no cluster discovery, no cluster port.
+      KC_CACHE: local
+      # An explicit heap: the Java runtime in a Windows container sizes a percentage heap from the memory of the HOST, not from the limit of the container.
+      JAVA_OPTS_KC_HEAP: ${KEYCLOAK_JAVA_HEAP}
       REALM_NAME: ${OIDC_REALM}
       # The relying party of WebAuthn is a host NAME: no port.
       WEBAUTHN_RP_ID: ${PUBLIC_HOSTNAME}

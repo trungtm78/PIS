@@ -102,7 +102,8 @@ function Request-AcmeCertificate([string]$Name, [string]$Root, [bool]$UseStaging
   $pemDir = Join-Path $acmeDir $(if ($UseStaging) { 'pem-staging' } else { 'pem' })
   Protect-Directory $pemDir
   $arguments = @('--accepttos', '--source', 'manual', '--host', $Name, '--validation', 'filesystem', '--webroot', $Root, '--store', 'pemfiles', '--pemfilespath', $pemDir, '--notaskscheduler', '--force', '--verbose')
-  if ($UseStaging) { $arguments += @('--baseuri', 'https://acme-staging-v02.api.letsencrypt.org/directory') }
+  # The authority is named: the default of win-acme is another one (ZeroSSL), which wants an account with an e-mail address.
+  $arguments += @('--baseuri', $(if ($UseStaging) { 'https://acme-staging-v02.api.letsencrypt.org/directory' } else { 'https://acme-v02.api.letsencrypt.org/directory' }))
   $challengeDir = Join-Path $Root '.well-known'
   $hadWellKnown = Test-Path $challengeDir
   Get-NetFirewallRule -DisplayName $ruleName -ErrorAction SilentlyContinue | Remove-NetFirewallRule

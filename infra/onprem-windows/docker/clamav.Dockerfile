@@ -20,6 +20,9 @@ COPY --from=build C:\clamav C:\clamav
 COPY clamd.conf freshclam.conf clamav-entrypoint.cmd C:\clamav\
 USER ContainerAdministrator
 RUN mkdir C:\clamav\database C:\clamav\temp && icacls C:\clamav\database /grant *S-1-5-93-2-2:(OI)(CI)M /Q && icacls C:\clamav\temp /grant *S-1-5-93-2-2:(OI)(CI)M /Q
+# freshclam checks the certificate of database.clamav.net against the root store of Windows, and a container starts with an almost empty one (a host fills it on
+# demand, a container does not): the current root certificates of the Microsoft programme are fetched from Windows Update and put in the store here.
+RUN powershell -NoProfile -Command "$ErrorActionPreference = 'Stop'; certutil.exe -generateSSTFromWU C:\roots.sst | Out-Null; if ($LASTEXITCODE -ne 0) { throw 'the root certificates could not be fetched' }; (Import-Certificate -FilePath C:\roots.sst -CertStoreLocation Cert:\LocalMachine\Root).Count; Remove-Item C:\roots.sst"
 USER ContainerUser
 WORKDIR C:\clamav
 EXPOSE 3310
