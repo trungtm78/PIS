@@ -217,3 +217,33 @@ Giới hạn khác:
 - Chưa có lời mời qua email (không có máy chủ thư): lời mời được ghi vào volume `machvon_invitations`; với người mời về sau, quản trị đọc tệp trong volume và chuyển đường dẫn cho người được mời.
 - Một máy chủ duy nhất: không có dự phòng; máy khởi động lại là gián đoạn vài phút.
 - APK giao kèm là bản `profile` ký bằng khóa debug, dùng để thử trên điện thoại thật; phát hành lên cửa hàng cần khóa phát hành của chủ sở hữu.
+
+## 10. Tài khoản demo và cách một script lấy access token
+
+**Tài khoản demo** (toàn quyền trong tenant, vai trò `TENANT_OWNER` phạm vi tenant): `C:\ProgramData\MACHVON\secrets\admin\demo-account.json` trên máy chủ
+(chỉ Administrators và SYSTEM đọc được). Tệp gồm `origin`, `username`, `password`, `totpSecret`, `otpauth`, `tenantId`, `membershipId`.
+Realm đòi yếu tố thứ hai ở mọi lần đăng nhập nên tài khoản đã được cấp sẵn TOTP: người dùng nhập địa chỉ `otpauth` vào ứng dụng xác thực (Google Authenticator,
+Microsoft Authenticator...) rồi đăng nhập web bằng tên, mật khẩu và mã 6 số; script tính mã từ `totpSecret` (RFC 6238, SHA-1, 6 số, 30 giây).
+
+**Lấy token cho script** (nạp dữ liệu, UAT). Realm **không có** password grant (`directAccessGrantsEnabled=false`) và không có client secret; cách duy nhất là:
+
+| Bước | Gọi | Kết quả |
+|---|---|---|
+| 1 | Authorization code + PKCE (S256), client công khai `machvon-web`, `redirect_uri=https://<PUBLIC_HOST>/auth/callback`, `scope=openid`; trả lời các trang đăng nhập của Keycloak như trình duyệt (tên + mật khẩu, rồi OTP) | `code` |
+| 2 | `POST https://<PUBLIC_HOST>/idp/realms/machvon/protocol/openid-connect/token` với `grant_type=authorization_code`, `client_id`, `redirect_uri`, `code`, `code_verifier` | token **định danh** (`aud=machvon-api`, `acr=aal2`, sống 5 phút) |
+| 3 | `POST https://<PUBLIC_HOST>/api/me/session/tenant-selection` `{ "tenant_id", "membership_id" }` kèm `Authorization: Bearer <token định danh>` và `Idempotency-Key` | token **tenant** (`access_token`) dùng cho mọi route của tenant |
+
+Repo có sẵn script làm cả ba bước, chỉ in ra token:
+
+```
+ssh -i <khóa> Administrator@<máy chủ> "type C:\ProgramData\MACHVON\secrets\admin\demo-account.json" | node scripts/onprem-api-token.mjs --account -
+# --json in { access_token, expires_in, tenant_id, membership_id }; --identity-only dừng ở bước 2; --client machvon-mobile không dùng được ở đây (redirect là scheme của app)
+curl -H "Authorization: Bearer $TOKEN" https://<PUBLIC_HOST>/api/resources/organization_unit?limit=5
+```
+
+Đọc tệp tài khoản qua `ssh ... | --account -` để mật khẩu không nằm lại trên máy chạy script. Lệnh ghi (POST/PUT) phải kèm `Idempotency-Key` (một UUID mới cho mỗi lệnh);
+thao tác có phiên bản kèm `If-Match: "<version>"`. Token hết hạn sau vài phút: gặp 401 thì gọi lại script. Cùng một người đăng nhập sai 5 lần liên tiếp sẽ bị Keycloak khóa tạm.
+Các tài khoản mẫu khác (quản trị hệ thống, quản trị đơn vị, lãnh đạo, chuyên viên, cán bộ chủ đầu tư) ở `secrets\admin\first-accounts.json`, cùng dạng trường.
+
+Lưu ý cho làn nạp dữ liệu: cho tới khi việc nền `master-baseline-sync` chạy lần đầu (mục 9, điểm 4) tenant chưa có danh mục địa bàn, nên `createProject` chưa gọi được.
+Đừng khởi động lại `workers` trong lúc chờ: mỗi lần khởi động lại là đếm lại 6 giờ.
