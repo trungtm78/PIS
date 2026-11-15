@@ -8,7 +8,9 @@
 FROM node:24.22.2-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS build
 WORKDIR /app
 COPY . .
-RUN npm ci --omit=dev --ignore-scripts --workspace @machvon/api --include-workspace-root=false \
+# The edition is chosen when the service starts (MACHVON_EDITION), not when the image is built, and the enterprise edition is loaded from the package @machvon/edition-enterprise, which
+# the API does not declare as a dependency (no public source imports it): it is installed beside the API, with its own dependencies, or the enterprise edition could not start.
+RUN npm ci --omit=dev --ignore-scripts --workspace @machvon/api --workspace @machvon/edition-enterprise --include-workspace-root=false \
  && rm -rf node_modules/embedded-postgres node_modules/@embedded-postgres \
  && npm cache clean --force
 

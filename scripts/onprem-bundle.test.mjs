@@ -390,3 +390,12 @@ test('the install script registers the public half of the license signing key un
   assert.match(install, /ON CONFLICT \(id\) DO NOTHING;\nSELECT 1 \/ \(CASE WHEN public_key_pem = :'public_pem' THEN 1 ELSE 0 END\)/, 'the same id with another key stops the install');
   assert.doesNotMatch(install, /BEGIN PRIVATE KEY/);
 });
+
+test('the images carry the enterprise edition package where it is loaded: api and workers always, the web build for that edition only (found by the smoke run)', () => {
+  const dockerfile = (name) => readFileSync(join(REPO_ROOT, 'infra', 'onprem', 'docker', `${name}.Dockerfile`), 'utf8');
+  for (const name of ['api', 'workers']) assert.match(dockerfile(name), /npm ci --omit=dev --ignore-scripts --workspace @machvon\/api --workspace @machvon\/edition-enterprise /, name);
+  const web = dockerfile('web');
+  assert.match(web, /if \[ "\$MACHVON_EDITION" = "enterprise" \]; then EDITION_WORKSPACE="--workspace @machvon\/edition-enterprise"; else EDITION_WORKSPACE=""; fi/);
+  assert.match(web, /npm ci --ignore-scripts --workspace @machvon\/web \$EDITION_WORKSPACE /);
+  for (const app of ['web', 'api']) assert.ok(!('@machvon/edition-enterprise' in (JSON.parse(readFileSync(join(REPO_ROOT, 'apps', app, 'package.json'), 'utf8')).dependencies ?? {})), `${app} still does not declare the edition: the Dockerfiles install it`);
+});

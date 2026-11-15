@@ -11,7 +11,11 @@ ARG OIDC_REALM=machvon
 ARG OIDC_CLIENT_ID=machvon-web
 WORKDIR /app
 COPY . .
-RUN test -n "$PUBLIC_HOST" && npm ci --ignore-scripts --workspace @machvon/web --include-workspace-root=false
+# The enterprise build imports the package @machvon/edition-enterprise, which the web application does not declare as a dependency (no public source imports it): it is installed
+# for that edition only, so the public image holds nothing of it.
+RUN test -n "$PUBLIC_HOST" \
+ && if [ "$MACHVON_EDITION" = "enterprise" ]; then EDITION_WORKSPACE="--workspace @machvon/edition-enterprise"; else EDITION_WORKSPACE=""; fi \
+ && npm ci --ignore-scripts --workspace @machvon/web $EDITION_WORKSPACE --include-workspace-root=false
 WORKDIR /app/apps/web
 ENV VITE_EDITION=${MACHVON_EDITION} \
     VITE_API_BASE_URL=/api \
