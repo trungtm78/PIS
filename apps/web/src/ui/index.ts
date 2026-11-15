@@ -52,3 +52,5 @@ export { PresentationMode, PresentButton, PRESENTATION_INTERVALS, PRESENTATION_S
 export type { PresentationBoard, PresentationModeProps } from './PresentationMode';
 export { Tabs, useTabParam } from './Tabs';
 export type { TabItem, TabsProps } from './Tabs';
+export { Money } from './Money';
+export type { MoneyProps } from './Money';

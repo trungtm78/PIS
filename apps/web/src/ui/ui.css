@@ -520,3 +520,8 @@ code {
 @media (max-width: 480px) { .ui-info__panel { max-height: min(70vh, 520px); } }
 .ui-info__panel > .ui-info__list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .ui-info__panel > .ui-info__title, .ui-info__panel > .ui-button, .ui-info__panel > .ui-info__note { flex: 0 0 auto; }
+
+/* An amount of money: the figure and its unit never break apart. */
+.ui-money {
+  white-space: nowrap;
+}
