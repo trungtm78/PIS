@@ -1,5 +1,12 @@
-STATUS: IN_PROGRESS
+STATUS: BLOCKED
 
+
+## Blocker (2026-11-15 19:00)
+
+1. Vấn đề chính xác: server đích là VPS10352 (180.93.34.176, Windows Server 2025, 16 vCPU, 32 GB RAM, 250 GB SSD, CloudNest HCM). Gói Docker của sản phẩm là container LINUX (PostgreSQL, API node, nginx, Keycloak). Từ máy phát triển chỉ thấy cổng 3389 (RDP) mở; 22, 80, 443, 5985, 5986 đều đóng, nên không có đường chạy lệnh từ xa. Docker cho container Linux trên Windows Server cần ảo hóa lồng (WSL 2/Hyper-V) mà chưa biết VPS này có bật không.
+2. Đã thử: đăng nhập cổng quản lý CloudNest (chỉ đọc: cấu hình, hệ điều hành, cổng); quét cổng 22/80/443/3389/5985/5986; làn dock1 đang chứng minh gói trên runner Linux của GitHub Actions.
+3. Đề xuất: cài lại VPS thành Ubuntu Server 24.04 (Docker chạy gốc, an toàn và ổn định nhất cho gói này; mất toàn bộ dữ liệu đang có trên VPS), mở SSH bằng khóa, rồi triển khai gói đã chứng minh; hoặc giữ Windows và bật OpenSSH + WSL 2 nếu nhà cung cấp cho ảo hóa lồng.
+4. Câu hỏi đóng: Cho phép cài lại VPS10352 thành Ubuntu 24.04 (xóa sạch dữ liệu hiện có trên máy) — CÓ hay KHÔNG (giữ Windows)?
 
 ## Quyết định 2026-11-15 (chủ sở hữu): triển khai PHẢI bằng Docker (gói on-prem). Máy phát triển không có Docker/WSL (cần quyền quản trị + khởi động lại, việc của chủ máy), nên gói được chạy thật trên runner Linux của GitHub Actions (làn dock1: workflow dựng image, compose up, install.sh, kiểm sức khỏe, tạo tenant đầu tiên, rollback).
 
