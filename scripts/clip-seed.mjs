@@ -15,7 +15,7 @@
 
 import { spawn } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ApiReader } from './clip-seed-client.mjs';
@@ -143,6 +143,15 @@ export async function waitForBaseline(api, broker, dataset, minutes, { fetchImpl
   }
 }
 
+/**
+ * Where the memory of the seed groups of an installation lives: `--state-dir <dir>`, or `<home>/.clip-seed/<host>-<tenant>`. A wipe of the installation makes a new tenant, and so
+ * a new directory: steps remembered for a tenant that no longer exists are never taken for done.
+ */
+export function stateDirectoryOf(flags, credentials, home = homedir()) {
+  if (typeof flags['state-dir'] === 'string' && flags['state-dir'] !== '') return resolve(flags['state-dir']);
+  return join(home, '.clip-seed', `${new URL(credentials.origin).host.replace(/[^a-z0-9.-]/giu, '_')}-${credentials.tenantId}`);
+}
+
 /** The installation of a run, when `--credentials` is given: the credentials, the token broker, the directory of the run (plan, stack info, token cache) and what removes it. */
 function installationOf(flags, dataset) {
   if (typeof flags.credentials !== 'string') return undefined;
@@ -150,9 +159,13 @@ function installationOf(flags, dataset) {
   const credentials = readCredentials(flags.credentials);
   const problems = credentialProblems(credentials, requiredPeople(dataset));
   if (problems.length > 0) throw new Error(`the credentials cannot be used:\n${problems.join('\n')}`);
-  const directory = mkdtempSync(join(tmpdir(), 'clip-seed-'));
-  const cacheFile = join(directory, 'tokens.json');
-  return { credentials, directory, cacheFile, broker: brokerOf(credentials, { cacheFile }), remove: () => rmSync(directory, { recursive: true, force: true }) };
+  // Two directories: one of the run, with the tokens, removed when the run ends; and one that STAYS between the runs on the same installation, with what the seed groups
+  // remember (their ledgers and the steps that must not be made twice). No password, secret or token is ever written to the second.
+  const temporary = mkdtempSync(join(tmpdir(), 'clip-seed-'));
+  const directory = stateDirectoryOf(flags, credentials);
+  mkdirSync(directory, { recursive: true });
+  const cacheFile = join(temporary, 'tokens.json');
+  return { credentials, directory, cacheFile, broker: brokerOf(credentials, { cacheFile }), remove: () => rmSync(temporary, { recursive: true, force: true }) };
 }
 
 async function commandPreflight(flags) {

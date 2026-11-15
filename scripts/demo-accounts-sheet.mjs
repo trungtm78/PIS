@@ -23,7 +23,7 @@ export function sheetOf(credentials, { date, singleFactor = true }) {
     '',
     `- Địa chỉ: ${credentials.origin}`,
     `- Đăng nhập: ${singleFactor ? 'tên đăng nhập và mật khẩu (bản demo đang ở chế độ một yếu tố, không hỏi mã OTP)' : 'tên đăng nhập, mật khẩu và mã OTP'}`,
-    '- Mật khẩu gồm 13 chữ và số, không có ký tự dễ nhầm (không có 0, O, 1, l, I); phân biệt chữ hoa, chữ thường.',
+    new Set(people.map((account) => account.password)).size === 1 ? `- Mật khẩu chung cho mọi tài khoản demo: \`${people[0].password}\` (phân biệt chữ hoa, chữ thường).` : '- Mỗi tài khoản một mật khẩu gồm 13 chữ và số, không có ký tự dễ nhầm (không có 0, O, 1, l, I); phân biệt chữ hoa, chữ thường.',
     '- Sai mật khẩu 5 lần liên tiếp thì tài khoản bị khóa tạm.',
     '- Toàn bộ dự án, số liệu và tên người trong bản demo là dữ liệu minh họa, không phải số liệu thật của tỉnh Cà Mau.',
     '',

@@ -7,12 +7,14 @@
 # -OwnerAccount  the account of the tenant owner: { origin, username, password, totpSecret, tenantId, membershipId } (default: secrets\admin\demo-account.json).
 # -Tools         a directory with the tools of the repository (`node scripts/demo-tools-pack.mjs --out <dir>`), for an image that was built before this tool existed;
 #                without it the tool of the api image is used.
+# -DemoPassword  ONE password for every account of the demonstration (the owner included), set again at every run; without it each account gets a drawn
+#                password of thirteen letters and digits. A shared password is for a demonstration only.
 # The result is secrets\admin\demo-credentials.json (administrators of this host only): the credentials `clip-seed --credentials -` reads, and the user name,
 # password and one-time password secret of each person. It can be run again: what is done is not done twice.
 #
 # Like first-accounts.ps1 the tool runs in a one-shot container on the compose network and reaches the product through the edge (the public name is pointed at
 # the web container in the hosts file of that container, so nothing leaves the host).
-param([Parameter(Mandatory)][string]$InputFile, [string]$OwnerAccount = '', [string]$Tools = '')
+param([Parameter(Mandatory)][string]$InputFile, [string]$OwnerAccount = '', [string]$Tools = '', [string]$DemoPassword = '')
 . (Join-Path $PSScriptRoot 'common.ps1')
 Assert-Administrator
 $admin = Join-Path $script:SecretsDir 'admin'
@@ -53,6 +55,8 @@ $arguments = @(
 ) + $mounts + @(
   '--env', ('KEYCLOAK_ADMIN_USER=' + (Get-Setting 'KEYCLOAK_ADMIN_USER')), '--env', ('OIDC_REALM=' + (Get-Setting 'OIDC_REALM')),
   '--env', ('PUBLIC_HOST=' + (Get-Setting 'PUBLIC_HOST')),
+  # One password for every account of the demonstration (empty: each account gets a drawn one). It reaches the tool in its environment.
+  '--env', ('DEMO_PASSWORD=' + $DemoPassword),
   # The certificate of the edge may be one of a private authority: its chain is trusted by this one process, in addition to the public authorities.
   '--env', 'NODE_EXTRA_CA_CERTS=C:\run\web\tls_cert',
   '--entrypoint', 'C:\Windows\System32\cmd.exe', "machvon/api-windows:$version", '/S', '/C', $command

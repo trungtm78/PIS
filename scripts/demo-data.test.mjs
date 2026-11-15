@@ -6,11 +6,11 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { localizer, rewriteDeep, roundTripFaults } from '../apps/web/e2e/hdsd/seed/localize.ts';
-import { INVITATION_GRANT_LIMIT, demoPassword, inputProblems, ownerOf, provision } from '../infra/onprem-windows/tools/demo-tenant.mjs';
+import { INVITATION_GRANT_LIMIT, newDemoPassword as demoPassword, inputProblems, ownerOf, provision } from '../infra/onprem-windows/tools/demo-tenant.mjs';
 import { TOKEN_MARGIN_SECONDS, brokerOf, credentialProblems, readCredentials } from './clip-seed-auth.mjs';
 import { ApiReader } from './clip-seed-client.mjs';
 import { DEFAULT_DEMO_DATASET, FUNDED, buildPlan, checkPlan, localizeFaults, planDigest, planForSeeds } from './clip-seed-lib.mjs';
-import { baselineReady, installationInfo, loadDataset, main as clipSeed, requiredPeople, tolerated, waitForBaseline } from './clip-seed.mjs';
+import { baselineReady, installationInfo, loadDataset, main as clipSeed, requiredPeople, stateDirectoryOf, tolerated, waitForBaseline } from './clip-seed.mjs';
 import { buildStackEnv, buildWebEnv, parseArgs as demoArgs } from './demo-public.mjs';
 import { PERMISSION_NAME, ROLES_FILE, ROLE_PERMISSION_LIMIT, buildTenantInput, grantsOf, roleParts, splitName } from './demo-tenant-input.mjs';
 import { toolFiles } from './demo-tools-pack.mjs';
@@ -165,7 +165,8 @@ test('a role longer than createCustomRole takes is made in parts, and a name is 
   assert.equal(parts[1].name, 'Vai (phần 2)');
   assert.equal(ROLE_PERMISSION_LIMIT, 200);
   assert.deepEqual(roleParts({ ...role, permissions: ['a.b'] }).map((part) => part.code), ['R']);
-  assert.deepEqual(splitName('Nguyễn Văn An'), { firstName: 'An', lastName: 'Nguyễn Văn' });
+  // The realm shows `firstName lastName`: the family name comes first, as a Vietnamese name is written.
+  assert.deepEqual(splitName('Nguyễn Văn An'), { firstName: 'Nguyễn Văn', lastName: 'An' });
   assert.deepEqual(splitName('An'), { firstName: 'An', lastName: 'An' });
   assert.ok(PERMISSION_NAME.test('project.read') && PERMISSION_NAME.test('iam.*') && !PERMISSION_NAME.test('open.project-codes.read'));
 });
@@ -267,7 +268,7 @@ const smallInput = () => ({
   ],
 });
 
-function run(input, product, state = {}) {
+function run(input, product, state = {}, demoPassword = undefined) {
   const lines = [];
   const created = [];
   const passwords = [];
@@ -284,6 +285,7 @@ function run(input, product, state = {}) {
     invitationFor: async (email) => product.invitations.get(email),
     say: (line) => lines.push(line),
     publicHost: 'demo.example:8443',
+    demoPassword,
   }).then((result) => ({ result, lines, created, passwords }));
 }
 
@@ -593,4 +595,25 @@ test('a password of the demonstration is thirteen letters and digits a person ca
   assert.deepEqual(ownerOf(OWNER, smallInput()), OWNER);
   // An output of the first accounts without the owner of the input gives an account the checks refuse.
   assert.match(inputProblems(smallInput(), ownerOf({ origin: 'o', tenantId: 't', people: {} }, smallInput())).join('; '), /the owner account has no username/u);
+});
+
+test('one password for every account, when the operator gives one: the owner and the people already made get it, also on a later run', async () => {
+  const product = fakeProduct();
+  const first = await run(smallInput(), product);
+  const again = await run(smallInput(), product, first.result, 'Demo#Pass2026');
+  assert.deepEqual(again.passwords, [['demo', 'Demo#Pass2026'], ['written back', 'Demo#Pass2026'], ['canbo', 'Demo#Pass2026']]);
+  assert.equal(again.result.people.owner.password, 'Demo#Pass2026');
+  assert.equal(again.result.people.projectManager.password, 'Demo#Pass2026');
+  // A third run with the same password changes nothing; a new installation creates the people with it.
+  assert.deepEqual((await run(smallInput(), product, again.result, 'Demo#Pass2026')).passwords, []);
+  const fresh = await run(smallInput(), fakeProduct(), {}, 'Demo#Pass2026');
+  assert.equal(fresh.created[0].password, 'Demo#Pass2026');
+  assert.equal(fresh.result.people.owner.password, 'Demo#Pass2026');
+});
+
+test('the memory of the seed groups of an installation stays between the runs, in a directory of that installation and tenant', () => {
+  const home = join(tmpdir(), 'home-of-test');
+  assert.equal(stateDirectoryOf({}, CREDENTIALS, home), join(home, '.clip-seed', `demo.example_8443-${CREDENTIALS.tenantId}`));
+  assert.notEqual(stateDirectoryOf({}, { ...CREDENTIALS, tenantId: '00000000-0000-4000-8000-00000000000b' }, home), stateDirectoryOf({}, CREDENTIALS, home));
+  assert.equal(stateDirectoryOf({ 'state-dir': join(home, 'x') }, CREDENTIALS, home), join(home, 'x'));
 });

@@ -55,8 +55,13 @@ export function brokerOf(credentials, { cacheFile, signIn = tokensOf, now = () =
     writeFileSync(cacheFile, JSON.stringify(Object.fromEntries(kept)), { encoding: 'utf8', mode: 0o600 });
   };
   const fresh = (entry) => entry !== undefined && entry.expiresAt - now() > TOKEN_MARGIN_SECONDS * 1000;
-  return {
-    async token(person) {
+  // One sign-in of a person at a time: callers that ask together wait for the same one (the realm must not see the same person sign in several times at once).
+  const pending = new Map();
+  const signInOnce = async (person) => {
+    if (!pending.has(person)) pending.set(person, tokenOf(person).finally(() => pending.delete(person)));
+    return pending.get(person);
+  };
+  const tokenOf = async (person) => {
       if (!fresh(kept.get(person))) load();
       const entry = kept.get(person);
       if (fresh(entry)) return entry.token;
@@ -74,6 +79,11 @@ export function brokerOf(credentials, { cacheFile, signIn = tokensOf, now = () =
       kept.set(person, { token: tokens.tenant, expiresAt: now() + Number(tokens.expiresIn ?? 300) * 1000 });
       save();
       return tokens.tenant;
+  };
+  return {
+    token(person) {
+      const entry = kept.get(person);
+      return fresh(entry) ? Promise.resolve(entry.token) : signInOnce(person);
     },
     forget(person) {
       // The token the API refused is dropped here and in the cache, unless another process has already put a later one there.

@@ -33,10 +33,13 @@ export function roleParts(role, limit = ROLE_PERMISSION_LIMIT) {
   return parts;
 }
 
-/** A Vietnamese full name as the given name (the last word) and the rest. Pure. */
+/**
+ * A Vietnamese full name for an account of the realm. The realm shows a person as `firstName lastName`, and a Vietnamese name is written family name first: the family and
+ * middle names go to `firstName` and the given name to `lastName`, so that "Nguyễn Văn An" is shown as "Nguyễn Văn An" everywhere. Pure.
+ */
 export function splitName(name) {
   const words = name.trim().split(/\s+/u);
-  return { firstName: words.at(-1) ?? name, lastName: words.slice(0, -1).join(' ') || (words.at(-1) ?? name) };
+  return words.length === 1 ? { firstName: name.trim(), lastName: name.trim() } : { firstName: words.slice(0, -1).join(' '), lastName: words.at(-1) };
 }
 
 /** The grants the docs stack gives a person (serve.stack.ts, docsGrants), plus MEMBER (the role that holds `profile.self` on an installation). Pure. */

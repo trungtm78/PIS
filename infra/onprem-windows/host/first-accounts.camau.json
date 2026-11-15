@@ -1,6 +1,6 @@
 {
   "systemAdmin": { "username": "quantri.hethong", "email": "quantri.hethong@demo-camau.example", "firstName": "Quản trị", "lastName": "Hệ thống" },
   "tenant": { "code": "ca-mau", "name": "UBND tỉnh Cà Mau", "rootUnitName": "Ủy ban nhân dân tỉnh Cà Mau", "subdomain": "ca-mau" },
-  "owner": { "username": "demo", "email": "demo@demo-camau.example", "firstName": "An", "lastName": "Nguyễn Văn" },
+  "owner": { "username": "demo", "email": "demo@demo-camau.example", "firstName": "Nguyễn Văn", "lastName": "An" },
   "members": []
 }

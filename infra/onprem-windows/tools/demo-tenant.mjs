@@ -33,7 +33,7 @@ export class DemoError extends Error {}
  * A password a person can type at a demonstration: thirteen letters and digits without look-alikes (no 0 O 1 l I), with a lower-case letter, an upper-case letter and a digit.
  * Random (about 74 bits); the accounts of a demonstration are handed over on paper and typed by hand.
  */
-export function demoPassword(random = randomBytes) {
+export function newDemoPassword(random = randomBytes) {
   const classes = ['abcdefghjkmnpqrstuvwxyz', 'ABCDEFGHJKLMNPQRSTUVWXYZ', '23456789'];
   const all = classes.join('');
   for (;;) {
@@ -74,7 +74,7 @@ export function inputProblems(input, owner) {
  * `identityToken(person)` sign people in, `admin` is the Keycloak administration, `invitationFor(email)` waits for the invitation of the outbox.
  * `state` is the content of the output file and `save()` writes it; both are updated after every step that must not be done twice.
  */
-export async function provision({ input, owner, state, save, api, ownerToken, identityToken, admin, invitationFor, say, today = () => new Date().toISOString().slice(0, 10), publicHost = '', ownerPasswordChanged = () => {} }) {
+export async function provision({ input, owner, state, save, api, ownerToken, identityToken, admin, invitationFor, say, today = () => new Date().toISOString().slice(0, 10), publicHost = '', ownerPasswordChanged = () => {}, demoPassword }) {
   const answerOf = async (response, what) => {
     const text = await response.text();
     if (!response.ok) throw new DemoError(`${what} answered ${response.status}: ${text.slice(0, 400)}`);
@@ -146,8 +146,9 @@ export async function provision({ input, owner, state, save, api, ownerToken, id
   state.realm ??= {};
   const ownerPerson = input.people.find((person) => person.owner === true);
   // The owner gets a password of the demonstration once (the account was made with a long one); the sign-ins that follow use it.
-  if (state.ownerPasswordSet !== true) {
-    const password = demoPassword();
+  // `demoPassword` (the operator gave ONE password for every account of the demonstration) wins over a drawn one, also on a later run.
+  if (demoPassword === undefined ? state.ownerPasswordSet !== true : owner.password !== demoPassword) {
+    const password = demoPassword ?? newDemoPassword();
     await admin.setPassword(owner.username, password);
     owner.password = password;
     ownerPasswordChanged(password);
@@ -161,11 +162,17 @@ export async function provision({ input, owner, state, save, api, ownerToken, id
     return { role_id: roleId.get(grant.role), scope_kind: grant.scope, ...(grant.scope === 'TENANT' ? {} : { scope_ref_ids: [unit] }) };
   };
   for (const person of input.people.filter((entry) => entry.owner !== true)) {
-    const entry = (state.people[person.person] ??= { username: person.username, password: demoPassword(), totpSecret: newTotpSecret(), displayName: person.displayName, title: person.title, ...(person.sample === true ? { sample: true } : {}) });
+    const entry = (state.people[person.person] ??= { username: person.username, password: demoPassword ?? newDemoPassword(), totpSecret: newTotpSecret(), displayName: person.displayName, title: person.title, ...(person.sample === true ? { sample: true } : {}) });
     entry.otpauth ??= otpauthOf({ issuerName: `MACHVON ${publicHost}`, username: person.username, secret: entry.totpSecret });
     const progress = (state.realm[person.username] ??= {});
     save();
+    if (progress.inRealm === true && demoPassword !== undefined && entry.password !== demoPassword) {
+      await admin.setPassword(person.username, demoPassword);
+      entry.password = demoPassword;
+      save();
+    }
     if (progress.inRealm !== true) {
+      if (demoPassword !== undefined) entry.password = demoPassword;
       // The person gets the second factor here: the realm asks for it at every sign-in and offers no enrolment to a person who has none (tools/keycloak-admin.mjs, createUser).
       await admin.createUser({ username: person.username, email: person.email, firstName: person.firstName, lastName: person.lastName, password: entry.password, totpSecret: entry.totpSecret });
       progress.inRealm = true;
@@ -198,6 +205,12 @@ export async function provision({ input, owner, state, save, api, ownerToken, id
 
 export async function main(argv, { env = process.env, log = (line) => process.stdout.write(`${line}\n`), fetch = globalThis.fetch, sleep = (ms) => new Promise((done) => setTimeout(done, ms)) } = {}) {
   const { values } = parseArgs({ args: argv, options: { input: { type: 'string' }, owner: { type: 'string' }, output: { type: 'string' }, invitations: { type: 'string' } }, allowPositionals: false });
+  // One password for every account of the demonstration, when the operator gives one (DEMO_PASSWORD: never an argument, so that it is not in the list of processes).
+  const demoPassword = (env.DEMO_PASSWORD ?? '') === '' ? undefined : env.DEMO_PASSWORD;
+  if (demoPassword !== undefined && (demoPassword.length < 8 || /\s/.test(demoPassword))) {
+    log('demo-tenant: DEMO_PASSWORD must be at least 8 characters without white space');
+    return 2;
+  }
   const say = (line) => log(`demo-tenant: ${line}`);
   if (!values.input || !values.owner || !values.output || !values.invitations) {
     say('--input, --owner, --output and --invitations are required');
@@ -264,7 +277,7 @@ export async function main(argv, { env = process.env, log = (line) => process.st
   };
   try {
     const admin = new KeycloakAdmin({ base: env.KEYCLOAK_INTERNAL_URL ?? 'http://keycloak:8080/idp', realm, username: env.KEYCLOAK_ADMIN_USER ?? '', password: readFileSync(env.KEYCLOAK_ADMIN_PASSWORD_FILE ?? 'C:\\run\\secrets\\keycloak_admin_password', 'utf8').split(/\r?\n/)[0], fetch });
-    await provision({ input, owner, state, save, api, ownerToken, identityToken: (person, entry) => identityOf(person.username, entry.password, entry.totpSecret), admin, invitationFor, say, publicHost, ownerPasswordChanged });
+    await provision({ input, owner, state, save, api, ownerToken, identityToken: (person, entry) => identityOf(person.username, entry.password, entry.totpSecret), admin, invitationFor, say, publicHost, ownerPasswordChanged, demoPassword });
     say(`done: ${Object.keys(state.people).length} people of the tenant ${owner.tenantId}; the credentials are in the output file (administrators only)`);
     return 0;
   } catch (error) {

@@ -7,6 +7,7 @@ import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import { signIn } from './sign-in.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const { chromium } = createRequire(join(HERE, '..', '..', 'apps', 'web', 'package.json'))('@playwright/test');
@@ -45,12 +46,7 @@ page.on('response', (response) => {
   if (response.status() >= 500 && response.url().includes('/api/')) failed.push(`${response.status()} ${new URL(response.url()).pathname}`);
 });
 try {
-  // The sign-in a person makes: the application sends the browser to the realm, the person types the user name and the password.
-  await page.goto(credentials.origin, { waitUntil: 'networkidle', timeout: 90_000 });
-  await page.locator('#username').fill(account.username);
-  await page.locator('#password').fill(account.password);
-  await Promise.all([page.waitForURL((url) => url.origin === credentials.origin && !url.pathname.startsWith('/idp/'), { timeout: 90_000 }), page.locator('#kc-login').click()]);
-  await page.waitForLoadState('networkidle', { timeout: 90_000 });
+  await signIn(page, credentials.origin, account);
   process.stdout.write(`signed in as ${account.username}: ${new URL(page.url()).pathname}\n`);
   const only = values.only === undefined ? undefined : new Set(values.only.split(','));
   for (const [file, path, title] of SCREENS) {
