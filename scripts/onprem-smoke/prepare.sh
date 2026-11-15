@@ -23,7 +23,7 @@ SECRETS=/etc/machvon/secrets
 SECRETS_GID=1900
 ENV_FILE=/etc/machvon/compose.env
 S3_IMAGE=docker.io/coollabsio/minio:RELEASE.2025-10-15T17-29-55Z@sha256:69b55a1c1c5dc285ce04db96689f5b2102317fc77a50680a1874ca6efd1c87f9
-LDAP_IMAGE=docker.io/osixia/openldap:1.5.0
+LDAP_IMAGE=docker.io/library/alpine:3.20
 
 say() { printf '%s\n' "smoke-prepare: $*"; }
 fail() { printf '%s\n' "smoke-prepare: FAILED $*" >&2; exit 1; }
@@ -48,24 +48,34 @@ issue web "${PUBLIC_HOST}" "DNS:${PUBLIC_HOST},DNS:${CONTROL_HOST}"
 issue services "${GATEWAY}" "DNS:${GATEWAY},IP:${GATEWAY},IP:127.0.0.1,DNS:localhost"
 chmod 0644 ca.pem
 
-say "3/6 directory over LDAPS (${LDAP_IMAGE})"
+say "3/6 directory over LDAPS (OpenLDAP on ${LDAP_IMAGE})"
 LDAP_PASSWORD=$(openssl rand -hex 16)
 cp services.crt "${WORK}/ldap-certs/dir.crt"; cp services.key "${WORK}/ldap-certs/dir.key"; cp ca.pem "${WORK}/ldap-certs/ca.pem"
-openssl dhparam -dsaparam -out "${WORK}/ldap-certs/dhparam.pem" 2048 2>/dev/null
-docker rm --force smoke-ldap >/dev/null 2>&1 || true
-docker run --detach --name smoke-ldap --network host \
-  --env LDAP_ORGANISATION="MACHVON smoke" --env LDAP_DOMAIN=smoke.test --env LDAP_ADMIN_PASSWORD="${LDAP_PASSWORD}" \
-  --env LDAP_TLS=true --env LDAP_TLS_CRT_FILENAME=dir.crt --env LDAP_TLS_KEY_FILENAME=dir.key --env LDAP_TLS_CA_CRT_FILENAME=ca.pem \
-  --env LDAP_TLS_DH_PARAM_FILENAME=dhparam.pem --env LDAP_TLS_VERIFY_CLIENT=never --env LDAP_TLS_ENFORCE=false \
-  --volume "${WORK}/ldap-certs:/container/service/slapd/assets/certs" \
-  "${LDAP_IMAGE}" --copy-service >/dev/null
-tries=0
-until openssl s_client -connect 127.0.0.1:636 -CAfile ca.pem -verify_return_error </dev/null >"${WORK}/ldaps.txt" 2>&1; do
-  tries=$((tries + 1))
-  if [ "${tries}" -gt 45 ]; then docker logs --tail 40 smoke-ldap 2>&1 || true; tail -n 5 "${WORK}/ldaps.txt" || true; fail "the directory does not answer on LDAPS with a certificate of the test authority"; fi
-  sleep 2
-done
-docker exec --interactive smoke-ldap ldapadd -x -H ldapi:/// -D "cn=admin,dc=smoke,dc=test" -w "${LDAP_PASSWORD}" >/dev/null <<'LDIF' || fail "cannot create the units of the directory"
+cat > "${WORK}/ldap-certs/slapd.conf" <<CONF
+include /etc/openldap/schema/core.schema
+include /etc/openldap/schema/cosine.schema
+include /etc/openldap/schema/inetorgperson.schema
+modulepath /usr/lib/openldap
+moduleload back_mdb.so
+pidfile /run/openldap/slapd.pid
+TLSCACertificateFile /smoke/ca.pem
+TLSCertificateFile /smoke/dir.crt
+TLSCertificateKeyFile /smoke/dir.key
+TLSVerifyClient never
+database mdb
+maxsize 268435456
+suffix "dc=smoke,dc=test"
+rootdn "cn=admin,dc=smoke,dc=test"
+rootpw ${LDAP_PASSWORD}
+directory /var/lib/openldap/openldap-data
+CONF
+cat > "${WORK}/ldap-certs/base.ldif" <<'LDIF'
+dn: dc=smoke,dc=test
+objectClass: dcObject
+objectClass: organization
+dc: smoke
+o: MACHVON smoke
+
 dn: ou=Users,dc=smoke,dc=test
 objectClass: organizationalUnit
 ou: Users
@@ -74,6 +84,16 @@ dn: ou=Groups,dc=smoke,dc=test
 objectClass: organizationalUnit
 ou: Groups
 LDIF
+docker rm --force smoke-ldap >/dev/null 2>&1 || true
+# LDAPS on every address of the host (the containers reach it through the gateway of the egress network); clear-text LDAP on the loopback address only.
+docker run --detach --name smoke-ldap --network host --volume "${WORK}/ldap-certs:/smoke:ro" "${LDAP_IMAGE}" sh -c   'apk add --no-cache openldap openldap-back-mdb openldap-clients >/dev/null && mkdir -p /run/openldap /var/lib/openldap/openldap-data && slapadd -f /smoke/slapd.conf -l /smoke/base.ldif && exec slapd -f /smoke/slapd.conf -h "ldap://127.0.0.1:389/ ldaps:///" -d 256' >/dev/null
+tries=0
+until openssl s_client -connect 127.0.0.1:636 -CAfile ca.pem -verify_return_error </dev/null >"${WORK}/ldaps.txt" 2>&1; do
+  tries=$((tries + 1))
+  if [ "${tries}" -gt 45 ]; then docker logs --tail 40 smoke-ldap 2>&1 || true; tail -n 5 "${WORK}/ldaps.txt" || true; fail "the directory does not answer on LDAPS with a certificate of the test authority"; fi
+  sleep 2
+done
+docker exec smoke-ldap ldapsearch -x -H ldap://127.0.0.1:389 -D "cn=admin,dc=smoke,dc=test" -w "${LDAP_PASSWORD}" -b "ou=Users,dc=smoke,dc=test" -s base dn >/dev/null || fail "the service account cannot bind and read the directory"
 say "the directory answers on ldaps://${GATEWAY}:636 (checked on 127.0.0.1)"
 
 say "4/6 object store over TLS (${S3_IMAGE}) and the two buckets"
