@@ -45,6 +45,18 @@ describe('IssueSlaPolicyScreen (ISS-09): the SLA policies', () => {
     expect(screen.getByRole('form', { name: vi_['iss.sla.form.aria'] })).toBeTruthy();
   });
 
+  it('TC-UI-ISS-09: with no policy yet the screen still names the field "Ngưỡng leo thang" of the catalogue, on the two levels of the form', async () => {
+    mount(<IssueSlaPolicyScreen route={ROUTE} />, withPolicies(worldOf([])), MANAGER, '/iss/iss-09');
+    await screen.findByTestId('empty-policies');
+    // The table, whose column carries the name, is not drawn while there is no policy: the form is then the only place of the field.
+    expect(screen.queryByRole('columnheader', { name: vi_['iss.sla.escalation.column'] })).toBeNull();
+    const form = screen.getByRole('form', { name: vi_['iss.sla.form.aria'] });
+    for (const key of ['iss.sla.form.level2.label', 'iss.sla.form.level3.label'] as const) {
+      expect(vi_[key]).toContain(vi_['iss.sla.escalation.column']);
+      expect(within(form).getByLabelText(vi_[key], { exact: false })).toBeTruthy();
+    }
+  });
+
   it('says that the policies could not be read, with a retry', async () => {
     const state = worldOf([policy(1)], { failing: new Set(['listIssueSlaPolicies']) });
     mount(<IssueSlaPolicyScreen route={ROUTE} />, withPolicies(state), MANAGER, '/iss/iss-09');
