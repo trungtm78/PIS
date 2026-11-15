@@ -23,6 +23,8 @@ ${S3} create-bucket --bucket "${BUCKET}" --object-lock-enabled-for-bucket
 ${S3} put-bucket-versioning --bucket "${BUCKET}" --versioning-configuration "file://${HERE}/versioning.json"
 ${S3} put-object-lock-configuration --bucket "${BUCKET}" --object-lock-configuration "file://${LOCK_FILE}"
 ${S3} put-bucket-encryption --bucket "${BUCKET}" --server-side-encryption-configuration "file://${HERE}/encryption.json"
-${S3} put-public-access-block --bucket "${BUCKET}" --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+# Not every S3 compatible store has this call (MinIO answers MalformedXML: its buckets are private until a policy says otherwise). The settings above are the immutability; this one is
+# refused loudly but does not undo them: the administrator then confirms by hand that the bucket has no anonymous policy.
+${S3} put-public-access-block --bucket "${BUCKET}" --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true \n  || echo "WARNING: this object store does not accept put-public-access-block for ${BUCKET}: check by hand that the bucket has no anonymous access policy (aws s3api get-bucket-policy must answer NoSuchBucketPolicy)" >&2
 
 echo "bucket ${BUCKET} created. Next: create the writer identity and attach writer-policy.json (BUCKET_NAME replaced), then run: node scripts/backup-verify.mjs live --bucket ${BUCKET} --endpoint ${ENDPOINT}"

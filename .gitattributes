@@ -4,3 +4,5 @@
 *.yml text eol=lf
 *.ttf binary
 packages/edition-enterprise/templates/org-pack/*.csv -text
+# Batch files are read by cmd.exe, which loses labels in a file with LF line ends.
+*.cmd text eol=crlf

@@ -1,0 +1,8 @@
+{
+  "systemAdmin": { "username": "sysadmin", "email": "sysadmin@example.vn", "firstName": "Quản trị", "lastName": "Hệ thống" },
+  "tenant": { "code": "so-xay-dung", "name": "Sở Xây dựng", "rootUnitName": "Sở Xây dựng", "subdomain": "so-xay-dung" },
+  "owner": { "username": "chu.so.huu", "email": "chu.so.huu@example.vn", "firstName": "Chủ", "lastName": "Sở hữu" },
+  "members": [
+    { "username": "can.bo.du.an", "email": "can.bo.du.an@example.vn", "firstName": "Dự án", "lastName": "Cán bộ", "role": "PROJECT_OFFICER" }
+  ]
+}

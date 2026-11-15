@@ -1,0 +1,212 @@
+name: On-prem smoke
+
+# Runs the REAL offline bundle on a Linux runner: scripts/onprem-bundle.mjs builds it, install.sh installs it, and scripts/onprem-smoke/verify.mjs does what a person does
+# after an installation: health, migrations, backup repository, the realm, a sign-in with a second factor, the first tenant through scripts/onprem-first-tenant.mjs,
+# the owner invitation and its acceptance. Then a second bundle is installed over the first (upgrade: backup, migrations) and rollback.sh returns to the first.
+#
+# What a customer brings is made here as throw-away services (scripts/onprem-smoke/prepare.sh): a directory over LDAPS, an S3 compatible object store over TLS, a test
+# certificate authority, random secrets. Nothing of it is a default of the product.
+#
+# Two legs: the public edition as a bundle for one architecture (fast), and the enterprise edition as the bundle a customer gets (linux/amd64 and linux/arm64).
+# The job log needs repository admin rights, the annotations of a check run do not: every failing step puts its log, and the logs of the services that are not healthy,
+# into annotations (scripts/ci-annotate.mjs).
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [lane/dock1]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: onprem-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Bundle, install, first tenant, upgrade, rollback (${{ matrix.edition }}, ${{ matrix.label }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - edition: public
+            platforms: linux/amd64
+            label: amd64 only
+          - edition: enterprise
+            platforms: linux/amd64,linux/arm64
+            label: both architectures
+    env:
+      PUBLIC_HOST: machvon.smoke.test
+      ENV_FILE: /etc/machvon/compose.env
+      VERSION_A: 0.0.${{ github.run_number }}-a
+      VERSION_B: 0.0.${{ github.run_number }}-b
+      EDITION: ${{ matrix.edition }}
+      PLATFORMS: ${{ matrix.platforms }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Runner as an installation host (disk, Docker with the containerd image store)
+        run: |
+          set -euo pipefail
+          echo "WORK=${RUNNER_TEMP}/smoke" >> "$GITHUB_ENV"
+          mkdir -p "${RUNNER_TEMP}/smoke/logs"
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          # The runbook asks for Docker Engine 28 or newer with the containerd image store: it loads the multi-platform archives of the bundle and keeps their digests.
+          if [ -s /etc/docker/daemon.json ]; then sudo jq '. + {features: ((.features // {}) + {"containerd-snapshotter": true})}' /etc/docker/daemon.json > /tmp/daemon.json; else echo '{"features":{"containerd-snapshotter":true}}' > /tmp/daemon.json; fi
+          sudo mv /tmp/daemon.json /etc/docker/daemon.json
+          sudo systemctl restart docker
+          docker info --format 'docker {{.ServerVersion}}, storage {{.Driver}} {{.DriverStatus}}, {{.NCPU}} CPU, {{.MemTotal}} bytes of memory'
+          docker compose version
+          skopeo --version
+          df -h / | tail -n 1
+          sudo mkdir -p /opt/machvon && sudo chown "$(id -u):$(id -g)" /opt/machvon
+
+      - uses: docker/setup-qemu-action@v3
+        if: contains(matrix.platforms, 'arm64')
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: What the customer brings (directory, object store, certificates, secrets, environment file)
+        id: prepare
+        run: |
+          set -o pipefail
+          sudo sh scripts/onprem-smoke/prepare.sh "${WORK}" "${EDITION}" 2>&1 | tee "${WORK}/logs/10-prepare.log"
+
+      - name: Build the offline bundle of release A
+        id: bundle_a
+        run: |
+          set -o pipefail
+          {
+            node scripts/onprem-bundle.mjs build --version "${VERSION_A}" --public-host "${PUBLIC_HOST}" --edition "${EDITION}" --platform "${PLATFORMS}" --out "/opt/machvon/${VERSION_A}" --locale en \
+              && node scripts/onprem-bundle.mjs verify "/opt/machvon/${VERSION_A}" --locale en \
+              && ls -l "/opt/machvon/${VERSION_A}" "/opt/machvon/${VERSION_A}/images" && du -sh "/opt/machvon/${VERSION_A}" && df -h / | tail -n 1
+          } 2>&1 | tee "${WORK}/logs/20-bundle-a.log"
+
+      - name: Build the offline bundle of release B (the upgrade)
+        id: bundle_b
+        run: |
+          set -o pipefail
+          {
+            node scripts/onprem-bundle.mjs build --version "${VERSION_B}" --public-host "${PUBLIC_HOST}" --edition "${EDITION}" --platform "${PLATFORMS}" --out "/opt/machvon/${VERSION_B}" --locale en \
+              && node scripts/onprem-bundle.mjs verify "/opt/machvon/${VERSION_B}" --locale en \
+              && du -sh "/opt/machvon/${VERSION_B}" && df -h / | tail -n 1
+          } 2>&1 | tee "${WORK}/logs/21-bundle-b.log"
+
+      - name: Install release A (sh install.sh)
+        id: install
+        run: |
+          set -o pipefail
+          # An installation host has no registry: every image must come from the archives of the bundle. A pull during the install is recorded and fails the run below.
+          nohup docker events --filter type=image --filter event=pull --format "{{.Actor.ID}}" > "${WORK}/pulls.txt" 2>/dev/null < /dev/null &
+          cd "/opt/machvon/${VERSION_A}"
+          sha256sum --check --quiet SHA256SUMS
+          sudo sh install.sh --env-file "${ENV_FILE}" 2>&1 | tee "${WORK}/logs/30-install.log"
+
+      - name: Checks after the install (health, migrations, backup, realm, sign-in, first tenant, owner invitation)
+        id: verify_install
+        run: |
+          set -o pipefail
+          sudo env "PATH=${PATH}" NODE_EXTRA_CA_CERTS="${WORK}/pki/ca.pem" node scripts/onprem-smoke/verify.mjs --phase install --bundle "/opt/machvon/${VERSION_A}" --env-file "${ENV_FILE}" --state "${WORK}/state.json" --repo . 2>&1 | tee "${WORK}/logs/40-verify-install.log"
+
+      - name: Upgrade to release B (sh install.sh of the new bundle, with backup, backup check and migrations)
+        id: upgrade
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          {
+            sudo sh "/opt/machvon/${VERSION_B}/install.sh" --env-file "${ENV_FILE}" \
+              && echo "previous version recorded: $(cat /var/lib/machvon/previous-version)" \
+              && test "$(cat /var/lib/machvon/previous-version)" = "${VERSION_A}"
+          } 2>&1 | tee "${WORK}/logs/50-upgrade.log"
+
+      - name: Checks after the upgrade
+        id: verify_upgrade
+        if: ${{ !cancelled() && steps.upgrade.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          sudo env "PATH=${PATH}" NODE_EXTRA_CA_CERTS="${WORK}/pki/ca.pem" node scripts/onprem-smoke/verify.mjs --phase upgrade --bundle "/opt/machvon/${VERSION_B}" --env-file "${ENV_FILE}" --state "${WORK}/state.json" --repo . 2>&1 | tee "${WORK}/logs/51-verify-upgrade.log"
+
+      - name: Roll back to release A (sh rollback.sh)
+        id: rollback
+        if: ${{ !cancelled() && steps.upgrade.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          sudo sh "/opt/machvon/${VERSION_A}/rollback.sh" "/opt/machvon/${VERSION_A}" --env-file "${ENV_FILE}" 2>&1 | tee "${WORK}/logs/60-rollback.log"
+
+      - name: Checks after the rollback
+        id: verify_rollback
+        if: ${{ !cancelled() && steps.rollback.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          sudo env "PATH=${PATH}" NODE_EXTRA_CA_CERTS="${WORK}/pki/ca.pem" node scripts/onprem-smoke/verify.mjs --phase rollback --bundle "/opt/machvon/${VERSION_A}" --env-file "${ENV_FILE}" --state "${WORK}/state.json" --repo . 2>&1 | tee "${WORK}/logs/61-verify-rollback.log"
+
+      - name: No image was pulled from a registry
+        id: offline
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          {
+            if [ -s "${WORK}/pulls.txt" ]; then echo "FAIL images were pulled from a registry during the install, the upgrade or the rollback:"; sort -u "${WORK}/pulls.txt"; exit 1; fi
+            echo "PASS no image was pulled: every image came from the archives of the bundles"
+          } 2>&1 | tee "${WORK}/logs/70-offline.log"
+
+      - name: State of the installation (always)
+        if: ${{ always() }}
+        run: |
+          {
+            export MACHVON_VERSION="$(cat "/opt/machvon/${VERSION_A}/VERSION" 2>/dev/null || echo 0.0.0)"
+            COMPOSE="docker compose --env-file ${ENV_FILE} -f /opt/machvon/${VERSION_A}/infra/onprem/compose/compose.yaml"
+            echo "== docker compose ps"; sudo -E ${COMPOSE} ps --all || true
+            echo "== images"; docker images --digests || true
+            echo "== disk and memory"; df -h / | tail -n 1; free -m | sed -n 2p
+            for service in db keycloak clamav api workers web; do
+              echo "== logs of ${service} (last 60 lines)"; sudo -E ${COMPOSE} logs --no-color --no-log-prefix --tail 60 "${service}" 2>&1 || true
+            done
+            echo "== logs of the test directory"; docker logs --tail 30 smoke-ldap 2>&1 || true
+            echo "== logs of the test object store"; docker logs --tail 30 smoke-s3 2>&1 || true
+          } > "${WORK}/logs/90-state.log" 2>&1
+          sudo cp /etc/machvon/compose.env "${WORK}/logs/compose.env" || true
+          tail -n 400 "${WORK}/logs/90-state.log"
+
+      - name: Annotations of what failed (public, while the job log needs admin rights)
+        if: ${{ failure() }}
+        env:
+          OUTCOMES: prepare=${{ steps.prepare.outcome }} bundle_a=${{ steps.bundle_a.outcome }} bundle_b=${{ steps.bundle_b.outcome }} install=${{ steps.install.outcome }} verify_install=${{ steps.verify_install.outcome }} upgrade=${{ steps.upgrade.outcome }} verify_upgrade=${{ steps.verify_upgrade.outcome }} rollback=${{ steps.rollback.outcome }} verify_rollback=${{ steps.verify_rollback.outcome }} offline=${{ steps.offline.outcome }}
+        run: |
+          echo "${OUTCOMES}"
+          failed() { case " ${OUTCOMES} " in *" $1=failure "*) return 0 ;; *) return 1 ;; esac; }
+          annotate() { if failed "$1"; then node scripts/ci-annotate.mjs "${WORK}/logs/$2" "$3" --title "on-prem smoke (${EDITION}): $4"; fi; }
+          annotate prepare 10-prepare.log gates "test services and secrets"
+          annotate bundle_a 20-bundle-a.log build "bundle of release A"
+          annotate bundle_b 21-bundle-b.log build "bundle of release B"
+          annotate install 30-install.log gates "install.sh"
+          annotate verify_install 40-verify-install.log gates "checks after the install"
+          annotate upgrade 50-upgrade.log gates "upgrade (install.sh of release B)"
+          annotate verify_upgrade 51-verify-upgrade.log gates "checks after the upgrade"
+          annotate rollback 60-rollback.log gates "rollback.sh"
+          annotate verify_rollback 61-verify-rollback.log gates "checks after the rollback"
+          annotate offline 70-offline.log gates "images pulled from a registry"
+          # The services that are not healthy say why in their own logs.
+          export MACHVON_VERSION="$(cat "/opt/machvon/${VERSION_A}/VERSION" 2>/dev/null || echo 0.0.0)"
+          COMPOSE="docker compose --env-file ${ENV_FILE} -f /opt/machvon/${VERSION_A}/infra/onprem/compose/compose.yaml"
+          for service in db keycloak clamav api workers web; do
+            health=$(sudo -E ${COMPOSE} ps --all --format '{{.Health}}/{{.State}}' "${service}" 2>/dev/null | head -n 1)
+            if [ "${health}" != "healthy/running" ] && (failed install || failed upgrade || failed rollback); then
+              sudo -E ${COMPOSE} logs --no-color --no-log-prefix --tail 40 "${service}" > "${WORK}/logs/service-${service}.log" 2>&1 || true
+              node scripts/ci-annotate.mjs "${WORK}/logs/service-${service}.log" build --title "on-prem smoke (${EDITION}): docker compose logs --tail 40 ${service} (${health:-not created})"
+            fi
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: onprem-smoke-logs-${{ matrix.edition }}
+          path: ${{ runner.temp }}/smoke/logs
+          if-no-files-found: warn

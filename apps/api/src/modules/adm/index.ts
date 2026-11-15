@@ -17,7 +17,7 @@ import { DoaMatricesController, DoaMatrixReadsController } from './doa-matrix.co
 import { GovernanceRuleReadsController, GovernanceRulesController, AlertTypeReadsController } from './governance-rule.controller';
 import { GuestContractorController } from './guest-contractor.controller';
 import { PortalInvitationController, PortalInvitationReadsController } from './portal-invitation.controller';
-import { INVITATION_MAILER, MockInvitationMailer } from './invitation-mailer';
+import { INVITATION_MAILER, invitationMailerFromEnv } from './invitation-mailer';
 import { IntegrationConnectorsController } from './integration-connector.controller';
 import { IntegrationInboxController } from './integration-inbox.controller';
 import { IntegrationConnectorReadsController, IntegrationInboxReadsController } from './integration-reads.controller';
@@ -92,7 +92,7 @@ export const admModule = defineModule({
     BackupRequestCommandsController,
     BackupRequestReadsController,
   ],
-  // The email channel belongs to OMNI (R1); until then invitations are kept in memory by the MOCK adapter.
+  // The email channel belongs to OMNI (R1); until then invitations are kept in memory by the MOCK adapter, or handed to the operator through the outbox directory an installation names.
   providers: [
     // The approval engine (ST-ADM-012): the business modules call ApprovalService.start inside their submit, and register the final commands of their business types in the registry (test doubles exist in a test build only).
     { provide: APPROVAL_FINAL_COMMANDS, useFactory: () => new FinalCommandRegistry() },
@@ -104,7 +104,7 @@ export const admModule = defineModule({
     ApprovalBootGuard,
     // The module that owns projects is not bound to the reorganisation saga yet (XM-ADM-02): the saga stops at the first project it has to move.
     { provide: REORGANIZATION_PROJECT_PORT, useValue: new UnboundProjectTransferPort() },
-    { provide: INVITATION_MAILER, useValue: new MockInvitationMailer() },
+    { provide: INVITATION_MAILER, useFactory: () => invitationMailerFromEnv() },
     // The adapters of inbound provider events are registered here by the module that owns the provider (ST-ADM-018; NOT registers its channels, ST-NOT-002).
     // One registry per application, not per process: an application started twice in one process (the tests do) must not find the handlers of the first.
     { provide: ADM_INBOX_HANDLERS, useFactory: () => new InboxHandlerRegistry() },

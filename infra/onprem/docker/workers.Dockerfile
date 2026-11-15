@@ -33,6 +33,13 @@ COPY --from=build --chown=node:node /app/Design/MACHVON_Design/03_Engineering/sc
 COPY --chmod=0755 infra/onprem/docker/secret-env.sh /usr/local/bin/secret-env
 # The runtime only runs node: npm and corepack (with the npm dependencies Trivy reads as findings) are not needed here and are removed.
 RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
+# The outbox of invitations (MACHVON_INVITATION_OUTBOX_DIR): the named volume mounted here takes the owner and the mode of this directory the first time it is used.
+RUN mkdir -p /var/lib/machvon/invitations && chown node:node /var/lib/machvon/invitations && chmod 0700 /var/lib/machvon/invitations
+# The native addon of @swc/core (the loader of the TypeScript sources) is a compressed carrier: at every start it writes the real addon into a cache directory, takes a lock file there
+# and loads the addon from it, so the directory must be writable and executable. It is this one, owned by the service user; where the root file system is read-only (the compose
+# file) a memory file system is mounted on it. The default places do not work there: the home directory is read-only and /tmp is not executable.
+ENV SWC_NATIVE_BINDING_CACHE=/app/.swc-native
+RUN mkdir -p /app/.swc-native && chown node:node /app/.swc-native && chmod 0700 /app/.swc-native
 USER node
 WORKDIR /app/apps/api
 # Liveness only: it asks nothing of the database, so a database outage does not restart healthy processes (docs/runbooks/api-runtime.md).
