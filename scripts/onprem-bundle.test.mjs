@@ -346,3 +346,10 @@ test('the bundle carries the first-tenant script with the files it imports', () 
   const imports = [...readFileSync(join(REPO_ROOT, 'scripts', 'onprem-first-tenant.mjs'), 'utf8').matchAll(/from '(\.[^']+)'/g)].map((match) => match[1]);
   assert.deepEqual(imports, ['./onprem-messages.mjs']);
 });
+
+test('the compose file sets the process limit where Compose accepts it beside the other limits (found by the smoke run on a real daemon)', () => {
+  const compose = readFileSync(join(REPO_ROOT, 'infra', 'onprem', 'compose', 'compose.yaml'), 'utf8');
+  // `pids_limit` beside `deploy.resources.limits` is refused: "can't set distinct values on 'pids_limit' and 'deploy.resources.limits.pids'".
+  assert.doesNotMatch(compose, /^\s*pids_limit:/m);
+  assert.equal([...compose.matchAll(/^ {10}pids: \d+$/gm)].length, 6, 'db, keycloak, clamav, api, workers and web each have a process limit');
+});

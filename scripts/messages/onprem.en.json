@@ -16,7 +16,7 @@
   "bundle.plan.done": "plan of the offline bundle {version} (nothing was run, nothing was written to {out})",
   "bundle.build.done": "offline bundle {version} written to {out}",
   "bundle.build.fail": "the offline bundle was not built",
-  "bundle.verify.pass": "the bundle is complete: every checksum matches and every image holds linux/amd64 and linux/arm64",
+  "bundle.verify.pass": "the bundle is complete: every checksum matches and every image of the product holds {platforms}",
   "bundle.verify.fail": "{count} bundle problem(s): do not install this bundle",
   "bundle.code.BUNDLE_VERSION_INVALID": "the release version must be an exact version such as 1.2.3 (never latest): {detail}",
   "bundle.code.BUNDLE_HOST_INVALID": "the public host is not a valid DNS name: {detail}",

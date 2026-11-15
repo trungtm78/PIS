@@ -16,7 +16,7 @@
   "bundle.plan.done": "kế hoạch gói cài offline {version} (chưa chạy lệnh nào, chưa ghi gì vào {out})",
   "bundle.build.done": "đã ghi gói cài offline {version} vào {out}",
   "bundle.build.fail": "gói cài offline chưa được dựng",
-  "bundle.verify.pass": "gói đầy đủ: mọi tổng kiểm khớp và mọi image có cả linux/amd64 lẫn linux/arm64",
+  "bundle.verify.pass": "gói đầy đủ: mọi tổng kiểm khớp và mọi image của sản phẩm có {platforms}",
   "bundle.verify.fail": "{count} vấn đề của gói: không cài gói này",
   "bundle.code.BUNDLE_VERSION_INVALID": "phiên bản phát hành phải là phiên bản chính xác như 1.2.3 (không bao giờ latest): {detail}",
   "bundle.code.BUNDLE_HOST_INVALID": "tên máy chủ công khai không phải tên DNS hợp lệ: {detail}",

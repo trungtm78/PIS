@@ -294,7 +294,7 @@ export function main(argv, { log = console.log, run = defaultRun, sbom = generat
     }
     const findings = verifyBundle(resolve(target));
     report(findings);
-    log(findings.length === 0 ? messages['bundle.verify.pass'] : format(messages['bundle.verify.fail'], { count: findings.length }));
+    log(findings.length === 0 ? format(messages['bundle.verify.pass'], { platforms: (readJson(join(resolve(target), 'manifest.json'))?.platforms ?? REQUIRED_PLATFORMS).join(', ') }) : format(messages['bundle.verify.fail'], { count: findings.length }));
     return findings.length === 0 ? 0 : 1;
   }
   if (command === 'build' || command === 'plan') {
