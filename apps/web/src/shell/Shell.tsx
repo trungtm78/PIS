@@ -19,6 +19,7 @@ import type { LibraryScope } from './AppLibrary';
 import { FavouritesDialog } from './FavouritesDialog';
 import { useFavourites } from './favourites';
 import { ModuleDirectory } from './ModuleDirectory';
+import { useAccountRoleLabel } from './account-role';
 import { NewVersionBar } from './NewVersionBar';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
@@ -101,6 +102,7 @@ function StaffShell() {
   // The screens of the installed application (/m/...) are not rows of the route table: they are named by their own heading, never "not found".
   const crumb = route === undefined ? { module: undefined, title: pwaTitle(t, location.pathname) ?? t('shell.notFound.title') } : navigation.breadcrumb(route);
   const tenantName = session.tenant?.name ?? '';
+  const accountRole = useAccountRoleLabel();
   // The badge follows the inbox once it is loaded; until then the session's own figure stands.
   const unreadNotifications = useUnreadBadge(session.user?.unreadNotifications);
   // The work waiting for the person is the badge of the task list; it reads the same counts as the alert bell (one query).
@@ -124,6 +126,7 @@ function StaffShell() {
         routePath={pathOf}
         homePath={pathOf(HOME) ?? FALLBACK_PATH}
         accountPath={pathOf(ACCOUNT) ?? FALLBACK_PATH}
+        accountRole={accountRole}
         tenantChooserPath={pathOf(TENANT_CHOOSER) ?? FALLBACK_PATH}
         open={drawerOpen}
         modal={drawerOpen && narrow}

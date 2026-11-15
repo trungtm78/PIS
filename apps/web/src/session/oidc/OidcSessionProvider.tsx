@@ -9,6 +9,7 @@ import type { SessionAssurance, SessionIdentity, SessionMode, SessionStatus, Ses
 import { expiresAtMs, payloadOf, renewalDelayMs } from '../tenant-token';
 import { assuranceOfClaims } from './assurance';
 import { translator } from '../../i18n';
+import { SIGNED_OUT_PATH } from './signed-out-path';
 import { OidcError, buildAuthorizationRequest, buildEndSessionUrl, checkNonce, createLoginStore, discover, exchangeCode, parseCallback, refreshIdentity } from './client';
 import type { IdentityTokens, LoginStore, OidcConfig, OidcEndpoints } from './client';
 import type { RandomOctets } from './pkce';
@@ -195,7 +196,7 @@ export default function OidcSessionProvider({
     forgetEverything();
     void endpointsOf()
       .then((endpoints) => {
-        const url = buildEndSessionUrl({ ...config, uiLocales: translator.getLocale() }, endpoints, { idToken, returnTo: `${window.location.origin}/` });
+        const url = buildEndSessionUrl({ ...config, uiLocales: translator.getLocale() }, endpoints, { idToken, returnTo: `${window.location.origin}${SIGNED_OUT_PATH}` });
         if (url !== undefined) (redirect ?? ((target: string) => window.location.assign(target)))(url);
       })
       .catch(() => undefined);

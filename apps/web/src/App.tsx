@@ -20,6 +20,7 @@ import { Shell } from './shell/Shell';
 import { oidcConfigFromEnv, oidcRequestedInDevelopment, CALLBACK_PATH } from './session/oidc/config';
 import OidcSessionProvider from './session/oidc/OidcSessionProvider';
 import { OidcCallback } from './session/oidc/OidcCallback';
+import { SIGNED_OUT_PATH, SignedOutPage } from './session/oidc/SignedOutPage';
 import { SignInGate } from './session/oidc/SignInGate';
 import { useSession } from './session/SessionContext';
 import { StateBoundary } from './states/StateBoundary';
@@ -126,6 +127,7 @@ export function AppRoutes({ screenModules }: AppRoutesProps) {
           }
         />
         <Route path={CALLBACK_PATH} element={<OidcCallback />} />
+        <Route path={SIGNED_OUT_PATH} element={<SignedOutPage />} />
       </Routes>
     </PublishedThemeProvider>
   );

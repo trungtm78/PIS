@@ -32,7 +32,7 @@ export function sheetOf(credentials, { date, singleFactor = true }) {
     head,
     ...sample.map(row),
     '',
-    '`demo` là chủ sở hữu tenant "UBND tỉnh Cà Mau": đủ mọi quyền của tenant.',
+    '`demo` là tài khoản quản trị cao nhất của tổ chức "UBND tỉnh Cà Mau": đủ mọi quyền.',
     '',
     '## Tài khoản khác của bộ dữ liệu (để xem theo vai)',
     '',

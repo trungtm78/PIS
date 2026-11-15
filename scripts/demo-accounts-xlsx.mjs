@@ -35,8 +35,8 @@ export const FUNCTION_GROUPS = [
 
 /** The system roles of the product carry a key instead of a name (`iam.role.<CODE>.name`): the words a reader of the workbook is given for them. */
 export const SYSTEM_ROLE_NAMES = {
-  TENANT_OWNER: 'Chủ sở hữu tenant (toàn quyền)',
-  TENANT_ADMIN: 'Quản trị tenant',
+  TENANT_OWNER: 'Quản trị cao nhất (toàn quyền)',
+  TENANT_ADMIN: 'Quản trị tổ chức',
   SECURITY_ADMIN: 'Quản trị bảo mật',
   UNIT_ADMIN: 'Quản trị đơn vị',
   LEADER: 'Lãnh đạo (quyết định phê duyệt)',

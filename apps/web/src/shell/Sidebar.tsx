@@ -29,6 +29,8 @@ export interface SidebarProps {
   routePath(id: string): string | undefined;
   homePath: string;
   accountPath: string;
+  /** The highest role of the person, in words (shell/account-role.ts); the neutral words of the catalogue stand when it is not known. */
+  accountRole?: string | undefined;
   tenantChooserPath: string;
   open: boolean;
   /** The drawer is a modal dialog: only true below the drawer breakpoint while it is open. */
@@ -233,10 +235,10 @@ export function Sidebar(props: SidebarProps) {
           <Icon name="chevron" />
         </button>
         {user === undefined ? null : (
-          <Link to={props.accountPath} className="account-link" aria-label={t('shell.account.open.label', { initials: user.initials, name: user.displayName, role: t('shell.account.role.text') })}>
+          <Link to={props.accountPath} className="account-link" aria-label={t('shell.account.open.label', { initials: user.initials, name: user.displayName, role: props.accountRole ?? t('shell.account.role.text') })}>
             <span className="account-avatar">{user.initials}</span>{' '}
             <span>
-              <strong>{user.displayName}</strong> <small>{t('shell.account.role.text')}</small>
+              <strong>{user.displayName}</strong> <small>{props.accountRole ?? t('shell.account.role.text')}</small>
             </span>
             <span aria-hidden="true">···</span>
           </Link>

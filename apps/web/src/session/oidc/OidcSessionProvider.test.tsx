@@ -443,7 +443,7 @@ describe('OidcSessionProvider', () => {
     const url = new URL(redirected.at(-1) ?? 'https://x.test/');
     expect(`${url.origin}${url.pathname}`).toBe('https://idp.test/logout');
     expect(url.searchParams.get('client_id')).toBe('machvon-web');
-    expect(url.searchParams.get('post_logout_redirect_uri')).toBe(`${window.location.origin}/`);
+    expect(url.searchParams.get('post_logout_redirect_uri')).toBe(`${window.location.origin}/auth/signed-out`);
     expect((url.searchParams.get('id_token_hint') ?? '').split('.')).toHaveLength(3);
   });
 

@@ -213,3 +213,11 @@ body {
   font: inherit;
   cursor: pointer;
 }
+
+/* The page of a person who signed out: one card in the middle, nothing of the application around it. */
+.signed-out-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+}
