@@ -48,7 +48,8 @@ const goTo = (step: 1 | 2 | 3): void => {
   fireEvent.click(document.querySelector(`.pwfc-steps__button[data-step="${step}"]`) as HTMLElement);
 };
 /** The rule has answered for the owner unit: the suggestion is on screen (the first step). */
-const suggested = () => waitFor(() => expect(screen.getByTestId('kind-suggestion').textContent).toContain('PUBLIC_INVESTMENT'));
+// The screen shows the name of the kind; its code is kept in data-suggested and never read by the person.
+const suggested = () => waitFor(() => expect(screen.getByTestId('kind-suggestion').getAttribute('data-suggested')).toBe('PUBLIC_INVESTMENT'));
 const submit = (): void => {
   fireEvent.click(screen.getByRole('button', { name: vi_['prj.create.submit.action'] }));
 };
@@ -61,7 +62,7 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
     expect(screen.getByTestId('kind-suggestion').textContent).toBe(text('pwf.process.kind.waiting.text'));
     expect(asked).toEqual([]);
     set(vi_['prj.form.owner.label'], UNIT_DEPARTMENT);
-    await waitFor(() => expect(screen.getByTestId('kind-suggestion').textContent).toContain('PUBLIC_INVESTMENT'));
+    await suggested();
     expect(asked[0]).toEqual({ owner_unit_id: UNIT_DEPARTMENT });
   });
 
