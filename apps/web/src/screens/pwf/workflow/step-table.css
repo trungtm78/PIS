@@ -164,13 +164,19 @@
   }
   .pwfp-table thead th:nth-child(6),
   .pwfp-table tbody td:nth-child(6) {
-    min-width: 130px;
-    white-space: nowrap;
+    min-width: 150px;
   }
   .pwfp-table thead th:nth-child(7),
   .pwfp-table tbody td:nth-child(7) {
     min-width: 180px;
   }
+}
+/* A badge keeps its words whole: it is as wide as they need and, when the column is narrower, wraps inside the column and never runs out of its cell. */
+.pwfp-table .ui-pill {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  border-radius: var(--mv-radius-card, 12px);
 }
 .pwfp-action {
   min-width: 150px;
