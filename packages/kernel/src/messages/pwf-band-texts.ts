@@ -23,4 +23,7 @@ export const PWF_BAND_TEXT = {
   unclaimed_action: 'Người của đơn vị nhận việc bấm "Nhận việc", hoặc người quản lý phân công một người trong sổ phân công.',
   unclaimed_consequence: 'Công việc không có người chịu trách nhiệm thì không ai bắt đầu được, tới hạn sẽ trễ và kéo theo các công việc phía sau.',
   unclaimed_why: 'Công việc giao cho đơn vị phải có một người nhận trước ngày bắt đầu theo kế hoạch.',
+  overall_action: 'Xem công việc mang hạn chung của hồ sơ và các công việc phía trước nó, xử lý điểm nghẽn hoặc đề nghị dời lịch có lý do.',
+  overall_consequence: 'Hạn chung của hồ sơ trễ thì cả hồ sơ dự án trễ so với thời hạn đã cam kết.',
+  overall_why: 'Hạn chung là cam kết của cả hồ sơ, người chịu trách nhiệm dự án cần biết trước khi nó quá hạn.',
 } as const;

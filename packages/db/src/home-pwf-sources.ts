@@ -41,7 +41,79 @@ export class HomePwfSources {
     const milestones = await this.milestonesAtRisk(context);
     const lapsed = await this.lapsedLegalGrounds(context);
     const unclaimed = await this.unclaimedTasks(context);
-    return [...due, ...milestones, ...lapsed, ...unclaimed];
+    const overall = await this.overallDeadlines(context);
+    return [...due, ...milestones, ...lapsed, ...unclaimed, ...overall];
+  }
+
+  /**
+   * `PWF_OVERALL_DEADLINE_AT_RISK` (PWF-5, docs PWF 22.2, 22.6; owner: the one who answers for the project, as for a milestone at risk): the deadline of the whole file of a running workflow, which is the committed finish of the
+   * task its frozen template marks, has turned yellow or red. The colour is the OFFICIAL colour of that very task, by the one resolution every read uses (`officialTaskBand`: the ladder of the task, then the policy in force), so
+   * the alert and the task can never disagree. One item per workflow (`<workflow>:overall`); it is read from the rows as they are, so it leaves the list in the transaction that completes or cancels the task, moves its day
+   * back into green, or pauses or ends the workflow. A workflow whose project does not have the marked task (a branch that was cut) has no deadline of the whole file and no item. The workflows are found through the column
+   * `project_workflow.overall_deadline_task` and its index (V3063), never by reading the frozen template of every workflow, and only the ones whose task can have a colour today are read, in chunks (R35).
+   */
+  private async overallDeadlines(context: SourceContext): Promise<SourceRow[]> {
+    const any = await context.tx.query(`select 1 from machvon.project_workflow where status = 'ACTIVE' and overall_deadline_task is not null limit 1`);
+    if (any.length === 0) return [];
+    const set = await this.policies.load(context.tx, context.today);
+    const calendars = await this.calendars.load(context.tx, WORK_CALENDAR_CODE, context.now);
+    const horizon = this.horizonOf(set, context.today, calendars);
+    const items: SourceRow[] = [];
+    let after: { day: string; id: string } | null = null;
+    for (let chunk = 0; chunk < MAX_SCAN_CHUNKS; chunk += 1) {
+      const params = new Params();
+      const visible = reach(params, context, { source: 'PROJECT_TASK', id: `(w.id::text || ':overall')`, tenant: 't', responsible: [], unit: false });
+      const until = horizon === null ? '' : `and ${withinGreenLine('t', 't.committed_finish', params.add(horizon), params.add(context.today))}`;
+      const past: string = after === null ? '' : `and (t.committed_finish, t.id) > (${params.add(after.day)}::date, ${params.add(after.id)}::uuid)`;
+      const rows: Array<DueTaskSql & { workflow_id: string }> = await context.tx.query<DueTaskSql & { workflow_id: string }>(
+        `select w.id as workflow_id, t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.committed_finish::text as due_on, t.baseline_finish::text as baseline_on, p.id as project_id, p.code as project_code, p.name as project_name, ou.path as unit_path, ${bandColumnsOf('t')}
+           from machvon.project_workflow w
+           join machvon.project_task t on t.tenant_id = w.tenant_id and t.workflow_id = w.id and t.task_code = w.overall_deadline_task
+           ${PROJECT_JOINS('t', 't.project_id')}
+          where w.status = 'ACTIVE' and w.overall_deadline_task is not null and t.tracked and not t.excluded and t.status not in ('DONE', 'CANCELLED') and t.committed_finish is not null ${until} ${past} and ${visible}
+          order by t.committed_finish, t.id limit ${SOURCE_LIMIT}`,
+        params.values,
+      );
+      for (const row of rows) {
+        const { result, policy } = officialTaskBand(set, { kind: row.kind, priority: row.priority, phaseCode: row.phase_code, unitPath: row.unit_path, step: stepLadderOf(row) }, row.due_on, { today: context.today, calendars });
+        if ((result.band !== 'YELLOW' && result.band !== 'RED') || result.remainingDays === null) continue;
+        const wording = pwfDeadlineBand.deadlineWording(result);
+        const escalated = pwfDeadlineBand.shouldEscalate({ remaining: result.remainingDays, escalateAfterOverdueDays: policy.escalate_after_overdue_days });
+        const days = wording.days ?? 0;
+        const title =
+          wording.kind === 'OVERDUE_DAYS'
+            ? message('home.source.pwf.overall.overdue.title', { days })
+            : wording.kind === 'OVERDUE'
+              ? message('home.source.pwf.overall.overdue_now.title')
+              : wording.kind === 'DUE_TODAY'
+                ? message('home.source.pwf.overall.due_today.title')
+                : wording.kind === 'NO_DAY_LEFT'
+                  ? message('home.source.pwf.overall.no_day_left.title')
+                  : message('home.source.pwf.overall.due_soon.title', { days });
+        items.push({
+          ...base('PWF_OVERALL_DEADLINE_AT_RISK'),
+          id: `${row.workflow_id}:overall`,
+          dueOn: row.due_on,
+          originalDueOn: row.baseline_on ?? row.due_on,
+          title,
+          // Names only: the project, the task that carries the deadline and the day.
+          subtitle: message('home.source.pwf.overall.detail', { project: projectNamed(row), task: row.name, date: row.due_on }),
+          status: result.overdue ? 'OVERDUE' : result.band === 'RED' ? 'DUE_TODAY' : 'AT_RISK',
+          // The house mapping of the colours of a task (YELLOW to watch, RED to act on), and the one of a task past its day.
+          severity: severityOf('PROJECT_TASK', result.overdue ? (escalated ? 'OVERDUE_ESCALATED' : 'OVERDUE') : result.band, context.rules),
+          lifecycle: 'NEW',
+          consequence: CONSEQUENCES.PWF_OVERALL_DEADLINE_AT_RISK ?? null,
+          causeKey: `pwf-overall:${row.workflow_id}`,
+          startedAt: result.overdue ? startOfDay(addDays(row.due_on, 1)) : null,
+          target: { screen: 'PWF-03', id: row.project_id },
+        });
+        if (items.length >= SOURCE_LIMIT) return items;
+      }
+      const last = rows[rows.length - 1];
+      if (rows.length < SOURCE_LIMIT || last === undefined) return items;
+      after = { day: last.due_on, id: last.id };
+    }
+    throw new Error('PROJECT_TASK_SCAN_INCOMPLETE');
   }
 
   /**

@@ -49489,6 +49489,8 @@ export interface components {
                     times_used: number;
                     value_used: number;
                 };
+                /** @description The task whose official finish is the deadline of the whole file: the frozen template of the workflow marks it (PWF 22.2). */
+                is_overall_deadline?: boolean;
             }[];
             gates: {
                 /** @enum {string} */
@@ -49559,6 +49561,20 @@ export interface components {
                 code: string;
                 name: string;
             }[];
+            /** @description The deadline of the whole file (PWF 22.2): the official finish of the task the frozen template marks, with the official colour of that very task (the same resolution as tasks[].band). Null when the template marks no task or the project does not have it (a branch that was cut). */
+            overall_deadline?: {
+                /** Format: uuid */
+                task_id: string;
+                task_code: string;
+                task_name: string;
+                /** Format: date */
+                due_on: string | null;
+                /** @enum {string} */
+                band: "NONE" | "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+                /** @enum {string|null} */
+                band_tier: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM" | null;
+                remaining_days: number | null;
+            } | null;
         };
         PwfTaskPage: {
             items: {
@@ -49669,6 +49685,8 @@ export interface components {
                     times_used: number;
                     value_used: number;
                 };
+                /** @description The task whose official finish is the deadline of the whole file: the frozen template of the workflow marks it (PWF 22.2). */
+                is_overall_deadline?: boolean;
             }[];
             next_cursor: string | null;
             total: number;

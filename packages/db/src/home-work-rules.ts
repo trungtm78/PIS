@@ -117,6 +117,7 @@ export const SOURCE_OF_KIND: Readonly<Record<WorkKind, WorkSource>> = {
   PWF_MILESTONE_AT_RISK: 'PROJECT_TASK',
   PWF_LEGAL_BASIS_LAPSED: 'PROJECT_TASK',
   PWF_TASK_UNCLAIMED: 'PROJECT_TASK',
+  PWF_OVERALL_DEADLINE_AT_RISK: 'PROJECT_TASK',
 };
 
 /**
@@ -324,5 +325,6 @@ const CONSEQUENCE_KEYS = [
   'PWF_MILESTONE_AT_RISK',
   'PWF_LEGAL_BASIS_LAPSED',
   'PWF_TASK_UNCLAIMED',
+  'PWF_OVERALL_DEADLINE_AT_RISK',
 ] as const;
 export const CONSEQUENCES: Readonly<Record<string, string>> = Object.fromEntries(CONSEQUENCE_KEYS.map((key) => [key, message(`home.consequence.${key.toLowerCase()}`)]));

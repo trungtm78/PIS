@@ -76,6 +76,8 @@ export interface TaskListItem extends ReceivingView {
   /** Where the official colour came from and the ladder that was used (R59, R73). */
   band_tier?: pwfDeadlineBand.BandTier;
   band_thresholds?: pwfDeadlineBand.BandThresholds;
+  /** The task whose official day is the deadline of the whole file (the frozen template marks it; PWF 22.2). */
+  is_overall_deadline?: boolean;
   /** The limit of the task in its own unit (R58); null: `duration_working_days` is the limit. */
   duration: DurationView | null;
   /** The working days the task covers on the line of the schedule as last published; null while unknown. */
@@ -233,6 +235,10 @@ export class PwfWorkflowReads {
     const unitNames = await receivingNamesOf(tx, tasks);
     const extensions = extensionRulesOf(template);
     const items = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id), unitNames, extensionViewOf(one, extensions.get(one.code))));
+    // PWF 22.2: the deadline of the whole file is the official day of the task the frozen template marks, with the official colour of that very task (the item above: one resolution, one colour). A project that does not have
+    // the task (a branch that was cut) has no deadline of the whole file; no other task stands in.
+    const overallCode = template.overallDeadlineTask ?? null;
+    const overallItem = overallCode === null ? undefined : items.find((item) => item.task_code === overallCode && !item.excluded);
     const gated = new Set(template.phases.flatMap((phase) => phase.gates));
     const gates = [];
     for (const target of pwfWorkflow.WORKFLOW_GATE_TARGETS) {
@@ -320,7 +326,11 @@ export class PwfWorkflowReads {
       // The names the frozen template gives its own roles (empty when it names none): a screen shows the name, the code is a small note.
       roles: (template.roles ?? []).map((role) => ({ code: role.code, name: role.name })),
       steps,
-      tasks: items.map((item) => ({ ...item, step_code: stepOf(item.task_code), checklist_total: checklistOf.get(item.id)?.total ?? 0, checklist_done: checklistOf.get(item.id)?.done ?? 0 })),
+      tasks: items.map((item) => ({ ...item, step_code: stepOf(item.task_code), checklist_total: checklistOf.get(item.id)?.total ?? 0, checklist_done: checklistOf.get(item.id)?.done ?? 0, is_overall_deadline: item.task_code === overallCode })),
+      overall_deadline:
+        overallItem === undefined
+          ? null
+          : { task_id: overallItem.id, task_code: overallItem.task_code, task_name: overallItem.name, due_on: overallItem.planned_finish, band: overallItem.band.band, band_tier: overallItem.band_tier ?? null, remaining_days: overallItem.band.remaining_days },
       standard_working_days: standard.totalWorkingDays,
       lapsed_legal_documents: lapsed,
       selection: row.selection ?? null,
@@ -344,7 +354,8 @@ export class PwfWorkflowReads {
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
     const unitNames = await receivingNamesOf(tx, tasks);
     const extensions = readExtensionRules(row.template);
-    const all = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id), unitNames, extensionViewOf(one, extensions.get(one.code))));
+    const overallCode = typeof (row.template as { overall_deadline_task?: unknown } | null)?.overall_deadline_task === 'string' ? (row.template as { overall_deadline_task: string }).overall_deadline_task : null;
+    const all = tasks.map((one) => ({ ...taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id), unitNames, extensionViewOf(one, extensions.get(one.code))), is_overall_deadline: one.code === overallCode }));
     const matching = all.filter(
       (item) =>
         (filter.phase === undefined || item.phase_code === filter.phase) &&

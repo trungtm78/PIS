@@ -578,5 +578,7 @@ export function registerDeadlineBandRules(registry: RuleRegistry): void {
     PWF_MILESTONE_AT_RISK: { params: alertParams('PROJECT_MANAGER', T.milestone_action, T.milestone_consequence, T.milestone_why, 48, 'ACTION'), source: T.alert_source, asOf: AS_OF, legalStatus: 'VERIFIED' },
     // R71: a task a unit receives that nobody is responsible for; the people of the unit take it ("Nhận việc") or its manager names someone in the ledger.
     PWF_TASK_UNCLAIMED: { params: alertParams('RECEIVING_UNIT', T.unclaimed_action, T.unclaimed_consequence, T.unclaimed_why, 48, 'WATCH'), source: T.alert_source, asOf: AS_OF, legalStatus: 'VERIFIED' },
+    // PWF 22.6: the deadline of the whole file (the task the template marks) is yellow or red; one item per running workflow, for the one who answers for the project.
+    PWF_OVERALL_DEADLINE_AT_RISK: { params: alertParams('PROJECT_MANAGER', T.overall_action, T.overall_consequence, T.overall_why, 24, 'ACTION'), source: T.alert_source, asOf: AS_OF, legalStatus: 'VERIFIED' },
   });
 }

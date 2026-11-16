@@ -327909,6 +327909,10 @@
                       "minimum": 0
                     }
                   }
+                },
+                "is_overall_deadline": {
+                  "type": "boolean",
+                  "description": "The task whose official finish is the deadline of the whole file: the frozen template of the workflow marks it (PWF 22.2)."
                 }
               }
             }
@@ -328196,6 +328200,71 @@
                 "name": {
                   "type": "string"
                 }
+              }
+            }
+          },
+          "overall_deadline": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "task_id",
+              "task_code",
+              "task_name",
+              "due_on",
+              "band",
+              "band_tier",
+              "remaining_days"
+            ],
+            "description": "The deadline of the whole file (PWF 22.2): the official finish of the task the frozen template marks, with the official colour of that very task (the same resolution as tasks[].band). Null when the template marks no task or the project does not have it (a branch that was cut).",
+            "properties": {
+              "task_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "task_code": {
+                "type": "string"
+              },
+              "task_name": {
+                "type": "string"
+              },
+              "due_on": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date"
+              },
+              "band": {
+                "type": "string",
+                "enum": [
+                  "NONE",
+                  "GREEN",
+                  "YELLOW",
+                  "RED",
+                  "UNKNOWN"
+                ]
+              },
+              "band_tier": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "STEP",
+                  "POLICY_OVERRIDE",
+                  "POLICY",
+                  "SYSTEM",
+                  null
+                ]
+              },
+              "remaining_days": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
               }
             }
           }
@@ -328606,6 +328675,10 @@
                       "minimum": 0
                     }
                   }
+                },
+                "is_overall_deadline": {
+                  "type": "boolean",
+                  "description": "The task whose official finish is the deadline of the whole file: the frozen template of the workflow marks it (PWF 22.2)."
                 }
               }
             }

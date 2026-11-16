@@ -63322,6 +63322,7 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
     this.receivingUnits,
     this.unclaimed,
     this.extension_,
+    this.isOverallDeadline,
     this.extra = const <String, Object?>{},
   });
 
@@ -63360,7 +63361,8 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
       receivingUnits: optionalField(map, path, 'receiving_units', asList(PwfTaskPageResponseItemsItemReceivingUnitsItem.fromJson)),
       unclaimed: optionalField(map, path, 'unclaimed', asBool),
       extension_: optionalField(map, path, 'extension', PwfTaskPageResponseItemsItemExtension.fromJson),
-      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'forecast_start', 'forecast_finish', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days', 'receiving_unit_id', 'receiving_unit_name', 'receiving_units', 'unclaimed', 'extension'}, strict: true),
+      isOverallDeadline: optionalField(map, path, 'is_overall_deadline', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'forecast_start', 'forecast_finish', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days', 'receiving_unit_id', 'receiving_unit_name', 'receiving_units', 'unclaimed', 'extension', 'is_overall_deadline'}, strict: true),
     );
   }
 
@@ -63396,6 +63398,7 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
   final List<PwfTaskPageResponseItemsItemReceivingUnitsItem>? receivingUnits;
   final bool? unclaimed;
   final PwfTaskPageResponseItemsItemExtension? extension_;
+  final bool? isOverallDeadline;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -63434,6 +63437,7 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
         if (receivingUnits != null) 'receiving_units': receivingUnits!.map((e0) => e0.toJson()).toList(),
         if (unclaimed != null) 'unclaimed': unclaimed,
         if (extension_ != null) 'extension': extension_!.toJson(),
+        if (isOverallDeadline != null) 'is_overall_deadline': isOverallDeadline,
         ...extra,
       };
 }
@@ -63823,6 +63827,7 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
     this.selection,
     this.pendingReschedule,
     this.roles,
+    this.overallDeadline,
     this.extra = const <String, Object?>{},
   });
 
@@ -63854,7 +63859,8 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
       selection: optionalField(map, path, 'selection', asAny),
       pendingReschedule: optionalField(map, path, 'pending_reschedule', nullable(PwfWorkflowDetailResponsePendingReschedule.fromJson)),
       roles: optionalField(map, path, 'roles', asList(PwfWorkflowDetailResponseRolesItem.fromJson)),
-      extra: unknownFields(map, path, const <String>{'id', 'project_id', 'template_code', 'template_rule_version', 'template_hash', 'unverified', 'status', 'planned_start_date', 'schedule_version', 'adopted_on', 'open_phase', 'phases', 'tasks', 'gates', 'counts_by_band', 'can_manage', 'can_propose_reschedule', 'version', 'as_of', 'steps', 'standard_working_days', 'lapsed_legal_documents', 'selection', 'pending_reschedule', 'roles'}, strict: true),
+      overallDeadline: optionalField(map, path, 'overall_deadline', nullable(PwfWorkflowDetailResponseOverallDeadline.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'project_id', 'template_code', 'template_rule_version', 'template_hash', 'unverified', 'status', 'planned_start_date', 'schedule_version', 'adopted_on', 'open_phase', 'phases', 'tasks', 'gates', 'counts_by_band', 'can_manage', 'can_propose_reschedule', 'version', 'as_of', 'steps', 'standard_working_days', 'lapsed_legal_documents', 'selection', 'pending_reschedule', 'roles', 'overall_deadline'}, strict: true),
     );
   }
 
@@ -63883,6 +63889,7 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
   final Object? selection;
   final PwfWorkflowDetailResponsePendingReschedule? pendingReschedule;
   final List<PwfWorkflowDetailResponseRolesItem>? roles;
+  final PwfWorkflowDetailResponseOverallDeadline? overallDeadline;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -63914,6 +63921,7 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
         if (selection != null) 'selection': selection,
         if (pendingReschedule != null) 'pending_reschedule': pendingReschedule!.toJson(),
         if (roles != null) 'roles': roles!.map((e0) => e0.toJson()).toList(),
+        if (overallDeadline != null) 'overall_deadline': overallDeadline!.toJson(),
         ...extra,
       };
 }
@@ -63998,6 +64006,56 @@ final class PwfWorkflowDetailResponseGatesItem implements ResponseModel {
         'missing_count': missingCount,
         if (standing != null) 'standing': standing,
         if (phases != null) 'phases': phases,
+        ...extra,
+      };
+}
+
+final class PwfWorkflowDetailResponseOverallDeadline implements ResponseModel {
+  const PwfWorkflowDetailResponseOverallDeadline({
+    required this.taskId,
+    required this.taskCode,
+    required this.taskName,
+    required this.dueOn,
+    required this.band,
+    required this.bandTier,
+    required this.remainingDays,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfWorkflowDetailResponseOverallDeadline.fromJson(Object? json, [String path = 'PwfWorkflowDetailResponseOverallDeadline']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfWorkflowDetailResponseOverallDeadline(
+      taskId: requiredField(map, path, 'task_id', asString),
+      taskCode: requiredField(map, path, 'task_code', asString),
+      taskName: requiredField(map, path, 'task_name', asString),
+      dueOn: requiredField(map, path, 'due_on', nullable(asString)),
+      band: requiredField(map, path, 'band', asString),
+      bandTier: requiredField(map, path, 'band_tier', nullable(asString)),
+      remainingDays: requiredField(map, path, 'remaining_days', nullable(asInt)),
+      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'task_name', 'due_on', 'band', 'band_tier', 'remaining_days'}, strict: true),
+    );
+  }
+
+  final String taskId;
+  final String taskCode;
+  final String taskName;
+  final String? dueOn;
+  final String band;
+  final String? bandTier;
+  final int? remainingDays;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'task_id': taskId,
+        'task_code': taskCode,
+        'task_name': taskName,
+        'due_on': dueOn,
+        'band': band,
+        'band_tier': bandTier,
+        'remaining_days': remainingDays,
         ...extra,
       };
 }
@@ -64259,6 +64317,7 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
     this.receivingUnits,
     this.unclaimed,
     this.extension_,
+    this.isOverallDeadline,
     this.extra = const <String, Object?>{},
   });
 
@@ -64300,7 +64359,8 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
       receivingUnits: optionalField(map, path, 'receiving_units', asList(PwfWorkflowDetailResponseTasksItemReceivingUnitsItem.fromJson)),
       unclaimed: optionalField(map, path, 'unclaimed', asBool),
       extension_: optionalField(map, path, 'extension', PwfWorkflowDetailResponseTasksItemExtension.fromJson),
-      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'step_code', 'checklist_total', 'checklist_done', 'forecast_start', 'forecast_finish', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days', 'receiving_unit_id', 'receiving_unit_name', 'receiving_units', 'unclaimed', 'extension'}, strict: true),
+      isOverallDeadline: optionalField(map, path, 'is_overall_deadline', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'step_code', 'checklist_total', 'checklist_done', 'forecast_start', 'forecast_finish', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days', 'receiving_unit_id', 'receiving_unit_name', 'receiving_units', 'unclaimed', 'extension', 'is_overall_deadline'}, strict: true),
     );
   }
 
@@ -64339,6 +64399,7 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
   final List<PwfWorkflowDetailResponseTasksItemReceivingUnitsItem>? receivingUnits;
   final bool? unclaimed;
   final PwfWorkflowDetailResponseTasksItemExtension? extension_;
+  final bool? isOverallDeadline;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -64380,6 +64441,7 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
         if (receivingUnits != null) 'receiving_units': receivingUnits!.map((e0) => e0.toJson()).toList(),
         if (unclaimed != null) 'unclaimed': unclaimed,
         if (extension_ != null) 'extension': extension_!.toJson(),
+        if (isOverallDeadline != null) 'is_overall_deadline': isOverallDeadline,
         ...extra,
       };
 }
