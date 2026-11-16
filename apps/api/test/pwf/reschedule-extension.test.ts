@@ -272,4 +272,44 @@ describe('extending the limit of a task over HTTP (PWF-5, R72)', () => {
     const last = { ...flow, version: await versionOf(flow) };
     expect(await propose(last, { extensions: [{ task_code: 'CAL', add_value: 1 }] })).toMatchObject({ status: 422, json: { code: 'PWF_EXTENSION_TASK_CLOSED', task_code: 'CAL' } });
   });
+
+  it('tells the approver a deadline that moves by the calendar only: Saturday to Sunday, no working day of shift', async () => {
+    // One task of two calendar days that does not roll, started on a Friday: it ends on the Saturday. One more day ends on the Sunday: the same working slot, another date.
+    const weekend = { ...TEMPLATE, name: 'Weekend deadline', tasks: [plain('SAT', { duration_working_days: 2, duration: { value: 2, unit: 'CALENDAR_DAY', roll_to_working_day: false }, extension: { allowed: true, unit: 'CALENDAR_DAY' } })] };
+    await harness.owner(TENANT_A, [
+      [
+        `insert into machvon.governance_rule (tenant_id, rule_type, code, version, status, params, effective_from, reason, created_by, submitted_by, submitted_at, approved_by, approved_at)
+         values ($1, 'PROJECT_WORKFLOW_TEMPLATE', 'SATSUN', 1, 'APPROVED', $2::jsonb, date '2020-01-01', 'A template for the tests', $3, $4, now(), $5, now())`,
+        [TENANT_A, JSON.stringify(weekend), memberId(MANAGER), memberId(WORKER), memberId(CHECKER)],
+      ],
+    ]);
+    let friday = START;
+    while (new Date(`${friday}T00:00:00Z`).getUTCDay() !== 5) friday = addDays(friday, 1);
+    const made = await call('POST', '/projects', MANAGER, { code: `PWX-${randomUUID().slice(0, 6)}`, name: 'Dự án hạn rơi vào cuối tuần', owner_unit_id: unitId(DEPARTMENT), area_master_version_id: areaVersion, total_investment_vnd: '500000000000' });
+    expect(made.status).toBe(200);
+    const projectId = made.json.resource_id as string;
+    await harness.owner(TENANT_A, [[`update machvon.project set status = 'CONCEPT', project_group = 'B' where id = $1::uuid`, [projectId]]]);
+    const flow = await call('POST', `/projects/${projectId}/workflow`, MANAGER, { template_code: 'SATSUN', planned_start_date: friday, facts: { project_group: 'B' } });
+    expect(flow.status).toBe(200);
+    const version = Number(flow.json.resource_version);
+    const finishOf = async (): Promise<string | undefined> => (await harness.owner<{ finish: string }>(TENANT_A, [['select planned_finish::text as finish from machvon.project_task where project_id = $1::uuid', [projectId]]]))[0]?.finish;
+    expect(await finishOf()).toBe(addDays(friday, 1));
+
+    const proposed = await call('POST', `/projects/${projectId}/workflow/reschedules`, MANAGER, { reason: REASON, extensions: [{ task_code: 'SAT', add_value: 1 }] }, version);
+    expect(proposed.status).toBe(200);
+    const row = { task_code: 'SAT', start_shift_days: 0, finish_shift_days: 0, finish_calendar_shift_days: 1, cause: 'EXTENDED' };
+    expect(proposed.json.changes).toEqual([expect.objectContaining(row)]);
+    expect((proposed.json.changes as Array<Record<string, unknown>>)[0]).not.toHaveProperty('start_calendar_shift_days');
+    const proposalId = proposed.json.proposal_id as string;
+    const read = await call('GET', `/project-reschedules/${proposalId}`, CHECKER);
+    expect(read.status).toBe(200);
+    expect(read.json.changes).toEqual([expect.objectContaining(row)]);
+
+    const decided = await call('POST', `/project-reschedules/${proposalId}/decide`, CHECKER, { decision: 'APPROVE' }, version);
+    expect(decided.status).toBe(200);
+    expect(await finishOf()).toBe(addDays(friday, 2));
+    // The deadline is a later day, so the approval counts one reschedule of the task.
+    const counted = await harness.owner<{ reschedule_count: number; extension_times_used: number }>(TENANT_A, [['select reschedule_count, extension_times_used from machvon.project_task where project_id = $1::uuid', [projectId]]]);
+    expect(counted[0]).toEqual({ reschedule_count: 1, extension_times_used: 1 });
+  });
 });

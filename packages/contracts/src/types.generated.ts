@@ -50289,6 +50289,10 @@ export interface components {
                  * @enum {string}
                  */
                 cause?: "EXTENDED" | "CASCADED";
+                /** @description Chỉ có khi ngày bắt đầu của công việc đổi mà độ dịch theo ngày làm việc bằng 0 (thời hạn theo ngày lịch kết thúc vào ngày không làm việc, ví dụ thứ Bảy sang Chủ nhật): số ngày LỊCH ngày đó dịch, dương là muộn hơn. */
+                start_calendar_shift_days?: number;
+                /** @description Chỉ có khi ngày kết thúc của công việc đổi mà độ dịch theo ngày làm việc bằng 0 (thời hạn theo ngày lịch kết thúc vào ngày không làm việc, ví dụ thứ Bảy sang Chủ nhật): số ngày LỊCH ngày đó dịch, dương là muộn hơn. */
+                finish_calendar_shift_days?: number;
             }[];
             project_finish_shift_days: number | null;
             input_hash: string;

@@ -331122,6 +331122,14 @@
                     "CASCADED"
                   ],
                   "description": "Vì sao ngày của công việc đổi (R72): `EXTENDED` = gia hạn của chính nó trong đề nghị này; `CASCADED` = lùi theo dây chuyền (việc đứng trước, lịch làm việc, ngày bắt đầu). Vắng: ngày không đổi, hoặc đề nghị đổi trực tiếp công việc đó bằng cách khác (tiến độ, `change`, `remove`)."
+                },
+                "start_calendar_shift_days": {
+                  "type": "integer",
+                  "description": "Chỉ có khi ngày bắt đầu của công việc đổi mà độ dịch theo ngày làm việc bằng 0 (thời hạn theo ngày lịch kết thúc vào ngày không làm việc, ví dụ thứ Bảy sang Chủ nhật): số ngày LỊCH ngày đó dịch, dương là muộn hơn."
+                },
+                "finish_calendar_shift_days": {
+                  "type": "integer",
+                  "description": "Chỉ có khi ngày kết thúc của công việc đổi mà độ dịch theo ngày làm việc bằng 0 (thời hạn theo ngày lịch kết thúc vào ngày không làm việc, ví dụ thứ Bảy sang Chủ nhật): số ngày LỊCH ngày đó dịch, dương là muộn hơn."
                 }
               }
             }
