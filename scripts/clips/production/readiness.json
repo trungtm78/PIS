@@ -55,6 +55,9 @@
         "clip-public-pwf-review": {
           "proof": "RUN_VERIFIED"
         },
+        "clip-public-pwf-running": {
+          "proof": "RUN_VERIFIED"
+        },
         "clip-public-approvals": {
           "proof": "RUN_VERIFIED"
         },
