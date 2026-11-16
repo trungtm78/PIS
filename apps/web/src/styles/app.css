@@ -167,6 +167,20 @@ body {
   cursor: pointer;
 }
 
+/* On a phone the bar is full: the button gives up margin, padding and size so that it never carries the page sideways. */
+@media (max-width: 480px) {
+  .topbar-signout {
+    margin-left: 4px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  .workspace-topbar {
+    flex-wrap: wrap;
+    row-gap: 6px;
+    height: auto;
+  }
+}
+
 .account-signout {
   display: block;
   width: 100%;
