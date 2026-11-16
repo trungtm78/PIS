@@ -86,11 +86,11 @@ describe('the OCR review model (ST-BID-008, BID-06)', () => {
   it('shows a confidence as a percentage by its digits, never through a float', () => {
     expect(percentOf('0.7100')).toBe('71%');
     expect(percentOf('0.71')).toBe('71%');
-    expect(percentOf('0.8525')).toBe('85.25%');
+    expect(percentOf('0.8525')).toBe('85,25%');
     expect(percentOf('0.850')).toBe('85%');
     expect(percentOf('0.0500')).toBe('5%');
-    expect(percentOf('0.8499')).toBe('84.99%');
-    expect(percentOf('0.845')).toBe('84.5%');
+    expect(percentOf('0.8499')).toBe('84,99%');
+    expect(percentOf('0.845')).toBe('84,5%');
     expect(percentOf('1')).toBe('100%');
     expect(percentOf('1.0000')).toBe('100%');
     expect(percentOf('0')).toBe('0%');

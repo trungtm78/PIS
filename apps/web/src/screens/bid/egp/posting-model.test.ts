@@ -83,7 +83,7 @@ describe('days, times and numbers', () => {
     expect(timeLeft(30_000)).toEqual({ unit: 'minutes', value: 1 });
     expect(rateText(null, 'vi')).toBeNull();
     expect(rateText(6666, 'vi')).toBe('66,66%');
-    expect(rateText(10_000, 'en')).toBe('100.00%');
+    expect(rateText(10_000, 'en')).toBe('100%');
   });
 
   it('turns a local time in Vietnam into the instant, and refuses what is not a time', () => {

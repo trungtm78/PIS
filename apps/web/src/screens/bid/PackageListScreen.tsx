@@ -96,7 +96,6 @@ function PackageListContent({ route }: ScreenProps) {
         </div>
       </div>
       <ScopeBar
-        money
         extra={[{ label: t('w2pay.bid.ctx.planStatus'), value: filter.planStatus === '' ? t('w2pay.pay.ctx.all') : planStatusLabel(t, filter.planStatus) }]}
         updatedAt={packages.dataUpdatedAt}
         stale={packages.isRefetchError}

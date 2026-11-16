@@ -78,7 +78,7 @@ describe('PostingScreen (BID-32): the duties of posting to the national procurem
   it('counts the figures from the server: the rate posted on time, the overdue ones, the ones near their deadline and the ones waiting for a receipt', async () => {
     mountWith({ world: { items: [receipted(1), submitted(2, { clock: { status: 'MET_LATE', ms_to_due: null } }), overdue(3), dueSoon(4), submitted(5)] } });
     await rowsShown();
-    expect(screen.getByTestId('rate-value').textContent).toBe('50,00%');
+    expect(screen.getByTestId('rate-value').textContent).toBe('50%');
     expect(screen.getByTestId('overdue-value').textContent).toBe('1');
     expect(screen.getByTestId('soon-value').textContent).toBe('1');
     expect(screen.getByTestId('waiting-value').textContent).toBe('2');

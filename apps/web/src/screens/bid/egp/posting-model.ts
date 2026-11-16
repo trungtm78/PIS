@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { formatPercent } from '../../../i18n/format';
 
 /**
  * BID-32, "Posting obligations": the pure part. The answer of the API is read defensively, the filters live in the address, and the rules of each command are checked here before the server checks them again.
@@ -304,10 +305,10 @@ export function timeLeft(ms: number): { unit: 'days' | 'hours' | 'minutes'; valu
   return { unit: 'minutes', value: Math.max(1, Math.floor(abs / 60_000)) };
 }
 
-/** The on-time rate as a percentage with two decimals, from ten-thousandths: `6666` is `66,66%`. */
+/** The on-time rate as a percentage with two decimals at most (the shared `formatPercent`), from ten-thousandths: `6666` is `66,66%`. */
 export function rateText(rateBp: number | null, locale: string): string | null {
   if (rateBp === null) return null;
-  return `${(rateBp / 100).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
+  return formatPercent(rateBp / 100, 2, locale === 'en' ? 'en' : 'vi');
 }
 
 export const shortHash = (hash: string): string => `${hash.slice(0, 12)}…`;
