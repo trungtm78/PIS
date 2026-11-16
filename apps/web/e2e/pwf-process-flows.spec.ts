@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import type { Locator, Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { apiCall } from './support/api.ts';
 import { editionOf } from './support/edition-terms.ts';
 import { membershipOf, sql, stackInfo } from './support/stack.ts';
@@ -23,6 +23,7 @@ const PERSON = 'owner';
 const TEMPLATE = 'PUBLIC_INVESTMENT';
 const today = (): string => new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
 const unique = (prefix: string): string => `E2E-${prefix}-${Date.now().toString(36).toUpperCase()}`;
+const DAY = /\d{2}\/\d{2}\/\d{4}/;
 
 interface StoredTemplate {
   steps?: Array<{ code: string; name: string; phase: string; legal_basis?: unknown[] }>;
@@ -51,19 +52,6 @@ async function saveDraft(page: Page, reason: string): Promise<void> {
 
 const draftOf = async (code: string): Promise<StoredTemplate | undefined> =>
   (await sql<{ params: StoredTemplate }>("select params from machvon.governance_rule where tenant_id = $1 and rule_type = 'PROJECT_WORKFLOW_TEMPLATE' and code = $2 and status = 'DRAFT' order by version desc limit 1", [stackInfo().tenants.A, code]))[0]?.params;
-
-/** Opens the tab (and the tab inside a tab) that holds the element, the way a person does: every panel of a screen is in the page and only the chosen one is shown. */
-async function showTabOf(page: Page, target: Locator): Promise<void> {
-  const tabs = await target.first().evaluate((element) => {
-    const ids: string[] = [];
-    for (let panel = element.closest('[role="tabpanel"]'); panel !== null; panel = panel.parentElement?.closest('[role="tabpanel"]') ?? null) {
-      const tab = panel.getAttribute('aria-labelledby');
-      if (tab !== null) ids.unshift(tab);
-    }
-    return ids;
-  });
-  for (const id of tabs) await page.locator(`[id="${id}"]`).click();
-}
 
 interface TaskRow {
   id: string;
