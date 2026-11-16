@@ -1,0 +1,605 @@
+/* PWF-01 and PWF-02, the library and the table editor of the procedures. Tokens only; a table scrolls inside its own frame, never the page. */
+
+.pwfx-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.pwfx-crumb {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+.pwfx-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.pwfx-head > div:first-child {
+  min-width: 0;
+}
+.pwfx-sub {
+  margin: 4px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.pwfx-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pwfx-rename {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin: 8px 0 12px;
+}
+.pwfx-card {
+  margin: 12px 0 16px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-card);
+  background: var(--mv-color-surface);
+  max-width: 100%;
+  min-width: 0;
+}
+.pwfx-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--mv-color-border);
+}
+.pwfx-card__head h2 {
+  margin: 0;
+  font-size: 16px;
+}
+.pwfx-totals {
+  color: var(--mv-color-text-secondary);
+  font-size: 13px;
+}
+.pwfx-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 16px 12px;
+}
+
+/* ---- "Áp cho" ----------------------------------------------------------------------------------------------------------------------------------------------- */
+.pwfx-apply {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  font-size: 14px;
+}
+.pwfx-apply__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pwfx-apply__add {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pwfx-apply__add select {
+  width: auto;
+  min-width: 0;
+  max-width: 200px;
+}
+.pwfx-apply select,
+.pwfx-drawer select,
+.pwfx-rename select,
+.pwfx-rename input {
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 6px;
+  max-width: 100%;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 6px;
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+}
+.pwfx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 999px;
+  background: var(--mv-color-primary-soft);
+}
+.pwfx-chip--waiting {
+  border-style: dashed;
+}
+.pwfx-chip--gone {
+  background: var(--mv-color-neutral-soft);
+}
+.pwfx-chip__x {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  padding: 0 2px;
+}
+
+/* ---- the table ----------------------------------------------------------------------------------------------------------------------------------------------- */
+/* Nine columns that fit the content width of the page at 1440 px beside the menu (about 1120 px) without a scroll of their own; below 1100 px the frame scrolls. A row is about 68 px high. */
+.ui-table-scroll.pwfx-scroll {
+  max-height: none;
+  max-width: 100%;
+}
+.pwfx-table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 1100px;
+  font-size: 12.5px;
+}
+.pwfx-w-num {
+  width: 58px;
+}
+.pwfx-w-unit {
+  width: 130px;
+}
+.pwfx-w-anchor {
+  width: 138px;
+}
+.pwfx-w-limit {
+  width: 160px;
+}
+.pwfx-w-bands {
+  width: 150px;
+}
+.pwfx-w-basis {
+  width: 128px;
+}
+.pwfx-w-dossier {
+  width: 86px;
+}
+.pwfx-w-actions {
+  width: 98px;
+}
+.pwfx-table th,
+.pwfx-table td {
+  vertical-align: top;
+  padding: 5px 4px;
+  text-align: left;
+  border-bottom: 1px solid var(--mv-color-border);
+}
+.pwfx-table th {
+  white-space: nowrap;
+}
+.ui-table.pwfx-table select,
+.ui-table.pwfx-table input[type='text'],
+.ui-table.pwfx-table input[type='number'] {
+  min-height: 0;
+  height: 28px;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 12.5px;
+  padding: 2px 4px;
+  max-width: 100%;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 6px;
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+}
+.pwfx-table td > div,
+.pwfx-table td > button {
+  min-width: 0;
+}
+.pwfx-phase th {
+  background: var(--mv-color-neutral-soft);
+  position: static;
+  font-weight: 700;
+  white-space: normal;
+}
+.pwfx-phase__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.pwfx-phase__no {
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+  letter-spacing: 0.03em;
+}
+.pwfx-phase__name {
+  flex: 1 1 260px;
+  font-weight: 700;
+}
+.pwfx-phase__actions {
+  display: inline-flex;
+  gap: 6px;
+}
+.pwfx-gates {
+  margin-top: 2px;
+  font-weight: 400;
+  font-size: 12px;
+}
+.pwfx-gates fieldset {
+  border: 0;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.pwfx-row[data-child='true'] .pwfx-col-name {
+  padding-left: 18px;
+}
+.pwfx-col-num {
+  text-align: center;
+}
+.pwfx-num {
+  display: block;
+  color: var(--mv-color-text-secondary);
+}
+.pwfx-move {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 1px;
+}
+.pwfx-mini {
+  width: 25px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 6px;
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+.pwfx-mini:hover {
+  border-color: var(--mv-color-primary);
+}
+.pwfx-name {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+.pwfx-name input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 600;
+}
+.pwfx-star {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1;
+  padding: 0 2px;
+  color: var(--mv-color-warning);
+}
+.pwfx-star[aria-pressed='true'] {
+  color: var(--mv-color-ink);
+}
+.pwfx-unit,
+.pwfx-anchor,
+.pwfx-limit,
+.pwfx-bands,
+.pwfx-basis-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: stretch;
+}
+.pwfx-unit select {
+  width: 100%;
+}
+.pwfx-unit__role {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+.pwfx-unit__role select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.pwfx-support {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 3px;
+  border-top: 1px dashed var(--mv-color-border);
+}
+.pwfx-newname,
+.pwfx-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.pwfx-anchor select {
+  width: 100%;
+}
+.pwfx-limit__main {
+  display: flex;
+  gap: 3px;
+}
+.pwfx-limit__main input[type='number'] {
+  width: 46px;
+  flex: none;
+  text-align: right;
+}
+.pwfx-limit__main select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.pwfx-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+.pwfx-bands {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.pwfx-band-label {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  color: var(--mv-color-text-secondary);
+}
+.pwfx-band {
+  width: 42px;
+  text-align: center;
+  font-weight: 600;
+}
+.pwfx-band-label--red .pwfx-band {
+  border-color: var(--mv-color-danger) !important;
+}
+.pwfx-band-label--yellow .pwfx-band {
+  border-color: var(--mv-color-warning) !important;
+}
+.pwfx-band-label--green .pwfx-band {
+  border-color: var(--mv-color-success) !important;
+}
+.pwfx-notes {
+  margin: 0;
+  padding-left: 14px;
+  font-size: 11.5px;
+  color: var(--mv-color-text-secondary);
+}
+.pwfx-cell-error {
+  display: block;
+  font-size: 11.5px;
+  color: var(--mv-color-danger);
+}
+.pwfx-basis-open {
+  display: block;
+  width: 100%;
+  height: 28px;
+  padding: 2px 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  font: inherit;
+  font-size: 12.5px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 6px;
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  cursor: pointer;
+}
+.pwfx-stamp {
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+.pwfx-stamp[data-state='stamped'] {
+  color: var(--mv-color-success);
+}
+.pwfx-stamp[data-state='unverified'],
+.pwfx-stamp[data-state='claimed'] {
+  color: var(--mv-color-warning);
+}
+.pwfx-dossier {
+  white-space: nowrap;
+}
+.pwfx-subrow td {
+  background: var(--mv-color-neutral-soft);
+  white-space: normal;
+}
+.pwfx-sub-title {
+  margin: 4px 0;
+  font-weight: 600;
+}
+.pwfx-basis__list {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.pwfx-basis__item {
+  display: grid;
+  gap: 4px;
+}
+.pwfx-basis__fields,
+.pwfx-basis__state {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.pwfx-add td {
+  padding: 8px;
+  border-bottom: 0;
+}
+.pwfx-add-phase {
+  margin: 0;
+  padding: 8px 16px 12px;
+}
+.pwfx-link {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: var(--mv-color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.pwfx-table input:focus-visible,
+.pwfx-table select:focus-visible,
+.pwfx-table button:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 1px;
+}
+
+/* ---- the diagram and the checks ------------------------------------------------------------------------------------------------------------------------------ */
+.pwfx-diagram__start {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+}
+.pwfx-diagram__status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 8px;
+}
+.pwfx-server {
+  margin: 12px 0 16px;
+}
+
+/* ---- the drawer ----------------------------------------------------------------------------------------------------------------------------------------------- */
+.pwfx-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  border-left: 1px solid var(--mv-color-border);
+  box-shadow: -8px 0 24px var(--mv-color-border);
+}
+.pwfx-drawer__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--mv-color-border);
+}
+.pwfx-drawer__head h2 {
+  margin: 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.pwfx-drawer__body {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 12px 16px 24px;
+}
+.pwfx-group {
+  margin: 0 0 20px;
+}
+.pwfx-group h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+.pwfx-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pwfx-paste {
+  width: 100%;
+  font-size: 13px;
+}
+.pwfx-paste td,
+.pwfx-paste th {
+  padding: 4px 6px;
+  text-align: left;
+}
+
+/* ---- the library ------------------------------------------------------------------------------------------------------------------------------------------- */
+.pwfx-quick {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
+.pwfx-quick__choices {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.pwfx-quick__choice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  text-align: left;
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-card);
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.pwfx-quick__choice:hover {
+  border-color: var(--mv-color-primary);
+}
+
+@media (max-width: 900px) {
+  .pwfx-drawer {
+    width: 100%;
+  }
+}
+.pwfx-adv {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--mv-color-text-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.pwfx-unit__role {
+  height: 28px;
+}
+.pwfx-check input[type='checkbox'] {
+  width: 14px;
+  height: 14px;
+  min-height: 0;
+  margin: 0;
+}
+.pwfx-check {
+  min-height: 0;
+}
+.pwfx-limit label.pwfx-check {
+  height: 16px;
+  padding: 0;
+  margin: 0;
+}

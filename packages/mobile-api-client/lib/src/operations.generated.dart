@@ -1124,6 +1124,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'listProjectTaskAssignments': OperationDescriptor(method: 'GET', path: '/project-tasks/{task_id}/assignments', versioned: false, stepUp: null, permission: 'pwf.read'),
   'listProjectTasks': OperationDescriptor(method: 'GET', path: '/projects/{project_id}/workflow/tasks', versioned: false, stepUp: null, permission: 'pwf.read'),
   'listProjectTransfers': OperationDescriptor(method: 'GET', path: '/project-transfers', versioned: false, stepUp: null, permission: 'project.read'),
+  'listProjectWorkflowTemplateUsage': OperationDescriptor(method: 'GET', path: '/project-workflow/templates/usage', versioned: false, stepUp: null, permission: 'pwf.read'),
   'listProposalOcrPages': OperationDescriptor(method: 'GET', path: '/proposals/{id}/ocr-pages', versioned: false, stepUp: null, permission: 'bid.ocr.read'),
   'listPublicPortalProjects': OperationDescriptor(method: 'GET', path: '/public/portals/{slug}/projects', versioned: false, stepUp: null, permission: 'public.portal.read'),
   'listQualityAcceptances': OperationDescriptor(method: 'GET', path: '/quality-acceptances', versioned: false, stepUp: null, permission: 'qacceptance.read'),

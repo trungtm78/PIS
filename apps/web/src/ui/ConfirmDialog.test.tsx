@@ -119,6 +119,11 @@ describe('ConfirmDialog', () => {
     expect(confirm).toBeEnabled();
   });
 
+  it('keeps confirm off while the caller says what the dialog asks for is not there yet', () => {
+    render(<ConfirmDialog {...props({ confirmDisabled: true })} />);
+    expect(screen.getByRole('button', { name: 'Duyệt' })).toBeDisabled();
+  });
+
   it('says a refusal inside the dialog as an alert and shows extra controls between the context and the reason', () => {
     render(<ConfirmDialog {...props({ error: 'Người duyệt phải khác người lập', children: <p>Chọn ngày</p> })} />);
     const dialog = screen.getByRole('dialog');

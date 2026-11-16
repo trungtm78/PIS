@@ -1125,6 +1125,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'listProjectTaskAssignments': PwfAssignmentPageResponse.fromJson,
   'listProjectTasks': PwfTaskPageResponse.fromJson,
   'listProjectTransfers': PrjProjectTransferPageResponse.fromJson,
+  'listProjectWorkflowTemplateUsage': PwfTemplateUsageResponse.fromJson,
   'listProposalOcrPages': BidOcrPageListResponse.fromJson,
   'listPublicPortalProjects': asObject,
   'listQualityAcceptances': QmsAcceptanceListResponse.fromJson,
@@ -63678,6 +63679,66 @@ final class PwfTaskPageResponseItemsItemReceivingUnitsItem implements ResponseMo
         'unit_name': unitName,
         'role': role,
         'part': part_,
+        ...extra,
+      };
+}
+
+final class PwfTemplateUsageResponse implements ResponseModel {
+  const PwfTemplateUsageResponse({
+    required this.items,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfTemplateUsageResponse.fromJson(Object? json, [String path = 'PwfTemplateUsageResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfTemplateUsageResponse(
+      items: requiredField(map, path, 'items', asList(PwfTemplateUsageResponseItemsItem.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'items', 'as_of'}, strict: false),
+    );
+  }
+
+  final List<PwfTemplateUsageResponseItemsItem> items;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'items': items.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class PwfTemplateUsageResponseItemsItem implements ResponseModel {
+  const PwfTemplateUsageResponseItemsItem({
+    required this.templateCode,
+    required this.activeProjects,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfTemplateUsageResponseItemsItem.fromJson(Object? json, [String path = 'PwfTemplateUsageResponseItemsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfTemplateUsageResponseItemsItem(
+      templateCode: requiredField(map, path, 'template_code', asString),
+      activeProjects: requiredField(map, path, 'active_projects', asInt),
+      extra: unknownFields(map, path, const <String>{'template_code', 'active_projects'}, strict: false),
+    );
+  }
+
+  final String templateCode;
+  final int activeProjects;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'template_code': templateCode,
+        'active_projects': activeProjects,
         ...extra,
       };
 }

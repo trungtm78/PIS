@@ -75,6 +75,19 @@ export interface GanttRow {
    * runs past it is the delay against the baseline.
    */
   baseline: GanttSpan | null;
+  /**
+   * The chart of a template (PWF-02) only. The first day the deadline of the row is each colour, as the server counted it back from the finish (R56); `green` null: every day above yellow is green. Null or absent:
+   * the bar is drawn in one colour.
+   */
+  zones?: { green: string | null; yellow: string; red: string } | null;
+  /** What is written under the name instead of the code (the number of the row of the table). */
+  caption?: string;
+  /** What is written at the end of the bar (the day the row is due, "tạm tính"). */
+  due?: string;
+  /** Why the row has no bar, in words (a year without a calendar); the chart never draws a guessed date. */
+  undated?: string;
+  /** The row whose finish is the deadline of the whole file. */
+  overall?: boolean;
   /** Days the finish is later than the baseline (positive is late). */
   variance: number | null;
 }
@@ -146,7 +159,7 @@ export function ganttAt(scale: GanttScale, day: string, end = false): number | n
 export const ganttDayWidth = (days: number): number => Math.min(14, Math.max(3, Math.round((960 / days) * 10) / 10));
 
 /** The rows of the chart under the phase each belongs to, phases in their order; a task of a phase the workflow does not list comes last under its code. */
-export function ganttGroups(rows: readonly GanttRow[], phases: readonly WorkflowPhase[]): { code: string; name: string; rows: GanttRow[] }[] {
+export function ganttGroups(rows: readonly GanttRow[], phases: readonly Pick<WorkflowPhase, 'code' | 'name' | 'order'>[]): { code: string; name: string; rows: GanttRow[] }[] {
   const ordered = [...phases].sort((a, b) => a.order - b.order);
   const known = new Set(ordered.map((phase) => phase.code));
   const strays = [...new Set(rows.filter((row) => !known.has(row.phase)).map((row) => row.phase))];

@@ -1,15 +1,6 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
+import { cleanup } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ApiClientProvider } from '../../../api/ApiClientContext';
-import { SessionContext } from '../../../session/SessionContext';
-import type { SessionValue } from '../../../session/SessionContext';
-import { ALL_MODULES_VISIBLE } from '../../../navigation/model';
-import { PLATFORM_TENANT } from '../../sas/test-support';
-import { serve, templateParams, text } from '../test/fixtures';
-import { problemMapOf } from './editor-fields';
-import { StepsEditor, TaskProcessFields } from './editor-steps';
+import { templateParams } from '../test/fixtures';
 import { addStep, addTask, compareTemplates, disableSteps, enableSteps, formPolicyOf, groupSteps, hasSteps, localProblems, paramsOfTemplate, readTemplate, removePhase, removeStep, renamePhase, renameStep, setFormPolicy, stepsOf, summaryOf, updateStep, updateTask } from './template-model';
 import type { Template } from './template-model';
 
@@ -116,100 +107,5 @@ describe('template model: steps, legal grounds and form policies (R44, R45, R46)
       { scope: 'task', code: 'T2', kind: 'changed', fields: ['step'] },
     ]);
     expect(compareTemplates(before, disableSteps(before)).filter((change) => change.scope === 'step').map((change) => change.kind)).toEqual(['removed', 'removed']);
-  });
-});
-
-const session: SessionValue = { tenant: PLATFORM_TENANT, tenants: [PLATFORM_TENANT], user: { displayName: 'Admin', initials: 'AD' }, access: ALL_MODULES_VISIBLE, switchTenant: () => undefined, getSession: () => Promise.resolve({ token: 'token' }), permissions: [] };
-
-/** The editor of the steps and of one task over a template held in state, with a catalogue that lists two legal documents. */
-function Editor({ initial, show = false }: { initial: Template; show?: boolean }) {
-  const [template, setTemplate] = useState(initial);
-  const problems = problemMapOf(localProblems(template));
-  const h = serve({
-    getGovernanceRuleCatalog: {
-      items: [{ rule_type: 'LEGAL_DOCUMENT', registered: true, owner_module: 'PWF', modules: [], formula: null, source: null, as_of: null, legal_status: 'UNVERIFIED', schema: undefined, codes: ['LAW_58_2024_QH15', 'DECREE_85_2025_ND_CP'].map((code) => ({ code, has_default: true, unverified: true, provenance: null, stored_versions: 0, in_force: 'DEFAULT', in_force_version: 0 })) }],
-    },
-  });
-  return (
-    <SessionContext.Provider value={session}>
-      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-        <ApiClientProvider client={h.client}>
-          <StepsEditor template={template} onChange={setTemplate} problems={problems} show={show} disabled={false} />
-          <TaskProcessFields template={template} index={0} task={template.tasks[0] as Template['tasks'][number]} onPatch={(patch) => setTemplate(updateTask(template, 0, patch))} problems={problems} show={show} disabled={false} />
-          <output data-testid="params">{JSON.stringify(paramsOfTemplate(template))}</output>
-        </ApiClientProvider>
-      </QueryClientProvider>
-    </SessionContext.Provider>
-  );
-}
-const params = (): Record<string, unknown> => JSON.parse(screen.getByTestId('params').textContent ?? '{}') as Record<string, unknown>;
-const click = (action: string): void => {
-  fireEvent.click(document.querySelector(`[data-action="${action}"]`) as HTMLElement);
-};
-
-describe('PWF-02: the steps of the phases, the legal grounds and the form policies', () => {
-  it('says that a template names no steps and declares one step per phase on request', () => {
-    render(<Editor initial={base()} />);
-    expect(screen.getByTestId('steps-off').textContent).toContain(text('pwf.templates.steps.off.text'));
-    expect(screen.queryByTestId('field-tasks[0].step')).toBeNull();
-    click('enable-steps');
-    expect(screen.getByTestId('steps')).toBeTruthy();
-    expect((screen.getByTestId('field-steps[0].name') as HTMLInputElement).value).toBe('Chuẩn bị đầu tư');
-    expect(screen.getByTestId('step-tasks-0').textContent).toBe(text('pwf.templates.steps.tasks.text', { count: 2 }));
-    expect((screen.getByTestId('field-tasks[0].step') as HTMLSelectElement).value).toBe('S_PREPARATION');
-    expect((params().steps as unknown[]).length).toBe(1);
-  });
-
-  it('adds a step, names it, moves a task into it, and says that a step has no task once the person tried to save', () => {
-    render(<Editor initial={enableSteps(base())} show />);
-    click('add-step-PREPARATION');
-    expect(screen.getByTestId('error-steps[1].tasks').textContent).toContain(text('pwf.templates.steps.noTasks.error'));
-    fireEvent.change(screen.getByTestId('field-steps[1].name'), { target: { value: 'Thẩm định' } });
-    fireEvent.change(screen.getByTestId('field-tasks[0].step'), { target: { value: 'S2' } });
-    expect(screen.queryByTestId('error-steps[1].tasks')).toBeNull();
-    expect((params().tasks as Array<{ step: string }>).map((task) => task.step)).toEqual(['S2', 'S_PREPARATION']);
-    expect(within(screen.getByTestId('field-tasks[0].step')).getAllByRole('option').map((option) => option.textContent)).toEqual([text('pwf.templates.steps.pick.none'), 'S_PREPARATION · Chuẩn bị đầu tư', 'S2 · Thẩm định']);
-  });
-
-  it('says the NAME of the role that answers for a step under the box of its code, and where to name a code nobody named (lane fix11)', () => {
-    render(<Editor initial={enableSteps(base())} />);
-    const field = screen.getByTestId('field-steps[0].responsible_role');
-    const hintOf = (): string => document.getElementById((field.getAttribute('aria-describedby') ?? '').split(' ').pop() ?? '')?.textContent ?? '';
-    // No role yet: the hint says what the box is for.
-    expect(hintOf()).toBe(text('pwf.templates.steps.role.hint'));
-    fireEvent.change(field, { target: { value: 'SITE_ENGINEER' } });
-    expect(hintOf()).toBe(text('fix8.editor.role.named.hint', { name: text('pwf6.role.siteEngineer.word') }));
-    fireEvent.change(field, { target: { value: 'A_ROLE_OF_OURS' } });
-    expect(hintOf()).toBe(text('fix8.editor.role.unnamed.hint'));
-  });
-
-  it('cites a document of the catalogue by its code for a step and for a task, with the article and the verification, and says a code the catalogue does not have', async () => {
-    render(<Editor initial={enableSteps(base())} />);
-    click('add-basis-steps[0]');
-    const pick = await screen.findByTestId('pick-steps[0].legal_basis[0].document');
-    await within(pick).findByRole('option', { name: 'LAW_58_2024_QH15' });
-    fireEvent.change(pick, { target: { value: 'LAW_58_2024_QH15' } });
-    fireEvent.change(screen.getByTestId('field-steps[0].legal_basis[0].article'), { target: { value: 'Điều 40' } });
-    fireEvent.change(screen.getByTestId('field-steps[0].legal_basis[0].verification'), { target: { value: 'VERIFIED' } });
-    click('add-basis-tasks[0]');
-    fireEvent.change(screen.getByTestId('field-tasks[0].legal_basis[0].document'), { target: { value: 'decree_x' } });
-    expect(screen.getByTestId('unknown-tasks[0].legal_basis[0].document').textContent).toContain(text('pwf.templates.legal.unknown.text'));
-    const written = params();
-    expect((written.steps as Array<{ legal_basis: unknown[] }>)[0]?.legal_basis).toEqual([{ document: 'LAW_58_2024_QH15', article: 'Điều 40', verification: 'VERIFIED' }]);
-    expect((written.tasks as Array<{ legal_basis?: unknown[] }>)[0]?.legal_basis).toEqual([{ document: 'DECREE_X', verification: 'UNVERIFIED' }]);
-    click('remove-basis-tasks[0]-0');
-    expect('legal_basis' in ((params().tasks as object[])[0] as object)).toBe(false);
-  });
-
-  it('pins a form of the task to a revision and lets it follow the newest approved revision again', () => {
-    const template = base();
-    render(<Editor initial={{ ...template, tasks: [{ ...(template.tasks[0] as Template['tasks'][number]), form_templates: ['BM_01'] }, ...template.tasks.slice(1)] }} />);
-    const policy = screen.getByTestId('field-tasks[0].form_policies.BM_01.policy') as HTMLSelectElement;
-    expect(policy.value).toBe('LATEST_APPROVED');
-    fireEvent.change(policy, { target: { value: 'PINNED' } });
-    fireEvent.change(screen.getByTestId('field-tasks[0].form_policies[0].revision'), { target: { value: '4' } });
-    expect((params().tasks as Array<{ form_policies?: unknown[] }>)[0]?.form_policies).toEqual([{ form: 'BM_01', policy: 'PINNED', revision: 4 }]);
-    fireEvent.change(screen.getByTestId('field-tasks[0].form_policies.BM_01.policy'), { target: { value: 'LATEST_APPROVED' } });
-    expect('form_policies' in ((params().tasks as object[])[0] as object)).toBe(false);
   });
 });

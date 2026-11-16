@@ -368,3 +368,64 @@
   font-weight: 600;
   font-size: 13px;
 }
+
+/* The chart of a template (PWF-02): the zones of the three colours inside a bar, the day a row is due and the line of the overall deadline. The colour is never the only cue: the legend names each zone and the table under the chart says the days. */
+.pwf-gantt__bar[data-zoned='true'] {
+  background: transparent;
+  outline: 1px solid var(--mv-color-border);
+}
+.pwf-gantt__zone {
+  position: absolute;
+  top: 14px;
+  height: 16px;
+  box-sizing: border-box;
+}
+.pwf-gantt__zone[data-zone='idle'],
+.pwf-gantt__swatch--idle {
+  background: var(--mv-color-neutral-soft);
+  border: 1px solid var(--mv-color-neutral);
+}
+.pwf-gantt__zone[data-zone='green'],
+.pwf-gantt__swatch--green {
+  background: var(--mv-color-success);
+}
+.pwf-gantt__zone[data-zone='yellow'],
+.pwf-gantt__swatch--yellow {
+  background: repeating-linear-gradient(90deg, var(--mv-color-warning) 0 4px, var(--mv-color-warning-soft) 4px 6px);
+  border: 1px solid var(--mv-color-warning);
+}
+.pwf-gantt__zone[data-zone='red'],
+.pwf-gantt__swatch--red {
+  background: repeating-linear-gradient(135deg, var(--mv-color-danger) 0 3px, var(--mv-color-danger-soft) 3px 5px);
+  border: 1px solid var(--mv-color-danger);
+}
+.pwf-gantt__due {
+  position: absolute;
+  top: 12px;
+  margin-left: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-gantt__overall {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px dashed var(--mv-color-ink);
+}
+.pwf-gantt__overallmark {
+  position: absolute;
+  bottom: 2px;
+  transform: translateX(-100%);
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--mv-color-ink);
+}
+.pwf-gantt__swatch--overall {
+  width: 0;
+  height: 14px;
+  border-left: 2px dashed var(--mv-color-ink);
+}

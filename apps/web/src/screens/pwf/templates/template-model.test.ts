@@ -7,6 +7,7 @@ import {
   addTask,
   blankTemplate,
   compareTemplates,
+  fresh,
   groupByPhase,
   joinCodes,
   localProblems,
@@ -70,7 +71,7 @@ describe('template model: reading a rule', () => {
   });
 
   it('survives params that are not a template at all', () => {
-    expect(readTemplate({})).toEqual(blankTemplate());
+    expect(fresh(readTemplate({}))).toEqual(blankTemplate());
     expect(readTemplate({ phases: 'x', tasks: [1, null], name: 4 })).toMatchObject({ name: '', phases: [], tasks: [] });
   });
 

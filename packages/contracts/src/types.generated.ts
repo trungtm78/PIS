@@ -27438,6 +27438,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/project-workflow/templates/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Số dự án đang chạy theo từng loại quy trình, trong phạm vi đọc của người gọi (PWF-01) */
+        get: operations["listProjectWorkflowTemplateUsage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -51305,6 +51322,17 @@ export interface components {
                 stamped: number;
                 reset: number;
             };
+        };
+        /** @description Thư viện quy trình (PWF-01): mỗi loại quy trình đang được bao nhiêu dự án chạy. Chỉ đếm dự án trong phạm vi đọc pwf.read của người gọi; loại chưa có dự án nào không có dòng. */
+        PwfTemplateUsage: {
+            items: {
+                /** @description Mã loại quy trình (mã quy tắc PROJECT_WORKFLOW_TEMPLATE) mà quy trình của dự án được khởi tạo từ đó */
+                template_code: string;
+                /** @description Số dự án trong phạm vi đọc của người gọi có quy trình đang chạy (ACTIVE hoặc ON_HOLD) theo loại này */
+                active_projects: number;
+            }[];
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -220224,6 +220252,98 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listProjectWorkflowTemplateUsage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfTemplateUsage"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

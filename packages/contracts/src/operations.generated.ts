@@ -1122,6 +1122,7 @@ export const OPERATIONS = {
   "listProjectTaskAssignments": { method: "get", path: "/project-tasks/{task_id}/assignments", versioned: false, stepUp: null, permission: "pwf.read" },
   "listProjectTasks": { method: "get", path: "/projects/{project_id}/workflow/tasks", versioned: false, stepUp: null, permission: "pwf.read" },
   "listProjectTransfers": { method: "get", path: "/project-transfers", versioned: false, stepUp: null, permission: "project.read" },
+  "listProjectWorkflowTemplateUsage": { method: "get", path: "/project-workflow/templates/usage", versioned: false, stepUp: null, permission: "pwf.read" },
   "listProposalOcrPages": { method: "get", path: "/proposals/{id}/ocr-pages", versioned: false, stepUp: null, permission: "bid.ocr.read" },
   "listPublicPortalProjects": { method: "get", path: "/public/portals/{slug}/projects", versioned: false, stepUp: null, permission: "public.portal.read" },
   "listQualityAcceptances": { method: "get", path: "/quality-acceptances", versioned: false, stepUp: null, permission: "qacceptance.read" },

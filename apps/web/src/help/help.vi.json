@@ -11741,14 +11741,16 @@
       "fields": [
         "Mã mẫu và tên",
         "Loại dự án",
-        "Phiên bản và trạng thái duyệt",
-        "Hiệu lực từ ngày",
-        "Số giai đoạn và số việc",
-        "Cờ \"mặc định, chưa xác nhận\"",
-        "So sánh hai phiên bản"
+        "Số bước",
+        "Tổng thời hạn",
+        "Phiên bản và trạng thái",
+        "Dự án đang dùng",
+        "Bước chưa đối chiếu căn cứ",
+        "Sửa lần cuối",
+        "Tạo quy trình"
       ],
       "req": "FR-PWF-01",
-      "rule": "Mẫu là quy tắc có phiên bản. Người duyệt khác người soạn. Dự án đang chạy giữ bản đã đóng băng. Mẫu chưa kiểm chứng ghi nhãn."
+      "rule": "Mỗi quy trình một dòng. Mở, nhân bản, ngừng áp dụng. Mẫu là quy tắc có phiên bản. Người duyệt khác người soạn. Dự án đang chạy giữ bản đã đóng băng. Căn cứ chưa đối chiếu được đếm."
     },
     "PWF-02": {
       "title": "Soạn mẫu workflow",
@@ -11758,18 +11760,27 @@
       "purpose": "Đây là biểu mẫu để nhập thông tin.",
       "audience": "Quản trị quy trình dự án",
       "fields": [
-        "Giai đoạn và cổng chặn lệnh PRJ",
-        "Cây công việc: thời lượng ngày làm việc, bắt buộc, vai phụ trách, người duyệt hoàn thành",
-        "Liên kết FS, SS, FF, SF và độ trễ",
-        "Nhánh theo nhóm dự án và nguồn vốn",
-        "Loại chứng từ pháp lý và biểu mẫu",
-        "Danh mục kiểm",
-        "Mã KPI",
-        "Lỗi kiểm trực tiếp và gợi ý chất lượng lịch",
-        "Xem trước lịch"
+        "Sửa tên, mô tả",
+        "Lịch sử phiên bản",
+        "Lưu nháp",
+        "Trình duyệt",
+        "Áp cho",
+        "Bước",
+        "Đơn vị · vai trò",
+        "Mốc tính",
+        "Thời hạn",
+        "Đỏ / Vàng / Xanh",
+        "Căn cứ",
+        "Hồ sơ",
+        "Thêm bước",
+        "Thêm giai đoạn",
+        "Dán danh sách bước từ Excel",
+        "Sơ đồ",
+        "Ngày bắt đầu mẫu",
+        "Kiểm tra của máy chủ"
       ],
       "req": "FR-PWF-02",
-      "rule": "Kiểm lỗi trực tiếp (vòng lặp, tham chiếu, giới hạn 400 việc, 12 giai đoạn). Cảnh báo chất lượng lịch không chặn. Trình duyệt qua kho quy tắc, người duyệt khác người soạn."
+      "rule": "Một bảng, mỗi dòng một bước. Sơ đồ do máy chủ tính từ bảng. Phiên bản đang áp dụng chỉ để xem. Sửa thì tạo bản nháp mới. Lưu nháp, trình duyệt qua kho quy tắc, người duyệt khác người soạn. Áp cho trình cùng quy trình."
     },
     "PWF-03": {
       "title": "Workflow của dự án",

@@ -54,15 +54,78 @@ export const CODE_PATTERN = /^[A-Z][A-Z0-9_]{1,39}$/;
 export const FORM_CODE_PATTERN = /^[A-Z0-9][A-Z0-9_.-]{2,79}$/;
 const VALUE_PATTERN = /^[A-Za-z0-9_.-]{1,40}$/;
 
+/**
+ * The record of the rule an entity (the template, a phase, a step, a task) was read from. It travels with the entity through every edit (a spread copies it) and is what makes a template read and written back
+ * the params it was (R62): a field nobody touched is written exactly as it was stored. A row that is copied drops it (`fresh`).
+ */
+export const ORIGIN: unique symbol = Symbol('pwf.template.origin');
+/** The code of the entity is provisional: the row was added and has no name yet, so its code is made from the name when the name is first given (R63), once. */
+export const PENDING: unique symbol = Symbol('pwf.template.pendingCode');
+/** What the screen keys a row by: made when a row is added and kept for as long as the row is in the editor, whatever its code becomes (the code is made from the name when the row is first named, and a row must not be drawn again then). */
+export const UID: unique symbol = Symbol('pwf.template.uid');
+let uidSequence = 0;
+interface Marks {
+  [ORIGIN]?: Params;
+  [PENDING]?: true;
+  [UID]?: string;
+}
+export const uidOf = (entity: object): string | undefined => (entity as Marks)[UID];
+export const originOf = (entity: object): Params | undefined => (entity as Marks)[ORIGIN];
+export const isPending = (entity: object): boolean => (entity as Marks)[PENDING] === true;
+/** The entity as a new one: not read from any rule, its code final. */
+export function fresh<E extends object>(entity: E): E {
+  const copy = { ...entity } as E & Marks;
+  delete copy[ORIGIN];
+  delete copy[PENDING];
+  delete copy[UID];
+  return copy;
+}
+export const pending = <E extends object>(entity: E): E => ({ ...entity, [PENDING]: true, [UID]: `u${(uidSequence += 1)}` });
+export const settled = <E extends object>(entity: E): E => {
+  const copy = { ...entity } as E & Marks;
+  delete copy[PENDING];
+  return copy;
+};
+
+export type DurationUnit = NonNullable<TemplateTask['duration']>['unit'];
+export const DURATION_UNITS: readonly DurationUnit[] = ['WORKING_DAY', 'CALENDAR_DAY', 'MONTH'];
+export type TaskDuration = NonNullable<TemplateTask['duration']>;
+export type TaskExtension = NonNullable<TemplateTask['extension']>;
+export type ResponsibleUnit = NonNullable<TemplateTask['responsible_units']>[number];
+export type UnitPart = ResponsibleUnit['part'];
+/** The ladder of a task while it is typed: a line not filled yet is absent, and the checks ask for it before anything is sent. */
+export interface EditorBands {
+  green_days?: number;
+  yellow_days?: number;
+  red_days?: number;
+}
+
 /** A task as the editor holds it: every optional part of the contract is present (an empty list, no constraint). */
-export type EditorTask = Omit<TemplateTask, 'constraint' | 'legal_doc_types' | 'form_templates' | 'checklist' | 'kpi_codes' | 'when'> & {
+export type EditorTask = Omit<TemplateTask, 'constraint' | 'legal_doc_types' | 'form_templates' | 'checklist' | 'kpi_codes' | 'when' | 'bands'> & {
   constraint: Constraint | null;
   legal_doc_types: string[];
   form_templates: string[];
   checklist: Checklist[];
   kpi_codes: string[];
   when: Condition[];
+  bands?: EditorBands;
 };
+
+/** A party of the project the template names itself (R61): a seat the person who starts a project fills with a real unit. */
+export interface TemplateParty {
+  code: string;
+  name: string;
+}
+export const MAX_PARTIES = 30;
+export const MAX_UNITS = 8;
+export const BUILT_IN_PARTIES: readonly string[] = ['INVESTOR', 'DECISION_AUTHORITY'];
+export const UNIT_REF_PATTERN = /^(PROJECT_OWNER|PROJECT_PARTY:[A-Z][A-Z0-9_]{1,39}|UNIT:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
+
+/** The working days a limit stands for where no calendar is at hand (PWF 22.2): what `duration_working_days` must be when the task has a `duration`. */
+export function nominalWorkingDays(value: number, unit: DurationUnit): number {
+  if (unit === 'CALENDAR_DAY') return Math.max(1, Math.ceil((value * 5) / 7));
+  return unit === 'MONTH' ? value * 22 : value;
+}
 
 /** A role the template names itself: the code its steps and tasks use and what people call it (a role a tenant made up has no name in the shipped catalogue). */
 export interface TemplateRole {
@@ -80,6 +143,10 @@ export interface Template {
   /** The steps the template names (R44); absent or empty in a template without steps, where every phase is one step. */
   steps?: EditorStep[];
   tasks: EditorTask[];
+  /** The parties the template names beside the investor and the authority that decides (R61); absent in a template that names none. */
+  parties?: TemplateParty[];
+  /** The task whose finish is the deadline of the whole file; absent or null when the template marks none. */
+  overall_deadline_task?: string | null;
 }
 
 export const stepsOf = (template: Template): EditorStep[] => template.steps ?? [];
@@ -123,6 +190,9 @@ const readLegalBasis = (value: unknown): LegalBasisInput[] =>
     ...(typeof item.article === 'string' ? { article: item.article } : {}),
     ...(typeof item.note === 'string' ? { note: item.note } : {}),
     verification: item.verification === 'VERIFIED' ? 'VERIFIED' : 'UNVERIFIED',
+    // The stamp of the server (R75) is kept as it came: the editor never makes one, and drops it from a line it changes.
+    ...(typeof item.verified_by === 'string' ? { verified_by: item.verified_by } : {}),
+    ...(typeof item.verified_at === 'string' ? { verified_at: item.verified_at } : {}),
   }));
 
 const readFormPolicies = (value: unknown): FormPolicy[] => records(value).map((item) => ({ form: text(item.form), policy: oneOf(FORM_POLICY_KINDS, item.policy, 'LATEST_APPROVED'), ...(typeof item.revision === 'number' ? { revision: item.revision } : {}) }));
@@ -134,7 +204,10 @@ const writeLegalBasis = (basis: readonly LegalBasisInput[]): LegalBasisInput[] =
     ...(one.article === undefined || one.article.trim() === '' ? {} : { article: one.article.trim() }),
     ...(one.note === undefined || one.note.trim() === '' ? {} : { note: one.note.trim() }),
     verification: one.verification,
+    ...(one.verification === 'VERIFIED' && typeof one.verified_by === 'string' && typeof one.verified_at === 'string' ? { verified_by: one.verified_by, verified_at: one.verified_at } : {}),
   }));
+
+const wholeOrNone = (value: unknown): number | undefined => (typeof value === 'number' && Number.isFinite(value) ? value : undefined);
 
 function readTask(raw: Record<string, unknown>): EditorTask {
   const constraint = isRecord(raw.constraint) ? { kind: oneOf(CONSTRAINT_KINDS, raw.constraint.kind, 'SNET'), offset_working_days: count(raw.constraint.offset_working_days) } : null;
@@ -159,8 +232,40 @@ function readTask(raw: Record<string, unknown>): EditorTask {
     ...(typeof raw.step === 'string' && raw.step !== '' ? { step: raw.step } : {}),
     ...(records(raw.legal_basis).length === 0 ? {} : { legal_basis: readLegalBasis(raw.legal_basis) }),
     ...(records(raw.form_policies).length === 0 ? {} : { form_policies: readFormPolicies(raw.form_policies) }),
-  };
+    // The fields of the table of steps (PWF 22.2): each is there only when the rule has it.
+    ...(isRecord(raw.duration) ? { duration: { value: count(raw.duration.value), unit: oneOf(DURATION_UNITS, raw.duration.unit, 'WORKING_DAY'), roll_to_working_day: raw.duration.roll_to_working_day !== false } } : {}),
+    ...(isRecord(raw.bands) ? { bands: bandsOf(raw.bands) } : {}),
+    ...(records(raw.responsible_units).length === 0 ? {} : { responsible_units: records(raw.responsible_units).map((item) => ({ unit_ref: text(item.unit_ref), role: text(item.role), part: item.part === 'SUPPORT' ? ('SUPPORT' as const) : ('LEAD' as const) })) }),
+    ...(isRecord(raw.extension) ? { extension: extensionOf(raw.extension) } : {}),
+    [ORIGIN]: raw,
+  } as EditorTask;
 }
+
+function bandsOf(raw: Record<string, unknown>): EditorBands {
+  const green = wholeOrNone(raw.green_days);
+  const yellow = wholeOrNone(raw.yellow_days);
+  const red = wholeOrNone(raw.red_days);
+  return { ...(green === undefined ? {} : { green_days: green }), ...(yellow === undefined ? {} : { yellow_days: yellow }), ...(red === undefined ? {} : { red_days: red }) };
+}
+
+function extensionOf(raw: Record<string, unknown>): TaskExtension {
+  const times = wholeOrNone(raw.max_times);
+  const value = wholeOrNone(raw.max_value);
+  return { allowed: raw.allowed === true, ...(times === undefined ? {} : { max_times: times }), ...(value === undefined ? {} : { max_value: value }), unit: oneOf(DURATION_UNITS, raw.unit, 'WORKING_DAY') };
+}
+
+function readStep(item: Record<string, unknown>): EditorStep {
+  return {
+    code: text(item.code),
+    name: text(item.name),
+    phase: text(item.phase),
+    ...(typeof item.responsible_role === 'string' && item.responsible_role !== '' ? { responsible_role: item.responsible_role } : {}),
+    ...(records(item.legal_basis).length === 0 ? {} : { legal_basis: readLegalBasis(item.legal_basis) }),
+    [ORIGIN]: item,
+  } as EditorStep;
+}
+
+const readPhase = (item: Record<string, unknown>): TemplatePhase => ({ code: text(item.code), name: text(item.name), gates: GATE_TARGETS.filter((target) => strings(item.gates).includes(target)), [ORIGIN]: item }) as TemplatePhase;
 
 /** Reads the params of a `PROJECT_WORKFLOW_TEMPLATE` rule into what the editor holds; what is not there is left empty, never guessed. */
 export function readTemplate(params: unknown): Template {
@@ -169,51 +274,145 @@ export function readTemplate(params: unknown): Template {
     name: text(params.name),
     project_type: typeof params.project_type === 'string' && params.project_type !== '' ? params.project_type : null,
     ...(records(params.roles).length === 0 ? {} : { roles: records(params.roles).map((item) => ({ code: text(item.code), name: text(item.name) })) }),
-    phases: records(params.phases).map((item) => ({ code: text(item.code), name: text(item.name), gates: GATE_TARGETS.filter((target) => strings(item.gates).includes(target)) })),
-    ...(records(params.steps).length === 0
-      ? {}
-      : {
-          steps: records(params.steps).map((item) => ({
-            code: text(item.code),
-            name: text(item.name),
-            phase: text(item.phase),
-            ...(typeof item.responsible_role === 'string' && item.responsible_role !== '' ? { responsible_role: item.responsible_role } : {}),
-            ...(records(item.legal_basis).length === 0 ? {} : { legal_basis: readLegalBasis(item.legal_basis) }),
-          })),
-        }),
+    phases: records(params.phases).map(readPhase),
+    ...(records(params.steps).length === 0 ? {} : { steps: records(params.steps).map(readStep) }),
     tasks: records(params.tasks).map(readTask),
-  };
+    ...(records(params.parties).length === 0 ? {} : { parties: records(params.parties).map((item) => ({ code: text(item.code), name: text(item.name) })) }),
+    ...(typeof params.overall_deadline_task === 'string' && params.overall_deadline_task !== '' ? { overall_deadline_task: params.overall_deadline_task } : {}),
+    [ORIGIN]: params,
+  } as Template;
 }
 
-/** The params the rule store keeps (snake_case, as the contract says): no empty constraint, no empty approver, no empty project type. */
+// ---- writing: a field nobody touched is written as it was stored (R62) ------------------------------------------------------------------------------------------------
+
+const sameValue = (a: unknown, b: unknown): boolean => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+
+/**
+ * The record of an entity as the rule keeps it. `written` is what the editor writes for an entity of its own making. For an entity read from a rule every field is compared with what that rule gave: a field that is
+ * what it was is written exactly as it was stored (present or absent, `null` or left out, with whatever the editor does not know of), and only a field the person changed takes the editor's own form. Keys of the
+ * stored record the editor has no field for are carried over untouched: nothing is dropped on save.
+ */
+function preserve(entity: object, written: Params, read: (raw: Params) => object, fields: readonly string[]): Params {
+  const raw = originOf(entity);
+  if (raw === undefined) return written;
+  const was = readOnce(raw, read);
+  const now = entity as Record<string, unknown>;
+  const out: Params = {};
+  for (const key of Object.keys(raw)) if (!fields.includes(key)) out[key] = raw[key];
+  for (const key of fields) {
+    if (sameValue(now[key], was[key])) {
+      if (key in raw) out[key] = raw[key];
+    } else if (key in written) out[key] = written[key];
+  }
+  return out;
+}
+
+/** What a stored record reads as, read once: the editor asks at every keystroke. */
+const READ = new WeakMap<object, Record<string, unknown>>();
+function readOnce(raw: Params, read: (raw: Params) => object): Record<string, unknown> {
+  const known = READ.get(raw);
+  if (known !== undefined) return known;
+  const made = read(raw) as Record<string, unknown>;
+  READ.set(raw, made);
+  return made;
+}
+
+const PHASE_KEYS: readonly string[] = ['code', 'name', 'gates'];
+const STEP_KEYS: readonly string[] = ['code', 'name', 'phase', 'responsible_role', 'legal_basis'];
+const TASK_KEYS: readonly string[] = ['code', 'name', 'phase', 'kind', 'duration_working_days', 'required', 'responsible_role', 'approver_role', 'priority', 'predecessors', 'constraint', 'legal_doc_types', 'form_templates', 'checklist', 'kpi_codes', 'when', 'step', 'legal_basis', 'form_policies', 'duration', 'bands', 'responsible_units', 'extension'];
+/** The lists of entities (`phases`, `steps`, `tasks`) are written entity by entity, so they are fields of the template the comparison never sees as "what the rule gave". */
+const ROOT_KEYS: readonly string[] = ['name', 'project_type', 'roles', 'parties', 'overall_deadline_task', 'phases', 'steps', 'tasks'];
+const ROOT_OWN: readonly string[] = ['name', 'project_type', 'roles', 'parties', 'overall_deadline_task'];
+
+const writePhase = (phase: TemplatePhase): Params => preserve(phase, { code: phase.code, name: phase.name.trim(), gates: [...phase.gates] }, readPhase, PHASE_KEYS);
+
+const writeStep = (step: EditorStep): Params =>
+  preserve(
+    step,
+    {
+      code: step.code,
+      name: step.name.trim(),
+      phase: step.phase,
+      ...(step.responsible_role === undefined || step.responsible_role === null || step.responsible_role.trim() === '' ? {} : { responsible_role: step.responsible_role.trim() }),
+      ...((step.legal_basis ?? []).length === 0 ? {} : { legal_basis: writeLegalBasis(step.legal_basis ?? []) }),
+    },
+    readStep,
+    STEP_KEYS,
+  );
+
+function writeTask(task: EditorTask, withSteps: boolean): Params {
+  const policies = (task.form_policies ?? []).filter((policy) => task.form_templates.includes(policy.form));
+  const written: Params = {
+    code: task.code,
+    name: task.name.trim(),
+    phase: task.phase,
+    kind: task.kind,
+    duration_working_days: task.duration_working_days,
+    required: task.required,
+    responsible_role: task.responsible_role,
+    // The stored form of a task nobody approves has no approver at all.
+    ...(task.approver_role === null || task.approver_role === undefined || task.approver_role === '' ? {} : { approver_role: task.approver_role }),
+    priority: task.priority,
+    predecessors: task.predecessors,
+    ...(task.constraint === null ? {} : { constraint: task.constraint }),
+    legal_doc_types: task.legal_doc_types,
+    form_templates: task.form_templates,
+    checklist: task.checklist,
+    kpi_codes: task.kpi_codes,
+    when: task.when,
+    ...(withSteps && typeof task.step === 'string' && task.step !== '' ? { step: task.step } : {}),
+    ...((task.legal_basis ?? []).length === 0 ? {} : { legal_basis: writeLegalBasis(task.legal_basis ?? []) }),
+    // The policy of a form the task no longer has goes with the form.
+    ...(policies.length === 0 ? {} : { form_policies: policies.map((policy) => ({ form: policy.form, policy: policy.policy, ...(policy.policy === 'PINNED' && typeof policy.revision === 'number' ? { revision: policy.revision } : {}) })) }),
+    ...(task.duration === undefined || task.kind === 'MILESTONE' ? {} : { duration: task.duration }),
+    ...(task.bands === undefined || Object.keys(task.bands).length === 0 ? {} : { bands: task.bands }),
+    ...((task.responsible_units ?? []).length === 0 ? {} : { responsible_units: task.responsible_units }),
+    ...(task.extension === undefined ? {} : { extension: task.extension }),
+  };
+  const out = preserve(task, written, readTask, TASK_KEYS);
+  // A task taken out of its steps names no step, whatever the rule said.
+  if (!withSteps && typeof out.step === 'string') delete out.step;
+  return out;
+}
+
+/** An empty list of the template is written the way it was stored (`[]` or not at all); a new template leaves it out. */
+const emptyList = (template: Template, key: string): Params => {
+  const raw = originOf(template);
+  return raw !== undefined && Array.isArray(raw[key]) && (raw[key] as unknown[]).length === 0 ? { [key]: [] } : {};
+};
+
+/** The params the rule store keeps (snake_case, as the contract says): no empty constraint, no empty approver, no empty project type; and for a template read from a rule, every field nobody touched as it was. */
 export function paramsOfTemplate(template: Template): TemplateParams & Params {
-  return {
+  const withSteps = hasSteps(template);
+  const roles = template.roles ?? [];
+  const parties = template.parties ?? [];
+  const overall = template.overall_deadline_task;
+  const own: Params = {
     name: template.name.trim(),
     project_type: template.project_type === null || template.project_type.trim() === '' ? null : template.project_type.trim(),
-    ...((template.roles ?? []).length === 0 ? {} : { roles: (template.roles ?? []).map((role) => ({ code: role.code, name: role.name.trim() })) }),
-    phases: template.phases.map((phase) => ({ code: phase.code, name: phase.name.trim(), gates: [...phase.gates] })),
-    ...(hasSteps(template)
-      ? {
-          steps: stepsOf(template).map((step) => ({
-            code: step.code,
-            name: step.name.trim(),
-            phase: step.phase,
-            ...(step.responsible_role === undefined || step.responsible_role === null || step.responsible_role.trim() === '' ? {} : { responsible_role: step.responsible_role.trim() }),
-            ...((step.legal_basis ?? []).length === 0 ? {} : { legal_basis: writeLegalBasis(step.legal_basis ?? []) }),
-          })),
-        }
-      : {}),
-    tasks: template.tasks.map(({ constraint, approver_role: approver, step, legal_basis: basis, form_policies: policies, ...task }) => ({
-      ...task,
-      name: task.name.trim(),
-      approver_role: approver === null || approver === '' ? null : approver,
-      ...(constraint === null ? {} : { constraint }),
-      ...(hasSteps(template) && typeof step === 'string' && step !== '' ? { step } : {}),
-      ...((basis ?? []).length === 0 ? {} : { legal_basis: writeLegalBasis(basis ?? []) }),
-      // The policy of a form the task no longer has goes with the form.
-      ...((policies ?? []).some((policy) => task.form_templates.includes(policy.form)) ? { form_policies: (policies ?? []).filter((policy) => task.form_templates.includes(policy.form)).map((policy) => ({ form: policy.form, policy: policy.policy, ...(policy.policy === 'PINNED' && typeof policy.revision === 'number' ? { revision: policy.revision } : {}) })) } : {}),
-    })),
+    ...(roles.length === 0 ? {} : { roles: roles.map((role) => ({ code: role.code, name: role.name.trim() })) }),
+    ...(parties.length === 0 ? {} : { parties: parties.map((party) => ({ code: party.code, name: party.name.trim() })) }),
+    ...(typeof overall === 'string' && overall !== '' ? { overall_deadline_task: overall } : {}),
   };
+  const raw = originOf(template);
+  const was = raw === undefined ? undefined : readOnce(raw, readTemplate);
+  const now = template as unknown as Record<string, unknown>;
+  const kept: Params = {};
+  if (raw === undefined || was === undefined) Object.assign(kept, own);
+  else {
+    for (const key of Object.keys(raw)) if (!ROOT_KEYS.includes(key)) kept[key] = raw[key];
+    for (const key of ROOT_OWN) {
+      if (sameValue(now[key], was[key])) {
+        if (key in raw) kept[key] = raw[key];
+      } else if (key in own) kept[key] = own[key];
+    }
+  }
+  return {
+    ...kept,
+    phases: template.phases.map(writePhase),
+    ...(withSteps ? { steps: stepsOf(template).map(writeStep) } : emptyList(template, 'steps')),
+    tasks: template.tasks.map((task) => writeTask(task, withSteps)),
+  } as TemplateParams & Params;
 }
 
 export interface TemplateSummary {
@@ -401,17 +600,23 @@ export function renameTask(template: Template, index: number, code: string): Tem
   if (old === undefined) return template;
   return {
     ...template,
-    tasks: template.tasks.map((task, at) => ({
-      ...(at === index ? { ...task, code } : task),
-      predecessors: task.predecessors.map((link) => (link.task === old ? { ...link, task: code } : link)),
-    })),
+    ...(template.overall_deadline_task === old ? { overall_deadline_task: code } : {}),
+    tasks: template.tasks.map((task, at) => {
+      const named = at === index ? { ...task, code } : task;
+      return named.predecessors.some((link) => link.task === old) ? { ...named, predecessors: named.predecessors.map((link) => (link.task === old ? { ...link, task: code } : link)) } : named;
+    }),
   };
 }
 
 export function removeTask(template: Template, index: number): Template {
   const old = template.tasks[index]?.code;
   if (old === undefined) return template;
-  return { ...template, tasks: template.tasks.filter((_, at) => at !== index).map((task) => ({ ...task, predecessors: task.predecessors.filter((link) => link.task !== old) })) };
+  const left = { ...template, tasks: template.tasks.filter((_, at) => at !== index).map((task) => (task.predecessors.some((link) => link.task === old) ? { ...task, predecessors: task.predecessors.filter((link) => link.task !== old) } : task)) };
+  // The mark of the overall deadline goes with the task it was on (no other task is taken in its place).
+  if (template.overall_deadline_task !== old) return left;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the mark is what is dropped
+  const { overall_deadline_task: gone, ...rest } = left;
+  return rest;
 }
 
 /** Adds a link; the same (task, kind) is never added twice and a task has at most twenty. */
@@ -440,7 +645,7 @@ export const joinCodes = (values: readonly string[]): string => values.join(', '
 
 // ---- the checks made before anything is sent -------------------------------------------------------------------------------------------------------------------
 
-export type TemplateProblemKind = 'required' | 'pattern' | 'duplicate' | 'range' | 'length' | 'limit' | 'unknownRef' | 'selfLink';
+export type TemplateProblemKind = 'required' | 'pattern' | 'duplicate' | 'range' | 'length' | 'limit' | 'unknownRef' | 'selfLink' | 'nominal' | 'bandOrder' | 'oneLead' | 'leadRole' | 'extensionUnit' | 'capsNotAllowed' | 'milestoneLimit';
 export interface TemplateProblem {
   path: string;
   problem: TemplateProblemKind;
@@ -528,7 +733,7 @@ function legalBasisProblems(path: string, basis: readonly LegalBasisInput[]): Te
   return out;
 }
 
-function taskProblems(task: EditorTask, index: number, taken: ReadonlySet<string>, codes: ReadonlySet<string>, phases: ReadonlySet<string>, stepPhase: ReadonlyMap<string, string>): TemplateProblem[] {
+function taskProblems(task: EditorTask, index: number, taken: ReadonlySet<string>, codes: ReadonlySet<string>, phases: ReadonlySet<string>, stepPhase: ReadonlyMap<string, string>, parties: ReadonlySet<string>): TemplateProblem[] {
   const path = `tasks[${index}]`;
   const out: TemplateProblem[] = [];
   const push = (problem: TemplateProblem | undefined): void => {
@@ -545,7 +750,58 @@ function taskProblems(task: EditorTask, index: number, taken: ReadonlySet<string
   if (!whole(task.duration_working_days, 0, MAX_DURATION)) out.push({ path: `${path}.duration_working_days`, problem: 'range' });
   push(codeProblem(`${path}.responsible_role`, task.responsible_role));
   if (typeof task.approver_role === 'string' && !CODE_PATTERN.test(task.approver_role)) out.push({ path: `${path}.approver_role`, problem: 'pattern' });
-  out.push(...linkProblems(path, task, codes), ...detailProblems(path, task));
+  out.push(...linkProblems(path, task, codes), ...detailProblems(path, task), ...tableProblems(path, task, parties));
+  return out;
+}
+
+/** The rules of the fields of the table of steps (PWF 22.2), each told at the field it is about. */
+function tableProblems(path: string, task: EditorTask, parties: ReadonlySet<string>): TemplateProblem[] {
+  const out: TemplateProblem[] = [];
+  const limit = task.duration;
+  if (limit !== undefined) {
+    if (task.kind === 'MILESTONE') out.push({ path: `${path}.duration`, problem: 'milestoneLimit' });
+    else if (!whole(limit.value, 1, MAX_DURATION)) out.push({ path: `${path}.duration.value`, problem: 'range' });
+    // The old field is never typed freely beside a limit in its own unit: it is the nominal value of that limit.
+    else if (task.duration_working_days !== nominalWorkingDays(limit.value, limit.unit)) out.push({ path: `${path}.duration_working_days`, problem: 'nominal' });
+  }
+  const bands = task.bands;
+  if (bands !== undefined && Object.keys(bands).length > 0) {
+    const { green_days: green, yellow_days: yellow, red_days: red } = bands;
+    if (yellow === undefined) out.push({ path: `${path}.bands.yellow_days`, problem: 'required' });
+    else if (!whole(yellow, 0, 3650)) out.push({ path: `${path}.bands.yellow_days`, problem: 'range' });
+    if (red === undefined) out.push({ path: `${path}.bands.red_days`, problem: 'required' });
+    else if (!whole(red, -1, 3650)) out.push({ path: `${path}.bands.red_days`, problem: 'range' });
+    if (green !== undefined && !whole(green, 1, 3650)) out.push({ path: `${path}.bands.green_days`, problem: 'range' });
+    // The ladder is strict: green above yellow above red.
+    if (yellow !== undefined && red !== undefined && (yellow <= red || (green !== undefined && green <= yellow))) out.push({ path: `${path}.bands`, problem: 'bandOrder' });
+  }
+  const units = task.responsible_units ?? [];
+  if (units.length > 0) {
+    if (units.length > MAX_UNITS) out.push({ path: `${path}.responsible_units`, problem: 'limit' });
+    const seen = new Set<string>();
+    units.forEach((unit, at) => {
+      const base = `${path}.responsible_units[${at}]`;
+      if (unit.unit_ref === '') out.push({ path: `${base}.unit_ref`, problem: 'required' });
+      else if (!UNIT_REF_PATTERN.test(unit.unit_ref)) out.push({ path: `${base}.unit_ref`, problem: 'pattern' });
+      else if (unit.unit_ref.startsWith('PROJECT_PARTY:') && !parties.has(unit.unit_ref.slice('PROJECT_PARTY:'.length))) out.push({ path: `${base}.unit_ref`, problem: 'unknownRef' });
+      if (unit.role === '') out.push({ path: `${base}.role`, problem: 'required' });
+      else if (!CODE_PATTERN.test(unit.role)) out.push({ path: `${base}.role`, problem: 'pattern' });
+      const key = `${unit.unit_ref}|${unit.role}`;
+      if (seen.has(key)) out.push({ path: `${base}.unit_ref`, problem: 'duplicate' });
+      seen.add(key);
+    });
+    const leads = units.filter((unit) => unit.part === 'LEAD');
+    if (leads.length !== 1) out.push({ path: `${path}.responsible_units`, problem: 'oneLead' });
+    // One truth for the role that answers for the task: the role of the unit that leads.
+    else if (leads[0]?.role !== task.responsible_role) out.push({ path: `${path}.responsible_units`, problem: 'leadRole' });
+  }
+  const extension = task.extension;
+  if (extension !== undefined) {
+    if (extension.unit !== (limit?.unit ?? 'WORKING_DAY')) out.push({ path: `${path}.extension.unit`, problem: 'extensionUnit' });
+    if (!extension.allowed && (extension.max_times !== undefined || extension.max_value !== undefined)) out.push({ path: `${path}.extension`, problem: 'capsNotAllowed' });
+    if (extension.max_times !== undefined && !whole(extension.max_times, 1, 20)) out.push({ path: `${path}.extension.max_times`, problem: 'range' });
+    if (extension.max_value !== undefined && !whole(extension.max_value, 1, MAX_DURATION)) out.push({ path: `${path}.extension.max_value`, problem: 'range' });
+  }
   return out;
 }
 
@@ -594,12 +850,25 @@ export function localProblems(template: Template): TemplateProblem[] {
     if (!template.tasks.some((task) => task.step === step.code)) out.push({ path: `${at}.tasks`, problem: 'required' });
     out.push(...legalBasisProblems(at, step.legal_basis ?? []));
   });
+  const declared = template.parties ?? [];
+  if (declared.length > MAX_PARTIES) out.push({ path: 'parties', problem: 'limit' });
+  const partyCodes = new Set<string>(BUILT_IN_PARTIES);
+  declared.forEach((party, index) => {
+    // The two parties every project has are not declared a second time.
+    const code = codeProblem(`parties[${index}].code`, party.code, partyCodes);
+    if (code !== undefined) out.push(code);
+    partyCodes.add(party.code);
+    const label = nameProblem(`parties[${index}].name`, party.name, 120);
+    if (label !== undefined) out.push(label);
+  });
   const allCodes = new Set(template.tasks.map((task) => task.code));
   const taken = new Set<string>();
   template.tasks.forEach((task, index) => {
-    out.push(...taskProblems(task, index, taken, allCodes, phaseCodes, stepPhase));
+    out.push(...taskProblems(task, index, taken, allCodes, phaseCodes, stepPhase, partyCodes));
     taken.add(task.code);
   });
+  const overall = template.overall_deadline_task;
+  if (typeof overall === 'string' && overall !== '' && !allCodes.has(overall)) out.push({ path: 'overall_deadline_task', problem: 'unknownRef' });
   return out;
 }
 
@@ -613,7 +882,7 @@ export interface TemplateChange {
   fields: string[];
 }
 
-const TASK_FIELDS = ['name', 'phase', 'step', 'kind', 'duration_working_days', 'required', 'responsible_role', 'approver_role', 'priority', 'predecessors', 'constraint', 'legal_doc_types', 'form_templates', 'form_policies', 'legal_basis', 'checklist', 'kpi_codes', 'when'] as const;
+const TASK_FIELDS = ['name', 'phase', 'step', 'kind', 'duration_working_days', 'required', 'responsible_role', 'approver_role', 'priority', 'predecessors', 'constraint', 'legal_doc_types', 'form_templates', 'form_policies', 'legal_basis', 'checklist', 'kpi_codes', 'when', 'duration', 'bands', 'responsible_units', 'extension'] as const;
 const STEP_FIELDS = ['name', 'phase', 'responsible_role', 'legal_basis'] as const;
 
 const differing = <T extends object>(before: T, after: T, fields: readonly (keyof T)[]): string[] => fields.filter((field) => JSON.stringify(before[field]) !== JSON.stringify(after[field])).map(String);
@@ -636,7 +905,7 @@ function compareParts<T extends { code: string }>(scope: 'phase' | 'step' | 'tas
 
 /** What differs between two versions of a template: the template itself, then the phases and the tasks added, removed or changed. */
 export function compareTemplates(before: Template, after: Template): TemplateChange[] {
-  const own = differing(before, after, ['name', 'project_type']);
+  const own = differing(before, after, ['name', 'project_type', 'overall_deadline_task', 'parties']);
   return [...(own.length === 0 ? [] : [{ scope: 'template' as const, code: '', kind: 'changed' as const, fields: own }]), ...compareParts('phase', before.phases, after.phases, ['name', 'gates']), ...compareParts('step', stepsOf(before), stepsOf(after), STEP_FIELDS), ...compareParts('task', before.tasks, after.tasks, TASK_FIELDS)];
 }
 

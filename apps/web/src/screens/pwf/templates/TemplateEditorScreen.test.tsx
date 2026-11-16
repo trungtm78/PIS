@@ -1,8 +1,15 @@
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { existsSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { describeViolations, seriousViolations } from '../../../test/axe';
+import { effectiveBody } from '../../adm/governance/test/fixtures';
 import { ME, OTHER, ALL_PERMISSIONS, READ_ONLY, refusal, routeOf, schedulePreview, scheduleTask, serve, templateParams, text } from '../test/fixtures';
 import type { Answer } from '../test/fixtures';
+import { DRAFT_PREFIX } from './draft-store';
+import { PREVIEW_DELAY_MS } from './live-preview';
+import builtIn from './test/builtin-templates.json';
+import roadRepair from './test/cb-road-repair.json';
 import { shippedEffective, templateEffective, templateVersion, uuid, validation } from './test/fixtures';
 import { mountAs } from './test/mount';
 import TemplateEditorScreen from './TemplateEditorScreen';
@@ -10,10 +17,12 @@ import TemplateEditorScreen from './TemplateEditorScreen';
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  window.localStorage.clear();
 });
 
 const route = routeOf('PWF-02');
 const WITHIN = { timeout: 4000 };
+const TEMPLATE = 'PROJECT_WORKFLOW_TEMPLATE';
 
 interface Setup {
   path?: string;
@@ -22,542 +31,711 @@ interface Setup {
   effective?: Answer;
   versions?: unknown[];
   rule?: unknown;
+  assignment?: unknown;
   commands?: Record<string, Answer>;
+  /** The kinds of project and the units of the tenant. */
+  projectTypes?: unknown[];
 }
 
 const open = (setup: Setup = {}) => {
   const h = serve(
     {
-      getEffectiveGovernanceRule: setup.effective ?? templateEffective(),
+      getEffectiveGovernanceRule: (input: Record<string, unknown>) => {
+        const type = (input.query as { rule_type: string }).rule_type;
+        if (type === TEMPLATE) return typeof setup.effective === 'function' ? (setup.effective as (i: unknown) => unknown)(input) : (setup.effective ?? templateEffective());
+        return setup.assignment ?? effectiveBody({ rule_type: 'PROJECT_WORKFLOW_ASSIGNMENT', code: 'DEFAULT', params: { lines: [] }, version: 1, source: 'RULE', rule_id: uuid(300) });
+      },
       listGovernanceRuleVersions: { items: setup.versions ?? [templateVersion(2), templateVersion(1, { status: 'RETIRED', phase: 'ENDED' })] },
-      getGovernanceRule: setup.rule ?? templateVersion(1),
+      getGovernanceRule: setup.rule ?? ((input: Record<string, unknown>) => templateVersion(3, { id: (input.path as { ruleId: string }).ruleId, status: 'DRAFT', phase: 'DRAFT', created_by: ME })),
+      getGovernanceRuleCatalog: { items: [] },
     },
     {
       validateProjectWorkflowTemplate: validation(),
       previewProjectWorkflowTemplate: schedulePreview(),
       createGovernanceRuleDraft: { resource_id: uuid(200), status: 'DRAFT', resource_version: 1 },
+      submitGovernanceRule: { resource_id: uuid(200), status: 'SUBMITTED', resource_version: 2 },
       ...setup.commands,
     },
   );
+  (h.client.readAll as ReturnType<typeof vi.fn>).mockImplementation(async (operation: string) => (operation === 'searchMasterRecords' ? (setup.projectTypes ?? []) : []));
   mountAs(<TemplateEditorScreen route={route} />, h, { permissions: setup.permissions ?? ALL_PERMISSIONS, ...(setup.mode === undefined ? {} : { mode: setup.mode }), path: setup.path ?? '/pwf/pwf-02?code=PUBLIC_INVESTMENT' });
   return h;
 };
 
-const field = (path: string) => screen.getByTestId(`field-${path}`) as HTMLInputElement;
-const change = (path: string, value: string) => fireEvent.change(field(path), { target: { value } });
-const click = (action: string) => fireEvent.click(document.querySelector(`[data-action="${action}"]`) as HTMLElement);
-const ready = async () => screen.findByTestId('tree');
+const ready = async () => screen.findByTestId('steps-table');
+const rowOf = (key: string): HTMLElement => document.querySelector(`[data-line="${key}"]`) as HTMLElement;
+const nameInputs = (): HTMLInputElement[] => Array.from(document.querySelectorAll<HTMLInputElement>('[data-field="name"]'));
 const lastBody = (h: ReturnType<typeof open>, operation: string) => {
   const calls = h.command.mock.calls.filter((call) => call[0] === operation);
   return (calls[calls.length - 1]?.[1] as { body: Record<string, unknown> }).body;
 };
+const callsOf = (h: ReturnType<typeof open>, operation: string) => h.command.mock.calls.filter((call) => call[0] === operation);
+/** Opens the version in force for writing: a new draft. */
+const fork = async () => {
+  await ready();
+  fireEvent.click(screen.getByTestId('new-draft'));
+};
+const saveWith = async (reason: string) => {
+  fireEvent.click(screen.getByTestId('save-draft'));
+  const dialog = await screen.findByRole('dialog');
+  fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: reason } });
+  fireEvent.click(within(dialog).getByRole('button', { name: text('pwfx.action.saveDraft') }));
+};
 
-describe('PWF-02: starting the template', () => {
-  it('starts from the rule in force of the code: name, project type, phases and the task tree', async () => {
+describe('PWF-02: one table of steps', () => {
+  it('opens the procedure in force as one table: a row for each step with its unit, start point, time limit and the three colours', async () => {
     open();
     await ready();
-    expect(field('name').value).toBe('Mẫu bản 2');
-    expect(field('project_type').value).toBe('CONSTRUCTION');
-    expect(field('code').value).toBe('PUBLIC_INVESTMENT');
-    expect(field('phases[0].code').value).toBe('PREPARATION');
-    expect(screen.getByTestId('base-note').textContent).toBe(text('pwf.templates.editor.base.rule', { version: 2 }));
-    const tree = screen.getByTestId('tree');
-    expect(within(tree).getByText('T1')).toBeTruthy();
-    expect(within(tree).getByText('T2')).toBeTruthy();
-    // The milestone says so, in words.
-    expect(within(tree).getByText(text('pwf.kind.milestone.word'))).toBeTruthy();
-    // Every limit has its "i".
-    expect(screen.getAllByTestId('limit').length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByTestId('template-title').textContent).toBe('Mẫu bản 2');
+    expect(nameInputs().map((input) => input.value)).toEqual(['Lập báo cáo nghiên cứu khả thi', 'Thẩm định']);
+    expect((within(rowOf('task:T2')).getByLabelText(/mốc tính của bước 2/i) as HTMLSelectElement).value).toBe('task:T1');
+    expect((within(rowOf('task:T1')).getByLabelText(/mốc tính của bước 1/i) as HTMLSelectElement).value).toBe('start');
+    expect((screen.getByTestId('limit-task:T1') as HTMLInputElement).value).toBe('20');
+    expect(within(rowOf('task:T1')).getAllByLabelText(/ngưỡng/i)).toHaveLength(3);
   });
 
-  it('says above the tabs what the template holds, part by part, in the words of the screen catalogue', async () => {
-    open();
+  it('is denied without the permission to manage templates', async () => {
+    open({ permissions: READ_ONLY });
+    expect(await screen.findByText(text('states.denied.title'))).toBeTruthy();
+  });
+
+  it('opens the draft in the making when the code has one, writable, with its state in the header', async () => {
+    open({ versions: [templateVersion(3, { status: 'DRAFT', phase: 'DRAFT', created_by: ME, params: templateParams({ name: 'Bản nháp 3' }) }), templateVersion(2)] });
     await ready();
-    const outline = screen.getByTestId('outline');
-    for (const key of ['phases', 'tasks', 'links', 'branches', 'documents', 'checklist', 'kpi', 'checks']) expect(within(outline).getByText(text(`fix9.pwf02.dt.${key}`))).toBeTruthy();
-    // One phase with one gate; two tasks of 20 working days, both mandatory, both with a responsible role, one with a completion approver; one FS link without a lag.
-    expect(screen.getByTestId('outline-phases').textContent).toBe(text('fix9.pwf02.dd.phases', { phases: 1, gates: 1 }));
-    expect(screen.getByTestId('outline-tasks').textContent).toBe(text('fix9.pwf02.dd.tasks', { tasks: 2, days: 20, required: 2, responsible: 2, approver: 1 }));
-    expect(screen.getByTestId('outline-links').textContent).toBe(text('fix9.pwf02.dd.links', { fs: 1, ss: 0, ff: 0, sf: 0, lagged: 0 }));
-    expect(screen.getByTestId('outline-checklist').textContent).toBe(text('fix9.pwf02.dd.checklist', { count: 0 }));
+    expect(screen.getByTestId('template-title').textContent).toBe('Bản nháp 3');
+    expect(screen.getByTestId('template-sub').textContent).toContain(text('gova1.status.draft'));
+    expect(screen.queryByTestId('read-only')).toBeNull();
   });
 
-  it('labels a template that ships unconfirmed, and says it is the shipped one', async () => {
-    open({ path: '/pwf/pwf-02?code=PUBLIC_REPAIR', effective: shippedEffective() });
-    await ready();
-    expect(screen.getByTestId('base-note').textContent).toBe(text('pwf.templates.editor.base.default'));
-    expect(screen.getAllByText(text('pwf.common.unverified.label')).length).toBeGreaterThan(0);
-    expect(screen.getByTestId('unverified-note')).toBeTruthy();
-  });
-
-  it('starts from the version the address names, and says when that version is not there', async () => {
-    open({ path: `/pwf/pwf-02?code=PUBLIC_INVESTMENT&from=${uuid(101)}`, rule: templateVersion(1, { params: templateParams({ name: 'Bản một' }) }) });
-    await waitFor(() => expect(field('name').value).toBe('Bản một'));
-    expect(screen.getByTestId('base-note').textContent).toBe(text('pwf.templates.editor.base.version', { version: 1 }));
-    cleanup();
-    open({ path: `/pwf/pwf-02?code=PUBLIC_INVESTMENT&from=${uuid(105)}`, rule: refusal('GOVERNANCE_RULE_NOT_FOUND', 404) });
+  it('says when the version the address names is not there', async () => {
+    open({ path: `/pwf/pwf-02?from=${uuid(999)}`, rule: refusal('RESOURCE_NOT_FOUND', 404) });
     expect(await screen.findByTestId('from-missing')).toBeTruthy();
   });
 
-  it('opens blank with one empty phase when no code is given, and takes the rule in force once a code is typed', async () => {
-    open({ path: '/pwf/pwf-02', effective: refusal('GOVERNANCE_RULE_NOT_FOUND', 404) });
-    await ready();
-    expect(screen.getByTestId('base-note').textContent).toBe(text('pwf.templates.editor.base.blank'));
-    expect(field('phases[0].code').value).toBe('P1');
-    expect(field('name').value).toBe('');
-    change('code', 'public_repair');
-    expect(field('code').value).toBe('PUBLIC_REPAIR');
+  it('adds a step that copies the unit, the limit and the three colours of the row above and starts when it is done; no code is asked for', async () => {
+    open();
+    await fork();
+    fireEvent.change(screen.getByLabelText(/ngưỡng đỏ.*bước 2/i), { target: { value: '1' } });
+    fireEvent.change(screen.getByLabelText(/ngưỡng vàng.*bước 2/i), { target: { value: '3' } });
+    fireEvent.click(document.querySelector('[data-action="add-step-PREPARATION"]') as HTMLElement);
+    await waitFor(() => expect(nameInputs()).toHaveLength(3));
+    const added = nameInputs()[2] as HTMLInputElement;
+    expect(document.activeElement).toBe(added);
+    const row = added.closest('tr') as HTMLElement;
+    expect((within(row).getByLabelText(/^thời hạn của bước 3$/i) as HTMLInputElement).value).toBe('1');
+    expect((within(row).getByLabelText(/ngưỡng đỏ.*bước 3/i) as HTMLInputElement).value).toBe('1');
+    expect((within(row).getByLabelText(/ngưỡng vàng.*bước 3/i) as HTMLInputElement).value).toBe('3');
+    expect((within(row).getByLabelText(/vai trò của bước 3/i) as HTMLSelectElement).value).toBe('APPROVER');
+    expect((within(row).getByLabelText(/mốc tính của bước 3/i) as HTMLSelectElement).value).toBe('task:T2');
+    expect(screen.queryByLabelText(/^mã/i)).toBeNull();
+    // The code is made from the name once it is given, and a later rename never changes it.
+    fireEvent.change(added, { target: { value: 'Phê duyệt kết quả' } });
+    fireEvent.blur(added);
+    expect(document.querySelector('[data-line="task:PHE_DUYET_KET_QUA"]')).toBeTruthy();
+    fireEvent.change(added, { target: { value: 'Quyết định phê duyệt' } });
+    fireEvent.blur(added);
+    expect(document.querySelector('[data-line="task:PHE_DUYET_KET_QUA"]')).toBeTruthy();
   });
 
-  it('is denied without the permission to manage templates and reads nothing', () => {
-    const h = open({ permissions: READ_ONLY });
-    expect(screen.getByText(text('states.denied.title'))).toBeTruthy();
-    expect(h.read).not.toHaveBeenCalled();
+  it('deletes a row and puts it back with Undo, until the next edit', async () => {
+    open();
+    await fork();
+    fireEvent.click(screen.getByTestId('remove-task:T2'));
+    expect(nameInputs()).toHaveLength(1);
+    fireEvent.click(screen.getByTestId('undo'));
+    expect(nameInputs()).toHaveLength(2);
+    expect(screen.queryByTestId('undo')).toBeNull();
+    fireEvent.click(screen.getByTestId('remove-task:T2'));
+    fireEvent.change(nameInputs()[0] as HTMLInputElement, { target: { value: 'Đổi tên' } });
+    expect(screen.queryByTestId('undo')).toBeNull();
   });
 
-  it('shows the template but changes nothing when the session is read-only', async () => {
-    const h = open({ mode: 'READ_ONLY' });
-    await ready();
-    expect(screen.getByTestId('read-only')).toBeTruthy();
-    expect(field('name').disabled).toBe(true);
-    expect(screen.getByTestId('no-store')).toBeTruthy();
-    expect(screen.queryByTestId('save')).toBeNull();
-    expect(h.command).not.toHaveBeenCalled();
+  it('reorders a row with the buttons and marks one row as the deadline of the whole file', async () => {
+    open();
+    await fork();
+    fireEvent.click(within(rowOf('task:T2')).getByRole('button', { name: /đưa lên/ }));
+    expect(nameInputs().map((input) => input.value)).toEqual(['Thẩm định', 'Lập báo cáo nghiên cứu khả thi']);
+    fireEvent.click(screen.getByTestId('overall-task:T1'));
+    expect(screen.getByTestId('overall-task:T1').getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('says a problem at the cell of the row the person has been in, and the summary jumps to that cell', async () => {
+    open();
+    await fork();
+    const first = nameInputs()[0] as HTMLInputElement;
+    fireEvent.change(first, { target: { value: '' } });
+    // Not said yet: the person has not left the row.
+    expect(within(rowOf('task:T1')).queryByTestId('cell-problem')).toBeNull();
+    fireEvent.blur(first);
+    expect(await within(rowOf('task:T1')).findByTestId('cell-problem')).toBeTruthy();
+    expect(first.getAttribute('aria-invalid')).toBe('true');
+    fireEvent.click(await screen.findByTestId('jump'));
+    await waitFor(() => expect(document.activeElement).toBe(first));
+    // A limit that is not a whole number is said at the limit cell.
+    fireEvent.change(screen.getByTestId('limit-task:T1'), { target: { value: '' } });
+    fireEvent.blur(screen.getByTestId('limit-task:T1'));
+    await waitFor(() => expect(within(rowOf('task:T1')).getAllByTestId('cell-problem')).toHaveLength(2));
+  });
+
+  it('names what an advanced link says on the row and keeps it when saved', async () => {
+    const params = templateParams();
+    params.tasks[1] = { ...params.tasks[1], predecessors: [{ task: 'T1', kind: 'SS', lag_working_days: 2 }] } as never;
+    const h = open({ effective: templateEffective({ params }), versions: [templateVersion(2, { params })] });
+    await fork();
+    const row = rowOf('task:T2');
+    expect(within(row).getByLabelText(/mốc tính của bước 2/i)).toHaveProperty('value', '~advanced');
+    expect(within(row).getByLabelText(/liên kết và điều kiện nâng cao/i).textContent).toContain('bắt đầu cùng lúc với');
+    await saveWith('Giữ nguyên liên kết nâng cao');
+    await waitFor(() => expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(1));
+    expect((lastBody(h, 'createGovernanceRuleDraft').params as { tasks: { predecessors: unknown[] }[] }).tasks[1]?.predecessors).toEqual([{ task: 'T1', kind: 'SS', lag_working_days: 2 }]);
   });
 });
 
-describe('PWF-02: editing the template', () => {
-  it('edits the phases: a gate of a command of the project, a new phase, and the removal of one with its tasks', async () => {
+describe('PWF-02: a long procedure and the header', () => {
+  const long = builtIn.PUBLIC_INVESTMENT as never;
+  it('folds the phases after the first when the procedure has more than 12 rows, and opens one on request', async () => {
+    open({ effective: templateEffective({ params: long }), versions: [templateVersion(2, { params: long })] });
+    await ready();
+    const first = document.querySelectorAll('tbody[data-phase]')[0] as HTMLElement;
+    const second = document.querySelectorAll('tbody[data-phase]')[1] as HTMLElement;
+    expect(first.querySelectorAll('tr.pwfx-row').length).toBeGreaterThan(0);
+    expect(second.querySelectorAll('tr.pwfx-row')).toHaveLength(0);
+    fireEvent.click(screen.getByTestId('phase-toggle-1'));
+    expect(second.querySelectorAll('tr.pwfx-row').length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByTestId('phase-toggle-1'));
+    expect(second.querySelectorAll('tr.pwfx-row')).toHaveLength(0);
+  });
+
+  it('keeps a short procedure fully open', async () => {
     open();
     await ready();
-    fireEvent.click(field('phases[0].gates.closeProject'));
-    expect(field('phases[0].gates.closeProject').checked).toBe(true);
-    fireEvent.click(field('phases[0].gates.closeProject'));
-    expect(field('phases[0].gates.closeProject').checked).toBe(false);
-    change('phases[0].name', 'Chuẩn bị');
-    click('add-phase');
-    expect(field('phases[1].code').value).toBe('P2');
-    click('remove-phase-0');
-    await waitFor(() => expect(screen.queryByTestId('pick-0')).toBeNull());
-    expect(screen.getByTestId('task-pick')).toBeTruthy();
+    expect(screen.getByTestId('phase-toggle-0').getAttribute('aria-expanded')).toBe('true');
+    expect(document.querySelectorAll('tr.pwfx-row')).toHaveLength(2);
   });
 
-  it('adds a task, selects it, and edits every part: identity, duration, roles, constraint, links, branches, documents, checklist', async () => {
-    const h = open();
-    await ready();
-    click('add-task');
-    // The new task is selected and its panel is open.
-    expect(field('tasks[2].code').value).toBe('T3');
-    change('tasks[2].code', 'T3X');
-    change('tasks[2].name', 'Việc mới');
-    change('tasks[2].duration_working_days', '12');
-    change('tasks[2].kind', 'MILESTONE');
-    change('tasks[2].priority', 'HIGH');
-    change('tasks[2].responsible_role', 'PROJECT_MANAGER');
-    change('tasks[2].approver_role', 'APPROVER');
-    fireEvent.click(field('tasks[2].required'));
-    // A constraint with its offset.
-    change('tasks[2].constraint.kind', 'FNLT');
-    change('tasks[2].constraint.offset_working_days', '30');
-    // A link: the first free task, then its kind and lag.
-    click('add-link');
-    change('tasks[2].predecessors[0].kind', 'SS');
-    change('tasks[2].predecessors[0].lag_working_days', '-2');
-    // A branch.
-    click('add-branch');
-    change('tasks[2].when[0].field', 'funding_source');
-    change('tasks[2].when[0].in', 'STATE, ODA');
-    // Documents and KPI codes, typed with a trailing comma and kept as typed.
-    change('tasks[2].legal_doc_types', 'INVESTMENT_DECISION, ');
-    expect((field('tasks[2].legal_doc_types') as unknown as HTMLTextAreaElement).value).toBe('INVESTMENT_DECISION, ');
-    change('tasks[2].form_templates', 'FORM_REPORT');
-    change('tasks[2].kpi_codes', 'ON_TIME');
-    // A checklist item.
-    click('add-item');
-    change('tasks[2].checklist[0].code', 'C1');
-    change('tasks[2].checklist[0].name', 'Có biên bản');
-    change('tasks[2].checklist[0].evidence_kinds', 'DOCUMENT');
-    fireEvent.click(field('tasks[2].checklist[0].required'));
-    change('code', 'PUBLIC_TEST');
-    fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Thêm việc mới cho thử nghiệm' } });
-    fireEvent.click(screen.getByTestId('save'));
-    await waitFor(() => expect(h.command).toHaveBeenCalledWith('createGovernanceRuleDraft', expect.anything()));
-    const body = lastBody(h, 'createGovernanceRuleDraft') as { rule_type: string; code: string; params: { tasks: Record<string, unknown>[] }; reason: string };
-    expect(body.rule_type).toBe('PROJECT_WORKFLOW_TEMPLATE');
-    expect(body.code).toBe('PUBLIC_TEST');
-    expect(body.params.tasks[2]).toMatchObject({
-      code: 'T3X',
-      name: 'Việc mới',
-      kind: 'MILESTONE',
-      duration_working_days: 12,
-      priority: 'HIGH',
-      responsible_role: 'PROJECT_MANAGER',
-      approver_role: 'APPROVER',
-      required: false,
-      constraint: { kind: 'FNLT', offset_working_days: 30 },
-      predecessors: [{ task: 'T1', kind: 'SS', lag_working_days: -2 }],
-      when: [{ field: 'funding_source', in: ['STATE', 'ODA'] }],
-      legal_doc_types: ['INVESTMENT_DECISION'],
-      form_templates: ['FORM_REPORT'],
-      kpi_codes: ['ON_TIME'],
-      checklist: [{ code: 'C1', name: 'Có biên bản', required: false, evidence_kinds: ['DOCUMENT'] }],
-    });
-    expect(await screen.findByTestId('written')).toBeTruthy();
+  it('opens a folded phase for a problem the summary jumps to', async () => {
+    const params = JSON.parse(JSON.stringify(long));
+    const last = params.tasks[params.tasks.length - 1];
+    last.name = '';
+    open({ effective: templateEffective({ params }), versions: [templateVersion(2, { params })] });
+    await fork();
+    fireEvent.click(screen.getByTestId('save-draft'));
+    fireEvent.click((await screen.findAllByTestId('jump'))[0] as HTMLElement);
+    await waitFor(() => expect((document.activeElement as HTMLElement).getAttribute('data-field')).toBe('name'));
   });
 
-  it('removes a link, a branch, a checklist item and a task; renaming a task code follows into the links', async () => {
+  it('keeps the name and the kind of project out of the page body (they are in the "Sửa tên, mô tả" dialog) and the code of the procedure out of the header', async () => {
     open();
-    await ready();
-    fireEvent.click(screen.getByTestId('pick-1'));
-    expect(screen.getByTestId('predecessors').querySelectorAll('li')).toHaveLength(1);
-    click('remove-link-0');
-    expect(screen.getByTestId('predecessors').querySelectorAll('li')).toHaveLength(0);
-    click('add-branch');
-    click('remove-branch-0');
-    click('add-item');
-    click('remove-item-0');
-    fireEvent.click(screen.getByTestId('pick-0'));
-    change('tasks[0].code', 'FIRST');
-    fireEvent.click(screen.getByTestId('pick-1'));
-    click('add-link');
-    expect((field('tasks[1].predecessors[0].task') as unknown as HTMLSelectElement).value).toBe('FIRST');
-    click('remove-task');
-    expect(screen.queryByTestId('pick-1')).toBeNull();
-    expect(screen.getByTestId('task-pick')).toBeTruthy();
-  });
-
-  it('names the problems of a template in a summary and next to each field when it is saved, and sends nothing', async () => {
-    const h = open({ path: '/pwf/pwf-02', effective: refusal('GOVERNANCE_RULE_NOT_FOUND', 404) });
-    await ready();
-    fireEvent.click(screen.getByTestId('save'));
-    const summary = await screen.findByTestId('period-problems');
-    expect(summary.textContent).toContain(text('gova1.form.error.code'));
-    expect(screen.getByTestId('error-name').textContent).toContain(text('pwf.templates.problem.required.error'));
-    expect(screen.getByTestId('error-phases[0].name')).toBeTruthy();
-    expect(screen.getByTestId('error-tasks').textContent).toContain(text('pwf.templates.tasks.required.error'));
-    expect(field('name').getAttribute('aria-invalid')).toBe('true');
-    expect(screen.getByTestId('local-problems').textContent).toContain('phases[0].name');
-    expect(h.command).not.toHaveBeenCalledWith('createGovernanceRuleDraft', expect.anything());
-  });
-
-  it('marks a task that needs a fix in the tree, with a word', async () => {
-    open();
-    await ready();
-    fireEvent.click(screen.getByTestId('pick-0'));
-    change('tasks[0].duration_working_days', '');
-    click('validate');
-    expect(within(screen.getByTestId('pick-0')).getByText(text('pwf.templates.task.problem.word'))).toBeTruthy();
-    expect(screen.getByTestId('error-tasks[0].duration_working_days')).toBeTruthy();
-  });
-
-  it('refuses the phase "none" in the task and keeps tasks of a missing phase apart', async () => {
-    open({ effective: templateEffective({ params: templateParams({ tasks: [{ ...templateParams().tasks[0]!, phase: 'GONE' }] }) }) });
-    await ready();
-    expect(within(screen.getByTestId('tree')).getByText(text('pwf.templates.tasks.orphans.text'))).toBeTruthy();
+    await fork();
+    expect(screen.queryByTestId('field-name')).toBeNull();
+    expect(screen.getByTestId('template-sub').textContent).not.toContain('PUBLIC_INVESTMENT');
+    fireEvent.click(screen.getByTestId('rename'));
+    expect(within(screen.getByRole('dialog')).getByTestId('field-name')).toBeTruthy();
+    expect(within(screen.getByRole('dialog')).getByTestId('field-project-type')).toBeTruthy();
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: text('pwfx.rename.done') }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    fireEvent.click(screen.getByTestId('details-task:T1'));
+    expect((await screen.findByTestId('template-code')).textContent).toBe(text('pwfx.drawer.code.template', { code: 'PUBLIC_INVESTMENT' }));
   });
 });
 
-describe('PWF-02: the checks of the server', () => {
-  it('checks the template once it is open and shows counts with their "i", the findings by path and the quality flags that never block', async () => {
-    open({
-      commands: {
-        validateProjectWorkflowTemplate: validation({
-          valid: false,
-          findings: [
-            { code: 'PWF_DEPENDENCY_CYCLE', path: 'tasks[1].predecessors[0]', severity: 'ERROR', detail: 'T1 -> T2 -> T1' },
-            { code: 'LONG_NAME', path: 'name', severity: 'WARNING' },
-          ],
-          quality_flags: [
-            { code: 'MISSING_SUCCESSOR', task: 'T2' },
-            { code: 'LONG_TASK', task: 'T1', detail: '60' },
-            { code: 'SOMETHING_NEW' },
-          ],
-        }),
-      },
-    });
-    const panel = await screen.findByTestId('validation', undefined, WITHIN);
-    fireEvent.click(screen.getByTestId('editor-tab-checks'));
-    expect(within(panel).getByText(text('pwf.templates.validate.invalid.word'))).toBeTruthy();
-    expect(within(panel).getByTestId('count-tasks').textContent).toBe('2');
-    expect(within(panel).getByTestId('findings').textContent).toContain('tasks[1].predecessors[0]');
-    expect(within(panel).getByTestId('findings').textContent).toContain(text('pwf.templates.finding.error.word'));
-    expect(within(panel).getByTestId('findings').textContent).toContain(text('pwf.templates.finding.warning.word'));
-    expect(within(panel).getByTestId('quality').textContent).toContain(text('pwf.templates.quality.missingSuccessor.word'));
-    expect(within(panel).getByTestId('quality').textContent).toContain(text('pwf.templates.quality.longTask.word'));
-    expect(within(panel).getByTestId('quality').textContent).toContain('SOMETHING_NEW');
-    expect(within(panel).getByTestId('template-hash').textContent).toContain('cccccccccccc');
-    // The three counts each carry the "i".
-    fireEvent.click(within(within(panel).getByTestId('validation-counts')).getAllByRole('button')[0] as HTMLElement);
-    expect(screen.getByRole('dialog').textContent).toContain(text('pwf.templates.validate.tasks.formula'));
-  });
-
-  it('says there are no hints when the schedule has none, and that the result is old once the text changes', async () => {
+describe('PWF-02: the details of a step', () => {
+  it('opens in a side drawer from the "N hồ sơ" button, closes with Escape and gives the focus back', async () => {
     open();
-    expect((await screen.findByTestId('quality-none', undefined, WITHIN)).textContent).toBe(text('pwf.templates.quality.none.text'));
-    change('name', 'Tên khác');
-    expect(await screen.findByTestId('validate-stale')).toBeTruthy();
-    // After the person stops typing the server checks again and the result is current.
-    await waitFor(() => expect(screen.queryByTestId('validate-stale')).toBeNull(), WITHIN);
+    await fork();
+    const button = screen.getByTestId('details-task:T1');
+    button.focus();
+    fireEvent.click(button);
+    const drawer = await screen.findByTestId('step-drawer');
+    expect(within(drawer).getByRole('heading', { level: 2 }).textContent).toContain('Lập báo cáo nghiên cứu khả thi');
+    // Advanced fields live here: links, constraint, branches, KPI and the codes.
+    expect(within(drawer).getByText(text('pwfx.drawer.schedule.title'))).toBeTruthy();
+    expect(within(drawer).getByText(text('pwfx.drawer.codes.title'))).toBeTruthy();
+    fireEvent.keyDown(drawer, { key: 'Escape' });
+    expect(screen.queryByTestId('step-drawer')).toBeNull();
+    expect(document.activeElement).toBe(button);
   });
 
-  it('checks on demand and shows what the editor finds wrong without asking the server', async () => {
+  it('locks the code of a step the version in force already holds and leaves the code of a new step open until it has a name', async () => {
+    open();
+    await fork();
+    fireEvent.click(screen.getByTestId('details-task:T1'));
+    const code = within(await screen.findByTestId('step-drawer')).getByLabelText(text('pwfx.drawer.code.task')) as HTMLInputElement;
+    expect(code.value).toBe('T1');
+    expect(code.disabled).toBe(true);
+    fireEvent.keyDown(screen.getByTestId('step-drawer'), { key: 'Escape' });
+    fireEvent.click(document.querySelector('[data-action="add-step-PREPARATION"]') as HTMLElement);
+    await waitFor(() => expect(nameInputs()).toHaveLength(3));
+    const key = (nameInputs()[2] as HTMLInputElement).closest('tr')?.getAttribute('data-line') as string;
+    fireEvent.click(within(rowOf(key)).getByRole('button', { name: /chi tiết/ }));
+    expect((within(await screen.findByTestId('step-drawer')).getByLabelText(text('pwfx.drawer.code.task')) as HTMLInputElement).disabled).toBe(false);
+  });
+
+  it('writes an advanced field (the approver) from the drawer into the draft', async () => {
     const h = open();
-    await screen.findByTestId('validation', undefined, WITHIN);
-    const before = h.command.mock.calls.filter((call) => call[0] === 'validateProjectWorkflowTemplate').length;
-    click('validate');
-    await waitFor(() => expect(h.command.mock.calls.filter((call) => call[0] === 'validateProjectWorkflowTemplate').length).toBeGreaterThan(before));
-    change('phases[0].code', 'bad');
-    click('validate');
-    expect(screen.getByTestId('local-problems').textContent).toContain('phases[0].code');
+    await fork();
+    fireEvent.click(screen.getByTestId('details-task:T2'));
+    const drawer = await screen.findByTestId('step-drawer');
+    fireEvent.change(within(drawer).getByLabelText(text('pwf.templates.task.approver.label')), { target: { value: 'AUDITOR' } });
+    fireEvent.keyDown(drawer, { key: 'Escape' });
+    await saveWith('Đổi người duyệt hoàn thành');
+    await waitFor(() => expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(1));
+    expect((lastBody(h, 'createGovernanceRuleDraft').params as { tasks: { approver_role: string }[] }).tasks[1]?.approver_role).toBe('AUDITOR');
   });
 
-  it('says in words that the server refused to check, and keeps the screen', async () => {
-    open({ commands: { validateProjectWorkflowTemplate: refusal('PWF_DEPENDENCY_CYCLE') } });
-    const banner = await screen.findByTestId('problem', undefined, WITHIN);
-    expect(banner.textContent).toContain(text('pwf.problem.dependencyCycle.error'));
-    expect(screen.getByTestId('validate-none')).toBeTruthy();
-  });
-
-  it('tries the schedule on a start day and the facts of a project: dates, float, the critical path, and a year with no calendar in words', async () => {
-    const h = open({
-      commands: {
-        previewProjectWorkflowTemplate: schedulePreview({
-          project_finish: null,
-          critical_path: ['T1', 'T2'],
-          tasks: [
-            scheduleTask('T1', { total_float: 0, free_float: 0, critical: true }),
-            scheduleTask('T2', { state: 'CALENDAR_UNAVAILABLE', start: null, finish: null, total_float: null, free_float: null, critical: false, missing_year: 2028 }),
-          ],
-          excluded_tasks: ['T9'],
-          findings: [{ code: 'CALENDAR_UNAVAILABLE', task: 'T2', year: 2028 }, { code: 'CONSTRAINT_VIOLATED', task: null }],
-        }),
-      },
-    });
-    await ready();
-    fireEvent.click(screen.getByTestId('editor-tab-checks'));
-    expect(screen.getByTestId('preview-none')).toBeTruthy();
-    fireEvent.change(screen.getByTestId('preview-start'), { target: { value: '2027-01-04' } });
-    change('preview.project_group', 'A');
-    click('preview');
-    const preview = await screen.findByTestId('preview');
-    await waitFor(() => expect(h.command).toHaveBeenCalledWith('previewProjectWorkflowTemplate', expect.anything()));
-    const body = lastBody(h, 'previewProjectWorkflowTemplate') as { planned_start_date: string; facts: Record<string, string>; params: { name: string } };
-    expect(body.planned_start_date).toBe('2027-01-04');
-    expect(body.facts).toEqual({ project_group: 'A' });
-    expect(body.params.name).toBe('Mẫu bản 2');
-    expect(within(preview).getByTestId('critical-path').textContent).toBe('T1 → T2');
-    expect(within(preview).getByText(text('pwf.templates.preview.noFinish.text'))).toBeTruthy();
-    expect(within(preview).getAllByText(text('pwf.common.calendarMissingYear.text', { year: 2028 })).length).toBe(2);
-    expect(within(preview).getByTestId('calendar-missing').textContent).toContain('2028');
-    expect(within(preview).getByText(text('pwf.templates.preview.critical.word'))).toBeTruthy();
-    expect(within(preview).getByText(text('pwf.templates.preview.float.text', { total: 0, free: 0 }))).toBeTruthy();
-    expect(within(preview).getByTestId('preview-findings').textContent).toContain(text('pwf.templates.finding.calendarUnavailable.word'));
-    expect(within(preview).getByTestId('preview-excluded').textContent).toContain('T9');
-    // Each figure carries the "i".
-    fireEvent.click(within(within(preview).getByTestId('preview-summary')).getAllByRole('button')[0] as HTMLElement);
-    expect(screen.getByRole('dialog').textContent).toContain(text('pwf.templates.preview.projectFinish.formula'));
-  });
-
-  it('asks for a real start day and says the schedule is old once the template changes; says a refusal of the preview in words', async () => {
+  it('does not block the diagram for a checklist item that has a name and no code yet: its code is made from the name when it is saved', async () => {
     const h = open();
-    await ready();
-    fireEvent.click(screen.getByTestId('editor-tab-checks'));
-    fireEvent.change(screen.getByTestId('preview-start'), { target: { value: '' } });
-    click('preview');
-    expect(h.command).not.toHaveBeenCalledWith('previewProjectWorkflowTemplate', expect.anything());
-    fireEvent.change(screen.getByTestId('preview-start'), { target: { value: '2027-01-04' } });
-    click('preview');
-    await screen.findByTestId('preview');
-    change('name', 'Đổi tên');
-    expect(await screen.findByTestId('preview-stale')).toBeTruthy();
-    cleanup();
-    open({ commands: { previewProjectWorkflowTemplate: refusal('CALENDAR_NOT_EFFECTIVE') } });
-    await ready();
-    fireEvent.click(screen.getByTestId('editor-tab-checks'));
-    click('preview');
-    await waitFor(() => expect(screen.getAllByTestId('problem').some((node) => node.textContent?.includes(text('pwf.problem.calendarNotEffective.error')))).toBe(true));
+    await fork();
+    fireEvent.click(screen.getByTestId('details-task:T1'));
+    const drawer = await screen.findByTestId('step-drawer');
+    fireEvent.click(within(drawer).getByRole('button', { name: text('pwf.templates.checklist.add.action') }));
+    fireEvent.change(within(drawer).getByLabelText(text('pwf.templates.checklist.name.label')), { target: { value: 'Hồ sơ đủ thành phần' } });
+    fireEvent.keyDown(drawer, { key: 'Escape' });
+    expect(screen.queryByTestId('problem-summary')).toBeNull();
+    await saveWith('Thêm mục kiểm bắt buộc');
+    await waitFor(() => expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(1));
+    expect((lastBody(h, 'createGovernanceRuleDraft').params as { tasks: { checklist: { code: string }[] }[] }).tasks[0]?.checklist.at(-1)?.code).toBe('HO_SO_DU_THANH_PHAN');
+  });
+
+  it('cites a legal ground on the row: the person marks it checked and the stamp is the server\'s, never the browser\'s', async () => {
+    const h = open();
+    await fork();
+    fireEvent.click(within(rowOf('task:T1')).getByRole('button', { name: /căn cứ/i }));
+    fireEvent.click(await screen.findByRole('button', { name: text('pwfx.basis.add') }));
+    fireEvent.change(screen.getByLabelText(/văn bản 1 của việc của bước 1/i), { target: { value: 'law_58_2024_qh15' } });
+    expect(screen.getAllByText(text('pwfx.basis.unverified')).length).toBeGreaterThan(0);
+    expect(screen.getByTestId('unverified-note').textContent).toContain(text('pwfx.unverified.note', { count: 1 }));
+    fireEvent.click(screen.getByRole('button', { name: text('pwfx.basis.mark') }));
+    expect(screen.getAllByText(text('pwfx.basis.claimed')).length).toBeGreaterThan(0);
+    await saveWith('Thêm căn cứ pháp lý');
+    await waitFor(() => expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(1));
+    const basis = (lastBody(h, 'createGovernanceRuleDraft').params as { tasks: { legal_basis?: Record<string, unknown>[] }[] }).tasks[0]?.legal_basis;
+    expect(basis?.[0]).toMatchObject({ document: 'LAW_58_2024_QH15', verification: 'VERIFIED' });
+    expect(basis?.[0]).not.toHaveProperty('verified_by');
+    expect(basis?.[0]).not.toHaveProperty('verified_at');
   });
 });
 
-describe('PWF-02: the rule store', () => {
-  it('saves a draft with the period and the reason, and says what the store refuses', async () => {
-    const h = open({ commands: { createGovernanceRuleDraft: refusal('GOVERNANCE_RULE_PERIOD_OVERLAP', 409) } });
-    await ready();
-    fireEvent.click(screen.getByTestId('editor-tab-checks'));
-    fireEvent.click(screen.getByTestId('save'));
-    expect((await screen.findByTestId('period-problems')).textContent).toContain(text('gova1.form.error.reason', { min: 5, max: 500 }));
-    fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Sửa thời lượng giai đoạn' } });
-    fireEvent.change(screen.getByTestId('to'), { target: { value: '2026-11-01' } });
-    fireEvent.click(screen.getByTestId('save'));
-    expect(screen.getByTestId('period-problems').textContent).toContain(text('gova1.form.error.to'));
-    fireEvent.change(screen.getByTestId('to'), { target: { value: '' } });
-    fireEvent.click(screen.getByTestId('save'));
-    expect((await screen.findByTestId('refusal')).textContent).toBe(text('gova1.refusal.overlap'));
-    expect(lastBody(h, 'createGovernanceRuleDraft')).toMatchObject({ reason: 'Sửa thời lượng giai đoạn', effective_from: '2026-11-08' });
-  });
-
-  it('says the refusal of the module itself when the store rejects the template', async () => {
-    open({ commands: { createGovernanceRuleDraft: refusal('PROJECT_WORKFLOW_TEMPLATE_INVALID', 422, {}, 'tasks[1]') } });
-    await ready();
-    fireEvent.click(screen.getByTestId('editor-tab-checks'));
-    fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Mẫu cần được lưu' } });
-    fireEvent.click(screen.getByTestId('save'));
-    expect((await screen.findByTestId('refusal')).textContent).toBe(text('pwf.problem.templateInvalidField.error', { field: 'tasks[1]' }));
-  });
-
-  it('lets a new draft be written after one was saved', async () => {
-    open();
-    await ready();
-    fireEvent.click(screen.getByTestId('editor-tab-checks'));
-    fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Lưu bản nháp đầu' } });
-    fireEvent.click(screen.getByTestId('save'));
-    fireEvent.click(await screen.findByTestId('again'));
-    expect((screen.getByTestId('reason') as HTMLTextAreaElement).value).toBe('');
-    expect(screen.queryByTestId('written')).toBeNull();
-  });
-
-  it('warns that the new version takes over from the version in force', async () => {
-    open({ versions: [templateVersion(2, { effective_from: '2026-06-01', approved_by: OTHER, approved_at: '2026-05-01T03:00:00.000Z' })] });
-    await ready();
-    fireEvent.click(screen.getByTestId('editor-tab-checks'));
-    expect(await screen.findByTestId('notice-takeover')).toBeTruthy();
-  });
-
-  it('lists the versions with who made and who checked each, and a link to continue from one or compare it', async () => {
-    open();
-    const list = await screen.findByTestId('versions');
-    const first = list.querySelector('li') as HTMLElement;
-    expect(within(first).getByText(text('gova1.detail.version.title', { version: 2 }))).toBeTruthy();
-    expect(within(first).getByRole('group', { name: text('ui.makerChecker.label') })).toBeTruthy();
-    expect(within(first).getByTestId('from-2').getAttribute('href')).toBe(`/pwf/pwf-02?code=PUBLIC_INVESTMENT&from=${uuid(102)}`);
-    expect(within(first).getByTestId('diff-2').getAttribute('href')).toBe(`/adm/adm-22?rule=${uuid(102)}&against=${uuid(101)}`);
-  });
-
-  it('submits a draft through a dialog that asks for a reason, with the version the person saw', async () => {
-    const h = open({ versions: [templateVersion(3, { status: 'DRAFT', phase: 'DRAFT', created_by: ME })], commands: { submitGovernanceRule: { resource_id: uuid(103), status: 'SUBMITTED', resource_version: 2 } } });
-    await screen.findByTestId('versions');
-    click('submit-3');
+describe('PWF-02: the rules of the store, on the new screen', () => {
+  it('asks for a reason of at least 5 characters before a draft is written, and writes the draft with the day and the reason', async () => {
+    const h = open();
+    await fork();
+    fireEvent.click(screen.getByTestId('save-draft'));
     const dialog = await screen.findByRole('dialog');
-    const confirm = within(dialog).getByRole('button', { name: text('gova1.move.submit') });
+    const confirm = within(dialog).getByRole('button', { name: text('pwfx.action.saveDraft') });
     expect(confirm).toBeDisabled();
-    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'Trình duyệt bản mới' } });
+    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'ab' } });
+    expect(confirm).toBeDisabled();
+    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'Sửa thời hạn thẩm định' } });
     fireEvent.click(confirm);
-    await waitFor(() => expect(h.command).toHaveBeenCalledWith('submitGovernanceRule', expect.objectContaining({ ifMatchVersion: 1, path: { ruleId: uuid(103) } })));
-    expect(await screen.findByTestId('receipt')).toBeTruthy();
+    await waitFor(() => expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(1));
+    expect(lastBody(h, 'createGovernanceRuleDraft')).toMatchObject({ rule_type: TEMPLATE, code: 'PUBLIC_INVESTMENT', reason: 'Sửa thời hạn thẩm định' });
+    expect(callsOf(h, 'submitGovernanceRule')).toHaveLength(0);
+    expect(await screen.findByTestId('notice')).toBeTruthy();
   });
 
-  it('does not let the maker approve: the button is off and says why', async () => {
+  it('keeps the reason for the next quick save of the same procedure', async () => {
+    const h = open({ path: `/pwf/pwf-02?from=${uuid(103)}`, rule: templateVersion(3, { id: uuid(103), status: 'DRAFT', phase: 'DRAFT', created_by: ME }), versions: [templateVersion(3, { id: uuid(103), status: 'DRAFT', phase: 'DRAFT', created_by: ME })] });
+    await ready();
+    await saveWith('Lý do lần đầu');
+    await waitFor(() => expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(1));
+  });
+
+  it('says what the store refuses, inside the dialog, and keeps what was typed', async () => {
+    open({ commands: { createGovernanceRuleDraft: refusal('GOVERNANCE_RULE_PERIOD_OVERLAP', 409) } });
+    await fork();
+    await saveWith('Mẫu cần được lưu');
+    expect((await within(await screen.findByRole('dialog')).findByRole('alert')).textContent).toBe(text('gova1.refusal.overlap'));
+    expect(nameInputs()).toHaveLength(2);
+  });
+
+  it('submits through one short dialog (day and reason) and says that a different person approves', async () => {
+    const h = open();
+    await fork();
+    fireEvent.click(screen.getByTestId('submit'));
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog.textContent).toContain(text('pwfx.dialog.checker.value'));
+    expect(within(dialog).getByLabelText(text('pwfx.dialog.from'))).toBeTruthy();
+    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'Trình duyệt bản mới' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: text('pwfx.action.submit') }));
+    await waitFor(() => expect(callsOf(h, 'submitGovernanceRule')).toHaveLength(1));
+    expect(callsOf(h, 'submitGovernanceRule')[0]?.[1]).toMatchObject({ path: { ruleId: uuid(200) }, body: { reason: 'Trình duyệt bản mới' } });
+  });
+
+  it('does not let the maker approve: the history drawer shows the button off and says why; a third person may approve', async () => {
     open({ versions: [templateVersion(3, { status: 'SUBMITTED', phase: 'SUBMITTED', created_by: ME, submitted_by: ME, effective_from: '2026-12-01' })] });
+    await ready();
+    fireEvent.click(screen.getByTestId('history'));
     const approve = await screen.findByRole('button', { name: text('gova1.move.approve') });
     expect(approve).toBeDisabled();
     expect(screen.getByText(text('gova1.block.selfApproval'))).toBeTruthy();
-  });
-
-  it('lets a third person approve', async () => {
+    cleanup();
     open({ versions: [templateVersion(3, { status: 'SUBMITTED', phase: 'SUBMITTED', created_by: OTHER, submitted_by: OTHER, effective_from: '2026-12-01' })] });
+    await ready();
+    fireEvent.click(screen.getByTestId('history'));
     expect(await screen.findByRole('button', { name: text('gova1.move.approve') })).not.toBeDisabled();
   });
 
-  it('says there is no version yet for a code that has none', async () => {
-    open({ versions: [] });
-    expect((await screen.findByTestId('no-versions')).textContent).toBe(text('gova1.detail.versions.none'));
+  it('shows a submitted version read only and says it waits for another person', async () => {
+    const submitted = templateVersion(3, { id: uuid(103), status: 'SUBMITTED', phase: 'SUBMITTED', created_by: ME, submitted_by: ME });
+    open({ path: `/pwf/pwf-02?from=${uuid(103)}`, rule: submitted, versions: [submitted] });
+    await ready();
+    expect(screen.getByTestId('read-only').textContent).toBe(text('pwfx.readOnly.submitted'));
+  });
+
+  it('cannot be submitted while it cites a legal document that is not approved, and can still be saved as a draft', async () => {
+    open({ commands: { validateProjectWorkflowTemplate: validation({ valid: false, findings: [{ path: 'tasks[0].legal_basis[0].document', code: 'LEGAL_DOCUMENT_UNKNOWN', severity: 'ERROR' }] }) } });
+    await fork();
+    expect(await screen.findByTestId('unapproved-documents')).toBeTruthy();
+    expect(screen.getByTestId('submit')).toBeDisabled();
+    expect(screen.getByTestId('save-draft')).not.toBeDisabled();
+  });
+
+  it('is a read-only page for a session that cannot write: no new draft is offered', async () => {
+    open({ mode: 'READ_ONLY' });
+    await ready();
+    expect(screen.queryByTestId('new-draft')).toBeNull();
+    expect(screen.queryByTestId('save-draft')).toBeNull();
   });
 });
 
-describe('PWF-02: accessibility', () => {
-  it('has no serious accessibility violation with a task open and the checks shown', async () => {
+describe('PWF-02: "Áp cho" travels with the submit', () => {
+  it('shows the lines of the mapping rule that point at this procedure, and submits a draft of the rule with the template (two people approve both)', async () => {
+    const assignment = effectiveBody({
+      rule_type: 'PROJECT_WORKFLOW_ASSIGNMENT',
+      code: 'DEFAULT',
+      version: 1,
+      source: 'RULE',
+      rule_id: uuid(300),
+      params: { lines: [{ code: 'INV_CONSTRUCTION', priority: 10, template_code: 'PUBLIC_INVESTMENT', when: [{ field: 'project_type', in: ['CONSTRUCTION'] }] }] },
+    });
+    const h = open({ assignment, projectTypes: [{ business_key: 'CONSTRUCTION', label: 'Xây dựng mới', status: 'EFFECTIVE' }], commands: { createGovernanceRuleDraft: (input: Record<string, unknown>) => ({ resource_id: (input.body as { rule_type: string }).rule_type === TEMPLATE ? uuid(200) : uuid(201), status: 'DRAFT', resource_version: 1 }) } });
+    await fork();
+    const bar = screen.getByTestId('apply-line');
+    await waitFor(() => expect(within(bar.querySelector('.pwfx-apply__chips') as HTMLElement).getByText(/Xây dựng mới/)).toBeTruthy());
+    fireEvent.change(within(bar).getByLabelText(text('pwfx.apply.add.fundingSource')), { target: { value: 'ODA' } });
+    expect(bar.querySelector('[data-pending="true"]')).toBeTruthy();
+    // Nothing is written to the rule yet.
+    expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(0);
+    fireEvent.click(screen.getByTestId('submit'));
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog.textContent).toContain(text('pwfx.dialog.apply.value', { added: 1, removed: 0 }));
+    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'Áp cho nguồn vốn ODA' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: text('pwfx.action.submit') }));
+    await waitFor(() => expect(callsOf(h, 'submitGovernanceRule')).toHaveLength(2));
+    const drafts = callsOf(h, 'createGovernanceRuleDraft').map((call) => (call[1] as { body: { rule_type: string; code: string; params: { lines?: unknown[] } } }).body);
+    expect(drafts.map((body) => body.rule_type)).toEqual([TEMPLATE, 'PROJECT_WORKFLOW_ASSIGNMENT']);
+    expect(drafts[1]?.code).toBe('DEFAULT');
+    expect(drafts[1]?.params.lines).toHaveLength(2);
+  });
+
+  it('takes a line off by a draft of the rule, not by writing the rule in force', async () => {
+    const assignment = effectiveBody({
+      rule_type: 'PROJECT_WORKFLOW_ASSIGNMENT',
+      code: 'DEFAULT',
+      version: 1,
+      source: 'RULE',
+      rule_id: uuid(300),
+      params: { lines: [{ code: 'INV_CONSTRUCTION', priority: 10, template_code: 'PUBLIC_INVESTMENT', when: [{ field: 'project_type', in: ['CONSTRUCTION'] }] }] },
+    });
+    const h = open({ assignment });
+    await fork();
+    fireEvent.click(await screen.findByRole('button', { name: /^Bỏ /i }));
+    expect(document.querySelector('[data-removed="true"]')).toBeTruthy();
+    fireEvent.click(screen.getByTestId('submit'));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'Bỏ dòng áp cho' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: text('pwfx.action.submit') }));
+    await waitFor(() => expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(2));
+    expect((lastBody(h, 'createGovernanceRuleDraft').params as { lines: unknown[] }).lines).toEqual([]);
+  });
+});
+
+describe('PWF-02: a template that exists is written back as it was (R62)', () => {
+  const fixtures: Record<string, Record<string, unknown>> = { ...(builtIn as Record<string, Record<string, unknown>>), CB_ROAD_REPAIR: roadRepair as Record<string, unknown> };
+  it.each(Object.keys(fixtures))('%s: opened on the new screen and saved without an edit, the params are the params it had', async (code) => {
+    const params = fixtures[code] as never;
+    const h = open({ effective: templateEffective({ params }), versions: [templateVersion(2, { params })] });
+    await fork();
+    await saveWith('Lưu lại không sửa gì');
+    await waitFor(() => expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(1));
+    expect(lastBody(h, 'createGovernanceRuleDraft').params).toEqual(fixtures[code]);
+  });
+});
+
+describe('PWF-02: the diagram follows the table', () => {
+  it('draws the diagram from the server and says it follows the table', async () => {
+    const h = open();
+    await ready();
+    await waitFor(() => expect(screen.getByTestId('diagram-status').getAttribute('data-status')).toBe('ready'), WITHIN);
+    expect(h.command).toHaveBeenCalledWith('previewProjectWorkflowTemplate', expect.objectContaining({ body: expect.objectContaining({ calendar_mode: 'PROVISIONAL' }) }));
+    expect(await screen.findByTestId('gantt')).toBeTruthy();
+  });
+
+  it('waits for the table to settle: one question for a burst of typing, sent after the delay', async () => {
+    const h = open();
+    await fork();
+    await waitFor(() => expect(callsOf(h, 'previewProjectWorkflowTemplate')).toHaveLength(1), WITHIN);
+    const input = nameInputs()[0] as HTMLInputElement;
+    vi.useFakeTimers();
+    try {
+      for (const value of ['Lập', 'Lập kế', 'Lập kế hoạch']) fireEvent.change(input, { target: { value } });
+      await act(async () => vi.advanceTimersByTime(PREVIEW_DELAY_MS - 50));
+      expect(callsOf(h, 'previewProjectWorkflowTemplate')).toHaveLength(1);
+      await act(async () => vi.advanceTimersByTime(100));
+    } finally {
+      vi.useRealTimers();
+    }
+    await waitFor(() => expect(callsOf(h, 'previewProjectWorkflowTemplate')).toHaveLength(2), WITHIN);
+  });
+
+  it('drops an answer that arrives after a newer question was sent', async () => {
+    const waiting: ((value: unknown) => void)[] = [];
+    const h = open({
+      commands: {
+        previewProjectWorkflowTemplate: () =>
+          new Promise((resolve) => {
+            waiting.push(resolve);
+          }),
+      },
+    });
+    await fork();
+    await waitFor(() => expect(waiting).toHaveLength(1), WITHIN);
+    fireEvent.change(nameInputs()[0] as HTMLInputElement, { target: { value: 'Bước đã đổi tên' } });
+    await waitFor(() => expect(waiting).toHaveLength(2), WITHIN);
+    const answer = (label: string) => schedulePreview({ tasks: [scheduleTask('T1', { name: label }), scheduleTask('T2', { name: `${label} 2`, start: '2026-12-11', finish: '2027-01-12' })] });
+    // The newer answer comes first, the older one after it: the picture is the newer one.
+    await act(async () => waiting[1]?.(answer('Mới')));
+    await act(async () => waiting[0]?.(answer('Cũ')));
+    const chart = await screen.findByTestId('gantt');
+    expect(chart.textContent).toContain('Mới');
+    expect(chart.textContent).not.toContain('Cũ');
+    expect(h.command).toHaveBeenCalled();
+  });
+
+  it('says in words that the dates lean on a draft calendar and when a year has no calendar, and never draws a guessed bar', async () => {
+    open({
+      commands: {
+        previewProjectWorkflowTemplate: schedulePreview({
+          calendar_mode: 'PROVISIONAL',
+          provisional: true,
+          calendars: [{ year: 2027, version: 1, status: 'DRAFT' }],
+          tasks: [
+            scheduleTask('T1', { provisional: true }),
+            scheduleTask('T2', { state: 'CALENDAR_UNAVAILABLE', start: null, finish: null, missing_year: 2028, undated_reason: { code: 'CALENDAR_MISSING', year: 2028 } }),
+          ],
+        }),
+      },
+    });
+    await ready();
+    expect((await screen.findByTestId('diagram-provisional')).textContent).toContain('2027');
+    expect(screen.getByTestId('diagram-missing').textContent).toContain('2028');
+    expect(screen.getByTestId('diagram-calendar-link').getAttribute('href')).toBe('/adm/adm-07');
+    expect((await screen.findByTestId('gantt')).textContent).toContain(text('pwfx.diagram.missingYear.row', { year: 2028 }));
+  });
+
+  it('keeps the table editable when the server cannot be reached, says the diagram is not up to date and offers to try again', async () => {
+    let fails = true;
+    const h = open({
+      commands: {
+        previewProjectWorkflowTemplate: () => {
+          if (fails) throw new Error('offline');
+          return schedulePreview();
+        },
+      },
+    });
+    await fork();
+    expect(await screen.findByTestId('diagram-offline')).toBeTruthy();
+    fireEvent.change(nameInputs()[0] as HTMLInputElement, { target: { value: 'Vẫn sửa được khi mất mạng' } });
+    expect((nameInputs()[0] as HTMLInputElement).value).toBe('Vẫn sửa được khi mất mạng');
+    fails = false;
+    fireEvent.click(document.querySelector('[data-action="retry-diagram"]') as HTMLElement);
+    await waitFor(() => expect(screen.queryByTestId('diagram-offline')).toBeNull(), WITHIN);
+    expect(callsOf(h, 'previewProjectWorkflowTemplate').length).toBeGreaterThan(1);
+  });
+
+  it('does not ask the server about a table with a cell to put right, and says the diagram is the one before', async () => {
+    const h = open();
+    await fork();
+    await waitFor(() => expect(callsOf(h, 'previewProjectWorkflowTemplate')).toHaveLength(1), WITHIN);
+    fireEvent.change(screen.getByTestId('limit-task:T1'), { target: { value: '' } });
+    expect(await screen.findByTestId('diagram-blocked')).toBeTruthy();
+    await new Promise((resolve) => setTimeout(resolve, PREVIEW_DELAY_MS + 150));
+    expect(callsOf(h, 'previewProjectWorkflowTemplate')).toHaveLength(1);
+  });
+});
+
+describe('PWF-02: what is being written stays on the device (R70)', () => {
+  const scope = (code: string) => `${DRAFT_PREFIX}`.concat(code);
+  it('keeps the draft after the person stops typing and brings it back on reload', async () => {
     open();
-    await screen.findByTestId('validation', undefined, WITHIN);
-    fireEvent.click(screen.getByTestId('pick-1'));
-    click('validate');
+    await fork();
+    fireEvent.change(nameInputs()[0] as HTMLInputElement, { target: { value: 'Đang soạn dở' } });
+    await waitFor(() => expect(Object.keys(window.localStorage).some((key) => key.startsWith(DRAFT_PREFIX))).toBe(true), WITHIN);
+    cleanup();
+    open();
+    expect(await screen.findByTestId('restored')).toBeTruthy();
+    expect(nameInputs()[0]?.value).toBe('Đang soạn dở');
+    expect(screen.queryByTestId('read-only')).toBeNull();
+    expect(scope('x')).toContain(DRAFT_PREFIX);
+  });
+
+  it('asks what to do when the draft was written on a version that is not the one the screen opens: keep or drop, never merged', async () => {
+    open();
+    await fork();
+    fireEvent.change(nameInputs()[0] as HTMLInputElement, { target: { value: 'Bản trên máy' } });
+    await waitFor(() => expect(Object.keys(window.localStorage).some((key) => key.startsWith(DRAFT_PREFIX))).toBe(true), WITHIN);
+    cleanup();
+    // Somebody approved a newer version meanwhile: the base the screen opens is version 3.
+    open({ effective: templateEffective({ version: 3, params: templateParams({ name: 'Bản mới của người khác' }) }), versions: [templateVersion(3, { id: uuid(103), params: templateParams({ name: 'Bản mới của người khác' }) })] });
+    const conflict = await screen.findByTestId('local-conflict');
+    expect(nameInputs()[0]?.value).toBe('Lập báo cáo nghiên cứu khả thi');
+    fireEvent.click(within(conflict).getByTestId('keep-local'));
+    expect(nameInputs()[0]?.value).toBe('Bản trên máy');
+    cleanup();
+    window.localStorage.clear();
+  });
+
+  it('drops the draft of the device on request', async () => {
+    open();
+    await fork();
+    fireEvent.change(nameInputs()[0] as HTMLInputElement, { target: { value: 'Sẽ bỏ' } });
+    await waitFor(() => expect(Object.keys(window.localStorage).some((key) => key.startsWith(DRAFT_PREFIX))).toBe(true), WITHIN);
+    cleanup();
+    open({ effective: templateEffective({ version: 3 }), versions: [templateVersion(3, { id: uuid(103) })] });
+    fireEvent.click(await screen.findByTestId('drop-local'));
+    expect(Object.keys(window.localStorage).filter((key) => key.startsWith(DRAFT_PREFIX))).toEqual([]);
+  });
+});
+
+describe('PWF-02: rows pasted from a spreadsheet', () => {
+  it('shows a preview, says what is wrong with each row, and only adds the good rows at the end of the phase', async () => {
+    const h = open();
+    await fork();
+    fireEvent.click(screen.getByTestId('paste'));
+    const dialog = await screen.findByRole('dialog');
+    const pasted = ['Khảo sát hiện trạng\t\t4', 'Lập hồ sơ\tChủ đầu tư\t5', '\t\t3', 'Thẩm định\t\tabc'].join('\n');
+    fireEvent.change(within(dialog).getByTestId('paste-text'), { target: { value: pasted } });
+    const preview = within(dialog).getByTestId('paste-preview');
+    expect(preview.querySelectorAll('tr[data-ok="true"]')).toHaveLength(2);
+    expect(preview.querySelectorAll('tr[data-ok="false"]')).toHaveLength(2);
+    // Nothing was added by reading the text.
+    expect(nameInputs()).toHaveLength(2);
+    fireEvent.click(within(dialog).getByRole('button', { name: text('pwfx.paste.confirm', { count: 2 }) }));
+    await waitFor(() => expect(nameInputs()).toHaveLength(4));
+    expect(nameInputs().map((input) => input.value)).toEqual(['Lập báo cáo nghiên cứu khả thi', 'Thẩm định', 'Khảo sát hiện trạng', 'Lập hồ sơ']);
+    expect((screen.getByLabelText(/^thời hạn của bước 3$/i) as HTMLInputElement).value).toBe('4');
+    expect(h.command).not.toHaveBeenCalledWith('createGovernanceRuleDraft', expect.anything());
+  });
+
+  it('refuses a paste with more than three columns row by row and keeps the button off while no row can be added', async () => {
+    open();
+    await fork();
+    fireEvent.click(screen.getByTestId('paste'));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.change(within(dialog).getByTestId('paste-text'), { target: { value: 'Một\t\t3\tthừa' } });
+    expect(within(dialog).getByRole('button', { name: text('pwfx.paste.confirm', { count: 0 }) })).toBeDisabled();
+    expect(within(dialog).getByTestId('paste-preview').textContent).toContain(text('pwfx.paste.problem.tooManyColumns'));
+  });
+});
+
+describe('PWF-02: a new procedure, by keyboard alone', () => {
+  it('opens empty with one phase and one row to type into, and four steps are made with the keyboard: type, Enter, type, Enter', async () => {
+    const h = open({ path: '/pwf/pwf-02?start=blank' });
+    await ready();
+    expect(screen.getByTestId('template-title').textContent).toBe(text('pwfx.title.new'));
+    expect(nameInputs()).toHaveLength(1);
+    let typed = 0;
+    const names = ['Khảo sát hiện trạng', 'Lập hồ sơ và dự toán', 'Thẩm định', 'Phê duyệt'];
+    for (const [index, name] of names.entries()) {
+      const input = nameInputs()[index] as HTMLInputElement;
+      input.focus();
+      fireEvent.change(input, { target: { value: name } });
+      typed += 1;
+      if (index < names.length - 1) {
+        fireEvent.keyDown(input, { key: 'Enter' });
+        await waitFor(() => expect(nameInputs()).toHaveLength(index + 2));
+        // The caret is already in the new row.
+        expect(document.activeElement).toBe(nameInputs()[index + 1]);
+      }
+    }
+    expect(typed).toBe(4);
+    expect(nameInputs().map((input) => input.value)).toEqual(names);
+    // No box in the table asks for a code, and no capital-letter code was typed anywhere.
+    expect(document.querySelector('.pwfx-table')?.querySelectorAll('input[type="text"]').length).toBe(4 + 1);
+    expect(h.command).not.toHaveBeenCalledWith('createGovernanceRuleDraft', expect.anything());
+  });
+
+  it('makes the code of the procedure from its name once, at the first save, and writes the rows with codes made from their names', async () => {
+    const h = open({ path: '/pwf/pwf-02?start=blank' });
+    await ready();
+    fireEvent.click(screen.getByTestId('rename'));
+    fireEvent.change(screen.getByTestId('field-name'), { target: { value: 'Sửa chữa, bảo trì đường' } });
+    fireEvent.change(document.querySelector('[data-testid="field-project-type"]') as HTMLElement, { target: { value: '' } });
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: text('pwfx.rename.done') }));
+    fireEvent.change(document.querySelector('[data-field="name"]') as HTMLElement, { target: { value: 'Khảo sát hiện trạng' } });
+    fireEvent.change(document.querySelector('[data-testid^="phase-name-"]') as HTMLElement, { target: { value: 'Chuẩn bị' } });
+    // A row needs a unit role before it is complete: the lead unit and the role are chosen from the lists.
+    fireEvent.change(screen.getByLabelText(/vai trò của bước 1/i), { target: { value: 'PMB_MANAGER' } });
+    fireEvent.blur(document.querySelector('[data-field="name"]') as HTMLElement);
+    await saveWith('Soạn quy trình mới');
+    await waitFor(() => expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(1));
+    const body = lastBody(h, 'createGovernanceRuleDraft');
+    expect(body.code).toBe('SUA_CHUA_BAO_TRI_DUONG');
+    const params = body.params as { phases: { code: string }[]; tasks: { code: string; step?: string }[]; steps: { code: string }[] };
+    expect(params.phases[0]?.code).toBe('CHUAN_BI');
+    expect(params.tasks[0]?.code).toBe('KHAO_SAT_HIEN_TRANG');
+    expect(params.steps[0]?.code).toBe('KHAO_SAT_HIEN_TRANG');
+  });
+
+  it('copies a shipped kind under a new name when started from it, and starts a copy of a procedure in use with its grounds unchecked', async () => {
+    const params = templateParams({ name: 'Mẫu dựng sẵn' });
+    params.tasks[0] = { ...params.tasks[0], legal_basis: [{ document: 'LAW_58_2024_QH15', verification: 'VERIFIED', verified_by: OTHER, verified_at: '2026-11-01T03:00:00.000Z' }] } as never;
+    open({ path: '/pwf/pwf-02?start=clone:PUBLIC_INVESTMENT', effective: shippedEffective('PUBLIC_INVESTMENT', { params }) });
+    await ready();
+    expect(screen.getByTestId('template-title').textContent).toBe(text('pwfx.start.copyName', { name: 'Mẫu dựng sẵn' }));
+    expect(screen.getByTestId('unverified-note').textContent).toContain(text('pwfx.unverified.note', { count: 1 }));
+    expect(screen.queryByTestId('read-only')).toBeNull();
+  });
+
+  it('opens the paste dialog by itself when the library sent the person here to paste', async () => {
+    open({ path: '/pwf/pwf-02?start=paste' });
+    expect(await screen.findByTestId('paste-text')).toBeTruthy();
+  });
+});
+
+describe('PWF-02: no old way is left', () => {
+  const here = join(process.cwd(), 'src', 'screens', 'pwf', 'templates');
+  it('has none of the files of the old editor, and no tab or 6-sub-tab control on the screen', async () => {
+    for (const gone of ['editor-panels.tsx', 'editor-steps.tsx', 'editor-fields.tsx', 'editor-summary.tsx', 'editor-checks.tsx']) expect(existsSync(join(here, gone)), gone).toBe(false);
+    expect(readdirSync(here).filter((name) => /^editor-(panels|steps|fields|summary|checks)\./.test(name))).toEqual([]);
+    open();
+    await ready();
+    expect(screen.queryByRole('tablist')).toBeNull();
+    expect(document.querySelector('[data-testid^="editor-tab"]')).toBeNull();
+    expect(document.querySelector('[data-testid="task-parts"]')).toBeNull();
+    expect(screen.queryByTestId('save')).toBeNull();
+  });
+});
+
+describe('PWF-02: the layout and the words', () => {
+  it('labels every input and select, and has no serious accessibility violation with the drawer open', async () => {
+    open();
+    await fork();
+    for (const control of Array.from(document.querySelectorAll<HTMLElement>('.pwfx-table input, .pwfx-table select, .pwfx-table textarea'))) {
+      const labelled = control.getAttribute('aria-label') !== null || control.id !== '' || control.closest('label') !== null;
+      expect(labelled, control.outerHTML.slice(0, 120)).toBe(true);
+    }
+    fireEvent.click(screen.getByTestId('details-task:T1'));
+    await screen.findByTestId('step-drawer');
     expect(describeViolations(await seriousViolations(document.body))).toEqual([]);
   });
-});
 
-describe('PWF-02: one task in short tabs (owner review of 14/11/2026)', () => {
-  const TASK_TABS = ['info', 'schedule', 'docs', 'checklist', 'kpi', 'legal'] as const;
-  const panel = (id: string) => screen.getByTestId(`task-parts-panel-${id}`);
-
-  it('splits the form of a task into six tabs, one purpose each, and keeps every field in the page so nothing typed is lost', async () => {
+  it('keeps the table inside its own scroll frame and never writes MACHVON in a word the person reads', async () => {
     open();
     await ready();
-    fireEvent.click(screen.getByTestId('pick-0'));
-    // The name of the chosen task is the heading of its panel; the code is a note under it.
-    expect(screen.getByTestId('task-heading').textContent).not.toMatch(/^Việc /);
-    expect(screen.getByTestId('task-heading-code').textContent).toMatch(/^[A-Z][A-Z0-9_]*$/);
-    const tabs = within(screen.getByTestId('task-parts')).getAllByRole('tab');
-    expect(tabs.map((tab) => tab.getAttribute('data-testid'))).toEqual(TASK_TABS.map((id) => `task-parts-tab-${id}`));
-    expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
-    // Each field sits in the tab of its purpose.
-    expect(panel('info').contains(field('tasks[0].name'))).toBe(true);
-    expect(panel('info').contains(field('tasks[0].responsible_role'))).toBe(true);
-    expect(panel('schedule').contains(field('tasks[0].duration_working_days'))).toBe(true);
-    expect(panel('schedule').contains(field('tasks[0].constraint.kind'))).toBe(true);
-    expect(panel('schedule').contains(screen.getByTestId('predecessors'))).toBe(true);
-    expect(panel('docs').contains(field('tasks[0].legal_doc_types'))).toBe(true);
-    expect(panel('docs').contains(field('tasks[0].form_templates'))).toBe(true);
-    expect(panel('checklist').contains(screen.getByTestId('checklist'))).toBe(true);
-    expect(panel('kpi').contains(field('tasks[0].kpi_codes'))).toBe(true);
-    expect(panel('legal').contains(screen.getByTestId('legal-fold-tasks[0]'))).toBe(true);
-    // Only the chosen tab is shown; the others stay in the page, hidden.
-    expect(panel('info').hidden).toBe(false);
-    expect(TASK_TABS.slice(1).every((id) => panel(id).hidden)).toBe(true);
-    change('tasks[0].name', 'Tên đang gõ');
-    fireEvent.click(screen.getByTestId('task-parts-tab-checklist'));
-    expect(panel('checklist').hidden).toBe(false);
-    expect(panel('info').hidden).toBe(true);
-    fireEvent.click(screen.getByTestId('task-parts-tab-info'));
-    expect(field('tasks[0].name').value).toBe('Tên đang gõ');
-  });
-
-  it('keeps the chosen tab when another task is picked, and counts the problems of a tab on the tab once they are shown', async () => {
-    open();
-    await ready();
-    fireEvent.click(screen.getByTestId('pick-0'));
-    fireEvent.click(screen.getByTestId('task-parts-tab-schedule'));
-    fireEvent.click(screen.getByTestId('pick-1'));
-    expect(panel('schedule').hidden).toBe(false);
-    expect(panel('schedule').contains(field('tasks[1].duration_working_days'))).toBe(true);
-    // A problem in a hidden tab is said on the tab, so nobody has to open every tab to find it.
-    fireEvent.click(screen.getByTestId('pick-0'));
-    change('tasks[0].name', '');
-    click('add-item');
-    fireEvent.click(screen.getByTestId('editor-tab-checks'));
-    click('validate');
-    fireEvent.click(screen.getByTestId('editor-tab-structure'));
-    expect(screen.getByTestId('task-parts-tab-info').textContent).toContain('1');
-    expect(screen.getByTestId('task-parts-tab-checklist').textContent).toContain('2');
-    expect(screen.getByTestId('task-parts-tab-kpi').textContent).toBe(text('fix8.editor.part.kpi'));
-  });
-});
-
-describe('PWF-02: the names of the roles a tenant made up itself', () => {
-  it('lists the role codes the template uses, takes a name for each, and stores the names with the template', async () => {
-    const h = open();
-    await ready();
-    fireEvent.click(screen.getByTestId('editor-tab-roles'));
-    const roles = screen.getByTestId('roles');
-    // Every code a step or a task uses has a row; a code the shipped catalogue names says so, and a name typed here wins.
-    const first = within(roles).getAllByRole('listitem')[0] as HTMLElement;
-    const code = first.getAttribute('data-role') as string;
-    expect(code).not.toBe('');
-    fireEvent.change(within(first).getByTestId(`role-name-${code}`), { target: { value: 'Văn thư của tỉnh' } });
-    change('code', 'PUBLIC_TEST');
-    fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Đặt tên cho vai trò của tỉnh' } });
-    fireEvent.click(screen.getByTestId('save'));
-    await waitFor(() => expect(h.command).toHaveBeenCalledWith('createGovernanceRuleDraft', expect.anything()));
-    const body = lastBody(h, 'createGovernanceRuleDraft') as { params: { roles?: unknown } };
-    expect(body.params.roles).toEqual([{ code, name: 'Văn thư của tỉnh' }]);
-  });
-
-  it('stores no role list while no name is typed, so a template that names none keeps its hash', async () => {
-    const h = open();
-    await ready();
-    change('name', 'Mẫu thử không đặt tên vai trò');
-    change('code', 'PUBLIC_TEST');
-    fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Lưu mẫu mà không đặt tên cho vai trò nào' } });
-    fireEvent.click(screen.getByTestId('save'));
-    await waitFor(() => expect(h.command).toHaveBeenCalledWith('createGovernanceRuleDraft', expect.anything()));
-    expect('roles' in (lastBody(h, 'createGovernanceRuleDraft') as { params: Record<string, unknown> }).params).toBe(false);
+    const frame = screen.getByTestId('steps-table');
+    expect(frame.className).toContain('ui-table-scroll');
+    expect(document.body.textContent).not.toMatch(/machvon/i);
   });
 });

@@ -241219,6 +241219,115 @@
           "pwf.task.claimed.v1"
         ]
       }
+    },
+    "/project-workflow/templates/usage": {
+      "get": {
+        "operationId": "listProjectWorkflowTemplateUsage",
+        "summary": "Số dự án đang chạy theo từng loại quy trình, trong phạm vi đọc của người gọi (PWF-01)",
+        "tags": [
+          "PWF"
+        ],
+        "x-permission": "pwf.read",
+        "parameters": [],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PwfTemplateUsage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
     }
   },
   "components": {
@@ -335125,6 +335234,41 @@
           }
         },
         "description": "The result of writing a rule draft: the command result, and for a rule type whose drafts the server prepares before storing them what that preparation did (PROJECT_WORKFLOW_TEMPLATE: the stamps of the verified legal grounds, PWF R75)."
+      },
+      "PwfTemplateUsage": {
+        "type": "object",
+        "required": [
+          "items",
+          "as_of"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "template_code",
+                "active_projects"
+              ],
+              "properties": {
+                "template_code": {
+                  "type": "string",
+                  "description": "Mã loại quy trình (mã quy tắc PROJECT_WORKFLOW_TEMPLATE) mà quy trình của dự án được khởi tạo từ đó"
+                },
+                "active_projects": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Số dự án trong phạm vi đọc của người gọi có quy trình đang chạy (ACTIVE hoặc ON_HOLD) theo loại này"
+                }
+              }
+            }
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "Thư viện quy trình (PWF-01): mỗi loại quy trình đang được bao nhiêu dự án chạy. Chỉ đếm dự án trong phạm vi đọc pwf.read của người gọi; loại chưa có dự án nào không có dòng."
       }
     }
   }
