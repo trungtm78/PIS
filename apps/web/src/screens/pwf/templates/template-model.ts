@@ -61,10 +61,15 @@ const VALUE_PATTERN = /^[A-Za-z0-9_.-]{1,40}$/;
 export const ORIGIN: unique symbol = Symbol('pwf.template.origin');
 /** The code of the entity is provisional: the row was added and has no name yet, so its code is made from the name when the name is first given (R63), once. */
 export const PENDING: unique symbol = Symbol('pwf.template.pendingCode');
+/** What the screen keys a row by: made when a row is added and kept for as long as the row is in the editor, whatever its code becomes (the code is made from the name when the row is first named, and a row must not be drawn again then). */
+export const UID: unique symbol = Symbol('pwf.template.uid');
+let uidSequence = 0;
 interface Marks {
   [ORIGIN]?: Params;
   [PENDING]?: true;
+  [UID]?: string;
 }
+export const uidOf = (entity: object): string | undefined => (entity as Marks)[UID];
 export const originOf = (entity: object): Params | undefined => (entity as Marks)[ORIGIN];
 export const isPending = (entity: object): boolean => (entity as Marks)[PENDING] === true;
 /** The entity as a new one: not read from any rule, its code final. */
@@ -72,9 +77,10 @@ export function fresh<E extends object>(entity: E): E {
   const copy = { ...entity } as E & Marks;
   delete copy[ORIGIN];
   delete copy[PENDING];
+  delete copy[UID];
   return copy;
 }
-export const pending = <E extends object>(entity: E): E => ({ ...entity, [PENDING]: true });
+export const pending = <E extends object>(entity: E): E => ({ ...entity, [PENDING]: true, [UID]: `u${(uidSequence += 1)}` });
 export const settled = <E extends object>(entity: E): E => {
   const copy = { ...entity } as E & Marks;
   delete copy[PENDING];

@@ -16,6 +16,7 @@ import {
   renameTask,
   settled,
   stepsOf,
+  uidOf,
 } from './template-model';
 import type { DurationUnit, EditorBands, EditorStep, EditorTask, LegalBasisInput, ResponsibleUnit, TaskDuration, Template, TemplateParty, TemplateRole } from './template-model';
 
@@ -27,8 +28,10 @@ import type { DurationUnit, EditorBands, EditorStep, EditorTask, LegalBasisInput
 // ---- the rows ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 export interface TableLine {
-  /** `step:<code>` or `task:<code>`: what the screen keys a row by and what an anchor names. */
+  /** `step:<code>` or `task:<code>`: what an anchor names. It changes when a row that was added is given its code. */
   key: string;
+  /** What the screen draws the row by: it never changes while the row is in the editor. */
+  uid: string;
   kind: 'step' | 'task';
   /** The number people read: `3` for a row of the table, `3.2` for a task under a step that has several. */
   number: string;
@@ -63,7 +66,7 @@ export function tableOf(template: Template): TableGroup[] {
   let counter = 0;
   const taskLine = (index: number, number: string, child: boolean, stepIndex: number | null): TableLine => {
     const task = template.tasks[index] as EditorTask;
-    return { key: `task:${task.code}`, kind: 'task', number, child, stepIndex, taskIndex: index, taskIndexes: [index], name: task.name, code: task.code, phase: task.phase };
+    return { key: `task:${task.code}`, uid: uidOf(task) ?? `task:${task.code}`, kind: 'task', number, child, stepIndex, taskIndex: index, taskIndexes: [index], name: task.name, code: task.code, phase: task.phase };
   };
   const linesOf = (phase: string | null): TableLine[] => {
     const known = new Set(template.phases.map((one) => one.code));
@@ -81,7 +84,7 @@ export function tableOf(template: Template): TableGroup[] {
       const own = template.tasks.flatMap((task, index) => (task.step === step.code ? [index] : []));
       own.forEach((index) => placed.add(index));
       const number = String((counter += 1));
-      lines.push({ key: `step:${step.code}`, kind: 'step', number, child: false, stepIndex, taskIndex: own.length === 1 ? (own[0] as number) : null, taskIndexes: own, name: step.name, code: step.code, phase: step.phase });
+      lines.push({ key: `step:${step.code}`, uid: uidOf(step) ?? `step:${step.code}`, kind: 'step', number, child: false, stepIndex, taskIndex: own.length === 1 ? (own[0] as number) : null, taskIndexes: own, name: step.name, code: step.code, phase: step.phase });
       if (own.length > 1) own.forEach((index, at) => lines.push(taskLine(index, `${number}.${at + 1}`, true, stepIndex)));
     });
     // A task of the phase that names no step of the template: shown after the steps, so that it can be seen and put right.

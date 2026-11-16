@@ -71,7 +71,8 @@ describe('the rows of the table (R64)', () => {
     expect(usesSteps(base)).toBe(true);
     const { template, key } = row(base, 'CHUAN_BI', 'Khảo sát hiện trạng');
     expect(key).toBe('step:KHAO_SAT_HIEN_TRANG');
-    expect(template.steps).toEqual([{ code: 'KHAO_SAT_HIEN_TRANG', name: 'Khảo sát hiện trạng', phase: 'CHUAN_BI' }]);
+    expect(template.steps).toMatchObject([{ code: 'KHAO_SAT_HIEN_TRANG', name: 'Khảo sát hiện trạng', phase: 'CHUAN_BI' }]);
+    expect(template.steps).toHaveLength(1);
     expect(template.tasks).toHaveLength(1);
     expect(template.tasks[0]).toMatchObject({ code: 'KHAO_SAT_HIEN_TRANG', name: 'Khảo sát hiện trạng', step: 'KHAO_SAT_HIEN_TRANG', phase: 'CHUAN_BI', predecessors: [] });
     const line = lineAt(template, key);

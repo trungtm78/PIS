@@ -43,7 +43,7 @@ async function openEditor(page: Page, code: string): Promise<void> {
 async function saveDraft(page: Page, reason: string): Promise<void> {
   await page.getByTestId('save-draft').click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByRole('textbox').fill(reason);
+  await dialog.locator('textarea').fill(reason);
   await dialog.getByRole('button', { name: 'Lưu nháp' }).click();
   await expect(page.getByTestId('notice')).toBeVisible();
 }

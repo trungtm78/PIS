@@ -42,7 +42,7 @@ import {
   unitRefKind,
 } from './table-model';
 import type { ExtensionChoice, TableGroup, TableLine } from './table-model';
-import { DURATION_UNITS, GATE_TARGETS, MAX_PHASES, MAX_TASKS, MAX_UNITS, stepsOf, updatePhase, updateStep, updateTask } from './template-model';
+import { DURATION_UNITS, GATE_TARGETS, MAX_PHASES, MAX_TASKS, MAX_UNITS, stepsOf, uidOf, updatePhase, updateStep, updateTask } from './template-model';
 import type { DurationUnit, EditorTask, LegalBasisInput, Template, TemplateProblem } from './template-model';
 
 export interface StepsTableProps {
@@ -169,10 +169,10 @@ export function StepsTable(props: StepsTableProps) {
           const word = phaseWord(group);
           if (group.phase !== null) phaseNumber += 1;
           return (
-            <tbody key={group.phase?.code ?? `orphans-${groupIndex}`} data-phase={group.phase?.code ?? ''}>
+            <tbody key={group.phase === null ? `orphans-${groupIndex}` : (uidOf(group.phase) ?? group.phase.code)} data-phase={group.phase?.code ?? ''}>
               <PhaseRow {...props} group={group} word={word} number={group.phase === null ? 0 : phaseNumber} />
               {group.lines.map((line) => (
-                <StepRow key={line.key} {...props} line={line} />
+                <StepRow key={line.uid} {...props} line={line} />
               ))}
               {group.phase === null || disabled ? null : (
                 <tr className="pwfx-add">
