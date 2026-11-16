@@ -73,7 +73,7 @@ describe('the leader panel of the enterprise edition (ENT-4d)', () => {
     const missing = within(units).getByText(/BAN-2/).closest('tr') as HTMLElement;
     expect(missing.textContent).toContain(word('ent.leader.noData.text'));
     expect(missing.textContent).toContain(word('ent.leader.lastYear.new'));
-    expect(missing.textContent).not.toMatch(/\b0,00%/);
+    expect(missing.textContent).not.toMatch(/\b0(,00)?%/);
   });
 
   it('says there is no snapshot of last year, and draws only the part asked for', async () => {

@@ -12,6 +12,7 @@ import { AnaFigureInfo, NaNote, UnverifiedNote } from './components';
 import { useHeatmap } from './insight-hooks';
 import { BACKTEST_PATH, HEAT_VIEWS } from './insight-model';
 import type { Band, Cell, Heatmap, HeatView, Label } from './insight-model';
+import { formatPercent } from '../../i18n/format';
 
 type T = Translator['t'];
 const BAND_MARK: Record<Band, string> = { GREEN: '●', AMBER: '▲', RED: '■' };
@@ -74,7 +75,7 @@ function CellView({ cell, view }: { cell: Cell | undefined; view: HeatView }) {
   }
   return (
     <td className="ana-heat__cell" data-band={cell.band ?? 'NA'} data-testid="heat-cell">
-      <strong>{commaText(cell.ratePct)}%</strong>
+      <strong>{formatPercent(cell.ratePct)}</strong>
       {cell.band === null ? null : (
         <span>
           {' '}
@@ -108,7 +109,7 @@ function HeatmapContent({ route }: ScreenProps) {
   const byPair = new Map((map?.cells ?? []).map((cell) => [`${cell.rowKey}|${cell.colKey}`, cell]));
   const contextItems = [
     { label: t('ana.heat.context.asOf'), value: dayText(map?.asOfDate ?? null) },
-    { label: t('ana.heat.context.pace'), value: map?.pacePct === null || map === undefined ? '—' : `${commaText(map.pacePct.toFixed(1))}%` },
+    { label: t('ana.heat.context.pace'), value: map?.pacePct === null || map === undefined ? '—' : formatPercent(map.pacePct, 1) },
     { label: t('ana.heat.context.hidden'), value: map === undefined ? '—' : String(map.hiddenCells) },
   ];
   return (
@@ -143,7 +144,7 @@ function HeatmapContent({ route }: ScreenProps) {
             ) : (
               <SectionCard title={viewLabel(t, view)} status={<AnaFigureInfo name={t('ana.heat.page.title')} info={map.info} asOf={map.asOfDate} />}>
                 <p className="ana-caveat" data-testid="heat-legend">
-                  {view === 'UNIT_FUND' ? t('ana.heat.legend.unit', { green: commaText(String(map.params.greenRatio)), amber: commaText(String(map.params.amberRatio)) }) : t('ana.heat.legend.contractor', { green: map.params.ctrGreenPct, amber: map.params.ctrAmberPct })} {t('ana.heat.legend.min', { count: map.params.minCellCount })}
+                  {view === 'UNIT_FUND' ? t('ana.heat.legend.unit', { green: commaText(String(map.params.greenRatio)), amber: commaText(String(map.params.amberRatio)) }) : t('ana.heat.legend.contractor', { green: formatPercent(map.params.ctrGreenPct).replace('%', ''), amber: formatPercent(map.params.ctrAmberPct).replace('%', '') })} {t('ana.heat.legend.min', { count: map.params.minCellCount })}
                 </p>
                 {map.hiddenCells === 0 ? null : (
                   <p className="ana-caveat" data-testid="heat-hidden">
@@ -176,7 +177,7 @@ function HeatmapContent({ route }: ScreenProps) {
                               <CellView key={col.key} cell={byPair.get(`${row.key}|${col.key}`)} view={view} />
                             ))}
                             <td className="num" data-testid="heat-row-total">
-                              {total === undefined || total.ratePct === null ? t('ana.common.na') : `${commaText(total.ratePct)}%`}
+                              {total === undefined || total.ratePct === null ? t('ana.common.na') : formatPercent(total.ratePct)}
                               {total === undefined || total.hidden === 0 ? null : <span className="ana-caveat"> {t('ana.heat.total.hidden', { count: total.hidden })}</span>}
                             </td>
                           </tr>
@@ -190,7 +191,7 @@ function HeatmapContent({ route }: ScreenProps) {
                           const total = map.colTotals.find((one) => one.key === col.key);
                           return (
                             <td key={col.key} className="num" data-testid="heat-col-total" data-col={col.key}>
-                              {total === undefined || total.ratePct === null ? t('ana.common.na') : `${commaText(total.ratePct)}%`}
+                              {total === undefined || total.ratePct === null ? t('ana.common.na') : formatPercent(total.ratePct)}
                             </td>
                           );
                         })}

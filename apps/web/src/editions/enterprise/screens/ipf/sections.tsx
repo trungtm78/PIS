@@ -4,7 +4,7 @@ import type { Translator } from '../../../../i18n';
 import { decisionKindLabel } from '../../../../screens/cap/labels';
 import { documentLink } from '../../../../screens/doc/repository/model';
 import { DataTable, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../../../ui';
-import { compactMoney } from '../../../../i18n/money';
+import { compactMoney, fullMoney } from '../../../../i18n/money';
 import { dayText } from '../shared/format';
 import { Fact } from '../shared/parts';
 import { BUILT_IN_DOC_TYPES, camel, evidenceOf, findingsOf, isNamedOrigin, milestoneTone, reachedWithoutEvidence } from './model';
@@ -202,10 +202,10 @@ export function OriginSplitSection({ profile }: { profile: Profile }) {
       ) : (
         <>
           <KpiStrip label={t('ipf.origin.strip.label')}>
-            <KpiTile label={t('ipf.origin.total.label')} value={compactMoney(split.total_vnd)} tone="info" />
-            <KpiTile label={t('ipf.origin.groupAssigned.label')} value={compactMoney(split.group_assigned_vnd)} />
-            <KpiTile label={t('ipf.origin.boardApproved.label')} value={compactMoney(split.board_approved_vnd)} />
-            <KpiTile label={t('ipf.origin.rest.label')} value={compactMoney(split.other_vnd)} />
+            <KpiTile label={t('ipf.origin.total.label')} value={compactMoney(split.total_vnd)} valueTitle={fullMoney(split.total_vnd)} tone="info" />
+            <KpiTile label={t('ipf.origin.groupAssigned.label')} value={compactMoney(split.group_assigned_vnd)} valueTitle={fullMoney(split.group_assigned_vnd)} />
+            <KpiTile label={t('ipf.origin.boardApproved.label')} value={compactMoney(split.board_approved_vnd)} valueTitle={fullMoney(split.board_approved_vnd)} />
+            <KpiTile label={t('ipf.origin.rest.label')} value={compactMoney(split.other_vnd)} valueTitle={fullMoney(split.other_vnd)} />
           </KpiStrip>
           <DataTable<OriginAmount>
             caption={t('ipf.origin.caption')}

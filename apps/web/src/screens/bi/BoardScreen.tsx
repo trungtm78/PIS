@@ -22,6 +22,7 @@ import { WORKBENCH_PATH, describeQueryProblem, formatFigure } from './query-mode
 import { ResultLabels } from './QueryResultView';
 import { SignOffBlock } from './SignOffBlock';
 import './bi-kit.css';
+import { fullMoney } from '../../i18n/money';
 
 /**
  * BI-02: the board of the certified metrics (ST-BI-004, BI F3): for the period chosen, a tile for each certified metric with its figure from the snapshot of that period, and under it what every number of BI carries:
@@ -234,7 +235,7 @@ function Tile({ metric, snapshotId, dataset, elsewhere }: { metric: Metric; snap
   } else {
     body = (
       <>
-        <KpiTile label={metric.code} value={formatFigure(tile.data.total, tile.data.aggregationType === 'ratio' ? 'percent' : tile.data.unit, locale, words)} tone="info" />
+        <KpiTile label={metric.code} value={formatFigure(tile.data.total, tile.data.aggregationType === 'ratio' ? 'percent' : tile.data.unit, locale, words)} valueTitle={tile.data.unit === 'VND' && tile.data.aggregationType !== 'ratio' && tile.data.total.value !== null ? fullMoney(tile.data.total.value, locale) : undefined} tone="info" />
         <div className="bi-tile__more">
           <FigureInfo metric={metric} datasetId={metric.datasetId ?? dataset?.id} datasetCode={metric.datasetId === null ? dataset?.code : undefined} period={tile.data.asOfPeriod} />
           <ResultLabels result={tile.data} />

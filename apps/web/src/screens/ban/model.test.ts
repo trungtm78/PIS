@@ -116,7 +116,7 @@ describe('the year-end band and last year', () => {
   const outlook = (over: Record<string, unknown> = {}) => ({ low_vnd: '800000000', high_vnd: '950000000', low_pct: '80.00', high_pct: '95.00', methods: [], thin: false, reason: null, ...over }) as never;
 
   it('says the band when both ends are known and why when one is not', () => {
-    expect(outlookView(outlook(), 'vi')).toEqual({ kind: 'range', low: '800 triệu đồng', high: '950 triệu đồng', lowPct: '80,00%', highPct: '95,00%', thin: false });
+    expect(outlookView(outlook(), 'vi')).toEqual({ kind: 'range', low: '800 triệu đồng', high: '950 triệu đồng', lowPct: '80%', highPct: '95%', thin: false });
     expect(outlookView(outlook({ low_vnd: null, high_vnd: null, reason: 'NO_PLAN' }), 'vi')).toEqual({ kind: 'none', reason: 'noPlan' });
     expect(outlookView(outlook({ high_vnd: null, reason: null }), 'vi')).toEqual({ kind: 'none', reason: 'noData' });
   });

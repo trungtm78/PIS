@@ -7,6 +7,7 @@ import { CHANGE_KINDS, CHANGE_LINKS, CHANGE_PARAMS, MAX_CHANGE_LINES } from '../
 import type { ChangeLine } from '../home/gov-model';
 import { FIGURE_FLAGS, toKpiInfo } from '../home/model';
 import type { FigureFlag, Tile } from '../home/model';
+import { formatPercent } from '../../i18n/format';
 
 export type Schemas = components['schemas'];
 export type Workspace = Schemas['CommitteeWorkspace'];
@@ -87,7 +88,7 @@ export function decimalText(value: string, locale: Locale): string {
 
 /** An amount of dong in the short form of the shared formatter, with its unit; null stays null (the caller says "no data": an unknown amount is never 0). */
 export const vndText = (value: string | null | undefined, locale: Locale): string | null => (value === null || value === undefined ? null : compactMoney(value, { locale }));
-export const pctText = (value: string | null | undefined, locale: Locale): string | null => (value === null || value === undefined ? null : `${decimalText(value, locale)}%`);
+export const pctText = (value: string | null | undefined, locale: Locale): string | null => (value === null || value === undefined ? null : formatPercent(value, 2, locale));
 
 /** A difference in percentage points with its sign ("+3,20", "-4,10", "0,00"). */
 export function pointsText(value: string | null | undefined, locale: Locale): string | null {

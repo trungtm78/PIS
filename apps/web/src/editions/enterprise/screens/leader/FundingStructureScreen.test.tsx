@@ -50,7 +50,7 @@ describe('HOME-07 of the enterprise edition: the funding structure by equity, lo
     const equity = await screen.findByTestId('structure-EQUITY');
     expect(within(equity).getByText(word('ent.funding.class.equity'))).toBeTruthy();
     expect(equity.textContent).toContain(word('home.funding.card.amount', { value: '800' }));
-    expect(equity.textContent).toContain(word('home.funding.card.exact', { value: '800.000.000.000' }));
+    expect(equity.querySelector('.ui-kpi__value')?.getAttribute('title')).toBe('800.000.000.000 đồng');
     expect(screen.getByTestId('structure-EQUITY-plan-share').textContent).toBe(word('ent.funding.card.planShare', { value: '66,67%' }));
     expect(screen.getByTestId('structure-EQUITY-disbursed').textContent).toBe(word('ent.funding.card.disbursed', { value: word('home.funding.card.amount', { value: '450' }) }));
     expect(screen.getByTestId('structure-LOAN').textContent).toContain(word('home.funding.card.amount', { value: '400' }));

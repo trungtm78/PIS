@@ -107,7 +107,7 @@ describe('MNE-03 periodic overall report (ST-MNE-002, MNE F3)', () => {
       mount(<ReportScreen route={ROUTE} />, client(reportBody()), { permissions: PREPARE }, OPEN);
       await screen.findByTestId('value-plan_total');
       expect(screen.getByTestId('value-plan_total').textContent).toBe('1.250.000.000.000');
-      expect(screen.getByTestId('value-rate_pm').textContent).toBe('60.0000%');
+      expect(screen.getByTestId('value-rate_pm').textContent).toBe('60%');
       expect(screen.getByTestId('value-projects').textContent).toBe('4');
       for (const key of ['plan_total', 'rate_pm', 'projects']) {
         expect(screen.getByTestId(`locked-${key}`).textContent).toBe(vi_['mne.report.field.locked']);

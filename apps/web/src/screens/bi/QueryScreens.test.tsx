@@ -173,11 +173,11 @@ describe('BI-09 analysis workbench (ST-BI-004, BI F3, F4)', () => {
       { permissions: QUERIER },
     );
     const result = await runIt(user);
-    expect(within(result).getByTestId('value-A').textContent).toBe('45,00%');
+    expect(within(result).getByTestId('value-A').textContent).toBe('45%');
     expect(within(result).getByTestId('value-C').textContent).toBe(vi_['bi.query.notApplicable']);
     expect(within(result).getByTestId('value-unclassified').textContent).toBe(vi_['bi.query.noData']);
     expect(within(result).getByText(vi_['bi.query.unclassified'])).toBeTruthy();
-    expect(within(result).getByTestId('group-total').textContent).toContain('35,00%');
+    expect(within(result).getByTestId('group-total').textContent).toContain('35%');
     expect(within(result).getByTestId('group-total').textContent).toContain('10500000000');
     expect(within(result).getByRole('columnheader', { name: vi_['bi.query.column.numerator'] })).toBeTruthy();
     expect(result.textContent).not.toMatch(/(^|\s)0(,00)?%/);
@@ -367,7 +367,7 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
     mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
     expect(await findFigure(RATE.id)).toBeTruthy();
     await waitFor(() => expect((figureOf(DISBURSED.id) as HTMLElement).textContent).toBe('10,5 tỷ đồng'));
-    expect((figureOf(RATE.id) as HTMLElement).textContent).toBe('35,00%');
+    expect((figureOf(RATE.id) as HTMLElement).textContent).toBe('35%');
     expect(document.querySelector(`[data-metric-id="${DRAFT.id}"]`)).toBeNull();
     expect(h.command.mock.calls.every(([, input]) => (input as { body: { snapshot_id: string } }).body.snapshot_id === V1)).toBe(true);
     const tile = document.querySelector(`[data-metric-id="${RATE.id}"]`) as HTMLElement;
@@ -506,7 +506,7 @@ describe('the answer of a query as the screens read it', () => {
     expect(formatFigure(figure('1234567890'), 'VND', 'vi', words, 'exact')).toBe('1.234.567.890 ₫');
     expect(formatFigure(figure('950000'), 'VND', 'vi', words)).toBe('950.000 đồng');
     expect(formatFigure(figure('12'), 'count', 'en', words)).toBe('12');
-    expect(formatFigure(figure('35.5'), 'percent', 'en', words)).toBe('35.50%');
+    expect(formatFigure(figure('35.5'), 'percent', 'en', words)).toBe('35.5%');
     expect(formatFigure(figure('x'), 'VND', 'en', words)).toBe('x');
     expect(formatFigure(figure(null), 'VND', 'en', words)).toBe('no data');
     expect(formatFigure(figure(null, 'NOT_APPLICABLE'), 'percent', 'en', words)).toBe('n/a');

@@ -3,6 +3,7 @@ import { dongText } from '../../i18n/money';
 import type { ReportField, ReportView } from './types';
 import { APPROVE_REPORT_PERMISSION, EXPORT_REPORT_PERMISSION, ISSUE_REPORT_PERMISSION, PREPARE_REPORT_PERMISSION } from './types';
 import type { PackageView } from './types';
+import { percentOfText } from '../../i18n/format';
 
 // ---- what a person may do with a report ----
 
@@ -126,7 +127,7 @@ export function shown(field: ReportField): string | null {
     case 'MONEY':
       return typeof field.value === 'string' ? dong(field.value) : String(field.value);
     case 'PERCENT':
-      return `${String(field.value)}%`;
+      return percentOfText(String(field.value));
     case 'INTEGER':
     case 'TEXT':
       return String(field.value);

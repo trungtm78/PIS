@@ -14,6 +14,7 @@ import { commaText, dayText } from './common';
 import { useOutlook } from './forecast-hooks';
 import { COMMAND_CENTER_PATH, chartLines } from './forecast-model';
 import type { ChartLine, FundOutlook, OutlookReading, OutlookView } from './forecast-model';
+import { formatPercent } from '../../i18n/format';
 
 type T = Translator['t'];
 
@@ -100,7 +101,7 @@ function OutlookTiles({ reading, view }: { reading: OutlookReading; view: Outloo
         id="projection"
         label={t('ana.forecast.tile.projection')}
         value={projected === null ? t('ana.common.na') : <Money value={projected.centralVnd} />}
-        note={projected === null ? undefined : t('ana.forecast.tile.band', { low: compactMoney(projected.lowVnd), high: compactMoney(projected.highVnd), ratio: commaText(ratio?.central ?? null) })}
+        note={projected === null ? undefined : t('ana.forecast.tile.band', { low: compactMoney(projected.lowVnd), high: compactMoney(projected.highVnd), ratio: formatPercent(ratio?.central ?? null).replace('%', '') })}
         info={<AnaFigureInfo name={t('ana.forecast.tile.projection')} info={info} />}
       />
       <Tile
@@ -114,7 +115,7 @@ function OutlookTiles({ reading, view }: { reading: OutlookReading; view: Outloo
         id="gap"
         label={t('ana.forecast.tile.gap')}
         value={view.gapVnd === null ? t('ana.common.na') : <Money value={view.gapVnd} />}
-        note={view.attention === null ? undefined : view.attention ? t('ana.forecast.tile.attention', { pct: reading.model.attentionBelowPct }) : t('ana.forecast.tile.onTrack')}
+        note={view.attention === null ? undefined : view.attention ? t('ana.forecast.tile.attention', { pct: formatPercent(reading.model.attentionBelowPct).replace('%', '') }) : t('ana.forecast.tile.onTrack')}
         info={<AnaFigureInfo name={t('ana.forecast.tile.gap')} info={info} />}
       />
     </ul>
@@ -198,7 +199,7 @@ function FundsTable({ funds }: { funds: readonly FundOutlook[] }) {
               ) : (
                 <>
                   <td className="num"><Money value={fund.outlook.linear.centralVnd} /></td>
-                  <td className="num">{commaText(fund.outlook.linearRatioPct?.central ?? null)}</td>
+                  <td className="num">{formatPercent(fund.outlook.linearRatioPct?.central ?? null).replace('%', '')}</td>
                 </>
               )}
               <td className="num"><Money value={fund.outlook.needed.perWeekVnd} /></td>

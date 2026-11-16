@@ -13,6 +13,7 @@ import { AnaFigureInfo, NaNote, UnverifiedNote } from './components';
 import { useBacktest, useTrend } from './insight-hooks';
 import { HEAT_PATH } from './insight-model';
 import type { Backtest, Candidate, Trend, TrendUnit } from './insight-model';
+import { formatPercent } from '../../i18n/format';
 
 type T = Translator['t'];
 const RULES_PATH = '/adm/adm-19';
@@ -209,8 +210,8 @@ function BacktestContent({ route }: ScreenProps) {
                           <td className="num">{one.tp}</td>
                           <td className="num">{one.fp}</td>
                           <td className="num">{one.fn}</td>
-                          <td className="num">{one.precisionPct === null ? t('ana.common.na') : `${commaText(one.precisionPct)}%`}</td>
-                          <td className="num">{one.recallPct === null ? t('ana.common.na') : `${commaText(one.recallPct)}%`}</td>
+                          <td className="num">{one.precisionPct === null ? t('ana.common.na') : formatPercent(one.precisionPct)}</td>
+                          <td className="num">{one.recallPct === null ? t('ana.common.na') : formatPercent(one.recallPct)}</td>
                           <td className="num">{one.meanLeadWeeks === null ? t('ana.common.na') : t('ana.back.weeks', { weeks: commaText(one.meanLeadWeeks) })}</td>
                         </tr>
                       ))}

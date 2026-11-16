@@ -14,6 +14,7 @@ import { useCreateLine, useEquipmentLines, useProjectOptions } from './hooks';
 import { DETAIL_PATH, EMPTY_CREATE, EQUIPMENT_STAGES, MANAGE_PERMISSION, describeProblem, stageTone, toCreateBody, validateCreate } from './model';
 import type { CreateField, CreateForm, EquipmentStage } from './model';
 import '../shared/shared.css';
+import { percentOfText } from '../../../../i18n/format';
 
 const NEVER_EMPTY = (): boolean => false;
 
@@ -103,7 +104,7 @@ function EquipmentListContent({ route }: ScreenProps) {
                       ) : (
                         <>
                           <Money value={line.paidVnd} none="–" />
-                          {line.disbursementPercent === null ? '' : ` (${line.disbursementPercent}%)`}
+                          {line.disbursementPercent === null ? '' : ` (${percentOfText(line.disbursementPercent)})`}
                         </>
                       )}
                     </td>
