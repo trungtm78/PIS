@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { PrjProjectStore, PwfAssignmentReads, PwfWorkflowReads, PwfWorkflowStore, TenantDatabase, approvedFormRevision, knownFormCodes, projectInScope, projectScope, projectUnitsOf, resolveReceivingUnits, unitsViewOf } from '@machvon/db';
+import { PrjProjectStore, PwfAssignmentReads, PwfWorkflowReads, PwfWorkflowStore, TenantDatabase, approvedFormRevision, knownFormCodes, previewWorkflowTemplate, projectInScope, projectScope, projectUnitsOf, resolveReceivingUnits, unitsViewOf } from '@machvon/db';
 import type { AdoptOutcome, LegalDocumentView, PwfSelectionRecord, TenantTx } from '@machvon/db';
 import { DomainError, legalDocument, pwfQuality, pwfSchedule, pwfWorkflow, validateRuleParams, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
@@ -180,8 +180,18 @@ export class ProjectWorkflowController {
     if (failure !== undefined) throw new DomainError(failure.code === 'PWF_DEPENDENCY_CYCLE' ? 'PWF_DEPENDENCY_CYCLE' : 'PROJECT_WORKFLOW_TEMPLATE_INVALID', 422, failure.path);
     const template = pwfWorkflow.parseProjectWorkflowTemplate(body.params);
     const facts = factsOf(body.facts);
-    const planned = await this.workflows.previewTemplate(scope.tx, template, body.planned_start_date, facts);
-    return schedulePreviewOf(planned.result, { ...namesOf(template), plannedStart: body.planned_start_date, excluded: planned.excluded, now });
+    // R56, R74: the server owns the dates of the chart. `PUBLISHED` (the default) is the schedule a real start would get; `PROVISIONAL` counts a year nobody published on its latest draft and says so. Nothing is stored either way.
+    const planned = await previewWorkflowTemplate(scope.tx, template, body.planned_start_date, facts, body.calendar_mode ?? 'PUBLISHED', vietnamDateOf(now));
+    const schedule = schedulePreviewOf(planned.result, { ...namesOf(template), plannedStart: body.planned_start_date, excluded: planned.excluded, now });
+    return {
+      ...schedule,
+      tasks: schedule.tasks.map((task) => ({ ...task, ...planned.tasks[task.task_code] })),
+      calendar_mode: planned.calendarMode,
+      provisional: planned.provisional,
+      calendars: planned.calendars,
+      steps: planned.steps,
+      overall_deadline: planned.overallDeadline,
+    };
   }
 
   @Post('projects/:project_id/workflow')

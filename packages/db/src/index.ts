@@ -1952,6 +1952,8 @@ export { PwfPendingDecisionReads } from './pwf-pending-decisions.ts';
 export type { PwfPendingDecision, PwfPendingKind, PwfPendingViewer } from './pwf-pending-decisions.ts';
 export { logWorkflow, milestoneCodeOf, publishSchedule, resultHashOf, syncMilestones } from './pwf-publish.ts';
 export { loadPinnedCalendars, pinPublishedCalendars } from './pwf-schedule-support.ts';
+export { CALENDAR_MODES as PWF_CALENDAR_MODES, previewWorkflowTemplate } from './pwf-template-preview.ts';
+export type { CalendarMode as PwfCalendarMode, TemplatePreview as PwfTemplatePreview } from './pwf-template-preview.ts';
 export { PwfDeadlineReads } from './pwf-deadline-reads.ts';
 export type { BoardFilter as PwfBoardFilter } from './pwf-deadline-reads.ts';
 export { PwfBandPolicies, BAND_SOURCE as PWF_BAND_SOURCE } from './pwf-band-policies.ts';

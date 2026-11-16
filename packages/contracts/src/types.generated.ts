@@ -49039,7 +49039,42 @@ export interface components {
                     policy: "LATEST_APPROVED" | "PINNED";
                     revision?: number | null;
                 }[];
+                /** @description The time limit in its own unit (R58); duration_working_days must then be its nominal value. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                };
+                /** @description The ladder of the three colours of this task, in working days left (R59): green > yellow > red >= -1; without green_days every day above yellow is green. */
+                bands?: {
+                    green_days?: number;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The units that receive the task (R61): exactly one LEAD, whose role is the responsible_role of the task. */
+                responsible_units?: {
+                    unit_ref: string;
+                    role: string;
+                    /** @enum {string} */
+                    part: "LEAD" | "SUPPORT";
+                }[];
+                /** @description Whether the limit of the task may be extended and the caps (R72); the unit is the unit of the limit. */
+                extension?: {
+                    allowed: boolean;
+                    max_times?: number;
+                    max_value?: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                };
             }[];
+            /** @description The parties of the project the template names beside INVESTOR and DECISION_AUTHORITY (R61). */
+            parties?: {
+                code: string;
+                name: string;
+            }[];
+            /** @description The code of the task whose finish is the deadline of the whole file (PWF 22.2). */
+            overall_deadline_task?: string | null;
         };
         PwfTemplateValidation: {
             valid: boolean;
@@ -49072,6 +49107,11 @@ export interface components {
                 funding_source?: string;
                 project_type?: string;
             };
+            /**
+             * @description PUBLISHED (default): the published work calendars only, what a real start would be laid on. PROVISIONAL: a year without a published calendar is counted on its latest draft, and the answer says so (R74). Only this preview takes it.
+             * @enum {string}
+             */
+            calendar_mode?: "PUBLISHED" | "PROVISIONAL";
         };
         PwfSchedulePreview: {
             /** Format: date */
@@ -49117,6 +49157,44 @@ export interface components {
                     task: string | null;
                     year?: number | null;
                 }[];
+                /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                } | null;
+                /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+                effective_working_days?: number | null;
+                /** @description The dates (or the colour zones) of the task were counted on or across a draft calendar year. */
+                provisional?: boolean;
+                /**
+                 * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+                 * @enum {string}
+                 */
+                band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+                /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+                band_thresholds?: {
+                    green_days: number | null;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The first day the deadline is each colour (working days counted back from the finish on the calendars used); green_from is null for a ladder without a green line; null when the task has no date or a year the count needs has no calendar. */
+                band_zones?: {
+                    /** Format: date */
+                    green_from: string | null;
+                    /** Format: date */
+                    yellow_from: string;
+                    /** Format: date */
+                    red_from: string;
+                } | null;
+                /** @description Why there is no date: CALENDAR_MISSING with the first year that has no calendar, or NOT_IN_PROJECT for a branch the sample facts leave out; null when dated. */
+                undated_reason?: {
+                    /** @enum {string} */
+                    code: "CALENDAR_MISSING" | "NOT_IN_PROJECT";
+                    year?: number;
+                } | null;
+                is_overall_deadline?: boolean;
             }[];
             excluded_tasks: string[];
             findings: {
@@ -49128,6 +49206,55 @@ export interface components {
             result_hash: string;
             /** Format: date-time */
             as_of: string;
+            /** @enum {string} */
+            calendar_mode?: "PUBLISHED" | "PROVISIONAL";
+            /** @description At least one year the dates rely on was taken from a draft calendar. */
+            provisional?: boolean;
+            /** @description Every year the dates and the colour zones rely on, with the version used and whether it is published or a draft. */
+            calendars?: {
+                year: number;
+                version: number;
+                /** @enum {string} */
+                status: "PUBLISHED" | "DRAFT";
+            }[];
+            /** @description The span of each step, read from the schedule of its tasks (R44). */
+            steps?: {
+                step_code: string;
+                phase_code: string;
+                name: string;
+                /** Format: date */
+                start: string | null;
+                /** Format: date */
+                finish: string | null;
+                /** @description The working days from the first slot one of its tasks starts in to the slot the last one ends in; null when a task of the step has no calendar or the step has no task in the project. */
+                working_days: number | null;
+                task_count: number;
+                provisional: boolean;
+                /** @description Why there is no date: CALENDAR_MISSING with the first year that has no calendar, or NOT_IN_PROJECT for a branch the sample facts leave out; null when dated. */
+                undated_reason: {
+                    /** @enum {string} */
+                    code: "CALENDAR_MISSING" | "NOT_IN_PROJECT";
+                    year?: number;
+                } | null;
+            }[];
+            /** @description The deadline of the whole file: the finish of the task the template marks (overall_deadline_task); null when the template marks none or the sample facts leave that task out. */
+            overall_deadline?: {
+                task_code: string;
+                /** Format: date */
+                finish: string | null;
+                /** @enum {string} */
+                state: "SCHEDULED" | "COMPLETED" | "PASS_THROUGH" | "CALENDAR_UNAVAILABLE";
+                provisional: boolean;
+                /** @description The first day the deadline is each colour (working days counted back from the finish on the calendars used); green_from is null for a ladder without a green line; null when the task has no date or a year the count needs has no calendar. */
+                band_zones: {
+                    /** Format: date */
+                    green_from: string | null;
+                    /** Format: date */
+                    yellow_from: string;
+                    /** Format: date */
+                    red_from: string;
+                } | null;
+            } | null;
         };
         PwfWorkflowStart: {
             /** @description Bỏ trống: hệ thống chọn theo quy tắc PROJECT_WORKFLOW_ASSIGNMENT (R47); không có đề xuất: PWF_TEMPLATE_NOT_ASSIGNED */
@@ -50880,6 +51007,10 @@ export interface components {
             note?: string;
             /** @enum {string} */
             verification: "VERIFIED" | "UNVERIFIED";
+            /** @description The membership that verified the ground against the source text; set by the server when a draft is saved, never taken from the client (R75). */
+            verified_by?: string;
+            /** @description When it was verified (UTC), set by the server (R75). */
+            verified_at?: string;
         };
         /** @description Căn cứ pháp lý kèm văn bản của danh mục mà nó viện dẫn và tình trạng hiệu lực hôm nay (R45) */
         PwfLegalBasisView: {

@@ -61109,6 +61109,11 @@ final class PwfSchedulePreviewResponse implements ResponseModel {
     required this.findings,
     required this.resultHash,
     required this.asOf,
+    this.calendarMode,
+    this.provisional,
+    this.calendars,
+    this.steps,
+    this.overallDeadline,
     this.extra = const <String, Object?>{},
   });
 
@@ -61126,7 +61131,12 @@ final class PwfSchedulePreviewResponse implements ResponseModel {
       findings: requiredField(map, path, 'findings', asList(PwfSchedulePreviewResponseFindingsItem.fromJson)),
       resultHash: requiredField(map, path, 'result_hash', asString),
       asOf: requiredField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'planned_start_date', 'project_start', 'project_finish', 'critical_path', 'longest_path', 'calendar_versions', 'tasks', 'excluded_tasks', 'findings', 'result_hash', 'as_of'}, strict: true),
+      calendarMode: optionalField(map, path, 'calendar_mode', asString),
+      provisional: optionalField(map, path, 'provisional', asBool),
+      calendars: optionalField(map, path, 'calendars', asList(PwfSchedulePreviewResponseCalendarsItem.fromJson)),
+      steps: optionalField(map, path, 'steps', asList(PwfSchedulePreviewResponseStepsItem.fromJson)),
+      overallDeadline: optionalField(map, path, 'overall_deadline', nullable(PwfSchedulePreviewResponseOverallDeadline.fromJson)),
+      extra: unknownFields(map, path, const <String>{'planned_start_date', 'project_start', 'project_finish', 'critical_path', 'longest_path', 'calendar_versions', 'tasks', 'excluded_tasks', 'findings', 'result_hash', 'as_of', 'calendar_mode', 'provisional', 'calendars', 'steps', 'overall_deadline'}, strict: true),
     );
   }
 
@@ -61141,6 +61151,11 @@ final class PwfSchedulePreviewResponse implements ResponseModel {
   final List<PwfSchedulePreviewResponseFindingsItem> findings;
   final String resultHash;
   final String asOf;
+  final String? calendarMode;
+  final bool? provisional;
+  final List<PwfSchedulePreviewResponseCalendarsItem>? calendars;
+  final List<PwfSchedulePreviewResponseStepsItem>? steps;
+  final PwfSchedulePreviewResponseOverallDeadline? overallDeadline;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61158,6 +61173,45 @@ final class PwfSchedulePreviewResponse implements ResponseModel {
         'findings': findings.map((e0) => e0.toJson()).toList(),
         'result_hash': resultHash,
         'as_of': asOf,
+        if (calendarMode != null) 'calendar_mode': calendarMode,
+        if (provisional != null) 'provisional': provisional,
+        if (calendars != null) 'calendars': calendars!.map((e0) => e0.toJson()).toList(),
+        if (steps != null) 'steps': steps!.map((e0) => e0.toJson()).toList(),
+        if (overallDeadline != null) 'overall_deadline': overallDeadline!.toJson(),
+        ...extra,
+      };
+}
+
+final class PwfSchedulePreviewResponseCalendarsItem implements ResponseModel {
+  const PwfSchedulePreviewResponseCalendarsItem({
+    required this.year,
+    required this.version,
+    required this.status,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfSchedulePreviewResponseCalendarsItem.fromJson(Object? json, [String path = 'PwfSchedulePreviewResponseCalendarsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfSchedulePreviewResponseCalendarsItem(
+      year: requiredField(map, path, 'year', asInt),
+      version: requiredField(map, path, 'version', asInt),
+      status: requiredField(map, path, 'status', asString),
+      extra: unknownFields(map, path, const <String>{'year', 'version', 'status'}, strict: true),
+    );
+  }
+
+  final int year;
+  final int version;
+  final String status;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'year': year,
+        'version': version,
+        'status': status,
         ...extra,
       };
 }
@@ -61226,6 +61280,170 @@ final class PwfSchedulePreviewResponseFindingsItem implements ResponseModel {
       };
 }
 
+final class PwfSchedulePreviewResponseOverallDeadline implements ResponseModel {
+  const PwfSchedulePreviewResponseOverallDeadline({
+    required this.taskCode,
+    required this.finish,
+    required this.state,
+    required this.provisional,
+    required this.bandZones,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfSchedulePreviewResponseOverallDeadline.fromJson(Object? json, [String path = 'PwfSchedulePreviewResponseOverallDeadline']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfSchedulePreviewResponseOverallDeadline(
+      taskCode: requiredField(map, path, 'task_code', asString),
+      finish: requiredField(map, path, 'finish', nullable(asString)),
+      state: requiredField(map, path, 'state', asString),
+      provisional: requiredField(map, path, 'provisional', asBool),
+      bandZones: requiredField(map, path, 'band_zones', nullable(PwfSchedulePreviewResponseOverallDeadlineBandZones.fromJson)),
+      extra: unknownFields(map, path, const <String>{'task_code', 'finish', 'state', 'provisional', 'band_zones'}, strict: true),
+    );
+  }
+
+  final String taskCode;
+  final String? finish;
+  final String state;
+  final bool provisional;
+  final PwfSchedulePreviewResponseOverallDeadlineBandZones? bandZones;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'task_code': taskCode,
+        'finish': finish,
+        'state': state,
+        'provisional': provisional,
+        'band_zones': (bandZones == null ? null : bandZones!.toJson()),
+        ...extra,
+      };
+}
+
+final class PwfSchedulePreviewResponseOverallDeadlineBandZones implements ResponseModel {
+  const PwfSchedulePreviewResponseOverallDeadlineBandZones({
+    required this.greenFrom,
+    required this.yellowFrom,
+    required this.redFrom,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfSchedulePreviewResponseOverallDeadlineBandZones.fromJson(Object? json, [String path = 'PwfSchedulePreviewResponseOverallDeadlineBandZones']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfSchedulePreviewResponseOverallDeadlineBandZones(
+      greenFrom: requiredField(map, path, 'green_from', nullable(asString)),
+      yellowFrom: requiredField(map, path, 'yellow_from', asString),
+      redFrom: requiredField(map, path, 'red_from', asString),
+      extra: unknownFields(map, path, const <String>{'green_from', 'yellow_from', 'red_from'}, strict: true),
+    );
+  }
+
+  final String? greenFrom;
+  final String yellowFrom;
+  final String redFrom;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'green_from': greenFrom,
+        'yellow_from': yellowFrom,
+        'red_from': redFrom,
+        ...extra,
+      };
+}
+
+final class PwfSchedulePreviewResponseStepsItem implements ResponseModel {
+  const PwfSchedulePreviewResponseStepsItem({
+    required this.stepCode,
+    required this.phaseCode,
+    required this.name,
+    required this.start,
+    required this.finish,
+    required this.workingDays,
+    required this.taskCount,
+    required this.provisional,
+    required this.undatedReason,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfSchedulePreviewResponseStepsItem.fromJson(Object? json, [String path = 'PwfSchedulePreviewResponseStepsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfSchedulePreviewResponseStepsItem(
+      stepCode: requiredField(map, path, 'step_code', asString),
+      phaseCode: requiredField(map, path, 'phase_code', asString),
+      name: requiredField(map, path, 'name', asString),
+      start: requiredField(map, path, 'start', nullable(asString)),
+      finish: requiredField(map, path, 'finish', nullable(asString)),
+      workingDays: requiredField(map, path, 'working_days', nullable(asInt)),
+      taskCount: requiredField(map, path, 'task_count', asInt),
+      provisional: requiredField(map, path, 'provisional', asBool),
+      undatedReason: requiredField(map, path, 'undated_reason', nullable(PwfSchedulePreviewResponseStepsItemUndatedReason.fromJson)),
+      extra: unknownFields(map, path, const <String>{'step_code', 'phase_code', 'name', 'start', 'finish', 'working_days', 'task_count', 'provisional', 'undated_reason'}, strict: true),
+    );
+  }
+
+  final String stepCode;
+  final String phaseCode;
+  final String name;
+  final String? start;
+  final String? finish;
+  final int? workingDays;
+  final int taskCount;
+  final bool provisional;
+  final PwfSchedulePreviewResponseStepsItemUndatedReason? undatedReason;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'step_code': stepCode,
+        'phase_code': phaseCode,
+        'name': name,
+        'start': start,
+        'finish': finish,
+        'working_days': workingDays,
+        'task_count': taskCount,
+        'provisional': provisional,
+        'undated_reason': (undatedReason == null ? null : undatedReason!.toJson()),
+        ...extra,
+      };
+}
+
+final class PwfSchedulePreviewResponseStepsItemUndatedReason implements ResponseModel {
+  const PwfSchedulePreviewResponseStepsItemUndatedReason({
+    required this.code,
+    this.year,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfSchedulePreviewResponseStepsItemUndatedReason.fromJson(Object? json, [String path = 'PwfSchedulePreviewResponseStepsItemUndatedReason']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfSchedulePreviewResponseStepsItemUndatedReason(
+      code: requiredField(map, path, 'code', asString),
+      year: optionalField(map, path, 'year', asInt),
+      extra: unknownFields(map, path, const <String>{'code', 'year'}, strict: true),
+    );
+  }
+
+  final String code;
+  final int? year;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        if (year != null) 'year': year,
+        ...extra,
+      };
+}
+
 final class PwfSchedulePreviewResponseTasksItem implements ResponseModel {
   const PwfSchedulePreviewResponseTasksItem({
     required this.taskCode,
@@ -61246,6 +61464,14 @@ final class PwfSchedulePreviewResponseTasksItem implements ResponseModel {
     required this.finishVarianceDays,
     required this.findings,
     this.taskId,
+    this.duration,
+    this.effectiveWorkingDays,
+    this.provisional,
+    this.bandTier,
+    this.bandThresholds,
+    this.bandZones,
+    this.undatedReason,
+    this.isOverallDeadline,
     this.extra = const <String, Object?>{},
   });
 
@@ -61270,7 +61496,15 @@ final class PwfSchedulePreviewResponseTasksItem implements ResponseModel {
       startVarianceDays: requiredField(map, path, 'start_variance_days', nullable(asInt)),
       finishVarianceDays: requiredField(map, path, 'finish_variance_days', nullable(asInt)),
       findings: requiredField(map, path, 'findings', asList(PwfSchedulePreviewResponseTasksItemFindingsItem.fromJson)),
-      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'phase_code', 'kind', 'state', 'start', 'finish', 'late_start', 'late_finish', 'total_float', 'free_float', 'critical', 'driving_predecessor', 'missing_year', 'start_variance_days', 'finish_variance_days', 'findings'}, strict: true),
+      duration: optionalField(map, path, 'duration', nullable(PwfSchedulePreviewResponseTasksItemDuration.fromJson)),
+      effectiveWorkingDays: optionalField(map, path, 'effective_working_days', nullable(asInt)),
+      provisional: optionalField(map, path, 'provisional', asBool),
+      bandTier: optionalField(map, path, 'band_tier', asString),
+      bandThresholds: optionalField(map, path, 'band_thresholds', PwfSchedulePreviewResponseTasksItemBandThresholds.fromJson),
+      bandZones: optionalField(map, path, 'band_zones', nullable(PwfSchedulePreviewResponseTasksItemBandZones.fromJson)),
+      undatedReason: optionalField(map, path, 'undated_reason', nullable(PwfSchedulePreviewResponseTasksItemUndatedReason.fromJson)),
+      isOverallDeadline: optionalField(map, path, 'is_overall_deadline', asBool),
+      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'phase_code', 'kind', 'state', 'start', 'finish', 'late_start', 'late_finish', 'total_float', 'free_float', 'critical', 'driving_predecessor', 'missing_year', 'start_variance_days', 'finish_variance_days', 'findings', 'duration', 'effective_working_days', 'provisional', 'band_tier', 'band_thresholds', 'band_zones', 'undated_reason', 'is_overall_deadline'}, strict: true),
     );
   }
 
@@ -61292,6 +61526,14 @@ final class PwfSchedulePreviewResponseTasksItem implements ResponseModel {
   final int? startVarianceDays;
   final int? finishVarianceDays;
   final List<PwfSchedulePreviewResponseTasksItemFindingsItem> findings;
+  final PwfSchedulePreviewResponseTasksItemDuration? duration;
+  final int? effectiveWorkingDays;
+  final bool? provisional;
+  final String? bandTier;
+  final PwfSchedulePreviewResponseTasksItemBandThresholds? bandThresholds;
+  final PwfSchedulePreviewResponseTasksItemBandZones? bandZones;
+  final PwfSchedulePreviewResponseTasksItemUndatedReason? undatedReason;
+  final bool? isOverallDeadline;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61316,6 +61558,116 @@ final class PwfSchedulePreviewResponseTasksItem implements ResponseModel {
         'start_variance_days': startVarianceDays,
         'finish_variance_days': finishVarianceDays,
         'findings': findings.map((e0) => e0.toJson()).toList(),
+        if (duration != null) 'duration': duration!.toJson(),
+        if (effectiveWorkingDays != null) 'effective_working_days': effectiveWorkingDays,
+        if (provisional != null) 'provisional': provisional,
+        if (bandTier != null) 'band_tier': bandTier,
+        if (bandThresholds != null) 'band_thresholds': bandThresholds!.toJson(),
+        if (bandZones != null) 'band_zones': bandZones!.toJson(),
+        if (undatedReason != null) 'undated_reason': undatedReason!.toJson(),
+        if (isOverallDeadline != null) 'is_overall_deadline': isOverallDeadline,
+        ...extra,
+      };
+}
+
+final class PwfSchedulePreviewResponseTasksItemBandThresholds implements ResponseModel {
+  const PwfSchedulePreviewResponseTasksItemBandThresholds({
+    required this.greenDays,
+    required this.yellowDays,
+    required this.redDays,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfSchedulePreviewResponseTasksItemBandThresholds.fromJson(Object? json, [String path = 'PwfSchedulePreviewResponseTasksItemBandThresholds']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfSchedulePreviewResponseTasksItemBandThresholds(
+      greenDays: requiredField(map, path, 'green_days', nullable(asInt)),
+      yellowDays: requiredField(map, path, 'yellow_days', asInt),
+      redDays: requiredField(map, path, 'red_days', asInt),
+      extra: unknownFields(map, path, const <String>{'green_days', 'yellow_days', 'red_days'}, strict: true),
+    );
+  }
+
+  final int? greenDays;
+  final int yellowDays;
+  final int redDays;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'green_days': greenDays,
+        'yellow_days': yellowDays,
+        'red_days': redDays,
+        ...extra,
+      };
+}
+
+final class PwfSchedulePreviewResponseTasksItemBandZones implements ResponseModel {
+  const PwfSchedulePreviewResponseTasksItemBandZones({
+    required this.greenFrom,
+    required this.yellowFrom,
+    required this.redFrom,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfSchedulePreviewResponseTasksItemBandZones.fromJson(Object? json, [String path = 'PwfSchedulePreviewResponseTasksItemBandZones']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfSchedulePreviewResponseTasksItemBandZones(
+      greenFrom: requiredField(map, path, 'green_from', nullable(asString)),
+      yellowFrom: requiredField(map, path, 'yellow_from', asString),
+      redFrom: requiredField(map, path, 'red_from', asString),
+      extra: unknownFields(map, path, const <String>{'green_from', 'yellow_from', 'red_from'}, strict: true),
+    );
+  }
+
+  final String? greenFrom;
+  final String yellowFrom;
+  final String redFrom;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'green_from': greenFrom,
+        'yellow_from': yellowFrom,
+        'red_from': redFrom,
+        ...extra,
+      };
+}
+
+final class PwfSchedulePreviewResponseTasksItemDuration implements ResponseModel {
+  const PwfSchedulePreviewResponseTasksItemDuration({
+    required this.value,
+    required this.unit,
+    required this.rollToWorkingDay,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfSchedulePreviewResponseTasksItemDuration.fromJson(Object? json, [String path = 'PwfSchedulePreviewResponseTasksItemDuration']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfSchedulePreviewResponseTasksItemDuration(
+      value: requiredField(map, path, 'value', asInt),
+      unit: requiredField(map, path, 'unit', asString),
+      rollToWorkingDay: requiredField(map, path, 'roll_to_working_day', asBool),
+      extra: unknownFields(map, path, const <String>{'value', 'unit', 'roll_to_working_day'}, strict: true),
+    );
+  }
+
+  final int value;
+  final String unit;
+  final bool rollToWorkingDay;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'value': value,
+        'unit': unit,
+        'roll_to_working_day': rollToWorkingDay,
         ...extra,
       };
 }
@@ -61349,6 +61701,36 @@ final class PwfSchedulePreviewResponseTasksItemFindingsItem implements ResponseM
   Map<String, Object?> toJson() => <String, Object?>{
         'code': code,
         'task': task,
+        if (year != null) 'year': year,
+        ...extra,
+      };
+}
+
+final class PwfSchedulePreviewResponseTasksItemUndatedReason implements ResponseModel {
+  const PwfSchedulePreviewResponseTasksItemUndatedReason({
+    required this.code,
+    this.year,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfSchedulePreviewResponseTasksItemUndatedReason.fromJson(Object? json, [String path = 'PwfSchedulePreviewResponseTasksItemUndatedReason']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfSchedulePreviewResponseTasksItemUndatedReason(
+      code: requiredField(map, path, 'code', asString),
+      year: optionalField(map, path, 'year', asInt),
+      extra: unknownFields(map, path, const <String>{'code', 'year'}, strict: true),
+    );
+  }
+
+  final String code;
+  final int? year;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
         if (year != null) 'year': year,
         ...extra,
       };

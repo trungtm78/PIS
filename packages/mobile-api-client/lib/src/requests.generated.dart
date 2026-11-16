@@ -14036,12 +14036,16 @@ final class PwfLegalBasis implements RequestModel {
     required this.verification,
     this.article,
     this.note,
+    this.verifiedBy,
+    this.verifiedAt,
   });
 
   final String document;
   final String? article;
   final String? note;
   final String verification;
+  final String? verifiedBy;
+  final String? verifiedAt;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -14049,6 +14053,8 @@ final class PwfLegalBasis implements RequestModel {
         if (article != null) 'article': article,
         if (note != null) 'note': note,
         'verification': verification,
+        if (verifiedBy != null) 'verified_by': verifiedBy,
+        if (verifiedAt != null) 'verified_at': verifiedAt,
       };
 }
 
@@ -14303,6 +14309,8 @@ final class PwfTemplateParams implements RequestModel {
     required this.tasks,
     this.roles,
     this.steps,
+    this.parties,
+    this.overallDeadlineTask,
   });
 
   final String name;
@@ -14311,6 +14319,8 @@ final class PwfTemplateParams implements RequestModel {
   final List<PwfTemplateParamsPhasesItem> phases;
   final List<PwfTemplateParamsStepsItem>? steps;
   final List<PwfTemplateParamsTasksItem> tasks;
+  final List<PwfTemplateParamsPartiesItem>? parties;
+  final Object? overallDeadlineTask;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -14320,6 +14330,24 @@ final class PwfTemplateParams implements RequestModel {
         'phases': phases,
         if (steps != null) 'steps': steps,
         'tasks': tasks,
+        if (parties != null) 'parties': parties,
+        if (overallDeadlineTask != null) 'overall_deadline_task': overallDeadlineTask,
+      };
+}
+
+final class PwfTemplateParamsPartiesItem implements RequestModel {
+  const PwfTemplateParamsPartiesItem({
+    required this.code,
+    required this.name,
+  });
+
+  final String code;
+  final String name;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
       };
 }
 
@@ -14404,6 +14432,10 @@ final class PwfTemplateParamsTasksItem implements RequestModel {
     this.step,
     this.legalBasis,
     this.formPolicies,
+    this.duration,
+    this.bands,
+    this.responsibleUnits,
+    this.extension_,
   });
 
   final String code;
@@ -14425,6 +14457,10 @@ final class PwfTemplateParamsTasksItem implements RequestModel {
   final Object? step;
   final List<PwfLegalBasis>? legalBasis;
   final List<PwfTemplateParamsTasksItemFormPoliciesItem>? formPolicies;
+  final PwfTemplateParamsTasksItemDuration? duration;
+  final PwfTemplateParamsTasksItemBands? bands;
+  final List<PwfTemplateParamsTasksItemResponsibleUnitsItem>? responsibleUnits;
+  final PwfTemplateParamsTasksItemExtension? extension_;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -14447,6 +14483,29 @@ final class PwfTemplateParamsTasksItem implements RequestModel {
         if (step != null) 'step': step,
         if (legalBasis != null) 'legal_basis': legalBasis,
         if (formPolicies != null) 'form_policies': formPolicies,
+        if (duration != null) 'duration': duration,
+        if (bands != null) 'bands': bands,
+        if (responsibleUnits != null) 'responsible_units': responsibleUnits,
+        if (extension_ != null) 'extension': extension_,
+      };
+}
+
+final class PwfTemplateParamsTasksItemBands implements RequestModel {
+  const PwfTemplateParamsTasksItemBands({
+    required this.yellowDays,
+    required this.redDays,
+    this.greenDays,
+  });
+
+  final int? greenDays;
+  final int yellowDays;
+  final int redDays;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (greenDays != null) 'green_days': greenDays,
+        'yellow_days': yellowDays,
+        'red_days': redDays,
       };
 }
 
@@ -14469,6 +14528,47 @@ final class PwfTemplateParamsTasksItemChecklistItem implements RequestModel {
         'name': name,
         'required': required_,
         'evidence_kinds': evidenceKinds,
+      };
+}
+
+final class PwfTemplateParamsTasksItemDuration implements RequestModel {
+  const PwfTemplateParamsTasksItemDuration({
+    required this.value,
+    required this.unit,
+    required this.rollToWorkingDay,
+  });
+
+  final int value;
+  final String unit;
+  final bool rollToWorkingDay;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'value': value,
+        'unit': unit,
+        'roll_to_working_day': rollToWorkingDay,
+      };
+}
+
+final class PwfTemplateParamsTasksItemExtension implements RequestModel {
+  const PwfTemplateParamsTasksItemExtension({
+    required this.allowed,
+    required this.unit,
+    this.maxTimes,
+    this.maxValue,
+  });
+
+  final bool allowed;
+  final int? maxTimes;
+  final int? maxValue;
+  final String unit;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'allowed': allowed,
+        if (maxTimes != null) 'max_times': maxTimes,
+        if (maxValue != null) 'max_value': maxValue,
+        'unit': unit,
       };
 }
 
@@ -14510,6 +14610,25 @@ final class PwfTemplateParamsTasksItemPredecessorsItem implements RequestModel {
       };
 }
 
+final class PwfTemplateParamsTasksItemResponsibleUnitsItem implements RequestModel {
+  const PwfTemplateParamsTasksItemResponsibleUnitsItem({
+    required this.unitRef,
+    required this.role,
+    required this.part_,
+  });
+
+  final String unitRef;
+  final String role;
+  final String part_;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_ref': unitRef,
+        'role': role,
+        'part': part_,
+      };
+}
+
 final class PwfTemplateParamsTasksItemWhenItem implements RequestModel {
   const PwfTemplateParamsTasksItemWhenItem({
     required this.field,
@@ -14531,17 +14650,20 @@ final class PwfTemplatePreviewRequest implements RequestModel {
     required this.params,
     required this.plannedStartDate,
     this.facts,
+    this.calendarMode,
   });
 
   final PwfTemplateParams params;
   final String plannedStartDate;
   final PwfTemplatePreviewRequestFacts? facts;
+  final String? calendarMode;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'params': params,
         'planned_start_date': plannedStartDate,
         if (facts != null) 'facts': facts,
+        if (calendarMode != null) 'calendar_mode': calendarMode,
       };
 }
 
