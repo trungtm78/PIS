@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bản mẫu: soạn quy trình dạng bảng</title>
+<style>
+@font-face{font-family:"Be Vietnam Pro";font-weight:400;src:url("../../../apps/web/public/fonts/be-vietnam-pro-vietnamese-400.woff2") format("woff2");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB}
+@font-face{font-family:"Be Vietnam Pro";font-weight:600;src:url("../../../apps/web/public/fonts/be-vietnam-pro-vietnamese-600.woff2") format("woff2");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB}
+@font-face{font-family:"Be Vietnam Pro";font-weight:400;src:url("../../../apps/web/public/fonts/be-vietnam-pro-latin-400.woff2") format("woff2")}
+@font-face{font-family:"Be Vietnam Pro";font-weight:600;src:url("../../../apps/web/public/fonts/be-vietnam-pro-latin-600.woff2") format("woff2")}
+:root{--ink:#122D3B;--muted:#5B6E77;--border:#DDE6E7;--surface:#fff;--surface2:#F4F7F6;--primary:#007D77;--primary-hover:#00635E;--primary-soft:#EDF7F5;--sidebar:#102E3B;--danger:#A63838;--danger-soft:#FBE9E9;--warn:#9A5B00;--warn-soft:#FFF3DB;--ok:#2E7D4F;--ok-soft:#EEF7F1;--red:#C8402F;--yellow:#E0A100;--green:#2E9E5B;--grey:#A9B8BE}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Be Vietnam Pro",system-ui,"Segoe UI",sans-serif;font-size:14px;color:var(--ink);background:var(--surface2)}
+button,input,select{font:inherit;color:inherit}
+.demo-bar{background:#0b2530;color:#fff;padding:8px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.demo-bar strong{font-weight:600}
+.demo-bar .tabs{display:flex;gap:6px;margin-left:auto}
+.demo-bar button{background:transparent;border:1px solid #3c5a66;color:#dce8ea;border-radius:999px;padding:6px 14px;cursor:pointer}
+.demo-bar button[aria-selected=true]{background:#fff;color:var(--ink);border-color:#fff;font-weight:600}
+.shell{display:flex;min-height:calc(100vh - 46px)}
+.side{width:190px;background:var(--sidebar);color:#fff;padding:18px 14px;flex:none}
+.side h1{font-size:16px;font-weight:600;margin:0 0 18px;line-height:1.3}
+.side a{display:block;color:#cfe0e3;padding:8px 10px;border-radius:8px;text-decoration:none}
+.side a.on{background:#1d4250;color:#fff;font-weight:600}
+.side small{display:block;color:#8fa9b0;margin:16px 10px 6px;letter-spacing:.06em;font-size:11px}
+main{flex:1;padding:22px 22px 60px;min-width:0}
+.crumb{color:var(--primary);text-decoration:none;font-size:13px}
+.head{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin:6px 0 4px}
+.head h2{font-size:24px;margin:0;font-weight:600}
+.head .sub{color:var(--muted);margin-top:2px}
+.head .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--border);background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--primary)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+.btn.primary:hover{background:var(--primary-hover)}
+.btn.small{padding:4px 10px;font-size:13px}
+.btn.ghost{border-style:dashed;color:var(--primary)}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;background:var(--warn-soft);color:var(--warn)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.info{background:var(--primary-soft);color:var(--primary)} .pill.red{background:var(--danger-soft);color:var(--danger)}
+.apply{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.chip{background:var(--primary-soft);border:1px solid #bfe0db;border-radius:999px;padding:3px 10px;font-size:13px}
+.chip button{border:0;background:none;cursor:pointer;color:var(--muted);padding:0 0 0 6px}
+.note{border-radius:8px;padding:10px 14px;margin:10px 0;border:1px solid}
+.note.warn{background:var(--warn-soft);border-color:#f0d9a8;color:#6b4300}
+.note.info{background:var(--primary-soft);border-color:#bfe0db}
+.note.ok{background:var(--ok-soft);border-color:#c5e3cf;color:#1f5b39}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;margin:14px 0;overflow:hidden}
+.card>header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#f8fbfa;border-bottom:1px solid var(--border)}
+.card>header h3{margin:0;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.card>header .right{margin-left:auto;display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th{font-size:12px;text-align:left;color:var(--muted);font-weight:600;padding:8px 6px;border-bottom:1px solid var(--border);white-space:nowrap;background:#fff}
+td{padding:8px 6px;border-bottom:1px solid #edf2f2;vertical-align:top}
+tr.phase td{background:#eef4f4;font-weight:600;padding:7px 10px}
+tr.phase td span.muted{font-weight:400}
+tr.step:hover td{background:#fbfdfd}
+.muted{color:var(--muted)} .tiny{font-size:12px}
+input[type=text],input[type=number],input[type=date],select{border:1px solid var(--border);border-radius:6px;padding:6px 8px;background:#fff;max-width:100%}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+td.name input{width:190px;font-weight:600}
+td.unit{white-space:nowrap} td.unit select{width:122px;margin-bottom:2px;padding:6px 4px}
+td.dur{white-space:nowrap} td.dur input[type=number]{width:52px;text-align:right} td.dur select{width:122px;padding:6px 4px} td.dur .check{display:inline-flex;margin-right:8px}
+td.band{white-space:nowrap} td.band input{width:46px;text-align:center;font-weight:600;padding:6px 2px}
+td.band .r input{color:var(--red);border-color:#edc0b9} td.band .y input{color:#8a6400;border-color:#ecd89a} td.band .g input{color:var(--ok);border-color:#bfe0c9}
+td.band label{display:inline-flex;flex-direction:column;align-items:center;font-size:11px;color:var(--muted);margin-right:4px}
+td.num{color:var(--muted);width:34px;white-space:nowrap}
+.move{border:0;background:none;cursor:pointer;color:var(--muted);padding:0 2px}
+.star{border:0;background:none;cursor:pointer;font-size:13px;color:var(--muted);padding:2px 0}
+.star.on{color:var(--warn);font-weight:600}
+.link{border:0;background:none;color:var(--primary);cursor:pointer;padding:0;font-size:13px}
+.basis .state{font-size:12px} .basis .no{color:var(--warn)} .basis .yes{color:var(--ok)}
+.check{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
+.gantt{padding:14px 16px 6px}
+.gantt .row{display:grid;grid-template-columns:230px 1fr;gap:10px;align-items:center;height:30px}
+.gantt .label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gantt .lane{position:relative;height:14px}
+.gantt .bar{position:absolute;top:0;height:14px;display:flex;border-radius:4px;overflow:hidden}
+.gantt .bar i{display:block;height:100%}
+.gantt .due{position:absolute;top:-3px;font-size:12px;color:var(--muted);white-space:nowrap;padding-left:6px}
+.gantt .scale{position:relative;height:20px;border-bottom:1px solid var(--border);margin-left:240px;font-size:11px;color:var(--muted)}
+.gantt .scale span{position:absolute;top:2px;transform:translateX(-50%)}
+.gantt .overall{position:absolute;top:0;bottom:0;border-left:2px dashed var(--ink)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:8px 16px 14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:18px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:440px;max-width:100vw;background:#fff;border-left:1px solid var(--border);box-shadow:-12px 0 30px rgba(16,46,59,.12);padding:20px 22px;overflow:auto;transform:translateX(105%);transition:transform .18s}
+.drawer.open{transform:none}
+.drawer h3{margin:0 0 2px;font-size:18px} .drawer h4{margin:18px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.drawer ul{margin:0;padding-left:18px} .drawer li{margin:4px 0}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 16px}
+.kpi b{display:block;font-size:22px;font-weight:600} .kpi span{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.view{display:none} .view.on{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px} @media(max-width:1000px){.grid2,.kpis{grid-template-columns:1fr}.side{display:none}}
+fieldset{border:1px solid var(--border);border-radius:10px;margin:0 0 12px;padding:10px 14px} legend{font-size:12px;color:var(--muted);padding:0 6px}
+.days label{margin-right:14px;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="demo-bar">
+  <strong>Bản mẫu để xem thử</strong><span class="tiny">Dữ liệu minh họa, chưa nối máy chủ. Thay cho màn "Soạn mẫu workflow" 4 tab hiện nay.</span>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-view="editor">1. Soạn quy trình</button>
+    <button role="tab" aria-selected="false" data-view="project">2. Workflow của dự án</button>
+    <button role="tab" aria-selected="false" data-view="calendar">3. Lịch làm việc năm</button>
+  </div>
+</div>
+<div class="shell">
+  <nav class="side" aria-label="Menu">
+    <h1>Hệ thống quản lý<br>đầu tư công</h1>
+    <a href="#">Tổng quan</a><a href="#">Việc của tôi</a>
+    <small>NGHIỆP VỤ</small>
+    <a href="#">Dự án</a><a href="#">Kế hoạch vốn</a><a href="#">Giải ngân</a><a href="#">Hợp đồng</a>
+    <a href="#" class="on">Quy trình và hạn</a>
+    <small>QUẢN TRỊ</small><a href="#">Lịch làm việc</a>
+  </nav>
+  <main>
+
+  <!-- ============ 1. SOẠN QUY TRÌNH ============ -->
+  <section class="view on" id="view-editor">
+    <a class="crumb" href="#">← Thư viện quy trình</a>
+    <div class="head">
+      <div><h2 id="tplName">Sửa chữa, bảo trì đường giao thông địa phương</h2>
+        <div class="sub">Loại dự án: Sửa chữa đường · Phiên bản 2 · <span class="pill" id="tplState">nháp</span> <span class="tiny" id="saveState"></span></div></div>
+      <div class="actions">
+        <button class="btn">Sửa tên, mô tả</button><button class="btn">Lịch sử phiên bản</button>
+        <button class="btn" id="btnSave">Lưu nháp</button><button class="btn primary" id="btnSubmit">Trình duyệt</button>
+      </div>
+    </div>
+    <div class="apply"><span class="muted">Áp cho:</span>
+      <span class="chip">Sửa chữa đường <button aria-label="Bỏ">×</button></span>
+      <select aria-label="Thêm loại dự án"><option>+ thêm loại dự án</option><option>Đường giao thông nông thôn</option><option>Cầu, cống</option></select>
+      <select aria-label="Thêm nhóm dự án"><option>+ nhóm dự án</option><option>Nhóm B</option><option>Nhóm C</option></select>
+      <select aria-label="Thêm nguồn vốn"><option>+ nguồn vốn</option><option>Ngân sách tỉnh</option><option>Ngân sách trung ương</option></select>
+      <span class="tiny muted">Thay đổi ở đây được trình duyệt cùng quy trình.</span>
+    </div>
+    <div class="note warn" id="verifyNote"></div>
+
+    <div class="card">
+      <header><h3>Các bước của quy trình</h3><div class="right"><span id="totals"></span></div></header>
+      <div class="scroll"><table id="steps">
+        <thead><tr><th>#</th><th>Bước</th><th>Đơn vị · vai trò</th><th>Mốc tính</th><th>Thời hạn</th><th title="Số ngày làm việc còn lại trước hạn">Đỏ / Vàng / Xanh</th><th>Căn cứ</th><th>Hồ sơ</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <div style="padding:12px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn ghost" id="btnAdd">+ Thêm bước</button>
+        <button class="btn ghost" id="btnPhase">+ Thêm giai đoạn</button>
+        <button class="btn ghost">Dán danh sách bước từ Excel</button>
+        <span class="tiny muted">Bước mới chép sẵn đơn vị, thời hạn và ngưỡng từ dòng trên. Không phải gõ mã.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <header><h3>Sơ đồ</h3><div class="right">Ngày mẫu: bắt đầu dự án <input type="date" id="sample" value="2026-12-01"> <span>Chỉ để xem. Tự vẽ lại khi sửa bảng.</span></div></header>
+      <div class="gantt" id="gantt"></div>
+      <div class="legend"><span><i style="background:var(--grey)"></i>chưa tới ngưỡng</span><span><i style="background:var(--green)"></i>vùng Xanh</span><span><i style="background:var(--yellow)"></i>vùng Vàng</span><span><i style="background:var(--red)"></i>vùng Đỏ (sát hạn)</span><span>┆ hạn chung của quy trình</span><span class="pill">tạm tính</span> theo ngày mẫu</div>
+    </div>
+  </section>
+
+  <!-- ============ 2. WORKFLOW CỦA DỰ ÁN ============ -->
+  <section class="view" id="view-project">
+    <a class="crumb" href="#">← Dự án DA-CN108</a>
+    <div class="head"><div><h2>Hệ thống cấp nước ngọt tập trung vùng ven biển Phú Tân</h2>
+      <div class="sub">Quy trình: Sửa chữa, bảo trì đường giao thông địa phương · phiên bản 1 (đã đóng băng) · bắt đầu 01/10/2026</div></div>
+      <div class="actions"><button class="btn">Sơ đồ</button><button class="btn">Bảng cột</button><button class="btn">Cổng giai đoạn</button></div></div>
+    <div class="kpis">
+      <div class="kpi"><span>Giai đoạn đang mở</span><b>Thẩm định</b></div>
+      <div class="kpi"><span>Tiến độ</span><b>3 / 9 bước</b></div>
+      <div class="kpi"><span>Hạn chung</span><b>24/02/2027</b><span>trễ 6 ngày so với cơ sở</span></div>
+      <div class="kpi"><span>Theo màu</span><b><span class="dot" style="background:var(--red)"></span>1 <span class="dot" style="background:var(--yellow);margin-left:10px"></span>1 <span class="dot" style="background:var(--green);margin-left:10px"></span>2</b></div>
+    </div>
+    <div class="card"><header><h3>Bảng bước</h3><div class="right">Màu là màu chính thức theo ngưỡng của quy trình đã duyệt</div></header>
+    <div class="scroll"><table>
+      <thead><tr><th>#</th><th>Bước</th><th>Đơn vị · người giữ</th><th>Hạn</th><th>Còn lại</th><th>Trạng thái</th><th>Đang chặn bởi</th><th></th></tr></thead>
+      <tbody>
+        <tr class="phase"><td colspan="8">Giai đoạn 1 · Chuẩn bị <span class="muted">· xong 2 / 2</span></td></tr>
+        <tr class="step"><td class="num">1</td><td><b>Khảo sát hiện trạng</b></td><td>Chủ đầu tư · Phạm Quốc Dũng</td><td>06/10/2026</td><td class="muted">xong 05/10</td><td><span class="pill ok">Đã duyệt xong</span></td><td class="muted">không</td><td></td></tr>
+        <tr class="step"><td class="num">2</td><td><b>Lập hồ sơ sửa chữa và dự toán</b></td><td>Chủ đầu tư · Phạm Quốc Dũng</td><td>12/10/2026</td><td class="muted">xong 13/10 (trễ 1 ngày)</td><td><span class="pill ok">Đã duyệt xong</span></td><td class="muted">không</td><td></td></tr>
+        <tr class="phase"><td colspan="8">Giai đoạn 2 · Thẩm định và phê duyệt <span class="muted">· xong 1 / 3</span></td></tr>
+        <tr class="step"><td class="num">3</td><td><b>Thẩm định hồ sơ sửa chữa và dự toán</b></td><td>Sở Xây dựng · Trần Văn Hùng</td><td>10/11/2026</td><td class="muted">xong 09/11</td><td><span class="pill ok">Đã duyệt xong</span></td><td class="muted">không</td><td></td></tr>
+        <tr class="step"><td class="num">4</td><td><b>Quyết định phê duyệt dự án sửa chữa</b> <span class="star on">★ hạn chung giai đoạn</span></td><td>UBND tỉnh · <span class="pill red">Chưa có người nhận</span></td><td>17/11/2026</td><td><span class="dot" style="background:var(--red)"></span><b>còn 1 ngày</b></td><td><span class="pill">Chưa bắt đầu</span></td><td>Chưa có người nhận việc</td><td><button class="btn small primary">Nhận việc</button></td></tr>
+        <tr class="step"><td class="num">5</td><td><b>Phê duyệt kế hoạch lựa chọn nhà thầu</b></td><td>Chủ đầu tư · Bùi Thị Mai</td><td>24/11/2026</td><td><span class="dot" style="background:var(--yellow)"></span>còn 5 ngày</td><td><span class="pill info">Đang làm</span></td><td>Thiếu 1 hồ sơ: Tờ trình kế hoạch lựa chọn nhà thầu</td><td><button class="btn small">Nộp hồ sơ</button></td></tr>
+        <tr class="phase"><td colspan="8">Giai đoạn 3 · Thực hiện <span class="muted">· chưa tới</span></td></tr>
+        <tr class="step"><td class="num">6</td><td><b>Lựa chọn nhà thầu và ký hợp đồng</b></td><td>Chủ đầu tư · Bùi Thị Mai</td><td>22/12/2026</td><td><span class="dot" style="background:var(--green)"></span>còn 25 ngày</td><td><span class="pill">Chờ bước 5</span></td><td>Bước 5 chưa xong</td><td></td></tr>
+        <tr class="step"><td class="num">7</td><td><b>Thi công sửa chữa mặt đường, rãnh thoát nước</b></td><td>Chủ đầu tư · Phạm Quốc Dũng</td><td>16/02/2027</td><td><span class="dot" style="background:var(--green)"></span>còn 65 ngày</td><td><span class="pill">Chờ bước 6</span></td><td>Bước 6 chưa xong</td><td><button class="btn small">Xin gia hạn</button></td></tr>
+      </tbody></table></div></div>
+    <div class="note info">Thao tác thường dùng (Nhận việc, Nộp hồ sơ, Hoàn thành, Duyệt, Xin gia hạn) nằm ngay trên dòng theo quyền của người đang xem. Việc cần nhiều thông tin mới mở trang chi tiết.</div>
+  </section>
+
+  <!-- ============ 3. LỊCH LÀM VIỆC ============ -->
+  <section class="view" id="view-calendar">
+    <a class="crumb" href="#">← Danh sách năm</a>
+    <div class="head"><div><h2>Lịch làm việc 2027</h2><div class="sub"><span class="pill">Nháp</span> · người lập: Lê Minh Cường</div></div>
+      <div class="actions"><button class="btn primary">Lưu lịch</button><button class="btn">Trình xác nhận năm</button><button class="btn">Nạp ngày lễ theo thông báo của năm</button></div></div>
+    <div class="note warn">Năm này chưa được xác nhận. Hạn theo ngày làm việc rơi vào năm 2027 đang là tạm tính trong sơ đồ của quy trình; hạn thật của dự án chỉ tính sau khi năm được xác nhận.</div>
+    <div class="grid2">
+      <div>
+        <fieldset class="days"><legend>Nghỉ hằng tuần</legend>
+          <label><input type="checkbox" checked> Chủ nhật</label><label><input type="checkbox"> Thứ Hai</label><label><input type="checkbox"> Thứ Ba</label><label><input type="checkbox"> Thứ Tư</label><label><input type="checkbox"> Thứ Năm</label><label><input type="checkbox"> Thứ Sáu</label><label><input type="checkbox" checked> Thứ Bảy</label></fieldset>
+        <fieldset><legend>Thêm ngày</legend>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input type="date" value="2027-02-05" aria-label="Từ ngày"> đến <input type="date" value="2027-02-11" aria-label="Đến ngày">
+          <select aria-label="Loại"><option>Nghỉ</option><option>Làm bù</option></select><input type="text" value="Tết Nguyên đán" aria-label="Ghi chú" style="flex:1;min-width:140px"><button class="btn">Thêm ngày</button></div></fieldset>
+      </div>
+      <div class="card" style="margin:0"><header><h3>Các ngày đặc biệt</h3></header><table>
+        <thead><tr><th>Ngày</th><th>Loại</th><th>Ghi chú</th><th></th></tr></thead><tbody>
+        <tr><td>01/01/2027</td><td>Nghỉ</td><td>Tết Dương lịch</td><td><button class="link">bỏ</button></td></tr>
+        <tr><td>05/02 đến 11/02/2027</td><td>Nghỉ</td><td>Tết Nguyên đán</td><td><button class="link">bỏ</button></td></tr>
+        <tr><td>13/02/2027</td><td>Làm bù</td><td>Làm bù cho ngày nghỉ Tết</td><td><button class="link">bỏ</button></td></tr>
+        <tr><td>16/04/2027</td><td>Nghỉ</td><td>Giỗ Tổ Hùng Vương</td><td><button class="link">bỏ</button></td></tr>
+        <tr><td>30/04/2027</td><td>Nghỉ</td><td>Ngày Giải phóng miền Nam</td><td><button class="link">bỏ</button></td></tr>
+        </tbody></table></div>
+    </div>
+    <div class="note info">Ngưỡng Đỏ / Vàng / Xanh mặc định của đơn vị đặt ở trang "Ngưỡng mặc định"; ngưỡng riêng của từng bước đặt ngay trên bảng của quy trình và được liệt kê ở đó.</div>
+  </section>
+  </main>
+</div>
+
+<aside class="drawer" id="drawer" aria-label="Chi tiết bước">
+  <div style="display:flex;align-items:flex-start;gap:10px"><div style="flex:1"><h3 id="dName"></h3><div class="muted tiny" id="dCode"></div></div><button class="btn small" id="dClose">Đóng</button></div>
+  <h4>Hồ sơ phải có</h4><ul id="dDocs"></ul><button class="link">+ thêm chứng từ, biểu mẫu hoặc mục kiểm</button>
+  <h4>Người duyệt hoàn thành</h4><select><option>Lãnh đạo chủ đầu tư</option><option>Không cần duyệt</option></select> <span class="tiny muted">Người duyệt không được là người làm.</span>
+  <h4>Lịch nâng cao</h4><div class="tiny muted">Kiểu liên kết với bước trước, độ trễ, ràng buộc ngày, chỉ áp dụng khi dự án thuộc nhóm hoặc nguồn vốn nhất định.</div><button class="link">mở phần lịch nâng cao</button>
+  <h4>Gia hạn</h4><label class="check" style="font-size:14px;color:inherit"><input type="checkbox" checked> Cho gia hạn, tối đa <input type="number" value="1" style="width:52px"> lần, tổng không quá <input type="number" value="10" style="width:56px"> ngày</label>
+  <h4>KPI và mã</h4><div class="tiny muted">Tỷ lệ đúng hạn · Số lần trả lại. Mã của bước chỉ sửa được ở bản nháp và bị khóa khi bước đã có ở phiên bản đang áp dụng.</div>
+</aside>
+
+<script>
+const UNITS=['Chủ đầu tư','Sở Xây dựng','Sở Tài chính','UBND tỉnh','Ban Quản lý dự án'];
+const ROLES=['xử lý chính','thẩm định','phê duyệt','phối hợp'];
+const HOLIDAYS=new Set(['2027-01-01','2027-02-05','2027-02-08','2027-02-09','2027-02-10','2027-02-11']);
+let phases=[{name:'Chuẩn bị'},{name:'Thẩm định và phê duyệt'},{name:'Thực hiện'}];
+let steps=[
+ {p:0,name:'Khảo sát hiện trạng',unit:0,role:0,anchor:'start',val:4,u:'wd',roll:true,ext:false,r:1,y:2,g:3,basis:'NĐ 06/2021, Điều 33',ok:true,docs:['Biên bản khảo sát hiện trạng','Ảnh hiện trường (mục kiểm)'],code:'KHAO_SAT_HIEN_TRANG'},
+ {p:0,name:'Lập hồ sơ sửa chữa và dự toán',unit:0,role:0,anchor:'prev',val:4,u:'wd',roll:true,ext:false,r:1,y:2,g:3,basis:'NĐ 10/2021, Điều 11',ok:false,docs:['Hồ sơ sửa chữa','Dự toán','Tờ trình thẩm định'],code:'LAP_HO_SO_DU_TOAN'},
+ {p:1,name:'Thẩm định hồ sơ sửa chữa và dự toán',unit:1,role:1,anchor:'prev',val:20,u:'cd',roll:true,ext:true,r:2,y:5,g:10,basis:'NĐ 15/2021, Điều 59',ok:true,docs:['Báo cáo thẩm định'],code:'THAM_DINH'},
+ {p:1,name:'Quyết định phê duyệt dự án sửa chữa',unit:3,role:2,anchor:'prev',val:5,u:'wd',roll:true,ext:false,r:1,y:2,g:3,basis:'',ok:false,docs:['Quyết định phê duyệt'],code:'QUYET_DINH_PHE_DUYET',star:true},
+ {p:2,name:'Lựa chọn nhà thầu và ký hợp đồng',unit:0,role:0,anchor:'prev',val:1,u:'mo',roll:true,ext:true,r:3,y:7,g:14,basis:'Luật Đấu thầu 22/2023',ok:true,docs:['Kế hoạch lựa chọn nhà thầu','Hợp đồng'],code:'LUA_CHON_NHA_THAU'},
+];
+const $=s=>document.querySelector(s), fmt=d=>d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'}), iso=d=>d.toISOString().slice(0,10);
+const isWork=d=>d.getDay()!==0&&d.getDay()!==6&&!HOLIDAYS.has(iso(d));
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const nextWork=d=>{let x=new Date(d);while(!isWork(x))x=addDays(x,1);return x};
+function addWork(d,n){let x=nextWork(d),left=n-1;while(left>0){x=addDays(x,1);if(isWork(x))left--}return x}
+function backWork(d,n){let x=new Date(d),left=n;while(left>0){x=addDays(x,-1);if(isWork(x))left--}return x}
+function endOf(s,start){let e;if(s.u==='wd')e=addWork(start,Math.max(1,s.val));else if(s.u==='cd')e=addDays(start,Math.max(1,s.val)-1);else{e=new Date(start);const day=e.getDate();e.setMonth(e.getMonth()+s.val);if(e.getDate()!==day)e.setDate(0)}return s.roll?nextWork(e):e}
+function schedule(){const base=new Date($('#sample').value+'T00:00:00');let prevEnd=null;return steps.map((s,i)=>{const start=(s.anchor==='start'||i===0||!prevEnd)?nextWork(base):nextWork(addDays(prevEnd,1));const end=endOf(s,start);prevEnd=end;return{start,end}})}
+function slug(t){return t.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,40)}
+function render(){
+ const tb=$('#steps tbody');tb.innerHTML='';let n=0;
+ phases.forEach((ph,pi)=>{const tr=document.createElement('tr');tr.className='phase';tr.innerHTML=`<td colspan="9">Giai đoạn ${pi+1} · ${ph.name} <span class="muted">· ${steps.filter(s=>s.p===pi).length} bước</span> <button class="link" style="float:right">đổi tên · cổng chặn ⋮</button></td>`;tb.appendChild(tr);
+  steps.forEach((s,i)=>{if(s.p!==pi)return;n++;const r=document.createElement('tr');r.className='step';
+   r.innerHTML=`<td class="num">${n} <button class="move" data-up="${i}" title="Chuyển lên" aria-label="Chuyển lên">↑</button><button class="move" data-down="${i}" title="Chuyển xuống" aria-label="Chuyển xuống">↓</button></td>
+   <td class="name"><input type="text" value="${s.name}" data-f="name" data-i="${i}" aria-label="Tên bước"><br><button class="star ${s.star?'on':''}" data-star="${i}">${s.star?'★ hạn chung của quy trình':'☆ đặt làm hạn chung'}</button></td>
+   <td class="unit"><select data-f="unit" data-i="${i}" aria-label="Đơn vị">${UNITS.map((u,k)=>`<option value="${k}" ${k===s.unit?'selected':''}>${u}</option>`).join('')}</select>
+     <select data-f="role" data-i="${i}" aria-label="Vai trò">${ROLES.map((u,k)=>`<option value="${k}" ${k===s.role?'selected':''}>${u}</option>`).join('')}</select><br><button class="link tiny">+ thêm đơn vị</button></td>
+   <td><select data-f="anchor" data-i="${i}" aria-label="Mốc tính"><option value="start" ${s.anchor==='start'?'selected':''}>Ngày bắt đầu dự án</option>${i>0?`<option value="prev" ${s.anchor==='prev'?'selected':''}>Khi bước ${i} xong</option>`:''}</select></td>
+   <td class="dur"><input type="number" min="1" value="${s.val}" data-f="val" data-i="${i}" aria-label="Thời hạn"> <select data-f="u" data-i="${i}" aria-label="Đơn vị thời hạn"><option value="wd" ${s.u==='wd'?'selected':''}>ngày làm việc</option><option value="cd" ${s.u==='cd'?'selected':''}>ngày</option><option value="mo" ${s.u==='mo'?'selected':''}>tháng</option></select><br>
+     <label class="check"><input type="checkbox" data-f="roll" data-i="${i}" ${s.roll?'checked':''}> dời sang ngày làm việc</label><label class="check"><input type="checkbox" data-f="ext" data-i="${i}" ${s.ext?'checked':''}> cho gia hạn</label></td>
+   <td class="band"><label class="r">Đỏ<input type="number" min="0" value="${s.r}" data-f="r" data-i="${i}" aria-label="Ngưỡng đỏ"></label><label class="y">Vàng<input type="number" min="0" value="${s.y}" data-f="y" data-i="${i}" aria-label="Ngưỡng vàng"></label><label class="g">Xanh<input type="number" min="0" value="${s.g}" data-f="g" data-i="${i}" aria-label="Ngưỡng xanh"></label></td>
+   <td class="basis"><input type="text" value="${s.basis}" placeholder="văn bản, điều, khoản" data-f="basis" data-i="${i}" aria-label="Căn cứ" style="width:150px"><br>${s.ok?'<span class="state yes">✓ đã đối chiếu văn bản gốc</span>':`<span class="state no">chưa đối chiếu</span> · <button class="link" data-verify="${i}">Đã đối chiếu</button>`}</td>
+   <td><button class="link" data-open="${i}">${s.docs.length} hồ sơ ▸</button></td>
+   <td><button class="link" data-del="${i}" title="Xóa bước" aria-label="Xóa bước">xóa</button></td>`;
+   tb.appendChild(r)})});
+ const un=steps.filter(s=>!s.ok).length,note=$('#verifyNote');
+ note.style.display=un?'block':'none';note.textContent=`${un} bước chưa đối chiếu căn cứ với văn bản gốc. Vẫn lưu nháp được; nên đối chiếu xong trước khi trình duyệt.`;
+ drawGantt();
+}
+function drawGantt(){
+ const sc=schedule(),g=$('#gantt');if(!steps.length){g.innerHTML='<div class="muted">Chưa có bước nào để vẽ.</div>';$('#totals').textContent='';return}
+ const min=sc[0].start,max=addDays(sc.reduce((m,x)=>x.end>m?x.end:m,sc[0].end),6),span=(max-min)/864e5,pct=d=>((d-min)/864e5/span*100);
+ let h='<div class="scale">';for(let k=0;k<=6;k++){const d=addDays(min,Math.round(span*k/6));h+=`<span style="left:${k/6*100}%">${fmt(d)}</span>`}h+='</div><div style="position:relative">';
+ const star=steps.findIndex(s=>s.star);
+ steps.forEach((s,i)=>{const {start,end}=sc[i],gS=backWork(end,s.g),yS=backWork(end,s.y),rS=backWork(end,s.r),tot=Math.max(1,(end-start)/864e5+1),w=(a,b)=>Math.max(0,(Math.min(b,addDays(end,1))-Math.max(a,start))/864e5)/tot*100;
+  const e1=addDays(end,1);
+  h+=`<div class="row"><div class="label">${i+1}. ${s.name}${s.star?' ★':''}</div><div class="lane"><div class="bar" style="left:${pct(start)}%;width:${Math.max(1.2,pct(e1)-pct(start))}%"><i style="width:${w(start,gS)}%;background:var(--grey)"></i><i style="width:${w(gS,yS)}%;background:var(--green)"></i><i style="width:${w(yS,rS)}%;background:var(--yellow)"></i><i style="flex:1;background:var(--red)"></i></div><span class="due" style="left:${pct(e1)}%">${fmt(end)} <span class="pill">tạm tính</span></span></div></div>`});
+ if(star>=0){const x=pct(addDays(sc[star].end,1));h+=`<div class="overall" style="left:calc(240px + (100% - 240px) * ${x/100})"></div>`}
+ h+='</div>';if(star>=0)h+=`<div class="tiny" style="text-align:right;padding:6px 0;font-weight:600">┆ hạn chung của quy trình ${sc[star].end.toLocaleDateString('vi-VN')}</div>`;
+ g.innerHTML=h;const last=sc[sc.length-1].end;$('#totals').textContent=`${steps.length} bước · xong toàn bộ ${last.toLocaleDateString('vi-VN')} (${Math.round((last-min)/864e5)+1} ngày kể từ ngày mẫu)`;
+}
+function dirty(){$('#saveState').textContent='· có thay đổi chưa lưu'}
+document.addEventListener('input',e=>{const t=e.target,i=t.dataset.i,f=t.dataset.f;if(f===undefined)return;const s=steps[+i];
+ if(t.type==='checkbox')s[f]=t.checked;else if(['val','r','y','g','unit','role'].includes(f))s[f]=+t.value||0;else s[f]=t.value;
+ if(f==='basis')s.ok=false;dirty();if(f==='name'||f==='basis'){drawGantt();const un=steps.filter(x=>!x.ok).length;$('#verifyNote').textContent=`${un} bước chưa đối chiếu căn cứ với văn bản gốc. Vẫn lưu nháp được; nên đối chiếu xong trước khi trình duyệt.`;$('#verifyNote').style.display=un?'block':'none'}else render()});
+document.addEventListener('change',e=>{if(e.target.dataset.f==='basis')render();if(e.target.id==='sample')drawGantt()});
+document.addEventListener('click',e=>{const d=e.target.dataset;
+ if(d.view){document.querySelectorAll('.demo-bar [role=tab]').forEach(b=>b.setAttribute('aria-selected',b===e.target));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='view-'+d.view));$('#drawer').classList.remove('open')}
+ if(d.star!==undefined){const on=steps[+d.star].star;steps.forEach(s=>s.star=false);steps[+d.star].star=!on;dirty();render()}
+ if(d.verify!==undefined){steps[+d.verify].ok=true;dirty();render()}
+ if(d.del!==undefined){steps.splice(+d.del,1);dirty();render()}
+ if(d.up!==undefined&&+d.up>0){const i=+d.up;[steps[i-1],steps[i]]=[steps[i],steps[i-1]];const p=steps[i-1].p;steps[i-1].p=steps[i].p;steps[i].p=p;dirty();render()}
+ if(d.down!==undefined&&+d.down<steps.length-1){const i=+d.down;[steps[i+1],steps[i]]=[steps[i],steps[i+1]];const p=steps[i+1].p;steps[i+1].p=steps[i].p;steps[i].p=p;dirty();render()}
+ if(d.open!==undefined){const s=steps[+d.open];$('#dName').textContent=s.name;$('#dCode').textContent='Mã tự sinh: '+(s.code||slug(s.name));$('#dDocs').innerHTML=s.docs.map(x=>`<li>${x}</li>`).join('');$('#drawer').classList.add('open')}
+ if(e.target.id==='dClose')$('#drawer').classList.remove('open');
+ if(e.target.id==='btnAdd'){const last=steps[steps.length-1]||{p:0,unit:0,role:0,val:5,u:'wd',roll:true,ext:false,r:1,y:2,g:3};const name='Bước mới '+(steps.length+1);steps.push({...last,name,anchor:steps.length?'prev':'start',basis:'',ok:false,docs:[],star:false,code:slug(name)});dirty();render();const inputs=document.querySelectorAll('td.name input');const el=inputs[inputs.length-1];el.focus();el.select()}
+ if(e.target.id==='btnPhase'){phases.push({name:'Giai đoạn mới'});const last=steps[steps.length-1];const name='Bước mới '+(steps.length+1);steps.push({...(last||{unit:0,role:0,val:5,u:'wd',roll:true,ext:false,r:1,y:2,g:3}),p:phases.length-1,name,anchor:'prev',basis:'',ok:false,docs:[],star:false,code:slug(name)});dirty();render()}
+ if(e.target.id==='btnSave'){$('#saveState').textContent='· đã lưu nháp lúc '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}
+ if(e.target.id==='btnSubmit'){const un=steps.filter(s=>!s.ok).length;alert(un?`Còn ${un} bước chưa đối chiếu căn cứ. Ở bản thật, hộp thoại trình duyệt sẽ liệt kê các bước này, hỏi ngày hiệu lực và lý do, rồi gửi cho người duyệt (khác người soạn).`:'Ở bản thật: hỏi ngày hiệu lực và lý do, rồi gửi cho người duyệt (khác người soạn). Sau khi duyệt, phiên bản đang áp dụng chỉ để xem.')}
+});
+render();
+</script>
+</body>
+</html>
