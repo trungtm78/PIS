@@ -1,6 +1,7 @@
 import { DomainError, legalDocument, pwfAssignment, pwfWorkflow } from '@machvon/kernel';
 import type { ResolvedGovernanceRule } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
+import type { SelectedUnit } from './pwf-receiving-units.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 /**
@@ -50,6 +51,8 @@ export interface SelectionRecord {
   rule_version: number;
   rule_unit_id: string | null;
   reason: string | null;
+  /** The unit each reference of the tasks of the template stands for in this project (R61); absent for a workflow whose tasks name no unit. */
+  units?: SelectedUnit[];
 }
 
 /** A legal document of the catalogue with what it is on a day. */

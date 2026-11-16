@@ -1936,6 +1936,8 @@ export type { AssignmentRuleRef, LegalBasisView, LegalDocumentView, SelectionRec
 export { approvedFormRevision, currentFormRevisions, knownFormCodes, resolveFormRevision } from './pwf-form-revision.ts';
 export type { CurrentFormRevision, FormRevision } from './pwf-form-revision.ts';
 export type { AdoptOutcome, AdoptRequest, AdoptTaskView, EvidenceDraft, ResolvedTemplate, StartRequest, Treatment, WorkflowResult as PwfWorkflowResult } from './pwf-workflow-store.ts';
+export { projectUnitsOf, resolveReceivingUnits, selectedUnitsOf, unitsViewOf } from './pwf-receiving-units.ts';
+export type { ResolvedUnits as PwfResolvedUnits, SelectedUnit as PwfSelectedUnit, UnitRefView as PwfUnitRefView, UnitSource as PwfUnitSource } from './pwf-receiving-units.ts';
 export { PwfTaskStore, peakShare, refreshSchedule } from './pwf-task-store.ts';
 export type { AssignInput as PwfAssignInput, AssignmentRole, EvidenceInput as PwfEvidenceInput, ExceptionKind as PwfExceptionKind, TaskCommand, TaskResult as PwfTaskResult } from './pwf-task-store.ts';
 export { PwfRescheduleStore, proposedTasks } from './pwf-reschedule-store.ts';

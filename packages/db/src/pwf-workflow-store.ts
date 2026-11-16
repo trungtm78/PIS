@@ -9,6 +9,8 @@ import type { LockedProject, StageScopes } from './prj-stage-support.ts';
 import { PwfAssignmentReads, selectionRecordOf } from './pwf-assignment.ts';
 import type { SelectionRecord, SuggestionView } from './pwf-assignment.ts';
 import { resolveFormRevision } from './pwf-form-revision.ts';
+import { projectUnitsOf, resolveReceivingUnits, selectedUnitsOf, unitsViewOf } from './pwf-receiving-units.ts';
+import type { ResolvedUnits, UnitRefView } from './pwf-receiving-units.ts';
 import { DEFAULT_ASSIGNMENT_REASON, earliestYear, inputHashOf, pinPublishedCalendars } from './pwf-schedule-support.ts';
 import type { PinnedCalendar } from './pwf-schedule-support.ts';
 import { logWorkflow, publishSchedule } from './pwf-publish.ts';
@@ -49,6 +51,8 @@ export interface StartRequest {
   reasonRequired?: boolean | undefined;
   /** Facts the caller already knows of the project and the row does not say yet (the group the register suggests for a project that is being created). */
   knownFacts?: Record<string, string> | undefined;
+  /** The unit of each party of the template the project does not name itself (R61): reference to unit id. */
+  units?: Readonly<Record<string, unknown>> | undefined;
   actor: string;
   scopes: StageScopes;
   now: Date;
@@ -99,6 +103,8 @@ export interface AdoptOutcome {
   excluded: string[];
   findings: Array<{ code: string; task: string | null }>;
   selection: SelectionRecord;
+  /** The units the tasks of the template ask for (R61): a dry run tells the references still without a unit instead of refusing. */
+  units: { refs: UnitRefView[]; unresolved: string[] };
 }
 
 export interface ResolvedTemplate {
@@ -120,6 +126,8 @@ interface Plan {
   inputHash: string;
   statusDate: string | null;
   selection: SelectionRecord;
+  /** The units of the tasks (R61); null for a template whose tasks name none. */
+  units: ResolvedUnits | null;
 }
 
 const checkedDay = (value: string, field: string): string => dateOf(value, field);
@@ -197,7 +205,8 @@ export class PwfWorkflowStore {
     const { selection, known } = await this.select(tx, project, request, today);
     const resolved = await this.resolveTemplate(tx, selection.chosen_template_code, request.templateVersion, today);
     const facts = factsOf(resolved.template, project, request.facts, known);
-    const plan = await this.plan(tx, resolved, facts, checkedDay(request.plannedStartDate, 'planned_start_date'), {}, null, selection);
+    const units = await this.unitsOf(tx, project.id, resolved, facts, request, today, true);
+    const plan = await this.plan(tx, resolved, facts, checkedDay(request.plannedStartDate, 'planned_start_date'), {}, null, withUnits(selection, units), units);
     return this.write(tx, project, request, plan, { progress: {} }, 'INITIAL', today);
   }
 
@@ -215,7 +224,9 @@ export class PwfWorkflowStore {
     const decisions = this.decisionsOf(resolved.template, facts, request, new Map(planned.result.tasks.map((one) => [one.code, { start: one.start, finish: one.finish }] as const)));
     const past = new Set(planned.result.tasks.filter((one) => one.state !== 'PASS_THROUGH' && one.finish !== null && one.finish < effectiveDate).map((one) => one.code));
     const undecided = [...past].filter((code) => !decisions.progress[code] && !decisions.notTracked.has(code));
-    const plan = await this.plan(tx, resolved, facts, plannedStart, decisions.progress, effectiveDate, selection);
+    // R61: applying refuses a reference without a unit; the dry run tells which ones still ask for one, so the screen asks before it confirms.
+    const units = await this.unitsOf(tx, project.id, resolved, facts, request, today, !request.dryRun);
+    const plan = await this.plan(tx, resolved, facts, plannedStart, decisions.progress, effectiveDate, request.dryRun ? selection : withUnits(selection, units), units);
     const byTemplate = new Map(resolved.template.tasks.map((one) => [one.code, one] as const));
     const tasks: AdoptTaskView[] = plan.result.tasks.map((scheduled) => {
       const code = scheduled.code;
@@ -227,12 +238,12 @@ export class PwfWorkflowStore {
     const short = this.evidenceShortfalls(resolved.template, decisions.evidence);
     const findings = [...plan.result.findings.map((one) => ({ code: one.code, task: one.task })), ...undecided.map((code) => ({ code: 'PAST_TASK_UNDECIDED', task: code })), ...short.map((code) => ({ code: 'EVIDENCE_MISSING', task: code }))];
     if (request.dryRun) {
-      return { dryRun: true, applied: false, workflow: null, templateCode: resolved.code, templateHash: resolved.hash, effectiveDate, tasks, schedule: plan.result, calendars: plan.calendars, excluded: plan.excluded, findings, selection };
+      return { dryRun: true, applied: false, workflow: null, templateCode: resolved.code, templateHash: resolved.hash, effectiveDate, tasks, schedule: plan.result, calendars: plan.calendars, excluded: plan.excluded, findings, selection, units: unitsViewOf(units) };
     }
     if (undecided.length > 0) throw new DomainError('PWF_ADOPT_INVALID', 422, 'past_tasks', { extensions: { tasks: undecided } });
     if (short.length > 0) throw new DomainError('PWF_ADOPT_INVALID', 422, 'past_tasks', { extensions: { tasks: short, reason: 'EVIDENCE_MISSING' } });
     const workflow = await this.write(tx, project, request, plan, decisions, 'ADOPTION', today, effectiveDate);
-    return { dryRun: false, applied: true, workflow, templateCode: resolved.code, templateHash: resolved.hash, effectiveDate, tasks, schedule: plan.result, calendars: plan.calendars, excluded: plan.excluded, findings, selection };
+    return { dryRun: false, applied: true, workflow, templateCode: resolved.code, templateHash: resolved.hash, effectiveDate, tasks, schedule: plan.result, calendars: plan.calendars, excluded: plan.excluded, findings, selection: plan.selection, units: unitsViewOf(units) };
   }
 
   // ---- internals ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -291,11 +302,16 @@ export class PwfWorkflowStore {
     return short.sort();
   }
 
-  private async plan(tx: TenantTx, resolved: ResolvedTemplate, facts: pwfWorkflow.ProjectFacts, plannedStart: string, progress: Record<string, pwfSchedule.TaskProgress>, statusDate: string | null, selection: SelectionRecord): Promise<Plan> {
+  /** The units of the tasks of the project under the template (R61), judged on the day the workflow is made. */
+  private async unitsOf(tx: TenantTx, projectId: string, resolved: ResolvedTemplate, facts: pwfWorkflow.ProjectFacts, request: StartRequest, today: string, strict: boolean): Promise<ResolvedUnits | null> {
+    return resolveReceivingUnits(tx, { template: resolved.template, facts, project: await projectUnitsOf(tx, projectId), units: request.units, day: today, strict });
+  }
+
+  private async plan(tx: TenantTx, resolved: ResolvedTemplate, facts: pwfWorkflow.ProjectFacts, plannedStart: string, progress: Record<string, pwfSchedule.TaskProgress>, statusDate: string | null, selection: SelectionRecord, units: ResolvedUnits | null): Promise<Plan> {
     const calendars = await pinPublishedCalendars(tx, earliestYear([plannedStart, statusDate, ...Object.values(progress).flatMap((one) => [one.actualStart, one.actualFinish])]));
     const tasks = pwfSchedule.tasksFromTemplate(resolved.template, facts, progress);
     const result = pwfSchedule.scheduleProject({ tasks, plannedStart, calendars, ...(statusDate === null ? {} : { statusDate }) });
-    return { resolved, facts, tasks, excluded: pwfWorkflow.activeTasks(resolved.template, facts).excluded, calendars, result, inputHash: inputHashOf({ tasks, plannedStart, statusDate, calendars }), statusDate, selection };
+    return { resolved, facts, tasks, excluded: pwfWorkflow.activeTasks(resolved.template, facts).excluded, calendars, result, inputHash: inputHashOf({ tasks, plannedStart, statusDate, calendars }), statusDate, selection, units };
   }
 
   private async write(
@@ -362,6 +378,7 @@ export class PwfWorkflowStore {
     today: string,
   ): Promise<void> {
     const left = new Set(plan.excluded);
+    const receiving = plan.units?.byTask ?? {};
     const rows = plan.resolved.template.tasks.map((one, index) => {
       const progress = decisions.progress[one.code];
       const done = progress?.status === 'DONE';
@@ -397,19 +414,22 @@ export class PwfWorkflowStore {
         duration_value: one.duration?.value ?? null,
         duration_unit: one.duration?.unit ?? null,
         duration_roll: one.duration === undefined || one.duration === null ? null : one.duration.rollToWorkingDay,
+        // R61: the unit that receives the task (the LEAD line) and every unit the template names for it, as resolved for this project; a task without units stores nothing.
+        receiving_unit_id: receiving[one.code]?.find((unit) => unit.part === 'LEAD')?.unit_id ?? null,
+        receiving_units: receiving[one.code] ?? null,
       };
     });
     await tx.query(
       `insert into machvon.project_task (tenant_id, id, workflow_id, project_id, task_code, name, phase_code, sort_order, kind, required, responsible_role, approver_role, priority, duration_working_days, status, excluded, tracked,
               constraint_kind, constraint_offset, actual_start, actual_finish, remaining_working_days, percent_complete, completion_requested_by, approved_by, approved_at, created_by, updated_by,
-              band_tier, band_green_days, band_yellow_days, band_red_days, duration_value, duration_unit, duration_roll)
+              band_tier, band_green_days, band_yellow_days, band_red_days, duration_value, duration_unit, duration_roll, receiving_unit_id, receiving_units)
        select nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, x.code, x.name, x.phase, x.sort_order, x.kind, x.required, x.responsible_role, x.approver_role, x.priority, x.duration, x.status, x.excluded, x.tracked,
               x.constraint_kind, x.constraint_offset, x.actual_start, x.actual_finish, x.remaining, x.percent,
               case when x.attested then $3::uuid end, case when x.attested then $3::uuid end, case when x.attested then now() end, $3::uuid, $3::uuid,
-              x.band_tier, x.band_green, x.band_yellow, x.band_red, x.duration_value, x.duration_unit, x.duration_roll
+              x.band_tier, x.band_green, x.band_yellow, x.band_red, x.duration_value, x.duration_unit, x.duration_roll, x.receiving_unit_id, x.receiving_units
          from jsonb_to_recordset($4::jsonb) as x(code text, name text, phase text, sort_order int, kind text, required boolean, responsible_role text, approver_role text, priority text, duration int, status text, excluded boolean, tracked boolean,
               constraint_kind text, constraint_offset int, actual_start date, actual_finish date, remaining int, percent int, attested boolean,
-              band_tier text, band_green int, band_yellow int, band_red int, duration_value int, duration_unit text, duration_roll boolean)`,
+              band_tier text, band_green int, band_yellow int, band_red int, duration_value int, duration_unit text, duration_roll boolean, receiving_unit_id uuid, receiving_units jsonb)`,
       [workflowId, projectId, actor, JSON.stringify(rows)],
     );
     const links = plan.resolved.template.tasks.flatMap((one) => one.predecessors.map((link) => ({ task: one.code, predecessor: link.task, kind: link.kind, lag: link.lagWorkingDays })));
@@ -447,7 +467,11 @@ export class PwfWorkflowStore {
     }
   }
 
-  /** Every task is the responsibility of the leader in charge of the project (the register of PRJ-05) from the day the workflow starts, until the ledger says otherwise; a project without a leader leaves the ledger empty. */
+  /**
+   * Every task is the responsibility of the leader in charge of the project (the register of PRJ-05) from the day the workflow starts, until the ledger says otherwise; a project without a leader leaves the ledger empty.
+   * A task that a unit receives (R61, R71) is not given to the leader to do: the leader answers for it (ACCOUNTABLE, so the task can still be moved by them, BR-PWF-09) and the place of the one who does it stays open until a
+   * person of the unit takes it ("Nhận việc") or the ledger names someone.
+   */
   private async defaultAssignments(tx: TenantTx, workflowId: string, projectId: string, plannedStart: string, today: string, actor: string): Promise<void> {
     const leaders = await tx.query<{ leader_membership_id: string }>(
       `select leader_membership_id from machvon.project_accountability where project_id = $1::uuid and accountability_role = 'LEADER_IN_CHARGE' and status = 'ACTIVE'`,
@@ -457,9 +481,14 @@ export class PwfWorkflowStore {
     if (leader === undefined) return;
     await tx.query(
       `insert into machvon.project_task_assignment (tenant_id, id, task_id, membership_id, role, valid_from, share_pct, reason, assigned_by)
-       select nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), t.id, $2::uuid, 'RESPONSIBLE', least($3::date, $4::date) - 1, 100, $6, $5::uuid
+       select nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), t.id, $2::uuid, case when t.receiving_unit_id is null then 'RESPONSIBLE' else 'ACCOUNTABLE' end, least($3::date, $4::date) - 1, 100, $6, $5::uuid
          from machvon.project_task t where t.workflow_id = $1::uuid and not t.excluded and t.tracked and t.status in ('NOT_STARTED', 'IN_PROGRESS')`,
       [workflowId, leader, plannedStart, today, actor, DEFAULT_ASSIGNMENT_REASON],
     );
   }
+}
+
+/** The record of the choice with the units of the tasks (R61); a workflow whose tasks name no unit keeps the record as it always was. */
+function withUnits(selection: SelectionRecord, units: ResolvedUnits | null): SelectionRecord {
+  return units === null ? selection : { ...selection, units: selectedUnitsOf(units) };
 }
