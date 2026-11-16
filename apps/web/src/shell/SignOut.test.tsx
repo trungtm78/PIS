@@ -36,7 +36,7 @@ describe('signing out from the shell', () => {
 });
 
 describe('the role under the name of the person and the control plane', () => {
-  const asked = (spy: ReturnType<typeof vi.spyOn>): boolean => spy.mock.calls.some((call) => String(call[0] instanceof Request ? call[0].url : call[0]).includes('effective-access'));
+  const asked = (spy: { mock: { calls: readonly (readonly unknown[])[] } }): boolean => spy.mock.calls.some((call) => String(call[0] instanceof Request ? call[0].url : call[0]).includes('effective-access'));
 
   it('does not ask the tenant plane for the effective access in a control-plane session (the platform operator has no membership: the answer is 403)', async () => {
     const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 403 }));
