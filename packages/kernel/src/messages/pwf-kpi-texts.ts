@@ -4,7 +4,7 @@ export const PWF_KPI_TEXT = {
   set_source: 'Nghiên cứu thị trường (docs/pwf-research.md): Balanced Scorecard, OKR, SAP SuccessFactors, Workday; giá trị khởi đầu chờ khách hàng xác nhận.',
   policy_formula: 'Điểm của một người trong kỳ là bình quân theo trọng số của điểm các công việc người đó phụ trách trong kỳ; phần đóng góp theo khoảng thời gian phân công, tỷ lệ chia và vai trò; trọng số theo mức ưu tiên và số ngày làm việc kế hoạch; việc tạm dừng có phép, trễ do bên ngoài đã duyệt và việc hủy có duyệt không vào mẫu số; dưới ngưỡng mẫu nhỏ thì không xếp loại.',
   policy_source: 'Nghiên cứu thị trường (docs/pwf-research.md): hiệu chỉnh điểm, mẫu nhỏ, chống thao túng; giá trị khởi đầu chờ khách hàng xác nhận.',
-  kpi_source: 'Danh mục phép tính của quy trình dự án (packages/kernel/src/workflow-kpi.ts); giá trị khởi đầu chờ khách hàng xác nhận.',
+  kpi_source: 'Danh mục phép tính của quy trình dự án; giá trị khởi đầu chờ khách hàng xác nhận.',
   kpi_owner: 'PROJECT_MANAGER',
   deviation_name: 'Số ngày lệch so với hạn cơ sở của công việc',
   deviation_formula: 'Số ngày từ hạn cơ sở đầu tiên đến ngày hoàn thành thực tế (hoặc ngày xem nếu chưa xong và đã quá hạn); dương là trễ; trừ số ngày tạm dừng có phép và trễ do bên ngoài đã duyệt nằm trong khoảng trễ, không xuống dưới 0.',
