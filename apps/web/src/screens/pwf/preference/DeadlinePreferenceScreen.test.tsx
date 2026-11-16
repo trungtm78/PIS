@@ -423,6 +423,17 @@ describe('PWF-15: my coming tasks (R40)', () => {
     expect(screen.queryByTestId('my-tasks')).toBeNull();
     expect(h.read.mock.calls.some((call) => call[0] === 'getMyTasks')).toBe(false);
   });
+
+  it('lists a task without a link and says why for a person who works on tasks but may not read the projects (the officer of the staff)', async () => {
+    open({ permissions: [...ALL_PERMISSIONS].filter((permission) => permission !== 'pwf.read') });
+    const table = await screen.findByTestId('my-tasks');
+    const rows = [...table.querySelectorAll('tbody tr')] as HTMLElement[];
+    expect(rows).toHaveLength(2);
+    expect(within(rows[0] as HTMLElement).queryByRole('link')).toBeNull();
+    expect(within(rows[0] as HTMLElement).getByTestId('task-name-plain').textContent).toBe('Công việc của tôi 1');
+    expect(within(rows[0] as HTMLElement).getByTestId('task-no-detail').textContent).toContain('Bạn chưa có quyền xem chi tiết việc này');
+    expect(within(rows[0] as HTMLElement).getByText('DA-001')).toBeTruthy();
+  });
 });
 
 describe('PWF-15: accessibility (WCAG 2.2 AA)', () => {

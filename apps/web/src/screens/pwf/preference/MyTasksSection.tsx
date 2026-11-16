@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard, StatusPill } from '../../../ui';
 import { BandBadge } from '../components';
 import { statusWord } from '../labels';
-import { dayText, taskLink, workflowLink } from '../model';
+import { PERMISSIONS, dayText, holds, taskLink, workflowLink } from '../model';
 import { useMyTasks } from './hooks';
 import { MY_TASKS_VIEWS, finishedLate, showsPersonal } from './model';
 import type { MyTask, MyTasksView } from './model';
@@ -89,13 +90,24 @@ function FinishedCell({ task }: { task: MyTask }) {
 
 function TaskRow({ task, done }: { task: MyTask; done: boolean }) {
   const { t } = useTranslation();
+  const { permissions } = useSession();
+  // A person who works on a task but holds no right to read the projects (the officer of the staff) is not sent to a screen that refuses them: the task is listed as words, with the reason.
+  const mayOpen = holds(permissions, PERMISSIONS.read);
   return (
     <tr data-task={task.task_id}>
-      <td data-label={t('pwf.pref.tasks.project.label')}>
-        <Link to={workflowLink(task.project_id)}>{task.project_code}</Link>
-      </td>
+      <td data-label={t('pwf.pref.tasks.project.label')}>{mayOpen ? <Link to={workflowLink(task.project_id)}>{task.project_code}</Link> : task.project_code}</td>
       <td data-label={t('pwf.pref.tasks.task.label')}>
-        <Link to={taskLink(task.task_id, task.project_id)}>{task.name}</Link>
+        {mayOpen ? (
+          <Link to={taskLink(task.task_id, task.project_id)}>{task.name}</Link>
+        ) : (
+          <>
+            <span data-testid="task-name-plain">{task.name}</span>
+            <span className="pwf-hint" data-testid="task-no-detail">
+              {' '}
+              {t('polish2.mytasks.noDetail.text')}
+            </span>
+          </>
+        )}
         {task.critical ? (
           <>
             {' '}
