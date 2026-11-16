@@ -74,7 +74,7 @@ export interface ExtensionOffer {
 }
 
 /** The extension a row may ask for: only a task whose frozen template allows it, that is still to be done, for a person who may propose a schedule change. */
-export function extensionOffer(task: WorkflowTask, can: Capabilities): ExtensionOffer | null {
+export function extensionOffer(task: Pick<WorkflowTask, 'status' | 'excluded' | 'tracked' | 'extension'>, can: Capabilities): ExtensionOffer | null {
   const rule = task.extension;
   if (rule === undefined || !rule.allowed || !can.propose || !isOpen(task) || !task.tracked) return null;
   const capped = (rule.max_times !== null && rule.times_used >= rule.max_times) || (rule.max_value !== null && rule.value_used >= rule.max_value);

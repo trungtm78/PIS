@@ -41,9 +41,9 @@ describe('cell: unit and holder', () => {
     expect(screen.getByTestId('cell-unit').textContent).toBe(text('pwfp.cell.unassigned.text'));
   });
 
-  it('says nothing about who is missing on a task that is over', () => {
+  it('says only a dash about who is missing on a task that is over', () => {
     render(<UnitHolderCell task={workflowTask(1, { assignee: null, status: 'DONE' })} />);
-    expect(screen.getByTestId('cell-unit').textContent).toBe('');
+    expect(screen.getByTestId('cell-unit').textContent).toBe('–');
   });
 });
 

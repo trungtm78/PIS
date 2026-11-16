@@ -81,16 +81,16 @@
 .pwf-taskhead__facts dd {
   font-size: 16px;
 }
-.pwf-taskhead__actions .pwf-actions {
+.pwft-bar .pwf-actions {
   margin: 0;
 }
-.pwf-taskhead__actions [data-testid='completion-check'] {
+.pwft-bar [data-testid='completion-check'] {
   margin-bottom: 12px;
 }
-.pwf-taskhead__actions [data-testid='completion-blockers'] {
+.pwft-bar [data-testid='completion-blockers'] {
   margin-top: 8px;
 }
-.pwf-taskhead__actions [data-testid='completion-blockers'] li {
+.pwft-bar [data-testid='completion-blockers'] li {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -243,4 +243,45 @@
 }
 .pwf-taskhead__title.heading {
   display: block;
+}
+
+/* PWF-04: the one column of what is left to do, the closed blocks under it, and the bar of actions that stays at the foot of the window. */
+.pwft-todo {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.pwft-todo__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+}
+.pwft-block {
+  margin: 0 0 8px;
+}
+.pwft-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 12px 24px;
+  background: var(--mv-color-surface);
+  border: 1px solid var(--mv-color-border);
+  border-radius: 14px;
+  box-shadow: 0 -2px 8px rgba(16, 46, 59, 0.08);
+}
+@media (max-width: 720px) {
+  .pwft-bar {
+    padding: 8px 12px;
+  }
+}
+@media print {
+  .pwft-bar {
+    position: static;
+    box-shadow: none;
+  }
 }

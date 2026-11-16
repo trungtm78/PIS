@@ -116,5 +116,14 @@
   "pwfp.choose.problem.unitsRequired.text": "No unit chosen yet for: {units}. Choose them in the step Start and units before confirming.",
   "pwfp.choose.problem.unitUnknown.text": "The process names a unit that is no longer in force, so it cannot start. Ask the process administrator to correct it.",
   "pwfp.choose.problem.effectiveRequired.text": "Choose the day the adoption takes effect.",
-  "pwfp.choose.problem.effectiveInvalid.text": "The day the adoption takes effect is not a valid day."
+  "pwfp.choose.problem.effectiveInvalid.text": "The day the adoption takes effect is not a valid day.",
+  "pwft.head.extension.label": "Extension",
+  "pwft.bar.claim.hint": "You belong to the unit that receives this task and hold the role: take it to work on it.",
+  "pwft.todo.title": "What is left to do",
+  "pwft.block.schedule.title": "Deadline and schedule",
+  "pwft.block.legal.title": "Legal grounds and forms",
+  "pwft.block.exceptions.title": "Exceptions",
+  "pwft.block.exceptions.waiting.text": "{count} requests waiting for a decision",
+  "pwft.block.history.title": "History",
+  "pwft.block.kpi.title": "KPI of the task"
 }

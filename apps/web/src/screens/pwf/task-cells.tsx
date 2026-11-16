@@ -107,7 +107,9 @@ export function UnitHolderCell({ task }: { task: Pick<CellTask, 'receiving_unit_
           </span>
         ) : holder !== null ? (
           <span className="pwfp-unit__who">{holder}</span>
-        ) : over ? null : (
+        ) : over ? (
+          <span className="pwf-hint">–</span>
+        ) : (
           <span className="pwf-hint">{t('pwfp.cell.unassigned.text')}</span>
         )}
       </span>

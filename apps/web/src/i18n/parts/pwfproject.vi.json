@@ -116,5 +116,14 @@
   "pwfp.choose.problem.unitsRequired.text": "Chưa chọn đơn vị cho: {units}. Chọn ở bước Ngày và đơn vị trước khi xác nhận.",
   "pwfp.choose.problem.unitUnknown.text": "Quy trình nêu một đơn vị đã hết hiệu lực nên chưa khởi tạo được. Báo người quản trị quy trình sửa lại.",
   "pwfp.choose.problem.effectiveRequired.text": "Chọn ngày tiếp nhận có hiệu lực.",
-  "pwfp.choose.problem.effectiveInvalid.text": "Ngày tiếp nhận có hiệu lực không đúng dạng ngày."
+  "pwfp.choose.problem.effectiveInvalid.text": "Ngày tiếp nhận có hiệu lực không đúng dạng ngày.",
+  "pwft.head.extension.label": "Gia hạn",
+  "pwft.bar.claim.hint": "Bạn thuộc đơn vị nhận việc này và giữ vai được giao: nhận việc để làm.",
+  "pwft.todo.title": "Cần làm gì để xong",
+  "pwft.block.schedule.title": "Hạn và lịch",
+  "pwft.block.legal.title": "Căn cứ pháp lý và biểu mẫu",
+  "pwft.block.exceptions.title": "Ngoại lệ",
+  "pwft.block.exceptions.waiting.text": "{count} yêu cầu chờ quyết định",
+  "pwft.block.history.title": "Lịch sử",
+  "pwft.block.kpi.title": "KPI của việc"
 }
