@@ -355,3 +355,20 @@ if (ENTERPRISE) {
     });
   });
 }
+
+test.describe('PWF-08 default thresholds', () => {
+  test('one short table of red, yellow and green with the unit said once, the sentence of the numbers and the steps that carry thresholds of their own; no sideways page scroll at 1440 and 390 pixels', async ({ page }) => {
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/pwf/pwf-08?devUser=${PERSON}`);
+      const table = page.getByTestId('ladder-table');
+      await expect(table).toBeVisible();
+      await expect(page.getByTestId('unit-declared')).toBeVisible();
+      await expect(page.getByTestId('field-yellow_days')).toBeVisible();
+      await expect(page.getByTestId('sentence')).toContainText(/^Còn \d+ ngày: xanh, còn \d+ ngày: vàng, /);
+      await expect(page.getByTestId('step-bands')).toBeVisible();
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow, `${width}px`).toBeLessThanOrEqual(0);
+    }
+  });
+});

@@ -4,6 +4,8 @@ import { describeViolations, seriousViolations } from '../../../test/axe';
 import { ALL_PERMISSIONS, OTHER, READ_ONLY, refusal, routeOf, serve, text } from '../test/fixtures';
 import type { Answer } from '../test/fixtures';
 import { mountAs } from '../templates/test/mount';
+import { templateCatalogue, templateEffective } from '../templates/test/fixtures';
+import { templateParams } from '../test/fixtures';
 import BandPolicyScreen from './BandPolicyScreen';
 import { POLICY, bandEffective, bandPreview, bandVersion, uuid } from './test/fixtures';
 
@@ -22,13 +24,29 @@ interface Setup {
   preview?: Answer;
   versions?: unknown[];
   commands?: Record<string, Answer>;
+  /** The effective template of each code of the library, when a test needs steps with thresholds of their own. */
+  templates?: Record<string, unknown>;
 }
+
+const TEMPLATE_TYPE = 'PROJECT_WORKFLOW_TEMPLATE';
+const isTemplateRead = (input: Record<string, unknown>): boolean => (input.query as { rule_type?: string } | undefined)?.rule_type === TEMPLATE_TYPE;
+
+/** The tasks of the default template, the first one carrying thresholds of its own. */
+const withOwnBands = (name: string) => {
+  const base = templateParams({ name }).tasks;
+  return templateParams({ name, tasks: [{ ...(base[0] as object), bands: { green_days: 6, yellow_days: 3, red_days: 1 } } as never, ...base.slice(1)] });
+};
 
 const open = (setup: Setup = {}) => {
   const h = serve(
     {
-      getEffectiveGovernanceRule: setup.effective ?? ((input: Record<string, unknown>) => bandEffective((input.query as { code: string }).code)),
-      listGovernanceRuleVersions: { items: setup.versions ?? [bandVersion(1)] },
+      getGovernanceRuleCatalog: templateCatalogue(),
+      getEffectiveGovernanceRule: (input: Record<string, unknown>) => {
+        const code = (input.query as { code: string }).code;
+        if (isTemplateRead(input)) return setup.templates?.[code] ?? templateEffective({ code });
+        return typeof setup.effective === 'function' ? setup.effective(input) : (setup.effective ?? bandEffective(code));
+      },
+      listGovernanceRuleVersions: (input: Record<string, unknown>) => ({ items: isTemplateRead(input) ? [] : (setup.versions ?? [bandVersion(1)]) }),
       previewDeadlineBand: setup.preview ?? bandPreview(),
     },
     { createGovernanceRuleDraft: { resource_id: uuid(200), status: 'DRAFT', resource_version: 1 }, ...setup.commands },
@@ -49,19 +67,34 @@ describe('PWF-08: reading the policy', () => {
     expect(field('green_days').value).toBe('5');
     expect(field('yellow_days').value).toBe('2');
     expect(field('red_days').value).toBe('0');
-    expect((screen.getByTestId('field-unit') as HTMLSelectElement).value).toBe('WORKING');
+    expect(screen.getByTestId('unit-declared').textContent).toContain('ngày làm việc');
     expect(field('reminder_days').value).toBe('5, 2, 0, -1');
     expect(field('escalate_after_overdue_days').value).toBe('3');
     expect(screen.getByTestId('base-note').textContent).toBe(text('pwf.bands.base.rule', { version: 1 }));
     expect((screen.getByTestId('source') as HTMLSelectElement).value).toBe('PROJECT_TASK');
   });
 
-  it('says the ladder as the owner does, in the unit of the source, and keeps the owner example beside it', async () => {
+  it('says the ladder as the owner does, and says the unit once for the whole table', async () => {
     open();
-    expect((await ready()).textContent).toBe('Còn 5 ngày làm việc: xanh, còn 2 ngày làm việc: vàng, dưới 1 ngày làm việc: đỏ');
-    // The owner example is said once: when the ladder of the form is the example itself, the sentence of the form says it.
-    expect(screen.queryByTestId('owner-example')).toBeNull();
-    expect(screen.getByTestId('sentence').textContent).toContain('Còn 5 ngày làm việc: xanh, còn 2 ngày làm việc: vàng, dưới 1 ngày làm việc: đỏ');
+    expect((await ready()).textContent).toBe('Còn 5 ngày: xanh, còn 2 ngày: vàng, hôm hạn: đỏ');
+    expect(screen.getByTestId('unit-declared').textContent).toBe(text('wfxbands.unit.declared.text', { unit: 'ngày làm việc' }));
+    // The unit is the one of the source and is no choice: there is no unit box.
+    expect(screen.queryByTestId('field-unit')).toBeNull();
+    expect(screen.getAllByText(/ngày làm việc/).length).toBeGreaterThan(0);
+  });
+
+  it('keeps the table short: a default row, then one row for each exception, with red, yellow and green on every row and a label on every box', async () => {
+    open();
+    await ready();
+    const table = screen.getByTestId('ladder-table');
+    expect([...table.querySelectorAll('thead th')].slice(0, 4).map((head) => head.textContent?.trim().split(' ')[0])).toEqual([text('wfxbands.col.scope.label').split(' ')[0], text('wfxbands.col.red.label'), text('wfxbands.col.yellow.label'), text('wfxbands.col.green.label')]);
+    expect(table.querySelectorAll('tbody tr')).toHaveLength(1);
+    fireEvent.click(document.querySelector('[data-action="add-override"]') as HTMLElement);
+    expect(table.querySelectorAll('tbody tr')).toHaveLength(2);
+    expect(screen.getByLabelText(text('wfxbands.cell.red.label', { row: text('wfxbands.row.default.name') }))).toBe(field('red_days'));
+    expect(screen.getByLabelText(text('wfxbands.cell.green.label', { row: text('wfxbands.row.exception.name', { number: 1 }) }))).toBe(field('overrides[0].green_days'));
+    // The wide table scrolls inside its own region, never the page.
+    expect(table.closest('.ui-table-scroll')).not.toBeNull();
   });
 
   it('shows what the server says each number of days left turns into, with the word and the glyph and the unit', async () => {
@@ -87,7 +120,9 @@ describe('PWF-08: reading the policy', () => {
     expect(screen.getAllByText(text('pwf.common.unverified.label')).length).toBeGreaterThan(0);
     expect(screen.getByTestId('unverified-note')).toBeTruthy();
     expect(field('red_days').value).toBe('-1');
-    expect((await screen.findByTestId('sentence')).textContent).toBe('Còn 7 ngày: xanh, còn 3 ngày: vàng, đã quá hạn: đỏ');
+    expect((await screen.findByTestId('sentence')).textContent).toBe('Còn 7 ngày: xanh, còn 3 ngày: vàng, quá hạn: đỏ');
+    // A source counted in calendar days says so once.
+    expect(screen.getByTestId('unit-declared').textContent).toBe(text('wfxbands.unit.declared.text', { unit: 'ngày' }));
     cleanup();
     open({ effective: refusal('GOVERNANCE_RULE_NOT_FOUND', 404) });
     await screen.findByTestId('preview-blocked');
@@ -128,7 +163,7 @@ describe('PWF-08: editing the numbers', () => {
     await ready();
     change('yellow_days', '3');
     await waitFor(() => expect(previewCalls(h).some((query) => query.yellow_days === 3)).toBe(true));
-    expect(screen.getByTestId('sentence').textContent).toContain('còn 3 ngày làm việc: vàng');
+    expect(screen.getByTestId('sentence').textContent).toContain('còn 3 ngày: vàng');
   });
 
   it('leaves the green line out when it is emptied: everything above yellow is green', async () => {
@@ -136,7 +171,7 @@ describe('PWF-08: editing the numbers', () => {
     await ready();
     change('green_days', '');
     await waitFor(() => expect(previewCalls(h).some((query) => !('green_days' in query))).toBe(true));
-    expect(screen.getByTestId('sentence').textContent).toBe('Còn nhiều hơn 2 ngày làm việc: xanh, còn 2 ngày làm việc: vàng, dưới 1 ngày làm việc: đỏ');
+    expect(screen.getByTestId('sentence').textContent).toBe('Còn nhiều hơn 2 ngày: xanh, còn 2 ngày: vàng, hôm hạn: đỏ');
   });
 
   it('names an unordered ladder next to the fields, asks the server nothing more, and explains why there is no preview', async () => {
@@ -151,16 +186,15 @@ describe('PWF-08: editing the numbers', () => {
     expect(previewCalls(h).length).toBe(before);
   });
 
-  it('refuses a unit that is not the unit of the source, and asks the server nothing', async () => {
-    const h = open();
+  it('writes the unit of the source whatever the rule it started from said: a policy has no unit to choose', async () => {
+    const h = open({ effective: bandEffective('PROJECT_TASK', { params: { ...POLICY, unit: 'CALENDAR' } }) });
     await ready();
-    const before = previewCalls(h).length;
-    fireEvent.change(screen.getByTestId('field-unit'), { target: { value: 'CALENDAR' } });
-    expect(screen.getByTestId('error-unit').textContent).toContain(text('pwf.bands.problem.unitMismatch.error'));
-    expect(previewCalls(h).length).toBe(before);
-    fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Đổi đơn vị' } });
+    change('red_days', '1');
+    fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Giữ đơn vị của nguồn' } });
     fireEvent.click(screen.getByTestId('save'));
-    expect(h.command).not.toHaveBeenCalledWith('createGovernanceRuleDraft', expect.anything());
+    await waitFor(() => expect(h.command).toHaveBeenCalledWith('createGovernanceRuleDraft', expect.anything()));
+    const body = (h.command.mock.calls.find((call) => call[0] === 'createGovernanceRuleDraft')?.[1] as { body: { params: { unit: string } } }).body;
+    expect(body.params.unit).toBe('WORKING');
   });
 
   it('says a refusal of the preview in words', async () => {
@@ -187,11 +221,11 @@ describe('PWF-08: editing the numbers', () => {
   });
 });
 
-describe('PWF-08: overrides', () => {
+describe('PWF-08: exceptions', () => {
   it('adds, edits and removes an override by kind of task, priority and phase', async () => {
     const h = open();
     await ready();
-    expect(screen.getByTestId('override-count').textContent).toBe(text('pwf.bands.overrides.count', { count: 0 }));
+    expect(screen.getByTestId('override-count').textContent).toBe(text('wfxbands.exception.count', { count: 0 }));
     fireEvent.click(document.querySelector('[data-action="add-override"]') as HTMLElement);
     fireEvent.change(screen.getByTestId('field-overrides[0].task_kind'), { target: { value: 'MILESTONE' } });
     fireEvent.change(screen.getByTestId('field-overrides[0].priority'), { target: { value: 'CRITICAL' } });
@@ -212,7 +246,7 @@ describe('PWF-08: overrides', () => {
     await ready();
     fireEvent.click(document.querySelector('[data-action="add-override"]') as HTMLElement);
     fireEvent.click(document.querySelector('[data-action="remove-override-0"]') as HTMLElement);
-    expect(screen.getByTestId('override-count').textContent).toBe(text('pwf.bands.overrides.count', { count: 0 }));
+    expect(screen.getByTestId('override-count').textContent).toBe(text('wfxbands.exception.count', { count: 0 }));
   });
 
   it('names a wrong phase code and an unordered override next to their fields', async () => {
@@ -225,6 +259,45 @@ describe('PWF-08: overrides', () => {
     change('overrides[0].red_days', '0');
     expect(screen.getByTestId('error-overrides[0].phase').textContent).toContain(text('pwf.bands.problem.phase.error'));
     expect(screen.getByTestId('error-overrides[0].green_days').textContent).toContain(text('pwf.bands.problem.order.error'));
+  });
+});
+
+describe('PWF-08: steps with their own thresholds (R59)', () => {
+  it('lists, read-only, the steps of the templates in force that carry their own thresholds, with a way to the process', async () => {
+    open({ templates: { PUBLIC_INVESTMENT: templateEffective({ params: withOwnBands('Đầu tư công: xây dựng') }) } });
+    const block = await screen.findByTestId('step-bands');
+    const rows = await within(block).findAllByRole('row');
+    // One head row and one step: the first task of the template.
+    expect(rows).toHaveLength(2);
+    const cells = [...(rows[1] as HTMLElement).querySelectorAll('td')].map((cell) => cell.textContent);
+    expect(cells.slice(0, 6)).toEqual(['Đầu tư công: xây dựng', 'Chuẩn bị đầu tư', 'Lập báo cáo nghiên cứu khả thi', '1', '3', '6']);
+    expect(within(block).getByRole('link', { name: text('wfxbands.steps.open.label', { step: 'Lập báo cáo nghiên cứu khả thi' }) }).getAttribute('href')).toContain('PUBLIC_INVESTMENT');
+    expect(screen.getByTestId('step-count').textContent).toBe(text('wfxbands.steps.count', { count: 1 }));
+    // Nothing in the block can be changed here.
+    expect(block.querySelectorAll('input, select, textarea')).toHaveLength(0);
+  });
+
+  it('says so when no step carries thresholds of its own', async () => {
+    open();
+    expect((await screen.findByTestId('step-bands-empty')).textContent).toBe(text('wfxbands.steps.empty.text'));
+    expect(screen.getByTestId('step-count').textContent).toBe(text('wfxbands.steps.count', { count: 0 }));
+  });
+
+  it('is shown for the project tasks only: the other sources have no steps', async () => {
+    open({ path: '/pwf/pwf-08?code=HOME_WORK' });
+    await ready();
+    expect(screen.queryByTestId('step-bands')).toBeNull();
+  });
+
+  it('keeps the policy usable when the templates cannot be read, and says the list may be incomplete', async () => {
+    open({ templates: { PUBLIC_INVESTMENT: refusal('INTERNAL_ERROR', 500) } });
+    expect(await screen.findByTestId('step-bands-failed')).toBeTruthy();
+    expect(field('green_days').value).toBe('5');
+  });
+
+  it('is not read for a person who may not read the workflow', () => {
+    const h = open({ permissions: [] });
+    expect(h.read).not.toHaveBeenCalled();
   });
 });
 

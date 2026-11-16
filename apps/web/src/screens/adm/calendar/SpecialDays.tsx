@@ -166,7 +166,7 @@ export function SpecialDays({ values, year, editable, problem, onChange }: Speci
                           <span className="muted">–</span>
                         ) : (
                           <>
-                            <label className="sr-only" htmlFor={`${ids}-n-${entry.id}`}>
+                            <label className="ui-sr-only" htmlFor={`${ids}-n-${entry.id}`}>
                               {t('wfxcal.special.note.label', { day: label })}
                             </label>
                             <input id={`${ids}-n-${entry.id}`} value={entry.name} disabled={!editable} onChange={(event) => onChange(setEntryText(values, entry, 'name', event.target.value))} />
@@ -178,7 +178,7 @@ export function SpecialDays({ values, year, editable, problem, onChange }: Speci
                           <span className="muted">–</span>
                         ) : (
                           <>
-                            <label className="sr-only" htmlFor={`${ids}-b-${entry.id}`}>
+                            <label className="ui-sr-only" htmlFor={`${ids}-b-${entry.id}`}>
                               {t('wfxcal.special.basis.label', { day: label })}
                             </label>
                             <input id={`${ids}-b-${entry.id}`} value={entry.basis} disabled={!editable} onChange={(event) => onChange(setEntryText(values, entry, 'basis', event.target.value))} />

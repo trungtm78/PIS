@@ -67,7 +67,7 @@ export const MonthGrid = memo(function MonthGrid({ rules, year, month, workingDa
                 {cell === null ? null : (
                   <span className={`cal-day ${cell.kind}`} data-date={cell.date} data-kind={cell.kind}>
                     {cell.day}
-                    <span className="sr-only">{`, ${dayKindLabel(t, cell.kind)}`}</span>
+                    <span className="ui-sr-only">{`, ${dayKindLabel(t, cell.kind)}`}</span>
                   </span>
                 )}
               </td>
