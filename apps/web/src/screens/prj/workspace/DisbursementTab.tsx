@@ -16,6 +16,7 @@ import { QuerySection } from './common';
 import type { TabProps } from './common';
 import { useProjectFigures, useProjectMonths, useProjectPayments } from './dis-hooks';
 import type { MonthRow, ProjectFigures, ProjectPayment } from './dis-hooks';
+import { fullMoney } from '../../../i18n/money';
 
 /** The words of a payment request status in the enterprise register (no treasury wording). */
 function paymentStatusText(t: ReturnType<typeof useTranslation>['t'], status: PaymentStatus): string {
@@ -107,8 +108,8 @@ function FiguresBody({ figures, projectCode }: { figures: ProjectFigures; projec
   return (
     <>
       <KpiStrip label={t('prj.wsTab.dis.kpi.label')}>
-        <KpiTile label={t('prj.wsTab.dis.kpi.plan')} value={billionsText(head.plan_vnd, locale)} unit={t('prj.wsTab.dis.kpi.unit')} tone="info" />
-        <KpiTile label={t('prj.wsTab.dis.kpi.disbursed')} value={head.disbursed_vnd === null || head.disbursed_vnd === undefined ? '–' : billionsText(head.disbursed_vnd, locale)} unit={t('prj.wsTab.dis.kpi.unit')} />
+        <KpiTile label={t('prj.wsTab.dis.kpi.plan')} value={billionsText(head.plan_vnd, locale)} valueTitle={fullMoney(head.plan_vnd, locale)} unit={t('prj.wsTab.dis.kpi.unit')} tone="info" />
+        <KpiTile label={t('prj.wsTab.dis.kpi.disbursed')} value={head.disbursed_vnd === null || head.disbursed_vnd === undefined ? '–' : billionsText(head.disbursed_vnd, locale)} valueTitle={head.disbursed_vnd === null || head.disbursed_vnd === undefined ? undefined : fullMoney(head.disbursed_vnd, locale)} unit={t('prj.wsTab.dis.kpi.unit')} />
         <KpiTile label={t('prj.wsTab.dis.kpi.rate')} value={percent(head.rate_pct)} />
       </KpiStrip>
       <p data-testid="dis-asof">{t('prj.wsTab.dis.figures.asOf', { date: figures.asOfDate, revision: figures.revision ?? 0 })}</p>

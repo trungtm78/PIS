@@ -1,3 +1,4 @@
+import { percentOfText } from '../../../i18n/format';
 import type { InfoFormulaLabels, Tone } from '../../../ui';
 import type { AlertStatus, AlertType, Kind, Level, Refusal, Trend, Unit } from './model';
 
@@ -79,7 +80,7 @@ export function indicatorText(t: Translate, indicator: string): string {
 export function unitText(t: Translate, unit: Unit, figure: string): string {
   switch (unit) {
     case 'PERCENT':
-      return t('mr1.risk.unit.percent', { value: figure });
+      return percentOfText(figure);
     case 'DAYS':
       return t('mr1.risk.unit.days', { value: figure });
     case 'COUNT':

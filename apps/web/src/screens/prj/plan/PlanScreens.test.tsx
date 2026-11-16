@@ -127,7 +127,8 @@ describe('ComponentsScreen (PRJ-05): the work breakdown of a project', () => {
     expect(within(rows[1] as HTMLElement).getAllByRole('cell')[1]?.textContent).toBe('C1');
     expect((rows[1]?.querySelector('td') as HTMLElement).style.paddingLeft).toBe('28px');
     expect(screen.getByTestId('exceeds-warning').textContent).toBe(vi_['prj.wbs.exceeds.warning'].replace('{wbs}', '48.000.000.000 đồng').replace('{total}', '45.000.000.000 đồng'));
-    expect(screen.getByTestId('wbs-total').textContent).toContain('48.000.000.000');
+    expect(screen.getByTestId('wbs-total').textContent).toContain('48 tỷ đồng');
+    expect(screen.getByTestId('wbs-total').getAttribute('title')).toContain('48.000.000.000 đồng');
     expect(screen.queryByRole('form', { name: vi_['prj.wbs.form.title'] })).toBeNull();
   });
 

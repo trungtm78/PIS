@@ -56,10 +56,10 @@ describe('PRJ-23: the list of appraisals', () => {
     mount(<AppraisalListScreen route={route} />, h, PERMISSIONS, '/prj/prj-23');
     expect(await screen.findByText(/FIN-2026-0001/)).toBeTruthy();
     expect(screen.getByText('1.388,77')).toBeTruthy();
-    expect(screen.getByText('24,888336%')).toBeTruthy();
+    expect(screen.getByText('24,89%')).toBeTruthy();
     expect(screen.getByText(text('fin1.results.state.computed'))).toBeTruthy();
     expect(screen.getByText(text('fin1.results.state.frozen'))).toBeTruthy();
-    expect(screen.getByText('70,00%')).toBeTruthy();
+    expect(screen.getByText('70%')).toBeTruthy();
     expect(screen.getByText('Nguyễn Văn A → Trần B')).toBeTruthy();
     expect(screen.getAllByText('Nguyễn Văn A')).toHaveLength(1);
     expect(screen.getByText(text('fin1.list.note'))).toBeTruthy();
@@ -155,7 +155,7 @@ describe('PRJ-24: the workbench', () => {
     open(harness(() => workbench()));
     expect(await screen.findByTestId('npv')).toBeTruthy();
     expect(within(screen.getByTestId('npv')).getByText('388,77')).toBeTruthy();
-    expect(within(screen.getByTestId('irr')).getByText('24,888336')).toBeTruthy();
+    expect(within(screen.getByTestId('irr')).getByText('24,89')).toBeTruthy();
     expect(within(screen.getByTestId('payback')).getByText('2,6000')).toBeTruthy();
     expect(within(screen.getByTestId('bcr')).getByText('1,3888')).toBeTruthy();
     expect(within(screen.getByTestId('tco')).getByText('1.000,00')).toBeTruthy();
@@ -198,7 +198,7 @@ describe('PRJ-24: the workbench', () => {
     expect(await screen.findByTestId('tornado')).toBeTruthy();
     expect(screen.getByTestId('tornado').querySelector('[data-parameter="benefitDelayPeriods"]')).not.toBeNull();
     fireEvent.change(screen.getByTestId('oneway-parameter'), { target: { value: 'capexPct' } });
-    expect(screen.getAllByText(text('fin1.delta.percent', { value: '+20' })).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('+20%').length).toBeGreaterThan(0);
     const two = screen.getByTestId('twoway');
     expect(within(two).getAllByText('388,77').length).toBeGreaterThan(0);
     expect(screen.getByText('-27,99%')).toBeTruthy();
@@ -396,7 +396,7 @@ describe('PRJ-24: the workbench', () => {
     const results = { report: null, criteria: { category: 'SAFETY', weightedScore: '4.40', indexPct: '88.00', formula: 'công thức', lines: [{ key: 'urgency', label: 'Mức khẩn cấp', weightPct: '60', score: 4, contribution: '2.400', evidence: 'Biên bản' }] } };
     open(harness(() => workbench({ kind: 'NON_FINANCIAL', results, criteria_category: 'SAFETY', criteria_used: { source: 'RULE', version: 2, criteria: [] } })));
     expect((await screen.findByTestId('criteria-score')).textContent).toBe(text('fin1.criteria.result.score', { value: '4,40' }));
-    expect(screen.getByText(text('fin1.criteria.result.index', { value: '88,00' }))).toBeTruthy();
+    expect(screen.getByText(text('fin1.criteria.result.index', { value: '88' }))).toBeTruthy();
     expect(screen.getByText(text('fin1.criteria.used.rule', { version: 2 }))).toBeTruthy();
   });
 

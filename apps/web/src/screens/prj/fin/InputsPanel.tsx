@@ -1,4 +1,5 @@
 import { useTranslation } from '../../../i18n';
+import { formatPercent } from '../../../i18n/format';
 import { SectionCard, StatusPill } from '../../../ui';
 import { periodUnitText, parameterText, camel } from './ResultsPanel';
 import { CATEGORIES, DELTA_KEYS, LINE_KINDS, SOURCE_KINDS, blankAssumption } from './model';
@@ -296,7 +297,7 @@ export function InputsPanel({ appraisal, draft, editable, me, problems, onChange
                   return (
                     <tr key={one.key} data-criterion={one.key}>
                       <th scope="row">{one.label}</th>
-                      <td className="fin1-num">{one.weightPct}%</td>
+                      <td className="fin1-num">{formatPercent(one.weightPct)}</td>
                       <td>
                         <select className="fin1-cell" value={entry.score} disabled={!editable} aria-label={t('fin1.criteria.scoreOf', { name: one.label })} onChange={(event) => setScore(one.key, { score: event.target.value })} data-testid={`score-${one.key}`}>
                           <option value="">{t('fin1.criteria.noScore')}</option>

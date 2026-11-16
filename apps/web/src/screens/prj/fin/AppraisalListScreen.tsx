@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { formatPercent } from '../../../i18n/format';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
@@ -98,9 +99,9 @@ function ListContent({ route }: ScreenProps) {
                   { key: 'status', header: t('fin1.list.col.status'), render: (row) => <StatusPill tone={statusTone(row.status)}>{t(`fin1.status.${row.status.toLowerCase()}`)}</StatusPill> },
                   { key: 'state', header: t('fin1.list.col.state'), render: (row) => <StatusPill tone={stateTone(row.resultState)}>{t(`fin1.results.state.${row.resultState.toLowerCase()}`)}</StatusPill> },
                   { key: 'npv', header: t('fin1.measure.npv'), align: 'right', render: (row) => (row.npv === null ? '' : decimalText(row.npv, locale)) },
-                  { key: 'irr', header: t('fin1.measure.irr'), align: 'right', render: (row) => (row.irrPct === null ? '' : `${decimalText(row.irrPct, locale)}%`) },
+                  { key: 'irr', header: t('fin1.measure.irr'), align: 'right', render: (row) => (row.irrPct === null ? '' : formatPercent(row.irrPct)) },
                   { key: 'payback', header: t('fin1.measure.payback'), align: 'right', render: (row) => (row.paybackPeriods === null ? '' : decimalText(row.paybackPeriods, locale)) },
-                  { key: 'index', header: t('fin1.list.col.index'), align: 'right', render: (row) => (row.indexPct === null ? '' : `${decimalText(row.indexPct, locale)}%`) },
+                  { key: 'index', header: t('fin1.list.col.index'), align: 'right', render: (row) => (row.indexPct === null ? '' : formatPercent(row.indexPct)) },
                   { key: 'who', header: t('fin1.list.col.who'), render: (row) => `${row.createdByName ?? ''}${row.approvedByName === null ? '' : ` → ${row.approvedByName}`}` },
                 ]}
               />
