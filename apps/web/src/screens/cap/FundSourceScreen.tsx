@@ -55,7 +55,6 @@ function FundContent({ route }: ScreenProps) {
               value: tenant?.name ?? t('cap.ctx.scope.all'),
             },
           ]}
-          unit={t('cap.ctx.unit')}
         />
         <div className="cap-fund-board">
           <p className="callout" role="note">
@@ -78,7 +77,7 @@ function FundContent({ route }: ScreenProps) {
             ))}
           </ul>
           <p className="cap-grand" data-testid="grand-total">
-            {t('cap.fund.total.label')} <Money vnd={grand} />
+            {t('cap.fund.grand.label')} <Money vnd={grand} />
           </p>
         </div>
       </StateBoundary>

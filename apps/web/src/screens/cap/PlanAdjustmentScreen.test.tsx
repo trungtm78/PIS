@@ -109,11 +109,11 @@ describe('PlanAdjustmentScreen (CAP-07): the adjustment and transfer of a capita
     const down = screen.getByTestId('side-down');
     const up = screen.getByTestId('side-up');
     expect(within(down).getAllByRole('row').some((row) => row.textContent?.includes('DA-01'))).toBe(true);
-    expect(within(down).getByTestId('value').textContent).toBe('800');
+    expect(within(down).getByTestId('value').textContent).toBe('800 triệu đồng (800.000.000 đồng)');
     expect(within(up).getAllByRole('row').some((row) => row.textContent?.includes('DA-02'))).toBe(true);
-    expect(within(up).getByTestId('value').textContent).toBe('800');
-    expect(within(down).getByTestId('side-total').textContent).toBe('800');
-    expect(within(up).getByTestId('side-total').textContent).toBe('800');
+    expect(within(up).getByTestId('value').textContent).toBe('800 triệu đồng (800.000.000 đồng)');
+    expect(within(down).getByTestId('side-total').textContent).toBe('800 triệu đồng (800.000.000 đồng)');
+    expect(within(up).getByTestId('side-total').textContent).toBe('800 triệu đồng (800.000.000 đồng)');
     expect(screen.getByTestId('balance').getAttribute('data-balanced')).toBe('true');
     // The basis of the capital given up is the decision in force; the revision has no decision yet.
     expect(down.textContent).toContain('12/QD-UBND');

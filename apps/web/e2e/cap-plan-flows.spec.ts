@@ -129,7 +129,7 @@ const lineRow = (page: Page, lineId: string): Locator => page.locator(`tr[data-l
 async function propose(page: Page, project: { code: string; name: string }, year: number, remaining: string, amount: string): Promise<void> {
   const panel = proposal(page);
   await field(panel, vi['cap.proposal.project.label']).selectOption({ label: `${project.code} · ${project.name}` });
-  await field(panel, vi['cap.proposal.source.label']).selectOption({ label: `NSTW · ${year} · còn ${remaining} triệu đồng` });
+  await field(panel, vi['cap.proposal.source.label']).selectOption({ label: `NSTW · ${year} · còn ${remaining}` });
   await field(panel, vi['cap.proposal.amount.label']).fill(amount);
 }
 
@@ -171,7 +171,7 @@ test.describe('CAP-01 and CAP-02: creating a plan and proposing capital', () => 
     // CAP-02: 3,000 million of the 10,000 million source for the first project.
     await open(page, 'planPlanner', `/cap/cap-02?plan=${plan}`);
     await expect(proposal(page)).toBeVisible();
-    await propose(page, first, year, '10.000', '3000');
+    await propose(page, first, year, '10 tỷ đồng', '3000');
     await expect(page.getByTestId('exact-amount')).toHaveText(vi['cap.form.amountExact.text'].replace('{amount}', '3.000.000.000'));
     await expect(money(page.getByTestId('ceiling'))).toHaveAttribute('data-vnd', String(10 * BILLION));
     await proposal(page).getByRole('button', { name: vi['cap.proposal.submit.action'] }).click();
@@ -187,7 +187,7 @@ test.describe('CAP-01 and CAP-02: creating a plan and proposing capital', () => 
     expect(audit[0]?.diff.appropriations[0]).toMatchObject({ allocated_before_vnd: '0', allocated_after_vnd: String(3 * BILLION) });
 
     // An amount larger than what is left is refused on the screen, before anything is sent.
-    await propose(page, second, year, '7.000', '8000');
+    await propose(page, second, year, '7 tỷ đồng', '8000');
     await expect(page.getByTestId('ceiling').locator('.cap-negative')).toBeVisible();
     await proposal(page).getByRole('button', { name: vi['cap.proposal.submit.action'] }).click();
     await expect(proposal(page).getByText(vi['cap.proposal.exceedsRemaining.error'])).toBeVisible();
@@ -196,7 +196,7 @@ test.describe('CAP-01 and CAP-02: creating a plan and proposing capital', () => 
     // 5,000 million fits what the screen read (7,000 left). Before it is sent, a second planner takes 5,000 million for another plan.
     await field(proposal(page), vi['cap.proposal.amount.label']).fill('5000');
     const rivalPage = await inNewPage(browser, 'planSecond', `/cap/cap-02?plan=${rival}`);
-    await propose(rivalPage, second, year, '7.000', '5000');
+    await propose(rivalPage, second, year, '7 tỷ đồng', '5000');
     await proposal(rivalPage).getByRole('button', { name: vi['cap.proposal.submit.action'] }).click();
     await expect(rivalPage.getByTestId('saved')).toBeVisible();
     expect(await allocatedOf(source)).toBe(String(8 * BILLION));
@@ -223,7 +223,7 @@ test.describe('CAP-01 and CAP-02: creating a plan and proposing capital', () => 
     const plan = await seedPlan('E2E-CT-2032', year);
     await open(page, 'planPlanner', `/cap/cap-02?plan=${plan}`);
     await expect(proposal(page)).toBeVisible();
-    await propose(page, project, year, '10.000', '1000');
+    await propose(page, project, year, '10 tỷ đồng', '1000');
     await field(proposal(page), vi['cap.proposal.ctmtqg.label']).fill('1001');
     await proposal(page).getByRole('button', { name: vi['cap.proposal.submit.action'] }).click();
     await expect(proposal(page).getByText(vi['cap.proposal.subsetExceeds.error'])).toBeVisible();

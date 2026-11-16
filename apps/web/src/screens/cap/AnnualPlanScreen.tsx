@@ -75,13 +75,13 @@ function AnnualContent({ route }: ScreenProps) {
     },
     {
       key: 'yearAmount',
-      header: t('cap.annual.column.yearAmount'),
+      header: t('cap.annual.col.yearAmount'),
       align: 'right',
       render: (line) => <span data-testid="year-amount">{isCarryover(line) ? '' : <Money vnd={line.amountVnd} />}</span>,
     },
     {
       key: 'carryAmount',
-      header: t('cap.annual.column.carryAmount'),
+      header: t('cap.annual.col.carryAmount'),
       align: 'right',
       render: (line) => <span data-testid="carry-amount">{isCarryover(line) ? <Money vnd={line.amountVnd} /> : ''}</span>,
     },
@@ -102,7 +102,7 @@ function AnnualContent({ route }: ScreenProps) {
     },
     {
       key: 'ctmtqg',
-      header: t('cap.annual.column.ctmtqg'),
+      header: t('cap.annual.col.ctmtqg'),
       align: 'right',
       render: (line) => <span data-testid="ctmtqg">{line.ctmtqgSubsetVnd === '0' ? '' : <Money vnd={line.ctmtqgSubsetVnd} />}</span>,
     },
@@ -128,7 +128,7 @@ function AnnualContent({ route }: ScreenProps) {
         ) : null}
       </div>
       <StateBoundary state={state} onRetry={() => void plans.refetch()}>
-        <ContextBar items={[{ label: t('cap.ctx.plans'), value: String(annual.length) }]} unit={t('cap.ctx.unit')} />
+        <ContextBar items={[{ label: t('cap.ctx.plans'), value: String(annual.length) }]} />
         <PlanChooser id="annual-plan" plans={annual} value={planId} onChange={choose} />
         {plan === undefined ? null : <PlanHeader plan={plan} />}
         {lines.length === 0 ? (
@@ -136,7 +136,7 @@ function AnnualContent({ route }: ScreenProps) {
             {t('cap.annual.noLines.notice')}
           </p>
         ) : (
-          <SectionCard title={t('cap.annual.table.aria')} unit={t('cap.ctx.unit')}>
+          <SectionCard title={t('cap.annual.table.aria')}>
             <div data-testid="lines">
               <DataTable caption={t('cap.annual.table.caption')} columns={columns} rows={lines} rowKey={(line) => line.id} rowAttrs={(line) => ({ 'data-line-id': line.id, 'data-bucket': line.bucket })} />
             </div>
@@ -149,7 +149,7 @@ function AnnualContent({ route }: ScreenProps) {
               </div>
               {enterprise ? null : (
                 <div>
-                  <dt>{t('cap.annual.column.ctmtqg')}</dt>
+                  <dt>{t('cap.annual.col.ctmtqg')}</dt>
                   <dd data-testid="total-ctmtqg">
                     <Money vnd={totals?.ctmtqgSubsetVnd ?? '0'} />
                   </dd>

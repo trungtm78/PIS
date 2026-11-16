@@ -71,7 +71,7 @@ function PlanListContent({ route }: ScreenProps) {
     },
     {
       key: 'ceiling',
-      header: t('cap.plans.column.ceiling'),
+      header: t('cap.plans.col.ceiling'),
       align: 'right',
       render: (plan) => (
         <span data-testid="ceiling">
@@ -81,7 +81,7 @@ function PlanListContent({ route }: ScreenProps) {
     },
     {
       key: 'allocated',
-      header: t('cap.plans.column.allocated'),
+      header: t('cap.plans.col.allocated'),
       align: 'right',
       render: (plan) => (
         <span data-testid="allocated">
@@ -248,9 +248,8 @@ function PlanListContent({ route }: ScreenProps) {
               value: String((plans.data ?? []).length),
             },
           ]}
-          unit={t('cap.ctx.unit')}
         />
-        <FilterPanel applied={kind === '' ? 0 : 1} unitLabel={t('cap.ctx.unit')}>
+        <FilterPanel applied={kind === '' ? 0 : 1}>
           <form className="cap-filters" role="search" aria-label={t('cap.plans.filters.title')} onSubmit={(event) => event.preventDefault()}>
             <div className="field">
               <label htmlFor="plans-kind">{t('cap.plans.kind.label')}</label>

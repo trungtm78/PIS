@@ -45,7 +45,7 @@ test.describe('CAP-17: the availability control policy', () => {
     const code = `AVC-E2E-${Date.now().toString(36)}`.toUpperCase();
     await open(page, 'avcAdmin');
     await expect(page.getByRole('heading', { level: 1, name: vi['cap.avc.page.title'] })).toBeVisible();
-    await expect(page.getByRole('img', { name: vi['cap.avc.bars.aria'].replace('{warn}', '90').replace('{block}', '100') })).toBeVisible();
+    await expect(page.getByRole('img', { name: vi['cap.avc.zones.aria'].replace('{warn}', '90%').replace('{block}', '100%') })).toBeVisible();
 
     // A warning above the block, and a block above 100, are refused in the form, in words, and nothing is written.
     await draft(page, { code, warn: '95', block: '90', from: '2030-01-01', until: '2030-12-31' });
@@ -58,7 +58,7 @@ test.describe('CAP-17: the availability control policy', () => {
     // The two thresholds are drawn and said in words.
     await fieldOf(page, vi['cap.avc.form.warn.label']).fill('85');
     await fieldOf(page, vi['cap.avc.form.block.label']).fill('95');
-    await expect(page.getByText(vi['cap.avc.bars.warn'].replace('{warn}', '85').replace('{block}', '95'))).toBeVisible();
+    await expect(page.getByText(vi['cap.avc.zones.warn'].replace('{warn}', '85%').replace('{block}', '95%'))).toBeVisible();
     await form(page).getByRole('button', { name: vi['cap.avc.form.submit.action'] }).click();
     await expect(page.getByText(vi['cap.avc.done.created'].replace('{code}', code).replace('{revision}', '1'))).toBeVisible();
     const made = await policyOf(code);

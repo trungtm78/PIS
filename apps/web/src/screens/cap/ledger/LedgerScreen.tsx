@@ -4,6 +4,7 @@ import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { Money } from '../../../ui';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { Field } from '../../prj/components';
@@ -170,7 +171,9 @@ function LedgerContent({ route }: ScreenProps) {
                 {COLUMNS.map((column) => (
                   <div key={column} data-column={column}>
                     <dt>{columnLabel(t, column)}</dt>
-                    <dd>{money(head.balance[column])}</dd>
+                    <dd>
+                      <Money value={head.balance[column]} />
+                    </dd>
                   </div>
                 ))}
               </dl>

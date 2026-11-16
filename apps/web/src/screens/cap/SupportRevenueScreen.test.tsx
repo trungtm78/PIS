@@ -19,12 +19,12 @@ describe('SupportRevenueScreen (CAP-14): central support and revenue increase', 
     await ready();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['cap.support.page.title']);
     expect(Array.from(document.querySelectorAll('[data-origin-group]')).map((node) => node.getAttribute('data-origin-group'))).toEqual(['CENTRAL_SUPPORT', 'REVENUE_INCREASE']);
-    expect(totals('CENTRAL_SUPPORT')).toEqual(['20.000', '20.000']);
-    expect(totals('REVENUE_INCREASE')).toEqual(['15.000', '5.000']);
+    expect(totals('CENTRAL_SUPPORT')).toEqual(['20 tỷ đồng (20.000.000.000 đồng)', '20 tỷ đồng (20.000.000.000 đồng)']);
+    expect(totals('REVENUE_INCREASE')).toEqual(['15 tỷ đồng (15.000.000.000 đồng)', '5 tỷ đồng (5.000.000.000 đồng)']);
     // The capital that the Prime Minister assigned and the one the province added are not on this screen at all.
     expect(Array.from(document.querySelectorAll('[data-appropriation-id]')).map((node) => node.getAttribute('data-appropriation-id'))).toEqual([line(3).id, line(4).id]);
     const headers = Array.from(group('CENTRAL_SUPPORT').querySelectorAll('th[scope="col"]')).map((header) => header.textContent);
-    expect(headers).toEqual([vi_['cap.support.column.origin'], vi_['cap.support.column.decision'], vi_['cap.support.column.scope'], vi_['cap.support.column.amount'], vi_['cap.support.column.allocated']]);
+    expect(headers).toEqual([vi_['cap.support.column.origin'], vi_['cap.support.column.decision'], vi_['cap.support.column.scope'], 'Giá trị', 'Đã phân bổ']);
     const row = group('REVENUE_INCREASE').querySelector('tbody tr') as HTMLElement;
     expect(within(row).getByText(vi_['cap.origin.revenueIncrease.label'], { selector: 'th' })).toBeTruthy();
     expect(row.textContent).toContain(`${vi_['cap.level.local.label']} · NSDP-DTPT · 2025`);
@@ -38,7 +38,7 @@ describe('SupportRevenueScreen (CAP-14): central support and revenue increase', 
     mount(<SupportRevenueScreen route={ROUTE} />, client(world({ lines: [line(3, { origin: 'CENTRAL_SUPPORT', amount_vnd: '20000000000', allocated_total_vnd: '0' }), more, draft] })), { permissions: READER });
     await ready();
     expect(group('CENTRAL_SUPPORT').querySelectorAll('tbody tr')).toHaveLength(2);
-    expect(totals('CENTRAL_SUPPORT')).toEqual(['21.234,56789', '0,000001']);
+    expect(totals('CENTRAL_SUPPORT')).toEqual(['21,23 tỷ đồng (21.234.567.890 đồng)', '1 đồng']);
     expect(document.querySelector('[data-origin-group="REVENUE_INCREASE"]')).toBeNull();
   });
 

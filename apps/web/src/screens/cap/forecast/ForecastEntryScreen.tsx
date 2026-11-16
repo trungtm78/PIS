@@ -130,7 +130,7 @@ function EstimateTable({ estimates, year, allowed, state, onRetry, onChange }: T
                   <th scope="col">{t('cap.estimate.column.source')}</th>
                   <th scope="col">{t('cap.estimate.column.level')}</th>
                   <th scope="col" className="cap-number">
-                    {t('cap.estimate.column.amount')}
+                    {t('cap.estimate.col.amount')}
                   </th>
                   <th scope="col">{t('cap.estimate.column.assumption')}</th>
                   <th scope="col">{t('cap.estimate.column.revision')}</th>

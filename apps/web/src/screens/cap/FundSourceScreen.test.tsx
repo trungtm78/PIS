@@ -22,10 +22,12 @@ describe('FundSourceScreen (CAP-04): the tree of the fund sources', () => {
     const nstw = category('NSTW');
     expect(within(nstw).getByText(vi_['cap.category.nstw.label'])).toBeTruthy();
     expect(Array.from(nstw.querySelectorAll('[data-appropriation-id]')).map((node) => node.getAttribute('data-appropriation-id'))).toEqual([line(1).id, line(3).id]);
-    expect(nstw.querySelector('summary')?.textContent).toContain('30.000');
+    expect(nstw.querySelector('summary')?.textContent).toContain('30 tỷ đồng (30.000.000.000 đồng)');
     expect(within(nstw).getByText(`${vi_['cap.fund.validity.open'].replace('{from}', '2020-01-01')}`)).toBeTruthy();
-    expect(category('NSDP').querySelector('summary')?.textContent).toContain('19.000');
-    expect(screen.getByTestId('grand-total').textContent).toContain('49.000');
+    expect(category('NSDP').querySelector('summary')?.textContent).toContain('19 tỷ đồng (19.000.000.000 đồng)');
+    expect(screen.getByTestId('grand-total').textContent).toContain('49 tỷ đồng (49.000.000.000 đồng)');
+    // Every figure carries its own unit: no unit chip is declared over them.
+    expect(screen.queryByText('ĐVT: Triệu đồng')).toBeNull();
     // The programme of national targets is part of its parent: the screen says so and gives it no total.
     expect(screen.getByRole('note').textContent).toBe(vi_['cap.fund.ctmtqg.note']);
     expect(category('CTMTQG')).toBeNull();

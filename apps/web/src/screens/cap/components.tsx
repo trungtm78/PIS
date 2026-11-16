@@ -1,13 +1,28 @@
 import type { FormEvent, ReactNode } from 'react';
 import { useTranslation } from '../../i18n';
-import { SectionCard, StatusPill, StickyActions } from '../../ui';
+import { SectionCard, StatusPill, StickyActions, Money as UiMoney } from '../../ui';
 import { decisionKindLabel, fieldProblemMessage, levelLabel, originLabel, statusLabel } from './labels';
 import { decisionKindsOf, formLevelsOf, formOriginsOf, millionsText, vndOfMillions, vndText } from './model';
 import type { AppropriationForm, AppropriationLine, BudgetLevel, FieldProblem, FormField, MasterOption, Origin } from './model';
 import './cap.css';
 
-/** An amount of whole VND shown in millions of dong, exactly; the exact VND is the tooltip so nothing is hidden by the unit. */
+/**
+ * An amount of whole VND as a person reads it: the short form of the shared formatter with its own unit, sized by the amount ("2.591 tỷ đồng", "950 triệu đồng"); the exact dong is
+ * its tooltip. `data-vnd` keeps the exact amount for whoever reads the page by its attributes.
+ */
 export function Money({ vnd }: { vnd: string }) {
+  return (
+    <span className="cap-money" data-vnd={vnd}>
+      <UiMoney value={vnd} />
+    </span>
+  );
+}
+
+/**
+ * An amount of whole VND in millions of dong, exactly, for a figure a person checks against what is typed in millions (a running total next to the inputs, what a ceiling has left):
+ * the unit is said by the column or the label next to it, and the exact VND is the tooltip.
+ */
+export function MillionsMoney({ vnd }: { vnd: string }) {
   const { locale } = useTranslation();
   return (
     <span className="cap-money" title={vndText(vnd, locale)} data-vnd={vnd}>

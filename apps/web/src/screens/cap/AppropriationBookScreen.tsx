@@ -210,13 +210,13 @@ function BookContent({ route }: ScreenProps) {
                     <th scope="col">{t('cap.book.column.level')}</th>
                     <th scope="col">{t('cap.book.column.decision')}</th>
                     <th scope="col" className="cap-number">
-                      {t('cap.book.column.amount')}
+                      {t('cap.book.col.amount')}
                     </th>
                     <th scope="col" className="cap-number">
-                      {t('cap.book.column.allocated')}
+                      {t('cap.book.col.allocated')}
                     </th>
                     <th scope="col" className="cap-number">
-                      {t('cap.book.column.remaining')}
+                      {t('cap.book.col.remaining')}
                     </th>
                     <th scope="col">{t('cap.book.column.status')}</th>
                     <th scope="col">{t('cap.book.column.actions')}</th>

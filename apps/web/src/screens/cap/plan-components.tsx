@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { SectionCard, StatusPill } from '../../ui';
-import { Money } from './components';
+import { MillionsMoney, Money } from './components';
 import { kindLabel, planStatusLabel } from './plan-labels';
 import { periodOf } from './plan-model';
 import type { PlanKind, PlanSummary } from './plan-model';
@@ -26,14 +26,22 @@ export function usePlanChoice(plans: readonly PlanSummary[]): {
   };
 }
 
-/** An exact amount that may be below zero (what a ceiling has left once the edits are saved), in millions of dong; the sign is never lost. */
-export function SignedMoney({ vnd }: { vnd: string }) {
-  return vnd.startsWith('-') ? (
+/**
+ * An amount that may be below zero (a difference, what a ceiling has left once the edits are saved); the sign is never lost. It is short with its own unit, or with `millions`
+ * exact in millions of dong where it stands next to what a person types in millions.
+ */
+export function SignedMoney({ vnd, millions = false }: { vnd: string; millions?: boolean }) {
+  if (!vnd.startsWith('-')) return millions ? <MillionsMoney vnd={vnd} /> : <Money vnd={vnd} />;
+  return (
     <span className="cap-negative" data-negative="true">
-      -<Money vnd={vnd.slice(1)} />
+      {millions ? (
+        <>
+          -<MillionsMoney vnd={vnd.slice(1)} />
+        </>
+      ) : (
+        <Money vnd={vnd} />
+      )}
     </span>
-  ) : (
-    <Money vnd={vnd} />
   );
 }
 

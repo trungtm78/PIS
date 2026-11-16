@@ -26,30 +26,32 @@ describe('AnnualPlanScreen (CAP-03): the lines of an annual plan', () => {
       vi_['cap.annual.column.year'],
       vi_['cap.annual.column.project'],
       vi_['cap.annual.column.fund'],
-      vi_['cap.annual.column.yearAmount'],
-      vi_['cap.annual.column.carryAmount'],
+      'Vốn năm',
+      'Vốn kéo dài',
       vi_['cap.annual.column.sourceYear'],
       vi_['cap.annual.column.extendedTo'],
       vi_['cap.annual.column.extensionDocument'],
-      vi_['cap.annual.column.ctmtqg'],
+      'Trong đó CTMTQG',
     ]);
     const [yearLine, carryLine] = rows();
     // The line of the year: 1,000 million, of which 400 million CTMTQG; nothing carried over.
     expect(cell(yearLine, 0)).toBe('2026');
     expect(cell(yearLine, 1)).toContain('DA-01');
-    expect(cell(yearLine, 3)).toBe('1.000');
+    expect(cell(yearLine, 3)).toBe('1 tỷ đồng (1.000.000.000 đồng)');
     expect(cell(yearLine, 4)).toBe('');
     expect(cell(yearLine, 5)).toBe('2026');
-    expect(cell(yearLine, 8)).toBe('400');
+    expect(cell(yearLine, 8)).toBe('400 triệu đồng (400.000.000 đồng)');
     // The carried-over line: 2,000 million in the other column, with the day the extension ends and the document that allowed it.
     expect(cell(carryLine, 3)).toBe('');
-    expect(cell(carryLine, 4)).toBe('2.000');
+    expect(cell(carryLine, 4)).toBe('2 tỷ đồng (2.000.000.000 đồng)');
     expect(cell(carryLine, 5)).toBe('2025');
     expect(cell(carryLine, 6)).toBe('2026-12-31');
     expect(cell(carryLine, 7)).toBe('55/QD-UBND');
     // The total adds the lines and not the CTMTQG part: 3,000 million, and 400 million CTMTQG shown apart.
-    expect(screen.getByTestId('total').textContent).toBe('3.000');
-    expect(screen.getByTestId('total-ctmtqg').textContent).toBe('400');
+    expect(screen.getByTestId('total').textContent).toBe('3 tỷ đồng (3.000.000.000 đồng)');
+    expect(screen.getByTestId('total-ctmtqg').textContent).toBe('400 triệu đồng (400.000.000 đồng)');
+    // Every figure carries its own unit: no unit chip is declared over them.
+    expect(screen.queryByText('ĐVT: Triệu đồng')).toBeNull();
     expect(screen.getByTestId('totals').textContent).toContain(vi_['cap.annual.total.note']);
   });
 
@@ -143,13 +145,13 @@ describe('AnnualPlanScreen (CAP-03) in the enterprise edition', () => {
     await ready();
     const headers = Array.from(document.querySelectorAll('thead th')).map((header) => header.textContent);
     expect(headers).toHaveLength(8);
-    expect(headers).not.toContain(vi_['cap.annual.column.ctmtqg']);
+    expect(headers).not.toContain('Trong đó CTMTQG');
     const [yearLine] = rows();
     expect(cell(yearLine, 2)).toContain('Ngân sách trung ương');
     expect(cell(yearLine, 2)).not.toContain('NSTW-DTPT');
     expect(screen.queryByTestId('ctmtqg')).toBeNull();
     expect(screen.queryByTestId('total-ctmtqg')).toBeNull();
-    expect(screen.getByTestId('total').textContent).toBe('3.000');
+    expect(screen.getByTestId('total').textContent).toBe('3 tỷ đồng (3.000.000.000 đồng)');
   });
 
   it('keeps the code of the source and the CTMTQG column on the public edition', async () => {

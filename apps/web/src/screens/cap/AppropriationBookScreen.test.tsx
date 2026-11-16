@@ -36,9 +36,9 @@ describe('AppropriationBookScreen (CAP-16): the book of the capital assigned to 
       vi_['cap.book.column.origin'],
       vi_['cap.book.column.level'],
       vi_['cap.book.column.decision'],
-      vi_['cap.book.column.amount'],
-      vi_['cap.book.column.allocated'],
-      vi_['cap.book.column.remaining'],
+      'Giá trị',
+      'Đã phân bổ',
+      'Còn lại',
       vi_['cap.book.column.status'],
       vi_['cap.book.column.actions'],
     ]);
@@ -52,15 +52,15 @@ describe('AppropriationBookScreen (CAP-16): the book of the capital assigned to 
     expect(cell(first, 2)).toContain(vi_['cap.origin.pmAssigned.label']);
     expect(cell(first, 3)).toBe(vi_['cap.level.central.label']);
     expect(cell(first, 4)).toContain('1/QD-TTg ngày 2026-01-15');
-    expect([cell(first, 5), cell(first, 6), cell(first, 7)]).toEqual(['10.000', '6.000', '4.000']);
+    expect([cell(first, 5), cell(first, 6), cell(first, 7)]).toEqual(['10 tỷ đồng (10.000.000.000 đồng)', '6 tỷ đồng (6.000.000.000 đồng)', '4 tỷ đồng (4.000.000.000 đồng)']);
     expect(cell(first, 8)).toBe(vi_['cap.status.published.label']);
     // Millions are exact to the dong, and the exact dong are on the cell.
     const draft = rows().find((row) => row.getAttribute('data-appropriation-id') === line(5).id);
-    expect(cell(draft, 5)).toBe('1.234,56789');
-    expect(draft?.querySelector('[data-vnd="1234567890"]')?.getAttribute('title')).toBe('1.234.567.890');
+    expect(cell(draft, 5)).toBe('1,23 tỷ đồng (1.234.567.890 đồng)');
+    expect(draft?.querySelector('[data-vnd="1234567890"] [title]')?.getAttribute('title')).toBe('1.234.567.890 đồng');
     // The totals count the published lines only, as sums of integers.
     const totals = Array.from(screen.getByTestId('totals').querySelectorAll('td')).map((total) => total.textContent);
-    expect(totals.slice(0, 3)).toEqual(['49.000', '31.000', '18.000']);
+    expect(totals.slice(0, 3)).toEqual(['49 tỷ đồng (49.000.000.000 đồng)', '31 tỷ đồng (31.000.000.000 đồng)', '18 tỷ đồng (18.000.000.000 đồng)']);
   });
 
   it('separates the origins: central support and revenue increase are lines of their own (AC-ST-CAP-001-2, UAT-AC235)', async () => {
@@ -68,10 +68,10 @@ describe('AppropriationBookScreen (CAP-16): the book of the capital assigned to 
     await ready();
     fireEvent.change(screen.getByLabelText(vi_['cap.book.origin.label']), { target: { value: 'CENTRAL_SUPPORT' } });
     expect(rows().map((row) => cell(row, 2))).toEqual([vi_['cap.origin.centralSupport.label']]);
-    expect(Array.from(screen.getByTestId('totals').querySelectorAll('td')).map((total) => total.textContent).slice(0, 3)).toEqual(['20.000', '20.000', '0']);
+    expect(Array.from(screen.getByTestId('totals').querySelectorAll('td')).map((total) => total.textContent).slice(0, 3)).toEqual(['20 tỷ đồng (20.000.000.000 đồng)', '20 tỷ đồng (20.000.000.000 đồng)', '0 đồng']);
     fireEvent.change(screen.getByLabelText(vi_['cap.book.origin.label']), { target: { value: 'REVENUE_INCREASE' } });
     expect(rows().map((row) => cell(row, 2))).toEqual([vi_['cap.origin.revenueIncrease.label']]);
-    expect(Array.from(screen.getByTestId('totals').querySelectorAll('td')).map((total) => total.textContent).slice(0, 3)).toEqual(['15.000', '5.000', '10.000']);
+    expect(Array.from(screen.getByTestId('totals').querySelectorAll('td')).map((total) => total.textContent).slice(0, 3)).toEqual(['15 tỷ đồng (15.000.000.000 đồng)', '5 tỷ đồng (5.000.000.000 đồng)', '10 tỷ đồng (10.000.000.000 đồng)']);
   });
 
   it('filters by year, origin and budget level, and says when nothing matches', async () => {
@@ -252,7 +252,7 @@ describe('AppropriationBookScreen (CAP-16): the book of the capital assigned to 
       expect(operation).toBe('registerAppropriation');
       expect(input.body).toMatchObject({ supersedes_id: line(1).id, amount_vnd: '5000000000', plan_year: 2026, origin: 'PM_ASSIGNED' });
       // The list is as it was: the refusal changed nothing.
-      expect(cell(rows()[0], 5)).toBe('10.000');
+      expect(cell(rows()[0], 5)).toBe('10 tỷ đồng (10.000.000.000 đồng)');
     });
   });
 

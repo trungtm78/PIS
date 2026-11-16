@@ -39,8 +39,8 @@ describe('AllocationGridScreen (CAP-06): the allocation grid of a plan', () => {
       vi_['cap.grid.column.amount'],
       vi_['cap.grid.column.ctmtqg'],
       vi_['cap.grid.column.available'],
-      vi_['cap.grid.column.committed'],
-      vi_['cap.grid.column.reserved'],
+      'Đã cam kết',
+      'Đã giữ vốn',
       vi_['cap.grid.column.avc'],
       vi_['cap.grid.column.actions'],
     ]);
@@ -54,6 +54,8 @@ describe('AllocationGridScreen (CAP-06): the allocation grid of a plan', () => {
     expect(rows()[0]?.textContent).toContain(vi_['cap.grid.notPublished.notice']);
     expect(rows()[0]?.textContent).toContain(vi_['cap.grid.avc.notice']);
     expect(screen.getByTestId('total').textContent).toBe('3.000');
+    // Every figure carries its own unit: no unit chip is declared over them.
+    expect(screen.queryByText('ĐVT: Triệu đồng')).toBeNull();
     expect(save().disabled).toBe(true);
   });
 
@@ -179,8 +181,8 @@ describe('AllocationGridScreen (CAP-06): the allocation grid of a plan', () => {
     expect(screen.getByTestId('not-draft')).toBeTruthy();
     expect(screen.queryByRole('button', { name: vi_['cap.grid.save.action'] })).toBeNull();
     expect(screen.queryByRole('button', { name: vi_['cap.grid.remove.action'] })).toBeNull();
-    expect(rows()[0]?.textContent).toContain('500');
-    expect(rows()[0]?.textContent).toContain('100');
+    expect(rows()[0]?.textContent).toContain('500 triệu đồng (500.000.000 đồng)');
+    expect(rows()[0]?.textContent).toContain('100 triệu đồng (100.000.000 đồng)');
   });
 
   it('is read only for a caller who cannot draft, and for a frozen tenant', async () => {

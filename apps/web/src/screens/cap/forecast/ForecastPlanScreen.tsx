@@ -12,7 +12,7 @@ import { ADJUSTMENT_MONTH, REGISTER_SCHEDULE_PERMISSION } from '../schedule-mode
 import '../cap.css';
 import { EacPanel, NONE, Picker, useChoice } from './components';
 import { useScheduleLines } from './hooks';
-import { EAC_READ_PERMISSION, ENTRY_PATH, READ_PERMISSION, linkTo, mayRead, planRows, planTotals, signedMillions } from './model';
+import { EAC_READ_PERMISSION, ENTRY_PATH, READ_PERMISSION, linkTo, mayRead, planRows, planTotals } from './model';
 
 /**
  * CAP-12: the plan of estimated disbursement of a project in a year (ST-CAP-012, CAP 3.1 F7, BR-CAP-08): for each month what is estimated, what was registered, what the Treasury paid and the difference between the estimate
@@ -26,7 +26,7 @@ export default function ForecastPlanScreen({ route }: ScreenProps) {
 }
 
 function PlanContent({ route }: ScreenProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const readable = mayRead(permissions, READ_PERMISSION);
   const projects = useProjects(readable);
@@ -40,7 +40,7 @@ function PlanContent({ route }: ScreenProps) {
   const total = planTotals(rows);
   const empty = lines.data !== undefined && lines.data.length === 0;
   const figure = (vnd: string | null) => (vnd === null ? <small className="sub">{NONE}</small> : <Money vnd={vnd} />);
-  const difference = (vnd: string | null) => (vnd === null ? <small className="sub">{NONE}</small> : signedMillions(vnd, locale));
+  const difference = (vnd: string | null) => (vnd === null ? <small className="sub">{NONE}</small> : <Money vnd={vnd} />);
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -72,16 +72,16 @@ function PlanContent({ route }: ScreenProps) {
                         <tr>
                           <th scope="col">{t('cap.forecast.column.month')}</th>
                           <th scope="col" className="cap-number">
-                            {t('cap.forecast.column.forecast')}
+                            {t('cap.forecast.col.forecast')}
                           </th>
                           <th scope="col" className="cap-number">
-                            {t('cap.forecast.column.registered')}
+                            {t('cap.forecast.col.registered')}
                           </th>
                           <th scope="col" className="cap-number">
-                            {t('cap.forecast.column.actual')}
+                            {t('cap.forecast.col.actual')}
                           </th>
                           <th scope="col" className="cap-number">
-                            {t('cap.forecast.column.difference')}
+                            {t('cap.forecast.col.difference')}
                           </th>
                         </tr>
                       </thead>

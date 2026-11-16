@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { percentOfText } from '../../../i18n/format';
 import type { Translator } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -44,12 +45,13 @@ function statusText(t: T, status: Status): string {
 }
 
 function createProblemText(t: T, problem: CreateProblem, figures: { consumption: string | undefined; warn: string | undefined; block: string | undefined }): string {
-  const pct = { consumption: figures.consumption ?? NONE, warn: figures.warn ?? NONE, block: figures.block ?? NONE };
+  const shown = (figure: string | undefined): string => (figure === undefined ? NONE : percentOfText(figure));
+  const pct = { consumption: shown(figures.consumption), warn: shown(figures.warn), block: shown(figures.block) };
   switch (problem) {
     case 'warn':
-      return t('cap.reservation.problem.warn', pct);
+      return t('cap.reservation.refusal.warn', pct);
     case 'blocked':
-      return t('cap.reservation.problem.blocked', pct);
+      return t('cap.reservation.refusal.blocked', pct);
     case 'yearLocked':
       return t('cap.reservation.problem.yearLocked');
     case 'scopeDenied':

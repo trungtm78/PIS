@@ -80,7 +80,6 @@ function PlanTrackingContent({ route }: ScreenProps) {
                   value: day.valid && typed !== '' ? typed : t('cap.tracking.ctx.today'),
                 },
               ]}
-              unit={t('cap.ctx.unit')}
             />
             <FilterPanel applied={typed === '' ? 0 : 1}>
               <div className="cap-filters">
@@ -183,7 +182,6 @@ function Tracking({ found, revision }: { found: PlanAsOf; revision: PlanSummary 
           code: found.planCode,
           revision: found.revision,
         })}
-        unit={t('cap.ctx.unit')}
       >
         <p data-testid="in-force">
           {t('cap.tracking.revision.label', {
