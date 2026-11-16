@@ -271,7 +271,7 @@ export function YearEditor({ row, source, canManage, lockedNotice, onOpenVersion
                 )}
               </div>
             </div>
-            <div>
+            <div className="cal-right">
               <SpecialDays values={values} year={row.year} editable={editable} problem={fieldError('holidays') ?? fieldError('compensated')} onChange={change} />
             </div>
           </div>

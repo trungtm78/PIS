@@ -271,6 +271,15 @@ button.cal-day {
   white-space: nowrap;
 }
 
+/* The form to add days stays in the right column; the table of the special days takes the whole width under both columns, so that the note and the basis are read whole and the remove button is never cut. */
+.cal-right {
+  display: contents;
+}
+
+.cal-special {
+  grid-column: 1 / -1;
+}
+
 .cal-special .ui-table th:nth-child(3) {
   width: 30%;
 }
