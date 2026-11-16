@@ -107,6 +107,9 @@ export function LegalBasisEditor({ subject, value, onChange, disabled, cell }: L
           return (
             <li key={index} className="pwfx-basis__item">
               <div className="pwfx-basis__fields">
+                {documents.length === 0 ? (
+                  <input type="text" autoComplete="off" maxLength={64} placeholder={t('pwfx.basis.document')} aria-label={label(t('pwfx.basis.document'))} value={one.document} disabled={disabled} onChange={(event) => onChange(editBasis(value, index, { document: event.target.value.toUpperCase() }))} />
+                ) : (
                 <select aria-label={label(t('pwfx.basis.document'))} value={documents.includes(one.document) ? one.document : one.document === '' ? '' : '~typed'} disabled={disabled} onChange={(event) => onChange(editBasis(value, index, { document: event.target.value === '~typed' ? one.document : event.target.value }))}>
                   <option value="">{t('pwfx.basis.pick')}</option>
                   {documents.map((code) => (
@@ -116,6 +119,7 @@ export function LegalBasisEditor({ subject, value, onChange, disabled, cell }: L
                   ))}
                   {one.document !== '' && !documents.includes(one.document) ? <option value="~typed">{one.document}</option> : null}
                 </select>
+                )}
                 <input type="text" autoComplete="off" maxLength={MAX_ARTICLE} placeholder={t('pwfx.basis.article')} aria-label={label(t('pwfx.basis.article'))} value={one.article ?? ''} disabled={disabled} onChange={(event) => onChange(editBasis(value, index, { article: event.target.value }))} />
                 <input type="text" autoComplete="off" maxLength={MAX_NOTE} placeholder={t('pwfx.basis.note')} aria-label={label(t('pwfx.basis.note'))} value={one.note ?? ''} disabled={disabled} onChange={(event) => onChange(editBasis(value, index, { note: event.target.value }))} />
               </div>

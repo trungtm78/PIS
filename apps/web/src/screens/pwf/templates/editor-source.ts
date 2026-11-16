@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
-import { DEFAULT_DAY, isRuleCode, isUuid, textParam } from '../../adm/governance/model';
+import { isRuleCode, isUuid, textParam } from '../../adm/governance/model';
 import type { Resolved, RuleVersion } from '../../adm/governance/model';
 import { useBuiltInDefault, useEffective, useRule, useVersions } from '../../adm/governance/hooks';
 import { TEMPLATE_RULE_TYPE } from '../model';
@@ -60,7 +60,6 @@ export function useEditorSource(enabled: boolean): EditorSource {
   const seedCode = (startKind === 'builtin' || startKind === 'clone') && startCode !== undefined && isRuleCode(startCode) ? startCode : undefined;
   const seedEffective = useEffective(TEMPLATE_RULE_TYPE, seedCode, undefined, enabled && startKind === 'clone' && seedCode !== undefined);
   const seedBuiltIn = useBuiltInDefault(TEMPLATE_RULE_TYPE, seedCode, enabled && startKind === 'builtin' && seedCode !== undefined);
-  void DEFAULT_DAY;
 
   const list = versions.data ?? [];
   const draft = fromId === undefined ? list.find((version) => version.status === 'DRAFT') : undefined;
@@ -76,7 +75,8 @@ export function useEditorSource(enabled: boolean): EditorSource {
     return startingTemplate();
   }, [startKind, seedParams, seedName, t]);
   const chosenTemplate = useMemo(() => (chosen === undefined ? undefined : readTemplate(chosen.params)), [chosen]);
-  const defaultTemplate = useMemo(() => (effective.data?.source === 'DEFAULT' ? readTemplate(effective.data.params) : undefined), [effective.data]);
+  // What governs the code when no version of the list is the one in force (the template that ships, or a rule whose version the list does not hold): shown as it is, read only.
+  const defaultTemplate = useMemo(() => (effective.data === null || effective.data === undefined ? undefined : readTemplate(effective.data.params)), [effective.data]);
 
   const loading = rule.isLoading || versions.isLoading || effective.isLoading || seedEffective.isLoading || seedBuiltIn.isLoading;
   const error = rule.error ?? versions.error ?? effective.error ?? seedEffective.error ?? seedBuiltIn.error;
@@ -94,6 +94,6 @@ export function useEditorSource(enabled: boolean): EditorSource {
   if (error !== null && error !== undefined) return base('error', `error:${fromId ?? code}`, { kind: 'new', start: 'blank' }, empty);
   if (fromId !== undefined && rule.data === null) return base('ready', `missing:${fromId}`, { kind: 'new', start: 'blank' }, fresh ?? empty, true);
   if (chosen !== undefined && chosenTemplate !== undefined) return base('ready', `rule:${chosen.id}:${chosen.resourceVersion}`, { kind: 'rule', version: chosen }, chosenTemplate);
-  if (defaultTemplate !== undefined) return base('ready', `default:${code}`, { kind: 'default', unverified: effectiveData?.unverified === true }, defaultTemplate);
+  if (defaultTemplate !== undefined) return base('ready', `default:${code}`, { kind: 'default', unverified: effectiveData?.unverified === true && effectiveData.source === 'DEFAULT' }, defaultTemplate);
   return base('missing', `missing:${code}`, { kind: 'new', start: 'blank' }, empty);
 }
