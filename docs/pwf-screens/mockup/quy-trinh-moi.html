@@ -60,12 +60,12 @@ tr.step:hover td{background:#fbfdfd}
 input[type=text],input[type=number],input[type=date],select{border:1px solid var(--border);border-radius:6px;padding:6px 8px;background:#fff;max-width:100%}
 input:focus,select:focus,button:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
 td.name input{width:190px;font-weight:600}
-td.unit{white-space:nowrap} td.unit select{width:122px;margin-bottom:2px;padding:6px 4px}
-td.dur{white-space:nowrap} td.dur input[type=number]{width:52px;text-align:right} td.dur select{width:122px;padding:6px 4px} td.dur .check{display:inline-flex;margin-right:8px}
+td.unit select{display:block;width:132px;margin-bottom:3px;padding:5px 4px}
+td.dur{white-space:nowrap} td.dur input[type=number]{width:52px;text-align:right} td.dur select{width:122px;padding:6px 4px} td.dur .check{display:flex;margin-top:3px}
 td.band{white-space:nowrap} td.band input{width:46px;text-align:center;font-weight:600;padding:6px 2px}
 td.band .r input{color:var(--red);border-color:#edc0b9} td.band .y input{color:#8a6400;border-color:#ecd89a} td.band .g input{color:var(--ok);border-color:#bfe0c9}
 td.band label{display:inline-flex;flex-direction:column;align-items:center;font-size:11px;color:var(--muted);margin-right:4px}
-td.num{color:var(--muted);width:34px;white-space:nowrap}
+td.num{color:var(--muted);width:34px;white-space:nowrap} td.anchor select{width:150px;padding:6px 4px}
 .move{border:0;background:none;cursor:pointer;color:var(--muted);padding:0 2px}
 .star{border:0;background:none;cursor:pointer;font-size:13px;color:var(--muted);padding:2px 0}
 .star.on{color:var(--warn);font-weight:600}
@@ -255,8 +255,8 @@ function render(){
    <td class="name"><input type="text" value="${s.name}" data-f="name" data-i="${i}" aria-label="Tên bước"><br><button class="star ${s.star?'on':''}" data-star="${i}">${s.star?'★ hạn chung của quy trình':'☆ đặt làm hạn chung'}</button></td>
    <td class="unit"><select data-f="unit" data-i="${i}" aria-label="Đơn vị">${UNITS.map((u,k)=>`<option value="${k}" ${k===s.unit?'selected':''}>${u}</option>`).join('')}</select>
      <select data-f="role" data-i="${i}" aria-label="Vai trò">${ROLES.map((u,k)=>`<option value="${k}" ${k===s.role?'selected':''}>${u}</option>`).join('')}</select><br><button class="link tiny">+ thêm đơn vị</button></td>
-   <td><select data-f="anchor" data-i="${i}" aria-label="Mốc tính"><option value="start" ${s.anchor==='start'?'selected':''}>Ngày bắt đầu dự án</option>${i>0?`<option value="prev" ${s.anchor==='prev'?'selected':''}>Khi bước ${i} xong</option>`:''}</select></td>
-   <td class="dur"><input type="number" min="1" value="${s.val}" data-f="val" data-i="${i}" aria-label="Thời hạn"> <select data-f="u" data-i="${i}" aria-label="Đơn vị thời hạn"><option value="wd" ${s.u==='wd'?'selected':''}>ngày làm việc</option><option value="cd" ${s.u==='cd'?'selected':''}>ngày</option><option value="mo" ${s.u==='mo'?'selected':''}>tháng</option></select><br>
+   <td class="anchor"><select data-f="anchor" data-i="${i}" aria-label="Mốc tính"><option value="start" ${s.anchor==='start'?'selected':''}>Ngày bắt đầu dự án</option>${i>0?`<option value="prev" ${s.anchor==='prev'?'selected':''}>Khi bước ${i} xong</option>`:''}</select></td>
+   <td class="dur"><input type="number" min="1" value="${s.val}" data-f="val" data-i="${i}" aria-label="Thời hạn"> <select data-f="u" data-i="${i}" aria-label="Đơn vị thời hạn"><option value="wd" ${s.u==='wd'?'selected':''}>ngày làm việc</option><option value="cd" ${s.u==='cd'?'selected':''}>ngày</option><option value="mo" ${s.u==='mo'?'selected':''}>tháng</option></select>
      <label class="check"><input type="checkbox" data-f="roll" data-i="${i}" ${s.roll?'checked':''}> dời sang ngày làm việc</label><label class="check"><input type="checkbox" data-f="ext" data-i="${i}" ${s.ext?'checked':''}> cho gia hạn</label></td>
    <td class="band"><label class="r">Đỏ<input type="number" min="0" value="${s.r}" data-f="r" data-i="${i}" aria-label="Ngưỡng đỏ"></label><label class="y">Vàng<input type="number" min="0" value="${s.y}" data-f="y" data-i="${i}" aria-label="Ngưỡng vàng"></label><label class="g">Xanh<input type="number" min="0" value="${s.g}" data-f="g" data-i="${i}" aria-label="Ngưỡng xanh"></label></td>
    <td class="basis"><input type="text" value="${s.basis}" placeholder="văn bản, điều, khoản" data-f="basis" data-i="${i}" aria-label="Căn cứ" style="width:150px"><br>${s.ok?'<span class="state yes">✓ đã đối chiếu văn bản gốc</span>':`<span class="state no">chưa đối chiếu</span> · <button class="link" data-verify="${i}">Đã đối chiếu</button>`}</td>
