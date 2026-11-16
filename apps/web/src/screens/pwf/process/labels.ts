@@ -78,7 +78,7 @@ export function selectionModeWord(t: T, mode: SelectionMode): string {
   }
 }
 
-export function choiceProblemText(t: T, problem: ChoiceProblem, facts = ''): string {
+export function choiceProblemText(t: T, problem: ChoiceProblem, facts = '', units = ''): string {
   switch (problem) {
     case 'suggestionUnavailable':
       return t('pwf.process.problem.suggestionUnavailable.text');
@@ -96,6 +96,14 @@ export function choiceProblemText(t: T, problem: ChoiceProblem, facts = ''): str
       return t('pwf.process.problem.factsRequired.text', { facts });
     case 'calendarMissing':
       return t('pwf.process.problem.calendarMissing.text');
+    case 'unitsRequired':
+      return t('pwfp.choose.problem.unitsRequired.text', { units });
+    case 'unitUnknown':
+      return t('pwfp.choose.problem.unitUnknown.text');
+    case 'effectiveRequired':
+      return t('pwfp.choose.problem.effectiveRequired.text');
+    case 'effectiveInvalid':
+      return t('pwfp.choose.problem.effectiveInvalid.text');
   }
 }
 

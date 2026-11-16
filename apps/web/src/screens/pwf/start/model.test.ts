@@ -1,29 +1,30 @@
 import { describe, expect, it } from 'vitest';
 import type { AdoptResult } from '../model';
 import { schedulePreview } from '../test/fixtures';
+import { EMPTY_CHOICE } from '../process/model';
+import type { ChoiceForm } from '../process/model';
+import { suggestion as suggestionFixture } from '../process/test/fixtures';
 import {
   adoptBody,
+  choiceOfProject,
   decisionsValid,
   dryRunKey,
   emptyDecision,
   emptyEvidence,
-  emptyForm,
   evidenceProblem,
-  factsOfProject,
   hasErrors,
   pendingDecisions,
   readiness,
-  startBody,
-  summarizeTemplate,
+  startBodyOf,
   templateCodes,
   treatmentCounts,
   treatmentsFor,
   validateDecision,
-  validateForm,
 } from './model';
-import type { Decision, Decisions, StartForm } from './model';
+import type { Decision, Decisions } from './model';
 
-const form = (over: Partial<StartForm> = {}): StartForm => ({ ...emptyForm('adopt'), templateCode: 'PUBLIC_INVESTMENT', plannedStart: '2026-01-05', effectiveDate: '2026-11-01', ...over });
+const form = (over: Partial<ChoiceForm> = {}): ChoiceForm => ({ ...EMPTY_CHOICE, templateCode: 'PUBLIC_INVESTMENT', plannedStart: '2026-01-05', effectiveDate: '2026-11-01', ...over });
+const rule = (units?: { refs: { unit_ref: string; unit_id: string | null; unit_name: string | null; source: 'PROJECT' | 'TEMPLATE' | 'CHOSEN' | 'NONE'; party_name: string | null }[]; unresolved: string[] }) => suggestionFixture({ suggested_template_code: 'PUBLIC_INVESTMENT', preview: { ...(units === undefined ? {} : { units }) } });
 const evidence = { ...emptyEvidence(), kind: 'DOCUMENT', documentId: '00000000-0000-4000-8000-000000000001' };
 const done = (over: Partial<Decision> = {}): Decision => ({ ...emptyDecision('DONE'), actualFinish: '2026-06-30', evidence: [evidence], ...over });
 
@@ -31,9 +32,9 @@ const result = (tasks: AdoptResult['tasks']): AdoptResult => ({ dry_run: true, a
 const adoptTask = (code: string, treatment: AdoptResult['tasks'][number]['treatment'], needs = false) => ({ task_code: code, name: code, treatment, planned_start: null, planned_finish: null, needs_decision: needs });
 
 describe('PWF-05 model: the form', () => {
-  it('prefills the facts the project holds and leaves the funding source to be typed', () => {
-    expect(factsOfProject({ projectGroup: 'B', projectType: { versionId: 'v', businessKey: 'CONSTRUCTION', label: 'Xây dựng' } })).toEqual({ project_group: 'B', funding_source: '', project_type: 'CONSTRUCTION' });
-    expect(factsOfProject({ projectGroup: null, projectType: null })).toEqual({ project_group: '', funding_source: '', project_type: '' });
+  it('starts from the group and the kind of project the project holds and leaves the source of capital to be chosen', () => {
+    expect(choiceOfProject({ projectGroup: 'B', projectType: { versionId: 'v', businessKey: 'CONSTRUCTION', label: 'Xây dựng' } })).toMatchObject({ projectGroup: 'B', fundingSource: '', projectType: 'CONSTRUCTION' });
+    expect(choiceOfProject({ projectGroup: null, projectType: null })).toMatchObject({ projectGroup: '', projectType: '' });
   });
 
   it('lists only the template codes that govern something today', () => {
@@ -42,19 +43,18 @@ describe('PWF-05 model: the form', () => {
     expect(templateCodes(undefined)).toEqual([]);
   });
 
-  it('asks for a template and a start day, and for an effective day only when adopting', () => {
-    expect(validateForm(emptyForm('start'))).toEqual({ templateCode: 'pickOne', plannedStart: 'required' });
-    expect(validateForm(emptyForm('adopt'))).toEqual({ templateCode: 'pickOne', plannedStart: 'required', effectiveDate: 'required' });
-    expect(validateForm(form())).toEqual({});
-    expect(validateForm(form({ plannedStart: '2026-02-30', effectiveDate: 'x' }))).toEqual({ plannedStart: 'invalidDay', effectiveDate: 'invalidDay' });
-    expect(validateForm(form({ facts: { project_group: 'x'.repeat(81), funding_source: '', project_type: '' } }))).toEqual({ project_group: 'tooLong' });
+  it('counts a list of errors', () => {
     expect(hasErrors({})).toBe(false);
     expect(hasErrors({ a: 1 })).toBe(true);
   });
 
-  it('sends only the facts that were given', () => {
-    expect(startBody(form({ mode: 'start', templateCode: ' P ', plannedStart: ' 2026-01-05 ' }))).toEqual({ template_code: 'P', planned_start_date: '2026-01-05' });
-    expect(startBody(form({ facts: { project_group: 'B', funding_source: '', project_type: '' } }))).toEqual({ template_code: 'PUBLIC_INVESTMENT', planned_start_date: '2026-01-05', facts: { project_group: 'B' } });
+  it('sends only what was given: the template when chosen, the facts, the reason of an override and the units chosen for what the project could not name', () => {
+    expect(startBodyOf(form({ templateCode: ' P ', plannedStart: ' 2026-01-05 ' }), undefined)).toEqual({ template_code: 'P', planned_start_date: '2026-01-05' });
+    expect(startBodyOf(form({ projectGroup: 'B', projectType: 'CONSTRUCTION' }), undefined)).toEqual({ template_code: 'PUBLIC_INVESTMENT', planned_start_date: '2026-01-05', facts: { project_group: 'B', project_type: 'CONSTRUCTION' } });
+    const asked = rule({ refs: [{ unit_ref: 'PROJECT_OWNER', unit_id: 'u0', unit_name: 'Sở', source: 'PROJECT', party_name: null }, { unit_ref: 'PROJECT_PARTY:APPRAISER', unit_id: null, unit_name: null, source: 'NONE', party_name: 'Đơn vị thẩm định' }], unresolved: ['PROJECT_PARTY:APPRAISER'] });
+    // Only a ref the server listed as unresolved is sent; a unit chosen for anything else (or left empty) is not.
+    expect(startBodyOf(form({ units: { 'PROJECT_PARTY:APPRAISER': 'u9', PROJECT_OWNER: 'u1', 'PROJECT_PARTY:OLD': 'u2' } }), asked)).toMatchObject({ units: { 'PROJECT_PARTY:APPRAISER': 'u9' } });
+    expect('units' in startBodyOf(form({ units: { 'PROJECT_PARTY:APPRAISER': ' ' } }), asked)).toBe(false);
   });
 });
 
@@ -92,7 +92,7 @@ describe('PWF-05 model: the adoption payload', () => {
       D: { ...emptyDecision('IN_PROGRESS'), actualStart: '2026-10-02', remaining: '0' },
       E: emptyDecision('TRACKED'),
     };
-    expect(adoptBody(form({ facts: { project_group: 'B', funding_source: '', project_type: '' } }), decisions, true)).toEqual({
+    expect(adoptBody(form({ projectGroup: 'B' }), undefined, decisions, true)).toEqual({
       template_code: 'PUBLIC_INVESTMENT',
       planned_start_date: '2026-01-05',
       effective_date: '2026-11-01',
@@ -107,12 +107,12 @@ describe('PWF-05 model: the adoption payload', () => {
         { task_code: 'D', actual_start: '2026-10-02', remaining_working_days: 0 },
       ],
     });
-    expect(adoptBody(form(), {}, false)).toEqual({ template_code: 'PUBLIC_INVESTMENT', planned_start_date: '2026-01-05', effective_date: '2026-11-01', dry_run: false });
+    expect(adoptBody(form(), undefined, {}, false)).toEqual({ template_code: 'PUBLIC_INVESTMENT', planned_start_date: '2026-01-05', effective_date: '2026-11-01', dry_run: false });
   });
 
   it('keys a dry run by the form it was run for', () => {
-    expect(dryRunKey(form(), {})).toBe(dryRunKey(form(), {}));
-    expect(dryRunKey(form(), {})).not.toBe(dryRunKey(form({ effectiveDate: '2026-11-02' }), {}));
+    expect(dryRunKey(form(), undefined, {})).toBe(dryRunKey(form(), undefined, {}));
+    expect(dryRunKey(form(), undefined, {})).not.toBe(dryRunKey(form({ effectiveDate: '2026-11-02' }), undefined, {}));
   });
 });
 
@@ -139,12 +139,5 @@ describe('PWF-05 model: reading a dry run', () => {
     expect(readiness(run, 'old', 'k', {})).toBe('stale');
     expect(readiness(run, 'k', 'k', {})).toBe('pending');
     expect(readiness(result([adoptTask('C', 'TRACKED')]), 'k', 'k', {})).toBe('ready');
-  });
-});
-
-describe('PWF-05 model: the summary of a template', () => {
-  it('reads the name, the project type and the size of the params, and tolerates what is not there', () => {
-    expect(summarizeTemplate({ name: 'Mẫu', project_type: 'CONSTRUCTION', phases: [1, 2], tasks: [1, 2, 3] })).toEqual({ name: 'Mẫu', projectType: 'CONSTRUCTION', phases: 2, tasks: 3 });
-    expect(summarizeTemplate({})).toEqual({ name: '', projectType: null, phases: 0, tasks: 0 });
   });
 });

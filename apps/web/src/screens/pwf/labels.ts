@@ -208,6 +208,29 @@ export function problemText(t: T, problem: Problem): string {
       return t('pwf.problem.bandThresholds.error');
     case 'bandUnit':
       return t('pwf.problem.bandUnit.error');
+    case 'claimNotEligible':
+      return problem.reason === 'ROLE_NOT_HELD' ? t('pwfp.problem.claimRole.error') : t('pwfp.problem.claimMember.error');
+    case 'alreadyClaimed':
+      return t('pwfp.problem.claimed.error');
+    case 'unitUnresolved':
+      return t('pwfp.problem.unitUnresolved.error', { refs: (problem.unitRefs ?? []).join(', ') });
+    case 'unitOverrideDenied':
+      return t('pwfp.problem.unitOverride.error', { refs: (problem.unitRefs ?? []).join(', ') });
+    case 'unitUnknown':
+      return t('pwfp.problem.unitUnknown.error', { refs: (problem.unitRefs ?? []).join(', ') });
+    case 'extensionNotAllowed':
+      return t('pwfp.problem.extNotAllowed.error', { task: problem.taskCode ?? '' });
+    case 'extensionLimit':
+    case 'extensionRefused':
+      return problem.limit === 'VALUE'
+        ? t('pwfp.problem.extValue.error', { task: problem.taskCode ?? '', used: problem.used ?? 0, max: problem.max ?? 0, asked: problem.asked ?? 0 })
+        : problem.limit === 'TIMES'
+          ? t('pwfp.problem.extTimes.error', { task: problem.taskCode ?? '', used: problem.used ?? 0, max: problem.max ?? 0 })
+          : t('pwfp.problem.extRefused.error', { task: problem.taskCode ?? '' });
+    case 'extensionTaskClosed':
+      return t('pwfp.problem.extClosed.error', { task: problem.taskCode ?? '' });
+    case 'extensionRequired':
+      return t('pwfp.problem.extRequired.error', { task: problem.taskCode ?? '' });
     case 'validation':
       return problem.field === undefined ? t('pwf.problem.validation.error') : t('pwf.problem.validationField.error', { field: problem.field });
     case 'notFound':

@@ -13,6 +13,7 @@ afterEach(() => cleanup());
 
 const ID = '00000000-0000-4000-8000-000000000c01';
 const PWF_KINDS = ['PWF_TASK_DUE_SOON', 'PWF_TASK_OVERDUE', 'PWF_MILESTONE_AT_RISK'];
+const REDESIGN_KINDS = ['PWF_TASK_UNCLAIMED', 'PWF_OVERALL_DEADLINE_AT_RISK'];
 
 function Label({ source }: { source: string }) {
   const { t } = useTranslation();
@@ -37,7 +38,7 @@ describe('the tasks of a project workflow in the alert centre of the web', () =>
       expect(schema?.properties?.source?.enum, operation).toContain('PROJECT_TASK');
     }
     expect([...WORK_KINDS].sort()).toEqual([...kernelKinds()].sort());
-    expect(WORK_KINDS).toEqual(expect.arrayContaining(PWF_KINDS));
+    expect(WORK_KINDS).toEqual(expect.arrayContaining([...PWF_KINDS, ...REDESIGN_KINDS]));
   });
 
   it('keeps an item of each kind with its target instead of dropping it as unknown', () => {
@@ -58,5 +59,22 @@ describe('the tasks of a project workflow in the alert centre of the web', () =>
     render(<Label source="PROJECT_TASK" />);
     expect(screen.getByTestId('label').textContent).not.toBe('PROJECT_TASK');
     expect(screen.getByTestId('label').textContent).not.toBe('');
+  });
+});
+
+/** The redesign of the project workflow: a task nobody took, and the deadline of the whole file at risk. */
+describe('the task nobody took and the deadline of the whole file in the work list', () => {
+  const item = (kind: string, id: string, screen: string, target: string) => ({ id, kind, title: kind, subtitle: null, status: 'WATCH', due_on: '2027-10-15', original_due_on: '2027-10-15', bucket: 'NEAR', days_late: 0, target: { screen, id: target } });
+
+  it('keeps an item of each kind instead of dropping it as unknown', () => {
+    const page = toWorkPage({ items: [item('PWF_TASK_UNCLAIMED', `${ID}:unclaimed`, 'PWF-04', ID), item('PWF_OVERALL_DEADLINE_AT_RISK', `${ID}:overall`, 'PWF-03', ID)], counts: {} });
+    expect(page.items.map((one) => one.kind)).toEqual(REDESIGN_KINDS);
+  });
+
+  it('opens the task where it is taken, and the workflow of the project where the deadline of the file is, on screens that exist', () => {
+    expect(pathOf({ target: { screen: 'PWF-04', id: ID } })).toBe(`/pwf/pwf-04?id=${ID}`);
+    expect(pathOf({ target: { screen: 'PWF-03', id: ID } })).toBe(`/pwf/pwf-03?id=${ID}`);
+    expect(pathOfAlert({ target: { screen: 'PWF-03', id: ID } })).toBe(`/pwf/pwf-03?id=${ID}`);
+    expect(WEB_ROUTES.some((route) => route.id === 'PWF-03')).toBe(true);
   });
 });

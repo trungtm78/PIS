@@ -1,0 +1,95 @@
+/* The shared small cells of the workflow screens (task-cells.tsx): unit and holder, deadline, the dot of the official colour, what blocks a row. Tokens only. */
+.pwfp-unit {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.pwfp-unit__line {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+}
+.pwfp-unit__name {
+  font-weight: 600;
+}
+.pwfp-unit__who {
+  overflow-wrap: anywhere;
+}
+.pwfp-due {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+.pwfp-due__day {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.pwfp-star {
+  color: var(--mv-color-warning);
+  font-size: 12px;
+  font-weight: 600;
+}
+.pwfp-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--mv-color-text-secondary);
+  /* The ring keeps the dot visible on a tinted row and in high contrast. */
+  box-shadow: 0 0 0 2px var(--mv-color-surface, transparent);
+}
+.pwfp-dot[data-band='RED'] {
+  background: var(--mv-color-danger);
+}
+.pwfp-dot[data-band='YELLOW'] {
+  background: var(--mv-color-warning);
+}
+.pwfp-dot[data-band='GREEN'] {
+  background: var(--mv-color-success);
+}
+.pwfp-remaining {
+  display: inline-flex;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+.pwfp-remaining__text strong {
+  white-space: nowrap;
+}
+.pwfp-remaining .pwfp-dot {
+  margin-top: 5px;
+}
+.pwfp-remaining__text {
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.pwfp-remaining[data-band='RED'] strong {
+  color: var(--mv-color-danger);
+}
+.pwfp-remaining[data-band='YELLOW'] strong {
+  color: var(--mv-color-warning);
+}
+.pwfp-remaining[data-band='GREEN'] strong {
+  color: var(--mv-color-success);
+}
+.pwfp-blocked {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+}
+
+/* PWF-06: the heads of the groups of changes (extended, moved behind another, other). */
+.pwf-resched__group th {
+  background: var(--mv-color-surface2);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--mv-color-border);
+}

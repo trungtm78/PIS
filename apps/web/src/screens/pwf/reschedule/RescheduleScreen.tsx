@@ -17,7 +17,7 @@ import { ChangesView } from './ChangesView';
 import { DecisionPanel } from './DecisionPanel';
 import { ProposalForm } from './ProposalForm';
 import { useDecide, useProposal, usePropose, useSchedule, useWorkflow } from './hooks';
-import { decisionBody, emptyForm, hasFormErrors, heldFromAddress, heldFromPreview, heldFromWorkflow, isOpenProposal, proposeBody, validateForm } from './model';
+import { decisionBody, extendableSteps, formFor, hasFormErrors, heldFromAddress, heldFromPreview, heldFromWorkflow, isOpenProposal, proposeBody, validateForm } from './model';
 import type { DecisionBody, HeldProposal, RescheduleForm } from './model';
 import '../pwf.css';
 import '../start/start.css';
@@ -97,7 +97,9 @@ function ReschedulePanel({ projectId, workflow, schedule }: PanelProps) {
   const propose = usePropose(projectId);
   const decide = useDecide();
 
-  const [form, setForm] = useState<RescheduleForm>(emptyForm);
+  const steps = extendableSteps(workflow);
+  // A step named in the address (the button "Xin gia hạn" of a row) opens the request with that step ready.
+  const [form, setForm] = useState<RescheduleForm>(() => formFor(params.get('extend'), steps));
   const [attempted, setAttempted] = useState(false);
   const [held, setHeld] = useState<HeldProposal | undefined>(() => heldFromAddress(params) ?? heldFromWorkflow(workflow));
   // A proposal named in the address is read from the server: its changes, reason and status come before the decision.
@@ -109,7 +111,7 @@ function ReschedulePanel({ projectId, workflow, schedule }: PanelProps) {
   const [problem, setProblem] = useState<Problem | undefined>(undefined);
   const [decided, setDecided] = useState<DecisionBody['decision'] | undefined>(undefined);
 
-  const errors = attempted ? validateForm(form) : { fields: {}, rows: {} };
+  const errors = attempted ? validateForm(form) : { fields: {}, rows: {}, extensions: {} };
   const years = missingYears(schedule.tasks);
   const version = t('pwf.resched.info.scheduleVersion.text', { version: workflow.schedule_version });
 
@@ -163,7 +165,7 @@ function ReschedulePanel({ projectId, workflow, schedule }: PanelProps) {
       {problem === undefined ? null : <ProblemBanner problem={problem} onReload={readNewer} />}
 
       {canPropose ? (
-        <ProposalForm form={form} errors={errors} pending={propose.isPending} disabled={!workflow.can_propose_reschedule} onChange={setForm} onSubmit={() => void submit()} />
+        <ProposalForm form={form} errors={errors} pending={propose.isPending} disabled={!workflow.can_propose_reschedule} onChange={setForm} onSubmit={() => void submit()} steps={steps} refusal={problem} />
       ) : null}
       {canPropose && !workflow.can_propose_reschedule ? (
         <p className="callout warning" role="status" data-testid="cannot-propose">

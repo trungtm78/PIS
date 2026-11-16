@@ -58,6 +58,12 @@ export function useReturnTask() {
   return usePwfCommand<VersionedInput<Schemas['PwfReturnInput']>>((input, attempt) => client.command('returnProjectTask', { path: { task_id: input.id }, body: input.body, ifMatchVersion: input.version, attempt }));
 }
 
+/** "Nhận việc" (R71): the person who belongs to the receiving unit and holds the role takes the task; one transaction on the server, never an overwrite. */
+export function useClaimTask() {
+  const client = useApiClient();
+  return usePwfCommand<{ id: string; body?: Schemas['PwfTaskClaim'] }>((input, attempt) => client.command('claimProjectTask', { path: { task_id: input.id }, body: input.body ?? {}, attempt }));
+}
+
 export function useResumeTask() {
   const client = useApiClient();
   return usePwfCommand<{ id: string; version: number }>((input, attempt) => client.command('resumeProjectTask', { path: { task_id: input.id }, ifMatchVersion: input.version, attempt }));

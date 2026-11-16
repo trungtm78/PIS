@@ -8,13 +8,16 @@ import { holds } from '../../session/holds';
 import { useSession } from '../../session/SessionContext';
 import { SectionCard, StickyActions } from '../../ui';
 import { useWorkflowSuggestion } from '../pwf/process/hooks';
-import { EMPTY_CHOICE, registrationBlockers, startsWorkflow, suggestionQuery, workflowBodyOf } from '../pwf/process/model';
+import { useUnitTree } from '../pwf/chooser/hooks';
+import { ProcessChooser } from '../pwf/chooser/ProcessChooser';
+import type { ChooserStep } from '../pwf/chooser/ProcessChooser';
+import { EMPTY_CHOICE, STEP_OF_PROBLEM, registrationBlockers, startsWorkflow, suggestionQuery, workflowBodyOf } from '../pwf/process/model';
 import type { ChoiceForm } from '../pwf/process/model';
-import { ProcessKindSection } from '../pwf/process/ProcessKindSection';
 import { workflowLink } from '../pwf/model';
 import { BackLink, ProjectFormFields, SuggestionPanel } from './components';
 import { useCreateProject, useMasterOptions, useProject, useUnits } from './hooks';
 import { problemMessage } from './labels';
+import { describeProblem as describeWorkflowProblem } from '../pwf/model';
 import { AREA_TYPES, CREATE_PERMISSION, EMPTY_FORM, LIST_PATH, PROGRAM_TYPES, PROJECT_TYPE_TYPES, SECTOR_TYPES, createBody, describeProblem, validateForm, workspaceLink } from './model';
 import type { ProjectField, ProjectForm } from './model';
 import './prj.css';
@@ -49,12 +52,15 @@ function ProjectCreateContent({ route }: ScreenProps) {
   const seesKinds = edition.manifest.edition === 'public' && holds(permissions, 'pwf.read');
   const [choice, setChoice] = useState<ChoiceForm>(EMPTY_CHOICE);
   const [choiceChecked, setChoiceChecked] = useState(false);
+  const [chooserStep, setChooserStep] = useState<ChooserStep>(1);
   const [withWorkflow, setWithWorkflow] = useState(false);
   const [saving, setSaving] = useState(false);
   // The last save asked the rule for the form as it stood and got no answer.
   const [unread, setUnread] = useState(false);
   const suggestion = useWorkflowSuggestion(suggestionQuery({ ownerUnitId: form.ownerUnitId, projectTypeVersionId: form.projectTypeVersionId }, choice), seesKinds && form.ownerUnitId !== '' && createdId === undefined);
+  const unitTree = useUnitTree(seesKinds && createdId === undefined);
   const problem = create.isError ? describeProblem(create.error) : undefined;
+  const workflowProblem = create.isError ? describeWorkflowProblem(create.error) : undefined;
 
   const setField = (field: ProjectField, value: string): void => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -81,7 +87,12 @@ function ProjectCreateContent({ route }: ScreenProps) {
         setSaving(false);
       }
       setUnread(answer === undefined);
-      if (registrationBlockers(choice, answer).length > 0) return;
+      const blockers = registrationBlockers(choice, answer);
+      if (blockers.length > 0) {
+        // The step that holds the first thing to put right is the one that opens.
+        setChooserStep(Math.min(...blockers.map((one) => STEP_OF_PROBLEM[one])) as ChooserStep);
+        return;
+      }
     }
     const starting = seesKinds && answer?.can_start === true && choice.plannedStart.trim() !== '';
     // The investor is the owner unit unless another one is chosen.
@@ -134,7 +145,10 @@ function ProjectCreateContent({ route }: ScreenProps) {
               disabled={!canCreate || saving || createdId !== undefined}
             />
             {seesKinds ? (
-              <ProcessKindSection
+              <ProcessChooser
+                mode="register"
+                step={chooserStep}
+                onStep={setChooserStep}
                 form={choice}
                 onChange={(patch) => {
                   setUnread(false);
@@ -145,9 +159,13 @@ function ProjectCreateContent({ route }: ScreenProps) {
                 loading={suggestion.isLoading}
                 failed={suggestion.isError}
                 onRetry={() => void suggestion.refetch()}
+                units={unitTree.data ?? []}
+                unitsFailed={unitTree.isError}
                 disabled={!canCreate || saving || createdId !== undefined || form.ownerUnitId === ''}
                 showProblems={choiceChecked}
                 withoutStart={t('pwf.process.kind.start.registerHint')}
+                refusal={workflowProblem}
+                confirm={<p className="pwf-hint">{t('pwfp.choose.confirm.register.text')}</p>}
               />
             ) : null}
             <StickyActions

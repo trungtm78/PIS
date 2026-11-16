@@ -47,8 +47,11 @@ const open = (setup: Setup = {}) => {
 };
 
 const ready = async () => screen.findByTestId('task-facts');
-/** Opens a tab of the task (`?view=`). */
-const tab = (id: string) => fireEvent.click(screen.getByTestId(`task-tab-${id}`));
+/** Opens a block of the task (the deadline, the legal grounds, the exceptions, the history, the KPI): one click on its line, and it stays open. */
+const tab = (id: string) => {
+  const block = screen.getByTestId(`block-${id}`) as HTMLDetailsElement;
+  if (!block.open) fireEvent.click(block.querySelector('summary') as HTMLElement);
+};
 const dialog = async () => within(await screen.findByRole('dialog'));
 const press = (action: string) => fireEvent.click(document.querySelector(`[data-action="${action}"]`) as HTMLElement);
 const change = (testId: string, value: string) => fireEvent.change(screen.getByTestId(testId), { target: { value } });
@@ -100,7 +103,7 @@ describe('PWF-04: the head of the task', () => {
     await ready();
     expect(screen.queryByText(text('pwf.band.yellow.word'))).toBeNull();
     expect(screen.getByTestId('task-facts').textContent).toContain(text('pwf.task.approver.none'));
-    expect(screen.getByTestId('task-facts').textContent).toContain(text('pwf.task.assignee.none'));
+    expect(screen.getByTestId('task-doer').textContent).toContain('–');
   });
 
   it('lists the predecessors with the kind of link and the lag, or says there are none', async () => {
@@ -116,28 +119,32 @@ describe('PWF-04: the head of the task', () => {
   });
 });
 
-describe('PWF-04: one purpose a tab', () => {
-  it('keeps the head above the tabs, opens on what there is to do, counts what is open, and keeps the tab in the address', async () => {
+describe('PWF-04: one column, then closed blocks', () => {
+  it('keeps the head above one column of what is left to do, counts what is open, and keeps the other blocks closed until they are asked for', async () => {
     const h = open();
     await ready();
-    expect(screen.getAllByRole('tab').map((one) => one.getAttribute('data-testid'))).toEqual(['todo', 'legal', 'schedule', 'exceptions', 'history', 'kpi'].map((id) => `task-tab-${id}`));
-    // The results of the KPI are read when their tab is opened, not with every task.
-    expect(h.read).not.toHaveBeenCalledWith('listTaskKpiResults', expect.anything());
-    expect(screen.getByTestId('task-tab-todo').getAttribute('aria-selected')).toBe('true');
-    expect(screen.getByTestId('task-tab-todo').textContent).toContain('1');
+    expect(screen.queryAllByRole('tab')).toEqual([]);
+    expect(screen.getByRole('heading', { level: 2, name: new RegExp(text('pwft.todo.title')) }).textContent).toContain('1');
     expect(screen.getByTestId('task-head')).toBeTruthy();
-    expect(screen.getByTestId('task-panel-history').hasAttribute('hidden')).toBe(true);
+    // The checklist, the documents and the evidence are the column itself.
+    const todo = screen.getByTestId('task-todo');
+    expect(todo.querySelector('[data-testid="checklist"]') ?? todo.textContent).toBeTruthy();
+    for (const id of ['schedule', 'legal', 'exceptions', 'history', 'kpi']) expect((screen.getByTestId(`block-${id}`) as HTMLDetailsElement).open).toBe(false);
+    // The results of the KPI are read when its block is opened, not with every task.
+    expect(h.read).not.toHaveBeenCalledWith('listTaskKpiResults', expect.anything());
     tab('history');
-    expect(screen.getByTestId('task-panel-history').hasAttribute('hidden')).toBe(false);
-    expect(screen.getByTestId('task-panel-todo').hasAttribute('hidden')).toBe(true);
-    expect((screen.getByTestId('history') as HTMLDetailsElement).open).toBe(true);
+    expect((screen.getByTestId('block-history') as HTMLDetailsElement).open).toBe(true);
+    expect(screen.getByTestId('history')).toBeTruthy();
+    tab('history');
+    fireEvent.click(screen.getByTestId('block-history').querySelector('summary') as HTMLElement);
+    expect((screen.getByTestId('block-history') as HTMLDetailsElement).open).toBe(false);
   });
 
-  it('keeps the KPI tab for a person who may not see the KPI of the task, and says the scope is hidden instead of leaving the tab out', async () => {
+  it('keeps the KPI block for a person who may not see the KPI of the task, and says the scope is hidden instead of leaving it out', async () => {
     // The detail of a task does not carry its KPI results: only the refusal of their own read (403) says the person may not see them.
     const h = open({ kpi: refusal('SCOPE_DENIED', 403) });
     await ready();
-    // design.md, the state "denied": say the scope is hidden, leak no names. A tab that silently disappears reads as "this task has no KPI".
+    // design.md, the state "denied": say the scope is hidden, leak no names. A block that silently disappears reads as "this task has no KPI".
     tab('kpi');
     const denied = await screen.findByTestId('kpi-denied');
     expect(h.read).toHaveBeenCalledWith('listTaskKpiResults', { path: { task_id: TASK }, query: { limit: 100 } });
@@ -146,6 +153,13 @@ describe('PWF-04: one purpose a tab', () => {
     expect(denied.textContent).toContain(text('fix8.task.kpi.denied.body'));
     expect(screen.queryByTestId('kpi')).toBeNull();
     expect(denied.querySelector('table')).toBeNull();
+  });
+
+  it('has no tabs, no view in the address and no old layout left', async () => {
+    open();
+    await ready();
+    expect(document.querySelector('[data-testid^="task-tab-"], [data-testid^="task-panel-"]')).toBeNull();
+    expect(document.querySelector('[data-testid="task-sticky"] [data-testid="completion-check"]')).toBeNull();
   });
 
   it('keeps the summary of the task (name, state, colour, deadline, actions) in a head that sticks while the page scrolls, with the facts below it', async () => {
@@ -619,5 +633,99 @@ describe('PWF-04: ledger, history and KPI', () => {
     const before = (h.read as ReturnType<typeof vi.fn>).mock.calls.filter(([operation]) => operation === 'listTaskKpiResults').length;
     fireEvent.click(within(failed).getByRole('button', { name: text('ui.common.retry') }));
     await waitFor(() => expect((h.read as ReturnType<typeof vi.fn>).mock.calls.filter(([operation]) => operation === 'listTaskKpiResults').length).toBeGreaterThan(before));
+  });
+});
+
+const unitLine = (n: number, name: string, part: 'LEAD' | 'SUPPORT' = 'LEAD') => ({ unit_ref: `UNIT:${n}`, unit_id: uuid(n), unit_name: name, role: 'PROJECT_MANAGER', part });
+const claimable = (over: Partial<TaskDetail> = {}) => detail({ status: 'NOT_STARTED', assignee: null, unclaimed: true, can_claim: true, receiving_unit_id: uuid(7), receiving_unit_name: 'UBND tỉnh', receiving_units: [unitLine(7, 'UBND tỉnh'), unitLine(8, 'Sở Tài chính', 'SUPPORT')], ...over });
+
+describe('PWF-04: the receiving unit and the claim (R71)', () => {
+  it('says which unit receives the task, that nobody has taken it, and who supports it', async () => {
+    open({ task: claimable() });
+    await ready();
+    const doer = screen.getByTestId('task-doer');
+    expect(doer.textContent).toContain('UBND tỉnh');
+    expect(within(doer).getByTestId('cell-unclaimed').textContent).toContain(text('pwfp.cell.unclaimed.word'));
+    expect(doer.textContent).toContain(text('pwfp.cell.support.text', { units: 'Sở Tài chính' }));
+  });
+
+  it('offers "Nhận việc" in the bar of actions only when the server says the reader can take it, and takes it with one command', async () => {
+    const h = open({ task: claimable(), commands: { claimProjectTask: { resource_id: uuid(9), status: 'CLAIMED' } } });
+    await ready();
+    const bar = screen.getByTestId('task-actions');
+    expect(within(bar).getByRole('button', { name: text('pwfp.row.claim.action') })).toBeTruthy();
+    press('claim');
+    await waitFor(() => expect(h.command).toHaveBeenCalledWith('claimProjectTask', expect.objectContaining({ path: { task_id: TASK }, body: {} })));
+    cleanup();
+    open({ task: claimable({ can_claim: false }) });
+    await ready();
+    expect(document.querySelector('[data-action="claim"]')).toBeNull();
+    cleanup();
+    open({ task: claimable(), readOnly: true });
+    await ready();
+    expect(document.querySelector('[data-action="claim"]')).toBeNull();
+  });
+
+  it.each([
+    ['PWF_CLAIM_NOT_ELIGIBLE', 403, { reason: 'NOT_MEMBER' }, 'pwfp.problem.claimMember.error'],
+    ['PWF_CLAIM_NOT_ELIGIBLE', 403, { reason: 'ROLE_NOT_HELD' }, 'pwfp.problem.claimRole.error'],
+    ['PWF_TASK_ALREADY_CLAIMED', 409, {}, 'pwfp.problem.claimed.error'],
+    ['PWF_TASK_STATE_INVALID', 409, { reason: 'STATUS' }, 'pwf.problem.taskState.error'],
+    ['RESOURCE_NOT_FOUND', 404, {}, 'pwf.problem.notFound.error'],
+  ])('says the refusal %s of the claim in words', async (code, status, extensions, key) => {
+    const h = open({ task: claimable(), commands: { claimProjectTask: refusal(code, status, extensions) } });
+    await ready();
+    press('claim');
+    expect((await screen.findByTestId('problem')).textContent).toContain(text(key));
+    if (code === 'PWF_TASK_ALREADY_CLAIMED') await waitFor(() => expect(h.read.mock.calls.filter((call) => call[0] === 'getProjectTask').length).toBeGreaterThan(1));
+  });
+});
+
+describe('PWF-04: the extension of the task (R72)', () => {
+  const rule = { allowed: true, max_times: 1, max_value: 10, unit: 'WORKING_DAY' as const, times_used: 0, value_used: 3 };
+
+  it('shows how much of the extension is used and offers the request, naming the task, to who may propose a change of the schedule', async () => {
+    open({ task: detail({ extension: rule }) });
+    await ready();
+    expect(within(screen.getByTestId('task-facts')).getByTestId('cell-extension').textContent).toBe(text('pwfp.cell.extension.used.text', { times: '0/1 lần', value: '3/10 ngày làm việc' }));
+    const link = within(screen.getByTestId('extension-offer')).getByRole('link', { name: text('pwfp.row.extend.action') });
+    expect(link.getAttribute('href')).toBe(`/pwf/pwf-06?id=${PROJECT}&extend=T2`);
+  });
+
+  it('says there is no extension left when a limit is reached, and offers none for a step that may not be extended or when the project is not known', async () => {
+    open({ task: detail({ extension: { ...rule, times_used: 1 } }) });
+    await ready();
+    expect(within(screen.getByTestId('extension-offer')).getByText(text('pwfp.row.extend.capped.text'))).toBeTruthy();
+    expect(document.querySelector('[data-action="extend"]')).toBeNull();
+    cleanup();
+    open({ task: detail({ extension: { ...rule, allowed: false } }) });
+    await ready();
+    expect(screen.queryByTestId('extension-offer')).toBeNull();
+    cleanup();
+    open({ task: detail({ extension: rule }), path: `/pwf/pwf-04?id=${TASK}` });
+    await ready();
+    expect(screen.queryByTestId('extension-offer')).toBeNull();
+  });
+});
+
+describe('PWF-04: the official colour', () => {
+  it('shows the colour of the server with the "i" of the tier that judged it', async () => {
+    open({ task: detail({ band_tier: 'POLICY', band_thresholds: { green_days: 5, yellow_days: 2, red_days: 0 } }) });
+    await ready();
+    const pills = screen.getByTestId('task-pills');
+    expect(within(pills).getByTestId('cell-remaining').getAttribute('data-band')).toBe('YELLOW');
+    fireEvent.click(within(pills).getByRole('button', { name: /Công thức và nguồn của/ }));
+    expect(screen.getByRole('dialog').textContent).toContain(text('pwfp.cell.tier.policy.text'));
+  });
+});
+
+describe('PWF-04: the bar of actions', () => {
+  it('keeps the actions in a bar of their own that stays at the foot of the window, apart from the head', async () => {
+    open({ task: detail({ can_complete: true }) });
+    await ready();
+    const bar = screen.getByTestId('task-actions');
+    expect(bar.className).toContain('pwft-bar');
+    expect(screen.getByTestId('task-sticky').contains(bar)).toBe(false);
+    expect(within(bar).getByTestId('completion-check')).toBeTruthy();
   });
 });

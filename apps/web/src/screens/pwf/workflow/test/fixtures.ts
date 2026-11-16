@@ -77,14 +77,19 @@ export interface Setup {
   tasks?: Answer;
   gate?: Answer;
   project?: Answer;
+  /** The answers of the commands of the screen (a refusal is an `ApiError` returned). */
+  commands?: Record<string, Answer>;
 }
 
 /** A client over the reads of the screen. */
 export const open = (setup: Setup = {}) =>
-  serve({
-    getProjectWorkflow: setup.workflow ?? (() => detail()),
-    getProjectSchedule: setup.schedule ?? (() => schedule()),
-    listProjectTasks: setup.tasks ?? taskList,
-    evaluateProjectGate: setup.gate ?? gate,
-    get_resources_project_id: setup.project ?? { ...projectDetail(1), id: PROJECT_ID },
-  });
+  serve(
+    {
+      getProjectWorkflow: setup.workflow ?? (() => detail()),
+      getProjectSchedule: setup.schedule ?? (() => schedule()),
+      listProjectTasks: setup.tasks ?? taskList,
+      evaluateProjectGate: setup.gate ?? gate,
+      get_resources_project_id: setup.project ?? { ...projectDetail(1), id: PROJECT_ID },
+    },
+    setup.commands ?? {},
+  );

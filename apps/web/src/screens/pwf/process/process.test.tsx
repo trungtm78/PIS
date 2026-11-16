@@ -1,19 +1,11 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { describeViolations, seriousViolations } from '../../../test/axe';
-import { taskDetail, text, workflowDetail, workflowTask } from '../test/fixtures';
+import { cleanup, render, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
+import { taskDetail, text } from '../test/fixtures';
 import { LegalBasisList } from './LegalBasisList';
-import { EMPTY_CHOICE } from './model';
-import type { ChoiceForm } from './model';
-import { ProcessKindSection } from './ProcessKindSection';
-import { StepsPanel } from './StepsPanel';
 import { FormRevision, TaskProcessSection, mergedBasis } from './TaskProcessSection';
-import { legalBasis, step, suggestion } from './test/fixtures';
+import { legalBasis } from './test/fixtures';
 
 afterEach(cleanup);
-
-const inRouter = (node: React.ReactElement) => render(<MemoryRouter>{node}</MemoryRouter>);
 
 describe('the legal grounds of a step or a task', () => {
   it('names the document as the catalogue does, the article, the days of effect, and that nobody confirmed the citation yet', () => {
@@ -54,60 +46,6 @@ describe('the legal grounds of a step or a task', () => {
   it('says that nothing is declared rather than showing an empty list', () => {
     render(<LegalBasisList of="Bước" basis={[]} testId="basis" />);
     expect(screen.getByTestId('basis-empty').textContent).toBe(text('pwf.process.legal.none.text'));
-  });
-});
-
-describe('the workflow in three tiers (PWF-03, the tab of the project)', () => {
-  const detail = workflowDetail({
-    standard_working_days: 330,
-    selection: { mode: 'OVERRIDE', chosen_template_code: 'PUBLIC_INVESTMENT', suggested_template_code: 'PUBLIC_REPAIR', basis: 'RULE', line: 'REPAIR', rule_id: null, rule_version: 3, rule_unit_id: null, reason: 'Theo quyết định của chủ đầu tư' },
-    steps: [
-      step('S_POLICY', 'PREPARATION', 1, { name: 'Quyết định chủ trương', status: 'IN_PROGRESS', task_total: 2, task_done: 1, checklist_total: 4, checklist_done: 3, standard_working_days: 35, legal_basis: [legalBasis({ state: 'SUPERSEDED', superseded_by: 'DECREE_214_2025_ND_CP' })] }),
-      step('S_BUILD', 'EXECUTION', 1, { name: 'Thi công', task_total: 1, checklist_total: 0, checklist_done: 0, responsible_role: null, planned_start: null, planned_finish: null }),
-    ],
-    tasks: [
-      workflowTask(1, { status: 'DONE', step_code: 'S_POLICY', checklist_total: 2, checklist_done: 2 }),
-      workflowTask(2, { status: 'IN_PROGRESS', step_code: 'S_POLICY', checklist_total: 2, checklist_done: 1 }),
-      workflowTask(3, { phase_code: 'EXECUTION', step_code: 'S_BUILD' }),
-      workflowTask(4, { phase_code: 'EXECUTION', step_code: null }),
-    ],
-  });
-
-  it('shows phase, step and task with the progress of each tier, the standard time of a step and the checklist of each task', () => {
-    inRouter(<StepsPanel detail={detail} projectId="p1" />);
-    const panel = screen.getByTestId('steps-panel');
-    expect(screen.getByTestId('steps-summary').textContent).toContain(text('pwf.process.steps.summary.text', { phases: 2, steps: 2, days: 330 }));
-    const policy = panel.querySelector('[data-step="S_POLICY"]') as HTMLElement;
-    expect(policy.getAttribute('data-status')).toBe('IN_PROGRESS');
-    expect(within(policy).getByRole('heading', { level: 4 }).textContent).toBe('1. Quyết định chủ trương');
-    expect(policy.textContent).toContain(text('pwf.process.step.inProgress.word'));
-    expect(screen.getByTestId('step-time-S_POLICY').textContent).toContain(text('pwf.process.step.time.text', { days: 35 }));
-    expect(policy.textContent).toContain(text('pwf.process.progress.value.text', { label: text('pwf.process.progress.tasks.label'), done: 1, total: 2, percent: 50 }));
-    expect(policy.textContent).toContain(text('pwf.process.progress.value.text', { label: text('pwf.process.progress.checklist.label'), done: 3, total: 4, percent: 75 }));
-    expect(screen.getByTestId('checklist-T2').textContent).toBe(text('pwf.process.task.checklist.text', { done: 1, total: 2 }));
-    expect(within(policy).getAllByRole('link').map((link) => link.textContent)).toEqual(['Công việc 1', 'Công việc 2']);
-    expect([...policy.querySelectorAll('[data-task]')].map((line) => line.querySelector('.pwf-code')?.textContent)).toEqual(['T1', 'T2']);
-    const build = panel.querySelector('[data-step="S_BUILD"]') as HTMLElement;
-    expect(build.textContent).toContain(text('pwf.process.progress.none.text', { label: text('pwf.process.progress.checklist.label') }));
-    // The task the project added itself is kept apart, under its phase.
-    expect((panel.querySelector('[data-phase="EXECUTION"]') as HTMLElement).textContent).toContain(text('pwf.process.steps.loose.text'));
-  });
-
-  it('announces a legal ground that lapsed and a kind of workflow chosen against the rule, with its reason', () => {
-    inRouter(<StepsPanel detail={detail} projectId="p1" />);
-    expect(screen.getByTestId('steps-lapsed').textContent).toBe(text('pwf.process.steps.lapsed.text', { count: 1 }));
-    expect(screen.getByTestId('steps-override').textContent).toBe(text('pwf.process.steps.override.text', { suggested: 'PUBLIC_REPAIR', reason: 'Theo quyết định của chủ đầu tư' }));
-    expect(within(screen.getByTestId('step-legal-S_POLICY')).getByRole('listitem').textContent).toContain('DECREE_214_2025_ND_CP');
-  });
-
-  it('shows nothing for an answer kept from before steps existed', () => {
-    const { container } = inRouter(<StepsPanel detail={workflowDetail()} projectId="p1" />);
-    expect(container.querySelector('[data-testid="steps-panel"]')).toBeNull();
-  });
-
-  it('has no serious accessibility violation', async () => {
-    const { container } = inRouter(<StepsPanel detail={detail} projectId="p1" />);
-    expect(describeViolations(await seriousViolations(container))).toEqual([]);
   });
 });
 
@@ -169,66 +107,5 @@ describe('the place of a task in the procedure (PWF-04)', () => {
   it('shows nothing for an answer kept from before these facts existed', () => {
     const { container } = render(<TaskProcessSection task={taskDetail()} />);
     expect(container.textContent).toBe('');
-  });
-});
-
-describe('the kind of workflow and the planned start (PRJ-02, PWF-05)', () => {
-  const show = (form: Partial<ChoiceForm> = {}, over: Partial<Parameters<typeof ProcessKindSection>[0]> = {}) => {
-    const onChange = vi.fn();
-    render(<ProcessKindSection form={{ ...EMPTY_CHOICE, ...form }} onChange={onChange} suggestion={suggestion()} loading={false} failed={false} onRetry={() => undefined} disabled={false} showProblems={false} withoutStart={text('pwf.process.kind.start.registerHint')} {...over} />);
-    return onChange;
-  };
-
-  it('says what the rule suggests and why, offers every template, and previews the schedule before anything is saved', () => {
-    show({ plannedStart: '2026-12-01' });
-    expect(screen.getByTestId('kind-suggestion').textContent).toContain(text('pwf6.kind.suggested.label'));
-    expect(screen.getByTestId('kind-suggestion').textContent).toContain('Dự án đầu tư công xây dựng');
-    expect(screen.getByTestId('kind-suggestion').getAttribute('data-suggested')).toBe('PUBLIC_INVESTMENT');
-    expect(screen.getByTestId('kind-suggestion').textContent).toContain(text('pwf6.kind.reason.label'));
-    expect(screen.getByTestId('kind-suggestion').textContent).toContain(text('pwf.process.basis.default.text'));
-    expect(within(screen.getByTestId('kind-template')).getAllByRole('option').map((option) => option.getAttribute('value'))).toEqual(['', 'PUBLIC_INVESTMENT', 'PUBLIC_REPAIR']);
-    expect(screen.getByTestId('kind-unverified')).toBeTruthy();
-    expect(screen.getByTestId('preview-finish').textContent).toBe('15/03/2028');
-    expect(screen.getByTestId('preview-total').textContent).toBe(text('pwf.process.preview.days.text', { days: 330 }));
-    expect(screen.getByTestId('preview-counts').textContent).toBe(text('pwf.process.preview.counts.text', { phases: 6, steps: 13, tasks: 31 }));
-    const rows = within(screen.getByTestId('kind-preview')).getAllByRole('row');
-    expect(rows[1]?.textContent).toContain('Quyết định chủ trương đầu tư');
-    expect(rows[1]?.textContent).toContain('35');
-    expect(rows[2]?.textContent).toContain(text('pwf.process.step.notApplicable.word'));
-  });
-
-  it('asks for the facts only the chosen template branches on, and for a reason only when the choice goes against the rule', () => {
-    const onChange = show({ templateCode: 'PUBLIC_REPAIR' });
-    expect(screen.queryByTestId('kind-group')).toBeNull();
-    expect(screen.queryByTestId('kind-funding')).toBeNull();
-    fireEvent.change(screen.getByTestId('kind-reason'), { target: { value: 'Dự án sửa chữa' } });
-    expect(onChange).toHaveBeenCalledWith({ reason: 'Dự án sửa chữa' });
-    cleanup();
-    show({ templateCode: 'PUBLIC_INVESTMENT' });
-    expect(screen.getByTestId('kind-group')).toBeTruthy();
-    expect(screen.getByTestId('kind-funding')).toBeTruthy();
-    expect(screen.queryByTestId('kind-reason')).toBeNull();
-  });
-
-  it('names what keeps the workflow from starting once the person tried to save, and what the schedule is missing', () => {
-    show({ plannedStart: '2026-12-01', templateCode: 'PUBLIC_REPAIR' }, { showProblems: true, suggestion: suggestion({ preview: { missing_facts: ['funding_source'], project_finish: null, total_working_days: null } }) });
-    const problems = within(screen.getByTestId('kind-problems')).getAllByRole('listitem').map((item) => item.getAttribute('data-problem'));
-    expect(problems).toEqual(['reasonRequired', 'factsRequired']);
-    expect(screen.getByTestId('preview-facts').textContent).toBe(text('pwf.process.preview.missingFacts.text', { facts: text('pwf.process.fact.funding.label') }));
-  });
-
-  it('says that no template is suggested, that the caller may not start a workflow, and that the suggestion could not be read', () => {
-    show({}, { suggestion: suggestion({ suggested_template_code: null, basis: 'NONE', can_start: false, preview: null, unknown_templates: ['RETIRED_ONE'] }), failed: true });
-    expect(screen.getByTestId('kind-suggestion').textContent).toBe(text('pwf.process.basis.none.text'));
-    expect(screen.getByTestId('kind-denied').textContent).toBe(text('pwf.process.kind.denied.text'));
-    expect(screen.getByTestId('kind-failed').textContent).toContain(text('pwf.process.kind.failed.text'));
-    expect(screen.getByTestId('kind-unknown').textContent).toBe(text('pwf.process.kind.unknownTemplates.text', { codes: 'RETIRED_ONE' }));
-    expect((screen.getByTestId('kind-start') as HTMLInputElement).disabled).toBe(true);
-  });
-
-  it('has no serious accessibility violation', async () => {
-    const onChange = vi.fn();
-    const { container } = render(<ProcessKindSection form={{ ...EMPTY_CHOICE, plannedStart: '2026-12-01', templateCode: 'PUBLIC_REPAIR' }} onChange={onChange} suggestion={suggestion()} loading={false} failed={false} onRetry={() => undefined} disabled={false} showProblems withoutStart="x" />);
-    expect(describeViolations(await seriousViolations(container))).toEqual([]);
   });
 });

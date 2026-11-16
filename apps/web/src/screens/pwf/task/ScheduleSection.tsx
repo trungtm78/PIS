@@ -9,10 +9,10 @@ import type { TaskDetail } from '../model';
 const span = (from: string | null, to: string | null): string | null => (from === null && to === null ? null : from === null ? dayText(to) : to === null ? dayText(from) : `${dayText(from)} – ${dayText(to)}`);
 
 /**
- * The schedule of the task and how far it may slip (open in its own tab, closed where it is one block of a longer page): planned, baseline, latest and actual days, duration, float and variance, each figure with its "i", then the tasks it waits for.
+ * The schedule of the task and how far it may slip (the body of the block "Hạn và lịch" of PWF-04, which the screen folds): planned, baseline, latest and actual days, duration, float and variance, each figure with its "i", then the tasks it waits for.
  * A figure the record does not have is left out (a row of dashes and zeros says nothing).
  */
-export function ScheduleSection({ task, names, open = false }: { task: TaskDetail; names?: ReadonlyMap<string, string>; open?: boolean }) {
+export function ScheduleSection({ task, names }: { task: TaskDetail; names?: ReadonlyMap<string, string> }) {
   const { t } = useTranslation();
   const missing = calendarMissing(task);
   const record = t('pwf.task.version.record.text', { version: task.version });
@@ -41,12 +41,8 @@ export function ScheduleSection({ task, names, open = false }: { task: TaskDetai
   add('returns', t('pwf.task.field.returns.label'), task.return_count > 0 ? String(task.return_count) : null, info(t('pwf.task.returns.name'), t('pwf.task.returns.formula'), t('pwf.task.source.history.text')));
   add('reschedules', t('pwf.task.field.reschedules.label'), task.reschedule_count > 0 ? String(task.reschedule_count) : null, info(t('pwf.task.reschedules.name'), t('pwf.task.reschedules.formula'), t('pwf.task.source.history.text')));
   return (
-    <details className="pwf-fold" data-testid="schedule" open={open}>
-      <summary>
-        {t('pwf6.task.schedule.title')}
-        {task.finish_variance_days !== null && task.finish_variance_days > 0 ? <span className="pwf-fold__note pwf-late">{t('pwf6.task.variance.late', { days: task.finish_variance_days })}</span> : null}
-      </summary>
-      <div className="pwf-fold__body">
+    <div data-testid="schedule">
+      <div>
         <dl className="pwf-stats" data-testid="schedule-facts">
           {rows.map((row) => (
             <div key={row.key} className="pwf-stats__item" data-fact={row.key} data-tone={row.tone}>
@@ -79,6 +75,6 @@ export function ScheduleSection({ task, names, open = false }: { task: TaskDetai
           )}
         </div>
       </div>
-    </details>
+    </div>
   );
 }

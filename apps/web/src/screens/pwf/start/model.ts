@@ -1,8 +1,10 @@
 import type { components } from '@machvon/contracts';
 import type { RuleTypeEntry } from '../../adm/governance/model';
 import type { ProjectView } from '../../prj/model';
-import { dayProblem, factsOf, isDay, optionalText, wholeProblem } from '../model';
-import type { AdoptResult, FormProblem, ProjectFacts } from '../model';
+import { dayProblem, isDay, optionalText, wholeProblem } from '../model';
+import type { AdoptResult, FormProblem } from '../model';
+import { EMPTY_CHOICE, workflowBodyOf } from '../process/model';
+import type { ChoiceForm, Suggestion } from '../process/model';
 
 type Schemas = components['schemas'];
 
@@ -18,20 +20,7 @@ export const OPEN_TREATMENTS: readonly Treatment[] = ['TRACKED', 'IN_PROGRESS'];
 
 export type Mode = 'start' | 'adopt';
 
-export const FACT_FIELDS = ['project_group', 'funding_source', 'project_type'] as const;
-export type FactField = (typeof FACT_FIELDS)[number];
-export type Facts = Record<FactField, string>;
-
-export const MAX_FACT = 80;
 export const MAX_EVIDENCE_TEXT = 500;
-
-export interface StartForm {
-  mode: Mode;
-  templateCode: string;
-  plannedStart: string;
-  effectiveDate: string;
-  facts: Facts;
-}
 
 export interface EvidenceDraft {
   kind: string;
@@ -55,35 +44,15 @@ export type Decisions = Readonly<Record<string, Decision>>;
 export const emptyEvidence = (): EvidenceDraft => ({ kind: '', documentId: '', legalDocType: '', externalRef: '', note: '' });
 export const emptyDecision = (treatment: Treatment): Decision => ({ treatment, actualStart: '', actualFinish: '', remaining: '', percent: '', evidence: [] });
 
-export const emptyForm = (mode: Mode = 'start'): StartForm => ({ mode, templateCode: '', plannedStart: '', effectiveDate: '', facts: { project_group: '', funding_source: '', project_type: '' } });
-
-/** The facts of the branch the project already holds: the group and the project type; the funding source is not a field of the project, so it stays to be typed. */
-export function factsOfProject(project: Pick<ProjectView, 'projectGroup' | 'projectType'>): Facts {
-  return { project_group: project.projectGroup ?? '', funding_source: '', project_type: project.projectType?.businessKey ?? '' };
+/** What the process chooser starts from: the group and the kind of project the project already holds; the source of capital is not a field of the project, so it stays to be chosen. */
+export function choiceOfProject(project: Pick<ProjectView, 'projectGroup' | 'projectType'>): ChoiceForm {
+  return { ...EMPTY_CHOICE, projectGroup: project.projectGroup ?? '', projectType: project.projectType?.businessKey ?? '' };
 }
 
 /** The codes of the template rule type that govern something today (a rule of the tenant or the default that ships), in the order of the catalogue. */
 export const templateCodes = (entry: RuleTypeEntry | undefined): RuleTypeEntry['codes'] => entry?.codes.filter((code) => code.inForce !== 'NONE') ?? [];
 
 // ---- checks before anything is sent -----------------------------------------------------------------------------------------------------------------------------------
-
-export type FormField = 'templateCode' | 'plannedStart' | 'effectiveDate' | FactField;
-export type FormErrors = Partial<Record<FormField, FormProblem>>;
-
-export function validateForm(form: StartForm): FormErrors {
-  const errors: FormErrors = {};
-  if (form.templateCode.trim() === '') errors.templateCode = 'pickOne';
-  const planned = dayProblem(form.plannedStart);
-  if (planned !== undefined) errors.plannedStart = planned;
-  if (form.mode === 'adopt') {
-    const effective = dayProblem(form.effectiveDate);
-    if (effective !== undefined) errors.effectiveDate = effective;
-  }
-  for (const field of FACT_FIELDS) {
-    if (form.facts[field].trim().length > MAX_FACT) errors[field] = 'tooLong';
-  }
-  return errors;
-}
 
 export const hasErrors = (errors: object): boolean => Object.keys(errors).length > 0;
 
@@ -124,11 +93,8 @@ export const decisionsValid = (decisions: Decisions): boolean => Object.values(d
 
 // ---- the bodies of the two commands --------------------------------------------------------------------------------------------------------------------------------
 
-const withFacts = (facts: ProjectFacts): { facts?: ProjectFacts } => (Object.keys(facts).length === 0 ? {} : { facts });
-
-export function startBody(form: StartForm): StartBody {
-  return { template_code: form.templateCode.trim(), planned_start_date: form.plannedStart.trim(), ...withFacts(factsOf(form.facts)) };
-}
+/** The body of the start: what the chooser holds (the template only when one was chosen, the facts given, the reason of an override, the units chosen for what the project could not name). */
+export const startBodyOf = (form: ChoiceForm, suggestion: Suggestion | undefined): StartBody => workflowBodyOf(form, suggestion);
 
 function evidenceBody(item: EvidenceDraft): EvidenceBody {
   const body: EvidenceBody = { evidence_kind: item.kind.trim() };
@@ -144,7 +110,7 @@ function evidenceBody(item: EvidenceDraft): EvidenceBody {
 }
 
 /** The adoption payload: the tasks that finished before the effective date with what the person decided, and the tasks in progress; a task kept as tracked says nothing. */
-export function adoptBody(form: StartForm, decisions: Decisions, dryRun: boolean): AdoptBody {
+export function adoptBody(form: ChoiceForm, suggestion: Suggestion | undefined, decisions: Decisions, dryRun: boolean): AdoptBody {
   const entries = Object.entries(decisions);
   const past = entries
     .filter(([, decision]) => decision.treatment === 'NOT_TRACKED' || decision.treatment === 'DONE')
@@ -160,18 +126,16 @@ export function adoptBody(form: StartForm, decisions: Decisions, dryRun: boolean
       return { task_code: code, actual_start: decision.actualStart.trim(), remaining_working_days: Number(decision.remaining.trim()), ...(percent === undefined ? {} : { percent_complete: Number(percent) }) };
     });
   return {
-    template_code: form.templateCode.trim(),
-    planned_start_date: form.plannedStart.trim(),
+    ...workflowBodyOf(form, suggestion),
     effective_date: form.effectiveDate.trim(),
     dry_run: dryRun,
-    ...withFacts(factsOf(form.facts)),
     ...(past.length === 0 ? {} : { past_tasks: past }),
     ...(progress.length === 0 ? {} : { in_progress_tasks: progress }),
   };
 }
 
 /** The key of what a dry run was run for: a result is only the result of the form as it stood when it was asked. */
-export const dryRunKey = (form: StartForm, decisions: Decisions): string => JSON.stringify(adoptBody(form, decisions, true));
+export const dryRunKey = (form: ChoiceForm, suggestion: Suggestion | undefined, decisions: Decisions): string => JSON.stringify(adoptBody(form, suggestion, decisions, true));
 
 /** The treatments a task offers: a task that needs a decision (it ended before the effective date) is not tracked or done; any other is tracked or in progress. */
 export const treatmentsFor = (task: Pick<AdoptTask, 'needs_decision'>): readonly Treatment[] => (task.needs_decision ? PAST_TREATMENTS : OPEN_TREATMENTS);
@@ -193,25 +157,4 @@ export function readiness(result: AdoptResult | undefined, ranFor: string | unde
   if (result === undefined) return 'noDryRun';
   if (ranFor !== current) return 'stale';
   return pendingDecisions(result, decisions).length > 0 ? 'pending' : 'ready';
-}
-
-// ---- the template as the rule store serves it ------------------------------------------------------------------------------------------------------------------------
-
-export interface TemplateSummary {
-  name: string;
-  projectType: string | null;
-  phases: number;
-  tasks: number;
-}
-
-const isList = (value: unknown): value is unknown[] => Array.isArray(value);
-
-/** What the screen says of a template before it is chosen: its name, the project type it is for and how big it is. */
-export function summarizeTemplate(params: Readonly<Record<string, unknown>>): TemplateSummary {
-  return {
-    name: typeof params.name === 'string' ? params.name : '',
-    projectType: typeof params.project_type === 'string' ? params.project_type : null,
-    phases: isList(params.phases) ? params.phases.length : 0,
-    tasks: isList(params.tasks) ? params.tasks.length : 0,
-  };
 }

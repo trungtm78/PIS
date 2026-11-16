@@ -15,6 +15,8 @@ export type EvidenceRow = TaskDetail['evidence'][number];
 // ---- which buttons show ---------------------------------------------------------------------------------------------------------------------------------------------
 
 export interface Actions {
+  /** "Nhận việc" (R71): the server's `can_claim`. */
+  claim: boolean;
   start: boolean;
   complete: boolean;
   approve: boolean;
@@ -32,6 +34,7 @@ export interface Actions {
 export function actionsOf(task: TaskDetail, readOnly: boolean): Actions {
   const allow = (flag: boolean): boolean => flag && !readOnly;
   return {
+    claim: allow(task.can_claim === true),
     start: allow(task.can_start),
     complete: allow(task.can_complete),
     approve: allow(task.can_approve),

@@ -1,5 +1,4 @@
 import type { Translator } from '../../../i18n';
-import type { StepperStep } from '../../../ui';
 import { gateWord } from '../labels';
 import { calendarMissing, missingYears } from '../model';
 import type { Band, GateAssessment, GateTarget, Schedule, TaskPage, WorkflowDetail, WorkflowPhase, WorkflowTask } from '../model';
@@ -40,18 +39,6 @@ export function healthOf(task: WorkflowTask): Health {
   }
 }
 
-const SEVERITY: readonly Health[] = ['late', 'attention', 'hold', 'ok', 'none'];
-
-/** The worst health of a set of tasks. */
-export function worstHealth(tasks: readonly WorkflowTask[]): Health {
-  const found = new Set(tasks.map(healthOf));
-  return SEVERITY.find((health) => found.has(health)) ?? 'none';
-}
-
-const isTracked = (task: WorkflowTask): boolean => !task.excluded;
-
-const orderedPhases = (detail: WorkflowDetail): WorkflowPhase[] => [...detail.phases].sort((a, b) => a.order - b.order);
-
 // ---- the stepper of the phases ------------------------------------------------------------------------------------------------------------------------------------------------
 
 export type PhaseStanding = NonNullable<WorkflowPhase['standing']>;
@@ -65,27 +52,6 @@ export function phaseStandingOf(phase: WorkflowPhase, phases: readonly WorkflowP
   const first = [...phases].sort((a, b) => a.order - b.order).find((one) => one.open);
   if (first === undefined || phase.order < first.order) return 'DONE';
   return phase.code === first.code ? 'CURRENT' : 'UPCOMING';
-}
-
-/** The phases in order: the one the project is at is current (late when one of its tasks is red, on hold when the workflow is), and it is the only one; the others are done, have started in parallel, or are still to come. */
-export function stepperSteps(detail: WorkflowDetail, t: T): StepperStep[] {
-  const phases = orderedPhases(detail);
-  return phases.map((phase): StepperStep => {
-    const own = detail.tasks.filter((task) => task.phase_code === phase.code && isTracked(task));
-    const note = t('pwf.flow.stepper.progress.text', { done: phase.required_done, total: phase.required_total });
-    switch (phaseStandingOf(phase, phases)) {
-      case 'CURRENT': {
-        const status = detail.status === 'ON_HOLD' ? 'hold' : own.some((task) => healthOf(task) === 'late') ? 'late' : 'current';
-        return { code: phase.code, label: phase.name, status, current: true, note };
-      }
-      case 'STARTED':
-        return { code: phase.code, label: phase.name, status: 'started', note };
-      case 'DONE':
-        return { code: phase.code, label: phase.name, status: 'done', note };
-      case 'UPCOMING':
-        return { code: phase.code, label: phase.name, status: 'upcoming', note };
-    }
-  });
 }
 
 // ---- the Gantt: bars of the current schedule against the first baseline, on a time axis --------------------------------------------------------------------------

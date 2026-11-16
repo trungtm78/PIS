@@ -1,0 +1,96 @@
+/* "Chọn quy trình": the three steps and the table of units. Tokens only. */
+.pwfc-steps {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pwfc-steps li {
+  display: flex;
+}
+.pwfc-steps__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 4px 12px 4px 6px;
+  font: inherit;
+  color: var(--mv-color-ink);
+  background: var(--mv-color-surface);
+  border: 1px solid var(--mv-color-border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.pwfc-steps__button[aria-current='step'] {
+  border-color: var(--mv-color-primary);
+  background: var(--mv-color-primary-soft);
+  font-weight: 600;
+}
+.pwfc-steps__button:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}
+.pwfc-steps li[data-bad='true'] .pwfc-steps__button {
+  border-color: var(--mv-color-warning);
+}
+.pwfc-steps__number {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--mv-color-surface2);
+  font-size: 13px;
+  font-weight: 600;
+}
+.pwfc-steps li[data-done='true'] .pwfc-steps__number {
+  background: var(--mv-color-success-soft);
+}
+.pwfc-panel {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.pwfc-subtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+.pwfc-summary p {
+  margin: 4px 0;
+}
+.pwfc-units {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+}
+.pwfc-units th,
+.pwfc-units td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px;
+  border-bottom: 1px solid var(--mv-color-border);
+  font-weight: 400;
+}
+.pwfc-units tbody th {
+  font-weight: 600;
+  display: grid;
+  gap: 2px;
+}
+.pwfc-units td {
+  display: grid;
+  gap: 4px;
+}
+.pwfc-units tr[data-open='true'] > th {
+  box-shadow: inset 3px 0 0 var(--mv-color-warning);
+}
+.pwfc-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+}
+.pwfc-confirm {
+  margin-top: 8px;
+}

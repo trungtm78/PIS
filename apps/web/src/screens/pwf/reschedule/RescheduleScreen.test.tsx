@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { describeViolations, seriousViolations } from '../../../test/axe';
 import { mount } from '../../sas/test-support';
 import { projectBody } from '../start/test/fixtures';
-import { ALL_PERMISSIONS, PROJECT_ID, READ_ONLY, refusal, routeOf, serve, text } from '../test/fixtures';
+import { ALL_PERMISSIONS, PROJECT_ID, READ_ONLY, refusal, routeOf, serve, text, workflowTask } from '../test/fixtures';
 import type { Answer } from '../test/fixtures';
 import RescheduleScreen from './RescheduleScreen';
 import { PROPOSAL_ID, REASON, preview, schedule, workflow } from './test/fixtures';
@@ -296,5 +296,149 @@ describe('PWF-06: states', () => {
     await screen.findByTestId('error-note');
     const section = screen.getByTestId('proposal').closest('section') as HTMLElement;
     expect(describeViolations(await seriousViolations(section))).toEqual([]);
+  });
+});
+
+describe('PWF-06: asking to extend a step (R72)', () => {
+  const rule = { allowed: true, max_times: 1, max_value: 10, unit: 'WORKING_DAY' as const, times_used: 0, value_used: 4 };
+  const flow = (over: Record<string, unknown> = {}) =>
+    workflow({
+      tasks: [
+        workflowTask(1, { name: 'Thẩm định hồ sơ', status: 'IN_PROGRESS', extension: rule }),
+        workflowTask(2, { name: 'Phê duyệt', extension: { ...rule, allowed: false } }),
+        workflowTask(3, { name: 'Ký hợp đồng', extension: { ...rule, unit: 'MONTH', max_times: null, max_value: null } }),
+      ],
+      ...over,
+    });
+  const extended = (over: Record<string, unknown> = {}) =>
+    preview({
+      changes: [
+        { task_code: 'T1', start_shift_days: 0, finish_shift_days: 3, float_change: 0, became_critical: false, became_non_critical: false, state_changed: false, cause: 'EXTENDED' },
+        { task_code: 'T2', start_shift_days: 3, finish_shift_days: 3, float_change: 0, became_critical: false, became_non_critical: false, state_changed: false, cause: 'CASCADED' },
+        { task_code: 'T3', start_shift_days: 0, finish_shift_days: 0, float_change: 0, became_critical: false, became_non_critical: false, state_changed: false, cause: 'CASCADED', finish_calendar_shift_days: 1 },
+      ],
+      extensions: [{ task_code: 'T1', add_value: 3, unit: 'WORKING_DAY' }],
+      ...over,
+    });
+  const asking = (path = `/pwf/pwf-06?id=${PROJECT_ID}&extend=T1`, commands: Record<string, Answer> | undefined = undefined) =>
+    open({ workflow: flow(), path, commands: commands ?? { proposeProjectReschedule: extended(), decideProjectReschedule: { resource_id: PROPOSAL_ID, status: 'APPROVED', resource_version: 2 } } });
+
+  it('opens with the step named in the address ready, offers only the steps whose process allows an extension, and says how much is used', async () => {
+    asking();
+    await ready();
+    const row = screen.getByTestId('extension-0');
+    expect((within(row).getByTestId('extension-0-task') as HTMLSelectElement).value).toBe('T1');
+    expect(within(screen.getByTestId('extension-0-task')).getAllByRole('option').map((option) => option.textContent)).toEqual([text('pwfp.resched.extend.task.choose'), 'Thẩm định hồ sơ', 'Ký hợp đồng']);
+    expect(row.textContent).toContain(text('pwfp.resched.extend.used.text', { times: '0/1', value: '4/10', unit: text('pwfp.cell.unit.workingDay.word') }));
+    // The unit of the amount is the unit of the step.
+    expect(within(row).getByLabelText(text('pwfp.resched.extend.valueUnit.label', { unit: text('pwfp.cell.unit.workingDay.word') }))).toBeTruthy();
+  });
+
+  it('ignores a step in the address that cannot be extended, and says when no step can', async () => {
+    open({ workflow: flow(), path: `/pwf/pwf-06?id=${PROJECT_ID}&extend=T2` });
+    await ready();
+    expect(screen.queryByTestId('extension-0')).toBeNull();
+    cleanup();
+    open({ workflow: workflow() });
+    await ready();
+    expect(screen.getByTestId('extensions-none').textContent).toBe(text('pwfp.resched.extend.none.text'));
+    expect((document.querySelector('[data-action="add-extension"]') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('adds and removes rows, and refuses a row with no step or no amount, saying where', async () => {
+    const h = asking(`/pwf/pwf-06?id=${PROJECT_ID}`);
+    await ready();
+    fireEvent.click(document.querySelector('[data-action="add-extension"]') as HTMLElement);
+    change('reason', REASON);
+    fireEvent.click(screen.getByTestId('submit-propose'));
+    expect((await screen.findByTestId('error-extension-0-task')).textContent).toBe(text('pwf.form.pickOne.error'));
+    expect(screen.getByTestId('error-extension-0-value').textContent).toBe(text('pwf.form.required.error'));
+    expect(h.command).not.toHaveBeenCalled();
+    fireEvent.click(document.querySelector('[data-action="remove-extension-0"]') as HTMLElement);
+    expect(screen.queryByTestId('extension-0')).toBeNull();
+  });
+
+  it('proposes the extension as the step and the amount added, with the version of the workflow, and separates "Gia hạn" from "Lùi theo dây chuyền"', async () => {
+    const h = asking();
+    await ready();
+    change('extension-0-value', '3');
+    change('reason', REASON);
+    fireEvent.click(screen.getByTestId('submit-propose'));
+    await screen.findByTestId('proposal');
+    const input = h.command.mock.calls[0]?.[1] as { ifMatchVersion: number; body: Record<string, unknown> };
+    expect(input.ifMatchVersion).toBe(4);
+    expect(input.body).toEqual({ reason: REASON, extensions: [{ task_code: 'T1', add_value: 3 }] });
+    expect(screen.getByTestId('group-EXTENDED').textContent).toContain(text('pwfp.resched.group.extended.title'));
+    expect(within(screen.getByTestId('group-EXTENDED')).getByTestId('change-T1')).toBeTruthy();
+    expect(screen.getByTestId('group-CASCADED').textContent).toContain(text('pwfp.resched.group.cascaded.title'));
+    expect(within(screen.getByTestId('group-CASCADED')).getByTestId('change-T2')).toBeTruthy();
+    expect(screen.getByTestId('causes').textContent).toBe(text('pwfp.resched.result.causes.text', { extended: 1, cascaded: 2 }));
+    expect(screen.getByTestId('extensions-asked').textContent).toBe(text('pwfp.resched.result.asked.line', { task: 'Việc T1', value: 3, unit: text('pwfp.cell.unit.workingDay.word') }));
+    expect(screen.queryByTestId('group-OTHER')).toBeNull();
+  });
+
+  it('says a move of calendar days that the working days do not show, with the number of days', async () => {
+    asking();
+    await ready();
+    change('extension-0-value', '1');
+    change('reason', REASON);
+    fireEvent.click(screen.getByTestId('submit-propose'));
+    await screen.findByTestId('proposal');
+    expect(screen.getByTestId('calendar-shift-T3').textContent).toBe(text('pwfp.resched.shift.calendar.later', { days: 1 }));
+    expect(screen.queryByTestId('calendar-shift-T1')).toBeNull();
+  });
+
+  it.each([
+    ['PWF_EXTENSION_LIMIT_EXCEEDED', { task_code: 'T1', limit: 'TIMES', used: 1, asked: 1, max: 1 }, text('pwfp.problem.extTimes.error', { task: 'T1', used: 1, max: 1 })],
+    ['PWF_EXTENSION_LIMIT_EXCEEDED', { task_code: 'T1', limit: 'VALUE', used: 4, asked: 7, max: 10 }, text('pwfp.problem.extValue.error', { task: 'T1', used: 4, max: 10, asked: 7 })],
+    ['PWF_EXTENSION_NOT_ALLOWED', { task_code: 'T1' }, text('pwfp.problem.extNotAllowed.error', { task: 'T1' })],
+    ['PWF_EXTENSION_TASK_CLOSED', { task_code: 'T1' }, text('pwfp.problem.extClosed.error', { task: 'T1' })],
+    ['PWF_EXTENSION_REQUIRED', { task_code: 'T1' }, text('pwfp.problem.extRequired.error', { task: 'T1' })],
+  ])('says the refusal %s at the row of the step and above, with how much is used of the cap', async (code, extensions, words) => {
+    const h = asking(undefined, { proposeProjectReschedule: refusal(code, 422, extensions) });
+    await ready();
+    change('extension-0-value', '7');
+    change('reason', REASON);
+    fireEvent.click(screen.getByTestId('submit-propose'));
+    const problem = await screen.findByTestId('problem');
+    expect(problem.textContent).toContain(words);
+    expect(screen.getByTestId('error-extension-0-value').textContent).toBe(words);
+    expect(screen.getByTestId('extension-0-value').getAttribute('aria-invalid')).toBe('true');
+    expect(within(problem).queryByRole('button', { name: text('pwf.problem.reload.action') })).toBeNull();
+    expect(h.command).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers to read the newer version when somebody changed the schedule first', async () => {
+    asking(undefined, { proposeProjectReschedule: refusal('PWF_SCHEDULE_VERSION_CONFLICT', 409) });
+    await ready();
+    change('extension-0-value', '3');
+    change('reason', REASON);
+    fireEvent.click(screen.getByTestId('submit-propose'));
+    const problem = await screen.findByTestId('problem');
+    expect(problem.getAttribute('data-kind')).toBe('scheduleConflict');
+    expect(within(problem).getByRole('button', { name: text('pwf.problem.reload.action') })).toBeTruthy();
+  });
+
+  it('tells the approver that an extension can no longer be approved because the cap was used meanwhile, and offers no reload: the request is rejected', async () => {
+    open({
+      path: `/pwf/pwf-06?id=${PROJECT_ID}&proposal=${PROPOSAL_ID}&v=3`,
+      commands: { decideProjectReschedule: refusal('PWF_SCHEDULE_VERSION_CONFLICT', 409, { reason: 'EXTENSION_REFUSED', extension_code: 'LIMIT', task_code: 'T1', limit: 'TIMES', used: 1, asked: 1, max: 1 }) },
+      workflow: flow({ pending_reschedule: { proposal_id: PROPOSAL_ID, base_version: 3 } }),
+    });
+    fireEvent.click(await screen.findByTestId('approve'));
+    const problem = await screen.findByTestId('problem');
+    expect(problem.getAttribute('data-kind')).toBe('extensionRefused');
+    expect(problem.textContent).toContain(text('pwfp.problem.extTimes.error', { task: 'T1', used: 1, max: 1 }));
+    expect(within(problem).queryByRole('button', { name: text('pwf.problem.reload.action') })).toBeNull();
+  });
+
+  it('has no serious accessibility violation with an extension request and its result on the screen', async () => {
+    asking();
+    await ready();
+    change('extension-0-value', '3');
+    change('reason', REASON);
+    fireEvent.click(screen.getByTestId('submit-propose'));
+    await screen.findByTestId('proposal');
+    expect(describeViolations(await seriousViolations(document.body))).toEqual([]);
   });
 });

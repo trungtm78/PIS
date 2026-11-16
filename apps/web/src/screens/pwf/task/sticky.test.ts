@@ -40,3 +40,18 @@ describe('PWF-04: the head that sticks', () => {
     expect(TASK).toMatch(/@media print \{\s*\.pwf-taskhead--sticky \{\s*position: static;/);
   });
 });
+
+/** PWF-04: the bar of actions stays at the foot of the window while the column above it scrolls, and does not take a phone's screen or the paper. */
+describe('PWF-04: the bar of actions that sticks', () => {
+  it('sticks to the bottom of the window on an opaque surface, below the dialogs', () => {
+    const bar = rule(TASK, '.pwft-bar');
+    expect(bar).toMatch(/position: sticky;/);
+    expect(bar).toMatch(/bottom: 0;/);
+    expect(bar).toMatch(/background: var\(--mv-color-surface\);/);
+    expect(Number(/z-index: (\d+);/.exec(bar)?.[1])).toBeLessThan(10);
+  });
+
+  it('does not stick in print', () => {
+    expect(TASK).toMatch(/@media print \{\s*\.pwft-bar \{\s*position: static;/);
+  });
+});

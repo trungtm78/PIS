@@ -13,18 +13,14 @@ import { KpiInputs } from './KpiInputs';
 import { historyGroups } from './model';
 import type { KpiResult } from './model';
 
-/** The log of the task, newest first: when, what happened in words, and the reason given with it. Closed until asked for. */
-export function HistorySection({ task, open = false }: { task: TaskDetail; open?: boolean }) {
+/** The log of the task, newest first: when, what happened in words, and the reason given with it (the body of the block "Lịch sử" of PWF-04, which the screen folds). */
+export function HistorySection({ task }: { task: TaskDetail }) {
   const { t } = useTranslation();
   const groups = historyGroups(task.history);
   const count = task.history.length;
   return (
-    <details className="pwf-fold" data-testid="history" open={open}>
-      <summary>
-        {t('pwf.task.history.title')}
-        <span className="pwf-fold__note pwf-hint">{t('pwf6.task.history.count', { count })}</span>
-      </summary>
-      <div className="pwf-fold__body">
+    <div data-testid="history">
+      <div>
         {count === 0 ? (
           <p className="pwf-hint">{t('pwf6.task.history.empty')}</p>
         ) : (
@@ -55,7 +51,7 @@ export function HistorySection({ task, open = false }: { task: TaskDetail; open?
           </ol>
         )}
       </div>
-    </details>
+    </div>
   );
 }
 

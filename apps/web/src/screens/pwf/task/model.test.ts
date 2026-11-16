@@ -27,7 +27,7 @@ const evidenceForm = (over: Partial<EvidenceForm> = {}): EvidenceForm => ({ ...E
 describe('PWF-04 which buttons show', () => {
   it('follows the can_* flags of the server and nothing else', () => {
     const all = taskDetail({ can_start: true, can_complete: true, can_approve: true, can_return: true, can_request_exception: true, can_resume: true, can_assign: true });
-    expect(actionsOf(all, false)).toEqual({ start: true, complete: true, approve: true, return: true, resume: true, requestException: true, decideException: true, work: true, assign: true });
+    expect(actionsOf(all, false)).toEqual({ claim: false, start: true, complete: true, approve: true, return: true, resume: true, requestException: true, decideException: true, work: true, assign: true });
     const none = taskDetail({ can_start: false, can_complete: false, can_approve: false, can_return: false, can_request_exception: false, can_resume: false, can_assign: false });
     expect(Object.values(actionsOf(none, false)).every((value) => value === false)).toBe(true);
   });
