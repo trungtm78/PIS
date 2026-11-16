@@ -89,9 +89,9 @@ export function useTemplateUsage(enabled: boolean): ReadonlyMap<string, number> 
     enabled: enabled && key[1] !== undefined,
     retry: false,
     queryFn: async () => {
-      const body = (await client.read('listProjectWorkflowTemplateUsage' as never, {} as never)) as { items?: { template_code?: unknown; active_projects?: unknown }[] } | null;
+      const body = await client.read('listProjectWorkflowTemplateUsage');
       const usage = new Map<string, number>();
-      for (const item of body?.items ?? []) if (typeof item.template_code === 'string' && typeof item.active_projects === 'number') usage.set(item.template_code, item.active_projects);
+      for (const item of body.items) usage.set(item.template_code, item.active_projects);
       return usage;
     },
   });

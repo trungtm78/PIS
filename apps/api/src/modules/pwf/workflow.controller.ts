@@ -335,6 +335,15 @@ export class ProjectWorkflowReadsController {
    * Which kind of workflow the rule suggests (R47) for a project that exists (`project_id`, PWF-05) or for one that is being registered (the unit, the type and the facts the form holds, PRJ-02), the templates the tenant has, and
    * the schedule the chosen (or suggested) template gives from the planned start: the total of working days, the steps and what stops the schedule from being told (a fact a branch needs, a year without a calendar). It writes nothing.
    */
+  /** The library of procedures (PWF-01) says how many projects run each kind: the ACTIVE workflows by template code, in the scope of `pwf.read` of the caller. It writes nothing. */
+  @Get('project-workflow/templates/usage')
+  @OperationId('listProjectWorkflowTemplateUsage')
+  async templateUsage(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess): Promise<Schemas['PwfTemplateUsage']> {
+    const now = new Date();
+    const items = await this.database.withTenant(tenant, (tx) => this.reads.templateUsage(tx, projectScope(access, READ, now)));
+    return { items, as_of: now.toISOString() };
+  }
+
   @Get('project-workflow/suggestion')
   @OperationId('suggestProjectWorkflow')
   async suggestion(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Query() query: Record<string, unknown>): Promise<Schemas['PwfWorkflowSuggestion']> {

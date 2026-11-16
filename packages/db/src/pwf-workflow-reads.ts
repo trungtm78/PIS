@@ -345,6 +345,22 @@ export class PwfWorkflowReads {
   }
 
   /** The tasks of a workflow, filtered and paged (the order of the template; the cursor is the position and the id), with the exact total of what matches. */
+  /**
+   * How many projects run each kind of workflow (PWF-01, the library): the workflows that run (ACTIVE, or ON_HOLD: the project still uses the template), by the code of the template they were started from, counting only the projects the caller may read (the scope of
+   * `pwf.read`). A kind with no running project has no row; the library says 0 for it. The tenant is the one of the transaction (row level security), so another tenant's projects are never counted.
+   */
+  async templateUsage(tx: TenantTx, scope: ScopeBuilder): Promise<Array<{ template_code: string; active_projects: number }>> {
+    const predicate = scope(1);
+    const rows = await tx.query<{ template_code: string; active_projects: string }>(
+      `select w.template_code, count(distinct p.id)::text as active_projects
+         from ${SCOPE_FROM} join machvon.project_workflow w on w.tenant_id = p.tenant_id and w.project_id = p.id
+        where w.status in ('ACTIVE', 'ON_HOLD') and ${predicate.sql}
+        group by w.template_code order by w.template_code`,
+      [...predicate.params],
+    );
+    return rows.map((row) => ({ template_code: row.template_code, active_projects: Number(row.active_projects) }));
+  }
+
   async listTasks(tx: TenantTx, scope: ScopeBuilder, projectId: string, filter: TaskFilter, page: { limit: number; after?: { code: string; id: string } | undefined }, now: Date): Promise<{ items: TaskListItem[]; next: { code: string; id: string } | null; total: number; asOf: string }> {
     const { row } = await this.workflowOf(tx, scope, projectId);
     const today = vietnamDateOf(now);
