@@ -224,7 +224,7 @@ export type { CalendarDefinition, ReportingPeriod, Weekday } from './reporting-c
 export { isIsoDate, periodsOverlap, shiftDays } from './effective-period.ts';
 export { assertRuleVersions, resolveRule, ruleOfRevision } from './rule-resolver.ts';
 export type { DatedRule, ResolvedRule, RuleConfirmation } from './rule-resolver.ts';
-export { ALERT_TYPE_FIRST_REVIEW_ON, CONTRACT_HEALTH_INDICATORS, GOVERNANCE_RULE_STATUSES, LEGAL_STATUSES, RULE_CODE_PATTERN, RULE_TYPE_PATTERN, alertTypeDefaults, assertRulePeriod, builtInCodes, builtInDefault, defaultGovernanceRule, describeRuleType, diffRuleParams, isGovernanceRuleType, isRuleCode, isRuleDay, isRuleTypeName, nextRuleStatus, provenanceOf, registerAllGovernanceRules, registerAnalyticsRules, registerBaselineRules, registerContractRules, registerCoreRules, registerDirectiveRules, registerEnterpriseRules, registerFinanceRules, registerGov10Rules, registerIntegrationHubRules, registerIntegrationRules, registerIntegrityRules, registerMoneyRules, registerProcurementWorkflowRules, registerApprovalWorkflowRules, registerRuleDefaults, registerRuleType, registerWorkClockRules, registeredRuleTypes, resolveGovernanceRule, ruleTypeDefinitions, ruleTypeOf, validateRuleParams, registerClaimRules, registerIndicatorRules, registerFinanceFeedRules, registerGov12Rules } from './governance-rules.ts';
+export { ALERT_TYPE_FIRST_REVIEW_ON, CONTRACT_HEALTH_INDICATORS, GOVERNANCE_RULE_STATUSES, LEGAL_STATUSES, RULE_CODE_PATTERN, RULE_TYPE_PATTERN, alertTypeDefaults, assertRulePeriod, builtInCodes, builtInDefault, defaultGovernanceRule, describeRuleType, diffRuleParams, isGovernanceRuleType, isRuleCode, isRuleDay, isRuleTypeName, nextRuleStatus, provenanceOf, registerAllGovernanceRules, registerAnalyticsRules, registerBaselineRules, registerContractRules, registerCoreRules, registerDirectiveRules, registerEnterpriseRules, registerFinanceRules, registerGov10Rules, registerIntegrationHubRules, registerIntegrationRules, registerIntegrityRules, registerMoneyRules, registerProcurementWorkflowRules, registerApprovalWorkflowRules, prepareRuleDraft, preparesRuleDrafts, registerRuleDefaults, registerRuleDraftPreparation, registerRuleType, registerWorkClockRules, registeredRuleTypes, resolveGovernanceRule, ruleTypeDefinitions, ruleTypeOf, validateRuleParams, registerClaimRules, registerIndicatorRules, registerFinanceFeedRules, registerGov12Rules } from './governance-rules.ts';
 export type {
   AlertTypeSeed,
   BuiltInDefault,
@@ -238,6 +238,9 @@ export type {
   Provenance,
   ResolveOptions,
   ResolvedGovernanceRule,
+  PreparedRuleDraft,
+  RuleDraftContext,
+  RuleDraftPreparation,
   RuleParams,
   RuleTypeDefinition,
   RuleTypeDescription,

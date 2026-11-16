@@ -143,7 +143,7 @@ export class GovernanceRulesController {
   @Post()
   @OperationId('createGovernanceRuleDraft')
   @Command({ operation: 'createGovernanceRuleDraft' })
-  async create(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['GovernanceRuleDraft']): Promise<CommandResult> {
+  async create(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['GovernanceRuleDraft']): Promise<Schemas['GovernanceRuleDraftResult']> {
     assertHolds(access, MANAGE_PERMISSION);
     const created = await this.store.create(
       scope.tx,
@@ -151,7 +151,8 @@ export class GovernanceRulesController {
       scope.tenant.membershipId,
     );
     await scope.audit({ action: 'governance_rule.drafted', resourceType: RESOURCE_TYPE, resourceId: created.id, reason: body.reason, classification: 'INTERNAL', diff: identityOf(created) });
-    return commandResult(scope, 'DRAFT', created.rowVersion, created.id);
+    // What the type did to the params before they were stored (the stamps of a workflow template, PWF R75) is told beside the command result; a type that prepares nothing tells nothing.
+    return { ...commandResult(scope, 'DRAFT', created.rowVersion, created.id), ...(created.report ?? {}) };
   }
 
   @Post(':ruleId/submit')

@@ -227,7 +227,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'createEquipmentProcurementItem': CommandResultResponse.fromJson,
   'createEvaluationReport': CommandResultResponse.fromJson,
   'createFundReservation': CommandResultResponse.fromJson,
-  'createGovernanceRuleDraft': CommandResultResponse.fromJson,
+  'createGovernanceRuleDraft': GovernanceRuleDraftResultResponse.fromJson,
   'createHandover': CommandResultResponse.fromJson,
   'createIntegrationConnector': CommandResultResponse.fromJson,
   'createInvestmentAppraisal': CommandResultResponse.fromJson,
@@ -38216,6 +38216,78 @@ final class GetResourcesWorkflowVersionResponse implements ResponseModel {
         if (nextCursor != null) 'next_cursor': nextCursor,
         if (snapshotId != null) 'snapshot_id': snapshotId,
         if (asOf != null) 'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class GovernanceRuleDraftResultResponse implements ResponseModel {
+  const GovernanceRuleDraftResultResponse({
+    required this.operationId,
+    required this.status,
+    required this.resourceVersion,
+    this.resourceId,
+    this.legalVerification,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GovernanceRuleDraftResultResponse.fromJson(Object? json, [String path = 'GovernanceRuleDraftResultResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GovernanceRuleDraftResultResponse(
+      operationId: requiredField(map, path, 'operation_id', asString),
+      status: requiredField(map, path, 'status', asString),
+      resourceVersion: requiredField(map, path, 'resource_version', asInt),
+      resourceId: optionalField(map, path, 'resource_id', asString),
+      legalVerification: optionalField(map, path, 'legal_verification', GovernanceRuleDraftResultResponseLegalVerification.fromJson),
+      extra: unknownFields(map, path, const <String>{'operation_id', 'status', 'resource_version', 'resource_id', 'legal_verification'}, strict: false),
+    );
+  }
+
+  final String operationId;
+  final String status;
+  final int resourceVersion;
+  final String? resourceId;
+  final GovernanceRuleDraftResultResponseLegalVerification? legalVerification;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'operation_id': operationId,
+        'status': status,
+        'resource_version': resourceVersion,
+        if (resourceId != null) 'resource_id': resourceId,
+        if (legalVerification != null) 'legal_verification': legalVerification!.toJson(),
+        ...extra,
+      };
+}
+
+final class GovernanceRuleDraftResultResponseLegalVerification implements ResponseModel {
+  const GovernanceRuleDraftResultResponseLegalVerification({
+    required this.stamped,
+    required this.reset,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory GovernanceRuleDraftResultResponseLegalVerification.fromJson(Object? json, [String path = 'GovernanceRuleDraftResultResponseLegalVerification']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return GovernanceRuleDraftResultResponseLegalVerification(
+      stamped: requiredField(map, path, 'stamped', asInt),
+      reset: requiredField(map, path, 'reset', asInt),
+      extra: unknownFields(map, path, const <String>{'stamped', 'reset'}, strict: true),
+    );
+  }
+
+  final int stamped;
+  final int reset;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'stamped': stamped,
+        'reset': reset,
         ...extra,
       };
 }

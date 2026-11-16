@@ -223,7 +223,7 @@
   "createEquipmentProcurementItem": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "createEvaluationReport": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "createFundReservation": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
-  "createGovernanceRuleDraft": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
+  "createGovernanceRuleDraft": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001","legal_verification":{"stamped":0,"reset":0}},
   "createHandover": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "createIntegrationConnector": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "createInvestmentAppraisal": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},

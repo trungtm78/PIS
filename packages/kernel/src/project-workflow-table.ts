@@ -98,6 +98,38 @@ export function stampLegalVerification(params: Params, previous: Params | null, 
   return { params: out, stamped, reset };
 }
 
+/**
+ * The preparation of a template draft as the rule store calls it (R75): `stampLegalVerification` against what the draft follows. The version before is the basis (the latest approved version of the code, else its built-in
+ * default); on top of it a stamp the client sends back is also kept when an earlier save of the work in progress (a version written after the basis and never approved) holds that very stamp on that very citation at that very
+ * place, so that saving a draft a second time does not take back what the person verified on the first save. A citation sent WITHOUT a stamp is judged on the basis alone. The answer of the command tells how many citations were
+ * stamped and how many were put back to unverified.
+ */
+export function prepareTemplateDraft(params: Params, context: { basis: Params | null; drafts: readonly Params[]; actor: string; at: string }): { params: Params; report: { legal_verification: { stamped: number; reset: number } } } {
+  const overlay = (place: 'steps' | 'tasks'): Params[] => {
+    const owners = listOf(context.basis?.[place]).map((one): Params => ({ ...one }));
+    for (const owner of listOf(params[place])) {
+      for (const line of listOf(owner.legal_basis)) {
+        if (line.verification !== 'VERIFIED' || typeof line.verified_by !== 'string' || typeof line.verified_at !== 'string') continue;
+        const key = groundKey(line);
+        const saved = context.drafts
+          .map((draft) => listOf(listOf(draft[place]).find((one) => one.code === owner.code)?.legal_basis).find((one) => groundKey(one) === key && one.verification === 'VERIFIED' && one.verified_by === line.verified_by && one.verified_at === line.verified_at))
+          .find((one) => one !== undefined);
+        if (saved === undefined) continue;
+        let target = owners.find((one) => one.code === owner.code);
+        if (target === undefined) {
+          target = { code: owner.code };
+          owners.push(target);
+        }
+        target.legal_basis = [...listOf(target.legal_basis).filter((one) => groundKey(one) !== key), saved];
+      }
+    }
+    return owners;
+  };
+  const previous: Params | null = context.basis === null && context.drafts.length === 0 ? null : { ...(context.basis ?? {}), steps: overlay('steps'), tasks: overlay('tasks') };
+  const result = stampLegalVerification(params, previous, context.actor, context.at);
+  return { params: result.params, report: { legal_verification: { stamped: result.stamped, reset: result.reset } } };
+}
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // The units that receive the tasks of a project (R61, R71).
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

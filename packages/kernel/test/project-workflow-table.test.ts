@@ -4,7 +4,7 @@ import { builtInDefault } from '../src/governance-rules.ts';
 import { PROJECT_WORKFLOW_RULE_TYPE, nominalWorkingDays, parseProjectWorkflowTemplate, templateDefect, templateHash, templateParamsOf } from '../src/project-workflow.ts';
 import { scheduleProject, standardTimes, tasksFromTemplate } from '../src/project-schedule.ts';
 import type { PinnedCalendar } from '../src/project-schedule.ts';
-import { assessExtensions, resolveResponsibleUnits, stampLegalVerification, workflowCodeFrom } from '../src/project-workflow-table.ts';
+import { assessExtensions, prepareTemplateDraft, resolveResponsibleUnits, stampLegalVerification, workflowCodeFrom } from '../src/project-workflow-table.ts';
 
 /*
  * The table of steps (PWF section 22): the new fields of a template are optional and a template without them is, byte for byte, what it was (R62, the CRITICAL regression contract); the checks of each new field; the codes made once
@@ -231,6 +231,51 @@ describe('stampLegalVerification (R75)', () => {
     const withStep = { ...template([task('A', { step: 'S1' })]), steps: [{ code: 'S1', name: 'Bước 1', phase: 'PREP', legal_basis: [ground()] }] };
     const stepped = stampLegalVerification(withStep, null, PERSON, NOW).params as { steps: Array<{ legal_basis: unknown[] }> };
     expect(stepped.steps[0]?.legal_basis[0]).toEqual(ground({ verified_by: PERSON, verified_at: NOW }));
+  });
+});
+
+describe('prepareTemplateDraft (R75, the hook of the rule store)', () => {
+  const NOW = '2026-11-16T08:30:00.000Z';
+  const LATER = '2026-11-16T09:45:00.000Z';
+  const ground = (extra: Record<string, unknown> = {}): Record<string, unknown> => ({ document: 'ND_15_2021', article: 'Điều 5', verification: 'VERIFIED', ...extra });
+  const draft = (grounds: Array<Record<string, unknown>>, code = 'A'): Record<string, unknown> => template([task(code, { legal_basis: grounds })]);
+  const groundsOf = (params: Record<string, unknown>): Array<Record<string, unknown>> => ((params.tasks as Array<Record<string, unknown>>)[0]?.legal_basis ?? []) as Array<Record<string, unknown>>;
+
+  it('keeps on a second save the stamp the first save of the same work gave, whoever saves', () => {
+    const basis = draft([ground({ verification: 'UNVERIFIED' })]);
+    const first = prepareTemplateDraft(draft([ground()]), { basis, drafts: [], actor: PERSON, at: NOW });
+    expect(groundsOf(first.params)[0]).toEqual(ground({ verified_by: PERSON, verified_at: NOW }));
+    expect(first.report).toEqual({ legal_verification: { stamped: 1, reset: 0 } });
+    const second = prepareTemplateDraft(first.params, { basis, drafts: [first.params], actor: OTHER, at: LATER });
+    expect(second.params).toEqual(first.params);
+    expect(second.report).toEqual({ legal_verification: { stamped: 0, reset: 0 } });
+    // Without the first save among the drafts the stamp is one nobody of this rule gave: back to unverified.
+    expect(groundsOf(prepareTemplateDraft(first.params, { basis, drafts: [], actor: OTHER, at: LATER }).params)[0]).toEqual(ground({ verification: 'UNVERIFIED' }));
+  });
+
+  it('judges a citation sent without a stamp on the basis alone, and a stamp of a draft only at its own place and content', () => {
+    const basis = draft([ground({ verification: 'UNVERIFIED' })]);
+    const saved = draft([ground({ verified_by: OTHER, verified_at: NOW })]);
+    // Sent without a stamp: the person says "I checked it" now, so the stamp is theirs, not the one of the earlier draft.
+    expect(groundsOf(prepareTemplateDraft(draft([ground()]), { basis, drafts: [saved], actor: PERSON, at: LATER }).params)[0]).toEqual(ground({ verified_by: PERSON, verified_at: LATER }));
+    const stamp = { verified_by: OTHER, verified_at: NOW };
+    expect(groundsOf(prepareTemplateDraft(draft([ground({ ...stamp, article: 'Điều 6' })]), { basis, drafts: [saved], actor: PERSON, at: LATER }).params)[0]?.verification).toBe('UNVERIFIED');
+    expect(groundsOf(prepareTemplateDraft(draft([ground(stamp)], 'B'), { basis, drafts: [saved], actor: PERSON, at: LATER }).params)[0]?.verification).toBe('UNVERIFIED');
+    expect(groundsOf(prepareTemplateDraft(draft([ground({ ...stamp, verified_at: LATER })]), { basis, drafts: [saved], actor: PERSON, at: LATER }).params)[0]?.verification).toBe('UNVERIFIED');
+  });
+
+  it.each(Object.keys(GOLDEN))('leaves the built-in template %s as it is when it is saved again on itself', (code) => {
+    const params = builtInDefault(PROJECT_WORKFLOW_RULE_TYPE, code)?.params as Record<string, unknown>;
+    const prepared = prepareTemplateDraft(params, { basis: params, drafts: [], actor: PERSON, at: NOW });
+    expect(prepared.params).toEqual(params);
+    expect(prepared.report).toEqual({ legal_verification: { stamped: 0, reset: 0 } });
+    expect(templateHash(parseProjectWorkflowTemplate(prepared.params))).toBe((GOLDEN[code] as (typeof GOLDEN)[string]).templateHash);
+  });
+
+  it('with nothing before (a new code, a clone) stamps what is marked and resets what carries a stamp of elsewhere', () => {
+    const fresh = prepareTemplateDraft(draft([ground(), ground({ article: 'Điều 9', verified_by: OTHER, verified_at: NOW })]), { basis: null, drafts: [], actor: PERSON, at: LATER });
+    expect(groundsOf(fresh.params)).toEqual([ground({ verified_by: PERSON, verified_at: LATER }), ground({ article: 'Điều 9', verification: 'UNVERIFIED' })]);
+    expect(fresh.report).toEqual({ legal_verification: { stamped: 1, reset: 1 } });
   });
 });
 

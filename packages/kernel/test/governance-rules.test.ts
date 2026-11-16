@@ -12,6 +12,9 @@ import {
   isRuleCode,
   isRuleTypeName,
   nextRuleStatus,
+  prepareRuleDraft,
+  preparesRuleDrafts,
+  registerRuleDraftPreparation,
   provenanceOf,
   registerAllGovernanceRules,
   registerAnalyticsRules,
@@ -150,6 +153,30 @@ describe('the open registry of rule types', () => {
     expect(codeOf(() => registerRuleType({ ...MINIMAL, type: 'TEST_BAD_DAY', asOf: '2026-02-30' }))).toMatch(/as-of/);
     expect(codeOf(() => registerRuleType({ ...MINIMAL, type: 'TEST_NO_OWNER', ownerModule: 'x' }))).toMatch(/module/);
     expect(codeOf(() => registerRuleType({ ...MINIMAL, type: 'TEST_BAD_DEFAULT', defaults: { DEFAULT: { params: { limit: 99 } } } }))).toMatch(/does not pass its own schema/);
+  });
+
+  it('lets a type prepare its drafts before they are stored: the hook sees what the draft follows, and what it returns is judged again', () => {
+    const context = { basis: { limit: 3 }, drafts: [{ limit: 4 }], actor: '22222222-2222-4222-8222-222222222222', at: '2026-11-16T08:30:00.000Z' };
+    expect(preparesRuleDrafts('TEST_ONLY_RULE')).toBe(false);
+    // Without a preparation a draft is only judged: the params come back as they were sent, and nothing is told.
+    expect(prepareRuleDraft('TEST_ONLY_RULE', { limit: 4 }, context)).toEqual({ params: { limit: 4 } });
+    expect(codeOf(() => prepareRuleDraft('TEST_ONLY_RULE', { limit: 99 }, context))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:limit');
+    const seen: unknown[] = [];
+    registerRuleDraftPreparation('TEST_ONLY_RULE', (params, given) => {
+      seen.push(given);
+      return { params: { limit: (params.limit as number) + ((given.basis?.limit as number | undefined) ?? 0) }, report: { added: given.basis?.limit ?? 0 } };
+    });
+    expect(preparesRuleDrafts('TEST_ONLY_RULE')).toBe(true);
+    expect(prepareRuleDraft('TEST_ONLY_RULE', { limit: 4 }, context)).toEqual({ params: { limit: 7 }, report: { added: 3 } });
+    expect(seen).toEqual([context]);
+    // What is sent is judged before the hook runs, and what the hook returns is judged after it.
+    expect(codeOf(() => prepareRuleDraft('TEST_ONLY_RULE', { limit: 99 }, context))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:limit');
+    expect(seen).toHaveLength(1);
+    expect(codeOf(() => prepareRuleDraft('TEST_ONLY_RULE', { limit: 9 }, context))).toBe('GOVERNANCE_RULE_PARAMS_INVALID:limit');
+    expect(codeOf(() => registerRuleDraftPreparation('TEST_ONLY_RULE', (params) => ({ params })))).toMatch(/already prepares its drafts/);
+    expect(codeOf(() => registerRuleDraftPreparation('NOT_REGISTERED_AT_ALL', (params) => ({ params })))).toMatch(/not registered/);
+    expect(preparesRuleDrafts('PROJECT_WORKFLOW_TEMPLATE')).toBe(true);
+    expect(preparesRuleDrafts('DEADLINE_BAND_POLICY')).toBe(false);
   });
 
   it('describes a type as plain data for a screen: schema, provenance and the codes with theirs', () => {

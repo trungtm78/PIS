@@ -51139,6 +51139,20 @@ export interface components {
              */
             part?: "LEAD" | "SUPPORT";
         };
+        /** @description The result of writing a rule draft: the command result, and for a rule type whose drafts the server prepares before storing them what that preparation did (PROJECT_WORKFLOW_TEMPLATE: the stamps of the verified legal grounds, PWF R75). */
+        GovernanceRuleDraftResult: {
+            /** Format: uuid */
+            operation_id: string;
+            status: string;
+            resource_version: number;
+            /** Format: uuid */
+            resource_id?: string;
+            /** @description Only for PROJECT_WORKFLOW_TEMPLATE: how many legal grounds the server stamped with the caller and its own time in this save, and how many came in as verified and were put back to unverified (R75). */
+            legal_verification?: {
+                stamped: number;
+                reset: number;
+            };
+        };
     };
     responses: never;
     parameters: never;
@@ -151790,7 +151804,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["GovernanceRuleDraftResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

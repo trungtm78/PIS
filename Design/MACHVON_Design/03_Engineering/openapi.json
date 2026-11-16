@@ -144333,7 +144333,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CommandResult"
+                  "$ref": "#/components/schemas/GovernanceRuleDraftResult"
                 }
               }
             }
@@ -334512,6 +334512,50 @@
             "description": "Phần muốn nhận; bỏ trống: dòng đầu tiên người gọi đủ điều kiện (LEAD trước)"
           }
         }
+      },
+      "GovernanceRuleDraftResult": {
+        "type": "object",
+        "required": [
+          "operation_id",
+          "status",
+          "resource_version"
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "resource_version": {
+            "type": "integer"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "legal_verification": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "stamped",
+              "reset"
+            ],
+            "description": "Only for PROJECT_WORKFLOW_TEMPLATE: how many legal grounds the server stamped with the caller and its own time in this save, and how many came in as verified and were put back to unverified (R75).",
+            "properties": {
+              "stamped": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "reset": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "description": "The result of writing a rule draft: the command result, and for a rule type whose drafts the server prepares before storing them what that preparation did (PROJECT_WORKFLOW_TEMPLATE: the stamps of the verified legal grounds, PWF R75)."
       }
     }
   }
