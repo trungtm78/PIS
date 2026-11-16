@@ -26,6 +26,19 @@ const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAIL
 
 export const extensionRulesOf = (template: pwfWorkflow.ProjectWorkflowTemplate): ExtensionRules => new Map(template.tasks.map((one) => [one.code, one.extension ?? null] as const));
 
+/**
+ * The rules of a frozen template for a READ that never needed the template before R72 (the list of tasks): a stored template the schema of today cannot read declares no rule the commands could apply (they parse it and refuse), so
+ * such a list says nothing of extensions instead of failing.
+ */
+export function readExtensionRules(template: unknown): ExtensionRules {
+  try {
+    return extensionRulesOf(pwfWorkflow.parseProjectWorkflowTemplate(template));
+  } catch (error) {
+    if (error instanceof DomainError && error.code === 'PROJECT_WORKFLOW_TEMPLATE_INVALID') return new Map();
+    throw error;
+  }
+}
+
 /** The lines of a proposal, checked for their shape alone (whether they fit the caps is the kernel's judgement). */
 export function checkedExtensions(lines: readonly ExtensionLine[] | undefined): ExtensionLine[] {
   if (lines === undefined) return [];

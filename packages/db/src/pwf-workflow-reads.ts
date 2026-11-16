@@ -2,7 +2,7 @@ import { DomainError, legalDocument, pwfSchedule, pwfWorkflow, vietnamDateOf } f
 import type { WorkCalendarSource, pwfDeadlineBand } from '@machvon/kernel';
 import { PwfAssignmentReads, legalBasisView } from './pwf-assignment.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
-import { extensionRulesOf, extensionViewOf } from './pwf-extension.ts';
+import { extensionRulesOf, extensionViewOf, readExtensionRules } from './pwf-extension.ts';
 import type { ExtensionView } from './pwf-extension.ts';
 import { bandExplanationOf, officialTaskBand, officialTaskLadder } from './pwf-task-band.ts';
 import type { BandExplanation, DurationView } from './pwf-task-band.ts';
@@ -343,7 +343,7 @@ export class PwfWorkflowReads {
     const tasks = await this.tasksOf(tx, row.id as string);
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
     const unitNames = await receivingNamesOf(tx, tasks);
-    const extensions = extensionRulesOf(pwfWorkflow.parseProjectWorkflowTemplate(row.template));
+    const extensions = readExtensionRules(row.template);
     const all = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id), unitNames, extensionViewOf(one, extensions.get(one.code))));
     const matching = all.filter(
       (item) =>
