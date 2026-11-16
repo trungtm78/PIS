@@ -7,6 +7,8 @@ import type { SourceContext, SourceRow } from './home-work-sources.ts';
 import { PwfAssignmentReads } from './pwf-assignment.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
 import { windowEdge } from './pwf-horizon.ts';
+import { bandColumnsOf, officialTaskBand, stepLadderOf, withinGreenLine } from './pwf-task-band.ts';
+import type { TaskBandColumns } from './pwf-task-band.ts';
 import type { BandPolicySet } from './pwf-band-policies.ts';
 
 /** How many days ahead a milestone at risk is shown. */
@@ -94,7 +96,7 @@ export class HomePwfSources {
   }
 
   /** One chunk of the tasks in the window of the reader, in the order of their days, after the task a previous chunk ended with. */
-  private async chunkAfter(context: SourceContext, horizon: string | null, after: { day: string; id: string } | null): Promise<TaskSql[]> {
+  private async chunkAfter(context: SourceContext, horizon: string | null, after: { day: string; id: string } | null): Promise<DueTaskSql[]> {
     const params = new Params();
     const visible = reach(params, context, {
       source: 'PROJECT_TASK',
@@ -105,10 +107,11 @@ export class HomePwfSources {
       // The day is a parameter only when the view needs it (a parameter no part of the statement mentions cannot be typed by the database).
       mine: (me) => this.assignedTo(me, params.add(context.today)),
     });
-    const until = horizon === null ? '' : `and t.committed_finish <= ${params.add(horizon)}::date`;
+    // A task with a ladder of its own (R73) is bounded by its own green line, not by the widest line of the policies: it may turn green earlier than any of them.
+    const until = horizon === null ? '' : `and ${withinGreenLine('t', 't.committed_finish', params.add(horizon), params.add(context.today))}`;
     const past = after === null ? '' : `and (t.committed_finish, t.id) > (${params.add(after.day)}::date, ${params.add(after.id)}::uuid)`;
-    return context.tx.query<TaskSql>(
-      `select t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.committed_finish::text as due_on, t.baseline_finish::text as baseline_on, p.id as project_id, p.code as project_code, p.name as project_name, ou.path as unit_path
+    return context.tx.query<DueTaskSql>(
+      `select t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.committed_finish::text as due_on, t.baseline_finish::text as baseline_on, p.id as project_id, p.code as project_code, p.name as project_name, ou.path as unit_path, ${bandColumnsOf('t')}
          from machvon.project_task t
          join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
          ${PROJECT_JOINS('t', 't.project_id')}
@@ -126,10 +129,10 @@ export class HomePwfSources {
     let after: { day: string; id: string } | null = null;
     // The tasks are read in chunks of the limit of a source and the ones that have no colour yet are dropped, so that a chunk full of far tasks never hides the ones behind it, and a list that really has more than the limit says so by being exactly as long as it.
     for (let chunk = 0; chunk < MAX_SCAN_CHUNKS; chunk += 1) {
-      const rows: TaskSql[] = await this.chunkAfter(context, horizon, after);
+      const rows: DueTaskSql[] = await this.chunkAfter(context, horizon, after);
       for (const row of rows) {
-        const policy = set.forUnitPath(row.unit_path);
-        const result = pwfDeadlineBand.deadlineBand({ dueOn: row.due_on, today: context.today, unit: policy.unit, calendars, thresholds: pwfDeadlineBand.thresholdsFor(policy, { taskKind: row.kind, priority: row.priority, phase: row.phase_code }) });
+        // R73: the one resolution of the official colour (the ladder of the task itself, then the policy in force); when a task goes up for being overdue is still the policy's.
+        const { result, policy } = officialTaskBand(set, { kind: row.kind, priority: row.priority, phaseCode: row.phase_code, unitPath: row.unit_path, step: stepLadderOf(row) }, row.due_on, { today: context.today, calendars });
         // No colour yet (far), or none can be given (the calendar of the year is not published): not a thing to act on today.
         if (result.band === 'NONE' || result.band === 'UNKNOWN' || result.remainingDays === null) continue;
         items.push(this.itemOf(context, row, result, pwfDeadlineBand.shouldEscalate({ remaining: result.remainingDays, escalateAfterOverdueDays: policy.escalate_after_overdue_days })));
@@ -238,6 +241,9 @@ const OPEN_WORK = `(t.kind <> 'MILESTONE' or not exists (
           select 1 from machvon.project_task_dependency dep
             join machvon.project_task before on before.tenant_id = dep.tenant_id and before.id = dep.predecessor_id
            where dep.tenant_id = t.tenant_id and dep.task_id = t.id and before.tracked and not before.excluded and before.status not in ('DONE', 'CANCELLED')))`;
+
+/** A task of the list of due tasks: with the ladder of its own, when the frozen template gave it one (R73). */
+type DueTaskSql = TaskSql & TaskBandColumns;
 
 interface TaskSql {
   id: string;

@@ -1,7 +1,9 @@
-import { DomainError, legalDocument, pwfDeadlineBand, pwfSchedule, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
-import type { WorkCalendarSource } from '@machvon/kernel';
+import { DomainError, legalDocument, pwfSchedule, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
+import type { WorkCalendarSource, pwfDeadlineBand } from '@machvon/kernel';
 import { PwfAssignmentReads, legalBasisView } from './pwf-assignment.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
+import { bandExplanationOf, officialTaskBand, officialTaskLadder } from './pwf-task-band.ts';
+import type { BandExplanation, DurationView } from './pwf-task-band.ts';
 import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { SqlProjectWorkflowGate } from './pwf-gate.ts';
@@ -35,8 +37,8 @@ export interface BandView {
 export const bandViewOf = (result: pwfDeadlineBand.DeadlineBandResult): BandView => ({ band: result.band, remaining_days: result.remainingDays, unit: result.unit, overdue: result.overdue, due_today: result.dueToday, reason: result.reason ?? null });
 
 /** What the colour of a deadline is judged on: the state of the task, what it is, and its OFFICIAL deadline (`dueOn`, the finish of the schedule last released by a decision, R49). */
-export type BandSubject = Pick<TaskRow, 'status' | 'excluded' | 'tracked' | 'kind' | 'priority' | 'phaseCode'> & { dueOn: string | null; /** True when the schedule could not give the task its days because a year has no published calendar (state CALENDAR_UNAVAILABLE). */ calendarUnavailable?: boolean };
-export const bandSubjectOf = (row: TaskRow): BandSubject => ({ status: row.status, excluded: row.excluded, tracked: row.tracked, kind: row.kind, priority: row.priority, phaseCode: row.phaseCode, dueOn: dueOf(row), calendarUnavailable: row.state === 'CALENDAR_UNAVAILABLE' });
+export type BandSubject = Pick<TaskRow, 'status' | 'excluded' | 'tracked' | 'kind' | 'priority' | 'phaseCode'> & { dueOn: string | null; /** True when the schedule could not give the task its days because a year has no published calendar (state CALENDAR_UNAVAILABLE). */ calendarUnavailable?: boolean; /** The ladder the frozen template gave the task (the band columns of its row, R73); null or absent: it follows the policy in force. */ bandLadder?: pwfDeadlineBand.BandThresholds | null };
+export const bandSubjectOf = (row: TaskRow): BandSubject => ({ status: row.status, excluded: row.excluded, tracked: row.tracked, kind: row.kind, priority: row.priority, phaseCode: row.phaseCode, dueOn: dueOf(row), calendarUnavailable: row.state === 'CALENDAR_UNAVAILABLE', bandLadder: row.bandLadder });
 
 /** The forecast of a task that is not over, when the current computation differs from the days that were released; null when there is nothing else to tell. */
 export function forecastOf(row: Pick<TaskRow, 'status' | 'plannedStart' | 'plannedFinish' | 'committedStart' | 'committedFinish'>): { start: string | null; finish: string | null } {
@@ -67,6 +69,13 @@ export interface TaskListItem {
   total_float: number | null;
   critical: boolean;
   band: BandView;
+  /** Where the official colour came from and the ladder that was used (R59, R73). */
+  band_tier?: pwfDeadlineBand.BandTier;
+  band_thresholds?: pwfDeadlineBand.BandThresholds;
+  /** The limit of the task in its own unit (R58); null: `duration_working_days` is the limit. */
+  duration: DurationView | null;
+  /** The working days the task covers on the line of the schedule as last published; null while unknown. */
+  effective_working_days: number | null;
   assignee: { membership_id: string; display_name: string } | null;
   return_count: number;
   version: number;
@@ -84,6 +93,12 @@ export interface Can {
 export interface BandResolver {
   /** The colour of a task under the rule of the unit that owns its project (`unitPath`, the path of that unit; null or absent: the rule of the whole tenant), the nearest unit with a rule of its own winning. */
   of(task: BandSubject, unitPath?: string | null): BandView;
+  /** The same colour with the tier that gave its ladder and the ladder itself, for the reads that explain a colour (R73). */
+  explain(task: BandSubject, unitPath?: string | null): JudgedBand;
+}
+
+export interface JudgedBand extends BandExplanation {
+  band: BandView;
 }
 
 /** The path of the unit that owns a project (the unit whose rule judges the deadlines of its tasks), or null when it has none. */
@@ -96,17 +111,19 @@ export async function bandResolver(tx: TenantTx, calendars: HomeWorkCalendars, n
   const today = vietnamDateOf(now);
   const policies = await new PwfBandPolicies().load(tx, today);
   const source: WorkCalendarSource | undefined = await calendars.load(tx, WORK_CALENDAR_CODE, now);
-  return {
-    of: (task, unitPath = null): BandView => {
-      const policy = policies.forUnitPath(unitPath);
-      // A task that is over, cancelled, left out of the project or not tracked has no colour.
-      if (task.status === 'DONE' || task.status === 'CANCELLED' || task.excluded || !task.tracked) return { band: 'NONE', remaining_days: null, unit: policy.unit, overdue: false, due_today: false, reason: 'NO_DUE' };
-      // A task whose days the schedule could not compute for want of a calendar has no deadline to guess: its colour is UNKNOWN, never NONE (which reads as "far away") and never green (BR-PWF-10, BR-PWF-26).
-      if (task.calendarUnavailable === true && task.dueOn === null) return { band: 'UNKNOWN', remaining_days: null, unit: policy.unit, overdue: false, due_today: false, reason: 'CALENDAR_UNAVAILABLE' };
-      const thresholds = pwfDeadlineBand.thresholdsFor(policy, { taskKind: task.kind, priority: task.priority, phase: task.phaseCode });
-      return bandViewOf(pwfDeadlineBand.deadlineBand({ dueOn: task.dueOn, today, unit: policy.unit, calendars: source, thresholds }));
-    },
+  // R73: one resolution of the ladder for every read (`pwf-task-band.ts`): the ladder of the task itself, then the policy in force for the unit of its project, then the default of the source.
+  const explain = (task: BandSubject, unitPath: string | null = null): JudgedBand => {
+    const subject = { kind: task.kind, priority: task.priority, phaseCode: task.phaseCode, unitPath, step: task.bandLadder ?? null };
+    const ladder = officialTaskLadder(policies, subject);
+    const policy = ladder.policy;
+    const said = bandExplanationOf(ladder);
+    // A task that is over, cancelled, left out of the project or not tracked has no colour.
+    if (task.status === 'DONE' || task.status === 'CANCELLED' || task.excluded || !task.tracked) return { band: { band: 'NONE', remaining_days: null, unit: policy.unit, overdue: false, due_today: false, reason: 'NO_DUE' }, ...said };
+    // A task whose days the schedule could not compute for want of a calendar has no deadline to guess: its colour is UNKNOWN, never NONE (which reads as "far away") and never green (BR-PWF-10, BR-PWF-26).
+    if (task.calendarUnavailable === true && task.dueOn === null) return { band: { band: 'UNKNOWN', remaining_days: null, unit: policy.unit, overdue: false, due_today: false, reason: 'CALENDAR_UNAVAILABLE' }, ...said };
+    return { band: bandViewOf(officialTaskBand(policies, subject, task.dueOn, { today, calendars: source }).result), ...said };
   };
+  return { explain, of: (task, unitPath = null): BandView => explain(task, unitPath).band };
 }
 
 interface AssigneeSql {
@@ -128,7 +145,7 @@ async function assigneesOf(tx: TenantTx, taskIds: readonly string[], today: stri
   return new Map(rows.map((row) => [row.task_id, { membership_id: row.membership_id, display_name: row.display_name ?? row.membership_id }]));
 }
 
-export const taskItemOf = (row: TaskRow, band: BandView, assignee: { membership_id: string; display_name: string } | undefined): TaskListItem => ({
+export const taskItemOf = (row: TaskRow, judged: JudgedBand, assignee: { membership_id: string; display_name: string } | undefined): TaskListItem => ({
   id: row.id,
   task_code: row.code,
   name: row.name,
@@ -148,7 +165,11 @@ export const taskItemOf = (row: TaskRow, band: BandView, assignee: { membership_
   missing_year: row.missingYear,
   total_float: row.totalFloat,
   critical: row.critical,
-  band,
+  band: judged.band,
+  band_tier: judged.band_tier,
+  band_thresholds: judged.band_thresholds,
+  duration: row.duration === null ? null : { value: row.duration.value, unit: row.duration.unit, roll_to_working_day: row.duration.rollToWorkingDay },
+  effective_working_days: row.effectiveWorkingDays,
   assignee: assignee ?? null,
   return_count: row.returnCount,
   version: row.version,
@@ -197,7 +218,7 @@ export class PwfWorkflowReads {
     const resolver = await bandResolver(tx, this.calendars, now);
     const unit = await unitPathOfProject(tx, projectId);
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
-    const items = tasks.map((one) => taskItemOf(one, resolver.of(bandSubjectOf(one), unit), assignees.get(one.id)));
+    const items = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id)));
     const gated = new Set(template.phases.flatMap((phase) => phase.gates));
     const gates = [];
     for (const target of pwfWorkflow.WORKFLOW_GATE_TARGETS) {
@@ -307,7 +328,7 @@ export class PwfWorkflowReads {
     const unit = await unitPathOfProject(tx, projectId);
     const tasks = await this.tasksOf(tx, row.id as string);
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
-    const all = tasks.map((one) => taskItemOf(one, resolver.of(bandSubjectOf(one), unit), assignees.get(one.id)));
+    const all = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id)));
     const matching = all.filter(
       (item) =>
         (filter.phase === undefined || item.phase_code === filter.phase) &&

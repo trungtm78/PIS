@@ -6,6 +6,8 @@ import type { WorkSeverity } from './home-work-rules.ts';
 import { addDays } from './home-work-sources.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
 import { windowEdge } from './pwf-horizon.ts';
+import { bandColumnsOf, officialTaskBand, stepLadderOf } from './pwf-task-band.ts';
+import type { TaskBandColumns } from './pwf-task-band.ts';
 import type { BandPolicySet } from './pwf-band-policies.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -37,7 +39,7 @@ export interface PwfReminderNotice {
 /** Whether a person may be told of a task: an active membership that still reads the project (the caller knows access; the store knows the tasks). */
 export type RecipientEligibility = (membershipId: string, projectId: string) => Promise<boolean>;
 
-interface TaskSql {
+interface TaskSql extends TaskBandColumns {
   id: string;
   project_id: string;
   schedule_version: number;
@@ -95,7 +97,7 @@ export class PwfTaskReminders {
     // The tasks of the window are read a page at a time, in the order of their days, so that a tenant with many of them is reached to the end and not only at its first rows.
     for (;;) {
       const tasks: Array<TaskSql & { sort_day: string }> = await tx.query<TaskSql & { sort_day: string }>(
-        `select t.id, t.project_id, t.schedule_version, t.kind, t.priority, t.phase_code, t.committed_finish::text as due_on, t.committed_finish::text as sort_day, ou.path as unit_path
+        `select t.id, t.project_id, t.schedule_version, t.kind, t.priority, t.phase_code, t.committed_finish::text as due_on, t.committed_finish::text as sort_day, ou.path as unit_path, ${bandColumnsOf('t')}
            from machvon.project_task t
            join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
            join machvon.project p on p.tenant_id = t.tenant_id and p.id = t.project_id
@@ -141,14 +143,15 @@ export class PwfTaskReminders {
     }
     const fresh: Fresh[] = [];
     for (const task of tasks) {
-      const policy = set.forUnitPath(task.unit_path);
-      const remaining = pwfDeadlineBand.remainingDays({ dueOn: task.due_on, today, unit: policy.unit, calendars });
+      // R73: the colour (and so the level of the reminder) is the one resolution every screen uses: the ladder of the task itself, then the policy in force. The reminder POINTS stay the policy's.
+      const judged = officialTaskBand(set, { kind: task.kind, priority: task.priority, phaseCode: task.phase_code, unitPath: task.unit_path, step: stepLadderOf(task) }, task.due_on, { today, calendars });
+      const policy = judged.policy;
+      const remaining = judged.result.remainingDays;
       // The days cannot be counted without the calendar of the year: no reminder is made up.
       if (remaining === null) continue;
-      const thresholds = pwfDeadlineBand.thresholdsFor(policy, { taskKind: task.kind, priority: task.priority, phase: task.phase_code });
       // R49: overdue is the day of the deadline having passed (a count of working days stays 0 over the days nobody works after it), and an overdue task is red on every ladder.
-      const overdue = task.due_on < today;
-      const band = overdue ? 'RED' : pwfDeadlineBand.bandOf(remaining, thresholds);
+      const overdue = judged.result.overdue;
+      const band = judged.result.band;
       const severity = severityOf('PROJECT_TASK', overdue ? 'OVERDUE' : band === 'NONE' ? 'GREEN' : band);
       const own = holders.get(task.id) ?? [];
       if (own.length === 0) continue;

@@ -388,16 +388,28 @@ export class PwfWorkflowStore {
         percent: progress?.status === 'IN_PROGRESS' ? (progress.percentComplete ?? null) : null,
         // Taken in as done: the person who took it in attests the completion; a task not tracked is never asked to be approved.
         attested: done && !untracked && one.approverRole !== null,
+        // R59, R73: the ladder the template gives this very task is frozen on its row, tier STEP; a task without one stores nothing and follows the policy in force when it is read.
+        band_tier: one.bands === undefined || one.bands === null ? null : 'STEP',
+        band_green: one.bands?.green_days ?? null,
+        band_yellow: one.bands?.yellow_days ?? null,
+        band_red: one.bands?.red_days ?? null,
+        // R58: the limit in its own unit; a task without one keeps `duration_working_days` alone.
+        duration_value: one.duration?.value ?? null,
+        duration_unit: one.duration?.unit ?? null,
+        duration_roll: one.duration === undefined || one.duration === null ? null : one.duration.rollToWorkingDay,
       };
     });
     await tx.query(
       `insert into machvon.project_task (tenant_id, id, workflow_id, project_id, task_code, name, phase_code, sort_order, kind, required, responsible_role, approver_role, priority, duration_working_days, status, excluded, tracked,
-              constraint_kind, constraint_offset, actual_start, actual_finish, remaining_working_days, percent_complete, completion_requested_by, approved_by, approved_at, created_by, updated_by)
+              constraint_kind, constraint_offset, actual_start, actual_finish, remaining_working_days, percent_complete, completion_requested_by, approved_by, approved_at, created_by, updated_by,
+              band_tier, band_green_days, band_yellow_days, band_red_days, duration_value, duration_unit, duration_roll)
        select nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2::uuid, x.code, x.name, x.phase, x.sort_order, x.kind, x.required, x.responsible_role, x.approver_role, x.priority, x.duration, x.status, x.excluded, x.tracked,
               x.constraint_kind, x.constraint_offset, x.actual_start, x.actual_finish, x.remaining, x.percent,
-              case when x.attested then $3::uuid end, case when x.attested then $3::uuid end, case when x.attested then now() end, $3::uuid, $3::uuid
+              case when x.attested then $3::uuid end, case when x.attested then $3::uuid end, case when x.attested then now() end, $3::uuid, $3::uuid,
+              x.band_tier, x.band_green, x.band_yellow, x.band_red, x.duration_value, x.duration_unit, x.duration_roll
          from jsonb_to_recordset($4::jsonb) as x(code text, name text, phase text, sort_order int, kind text, required boolean, responsible_role text, approver_role text, priority text, duration int, status text, excluded boolean, tracked boolean,
-              constraint_kind text, constraint_offset int, actual_start date, actual_finish date, remaining int, percent int, attested boolean)`,
+              constraint_kind text, constraint_offset int, actual_start date, actual_finish date, remaining int, percent int, attested boolean,
+              band_tier text, band_green int, band_yellow int, band_red int, duration_value int, duration_unit text, duration_roll boolean)`,
       [workflowId, projectId, actor, JSON.stringify(rows)],
     );
     const links = plan.resolved.template.tasks.flatMap((one) => one.predecessors.map((link) => ({ task: one.code, predecessor: link.task, kind: link.kind, lag: link.lagWorkingDays })));

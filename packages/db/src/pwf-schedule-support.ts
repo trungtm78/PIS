@@ -1,6 +1,7 @@
 import { DomainError, canonicalJson, sha256Hex } from '@machvon/kernel';
-import type { pwfSchedule, pwfWorkflow } from '@machvon/kernel';
+import type { pwfDeadlineBand, pwfSchedule, pwfWorkflow } from '@machvon/kernel';
 import { WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
+import { bandColumnsOf, durationColumnsOf, stepLadderOf } from './pwf-task-band.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 /**
@@ -134,6 +135,12 @@ export interface TaskRow {
   cancelledBy: string | null;
   milestoneId: string | null;
   version: number;
+  /** The ladder the frozen template gave the task (R59, R73); null: the task follows the policy in force. */
+  bandLadder: pwfDeadlineBand.BandThresholds | null;
+  /** The limit of the task in its own unit (R58); null: `durationWorkingDays` is the limit. */
+  duration: pwfSchedule.ScheduleDuration | null;
+  /** The working days the task covers on the line of the schedule as last published; null while unknown. */
+  effectiveWorkingDays: number | null;
 }
 
 export interface TaskSql {
@@ -185,6 +192,14 @@ export interface TaskSql {
   cancelled_by: string | null;
   milestone_id: string | null;
   version: number;
+  band_tier: string | null;
+  band_green_days: number | null;
+  band_yellow_days: number | null;
+  band_red_days: number | null;
+  duration_value: number | null;
+  duration_unit: string | null;
+  duration_roll: boolean | null;
+  effective_working_days: number | null;
 }
 
 /** The columns of a task as `toTaskRow` reads them, for the alias `t`. */
@@ -193,7 +208,8 @@ export const TASK_COLUMNS = `t.id, t.workflow_id, t.project_id, t.task_code, t.n
   t.committed_start::text as committed_start, t.committed_finish::text as committed_finish,
   t.late_start::text as late_start, t.late_finish::text as late_finish, t.total_float, t.free_float, t.critical, t.driving_predecessor, t.missing_year, t.constraint_kind, t.constraint_offset, t.schedule_version,
   t.actual_start::text as actual_start, t.actual_finish::text as actual_finish, t.remaining_working_days, t.percent_complete, t.return_count, t.reschedule_count, t.early_start_reason,
-  t.estimate_vnd::text as estimate_vnd, t.actual_vnd::text as actual_vnd, t.completion_requested_by, t.approved_by, t.cancelled_by, t.milestone_id, t.version`;
+  t.estimate_vnd::text as estimate_vnd, t.actual_vnd::text as actual_vnd, t.completion_requested_by, t.approved_by, t.cancelled_by, t.milestone_id, t.version,
+  ${bandColumnsOf('t')}, ${durationColumnsOf('t')}`;
 
 export const toTaskRow = (row: TaskSql): TaskRow => ({
   id: row.id,
@@ -244,6 +260,9 @@ export const toTaskRow = (row: TaskSql): TaskRow => ({
   cancelledBy: row.cancelled_by,
   milestoneId: row.milestone_id,
   version: Number(row.version),
+  bandLadder: stepLadderOf(row),
+  duration: row.duration_value === null || row.duration_unit === null ? null : { value: Number(row.duration_value), unit: row.duration_unit as pwfSchedule.ScheduleDuration['unit'], rollToWorkingDay: row.duration_roll === true },
+  effectiveWorkingDays: row.effective_working_days === null ? null : Number(row.effective_working_days),
 });
 
 export async function loadTasks(tx: TenantTx, workflowId: string): Promise<TaskRow[]> {
@@ -288,6 +307,8 @@ export function scheduleTasksOf(rows: readonly TaskRow[], links: readonly TaskLi
       code: row.code,
       kind: row.kind,
       durationWorkingDays: row.durationWorkingDays,
+      // R58: a task whose frozen template gave it a limit in its own unit is laid by that unit every time the schedule is computed again; a task without one has no such key (the input, and its hash, are what they were).
+      ...(row.duration === null ? {} : { duration: row.duration }),
       predecessors: (byTask.get(row.id) ?? []).map((link) => ({ task: link.predecessor, kind: link.kind, lagWorkingDays: link.lagWorkingDays })),
       ...(row.constraintKind === null ? {} : { constraint: { kind: row.constraintKind, offsetWorkingDays: row.constraintOffset ?? 0 } as pwfSchedule.ScheduleConstraint }),
       status: SCHEDULE_STATUS[row.status],
@@ -401,6 +422,21 @@ export async function writeScheduleDays(tx: TenantTx, workflowId: string, result
   } finally {
     if (release) await tx.query("select set_config('pwf.release', 'off', true)");
   }
+  // R58: the working days each task covers on the line as it was placed now, for every task and every publication (start, adoption, reschedule, progress). It is a fact of the computation, not an edit of the task: the row keeps its
+  // version, so a task whose days did not move is not a new version to anybody who holds it open.
+  await tx.query(
+    `update machvon.project_task t set effective_working_days = x.effective
+       from jsonb_to_recordset($2::jsonb) as x(code text, effective int)
+      where t.workflow_id = $1::uuid and t.task_code = x.code and t.effective_working_days is distinct from x.effective`,
+    [workflowId, JSON.stringify(result.tasks.map((task) => ({ code: task.code, effective: effectiveWorkingDaysOf(task) })))],
+  );
+}
+
+/** The working days a scheduled task covers on the line (its end slot minus its start slot; 0 for a milestone); null for a task that has no place on it (a branch left out, a year without a published calendar). */
+export function effectiveWorkingDaysOf(task: Pick<pwfSchedule.ScheduledTask, 'state' | 'startSlot' | 'endSlot' | 'effectiveWorkingDays'>): number | null {
+  if (task.effectiveWorkingDays !== undefined) return task.effectiveWorkingDays;
+  if (task.state === 'PASS_THROUGH' || task.state === 'CALENDAR_UNAVAILABLE') return null;
+  return Math.max(0, task.endSlot - task.startSlot);
 }
 
 /** The first calendar year a schedule reaches: the line of working days starts at the earliest day it mentions (the planned start, the day of the status, the first baseline, the real dates), so the calendars are pinned from that year (a year without a calendar is never guessed). */

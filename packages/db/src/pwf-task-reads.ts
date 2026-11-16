@@ -159,7 +159,7 @@ export class PwfTaskReads {
       };
     });
     return {
-      ...taskItemOf(task, resolver.of(bandSubjectOf(task), unit), assignee),
+      ...taskItemOf(task, resolver.explain(bandSubjectOf(task), unit), assignee),
       responsible_role: task.responsibleRole,
       responsible_role_name: pwfWorkflow.roleNameOf(template, task.responsibleRole),
       approver_role: task.approverRole,
