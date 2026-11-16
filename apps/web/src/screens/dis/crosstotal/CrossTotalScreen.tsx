@@ -150,7 +150,6 @@ function CrossTotalContent({ route }: ScreenProps) {
                       key={dimension}
                       label={t('govd.cross.kpi.total', { dimension: dimensionLabel(t, dimension) })}
                       value={money(view.totalVnd)}
-                      unit={t('w2pay.ctx.unit')}
                       tone={view.disagrees ? 'danger' : 'success'}
                       sub={view.disagrees ? (view.offsetVnd === null ? t('govd.cross.kpi.disagrees') : t('govd.cross.kpi.offset', { offset: differenceText(view.offsetVnd, locale) })) : t('govd.cross.kpi.agrees')}
                     />
@@ -176,13 +175,13 @@ function CrossTotalContent({ route }: ScreenProps) {
                 labels={infoLabels(t, t('govd.cross.info.name'))}
               />
               {check.projectGaps.length === 0 ? null : (
-                <SectionCard title={t('govd.cross.gaps.title')} unit={t('w2pay.ctx.unit')}>
+                <SectionCard title={t('govd.cross.gaps.title')}>
                   <div data-testid="gaps">
                     <DataTable caption={t('govd.cross.gaps.title')} columns={gapColumns} rows={check.projectGaps} rowKey={(gap) => gap.projectId} />
                   </div>
                 </SectionCard>
               )}
-              <SectionCard title={t('govd.cross.keys.title')} unit={t('w2pay.ctx.unit')}>
+              <SectionCard title={t('govd.cross.keys.title')}>
                 {DIMENSIONS.map((dimension) => {
                   const view = dimensionOf(check, dimension);
                   return (
