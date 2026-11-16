@@ -368,7 +368,7 @@
   right: 0;
   bottom: 0;
   z-index: 60;
-  width: min(560px, 100vw);
+  width: min(560px, 100%);
   display: flex;
   flex-direction: column;
   background: var(--mv-color-surface);
@@ -446,6 +446,6 @@
 
 @media (max-width: 900px) {
   .pwfx-drawer {
-    width: 100vw;
+    width: 100%;
   }
 }
