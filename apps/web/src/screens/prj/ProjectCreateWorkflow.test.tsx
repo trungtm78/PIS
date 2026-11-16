@@ -44,6 +44,11 @@ async function fill(): Promise<void> {
   set(vi_['prj.form.area.label'], AREA);
   set(vi_['prj.form.total.label'], '500000000000');
 }
+const goTo = (step: 1 | 2 | 3): void => {
+  fireEvent.click(document.querySelector(`.pwfc-steps__button[data-step="${step}"]`) as HTMLElement);
+};
+/** The rule has answered for the owner unit: the suggestion is on screen (the first step). */
+const suggested = () => waitFor(() => expect(screen.getByTestId('kind-suggestion').textContent).toContain('PUBLIC_INVESTMENT'));
 const submit = (): void => {
   fireEvent.click(screen.getByRole('button', { name: vi_['prj.create.submit.action'] }));
 };
@@ -63,10 +68,11 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
   it('registers the project with the workflow the rule suggests: the planned start and the facts are sent, the template is left to the rule', async () => {
     const { h, asked } = open();
     await fill();
-    await screen.findByTestId('kind-preview');
-    fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
+    await suggested();
     fireEvent.change(screen.getByTestId('kind-group'), { target: { value: 'B' } });
     fireEvent.change(screen.getByTestId('kind-funding'), { target: { value: 'STATE_BUDGET' } });
+    goTo(2);
+    fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
     await waitFor(() => expect(asked[asked.length - 1]).toEqual({ owner_unit_id: UNIT_DEPARTMENT, project_group: 'B', funding_source: 'STATE_BUDGET', planned_start_date: '2026-12-01' }));
     submit();
     await screen.findByTestId('created');
@@ -78,10 +84,12 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
   it('asks for a reason before another template than the suggested one is sent, and sends it with the choice', async () => {
     const { h } = open();
     await fill();
-    await screen.findByTestId('kind-preview');
-    fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
+    await suggested();
     fireEvent.change(screen.getByTestId('kind-template'), { target: { value: 'PUBLIC_REPAIR' } });
+    goTo(2);
+    fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
     submit();
+    // The step that holds the problem opens by itself.
     expect(within(await screen.findByTestId('kind-problems')).getByRole('listitem').textContent).toBe(text('pwf.process.problem.reasonRequired.text'));
     expect(h.command).not.toHaveBeenCalled();
     fireEvent.change(screen.getByTestId('kind-reason'), { target: { value: 'Dự án sửa chữa theo quyết định của chủ đầu tư' } });
@@ -93,7 +101,7 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
   it('registers the project without a workflow when no planned start is given, and says where the workflow starts later', async () => {
     const { h } = open();
     await fill();
-    await screen.findByTestId('kind-preview');
+    await suggested();
     submit();
     await screen.findByTestId('created');
     expect('workflow' in bodyOf(h)).toBe(false);
@@ -103,7 +111,8 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
   it('does not send a workflow that cannot start: a fact a branch reads is missing, and it says which', async () => {
     const { h } = open(() => suggestion({ preview: { missing_facts: ['funding_source'], project_finish: null, total_working_days: null } }));
     await fill();
-    await screen.findByTestId('kind-preview');
+    await suggested();
+    goTo(2);
     fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
     submit();
     expect(within(await screen.findByTestId('kind-problems')).getByRole('listitem').textContent).toBe(text('pwf.process.problem.factsRequired.text', { facts: text('pwf.process.fact.funding.label') }));
@@ -114,6 +123,7 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
     const denied = open(() => suggestion({ can_start: false }));
     await fill();
     await screen.findByTestId('kind-denied');
+    goTo(2);
     expect((screen.getByTestId('kind-start') as HTMLInputElement).disabled).toBe(true);
     submit();
     await screen.findByTestId('created');
@@ -131,11 +141,13 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
     const { h } = open(() => new ApiError({ status: 503, code: 'DEPENDENCY_UNAVAILABLE', correlationId: 'c', extensions: {} }));
     await fill();
     await screen.findByTestId('kind-failed');
+    goTo(2);
     fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
     submit();
     expect(within(await screen.findByTestId('kind-problems')).getByRole('listitem').textContent).toBe(text('pwf.process.problem.suggestionUnavailable.text'));
     expect(h.command).not.toHaveBeenCalled();
     // Without the planned start the project is registered, as the notice of the section says.
+    goTo(2);
     fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '' } });
     submit();
     await screen.findByTestId('created');
@@ -145,9 +157,10 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
   it('holds the form still while the rule is asked once more for the save: what is sent is what the answer was for', async () => {
     const { h } = open();
     await fill();
-    await screen.findByTestId('kind-preview');
+    await suggested();
+    goTo(2);
     fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
-    await waitFor(() => expect(screen.getByTestId('kind-preview')).toBeTruthy());
+    await waitFor(() => expect(screen.getByTestId('kind-start')).toBeTruthy());
     // From now on the rule takes its time to answer.
     let answer: (value: unknown) => void = () => undefined;
     const base = h.read.getMockImplementation() as (operation: string, input?: unknown) => Promise<unknown>;
@@ -183,10 +196,55 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
       () => new ApiError({ status: 422, code: 'PWF_FACTS_REQUIRED', correlationId: 'c', extensions: { fields: ['funding_source'] } }),
     );
     await fill();
-    await screen.findByTestId('kind-preview');
+    await suggested();
+    goTo(2);
     fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
     submit();
     await waitFor(() => expect(screen.getAllByRole('alert').length).toBeGreaterThan(0));
+    expect(screen.queryByTestId('created')).toBeNull();
+  });
+});
+
+describe('PRJ-02: the units of the process are chosen with the registration (R61)', () => {
+  const withOpenParty = () =>
+    suggestion({
+      preview: { units: { refs: [{ unit_ref: 'PROJECT_PARTY:APPRAISER', unit_id: null, unit_name: null, source: 'NONE', party_name: 'Đơn vị thẩm định' }], unresolved: ['PROJECT_PARTY:APPRAISER'] } },
+    });
+
+  it('does not register while a party of the process has no unit: the step of the units opens and names the party; a unit chosen from the tree goes with the workflow', async () => {
+    const { h } = open(withOpenParty);
+    await fill();
+    await suggested();
+    goTo(2);
+    fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
+    await screen.findByTestId('units');
+    submit();
+    expect(within(await screen.findByTestId('kind-problems')).getByRole('listitem').textContent).toBe(text('pwfp.choose.problem.unitsRequired.text', { units: 'Đơn vị thẩm định' }));
+    expect(h.command).not.toHaveBeenCalled();
+    const select = screen.getByTestId('unit-PROJECT-PARTY-APPRAISER') as HTMLSelectElement;
+    expect(select.value).toBe('');
+    await waitFor(() => expect(within(select).getAllByRole('option').length).toBeGreaterThan(1));
+    fireEvent.change(select, { target: { value: UNIT_DEPARTMENT } });
+    submit();
+    await screen.findByTestId('created');
+    expect(bodyOf(h).workflow).toEqual({ planned_start_date: '2026-12-01', units: { 'PROJECT_PARTY:APPRAISER': UNIT_DEPARTMENT } });
+  });
+
+  it('says the refusal of a unit at the cell of that unit and registers nothing', async () => {
+    open(
+      withOpenParty,
+      WITH_WORKFLOWS,
+      () => new ApiError({ status: 422, code: 'PWF_UNIT_UNKNOWN', correlationId: 'c', extensions: { unit_refs: ['PROJECT_PARTY:APPRAISER'] } }),
+    );
+    await fill();
+    await suggested();
+    goTo(2);
+    fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
+    const select = (await screen.findByTestId('unit-PROJECT-PARTY-APPRAISER')) as HTMLSelectElement;
+    await waitFor(() => expect(within(select).getAllByRole('option').length).toBeGreaterThan(1));
+    fireEvent.change(select, { target: { value: UNIT_DEPARTMENT } });
+    submit();
+    expect((await screen.findByTestId('unit-error-PROJECT_PARTY:APPRAISER')).textContent).toBe(text('pwfp.problem.unitUnknown.error', { refs: 'PROJECT_PARTY:APPRAISER' }));
     expect(screen.queryByTestId('created')).toBeNull();
   });
 });

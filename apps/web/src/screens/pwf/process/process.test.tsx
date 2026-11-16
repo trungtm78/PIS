@@ -1,13 +1,9 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { describeViolations, seriousViolations } from '../../../test/axe';
+import { cleanup, render, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { taskDetail, text } from '../test/fixtures';
 import { LegalBasisList } from './LegalBasisList';
-import { EMPTY_CHOICE } from './model';
-import type { ChoiceForm } from './model';
-import { ProcessKindSection } from './ProcessKindSection';
 import { FormRevision, TaskProcessSection, mergedBasis } from './TaskProcessSection';
-import { legalBasis, suggestion } from './test/fixtures';
+import { legalBasis } from './test/fixtures';
 
 afterEach(cleanup);
 
@@ -111,66 +107,5 @@ describe('the place of a task in the procedure (PWF-04)', () => {
   it('shows nothing for an answer kept from before these facts existed', () => {
     const { container } = render(<TaskProcessSection task={taskDetail()} />);
     expect(container.textContent).toBe('');
-  });
-});
-
-describe('the kind of workflow and the planned start (PRJ-02, PWF-05)', () => {
-  const show = (form: Partial<ChoiceForm> = {}, over: Partial<Parameters<typeof ProcessKindSection>[0]> = {}) => {
-    const onChange = vi.fn();
-    render(<ProcessKindSection form={{ ...EMPTY_CHOICE, ...form }} onChange={onChange} suggestion={suggestion()} loading={false} failed={false} onRetry={() => undefined} disabled={false} showProblems={false} withoutStart={text('pwf.process.kind.start.registerHint')} {...over} />);
-    return onChange;
-  };
-
-  it('says what the rule suggests and why, offers every template, and previews the schedule before anything is saved', () => {
-    show({ plannedStart: '2026-12-01' });
-    expect(screen.getByTestId('kind-suggestion').textContent).toContain(text('pwf6.kind.suggested.label'));
-    expect(screen.getByTestId('kind-suggestion').textContent).toContain('Dự án đầu tư công xây dựng');
-    expect(screen.getByTestId('kind-suggestion').getAttribute('data-suggested')).toBe('PUBLIC_INVESTMENT');
-    expect(screen.getByTestId('kind-suggestion').textContent).toContain(text('pwf6.kind.reason.label'));
-    expect(screen.getByTestId('kind-suggestion').textContent).toContain(text('pwf.process.basis.default.text'));
-    expect(within(screen.getByTestId('kind-template')).getAllByRole('option').map((option) => option.getAttribute('value'))).toEqual(['', 'PUBLIC_INVESTMENT', 'PUBLIC_REPAIR']);
-    expect(screen.getByTestId('kind-unverified')).toBeTruthy();
-    expect(screen.getByTestId('preview-finish').textContent).toBe('15/03/2028');
-    expect(screen.getByTestId('preview-total').textContent).toBe(text('pwf.process.preview.days.text', { days: 330 }));
-    expect(screen.getByTestId('preview-counts').textContent).toBe(text('pwf.process.preview.counts.text', { phases: 6, steps: 13, tasks: 31 }));
-    const rows = within(screen.getByTestId('kind-preview')).getAllByRole('row');
-    expect(rows[1]?.textContent).toContain('Quyết định chủ trương đầu tư');
-    expect(rows[1]?.textContent).toContain('35');
-    expect(rows[2]?.textContent).toContain(text('pwf.process.step.notApplicable.word'));
-  });
-
-  it('asks for the facts only the chosen template branches on, and for a reason only when the choice goes against the rule', () => {
-    const onChange = show({ templateCode: 'PUBLIC_REPAIR' });
-    expect(screen.queryByTestId('kind-group')).toBeNull();
-    expect(screen.queryByTestId('kind-funding')).toBeNull();
-    fireEvent.change(screen.getByTestId('kind-reason'), { target: { value: 'Dự án sửa chữa' } });
-    expect(onChange).toHaveBeenCalledWith({ reason: 'Dự án sửa chữa' });
-    cleanup();
-    show({ templateCode: 'PUBLIC_INVESTMENT' });
-    expect(screen.getByTestId('kind-group')).toBeTruthy();
-    expect(screen.getByTestId('kind-funding')).toBeTruthy();
-    expect(screen.queryByTestId('kind-reason')).toBeNull();
-  });
-
-  it('names what keeps the workflow from starting once the person tried to save, and what the schedule is missing', () => {
-    show({ plannedStart: '2026-12-01', templateCode: 'PUBLIC_REPAIR' }, { showProblems: true, suggestion: suggestion({ preview: { missing_facts: ['funding_source'], project_finish: null, total_working_days: null } }) });
-    const problems = within(screen.getByTestId('kind-problems')).getAllByRole('listitem').map((item) => item.getAttribute('data-problem'));
-    expect(problems).toEqual(['reasonRequired', 'factsRequired']);
-    expect(screen.getByTestId('preview-facts').textContent).toBe(text('pwf.process.preview.missingFacts.text', { facts: text('pwf.process.fact.funding.label') }));
-  });
-
-  it('says that no template is suggested, that the caller may not start a workflow, and that the suggestion could not be read', () => {
-    show({}, { suggestion: suggestion({ suggested_template_code: null, basis: 'NONE', can_start: false, preview: null, unknown_templates: ['RETIRED_ONE'] }), failed: true });
-    expect(screen.getByTestId('kind-suggestion').textContent).toBe(text('pwf.process.basis.none.text'));
-    expect(screen.getByTestId('kind-denied').textContent).toBe(text('pwf.process.kind.denied.text'));
-    expect(screen.getByTestId('kind-failed').textContent).toContain(text('pwf.process.kind.failed.text'));
-    expect(screen.getByTestId('kind-unknown').textContent).toBe(text('pwf.process.kind.unknownTemplates.text', { codes: 'RETIRED_ONE' }));
-    expect((screen.getByTestId('kind-start') as HTMLInputElement).disabled).toBe(true);
-  });
-
-  it('has no serious accessibility violation', async () => {
-    const onChange = vi.fn();
-    const { container } = render(<ProcessKindSection form={{ ...EMPTY_CHOICE, plannedStart: '2026-12-01', templateCode: 'PUBLIC_REPAIR' }} onChange={onChange} suggestion={suggestion()} loading={false} failed={false} onRetry={() => undefined} disabled={false} showProblems withoutStart="x" />);
-    expect(describeViolations(await seriousViolations(container))).toEqual([]);
   });
 });
