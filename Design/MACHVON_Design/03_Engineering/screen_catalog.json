@@ -14274,8 +14274,8 @@
   {
     "id": "PWF-01",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
-    "title": "Thư viện mẫu workflow",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
+    "title": "Thư viện mẫu quy trình",
     "kind": "table",
     "fields": [
       "Mã mẫu và tên",
@@ -14298,8 +14298,8 @@
   {
     "id": "PWF-02",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
-    "title": "Soạn mẫu workflow",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
+    "title": "Soạn mẫu quy trình",
     "kind": "form",
     "fields": [
       "Sửa tên, mô tả",
@@ -14331,8 +14331,8 @@
   {
     "id": "PWF-03",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
-    "title": "Workflow của dự án",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
+    "title": "Quy trình của dự án",
     "kind": "detail",
     "fields": [
       "Cây tiến trình theo giai đoạn",
@@ -14352,7 +14352,7 @@
   {
     "id": "PWF-04",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
     "title": "Chi tiết công việc",
     "kind": "detail",
     "fields": [
@@ -14373,8 +14373,8 @@
   {
     "id": "PWF-05",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
-    "title": "Khởi tạo và tiếp nhận workflow",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
+    "title": "Khởi tạo và tiếp nhận quy trình",
     "kind": "form",
     "fields": [
       "Chọn mẫu theo loại dự án",
@@ -14395,7 +14395,7 @@
   {
     "id": "PWF-06",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
     "title": "Xem trước và duyệt dời lịch",
     "kind": "detail",
     "fields": [
@@ -14415,7 +14415,7 @@
   {
     "id": "PWF-07",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
     "title": "Bảng deadline toàn danh mục",
     "kind": "dashboard",
     "fields": [
@@ -14437,7 +14437,7 @@
   {
     "id": "PWF-08",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
     "title": "Chính sách ba màu",
     "kind": "form",
     "fields": [
@@ -14461,8 +14461,8 @@
   {
     "id": "PWF-09",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
-    "title": "Bộ KPI workflow",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
+    "title": "Bộ KPI quy trình",
     "kind": "form",
     "fields": [
       "Mã bộ và mẫu workflow áp dụng",
@@ -14482,7 +14482,7 @@
   {
     "id": "PWF-10",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
     "title": "Chính sách chấm điểm",
     "kind": "form",
     "fields": [
@@ -14505,7 +14505,7 @@
   {
     "id": "PWF-11",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
     "title": "Bảng điểm của tôi",
     "kind": "dashboard",
     "fields": [
@@ -14526,7 +14526,7 @@
   {
     "id": "PWF-12",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
     "title": "Bảng điểm đơn vị",
     "kind": "table",
     "fields": [
@@ -14547,7 +14547,7 @@
   {
     "id": "PWF-13",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
     "title": "Chi tiết điểm",
     "kind": "detail",
     "fields": [
@@ -14567,7 +14567,7 @@
   {
     "id": "PWF-14",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
     "title": "Kỳ chấm điểm",
     "kind": "detail",
     "fields": [
@@ -14588,7 +14588,7 @@
   {
     "id": "PWF-15",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
     "title": "Nhắc hạn của tôi",
     "kind": "form",
     "fields": [
@@ -14607,7 +14607,7 @@
   {
     "id": "PWF-16",
     "module": "PWF",
-    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "moduleName": "Quy trình dự án, hạn ba màu và KPI",
     "title": "Sổ phân công",
     "kind": "table",
     "fields": [
@@ -14629,7 +14629,7 @@
     "id": "MOB-78",
     "module": "MOB",
     "moduleName": "Ứng dụng iOS và Android",
-    "title": "Workflow dự án trên điện thoại",
+    "title": "Quy trình dự án trên điện thoại",
     "kind": "list",
     "fields": [
       "Dải giai đoạn",

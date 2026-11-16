@@ -1,19 +1,19 @@
 /** The Vietnamese words of the project workflow templates and of the schedule (PWF, project-workflow.ts, project-schedule.ts): a module (not the JSON catalogue) so that the web build never reads a file. */
 export const PWF_TEXT = {
   template_formula:
-    'Mẫu workflow dự án: các giai đoạn, công việc (thời lượng ngày làm việc, phụ thuộc FS/SS/FF/SF có độ trễ, ràng buộc ngày), chứng từ pháp lý, biểu mẫu, danh mục kiểm, người phụ trách và người duyệt; hạn của công việc tính từ ngày dự định bắt đầu trên lịch làm việc của đơn vị.',
+    'Mẫu quy trình dự án: các giai đoạn, công việc (thời lượng ngày làm việc, phụ thuộc FS/SS/FF/SF có độ trễ, ràng buộc ngày), chứng từ pháp lý, biểu mẫu, danh mục kiểm, người phụ trách và người duyệt; hạn của công việc tính từ ngày dự định bắt đầu trên lịch làm việc của đơn vị.',
   template_source:
     'Mặc định của hệ thống theo khảo sát MS Project, Primavera P6, Asana, Smartsheet, Procore (docs/pwf-research.md) và trình tự của Luật Đầu tư công 58/2024/QH15, Luật Đấu thầu 22/2023/QH15; số hiệu nghị định hướng dẫn chưa kiểm chứng, chưa được cơ quan sử dụng xác nhận.',
   investment_name: 'Dự án đầu tư công xây dựng',
   procurement_name: 'Dự án đầu tư công mua sắm tài sản, trang thiết bị',
   repair_name: 'Dự án đầu tư công sửa chữa, cải tạo lớn',
   investment_formula:
-    'Workflow dự án đầu tư công xây dựng: chuẩn bị đầu tư (chủ trương, nghiên cứu tiền khả thi, nghiên cứu khả thi, thẩm định, quyết định đầu tư), thực hiện (kế hoạch vốn, lựa chọn nhà thầu, thi công, giám sát, thanh toán), kết thúc (nghiệm thu, bàn giao, quyết toán, đánh giá); công việc rẽ nhánh theo nhóm dự án (QTQG, A, B, C) và nguồn vốn; số ngày là giá trị khởi đầu.',
-  procurement_formula: 'Workflow dự án đầu tư công mua sắm tài sản, trang thiết bị: đề xuất, dự toán và thẩm định, quyết định, lựa chọn nhà thầu, giao nhận, thanh toán, quyết toán; số ngày là giá trị khởi đầu.',
-  repair_formula: 'Workflow dự án đầu tư công sửa chữa, cải tạo lớn: khảo sát, thiết kế và dự toán, thẩm định, quyết định, thi công, nghiệm thu, quyết toán; số ngày là giá trị khởi đầu.',
+    'Quy trình dự án đầu tư công xây dựng: chuẩn bị đầu tư (chủ trương, nghiên cứu tiền khả thi, nghiên cứu khả thi, thẩm định, quyết định đầu tư), thực hiện (kế hoạch vốn, lựa chọn nhà thầu, thi công, giám sát, thanh toán), kết thúc (nghiệm thu, bàn giao, quyết toán, đánh giá); công việc rẽ nhánh theo nhóm dự án (QTQG, A, B, C) và nguồn vốn; số ngày là giá trị khởi đầu.',
+  procurement_formula: 'Quy trình dự án đầu tư công mua sắm tài sản, trang thiết bị: đề xuất, dự toán và thẩm định, quyết định, lựa chọn nhà thầu, giao nhận, thanh toán, quyết toán; số ngày là giá trị khởi đầu.',
+  repair_formula: 'Quy trình dự án đầu tư công sửa chữa, cải tạo lớn: khảo sát, thiết kế và dự toán, thẩm định, quyết định, thi công, nghiệm thu, quyết toán; số ngày là giá trị khởi đầu.',
   default_source:
     'Trình tự theo Luật Đầu tư công 58/2024/QH15 và Luật Đấu thầu 22/2023/QH15 (chủ trương, nghiên cứu khả thi, thẩm định, quyết định đầu tư, kế hoạch vốn, lựa chọn nhà thầu, nghiệm thu, quyết toán); nhóm dự án phải có chủ trương và tiền khả thi, thời lượng từng việc là giá trị khởi đầu của nghiên cứu, chưa kiểm chứng với văn bản hướng dẫn.',
-  alert_source: 'Mặc định của hệ thống cho workflow dự án (PWF).',
+  alert_source: 'Mặc định của hệ thống cho quy trình dự án (PWF).',
   legal_doc_catalogue_source: 'Danh mục loại chứng từ pháp lý của bản công, theo trình tự chuẩn bị đầu tư, thực hiện và kết thúc dự án đầu tư công; tên gọi theo Luật Đầu tư công 58/2024/QH15, chưa đối chiếu số hiệu từng văn bản.',
 
   phase_preparation: 'Chuẩn bị đầu tư: chủ trương',

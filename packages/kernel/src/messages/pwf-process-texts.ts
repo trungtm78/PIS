@@ -1,15 +1,15 @@
 /** The Vietnamese words of the processing workflow of a project (PWF-4: steps, legal grounds, the catalogue of legal documents, the rule that maps a project to its kind of workflow): a module (not the JSON catalogue) so that the web build never reads a file. */
 export const PWF_PROCESS_TEXT = {
   catalogue_formula:
-    'Danh mục văn bản pháp lý dùng chung: mỗi mã là một văn bản (loại, số ký hiệu, tên, cơ quan ban hành, ngày hiệu lực, ngày hết hiệu lực, văn bản thay thế, trạng thái kiểm chứng); bước và công việc của workflow trích dẫn mã và điều khoản, không chép lại nội dung.',
+    'Danh mục văn bản pháp lý dùng chung: mỗi mã là một văn bản (loại, số ký hiệu, tên, cơ quan ban hành, ngày hiệu lực, ngày hết hiệu lực, văn bản thay thế, trạng thái kiểm chứng); bước và công việc của quy trình trích dẫn mã và điều khoản, không chép lại nội dung.',
   catalogue_source:
     'Mặc định của hệ thống: các văn bản về đầu tư công, đấu thầu, xây dựng, thanh quyết toán mà người soạn biết tại ngày lập; số hiệu, ngày hiệu lực và tình trạng thay thế chưa được pháp chế của cơ quan sử dụng xác nhận.',
   assignment_formula:
     'Quy tắc gán loại quy trình: xét các dòng theo thứ tự ưu tiên tăng dần, dòng đầu tiên mà mọi điều kiện (loại dự án, nhóm dự án, nguồn vốn) đều đúng cho mã loại quy trình; không dòng nào khớp thì lấy mẫu có loại dự án trùng, sau đó lấy mã mặc định; đơn vị có quy tắc riêng thì quy tắc của đơn vị gần nhất thắng.',
   assignment_source:
     'Mặc định của hệ thống theo cách SAP PS (project profile), Jira (workflow scheme theo loại) và ServiceNow gán quy trình theo loại hồ sơ (docs/pwf-research.md phần D); bảng ánh xạ loại dự án của cơ quan sử dụng chưa được xác nhận.',
-  alert_source: 'Mặc định của hệ thống cho căn cứ pháp lý của workflow dự án (PWF).',
-  basis_action: 'Mở workflow của dự án, xem căn cứ pháp lý đã hết hiệu lực hoặc bị thay thế, đề nghị pháp chế xác nhận văn bản hiện hành và cập nhật loại quy trình cho các dự án lập sau.',
+  alert_source: 'Mặc định của hệ thống cho căn cứ pháp lý của quy trình dự án (PWF).',
+  basis_action: 'Mở quy trình của dự án, xem căn cứ pháp lý đã hết hiệu lực hoặc bị thay thế, đề nghị pháp chế xác nhận văn bản hiện hành và cập nhật loại quy trình cho các dự án lập sau.',
   basis_consequence: 'Bước và công việc tiếp tục viện dẫn văn bản không còn hiệu lực; hồ sơ trình có thể bị trả lại vì sai căn cứ.',
   basis_why: 'Văn bản pháp lý thay đổi trong vòng đời dự án; người chịu trách nhiệm dự án phải biết khi căn cứ của một bước không còn hiệu lực.',
 

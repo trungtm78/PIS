@@ -106,10 +106,10 @@ void main() {
       useDevice(tester, kTallDevice);
       final ScriptedServer none = ScriptedServer()..refuse('GET', '/projects/:id/workflow', 404, 'RESOURCE_NOT_FOUND');
       await _open(tester, none, 'MOB-78', suffix: '/$kProjectId');
-      expect(find.text('Dự án chưa có workflow'), findsOneWidget);
+      expect(find.text('Dự án chưa có quy trình'), findsOneWidget);
       await _open(tester, _workflowServer(workflow: workflowJson(unverified: true, status: 'ON_HOLD')), 'MOB-78', suffix: '/$kProjectId');
       expect(find.text('Mẫu mặc định, chưa được đơn vị xác nhận.'), findsOneWidget);
-      expect(find.text('Workflow đang tạm dừng cùng dự án.'), findsOneWidget);
+      expect(find.text('Quy trình đang tạm dừng cùng dự án.'), findsOneWidget);
     });
 
     testWidgets('offline, the copy of the last read is shown with the moment it describes', (WidgetTester tester) async {

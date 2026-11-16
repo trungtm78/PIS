@@ -11734,7 +11734,7 @@
     "PWF-01": {
       "title": "Thư viện mẫu workflow",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "table",
       "purpose": "Đây là bảng dữ liệu.",
       "audience": "Quản trị quy trình dự án, người duyệt quy tắc và người đọc có quyền pwf.read",
@@ -11755,7 +11755,7 @@
     "PWF-02": {
       "title": "Soạn mẫu workflow",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "form",
       "purpose": "Đây là biểu mẫu để nhập thông tin.",
       "audience": "Quản trị quy trình dự án",
@@ -11785,7 +11785,7 @@
     "PWF-03": {
       "title": "Workflow của dự án",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "detail",
       "purpose": "Đây là màn hình xem chi tiết.",
       "audience": "Chủ đầu tư và lãnh đạo và giám sát trong scope",
@@ -11803,7 +11803,7 @@
     "PWF-04": {
       "title": "Chi tiết công việc",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "detail",
       "purpose": "Đây là màn hình xem chi tiết.",
       "audience": "Người thực hiện, người duyệt hoàn thành và quản lý dự án trong scope",
@@ -11821,7 +11821,7 @@
     "PWF-05": {
       "title": "Khởi tạo và tiếp nhận workflow",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "form",
       "purpose": "Đây là biểu mẫu để nhập thông tin.",
       "audience": "Chủ đầu tư",
@@ -11840,7 +11840,7 @@
     "PWF-06": {
       "title": "Xem trước và duyệt dời lịch",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "detail",
       "purpose": "Đây là màn hình xem chi tiết.",
       "audience": "Quản lý dự án và người duyệt dời lịch khác người đề nghị",
@@ -11857,7 +11857,7 @@
     "PWF-16": {
       "title": "Sổ phân công",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "table",
       "purpose": "Đây là bảng dữ liệu.",
       "audience": "Quản lý dự án trong scope",
@@ -11875,7 +11875,7 @@
     "PWF-07": {
       "title": "Bảng deadline toàn danh mục",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "dashboard",
       "purpose": "Đây là bảng điều hành.",
       "audience": "Lãnh đạo, giám sát và quản lý dự án trong scope",
@@ -11894,7 +11894,7 @@
     "PWF-08": {
       "title": "Chính sách ba màu",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "form",
       "purpose": "Đây là biểu mẫu để nhập thông tin.",
       "audience": "Quản trị quy trình dự án và người duyệt quy tắc",
@@ -11915,7 +11915,7 @@
     "PWF-09": {
       "title": "Bộ KPI workflow",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "form",
       "purpose": "Đây là biểu mẫu để nhập thông tin.",
       "audience": "Quản trị quy trình dự án và người duyệt quy tắc",
@@ -11933,7 +11933,7 @@
     "PWF-10": {
       "title": "Chính sách chấm điểm",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "form",
       "purpose": "Đây là biểu mẫu để nhập thông tin.",
       "audience": "Quản trị quy trình dự án, người duyệt quy tắc và pháp chế rà soát",
@@ -11953,7 +11953,7 @@
     "PWF-11": {
       "title": "Bảng điểm của tôi",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "dashboard",
       "purpose": "Đây là bảng điều hành.",
       "audience": "Người được đánh giá",
@@ -11971,7 +11971,7 @@
     "PWF-12": {
       "title": "Bảng điểm đơn vị",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "table",
       "purpose": "Đây là bảng dữ liệu.",
       "audience": "Quản lý trực tiếp và bộ phận nhân sự",
@@ -11989,7 +11989,7 @@
     "PWF-13": {
       "title": "Chi tiết điểm",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "detail",
       "purpose": "Đây là màn hình xem chi tiết.",
       "audience": "Người được đánh giá, quản lý trực tiếp và bộ phận nhân sự trong quyền",
@@ -12006,7 +12006,7 @@
     "PWF-14": {
       "title": "Kỳ chấm điểm",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "detail",
       "purpose": "Đây là màn hình xem chi tiết.",
       "audience": "Bộ phận nhân sự và người rà soát tín hiệu",
@@ -12024,7 +12024,7 @@
     "PWF-15": {
       "title": "Nhắc hạn của tôi",
       "module": "PWF",
-      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "form",
       "purpose": "Đây là biểu mẫu để nhập thông tin.",
       "audience": "Mọi người dùng có công việc được giao",

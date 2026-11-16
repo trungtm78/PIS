@@ -86,7 +86,7 @@ const Map<String, String> kPwfStepVi = <String, String>{
   'mob.pwfs.refusal.notEligible': 'Bạn chưa đủ điều kiện nhận bước này (đơn vị hoặc vai).',
   'mob.pwfs.refusal.alreadyClaimed': 'Bước này vừa có người khác nhận. Đã tải lại để bạn thấy người làm.',
   'mob.pwfs.refusal.notFound': 'Không tìm thấy bước này, hoặc bạn không có quyền xem dự án.',
-  'mob.pwfs.refusal.stateInvalid': 'Trạng thái của bước không cho phép thao tác này (đã xong, đã hủy hoặc workflow không chạy).',
+  'mob.pwfs.refusal.stateInvalid': 'Trạng thái của bước không cho phép thao tác này (đã xong, đã hủy hoặc quy trình không chạy).',
   'mob.pwfs.refusal.extNotAllowed': 'Bước này không cho phép gia hạn.',
   'mob.pwfs.refusal.extTimes': 'Bước này đã dùng hết số lần được gia hạn.',
   'mob.pwfs.refusal.extValue': 'Số {unit} xin thêm vượt mức còn được gia hạn của bước này.',
