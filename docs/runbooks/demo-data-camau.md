@@ -192,3 +192,43 @@ Tệp giao khách hàng (ngoài git): `... | node scripts/demo-accounts-xlsx.mjs
 `apply` trên cùng một tenant, nếu mất thì lần chạy lại vấp các bước không lặp lại được (ví dụ xác nhận pháp lý một mẫu đã xác nhận). Trong đó không có mật khẩu hay token.
 
 **8.5 Tên người.** Realm hiển thị `firstName lastName`; tên tiếng Việt viết họ trước, nên công cụ đặt họ và tên đệm vào `firstName`, tên vào `lastName` ("Nguyễn Văn An").
+
+**8.6 Ba chỗ mà dữ liệu trên bản cài khác bản e2e.** Cả ba đã sửa trong lớp seed (commit `56c2a6b9a`), ghi lại để người nạp sau hiểu vì sao có các tham số này.
+
+- *Ngày hiệu lực của kế hoạch.* Ảnh chụp tiến độ và cảnh báo sớm chỉ tính từ ngày kế hoạch có hiệu lực. Bản e2e dời đồng hồ; bản cài thì không, nên seed đặt
+  `effective_at` của kế hoạch lùi 80 ngày (`planEffectiveAt()`), không có tham số nào phải truyền.
+- *Mã người.* Giao việc cần mã tài khoản (`user_account_id`), không phải mã thành viên của tenant; seed đọc nó từ danh sách người của bản cài.
+- *Xác nhận bố cục mẫu thanh toán.* Thanh toán bị chặn `TEMPLATE_UNCONFIRMED` cho tới khi bố cục mẫu được xác nhận; sản phẩm chưa có màn hình hay lệnh công khai cho việc này,
+  bản e2e xác nhận bằng SQL. Trên bản cài DEMO dùng đúng cách ấy qua một lệnh ngoài: `clip-seed apply ... --layout-confirm-command "ssh ... powershell -File C:\ProgramData\MACHVON\host\demo-layout-confirm.ps1"`.
+  Lệnh này ghi thẳng cơ sở dữ liệu, **chỉ dành cho bản demo**.
+
+**8.7 Một yếu tố (bản demo) phải hạ cả mức mà các client đòi.** Chế độ một yếu tố của realm chỉ bỏ bước TOTP; các client web và mobile vẫn xin mức `aal2`. Người còn phiên SSO
+ở mức `aal1` mở lại trang thì realm đòi nâng mức, không nâng được và hiện "Tên đăng nhập hoặc mật khẩu không đúng" **trước khi người ấy gõ gì**. Từ commit `a59c34f04`, công cụ
+`keycloak-admin` khi bật một yếu tố cũng đặt `default.acr.values` và `minimum.acr.value` của các client về `aal1` (tắt một yếu tố thì trả lại `aal2`). Trên máy chủ, thay đổi này
+đã được áp bằng một lần chạy công cụ bản mới đè lên; image 1.0.8 chưa mang nó trong công cụ của chính image, bản phát hành kế tiếp mới có.
+
+**8.8 Hai kiểm tra của `clip-seed verify` phụ thuộc đồng hồ.** Trên bản cài không có cách chính thức nào để lùi thời gian:
+
+| Kiểm tra | Vì sao chưa đạt ngay sau khi nạp | Khi nào tự đạt |
+|---|---|---|
+| tạm ứng quá hạn thu hồi | cờ quá hạn do việc nền hằng ngày lúc 06:00 đặt | sau lần chạy 06:00 kế tiếp (đã đạt lúc 07:00 ngày 2026-11-16) |
+| luồng phê duyệt trễ hạn | hạn của từng bước tính từ lúc bước ấy thật sự được mở | khi thời hạn xử lý của bước trôi qua (tính bằng ngày) |
+
+Chỉ hai kiểm tra này được phép bỏ qua bằng `--tolerate`, và phải ghi rõ trong biên bản nạp. Mọi kiểm tra khác đỏ là lỗi thật.
+
+**8.9 Ba lời từ chối được chấp nhận khi `apply`.** `egp` trả `CROSSWALK_DUPLICATE` (bảng đối chiếu đã có từ danh mục gốc), bàn giao hồ sơ trả `VALIDATION_FAILED`
+(cần tệp đã quét virus của kho đối tượng), và gắn khách của cổng nhà thầu (hành vi chỉ có trong bản e2e). Ba mục này không tạo dữ liệu, các màn hình liên quan vẫn có số liệu từ các nhóm khác.
+
+**8.10 Các bản phát hành trong đợt nạp 2026-11-16.**
+
+| Bản | Nội dung |
+|---|---|
+| 1.0.3 | ký số của bản demo (lỗi: biến `*_FILE` trỏ tới tệp chưa có làm API không khởi động) |
+| 1.0.4 | đọc nội dung `MACHVON_DEMO_PKI`, compose chỉ truyền tệp khi công tắc bật |
+| 1.0.5 | trả lời thu hồi cho chứng thư của bản demo; `demo-reset` kết thúc mọi phiên; trang lỗi của realm có nút "Đăng nhập lại" |
+| 1.0.6 | tệp văn bản DOC nằm trên đĩa (`MACHVON_OBJECT_ROOT/doc-files`), còn sau khi API khởi động lại |
+| 1.0.7 | nút "Đăng xuất" thật, nhãn phiên bản, thanh "tải lại" khi tab chạy bản cũ, `version.json` không lưu đệm |
+| 1.0.8 | vai trò cao nhất dưới tên người, trang "Bạn đã đăng xuất" |
+
+Sau 1.0.6 đoạn cuối của mục 8.1 ("tệp PDF không tải lại được sau khi API khởi động lại") không còn đúng: tệp còn trên đĩa. Đường tải về của DOC trong câu trả lời API vẫn là `mock://`
+(sản phẩm chưa nối kho đối tượng cho DOC), nên nút tải tệp trên màn hình chưa mở được tệp.
