@@ -457,7 +457,7 @@ void main() {
       expect(find.text('Chưa tải được việc cần xử lý'), findsOneWidget);
       expect(find.textContaining('Nguồn lỗi: danh sách việc cần xử lý (INTERNAL_ERROR)'), findsOneWidget);
       expect(find.text('Tổng quan'), findsOneWidget);
-      expect(find.text('14,0000%'), findsOneWidget);
+      expect(find.text('14%'), findsOneWidget);
 
       server.on('GET', '/home/my-work', (_) => alertWork(_alerts));
       await tester.tap(find.widgetWithText(OutlinedButton, 'Thử lại'));

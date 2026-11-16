@@ -1,4 +1,4 @@
-import { percentFigure } from '../percent-figure';
+import { percentFigure } from '../../i18n/format';
 import type { components } from '@machvon/contracts';
 import { ApiError } from '@machvon/api-client';
 import type { Tone } from '../../ui';

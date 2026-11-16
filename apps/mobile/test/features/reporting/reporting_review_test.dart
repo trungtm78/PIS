@@ -116,7 +116,7 @@ void main() {
       expect(fact('Kéo dài NSTW', 'Chưa có'), findsOneWidget);
       await tester.tap(find.bySemanticsLabel(RegExp('^Kiểm tra')).first);
       await tester.pumpAndSettle();
-      expect(find.textContaining('Khối lượng thi công 2 tỷ đồng bằng 200.0% vốn đã giao'), findsOneWidget);
+      expect(find.textContaining('Khối lượng thi công 2 tỷ đồng bằng 200% vốn đã giao'), findsOneWidget);
       expect(find.textContaining('tổng giảm -30 triệu đồng; đã có giải trình'), findsOneWidget);
       expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Nộp báo cáo')).onPressed, isNotNull);
     });
@@ -135,7 +135,7 @@ void main() {
       await app.open(tester, location: '/projects/mob-20/$id');
       expect(find.text('Máy chủ kiểm tra'), findsOneWidget);
       expect(find.textContaining('Theo bản đã lưu lần gần nhất trên máy chủ, số liệu tại'), findsOneWidget);
-      expect(find.text('Lũy kế báo cáo 420 triệu đồng lệch 5.0% so với 400 triệu đồng Kho bạc đã thanh toán.'), findsOneWidget);
+      expect(find.text('Lũy kế báo cáo 420 triệu đồng lệch 5% so với 400 triệu đồng Kho bạc đã thanh toán.'), findsOneWidget);
     });
 
     testWidgets('the files of the report are counted by state and are said not to be part of what is submitted yet', (WidgetTester tester) async {

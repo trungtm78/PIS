@@ -1,5 +1,5 @@
 import { percentOfText } from '../../i18n/format';
-import { percentFigure } from '../percent-figure';
+import { percentFigure } from '../../i18n/format';
 import { ApiError } from '@machvon/api-client';
 import { useState } from 'react';
 import type { FormEvent } from 'react';

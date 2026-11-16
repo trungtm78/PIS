@@ -1,3 +1,4 @@
+import '../../core/format/number.dart';
 import '../../core/offline/drafts/decimal.dart';
 import '../read_support/wire.dart';
 
@@ -157,28 +158,11 @@ QueryResult? parseQueryResult(Object? raw) {
 /// The first eight characters of an id, which is how a snapshot is named on a screen.
 String shortId(String id) => id.length <= 8 ? id : id.substring(0, 8);
 
-/// A ratio as a percentage with two decimals, rounded half up on the exact decimal (never through a float).
+/// A ratio as a percentage by the one percent rule of the phone and the web (two decimals at most, trailing zeros dropped), rounded on the exact decimal, never through a float.
 String percentText(String value, String language) {
   final Decimal? parsed = Decimal.tryParse(value);
   if (parsed == null) return value;
-  final BigInt hundredths = _roundedHundredths(parsed);
-  final bool negative = hundredths.isNegative;
-  final String digits = hundredths.abs().toString().padLeft(3, '0');
-  final String whole = digits.substring(0, digits.length - 2);
-  final String mark = language == 'en' ? '.' : ',';
-  final String groupedWhole = Decimal.tryParse(whole)!.format(separator: language == 'en' ? ',' : '.', decimalMark: mark);
-  return '${negative ? '-' : ''}$groupedWhole$mark${digits.substring(digits.length - 2)}%';
-}
-
-BigInt _roundedHundredths(Decimal value) {
-  final String plain = value.toPlainString();
-  final bool negative = plain.startsWith('-');
-  final List<String> parts = (negative ? plain.substring(1) : plain).split('.');
-  final String fraction = parts.length > 1 ? parts[1] : '';
-  final String padded = fraction.padRight(3, '0');
-  BigInt hundredths = BigInt.parse('${parts.first}${padded.substring(0, 2)}');
-  if (int.parse(padded[2]) >= 5) hundredths += BigInt.one;
-  return negative ? -hundredths : hundredths;
+  return '${formatPercent(parsed.toPlainString(), language)}%';
 }
 
 /// A figure as it is written: money by [money] (the one formatter of the phone, with its unit), a ratio in percent, a count as a number. A figure with no value is [noData] (or

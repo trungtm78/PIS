@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { decimalText, formatPercent } from '../../../i18n/format';
-import { percentFigure } from '../../percent-figure';
+import { percentFigure } from '../../../i18n/format';
 import { DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { gradeLook, gradeName, versionText, TaskName } from '../codes';

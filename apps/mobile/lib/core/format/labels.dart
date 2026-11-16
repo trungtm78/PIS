@@ -14,8 +14,8 @@ String moneyLabel(BuildContext context, String? vnd, {int? decimals, MoneyUnit? 
   return _withUnit(context, rise ? '+${parts.number}' : parts.number, parts.unit);
 }
 
-/// The decimals of the short form of a row, a tile or a sentence of the home (R38).
-const int moneyShortDecimals = 1;
+/// The decimals of the short form of a row, a tile or a sentence: two at most, trailing zeros dropped, the same as the web.
+const int moneyShortDecimals = 2;
 
 /// The short form of an amount, for reading at a glance on a row, a tile or a card: the unit of its size, rounded half away from zero
 /// (`1,2 ty dong`, `420,5 trieu dong`, `999 dong`). The exact figure belongs in the detail (`moneyExactLabel`, `moneyFullLabel`).

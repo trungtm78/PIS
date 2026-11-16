@@ -95,17 +95,17 @@ void main() {
       _healthyCenter(server);
       await _open(tester, server, '/home');
 
-      expect(find.text('14,0000%'), findsOneWidget);
-      expect(find.text('12,5000%'), findsOneWidget);
-      expect(find.text('30,0000%'), findsNothing, reason: 'the mean of 50% and 10% is not a figure of the screen');
+      expect(find.text('14%'), findsOneWidget);
+      expect(find.text('12,5%'), findsOneWidget);
+      expect(find.text('30%'), findsNothing, reason: 'the mean of 50% and 10% is not a figure of the screen');
       expect(find.textContaining('Tử số 140 triệu đồng · mẫu số 1 tỷ đồng'), findsOneWidget);
       expect(find.textContaining('Tử số 140 triệu đồng · mẫu số 1,12 tỷ đồng'), findsOneWidget);
       // The band names both rates in its two notes and draws the one on the total plan as its bar.
-      expect(find.text('Tỷ lệ theo kế hoạch Thủ tướng giao: 14,0000%'), findsOneWidget);
-      expect(find.text('Tỷ lệ theo tổng kế hoạch vốn: 12,5000%'), findsOneWidget);
+      expect(find.text('Tỷ lệ theo kế hoạch Thủ tướng giao: 14%'), findsOneWidget);
+      expect(find.text('Tỷ lệ theo tổng kế hoạch vốn: 12,5%'), findsOneWidget);
       // In the block of figures each rate is a row of its own, with its sums and its formula, the rate on the plan of the Prime Minister first.
-      final Rect pm = tester.getRect(find.ancestor(of: find.text('14,0000%'), matching: find.byType(MetricTileCard)));
-      final Rect total = tester.getRect(find.ancestor(of: find.text('12,5000%'), matching: find.byType(MetricTileCard)));
+      final Rect pm = tester.getRect(find.ancestor(of: find.text('14%'), matching: find.byType(MetricTileCard)));
+      final Rect total = tester.getRect(find.ancestor(of: find.text('12,5%'), matching: find.byType(MetricTileCard)));
       expect(pm.bottom, lessThanOrEqualTo(total.top));
       expect(pm.width, total.width, reason: 'one under the other, the same width');
     });
@@ -130,7 +130,7 @@ void main() {
       semantics.dispose();
     });
 
-    testWidgets('G0-4: the phone shows the digits the API gives as display_value (the text of the web and of the Excel file), not its own rounding', (WidgetTester tester) async {
+    testWidgets('G0-4: the phone reads the figure the API gives as display_value and writes it by the one percent rule of the web: two decimals at most, trailing zeros dropped', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer()
         ..on(
@@ -143,9 +143,11 @@ void main() {
         );
       await _open(tester, server, '/home');
 
-      expect(find.text('14,00%'), findsOneWidget);
-      expect(find.text('12,50%'), findsOneWidget);
-      expect(find.text('14,0000%'), findsNothing);
+      expect(find.text('14%'), findsOneWidget);
+      expect(find.text('12,5%'), findsOneWidget);
+      expect(find.text('14,00%'), findsNothing, reason: 'the trailing zeros of display_value are not written');
+      expect(find.text('12,50%'), findsNothing);
+      expect(find.text('14,0000%'), findsNothing, reason: 'nor the digits of value');
     });
 
     testWidgets('G3-1: a figure whose definition is not certified is held back by the server and the phone says so, not "no data" and not 0', (WidgetTester tester) async {
@@ -211,7 +213,7 @@ void main() {
       await _open(tester, server, '/home');
 
       expect(find.textContaining('Chưa thể hiển thị số liệu vì thiếu'), findsOneWidget);
-      expect(find.text('14,0000%'), findsNothing);
+      expect(find.text('14%'), findsNothing);
       expect(find.textContaining('Ảnh chụp số liệu đã quá cũ'), findsOneWidget);
     });
 
@@ -222,7 +224,7 @@ void main() {
         ..on('GET', '/home/command-center', (_) => commandCenter(tiles: <Map<String, Object?>>[tile('DISBURSEMENT_RATE_PM', value: '14.0000'), uncited]));
       await _open(tester, server, '/home');
 
-      expect(find.text('99,0000%'), findsNothing);
+      expect(find.text('99%'), findsNothing);
       expect(find.textContaining('Chưa thể hiển thị số liệu vì thiếu'), findsOneWidget);
     });
 
@@ -232,7 +234,7 @@ void main() {
       _healthyCenter(server);
       await _open(tester, server, '/home', locale: const Locale('en'));
 
-      expect(find.text('14.0000%'), findsOneWidget);
+      expect(find.text('14%'), findsOneWidget);
       expect(find.textContaining('Numerator 140 million dong · denominator 1 billion dong'), findsOneWidget);
       expect(find.text('Figures and formulas'), findsOneWidget);
     });
@@ -269,7 +271,7 @@ void main() {
       await tester.tap(find.byTooltip('Làm mới'));
       await tester.pumpAndSettle();
 
-      expect(find.text('14,0000%'), findsOneWidget);
+      expect(find.text('14%'), findsOneWidget);
       expect(find.textContaining('số liệu tại 31/10/2026'), findsOneWidget);
       expect(find.textContaining('Bản lưu đã quá 12 giờ'), findsOneWidget);
       expect(find.textContaining('mới nhất'), findsNothing);
@@ -339,7 +341,7 @@ void main() {
       expect(find.textContaining('Bạn đang ngoại tuyến'), findsOneWidget, reason: 'one strip, not one per screen');
       expect(find.textContaining('ngoại tuyến'), findsOneWidget, reason: 'no other line says "offline" again');
       expect(find.textContaining('dữ liệu đã lưu'), findsWidgets, reason: 'the copy says it is a copy');
-      expect(find.text('14,0000%'), findsOneWidget, reason: 'the copy of the figures is still readable');
+      expect(find.text('14%'), findsOneWidget, reason: 'the copy of the figures is still readable');
       expect(find.widgetWithText(FilledButton, 'Xử lý'), findsNothing, reason: 'a copy offers no act');
     });
 

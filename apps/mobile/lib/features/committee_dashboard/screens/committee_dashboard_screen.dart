@@ -236,7 +236,8 @@ class _RowTile extends StatelessWidget {
 String _signed(String digits, String raw) {
   if (raw.startsWith('-') || raw.startsWith('+')) return digits;
   final double? number = double.tryParse(raw);
-  return number != null && number > 0 ? '+$digits' : digits;
+  // A rise that the two decimals round to zero has no sign, as a fall has none (`0`, never `+0`).
+  return number != null && number > 0 && digits != '0' ? '+$digits' : digits;
 }
 
 /// The colour of a row in words and with a shape.

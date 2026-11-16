@@ -68,12 +68,12 @@ final Map<MoneyUnit, BigInt> _size = <MoneyUnit, BigInt>{
 /// The number of dong in one [unit].
 BigInt dongPerUnit(MoneyUnit unit) => _size[unit]!;
 
-/// The unit that fits [amount] best: the largest one in which the amount is at least 1 (dong below 1.000, then nghin, trieu, ty).
+/// The unit that fits [amount] best, by the one rule of the web and the phone: ty from one billion, trieu from one million, and whole dong
+/// with every digit below that (`950.000 dong`, never `950 nghin`). [MoneyUnit.thousand] is only ever a unit a caller asks for.
 MoneyUnit moneyUnitFor(BigInt amount) {
   final BigInt magnitude = amount.abs();
   if (magnitude >= _size[MoneyUnit.billion]!) return MoneyUnit.billion;
   if (magnitude >= _size[MoneyUnit.million]!) return MoneyUnit.million;
-  if (magnitude >= _size[MoneyUnit.thousand]!) return MoneyUnit.thousand;
   return MoneyUnit.dong;
 }
 
@@ -96,14 +96,14 @@ String _number(BigInt scaled, int decimals, bool negative, String language) {
 
 /// An amount of whole dong written in the unit that fits it; null when [value] is not whole dong.
 ///
-/// The unit is the largest in which the amount is at least 1: `38000000000` is `38 ty`, `420500000` is `420,5 trieu`, `1000` is `1 nghin` and
-/// `999` is `999 dong`. Two modes:
+/// The unit is ty from one billion and trieu from one million: `38000000000` is `38 ty`, `420500000` is `420,5 trieu`; below one million the
+/// amount is whole dong (`950.000 dong`, `999 dong`). Two modes:
 ///
 ///  * Exact ([decimals] null, the default): the figure is never rounded, so an approver or a payer sees every digit. The unit is kept only
 ///    while it shows the amount in at most three decimals (`1.049.000.000` is `1,049 ty`); an amount that needs more (`1.049.123.456`) is
 ///    written in whole dong, grouped, and so is an amount in nghin that is not a whole number of nghin (`1.500`).
-///  * Short ([decimals] given, 1 for a row or a tile): rounded half away from zero to that many places, trailing zeros dropped. Rounding that
-///    reaches 1.000 of a unit moves up to the next (`999.960.000` is `1 ty`, never `1.000 trieu`). It is for reading at a glance; the exact
+///  * Short ([decimals] given, 2 for a row or a tile, as on the web): rounded half away from zero to that many places, trailing zeros dropped. Rounding that
+///    reaches 1.000 of a unit moves up to the next (`999.995.000` is `1 ty`, never `1.000 trieu`). It is for reading at a glance; the exact
 ///    figure is shown in the detail (`moneyFullLabel`).
 ///
 /// Pass [unit] to force one (a column that is declared in one unit); the amount is then not moved up and is rounded to [decimals]
@@ -120,8 +120,8 @@ MoneyParts? moneyParts(String value, String language, {int? decimals, MoneyUnit?
   MoneyUnit chosen = unit ?? moneyUnitFor(amount);
   int places = chosen == MoneyUnit.dong ? 0 : decimals;
   BigInt scaled = _scaled(amount, chosen, places);
-  if (unit == null && chosen != MoneyUnit.billion && scaled >= BigInt.from(1000) * _pow10(places)) {
-    chosen = MoneyUnit.values[chosen.index + 1];
+  if (unit == null && chosen == MoneyUnit.million && scaled >= BigInt.from(1000) * _pow10(places)) {
+    chosen = MoneyUnit.billion;
     places = decimals;
     scaled = _scaled(amount, chosen, places);
   }

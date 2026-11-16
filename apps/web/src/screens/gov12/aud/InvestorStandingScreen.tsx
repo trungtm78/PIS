@@ -8,7 +8,7 @@ import { ContextBar, DataTable, Money, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { Figure, InfoRule, useRead, vietnamDay, vietnamDateTime } from '../docaud-support';
 import '../docaud.css';
-import { percentFigure } from '../../percent-figure';
+import { percentFigure } from '../../../i18n/format';
 import type { Profile, Standing, StandingList } from './audModel';
 
 /**

@@ -87,9 +87,9 @@ class AlertRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final MachvonV2 v2 = context.v2;
     final AlertDeadline? deadline = alertDeadline(item, now);
-    final String title = item.title.isEmpty ? alertSourceLabel(context, item.source) : item.title;
+    final String title = item.title.isEmpty ? alertSourceLabel(context, item.source) : percentsInText(item.title, AppStrings.of(context).language);
     final String source = alertSourceLabel(context, item.source);
-    final String subtitle = item.subtitle == null ? source : '$source · ${item.subtitle}';
+    final String subtitle = item.subtitle == null ? source : '$source · ${percentsInText(item.subtitle!, AppStrings.of(context).language)}';
     final ({Color ink, Color fill, IconData icon}) look = severityLook(context, item.severity);
     final Widget? action = primaryLabel == null
         ? null

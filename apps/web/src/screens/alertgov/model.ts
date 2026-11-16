@@ -3,7 +3,7 @@
  * The server sends snake_case; a row that has not the shape of its kind is dropped rather than shown half filled, and an answer that has not the shape of its page is refused (the screen shows an error, never an empty page).
  */
 
-import { percentFigure } from '../percent-figure';
+import { percentFigure } from '../../i18n/format';
 
 type Raw = Record<string, unknown>;
 const isRecord = (value: unknown): value is Raw => typeof value === 'object' && value !== null && !Array.isArray(value);

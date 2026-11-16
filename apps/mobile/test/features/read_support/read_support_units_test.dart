@@ -28,9 +28,12 @@ void main() {
       expect(differenceDong('100', '100'), '0');
     });
 
-    test('a percent keeps the digits the server gave it and takes the decimal mark of the language', () {
-      expect(formatPercent('14.0000', 'vi'), '14,0000');
-      expect(formatPercent('14.0000', 'en'), '14.0000');
+    test('a percent takes the decimal mark of the language, two decimals at most with trailing zeros dropped, and has no sign of its own', () {
+      expect(formatPercent('14.0000', 'vi'), '14');
+      expect(formatPercent('14.0000', 'en'), '14');
+      expect(formatPercent('96.5414', 'vi'), '96,54');
+      expect(formatPercent('96.5414', 'en'), '96.54');
+      expect(formatPercent('197.5000', 'vi'), '197,5');
       expect(formatPercent('-2.5', 'vi'), '-2,5');
       expect(formatPercent('n/a', 'vi'), 'n/a');
     });

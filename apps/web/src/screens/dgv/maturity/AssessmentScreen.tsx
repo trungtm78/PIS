@@ -1,4 +1,4 @@
-import { percentFigure } from '../../percent-figure';
+import { percentFigure } from '../../../i18n/format';
 import { percentOfText } from '../../../i18n/format';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';

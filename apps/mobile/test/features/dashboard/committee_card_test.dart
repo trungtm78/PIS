@@ -65,9 +65,9 @@ void main() {
       // The colour is a word with an icon, never a colour alone.
       expect(find.text('Vàng: chậm so với đường kỳ vọng'), findsOneWidget);
       expect(find.byIcon(Icons.warning_amber_rounded), findsWidgets);
-      expect(find.text('41,20%'), findsOneWidget);
-      expect(find.text('-4,10 điểm phần trăm'), findsOneWidget);
-      expect(find.text('45,30%'), findsOneWidget, reason: 'the curve of today');
+      expect(find.text('41,2%'), findsOneWidget);
+      expect(find.text('-4,1 điểm phần trăm'), findsOneWidget);
+      expect(find.text('45,3%'), findsOneWidget, reason: 'the curve of today');
       expect(find.text('1.200 tỷ đồng'), findsOneWidget, reason: 'the plan');
       expect(find.text('494,4 tỷ đồng'), findsOneWidget, reason: 'disbursed');
       expect(find.text('420 tỷ đồng'), findsOneWidget, reason: 'the same period of last year');
@@ -114,7 +114,7 @@ void main() {
       expect(find.text('Steering committee workspace'), findsOneWidget);
       expect(find.text('Amber: behind the expected curve'), findsOneWidget);
       expect(find.text('Gap to the expected curve'), findsOneWidget);
-      expect(find.text('-4.10 percentage points'), findsOneWidget);
+      expect(find.text('-4.1 percentage points'), findsOneWidget);
       expect(find.text('Urgent'), findsOneWidget);
       expect(find.text('Reasons: Behind schedule, Stuck in a procedure'), findsOneWidget);
     });
@@ -166,7 +166,7 @@ void main() {
       figures[2] = committeeFigure('COMMITTEE_DISBURSEMENT_RATE', kRateName, value: '41.2000', display: '41.20', info: false);
       await _open(tester, _healthy(workspace: committeeWorkspace(figures: figures)));
 
-      expect(find.text('41,20%'), findsOneWidget);
+      expect(find.text('41,2%'), findsOneWidget);
       expect(_info(kRateName), findsNothing);
       expect(_info('Kế hoạch vốn của tỉnh'), findsOneWidget);
     });
@@ -240,11 +240,11 @@ void main() {
       await _open(tester, server);
 
       expect(find.bySemanticsLabel('Đang tải số liệu của Ban chỉ đạo'), findsOneWidget);
-      expect(find.text('41,20%'), findsNothing);
+      expect(find.text('41,2%'), findsNothing);
 
       slow.complete();
       await tester.pumpAndSettle();
-      expect(find.text('41,20%'), findsOneWidget);
+      expect(find.text('41,2%'), findsOneWidget);
       expect(find.bySemanticsLabel('Đang tải số liệu của Ban chỉ đạo'), findsNothing);
     });
 
@@ -271,7 +271,7 @@ void main() {
       server.on('GET', _path, (_) => committeeWorkspace());
       await tester.tap(find.widgetWithText(OutlinedButton, 'Thử lại'));
       await tester.pumpAndSettle();
-      expect(find.text('41,20%'), findsOneWidget);
+      expect(find.text('41,2%'), findsOneWidget);
       expect(find.textContaining('Chưa đọc được số liệu của Ban chỉ đạo'), findsNothing);
       expect(server.callsTo('GET', _path), hasLength(2));
     });
@@ -282,20 +282,20 @@ void main() {
       await _open(tester, server);
 
       expect(find.textContaining('mã CONTRACT_MISMATCH'), findsOneWidget);
-      expect(find.text('41,20%'), findsNothing);
+      expect(find.text('41,2%'), findsNothing);
     });
 
     testWidgets('no connection: the card says it could not read, keeps no copy of a confidential screen, and retries on request', (WidgetTester tester) async {
       useDevice(tester, const Size(390, 6000));
       final ScriptedServer server = _healthy();
       await _open(tester, server);
-      expect(find.text('41,20%'), findsOneWidget);
+      expect(find.text('41,2%'), findsOneWidget);
 
       server.offline = true;
       await tester.tap(find.byTooltip('Làm mới số liệu của Ban chỉ đạo'));
       await tester.pumpAndSettle();
       expect(find.textContaining('Chưa đọc được số liệu của Ban chỉ đạo'), findsOneWidget);
-      expect(find.text('41,20%'), findsNothing, reason: 'the figures of the last read are not kept on screen as if they were current');
+      expect(find.text('41,2%'), findsNothing, reason: 'the figures of the last read are not kept on screen as if they were current');
     });
 
     testWidgets('stale: a figure the server marks as old puts the marker on the card', (WidgetTester tester) async {
