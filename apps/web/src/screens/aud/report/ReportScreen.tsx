@@ -222,7 +222,7 @@ function Figures({ report }: { report: ReportLine }) {
         {t('aud.report.figures.money', { amount: compactMoney(totals.amountVnd), recovered: compactMoney(totals.recoveredVnd), remaining: compactMoney(totals.remainingVnd) })}
       </div>
       <div>
-        {t('aud.report.figures.moneyRate')}: <RateText rate={totals.moneyRate} testId="report-rate-money" />
+        {t('aud.report.figures.moneyRate')}: <RateText rate={totals.moneyRate} testId="report-rate-money" money />
       </div>
       <div>
         {t('aud.report.figures.countRate')}: <RateText rate={totals.countRate} testId="report-rate-count" />

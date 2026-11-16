@@ -349,7 +349,7 @@ test.describe('the payment request', () => {
     await expect(page.locator('tbody tr')).toHaveCount(2);
     await page.getByTestId('filter-status').selectOption('CANCELLED');
     await expect(page.locator('tbody tr')).toHaveCount(1);
-    await expect(page.getByTestId('net')).toHaveText('2.100.000.000');
+    await expect(page.getByTestId('net')).toHaveText('2,1 tỷ đồng (2.100.000.000 đồng)');
   });
 
   test('a reader sees the requests and their detail and no command; a person without the right to draw up is told so (UI-PAY-01)', async ({ page }) => {

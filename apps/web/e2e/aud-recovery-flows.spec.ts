@@ -99,7 +99,7 @@ test.describe('AUD-08 and AUD-01: the money recovered', () => {
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect(page.getByTestId('total-recovered')).toHaveText('150.000.000');
     await expect(page.getByTestId('total-remaining')).toHaveText('250.000.000');
-    await expect(page.getByTestId('rate-money')).toContainText('37,50%');
+    await expect(page.getByTestId('rate-money')).toContainText('37,5% (150 triệu đồng / 400 triệu đồng)');
     await expect(page.locator('tr[data-link-id]')).toHaveCount(1);
     expect(await recovered(aim.recommendationId)).toBe('150000000');
 
@@ -131,9 +131,8 @@ test.describe('AUD-08 and AUD-01: the money recovered', () => {
     );
     await open(page, 'audReader', `/aud/aud-08?engagement=${aim.engagementId}`);
     await expect(page.getByTestId('total-recovered')).toHaveText('100.000.000');
-    await expect(page.getByTestId('rate-money')).toContainText('25,00%');
-    await expect(page.getByTestId('rate-money')).toContainText('100.000.000');
-    await expect(page.getByTestId('rate-money')).toContainText('400.000.000');
+    await expect(page.getByTestId('rate-money')).toContainText('25% (100 triệu đồng / 400 triệu đồng)');
+    await expect(page.getByTestId('rate-money').locator('.sub')).toHaveAttribute('title', '100.000.000 đồng / 400.000.000 đồng');
     await expect(page.locator('tr[data-link-id]')).toContainText(vi['aud.recoverySource.treasuryRemittance']);
     await expect(page.locator('[data-screen-id] button')).toHaveCount(0);
 

@@ -355,7 +355,7 @@ test.describe('CTR-05 the guarantees', () => {
     await page.getByRole('button', { name: vi['ctr.guarantee.tab.expiring'], exact: true }).click();
     const expiring = page.getByTestId('expiring-row').filter({ hasText: seeded.code });
     await expect(expiring).toHaveCount(1);
-    await expect(expiring.getByRole('cell').nth(6)).toHaveText('1.250.000.000');
+    await expect(expiring.getByRole('cell').nth(6)).toHaveText('1,25 tỷ đồng (1.250.000.000 đồng)');
     await expect(expiring.getByRole('cell').nth(5)).toHaveText('9');
   });
 

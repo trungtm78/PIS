@@ -159,7 +159,7 @@ test.describe('BID-03, BID-15 and BID-16 procurement plans', () => {
     let [plan] = await plansOf(project.projectId);
     expect(plan).toMatchObject({ id: planId, status: 'DRAFT', revision: 1, version: '1', total: String(28 * BILLION), created_by: PLANNER });
     await expect(page.getByTestId('plan-packages').getByRole('row')).toHaveCount(3);
-    await expect(page.getByTestId('plan-detail')).toContainText('28.000.000.000');
+    await expect(page.getByTestId('plan-detail')).toContainText('28 tỷ đồng');
 
     await page.getByRole('button', { name: vi['bid.plans.submit.action'] }).click();
     await expect(page.getByTestId('submit-done')).toBeVisible();

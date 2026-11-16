@@ -141,7 +141,7 @@ test.describe('CAP-08 monthly disbursement registration', () => {
     await page.reload();
     await setYear(page, year);
     await expect(monthRow(page, 10).getByTestId('rate')).toHaveAttribute('data-rate', '0.3750');
-    await expect(monthRow(page, 10).getByTestId('rate')).toHaveText(/37,50\s?%/);
+    await expect(monthRow(page, 10).getByTestId('rate')).toHaveText('37,5%');
     await expect(monthRow(page, 10).getByTestId('disbursed').locator('.cap-money')).toHaveAttribute('data-vnd', millions(300));
     await expect(monthRow(page, 10).getByTestId('registered').locator('.cap-money')).toHaveAttribute('data-vnd', millions(800));
     await expect(monthRow(page, 3).getByTestId('rate')).toHaveText(vi['cap.schedule.rate.none.label']);

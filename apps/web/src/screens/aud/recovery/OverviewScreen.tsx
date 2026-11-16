@@ -77,7 +77,7 @@ function OverviewContent({ route }: ScreenProps) {
                 <dl className="aud-facts">
                   <dt>{t('aud.recovery.rates.money')}</dt>
                   <dd>
-                    <RateText rate={data.moneyRate} testId="overview-rate-money" />
+                    <RateText rate={data.moneyRate} testId="overview-rate-money" money />
                   </dd>
                   <dt>{t('aud.recovery.rates.count')}</dt>
                   <dd>
