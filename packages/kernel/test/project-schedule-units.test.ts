@@ -355,3 +355,76 @@ describe('the zones of the colours of a deadline', () => {
     );
   });
 });
+
+describe('defects found by the independent review of the lane (scheduler)', () => {
+  const ONLY_2026 = [pinned(2026)];
+
+  it('1. a successor of a limit the calendars cannot place is not dated from the nominal days', () => {
+    // Only 2026 is there. A starts on 1 December for one month: its real deadline is in January 2027, which nobody can count. B follows it for one working day: 22 nominal days after 1 December would be 31 December.
+    const result = run([task('A', 22, { duration: limit(1, 'MONTH', true) }), task('B', 1, { predecessors: [link('A')] })], { plannedStart: '2026-12-01', calendars: ONLY_2026 });
+    expect(find(result, 'A')).toMatchObject({ state: 'CALENDAR_UNAVAILABLE', start: null, finish: null, missingYear: 2027 });
+    expect(find(result, 'B')).toMatchObject({ state: 'CALENDAR_UNAVAILABLE', start: null, finish: null, missingYear: 2027 });
+    expect(find(result, 'B').findings).toEqual([{ code: 'CALENDAR_UNAVAILABLE', task: 'B', year: 2027 }]);
+    expect(result.projectFinish).toBeNull();
+  });
+
+  it('1b. the same holds through a milestone, a task left out and a finish-to-finish link', () => {
+    const result = run(
+      [
+        task('A', 22, { duration: limit(1, 'MONTH', true) }),
+        { code: 'M', kind: 'MILESTONE', durationWorkingDays: 0, predecessors: [link('A')] },
+        task('X', 2, { predecessors: [link('A')], excluded: true }),
+        task('C', 1, { predecessors: [link('M')] }),
+        task('D', 1, { predecessors: [link('X')] }),
+        task('E', 2, { predecessors: [link('A', 'FF')] }),
+        task('F', 3),
+      ],
+      { plannedStart: '2026-12-01', calendars: ONLY_2026 },
+    );
+    for (const code of ['A', 'M', 'C', 'D', 'E']) expect(find(result, code)).toMatchObject({ state: 'CALENDAR_UNAVAILABLE', finish: null });
+    expect(find(result, 'X').state).toBe('PASS_THROUGH');
+    expect(dates(result, 'F')).toEqual(['2026-12-01', '2026-12-03']);
+  });
+
+  it('no dated task has an undated predecessor anywhere in its chain', () => {
+    const UNITS = ['WORKING_DAY', 'CALENDAR_DAY', 'MONTH'] as const;
+    const KINDS = ['FS', 'SS', 'FF', 'SF'] as const;
+    const specs = fc.integer({ min: 1, max: 12 }).chain((count) =>
+      fc.record({
+        start: fc.integer({ min: 0, max: 58 }),
+        rows: fc.array(fc.record({ value: fc.integer({ min: 1, max: 30 }), unit: fc.constantFrom(...UNITS), roll: fc.boolean(), shape: fc.constantFrom('TASK', 'PLAIN', 'MILESTONE', 'EXCLUDED') }), { minLength: count, maxLength: count }),
+        links: fc.array(fc.array(fc.record({ from: fc.nat(), kind: fc.constantFrom(...KINDS), lag: fc.integer({ min: -3, max: 3 }) }), { maxLength: 3 }), { minLength: count, maxLength: count }),
+      }),
+    );
+    fc.assert(
+      fc.property(specs, (spec) => {
+        const tasks = spec.rows.map((row, index): ScheduleTask => {
+          const seen = new Set<string>();
+          const predecessors = (spec.links[index] ?? []).flatMap((raw) => {
+            if (index === 0) return [];
+            const target = `T${raw.from % index}`;
+            if (seen.has(`${target}:${raw.kind}`)) return [];
+            seen.add(`${target}:${raw.kind}`);
+            return [link(target, raw.kind, raw.lag)];
+          });
+          if (row.shape === 'MILESTONE') return { code: `T${index}`, kind: 'MILESTONE', durationWorkingDays: 0, predecessors };
+          const months = row.unit === 'MONTH' ? Math.min(row.value, 2) : row.value;
+          const base = task(`T${index}`, row.unit === 'MONTH' ? months * 22 : months, { predecessors, ...(row.shape === 'EXCLUDED' ? { excluded: true } : {}) });
+          return row.shape === 'PLAIN' ? base : { ...base, duration: limit(months, row.unit, row.roll) };
+        });
+        const result = scheduleProject({ tasks, plannedStart: new Date(Date.UTC(2026, 10, 2) + spec.start * 86_400_000).toISOString().slice(0, 10), calendars: ONLY_2026 });
+        const byCode = new Map(result.tasks.map((one) => [one.code, one] as const));
+        const undated = new Map<string, boolean>();
+        // In the order of the list every predecessor comes first: a task is cut off from the calendar when it is undated itself, or when it is a pass-through point behind one that is.
+        for (const one of tasks) {
+          const mine = byCode.get(one.code) as ScheduledTask;
+          const behind = one.predecessors.some((edge) => undated.get(edge.task) === true);
+          if (mine.state === 'SCHEDULED') expect(behind).toBe(false);
+          undated.set(one.code, mine.state === 'CALENDAR_UNAVAILABLE' || (mine.state === 'PASS_THROUGH' && behind));
+          if (mine.state === 'CALENDAR_UNAVAILABLE') expect([mine.start, mine.finish, mine.missingYear]).toEqual([null, null, 2027]);
+        }
+      }),
+      { numRuns: 400 },
+    );
+  });
+});

@@ -471,6 +471,19 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
     node.driving = at;
   }
 
+  // What the calendars could not say is never made up further down the chain (R58, R74): a task that follows one that could not be placed (its end is only the nominal working days, or it lies beyond the calendars given) is not
+  // placed either, whatever slot the arithmetic gave it. A task that is done or already under way keeps its own actual days.
+  const length = line.days.length;
+  const lastDay = (node: Node): number => (isMilestone(node.task) ? (node.mode === 'DONE' ? node.e - 1 : Math.max(node.e - 1, startIdx)) : node.e > node.s ? node.e - 1 : node.s);
+  const offLine = (node: Node): boolean => node.unplaced === true || (node.mode === 'ACTIVE' && !(node.s >= 0 && node.s < length && lastDay(node) < length && lastDay(node) >= 0));
+  for (const code of order) {
+    const node = nodes.get(code) as Node;
+    const { task } = node;
+    if (node.mode === 'DONE' || ((task.status ?? 'NOT_STARTED') === 'IN_PROGRESS' && typeof task.actualStart === 'string')) continue;
+    const before = task.predecessors.map((link) => ({ link, node: nodes.get(link.task) as Node }));
+    if (before.some((one) => offLine(one.node))) node.unplaced = true;
+  }
+
   // Constraints that cap how late a task may be, and the ones the schedule breaks.
   const cap = (node: Node): number => {
     const constraint = resolve(node.task);
@@ -517,8 +530,6 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
   }
 
   // Dates, availability and the output.
-  const length = line.days.length;
-  const lastDay = (node: Node): number => (isMilestone(node.task) ? (node.mode === 'DONE' ? node.e - 1 : Math.max(node.e - 1, startIdx)) : node.e > node.s ? node.e - 1 : node.s);
   const findings: ScheduleFinding[] = [];
   const results = new Map<string, ScheduledTask>();
   const baseline = input.baseline ?? null;
