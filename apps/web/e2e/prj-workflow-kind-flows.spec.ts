@@ -44,6 +44,8 @@ async function open(page: Page): Promise<void> {
 
 const field = (page: Page, label: string) => page.getByLabel(label, { exact: true });
 const section = (page: Page) => page.getByTestId('process-kind');
+/** The chooser "Chọn quy trình" has three steps (the process, the day and the units, the schedule and the confirmation); a person moves between them by the row of steps. */
+const step = (page: Page, number: 1 | 2 | 3) => page.locator(`.pwfc-steps__button[data-step="${number}"]`).click();
 const save = (page: Page) => page.getByRole('button', { name: vi['prj.create.submit.action'] }).click();
 
 async function fillProject(page: Page, code: string, unit: string): Promise<void> {
@@ -105,9 +107,11 @@ if (ENTERPRISE) {
       await expect(page.getByTestId('kind-template')).toHaveValue('');
 
       // The planned start, and the two facts the branches of this kind read: the preview tells the finish, the working days and the steps.
-      await page.getByTestId('kind-start').fill(today());
       await page.getByTestId('kind-group').selectOption('B');
       await page.getByTestId('kind-funding').selectOption('STATE_BUDGET');
+      await step(page, 2);
+      await page.getByTestId('kind-start').fill(today());
+      await step(page, 3);
       const preview = page.getByTestId('kind-preview');
       await expect(preview.getByTestId('preview-finish')).toHaveText(/^\d{2}\/\d{2}\/\d{4}$/);
       await expect(preview.getByTestId('preview-total')).toHaveText(/\d/);
@@ -122,6 +126,7 @@ if (ENTERPRISE) {
       // The link that opens the workflow that was made with the project.
       await expect(page.getByTestId('created-workflow').getByRole('link', { name: part['pwf6.kind.created.open'] ?? '' })).toBeVisible();
       // The form is closed after the save: a second press of the button sends nothing.
+      await step(page, 2);
       await expect(page.getByTestId('kind-start')).toBeDisabled();
 
       const id = await projectId(code);
@@ -141,11 +146,13 @@ if (ENTERPRISE) {
       await fillProject(page, code, 'CB-SKHDT-QLDA');
       await expect(page.getByTestId('kind-suggestion')).toContainText(SUGGESTED);
       await page.getByTestId('kind-template').selectOption(OTHER);
+      await expect(page.getByTestId('kind-reason')).toBeVisible();
+      await step(page, 2);
       await page.getByTestId('kind-start').fill(today());
 
-      // The screen asks for the reason and sends nothing.
-      await expect(page.getByTestId('kind-reason')).toBeVisible();
+      // The screen asks for the reason (in the first step, which opens by itself) and sends nothing.
       await save(page);
+      await expect(page.getByTestId('kind-reason')).toBeVisible();
       await expect(page.getByTestId('kind-problems').locator('li')).toHaveText([vi['pwf.process.problem.reasonRequired.text']]);
       expect(await projectId(code)).toBeUndefined();
 
@@ -178,6 +185,7 @@ if (ENTERPRISE) {
 
       // The rule of this unit names no kind: the words say so, and a planned start without a kind is stopped with the reason before anything is sent.
       await expect(page.getByTestId('kind-suggestion')).toHaveText(vi['pwf.process.basis.none.text']);
+      await step(page, 2);
       await page.getByTestId('kind-start').fill(today());
       await save(page);
       await expect(page.getByTestId('kind-problems').locator('li[data-problem]').first()).toHaveText(vi['pwf.process.problem.templateRequired.text']);
@@ -185,6 +193,7 @@ if (ENTERPRISE) {
       expect(await projectId(code)).toBeUndefined();
 
       // Without a planned start the project is registered as it always was: no workflow, and the screen says where one is started later.
+      await step(page, 2);
       await page.getByTestId('kind-start').fill('');
       await save(page);
       await expect(page.getByTestId('created')).toBeVisible();

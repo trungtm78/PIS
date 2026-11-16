@@ -316,9 +316,8 @@ if (ENTERPRISE) {
       const project = await projectWithWorkflow('PRC4');
       const { row } = await startTaskThat(project.id, (detail) => detail.step !== undefined && detail.step !== null);
       await page.goto(`/pwf/pwf-03?id=${project.id}&devUser=${PERSON}`);
-      const panel = page.getByTestId('steps-panel');
-      await expect(panel).toBeAttached();
-      await showTabOf(page, panel);
+      // The grounds of a step are one click away under its name in the step table of PWF-03.
+      const panel = page.getByTestId('step-table');
       await expect(panel).toBeVisible();
       const law = panel.locator('[data-document="LAW_58_2024_QH15"]').first();
       await law.scrollIntoViewIfNeeded().catch(() => undefined);
@@ -361,18 +360,18 @@ if (ENTERPRISE) {
       // The tab "Workflow" of the project (PRJ-03) and the screen PWF-03 are the same workflow.
       await page.goto(`/prj/prj-03?id=${project.id}&tab=workflow&devUser=${PERSON}`);
       await expect(page.getByTestId('workflow')).toBeVisible();
+      // PWF-03 opens on the step table: the header says the progress, and the task that was started is on its row with its deadline, its official colour and what it waits for (the checklist items still open).
       await page.goto(`/pwf/pwf-03?id=${project.id}&devUser=${PERSON}`);
-      const panel = page.getByTestId('steps-panel');
-      await expect(panel).toBeAttached();
-      await showTabOf(page, panel);
-      await expect(panel).toBeVisible();
-      await expect(page.getByTestId('steps-summary')).toContainText(/\d/);
-      // The step of the task that was started is under way; its standard time is told in working days, and the checklist of the task says how many items are done.
-      const stepRow = panel.locator(`[data-step="${step}"]`).first();
-      await expect(stepRow).toHaveAttribute('data-status', 'IN_PROGRESS');
-      await expect(page.getByTestId(`step-time-${step}`)).toContainText(/\d/);
-      const meter = page.getByTestId(`checklist-${row.task_code}`).first();
-      await expect(meter).toContainText(new RegExp(`0\\D+${detail.checklist.length}`));
+      const table = page.getByTestId('step-table');
+      await expect(table).toBeVisible();
+      await expect(page.getByTestId('kpi-progress')).toContainText(/\d+\s*\/\s*\d+/);
+      const taskRow = table.locator(`[data-task="${row.task_code}"]`).first();
+      await expect(taskRow).toBeVisible();
+      await expect(taskRow.getByTestId('cell-deadline')).toContainText(DAY);
+      await expect(taskRow.getByTestId('cell-remaining')).toHaveAttribute('data-band', /^(RED|YELLOW|GREEN|NONE|UNKNOWN)$/);
+      await expect(taskRow.locator('[data-block="evidence"]')).toContainText(new RegExp(`\\b${detail.checklist.length}\\b`));
+      // The step of the task is in the table under its phase (a step with one task is the row of the task itself).
+      expect(step).not.toBe('');
 
       // PWF-04: the optional item is ticked; what is missing still names the mandatory one, and the server refuses the completion with the same item.
       await page.goto(`/pwf/pwf-04?id=${row.id}&project=${project.id}&devUser=${PERSON}`);
@@ -410,9 +409,11 @@ if (ENTERPRISE) {
       await page.getByRole('dialog').locator('.ui-button--primary').click();
       await expect.poll(async () => (await detailOf(row.id)).status).toMatch(/^(DONE|PENDING_APPROVAL)$/);
       const done = (await detailOf(row.id)).checklist.filter((item) => item.done).length;
+      expect(done).toBe(detail.checklist.length);
       await page.goto(`/pwf/pwf-03?id=${project.id}&devUser=${PERSON}`);
-      await showTabOf(page, page.getByTestId('steps-panel'));
-      await expect(page.getByTestId(`checklist-${row.task_code}`).first()).toContainText(new RegExp(`${done}\\D+${detail.checklist.length}`));
+      const after = page.getByTestId('step-table').locator(`[data-task="${row.task_code}"]`).first();
+      // Every item is ticked: the row no longer waits for evidence.
+      await expect(after.locator('[data-block="evidence"]')).toHaveCount(0);
     });
   });
 }
