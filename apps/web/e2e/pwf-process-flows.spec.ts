@@ -29,21 +29,24 @@ interface StoredTemplate {
   tasks: Array<{ code: string; step?: string | null; checklist?: Array<{ code: string; name: string; required: boolean }>; legal_basis?: unknown[]; form_policies?: unknown[] }>;
 }
 
+/** Opens the editor on a procedure in force (or shipped) and makes a draft of it: the version in force is read only, the new draft is the table the person writes in. */
 async function openEditor(page: Page, code: string): Promise<void> {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`/pwf/pwf-02?code=${code}&devUser=${PERSON}`);
-  await expect(page.getByTestId('field-code')).toHaveValue(code);
-  await expect(page.getByTestId('tree').locator('button[data-testid^="pick-"]').first()).toBeVisible();
+  await expect(page.getByTestId('steps-table')).toBeVisible();
+  // A draft the last run left is already writable; the version in force offers "Tạo bản nháp mới".
+  const fresh = page.getByTestId('new-draft');
+  if ((await fresh.count()) > 0) await fresh.click();
+  await expect(page.locator('[data-field="name"]').first()).toBeEnabled();
 }
 
-const editorTab = (page: Page, id: 'structure' | 'steps' | 'roles' | 'checks'): Promise<void> => page.getByTestId(`editor-tab-${id}`).click();
-const taskPart = (page: Page, id: 'info' | 'schedule' | 'docs' | 'checklist' | 'kpi' | 'legal'): Promise<void> => page.getByTestId(`task-parts-tab-${id}`).click();
-
-/** Saves what the editor holds as a draft of the rule store and waits until the store says it is written. */
+/** Saves what the table holds as a draft of the rule store (the short dialog: reason, then Lưu nháp) and waits until the screen says it is written. */
 async function saveDraft(page: Page, reason: string): Promise<void> {
-  await page.getByTestId('reason').fill(reason);
-  await page.getByTestId('save').click();
-  await expect(page.getByTestId('written')).toBeVisible();
+  await page.getByTestId('save-draft').click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('textbox').fill(reason);
+  await dialog.getByRole('button', { name: 'Lưu nháp' }).click();
+  await expect(page.getByTestId('notice')).toBeVisible();
 }
 
 const draftOf = async (code: string): Promise<StoredTemplate | undefined> =>
@@ -154,100 +157,57 @@ if (ENTERPRISE) {
 } else {
   test.describe('the procedure of a project in three tiers (ST-PWF-021, ST-PWF-022)', () => {
     test('TC-UAT-PWF-PRC-01: a step is added to a phase, a step without a task is told in place, a task moves to the step and gets a mandatory checklist item, the preview dates every task, and the draft keeps steps, legal grounds and form policies (PWF-02)', async ({ page }) => {
-      const stepCode = `STEP_E2E_${Date.now().toString(36).toUpperCase()}`;
-      const before = (await apiCall(PERSON, 'GET', `/governance-rules/effective?rule_type=PROJECT_WORKFLOW_TEMPLATE&code=${TEMPLATE}`)).json as unknown as { params: StoredTemplate };
+      const before = ((await draftOf(TEMPLATE)) ?? (await apiCall(PERSON, 'GET', `/governance-rules/effective?rule_type=PROJECT_WORKFLOW_TEMPLATE&code=${TEMPLATE}`)).json.params) as unknown as StoredTemplate;
       await openEditor(page, TEMPLATE);
+      const rows = page.locator('[data-field="name"]');
+      const existing = await rows.count();
+      expect(existing).toBeGreaterThan(5);
 
-      // "Bước của giai đoạn": the template names its steps, each in one phase with its tasks counted.
-      await editorTab(page, 'steps');
-      const steps = page.getByTestId('steps');
-      await expect(steps).toBeVisible();
-      const existing = await steps.locator('li[data-step]').count();
-      expect(existing).toBeGreaterThan(0);
-      const phase = await steps.locator('section[data-step-phase]').first().getAttribute('data-step-phase');
-      expect(phase).not.toBeNull();
+      // One table: a new step is a row at the end of the first phase. It copies the unit, the role and the limit of the row above, and no code is asked for anywhere.
+      const stepName = `Rà soát hồ sơ E2E ${Date.now().toString(36).toUpperCase()}`;
+      const firstPhase = page.locator('tbody[data-phase]').first();
+      await firstPhase.locator('[data-action^="add-step-"]').click();
+      await expect(rows).toHaveCount(existing + 1);
+      const added = firstPhase.locator('tr.pwfx-row').last().locator('[data-field="name"]');
+      await expect(added).toBeFocused();
+      await expect(page.getByLabel(/^mã/i)).toHaveCount(0);
 
-      // A new step in the first phase: it has no task yet, and the count says so.
-      await steps.locator(`[data-action="add-step-${phase}"]`).click();
-      await expect(steps.locator('li[data-step]')).toHaveCount(existing + 1);
-      const at = existing;
-      await page.getByTestId(`field-steps[${at}].code`).fill(stepCode);
-      await page.getByTestId(`field-steps[${at}].name`).fill('Bước rà soát hồ sơ (kiểm thử trình duyệt)');
-      await expect(page.getByTestId(`step-tasks-${at}`)).toContainText('0');
+      // A row the person has been in says what is missing at its cell, in words, before anything is sent.
+      await added.press('Tab');
+      await expect(firstPhase.locator('tr.pwfx-row').last().getByTestId('cell-problem')).toBeVisible();
+      await added.fill(stepName);
+      await added.blur();
+      await expect(firstPhase.locator('tr.pwfx-row').last().getByTestId('cell-problem')).toHaveCount(0);
 
-      // The check tells the step without a task where it stands, before anything is sent.
-      await editorTab(page, 'checks');
-      await page.locator('[data-action="validate"]').click();
-      await editorTab(page, 'steps');
-      await expect(page.getByTestId(`error-steps[${at}].tasks`)).toBeVisible();
+      // The papers of the step are in the details: a mandatory checklist item, its code made from its name.
+      await firstPhase.locator('tr.pwfx-row').last().locator('[data-testid^="details-"]').click();
+      const drawer = page.getByTestId('step-drawer');
+      await drawer.getByRole('button', { name: 'Thêm mục kiểm' }).click();
+      await drawer.getByTestId('checklist').locator('input[type="text"]').first().fill('Hồ sơ đã được rà soát đủ thành phần');
+      await drawer.getByTestId('checklist').locator('input[type="checkbox"]').first().check();
+      await drawer.getByRole('button', { name: 'Đóng' }).first().click();
 
-      // A task of a step that has more than one moves to the new step (the step it leaves keeps a task).
-      await editorTab(page, 'structure');
-      const tree = page.getByTestId('tree');
-      const pick = await tree.evaluate((root, phaseCode) => {
-        for (const step of Array.from(root.querySelectorAll(`li[data-phase="${phaseCode}"] li[data-tree-step]`))) {
-          const buttons = step.querySelectorAll('button[data-testid^="pick-"]');
-          if (step.getAttribute('data-tree-step') !== '' && buttons.length >= 2) return buttons[0]?.getAttribute('data-testid') ?? null;
-        }
-        return null;
-      }, phase);
-      expect(pick, 'a step of the first phase with two tasks').not.toBeNull();
-      const index = Number(String(pick).slice('pick-'.length));
-      await page.getByTestId(String(pick)).click();
-      await taskPart(page, 'info');
-      await page.getByTestId(`field-tasks[${index}].step`).selectOption(stepCode);
-      await editorTab(page, 'steps');
-      await expect(page.getByTestId(`step-tasks-${at}`)).toContainText('1');
-      await expect(page.getByTestId(`error-steps[${at}].tasks`)).toHaveCount(0);
+      // The diagram under the table follows it: the server draws every step on a sample day.
+      await expect(page.getByTestId('diagram-status')).toHaveAttribute('data-status', 'ready');
+      await expect(page.getByTestId('server-checks')).toBeVisible();
+      expect(await page.locator('.pwf-gantt__label').count()).toBeGreaterThan(5);
 
-      // A mandatory checklist item for that task.
-      await editorTab(page, 'structure');
-      await taskPart(page, 'checklist');
-      const items = page.getByTestId('checklist').locator('li');
-      const item = await items.count();
-      await page.locator('[data-action="add-item"]').click();
-      await expect(items).toHaveCount(item + 1);
-      await page.getByTestId(`field-tasks[${index}].checklist[${item}].code`).fill('E2E_REVIEWED');
-      await page.getByTestId(`field-tasks[${index}].checklist[${item}].name`).fill('Hồ sơ đã được rà soát đủ thành phần');
-      await page.getByTestId(`field-tasks[${index}].checklist[${item}].required`).check();
-
-      // The template is valid: the editor finds nothing, and the server finds no error.
-      await editorTab(page, 'checks');
-      await page.locator('[data-action="validate"]').click();
-      await expect(page.getByTestId('local-problems')).toHaveCount(0);
-      await expect(page.getByTestId('validation')).toHaveAttribute('data-current', 'true');
-      await expect(page.getByTestId('validation').locator('[data-severity="ERROR"]')).toHaveCount(0);
-
-      // The preview on a start day gives each task its days.
-      await page.getByTestId('preview-start').fill('2026-11-02');
-      for (const [name, value] of [['project_group', 'B'], ['funding_source', 'STATE_BUDGET']] as const) {
-        const field = page.getByTestId(`field-preview.${name}`);
-        if ((await field.count()) > 0) await field.selectOption(value).catch(() => field.fill(value));
-      }
-      await page.locator('[data-action="preview"]').click();
-      const preview = page.getByTestId('preview');
-      await expect(preview).toHaveAttribute('data-current', 'true');
-      await expect(page.getByTestId('preview-summary')).toContainText(DAY);
-      const dated = preview.locator('tbody tr').filter({ hasText: DAY });
-      expect(await dated.count()).toBeGreaterThan(5);
-
-      // The draft keeps the steps, the legal grounds and the form policies as they were, with the new step and the moved task.
+      // The draft keeps the steps, the legal grounds and the form policies as they were, with the new step and its checklist item.
       await saveDraft(page, 'Thêm bước rà soát hồ sơ và mục kiểm bắt buộc (kiểm thử trình duyệt)');
       const draft = await draftOf(TEMPLATE);
       expect(draft).toBeDefined();
-      const taskCode = before.params.tasks[index]?.code;
-      const moved = draft?.tasks.find((task) => task.code === taskCode);
-      expect(moved?.step).toBe(stepCode);
-      expect(moved?.checklist?.at(-1)).toMatchObject({ code: 'E2E_REVIEWED', required: true });
-      expect(draft?.steps?.map((step) => step.code)).toEqual([...(before.params.steps ?? []).map((step) => step.code), stepCode]);
+      const made = draft?.steps?.find((step) => step.name === stepName);
+      expect(made?.code, 'the code of the new step is made from its name').toMatch(/^RA_SOAT_HO_SO_E2E_[A-Z0-9]+$/);
+      const task = draft?.tasks.find((one) => one.step === made?.code);
+      expect(task?.checklist?.at(-1)).toMatchObject({ code: 'HO_SO_DA_DUOC_RA_SOAT_DU_THANH_PHAN', required: true });
       // Every task belongs to one step of its own phase.
       const phaseOfStep = new Map((draft?.steps ?? []).map((step) => [step.code, step.phase]));
-      for (const task of draft?.tasks ?? []) expect(phaseOfStep.has(String(task.step)), `${task.code} names a step of the template`).toBe(true);
-      for (const step of before.params.steps ?? []) expect(draft?.steps?.find((one) => one.code === step.code)?.legal_basis ?? []).toEqual(step.legal_basis ?? []);
-      for (const task of before.params.tasks) {
-        const now = draft?.tasks.find((one) => one.code === task.code);
-        expect(now?.legal_basis ?? []).toEqual(task.legal_basis ?? []);
-        expect(now?.form_policies ?? []).toEqual(task.form_policies ?? []);
+      for (const one of draft?.tasks ?? []) expect(phaseOfStep.has(String(one.step)), `${one.code} names a step of the template`).toBe(true);
+      for (const step of before.steps ?? []) expect(draft?.steps?.find((one) => one.code === step.code)?.legal_basis ?? []).toEqual(step.legal_basis ?? []);
+      for (const old of before.tasks) {
+        const now = draft?.tasks.find((one) => one.code === old.code);
+        expect(now?.legal_basis ?? []).toEqual(old.legal_basis ?? []);
+        expect(now?.form_policies ?? []).toEqual(old.form_policies ?? []);
       }
     });
 
@@ -255,14 +215,11 @@ if (ENTERPRISE) {
       await openEditor(page, 'PUBLIC_PROCUREMENT');
 
       // A ground of a step, chosen from the catalogue; the article is left empty rather than guessed.
-      await editorTab(page, 'steps');
-      const fold = page.getByTestId('legal-fold-steps[0]');
-      await fold.locator('summary').click();
-      const stepRows = page.getByTestId('legal-steps[0]').locator('li');
-      const stepAt = await stepRows.count();
-      // What the step cites already (the shipped template cites documents of the catalogue on its steps) is listed; the same document twice on one step is refused in place.
-      const cited = await stepRows.locator('input[data-testid$=".document"]').evaluateAll((inputs) => inputs.map((input) => (input as HTMLInputElement).value));
-      // One more ground, a document of the catalogue the step does not cite yet.
+      const first = page.locator('tr.pwfx-row').first();
+      await first.getByRole('button', { name: /^căn cứ/i }).click();
+      const sub = page.locator('tr.pwfx-subrow').first();
+      const stepEditor = sub.locator('.pwfx-basis').first();
+      const citedBefore = await stepEditor.locator('select[aria-label^="Văn bản"]').evaluateAll((selects) => selects.map((select) => (select as HTMLSelectElement).value));
       const CANDIDATES: ReadonlyArray<readonly [string, string]> = [
         ['LAW_58_2024_QH15', '58/2024/QH15'],
         ['DECREE_85_2025_ND_CP', '85/2025/NĐ-CP'],
@@ -270,47 +227,36 @@ if (ENTERPRISE) {
         ['LAW_50_2014_QH13', '50/2014/QH13'],
         ['LAW_15_2017_QH14', '15/2017/QH14'],
       ];
-      const [stepDocument, stepNumber] = CANDIDATES.find(([code]) => !cited.includes(code)) ?? ['', ''];
+      const [stepDocument, stepNumber] = CANDIDATES.find(([code]) => !citedBefore.includes(code)) ?? ['', ''];
       expect(stepDocument, 'a document of the catalogue the step does not cite yet').not.toBe('');
-      await page.locator('[data-action="add-basis-steps[0]"]').click();
-      await expect(stepRows).toHaveCount(stepAt + 1);
-      await page.getByTestId(`pick-steps[0].legal_basis[${stepAt}].document`).selectOption(stepDocument);
-      await expect(page.getByTestId(`field-steps[0].legal_basis[${stepAt}].document`)).toHaveValue(stepDocument);
-      await expect(page.getByTestId(`name-steps[0].legal_basis[${stepAt}].document`)).toContainText(stepNumber);
-      await expect(page.getByTestId(`field-steps[0].legal_basis[${stepAt}].article`)).toHaveValue('');
+      await stepEditor.getByRole('button', { name: '+ Thêm căn cứ' }).click();
+      const added = stepEditor.locator('select[aria-label^="Văn bản"]').last();
+      await added.selectOption(stepDocument);
+      await expect(added.locator('option:checked')).toContainText(stepNumber);
+      await expect(stepEditor.locator('input[aria-label^="Điều, khoản"]').last()).toHaveValue('');
+      // Not checked yet: the row says so, and the yellow note above the table counts the step.
+      await expect(stepEditor.getByText('chưa đối chiếu').last()).toBeVisible();
+      await expect(page.getByTestId('unverified-note')).toBeVisible();
 
-      // A ground of a task with a code the catalogue does not hold: told at the field at once, and by the check of the server at the same path.
-      await editorTab(page, 'structure');
-      await page.getByTestId('pick-0').click();
-      await taskPart(page, 'legal');
-      const taskRows = page.getByTestId('legal-tasks[0]').locator('li');
-      const taskAt = await taskRows.count();
-      await page.locator('[data-action="add-basis-tasks[0]"]').click();
-      await expect(taskRows).toHaveCount(taskAt + 1);
-      const path = `tasks[0].legal_basis[${taskAt}].document`;
-      await page.getByTestId(`field-${path}`).fill('E2E_NO_SUCH_DOCUMENT');
-      await expect(page.getByTestId(`unknown-${path}`)).toBeVisible();
-      await editorTab(page, 'checks');
-      await page.locator('[data-action="validate"]').click();
-      const findings = page.getByTestId('findings');
-      await expect(findings.locator('li[data-severity="ERROR"]').filter({ hasText: 'LEGAL_DOCUMENT_UNKNOWN' })).toContainText(path);
+      // The person says the citation was checked against the source text; the stamp (who, when) is the server's and comes with the save.
+      await stepEditor.getByRole('button', { name: 'Đã đối chiếu văn bản gốc' }).last().click();
+      await expect(stepEditor.getByText(/chờ máy chủ đóng dấu/).last()).toBeVisible();
 
-      // Corrected to a document of the catalogue with its article: the finding is gone.
-      await editorTab(page, 'structure');
-      const taskCited = await taskRows.locator('input[data-testid$=".document"]').evaluateAll((inputs) => inputs.map((input) => (input as HTMLInputElement).value));
+      // A ground of the task with its article.
+      const taskEditor = sub.locator('.pwfx-basis').nth(1);
+      const taskCited = await taskEditor.locator('select[aria-label^="Văn bản"]').evaluateAll((selects) => selects.map((select) => (select as HTMLSelectElement).value));
       const taskDocument = ['DECREE_85_2025_ND_CP', 'LAW_22_2023_QH15', 'LAW_50_2014_QH13'].find((code) => !taskCited.includes(code)) ?? '';
       expect(taskDocument).not.toBe('');
-      await page.getByTestId(`field-${path}`).fill(taskDocument);
-      await expect(page.getByTestId(`unknown-${path}`)).toHaveCount(0);
-      await page.getByTestId(`field-tasks[0].legal_basis[${taskAt}].article`).fill('Điều 12');
-      await editorTab(page, 'checks');
-      await page.locator('[data-action="validate"]').click();
-      await expect(page.getByTestId('validation')).toHaveAttribute('data-current', 'true');
-      await expect(page.getByTestId('validation')).not.toContainText('LEGAL_DOCUMENT_UNKNOWN');
+      await taskEditor.getByRole('button', { name: '+ Thêm căn cứ' }).click();
+      await taskEditor.locator('select[aria-label^="Văn bản"]').last().selectOption(taskDocument);
+      await taskEditor.locator('input[aria-label^="Điều, khoản"]').last().fill('Điều 12');
+      await expect(page.getByTestId('diagram-status')).toHaveAttribute('data-status', 'ready');
       await saveDraft(page, 'Ghi căn cứ pháp lý của bước và của việc (kiểm thử trình duyệt)');
       const draft = await draftOf('PUBLIC_PROCUREMENT');
       expect(JSON.stringify(draft?.steps?.[0]?.legal_basis)).toContain(stepDocument);
       expect(draft?.tasks[0]?.legal_basis?.at(-1)).toMatchObject({ document: taskDocument, article: 'Điều 12' });
+      // The server stamped the citation the person marked: who checked it and when.
+      expect((draft?.steps?.[0]?.legal_basis as Array<Record<string, unknown>>).find((one) => one.document === stepDocument)).toMatchObject({ verification: 'VERIFIED', verified_by: membershipOf(PERSON) });
 
       // A workflow that runs (from the template in force, whose steps cite the same catalogue): PWF-03 shows the grounds of each step with what the catalogue says of the document.
       const project = await projectWithWorkflow('PRC4');
