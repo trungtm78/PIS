@@ -16,6 +16,7 @@ import { useAcknowledge, useCreateRule, useDismiss, usePublishRule, useRules, us
 import type { WarningFilter } from './hooks';
 import { APPROVE_PERMISSION, EMPTY_RULE_FORM, HANDLE_PERMISSION, MANAGE_PERMISSION, METRICS, SEVERITIES, WARNING_STATUSES, canAcknowledge, canDismiss, describeWarning, fieldOf, holds, reviseForm, validateRule } from './model';
 import type { FieldProblem, Metric, RuleField, RuleForm, RuleView, Severity, WarningProblem, WarningView } from './model';
+import { formatPercent } from '../../../i18n/format';
 
 type T = Translator['t'];
 const NONE = '—';
@@ -104,7 +105,7 @@ function observedText(t: T, warning: WarningView): string {
   const seen = warning.observed;
   switch (seen.metric) {
     case 'YTD_RATE_GAP':
-      return t('dis.warning.observed.gap', { observed: String(seen.observed_pct), expected: String(seen.expected_pct), gap: String(seen.gap_points) });
+      return t('dis.warning.observed.gap', { observed: formatPercent(String(seen.observed_pct)).replace('%', ''), expected: formatPercent(String(seen.expected_pct)).replace('%', ''), gap: formatPercent(String(seen.gap_points)).replace('%', '') });
     case 'REPORT_OVERDUE':
       return t('dis.warning.observed.overdue', { days: String(seen.days_past_deadline) });
     case 'NATIONAL_CODE_MISSING':

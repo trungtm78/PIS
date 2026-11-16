@@ -62,7 +62,7 @@ describe('DIS-07 report detail and the decision of the reviewer', () => {
     expect((await screen.findByTestId('detail-explanation')).textContent).toBe('The payment was returned by the Treasury.');
     const volumes = screen.getByTestId('detail-volumes');
     expect(within(volumes).getByText('300.000.000')).toBeTruthy();
-    expect(within(volumes).getByText('37.50')).toBeTruthy();
+    expect(within(volumes).getByText('37,5')).toBeTruthy();
     expect(screen.getByTestId('detail-registration').textContent).toBe('5.000.000 đồng, trong đó CTMTQG 0 đồng.');
     const notes = screen.getByTestId('detail-notes');
     expect(within(notes).getByText('The bridge deck was poured.')).toBeTruthy();

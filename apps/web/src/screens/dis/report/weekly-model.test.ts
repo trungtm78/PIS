@@ -52,7 +52,7 @@ describe('figures', () => {
 
   it('gives the ratio in tenths of a percent, none against nothing', () => {
     expect(ratioOf('1', '3')).toBe('33,3');
-    expect(ratioOf('203', '100')).toBe('203,0');
+    expect(ratioOf('203', '100')).toBe('203');
     expect(ratioOf('5', '0')).toBeNull();
   });
 

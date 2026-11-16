@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { compactMoney } from '../../../i18n/money';
 import { formatVnd } from '../report/money';
+import { formatPercent } from '../../../i18n/format';
 
 /**
  * DIS-27 to DIS-29 (FND-1, docs/fnd-funding-model.md): the figures of the funding model as the API gives them. The shapes are read defensively (a wrong shape is an error of the read, never an empty screen); money is whole
@@ -237,12 +238,9 @@ export const money = (value: string | null | undefined): string => (value === nu
 /** The short form of an amount ("1,23 tỷ đồng") where a text is needed (the line of a tile, a sentence); a dash when nobody has the figure. A table cell uses `<Money>`, which keeps the exact amount one hover away. */
 export const shortMoney = (value: string | null | undefined): string => (value === null || value === undefined ? NONE : compactMoney(value));
 
-/** A percent as the API wrote it (four decimals) shown with two; null is a dash. The text is cut, never turned into a float. */
+/** A percent as the API wrote it (four decimals) shown with two at most by the shared `formatPercent`; null is a dash. The text is never turned into a float. */
 export function percent(value: string | null | undefined): string {
-  if (value === null || value === undefined) return NONE;
-  const [whole = '0', fraction = ''] = value.split('.');
-  const hundredths = Math.round(Number(fraction.padEnd(4, '0').slice(0, 4)) / 100);
-  return hundredths >= 100 ? `${(BigInt(whole) + 1n).toString()},00%` : `${whole},${String(hundredths).padStart(2, '0')}%`;
+  return value === null || value === undefined ? NONE : formatPercent(value);
 }
 
 /** The rates of the board of a project or of the total, those that are over the whole scope first, then one for each class. */

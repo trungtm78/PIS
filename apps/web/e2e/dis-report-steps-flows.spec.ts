@@ -172,7 +172,7 @@ test.describe('DIS-03, DIS-05, DIS-06 volumes, registration and review of the we
     await expect(page.getByTestId('review-status')).toHaveText(vi['dis.review.status.ready']);
     await expect(page.getByTestId('review-errors-none')).toBeVisible();
     const warning = page.getByTestId('review-warnings').locator('li[data-code="VOLUME_EXCEEDS_ALLOCATION"]');
-    await expect(warning).toContainText('203.8%');
+    await expect(warning).toContainText('203,8%');
     await expect(warning.getByRole('link', { name: vi['dis.review.fix.link'] })).toHaveAttribute('href', `/dis/dis-03?report=${report.id}`);
     await expect(page.getByTestId('diff-none')).toBeVisible();
 

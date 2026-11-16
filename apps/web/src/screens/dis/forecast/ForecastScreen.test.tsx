@@ -63,7 +63,7 @@ describe('DIS-23 disbursement forecast and year-end estimate', () => {
     const tiles = await screen.findByTestId('forecast-tiles');
     const tile = (label: string): string => within(tiles).getByText(label).closest('article')?.querySelector('.ui-kpi__value')?.textContent ?? '';
     expect([tile(((vi_ as Record<string, string>)['dis.forecast.tile.disbursedTreasury'] ?? '')), tile(((vi_ as Record<string, string>)['dis.forecast.tile.yearEnd'] ?? '')), tile(vi_['dis.forecast.tile.plan']), tile(((vi_ as Record<string, string>)['dis.forecast.tile.gapPlan'] ?? ''))]).toEqual(['400 triệu đồng', '650 triệu đồng', '1 tỷ đồng', '-350 triệu đồng']);
-    expect(tiles.textContent).toContain(vi_['dis.forecast.ratio.text'].replace('{value}', '65.0'));
+    expect(tiles.textContent).toContain(vi_['dis.forecast.ratio.text'].replace('{value}', '65'));
     expect(screen.getByTestId('forecast-coverage').textContent).toBe(vi_['dis.forecast.coverage.complete']);
     expect(screen.getByTestId('forecast-verdict').textContent).toContain(vi_['dis.forecast.candidate.yes'].replace('{pct}', '80'));
     expect(screen.getByTestId('forecast-verdict').textContent).toContain(vi_['dis.forecast.assumption.note']);

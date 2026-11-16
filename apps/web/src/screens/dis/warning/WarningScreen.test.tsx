@@ -104,7 +104,7 @@ describe('DIS-20 early-warning rules and warnings', () => {
       'EW-01Tỷ lệ giải ngân thấp hơn đường kỳ vọng',
       'P-A-002Cầu qua sông',
       vi_['dis.warning.severity.warning'],
-      '22.0000% so với kỳ vọng 45.0000% (chênh 23.0000 điểm)',
+      '22% so với kỳ vọng 45% (chênh 23 điểm)',
       vi_['dis.warning.status.open'],
     ]);
     const cleared = rowIn(table, 'warning', WARNING(2));

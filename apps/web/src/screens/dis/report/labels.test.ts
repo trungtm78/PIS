@@ -78,7 +78,7 @@ describe('the words of the screens of the weekly report (UI-DIS-01, UI-DIS-04, U
   it('writes the figures of a finding with dots, the cell it is about, and the percent', () => {
     const { t } = createTranslator({ locale: 'vi', catalogues: { vi: vi_, en }, strict: true });
     expect(findingMessage(t, FINDINGS[3] as never)).toBe('CTMTQG 120 đồng lớn hơn 100 đồng của ô Vốn năm NSTW.');
-    expect(findingMessage(t, FINDINGS[7] as never)).toBe('Khối lượng thi công 2.038.000.000 đồng bằng 203.8% vốn đã giao (1.000.000.000 đồng).');
+    expect(findingMessage(t, FINDINGS[7] as never)).toBe('Khối lượng thi công 2.038.000.000 đồng bằng 203,8% vốn đã giao (1.000.000.000 đồng).');
     expect(findingMessage(t, FINDINGS[11] as never)).toContain('80.000.000 đồng');
     expect(findingMessage(t, FINDINGS[12] as never)).toBe('Mã SOMETHING_NEW.');
   });

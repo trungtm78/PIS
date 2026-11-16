@@ -13,6 +13,7 @@ import { useBoard, useDrill } from './hooks';
 import { projectState, stateLabel } from './labels';
 import { DETAIL_PATH, asDrillState, countOf, defaultPeriod, describeBoard, drillLink } from './model';
 import type { BoardProject, Counts, DrillState, UnitCounts } from './model';
+import { formatPercent } from '../../../i18n/format';
 
 /**
  * DIS-15: how many projects of each unit must report for a period, have handed in (and how many of those late), have a draft, have not started and are overdue (ST-DIS-015, FR-DIS-15). Every number leads
@@ -144,7 +145,7 @@ function TotalsTiles({ total }: { total: Counts }) {
   return (
     <KpiStrip label={t('w2dis.board.kpi.label')}>
       <KpiTile label={stateLabel(t, 'MUST_REPORT')} value={String(total.mustReport)} tone="neutral" />
-      <KpiTile label={stateLabel(t, 'SUBMITTED')} value={String(total.submitted)} tone="success" sub={share === undefined ? t('w2dis.board.kpi.na') : t('w2dis.board.kpi.share', { percent: share, late: total.submittedLate })} />
+      <KpiTile label={stateLabel(t, 'SUBMITTED')} value={String(total.submitted)} tone="success" sub={share === undefined ? t('w2dis.board.kpi.na') : t('w2dis.board.kpi.share', { percent: formatPercent(share).replace('%', ''), late: total.submittedLate })} />
       <KpiTile label={stateLabel(t, 'DRAFT')} value={String(total.draft)} tone="info" />
       <KpiTile label={stateLabel(t, 'NOT_STARTED')} value={String(total.notStarted)} tone="neutral" />
       <KpiTile label={stateLabel(t, 'OVERDUE')} value={String(total.overdue)} tone={total.overdue > 0 ? 'danger' : 'success'} />

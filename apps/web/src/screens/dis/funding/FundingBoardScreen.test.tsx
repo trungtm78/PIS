@@ -21,12 +21,12 @@ describe('DIS-27: the figures of the funding model and their indicators', () => 
     const h = open();
     expect(await screen.findByRole('heading', { name: /Số liệu vốn theo kỳ/ })).toBeTruthy();
     const tile = (await screen.findByText('Tỷ lệ thực hiện năm')).closest('.ui-kpi') as HTMLElement;
-    expect(within(tile).getByText('12,50%')).toBeTruthy();
+    expect(within(tile).getByText('12,5%')).toBeTruthy();
     expect(within(tile).getByText('125 triệu đồng / 1 tỷ đồng')).toBeTruthy();
     // A rate with nothing to divide by is a dash with its reason, never 0%.
     const period = screen.getByText('Tỷ lệ thực hiện của kỳ').closest('.ui-kpi') as HTMLElement;
     expect(within(period).getByTestId('reason-RATE_PERIOD').textContent).toContain('Chưa có mẫu số');
-    expect(within(period).queryByText('0,00%')).toBeNull();
+    expect(within(period).queryByText('0%')).toBeNull();
     // The structure of the classes is one tile for each class.
     expect(screen.getByText('Tỷ trọng nhóm vốn: EQUITY')).toBeTruthy();
     const table = screen.getByRole('table');
