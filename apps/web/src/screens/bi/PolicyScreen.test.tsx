@@ -64,6 +64,8 @@ describe('BI-08 row and column access (ST-BI-003, BI BR-BI-05)', () => {
   it('AC-ST-BI-003-1: UAT-AC473 lists the policies of the dataset with who each is for, the condition, the columns hidden and the status, and says the dataset is open', async () => {
     mount(<PolicyScreen route={ROUTE} />, client({ datasets: [dataset()], policies: [policy(1)] }), { permissions: ADMIN });
     const table = await screen.findByTestId('policy-table');
+    // A wide table scrolls in its own region: at 390 px the page never scrolls sideways.
+    expect(table.closest('.ui-table-scroll')).not.toBeNull();
     const row = table.querySelector('tbody tr') as HTMLElement;
     expect(within(row).getByText(vi_['bi.policy.grantee.role'])).toBeTruthy();
     expect(within(row).getByText('account_no')).toBeTruthy();

@@ -236,6 +236,8 @@ describe('BI-15 registration of metrics from source (ST-BI-001, BI 3 F1)', () =>
     ];
     mount(<RegistrationScreen route={route('BI-15')} />, client({ rows }), { permissions: READER });
     const table = await screen.findByTestId('registration-table');
+    // A wide table scrolls in its own region: at 390 px the page never scrolls sideways.
+    expect(table.closest('.ui-table-scroll')).not.toBeNull();
     const [latest, first] = [...table.querySelectorAll('tbody tr')] as HTMLElement[];
     expect(latest?.getAttribute('data-commit')).toBe('c4d5e6f');
     expect([...(latest?.querySelectorAll('td') ?? [])].map((cell) => cell.textContent)).toEqual(['c4d5e6f', vi_['bi.registration.noLog'], '0', '1', '0', '1', vi_['bi.registration.status.applied'], vi_['bi.registration.noLog']]);

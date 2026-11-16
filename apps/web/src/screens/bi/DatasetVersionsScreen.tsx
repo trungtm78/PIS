@@ -7,6 +7,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { Field } from '../mne/components';
+import { ScrollRegion } from '../scroll-region';
 import '../dis/dis.css';
 import { BUILD_PERMISSION, MODEL_PATH, describeBuildProblem, periodProblem } from './dataset-model';
 import { useBuildVersion, useDatasetVersions, useDatasets } from './hooks';
@@ -94,38 +95,40 @@ function VersionsContent({ route }: ScreenProps) {
             </div>
           </form>
         ) : null}
-        <table className="table" data-testid="versions-table" aria-label={t('bi.versions.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('bi.versions.column.dataset')}</th>
-              <th scope="col">{t('bi.versions.column.period')}</th>
-              <th scope="col">{t('bi.versions.column.snapshot')}</th>
-              <th scope="col">{t('bi.versions.column.builtAt')}</th>
-              <th scope="col">{t('bi.versions.column.rows')}</th>
-              <th scope="col">{t('bi.versions.column.quality')}</th>
-              <th scope="col">{t('bi.versions.column.status')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(versions.data ?? []).map((version) => (
-              <tr key={version.id} data-version-id={version.id} data-status={version.status}>
-                <td>{chosen?.code}</td>
-                <td>{version.asOfPeriod}</td>
-                <td>{version.sourceSnapshotId === null ? t('bi.versions.none') : version.sourceSnapshotId.slice(0, 8)}</td>
-                <td>{version.builtAt}</td>
-                <td data-testid={`rows-${version.id}`}>
-                  {t('bi.versions.rows', { rows: number.format(version.rowCount), certified: number.format(version.certifiedRowCountMin) })}
-                  {version.excludedQuarantineRows > 0 ? <span className="sub"> {t('bi.versions.excluded', { rows: number.format(version.excludedQuarantineRows) })}</span> : null}
-                </td>
-                <td data-testid={`badge-${version.id}`} data-badge={version.badge}>
-                  {badgeLabel(t, version.badge)}
-                  {version.feedsCertified ? null : <span className="sub"> {t('bi.versions.notCertified')}</span>}
-                </td>
-                <td>{versionStatusLabel(t, version.status)}</td>
+        <ScrollRegion label={t('bi.versions.table.aria')}>
+          <table className="table" data-testid="versions-table" aria-label={t('bi.versions.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('bi.versions.column.dataset')}</th>
+                <th scope="col">{t('bi.versions.column.period')}</th>
+                <th scope="col">{t('bi.versions.column.snapshot')}</th>
+                <th scope="col">{t('bi.versions.column.builtAt')}</th>
+                <th scope="col">{t('bi.versions.column.rows')}</th>
+                <th scope="col">{t('bi.versions.column.quality')}</th>
+                <th scope="col">{t('bi.versions.column.status')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(versions.data ?? []).map((version) => (
+                <tr key={version.id} data-version-id={version.id} data-status={version.status}>
+                  <td>{chosen?.code}</td>
+                  <td>{version.asOfPeriod}</td>
+                  <td>{version.sourceSnapshotId === null ? t('bi.versions.none') : version.sourceSnapshotId.slice(0, 8)}</td>
+                  <td>{version.builtAt}</td>
+                  <td data-testid={`rows-${version.id}`}>
+                    {t('bi.versions.rows', { rows: number.format(version.rowCount), certified: number.format(version.certifiedRowCountMin) })}
+                    {version.excludedQuarantineRows > 0 ? <span className="sub"> {t('bi.versions.excluded', { rows: number.format(version.excludedQuarantineRows) })}</span> : null}
+                  </td>
+                  <td data-testid={`badge-${version.id}`} data-badge={version.badge}>
+                    {badgeLabel(t, version.badge)}
+                    {version.feedsCertified ? null : <span className="sub"> {t('bi.versions.notCertified')}</span>}
+                  </td>
+                  <td>{versionStatusLabel(t, version.status)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ScrollRegion>
         {(versions.data ?? []).length === 0 ? <p data-testid="versions-none">{t('bi.versions.noVersions')}</p> : null}
       </StateBoundary>
     </section>

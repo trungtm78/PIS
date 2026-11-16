@@ -46,6 +46,9 @@ describe('MeasurementScreen (CTR-10): record the work done', () => {
   it('UI-CTR-10: has a row for each item of the revision in force with its quantity, what was approved and what is left', async () => {
     open(world({ measurements: recorded() }));
     await screen.findByTestId('items');
+    // The tables scroll in their own regions: at 390 px the page never scrolls sideways.
+    expect(screen.getByTestId('items').closest('.ui-table-scroll')).not.toBeNull();
+    expect(screen.getByTestId('measurements').closest('.ui-table-scroll')).not.toBeNull();
     expect(screen.getByTestId('contract-code').textContent).toBe('HD-A-001');
     expect(screen.getByTestId('revision-no').textContent).toContain(text('ctr.measurement.contract.revision', { revision: 1 }));
     const first = within(rowOf('B01')).getAllByRole('cell').map((cell) => cell.textContent);

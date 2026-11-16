@@ -7,6 +7,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { Field } from '../mne/components';
+import { ScrollRegion } from '../scroll-region';
 import '../dis/dis.css';
 import { useCreatePolicy, useDatasets, usePolicies } from './hooks';
 import { granteeKindLabel, policyFieldMessage, policyRefusalMessage, policyStatusLabel } from './labels';
@@ -66,32 +67,34 @@ function PolicyContent({ route }: ScreenProps) {
             {open ? t('bi.policy.open') : t('bi.policy.closed')}
           </p>
         </div>
-        <table className="table" data-testid="policy-table" aria-label={t('bi.policy.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('bi.policy.column.grantee')}</th>
-              <th scope="col">{t('bi.policy.column.scope')}</th>
-              <th scope="col">{t('bi.policy.column.hidden')}</th>
-              <th scope="col">{t('bi.policy.column.condition')}</th>
-              <th scope="col">{t('bi.policy.column.status')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((policy) => (
-              <tr key={policy.id} data-policy-id={policy.id} data-status={policy.status}>
-                <td>
-                  {granteeKindLabel(t, policy.granteeKind)} <span className="sub">{policy.granteeRefId.slice(0, 8)}</span> <span className="sub">{t('bi.policy.revision', { revision: policy.revision })}</span>
-                </td>
-                <td>{t('bi.policy.scope.own')}</td>
-                <td>{policy.hiddenColumns.length === 0 ? t('bi.policy.none') : policy.hiddenColumns.join(', ')}</td>
-                <td>
-                  <code>{predicateText(policy.predicate, t('bi.policy.inScope'))}</code>
-                </td>
-                <td>{policyStatusLabel(t, policy.status)}</td>
+        <ScrollRegion label={t('bi.policy.table.aria')}>
+          <table className="table" data-testid="policy-table" aria-label={t('bi.policy.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('bi.policy.column.grantee')}</th>
+                <th scope="col">{t('bi.policy.column.scope')}</th>
+                <th scope="col">{t('bi.policy.column.hidden')}</th>
+                <th scope="col">{t('bi.policy.column.condition')}</th>
+                <th scope="col">{t('bi.policy.column.status')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((policy) => (
+                <tr key={policy.id} data-policy-id={policy.id} data-status={policy.status}>
+                  <td>
+                    {granteeKindLabel(t, policy.granteeKind)} <span className="sub">{policy.granteeRefId.slice(0, 8)}</span> <span className="sub">{t('bi.policy.revision', { revision: policy.revision })}</span>
+                  </td>
+                  <td>{t('bi.policy.scope.own')}</td>
+                  <td>{policy.hiddenColumns.length === 0 ? t('bi.policy.none') : policy.hiddenColumns.join(', ')}</td>
+                  <td>
+                    <code>{predicateText(policy.predicate, t('bi.policy.inScope'))}</code>
+                  </td>
+                  <td>{policyStatusLabel(t, policy.status)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ScrollRegion>
         {rows.length === 0 ? <p data-testid="policy-none">{t('bi.policy.noPolicies')}</p> : null}
         <p className="sub" data-testid="policy-preview-note">
           {t('bi.policy.preview.note')}

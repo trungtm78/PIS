@@ -16,6 +16,7 @@ import { measurementProblemMessage, statusLabel } from './labels';
 import { CorrectDialog, DecideDialog, RecordDialog } from './MeasurementDialogs';
 import { describeMeasurementProblem, itemRows, mayRecord, quantityText } from './model';
 import type { ItemRow, Measurement } from './model';
+import { ScrollRegion } from '../../scroll-region';
 import '../ctr.css';
 import { SectionCard } from '../../../ui';
 
@@ -142,31 +143,33 @@ function Measurements({ contract, lines, measurements }: MeasurementsProps) {
             {lines === undefined ? t('ctr.measurement.items.denied') : t('ctr.measurement.items.empty')}
           </p>
         ) : (
-          <table className="table" data-testid="items">
-            <thead>
-              <tr>
-                <th scope="col">{t('ctr.measurement.items.item')}</th>
-                <th scope="col">{t('ctr.measurement.items.unit')}</th>
-                <th scope="col" className="ctr-amount">
-                  {t('ctr.measurement.items.quantity')}
-                </th>
-                <th scope="col" className="ctr-amount">
-                  {t('ctr.measurement.items.approved')}
-                </th>
-                <th scope="col" className="ctr-amount">
-                  {t('ctr.measurement.items.remaining')}
-                </th>
-                <th scope="col">
-                  <span className="sr-only">{t('ctr.measurement.items.actions')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <ItemLine key={row.line.id} row={row} locale={locale} mayEnter={mayEnter} onRecord={() => setDialog({ kind: 'record', itemKey: row.line.businessKey })} />
-              ))}
-            </tbody>
-          </table>
+          <ScrollRegion label={t('ctr.measurement.items.title')}>
+            <table className="table" data-testid="items">
+              <thead>
+                <tr>
+                  <th scope="col">{t('ctr.measurement.items.item')}</th>
+                  <th scope="col">{t('ctr.measurement.items.unit')}</th>
+                  <th scope="col" className="ctr-amount">
+                    {t('ctr.measurement.items.quantity')}
+                  </th>
+                  <th scope="col" className="ctr-amount">
+                    {t('ctr.measurement.items.approved')}
+                  </th>
+                  <th scope="col" className="ctr-amount">
+                    {t('ctr.measurement.items.remaining')}
+                  </th>
+                  <th scope="col">
+                    <span className="sr-only">{t('ctr.measurement.items.actions')}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <ItemLine key={row.line.id} row={row} locale={locale} mayEnter={mayEnter} onRecord={() => setDialog({ kind: 'record', itemKey: row.line.businessKey })} />
+                ))}
+              </tbody>
+            </table>
+          </ScrollRegion>
         )}
       </SectionCard>
       <SectionCard title={t('ctr.measurement.list.title')}>
@@ -175,60 +178,62 @@ function Measurements({ contract, lines, measurements }: MeasurementsProps) {
             {t('ctr.measurement.list.empty')}
           </p>
         ) : (
-          <table className="table" data-testid="measurements">
-            <thead>
-              <tr>
-                <th scope="col">{t('ctr.measurement.list.period')}</th>
-                <th scope="col">{t('ctr.measurement.list.item')}</th>
-                <th scope="col" className="ctr-amount">
-                  {t('ctr.measurement.list.quantity')}
-                </th>
-                <th scope="col" className="ctr-amount">
-                  {t('ctr.measurement.list.cumulative')}
-                </th>
-                <th scope="col">{t('ctr.measurement.list.revision')}</th>
-                <th scope="col">{t('ctr.measurement.list.reference')}</th>
-                <th scope="col">{t('ctr.measurement.list.status')}</th>
-                <th scope="col">
-                  <span className="sr-only">{t('ctr.measurement.items.actions')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {measurements.map((measurement) => (
-                <tr key={measurement.id} data-measurement={measurement.id} data-status={measurement.status}>
-                  <th scope="row">{measurement.period.code}</th>
-                  <td>{`${measurement.boqItem.businessKey} · ${measurement.boqItem.description}`}</td>
-                  <td className="ctr-amount">{`${quantityText(measurement.quantityPeriod, locale)} ${measurement.boqItem.unitCode}`}</td>
-                  <td className="ctr-amount">{quantityText(measurement.quantityCumulative, locale)}</td>
-                  <td>{measurement.revision}</td>
-                  <td>{measurement.referenceNo ?? ''}</td>
-                  <td>
-                    <span className={measurement.status === 'REJECTED' ? 'ctr-badge warning' : 'ctr-badge'} data-testid="measurement-status">
-                      {statusLabel(t, measurement.status)}
-                    </span>
-                  </td>
-                  <td>
-                    {measurement.actions.submit && mode !== 'READ_ONLY' ? (
-                      <button type="button" data-action="submit" disabled={submit.isPending} onClick={() => sendNow(measurement)}>
-                        {t('ctr.measurement.action.submit')}
-                      </button>
-                    ) : null}
-                    {measurement.actions.decide && mode !== 'READ_ONLY' ? (
-                      <button type="button" data-action="decide" onClick={() => setDialog({ kind: 'decide', id: measurement.id })}>
-                        {t('ctr.measurement.action.decide')}
-                      </button>
-                    ) : null}
-                    {measurement.actions.correct && mode !== 'READ_ONLY' ? (
-                      <button type="button" data-action="correct" onClick={() => setDialog({ kind: 'correct', id: measurement.id })}>
-                        {t('ctr.measurement.action.correct')}
-                      </button>
-                    ) : null}
-                  </td>
+          <ScrollRegion label={t('ctr.measurement.list.title')}>
+            <table className="table" data-testid="measurements">
+              <thead>
+                <tr>
+                  <th scope="col">{t('ctr.measurement.list.period')}</th>
+                  <th scope="col">{t('ctr.measurement.list.item')}</th>
+                  <th scope="col" className="ctr-amount">
+                    {t('ctr.measurement.list.quantity')}
+                  </th>
+                  <th scope="col" className="ctr-amount">
+                    {t('ctr.measurement.list.cumulative')}
+                  </th>
+                  <th scope="col">{t('ctr.measurement.list.revision')}</th>
+                  <th scope="col">{t('ctr.measurement.list.reference')}</th>
+                  <th scope="col">{t('ctr.measurement.list.status')}</th>
+                  <th scope="col">
+                    <span className="sr-only">{t('ctr.measurement.items.actions')}</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {measurements.map((measurement) => (
+                  <tr key={measurement.id} data-measurement={measurement.id} data-status={measurement.status}>
+                    <th scope="row">{measurement.period.code}</th>
+                    <td>{`${measurement.boqItem.businessKey} · ${measurement.boqItem.description}`}</td>
+                    <td className="ctr-amount">{`${quantityText(measurement.quantityPeriod, locale)} ${measurement.boqItem.unitCode}`}</td>
+                    <td className="ctr-amount">{quantityText(measurement.quantityCumulative, locale)}</td>
+                    <td>{measurement.revision}</td>
+                    <td>{measurement.referenceNo ?? ''}</td>
+                    <td>
+                      <span className={measurement.status === 'REJECTED' ? 'ctr-badge warning' : 'ctr-badge'} data-testid="measurement-status">
+                        {statusLabel(t, measurement.status)}
+                      </span>
+                    </td>
+                    <td>
+                      {measurement.actions.submit && mode !== 'READ_ONLY' ? (
+                        <button type="button" data-action="submit" disabled={submit.isPending} onClick={() => sendNow(measurement)}>
+                          {t('ctr.measurement.action.submit')}
+                        </button>
+                      ) : null}
+                      {measurement.actions.decide && mode !== 'READ_ONLY' ? (
+                        <button type="button" data-action="decide" onClick={() => setDialog({ kind: 'decide', id: measurement.id })}>
+                          {t('ctr.measurement.action.decide')}
+                        </button>
+                      ) : null}
+                      {measurement.actions.correct && mode !== 'READ_ONLY' ? (
+                        <button type="button" data-action="correct" onClick={() => setDialog({ kind: 'correct', id: measurement.id })}>
+                          {t('ctr.measurement.action.correct')}
+                        </button>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </ScrollRegion>
         )}
       </SectionCard>
       {target === undefined || effective === undefined ? null : (

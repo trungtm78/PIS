@@ -59,3 +59,15 @@ for (const width of [1440, 1280]) {
     }
   });
 }
+
+// A screen of the governance pages (CAP-23, DIS-30 share the grid) at 390 px: its tables scroll in their own regions and the page never scrolls sideways.
+for (const path of ['/cap/cap-23', '/dis/dis-30']) {
+  test(`${path} does not scroll sideways at 390 px`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.goto(`${path}?devUser=${PERSON}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.workspace-breadcrumb');
+    await page.waitForLoadState('networkidle').catch(() => undefined);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+}

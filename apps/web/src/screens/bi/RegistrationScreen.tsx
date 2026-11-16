@@ -5,6 +5,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { ScrollRegion } from '../scroll-region';
 import '../dis/dis.css';
 import { CATALOGUE_PATH, registrationsOf } from './bi-model';
 import { useMetrics } from './hooks';
@@ -38,36 +39,38 @@ function RegistrationContent({ route }: ScreenProps) {
         </Link>
       </div>
       <StateBoundary state={state} onRetry={() => void metrics.refetch()}>
-        <table className="table" data-testid="registration-table" aria-label={t('bi.registration.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('bi.registration.column.commit')}</th>
-              <th scope="col">{t('bi.registration.column.hash')}</th>
-              <th scope="col">{t('bi.registration.column.added')}</th>
-              <th scope="col">{t('bi.registration.column.revised')}</th>
-              <th scope="col">{t('bi.registration.column.retired')}</th>
-              <th scope="col">{t('bi.registration.column.inForce')}</th>
-              <th scope="col">{t('bi.registration.column.status')}</th>
-              <th scope="col">{t('bi.registration.column.error')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {registrations.map((entry) => (
-              <tr key={entry.sourceCommit} data-commit={entry.sourceCommit}>
-                <td>
-                  <code>{entry.sourceCommit}</code>
-                </td>
-                <td className="sub">{t('bi.registration.noLog')}</td>
-                <td>{entry.added}</td>
-                <td>{entry.revised}</td>
-                <td>{entry.retired}</td>
-                <td>{entry.inForce}</td>
-                <td>{t('bi.registration.status.applied')}</td>
-                <td className="sub">{t('bi.registration.noLog')}</td>
+        <ScrollRegion label={t('bi.registration.table.aria')}>
+          <table className="table" data-testid="registration-table" aria-label={t('bi.registration.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('bi.registration.column.commit')}</th>
+                <th scope="col">{t('bi.registration.column.hash')}</th>
+                <th scope="col">{t('bi.registration.column.added')}</th>
+                <th scope="col">{t('bi.registration.column.revised')}</th>
+                <th scope="col">{t('bi.registration.column.retired')}</th>
+                <th scope="col">{t('bi.registration.column.inForce')}</th>
+                <th scope="col">{t('bi.registration.column.status')}</th>
+                <th scope="col">{t('bi.registration.column.error')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {registrations.map((entry) => (
+                <tr key={entry.sourceCommit} data-commit={entry.sourceCommit}>
+                  <td>
+                    <code>{entry.sourceCommit}</code>
+                  </td>
+                  <td className="sub">{t('bi.registration.noLog')}</td>
+                  <td>{entry.added}</td>
+                  <td>{entry.revised}</td>
+                  <td>{entry.retired}</td>
+                  <td>{entry.inForce}</td>
+                  <td>{t('bi.registration.status.applied')}</td>
+                  <td className="sub">{t('bi.registration.noLog')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ScrollRegion>
       </StateBoundary>
     </section>
   );

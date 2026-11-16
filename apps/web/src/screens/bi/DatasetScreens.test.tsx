@@ -124,6 +124,8 @@ describe('BI-18 datasets and period snapshots (ST-BI-002, BI 3 F2)', () => {
   it('AC-ST-BI-002-1: UAT-AC478 lists the versions of a period: the first not assessed and superseded but still there, the second with the run linked, 12 rows left out of the certified figures', async () => {
     mount(<DatasetVersionsScreen route={route('BI-18')} />, client({ datasets: [dataset()], versions: [second, first] }), { permissions: QUERIER });
     const table = await screen.findByTestId('versions-table');
+    // A wide table scrolls in its own region: at 390 px the page never scrolls sideways.
+    expect(table.closest('.ui-table-scroll')).not.toBeNull();
     const rows = [...table.querySelectorAll('tbody tr')] as HTMLElement[];
     expect(rows.map((row) => row.getAttribute('data-status'))).toEqual(['FROZEN', 'SUPERSEDED']);
     expect(screen.getByTestId(`badge-${second.id}`).textContent).toBe(vi_['bi.dataset.badge.warning']);

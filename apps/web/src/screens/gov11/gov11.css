@@ -1,5 +1,7 @@
 .gov11-page .gov11-grid {
   display: grid;
+  /* One column that is as wide as the page and no wider: a table inside a section scrolls in its own region, it never widens the column (min-content of a section is its table). */
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
