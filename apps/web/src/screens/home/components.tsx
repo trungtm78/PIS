@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
-import { StatusPill } from '../../ui';
+import { compactMoney, fullMoney } from '../../i18n/money';
+import { Money, StatusPill } from '../../ui';
 import { recordLink } from '../ana/decision-model';
-import { formatVnd } from '../dis/report/money';
 import '../dis/dis.css';
-import { FigureInfo, FlagPills, figureShown, noneText } from './figure-components';
+import { FigureInfo, FlagPills, figureShown, isWholeDong, noneText } from './figure-components';
 import { FORMULA_REFERENCE, SNAPSHOT_SCREEN_PATH, drillPathOf, figureText } from './model';
 import type { HomeProblem, QualityBadge, Tile } from './model';
 
@@ -45,6 +45,8 @@ export function MetricTile({ tile, rate }: { tile: Tile; rate?: 'pm' | 'total' }
         <strong data-testid={`tile-value-${tile.metricCode}`}>
           {tile.displayValue === null ? (
             <span data-testid={`tile-none-${tile.metricCode}`}>{noneText(t, tile)}</span>
+          ) : tile.unit === 'VND' && isWholeDong(tile.displayValue) ? (
+            <Money value={tile.displayValue} data-testid={`tile-figure-${tile.metricCode}`} />
           ) : (
             <>
               <span data-testid={`tile-figure-${tile.metricCode}`}>{figureText(tile)}</span>
@@ -56,8 +58,8 @@ export function MetricTile({ tile, rate }: { tile: Tile; rate?: 'pm' | 'total' }
       </span>
       <FlagPills tile={tile} />
       {showSums ? (
-        <small data-testid={`tile-sums-${tile.metricCode}`}>
-          {t('home.tile.numerator', { value: formatVnd(tile.numerator ?? '0') })} · {t('home.tile.denominator', { value: formatVnd(tile.denominator ?? '0') })}
+        <small data-testid={`tile-sums-${tile.metricCode}`} title={`${t('home.tile.numerator', { value: fullMoney(tile.numerator ?? '0') })} · ${t('home.tile.denominator', { value: fullMoney(tile.denominator ?? '0') })}`}>
+          {t('home.tile.numerator', { value: compactMoney(tile.numerator ?? '0') })} · {t('home.tile.denominator', { value: compactMoney(tile.denominator ?? '0') })}
         </small>
       ) : null}
       <small data-testid={`tile-measure-${tile.metricCode}`}>{tile.unit === 'PERCENT' ? t('home.tile.measure.percent') : t('home.tile.measure.vnd')}</small>

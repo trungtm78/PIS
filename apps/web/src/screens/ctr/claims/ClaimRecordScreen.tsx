@@ -6,7 +6,7 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { ContextBar, SectionCard, StatusPill } from '../../../ui';
+import { ContextBar, Money, SectionCard, StatusPill } from '../../../ui';
 import { ClaimDialogs } from './ClaimDialogs';
 import type { ClaimDialog } from './ClaimDialogs';
 import { BackLink, CalendarNotice, FigureInfo, StatePill, WithInfo } from './components';
@@ -175,11 +175,11 @@ function ClaimRecordContent({ route, claimId }: ScreenProps & { claimId: string 
                 <Fact label={t('ctrClaim.record.responsible.label')}>{claim.responsible_name ?? NONE}</Fact>
                 <Fact label={t('ctrClaim.record.registeredBy.label')}>{claim.registered_by_name ?? NONE}</Fact>
                 <Fact label={t('ctrClaim.record.claimed.label')} testId="claimed">
-                  {claim.claimed_amount_vnd === null ? NONE : vnd(claim.claimed_amount_vnd, locale)}
+                  {claim.claimed_amount_vnd === null ? NONE : <Money value={claim.claimed_amount_vnd} />}
                   {claim.claimed_days === null ? '' : ` · ${t('ctrClaim.record.days.text', { days: claim.claimed_days })}`}
                 </Fact>
                 <Fact label={t('ctrClaim.record.settled.label')} testId="settled">
-                  {claim.settled_amount_vnd === null && claim.granted_days === null ? NONE : claim.settled_amount_vnd === null ? '' : vnd(claim.settled_amount_vnd, locale)}
+                  {claim.settled_amount_vnd === null && claim.granted_days === null ? NONE : claim.settled_amount_vnd === null ? '' : <Money value={claim.settled_amount_vnd} />}
                   {claim.granted_days === null ? '' : ` · ${t('ctrClaim.record.days.text', { days: claim.granted_days })}`}
                 </Fact>
               </dl>

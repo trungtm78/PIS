@@ -1,3 +1,5 @@
+import { dongText } from '../../../i18n/money';
+
 export const READ_PERMISSION = 'capital.ledger.read';
 
 export const COLUMNS = ['appropriated', 'allocated', 'reserved', 'committed', 'disbursed'] as const;
@@ -73,7 +75,7 @@ export function toLedgerPage(raw: unknown): LedgerPage {
 
 /** Whole VND with the thousands separators of the language, exact for any size; anything that is not digits is shown as it came. */
 export function formatVnd(amount: string, locale: string): string {
-  return /^-?[0-9]{1,24}$/.test(amount) ? BigInt(amount).toLocaleString(locale) : amount;
+  return /^-?[0-9]{1,24}$/.test(amount) ? dongText(amount, locale) : amount;
 }
 
 export interface LedgerFilter {

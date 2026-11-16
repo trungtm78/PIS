@@ -43,7 +43,7 @@ export function GroupTable({ result, onDrill }: { result: QueryResult; onDrill?:
         {result.children.map((group) => (
           <tr key={group.key ?? 'unclassified'} data-group={group.key ?? 'unclassified'}>
             <td>{group.unclassified ? t('bi.query.unclassified') : group.label}</td>
-            <td data-testid={`value-${group.key ?? 'unclassified'}`}>{formatFigure(group, ratio ? 'percent' : result.unit, locale, words)}</td>
+            <td data-testid={`value-${group.key ?? 'unclassified'}`}>{formatFigure(group, ratio ? 'percent' : result.unit, locale, words, 'exact')}</td>
             {ratio ? <td>{group.numerator ?? t('bi.query.noData')}</td> : null}
             {ratio ? <td>{group.denominator ?? t('bi.query.noData')}</td> : null}
             {onDrill === undefined ? null : (
@@ -61,7 +61,7 @@ export function GroupTable({ result, onDrill }: { result: QueryResult; onDrill?:
       <tfoot>
         <tr data-testid="group-total">
           <th scope="row">{t('bi.query.total')}</th>
-          <td>{formatFigure(result.total, ratio ? 'percent' : result.unit, locale, words)}</td>
+          <td>{formatFigure(result.total, ratio ? 'percent' : result.unit, locale, words, 'exact')}</td>
           {ratio ? <td>{result.total.numerator ?? t('bi.query.noData')}</td> : null}
           {ratio ? <td>{result.total.denominator ?? t('bi.query.noData')}</td> : null}
           {onDrill === undefined ? null : <td />}

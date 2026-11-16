@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { compactMoney, fullMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { formatVnd } from '../dis/report/money';
 import { ConfirmationLabel, Field } from './components';
 import { useObligations, useReport } from './hooks';
 import { reportStatusLabel } from './labels';
@@ -129,8 +129,8 @@ function WeeklyBody({ report }: { report: ReportView }) {
             <strong>{value(rates.total)}</strong>
           </div>
         </div>
-        {rates.plan === null ? null : <p className="sub">{t('mne.weekly.figures.plan', { value: formatVnd(rates.plan) })}</p>}
-        {rates.disbursed === null ? null : <p className="sub">{t('mne.weekly.figures.disbursed', { value: formatVnd(rates.disbursed) })}</p>}
+        {rates.plan === null ? null : <p className="sub" data-testid="weekly-plan" title={fullMoney(rates.plan)}>{t('mne.weekly.plan.amount', { value: compactMoney(rates.plan) })}</p>}
+        {rates.disbursed === null ? null : <p className="sub" data-testid="weekly-disbursed" title={fullMoney(rates.disbursed)}>{t('mne.weekly.disbursed.amount', { value: compactMoney(rates.disbursed) })}</p>}
       </section>
       <section aria-labelledby="weekly-slow-title" data-testid="weekly-slow">
         <h2 id="weekly-slow-title">{t('mne.weekly.slow.title')}</h2>

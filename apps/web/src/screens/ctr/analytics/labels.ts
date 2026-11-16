@@ -7,8 +7,11 @@ import type { Definition, FigureValue } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
-/** The heading of a column of a report; each family of keys is written as a template so that the i18n check sees the whole family in use. */
-export const columnLabel = (t: Translate, key: string): string => t(`ca1.col.${camel(key)}`);
+/**
+ * The heading of a column of a report; each family of keys is written as a template so that the i18n check sees the whole family in use. A column of money has a heading with no unit: each of its
+ * figures is written in the short form and carries its own unit (tỷ đồng, triệu đồng).
+ */
+export const columnLabel = (t: Translate, key: string): string => (key.endsWith('_vnd') ? t(`ca1.money.${camel(key)}`) : t(`ca1.col.${camel(key)}`));
 
 /** The title of a report of the catalogue. */
 export const reportTitle = (t: Translate, code: string): string => t(`ca1.report.${camel(code)}.title`);

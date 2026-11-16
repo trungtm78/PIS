@@ -2,7 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
-import { message } from '../test-catalogue';
+import { catalogue, message } from '../test-catalogue';
 import BidVarianceScreen from './BidVarianceScreen';
 import ConcentrationScreen from './ConcentrationScreen';
 import HubScreen from './HubScreen';
@@ -33,9 +33,9 @@ describe('the portfolio and status (CTR-29)', () => {
     expect(within(kpis).getByRole('button', { name: message('ca1.info.open', { name: message('ca1.indicator.changeGrowth.name') }) })).toBeTruthy();
     // the table: the total is the server's, not the sum of the two rows
     const totals = within(document.querySelector('tfoot') as HTMLElement);
-    expect(totals.getByText('77.777.777.777')).toBeTruthy();
+    expect(totals.getByText('77,78 tỷ đồng').getAttribute('title')).toBe('77.777.777.777 đồng');
     expect(totals.getByRole('button', { name: message('ca1.info.open', { name: message('ca1.indicator.paidToAccepted.name') }) })).toBeTruthy();
-    expect(screen.getByText(message('ca1.chart.title', { column: message('ca1.col.contractValueVnd') }))).toBeTruthy();
+    expect(screen.getByText(message('ca1.chart.title', { column: message('ca1.money.contractValueVnd') }))).toBeTruthy();
     expect(within(screen.getByTestId('breakdown')).getByText(vi_['ctr.status.draft.label'])).toBeTruthy();
     expect(within(screen.getByTestId('definitions')).getByText(message('ca1.indicator.changeGrowth.formula'))).toBeTruthy();
     // a trend is the series of BI over DS-CTR, not an endpoint of this screen
@@ -117,7 +117,8 @@ describe('the bid variance (CTR-30) and the other reports of the catalogue', () 
     await waitFor(() => expect(screen.getByTestId('report-table')).toBeTruthy());
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(message('ca1.report.bidVariance.title'));
     expect(reports(h)[0]).toMatchObject({ code: 'bid-variance', query: { sort: 'code', dir: 'asc', limit: '20' } });
-    expect(screen.getByRole('columnheader', { name: message('ca1.col.contractValueVnd') })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: message('ca1.money.contractValueVnd') })).toBeTruthy();
+    expect(screen.queryByRole('columnheader', { name: /VND/ })).toBeNull();
   });
 
   it('refuses a member who holds contract.read but not the analytics right', async () => {
@@ -231,9 +232,9 @@ describe('the concentration and load of the contractors (CTR-31)', () => {
     expect(screen.getByTestId('rule-note').textContent).toBe(message('ca1.rule.note', { version: 0, source: message('ca1.rule.source.default'), amber: '50', red: '70', hhiAmber: '1000', hhiRed: '1800', min: '10' }));
     expect(screen.getByText('33,33%')).toBeTruthy();
     const load = within(screen.getByTestId('load-table'));
-    expect(load.getByText('6.000.000.000')).toBeTruthy();
+    expect(load.getByText('6 tỷ đồng').getAttribute('title')).toBe('6.000.000.000 đồng');
     // a contractor that has only an award has load that is coming, not an active value of zero hidden
-    expect(load.getByText('400.000.000')).toBeTruthy();
+    expect(load.getByText('400 triệu đồng').getAttribute('title')).toBe('400.000.000 đồng');
     expect(screen.getByTestId('trend-note').textContent).toContain('DS-CTR');
   });
 
@@ -296,5 +297,17 @@ describe('the other contract of the screens', () => {
     await waitFor(() => expect(screen.getByTestId('report-table')).toBeTruthy());
     expect(screen.getByRole('link', { name: 'HD-A-001' }).getAttribute('href')).toBe(`/ctr/ctr-03?id=${CONTRACT_A}`);
     expect(screen.getByRole('link', { name: 'HD-A-002' }).getAttribute('href')).toBe(`/ctr/ctr-03?id=${CONTRACT_B}`);
+  });
+});
+
+describe('the heading of a column of money', () => {
+  it('has a wording with no unit for every column of money of the catalogue, since each figure carries its own', () => {
+    const money = Object.keys(catalogue).filter((key) => /^ca1\.col\..+Vnd$/.test(key));
+    expect(money.length).toBeGreaterThan(30);
+    for (const key of money) {
+      const heading = catalogue[key.replace('ca1.col.', 'ca1.money.')];
+      expect(heading, key).toBeTruthy();
+      expect(heading, key).not.toMatch(/VND|₫|\((triệu |tỷ )?đồng\)/i);
+    }
   });
 });

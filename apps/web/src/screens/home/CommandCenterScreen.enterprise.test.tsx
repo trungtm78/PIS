@@ -92,7 +92,8 @@ describe('HOME-09 on the enterprise edition: one disbursed figure', () => {
       { permissions: ['home.read'] },
     );
     await screen.findByTestId('home-details');
-    expect(document.body.textContent).toContain('543330000000');
+    expect(document.body.textContent).toContain(`543,33${tr('money.unit.billion')}`);
+    expect(screen.getByTestId('hero-exact').textContent).toContain('543.330.000.000 đồng');
     expect(document.body.textContent).not.toContain('928');
     expect(screen.queryByText(tr('home.ov.flow.treasury.title'))).toBeNull();
     expect(await screen.findByText(tr('home.ov.flow.title'))).toBeTruthy();

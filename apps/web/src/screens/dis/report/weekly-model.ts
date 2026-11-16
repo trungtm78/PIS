@@ -1,4 +1,5 @@
 import type { components } from '@machvon/contracts';
+import { moneyInUnit } from '../../../i18n/money';
 import { cellId } from './model';
 import type { ReportDetail, ReportLine, ReportStatus } from './model';
 import type { DecisionEntry } from './detail-parts';
@@ -88,12 +89,7 @@ export function statusTone(status: ReportStatus): Tone {
 
 /** Whole dong as billions with two decimals and a comma ("1.250.000.000" is "1,25"); the exact figure is always given next to it, so nothing is lost by the shorter form. */
 export function billionsOf(vnd: string): string {
-  const negative = vnd.startsWith('-');
-  const value = BigInt(negative ? vnd.slice(1) : vnd);
-  const hundredths = (value * 100n + 500_000_000n) / 1_000_000_000n;
-  const whole = (hundredths / 100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  const fraction = (hundredths % 100n).toString().padStart(2, '0');
-  return `${negative && hundredths !== 0n ? '-' : ''}${whole},${fraction}`;
+  return moneyInUnit(vnd, 'billion', { fixed: true });
 }
 
 /** The two totals of the rows that are shown: what a page of the list adds up to, and nothing about the pages that are not shown. */

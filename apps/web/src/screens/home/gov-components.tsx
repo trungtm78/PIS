@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { Translator } from '../../i18n';
 import { SectionCard, StatusPill } from '../../ui';
 import type { Tone } from '../../ui';
-import { formatVnd } from '../dis/report/money';
 import { useExportFigures, useHomeChanges, useRagReading } from './gov-hooks';
 import { RAG_PATH, changePathOf, describeChanges, describeRag, downloadFile, isRefused, magnitudeOf } from './gov-model';
 import type { ChangeLine, RagBand } from './gov-model';
@@ -59,7 +59,7 @@ export function changeSentence(t: T, line: ChangeLine): string {
     case 'NO_DATA_DELTA':
       return t(up ? 'govc.home.changes.noData.up' : 'govc.home.changes.noData.down', { from: p.from ?? '', to: p.to ?? '', delta });
     case 'DISBURSED_WEEK':
-      return t(up ? 'govc.home.changes.disbursed.up' : 'govc.home.changes.disbursed.down', { amount: formatVnd(magnitudeOf(p.amount_vnd)) });
+      return t(up ? 'home.changes.disbursed.up' : 'home.changes.disbursed.down', { amount: compactMoney(magnitudeOf(p.amount_vnd)) });
   }
 }
 

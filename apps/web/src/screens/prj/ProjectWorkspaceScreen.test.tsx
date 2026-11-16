@@ -43,7 +43,7 @@ describe('ProjectWorkspaceScreen (PRJ-03): the workspace of one project', () => 
       [vi_['prj.workspace.field.sector'], 'Giao thông'],
       [vi_['prj.workspace.field.projectType'], vi_['prj.workspace.value.none']],
       [vi_['prj.workspace.field.program'], vi_['prj.workspace.value.none']],
-      [vi_['prj.workspace.field.total'], vi_['prj.workspace.value.amount'].replace('{amount}', new Intl.NumberFormat('vi').format(500000000000n))],
+      [vi_['prj.workspace.field.total'], '500 tỷ đồng (500.000.000.000 đồng)'],
       [vi_['prj.workspace.field.years'], '2026 – 2028'],
       [vi_['prj.workspace.field.classification'], vi_['prj.classification.internal.label']],
       [vi_['prj.workspace.field.stage'], `${vi_['prj.stage.concept.label']} · ${vi_['prj.life.open.label']}`],

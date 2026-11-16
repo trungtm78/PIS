@@ -61,7 +61,8 @@ describe('StatusScreen (CTR-22): suspend, resume and terminate a contract', () =
     open({ summary: active({ suspend: true, terminate: true }) });
     await screen.findByTestId('facts');
     expect(screen.getByTestId('contract-code').textContent).toBe('HD-A-001');
-    expect(screen.getByTestId('value').textContent).toBe(text('ctr.value.amount', { amount: '10.200.000.000' }));
+    expect(screen.getByTestId('value').textContent).toBe('10,2 tỷ đồng (10.200.000.000 đồng)');
+    expect(within(screen.getByTestId('value')).getByTitle('10.200.000.000 đồng').textContent).toBe('10,2 tỷ đồng (10.200.000.000 đồng)');
     expect(radios()).toEqual(['suspend', 'terminate']);
     // The fields stand from the start but stay closed until an action is chosen; no command can be sent yet.
     expect((document.getElementById('halt-reason') as HTMLTextAreaElement).closest('fieldset')?.disabled).toBe(true);

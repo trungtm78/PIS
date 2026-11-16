@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { Translator } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ContextBar, FlowChart, SectionCard, StatusPill } from '../../ui';
+import { ContextBar, FlowChart, Money, SectionCard, StatusPill } from '../../ui';
 import type { FlowSeries } from '../../ui';
 import { AnaFigureInfo, NaNote, UnverifiedNote } from './components';
-import { commaText, dayText, vndText } from './common';
+import { commaText, dayText } from './common';
 import { useOutlook } from './forecast-hooks';
 import { COMMAND_CENTER_PATH, chartLines } from './forecast-model';
 import type { ChartLine, FundOutlook, OutlookReading, OutlookView } from './forecast-model';
@@ -70,7 +71,7 @@ function lineLabel(t: T, key: ChartLine['key']): string {
 /** The lines of the chart for the kit: the actual and the three projections are drawn as actual lines, the plan as the dashed line. */
 export const flowSeriesOf = (t: T, lines: readonly ChartLine[]): FlowSeries[] => lines.map((line) => ({ label: lineLabel(t, line.key), style: line.key === 'plan' ? 'plan' : 'actual', points: line.points }));
 
-function Tile({ id, label, value, note, info }: { id: string; label: string; value: string; note?: string | undefined; info?: React.ReactNode }) {
+function Tile({ id, label, value, note, info }: { id: string; label: string; value: React.ReactNode; note?: string | undefined; info?: React.ReactNode }) {
   return (
     <li className="ana-tile">
       <span className="ana-tile__label">
@@ -88,32 +89,31 @@ function Tile({ id, label, value, note, info }: { id: string; label: string; val
 function OutlookTiles({ reading, view }: { reading: OutlookReading; view: OutlookView }) {
   const { t } = useTranslation();
   const info = reading.info;
-  const unitVnd = t('ana.forecast.unit.vnd');
   const projected = view.linear;
   const ratio = view.linearRatioPct;
   const needed = view.needed;
   return (
     <ul className="ana-tiles" data-testid="outlook-tiles">
-      <Tile id="cumulative" label={t('ana.forecast.tile.cumulative')} value={view.cumulativeVnd === null ? t('ana.common.na') : `${vndText(view.cumulativeVnd)} ${unitVnd}`} note={t('ana.forecast.tile.asOf', { day: dayText(view.asOfDate) })} info={<AnaFigureInfo name={t('ana.forecast.tile.cumulative')} info={info} asOf={view.asOfDate} />} />
-      <Tile id="plan" label={t('ana.forecast.tile.plan')} value={view.planTotalVnd === null ? t('ana.common.na') : `${vndText(view.planTotalVnd)} ${unitVnd}`} note={reading.planBasis === 'PM' ? t('ana.forecast.basis.pm') : t('ana.forecast.basis.total')} info={<AnaFigureInfo name={t('ana.forecast.tile.plan')} info={info} />} />
+      <Tile id="cumulative" label={t('ana.forecast.tile.cumulative')} value={view.cumulativeVnd === null ? t('ana.common.na') : <Money value={view.cumulativeVnd} />} note={t('ana.forecast.tile.asOf', { day: dayText(view.asOfDate) })} info={<AnaFigureInfo name={t('ana.forecast.tile.cumulative')} info={info} asOf={view.asOfDate} />} />
+      <Tile id="plan" label={t('ana.forecast.tile.plan')} value={view.planTotalVnd === null ? t('ana.common.na') : <Money value={view.planTotalVnd} />} note={reading.planBasis === 'PM' ? t('ana.forecast.basis.pm') : t('ana.forecast.basis.total')} info={<AnaFigureInfo name={t('ana.forecast.tile.plan')} info={info} />} />
       <Tile
         id="projection"
         label={t('ana.forecast.tile.projection')}
-        value={projected === null ? t('ana.common.na') : `${vndText(projected.centralVnd)} ${unitVnd}`}
-        note={projected === null ? undefined : t('ana.forecast.tile.band', { low: vndText(projected.lowVnd), high: vndText(projected.highVnd), ratio: commaText(ratio?.central ?? null) })}
+        value={projected === null ? t('ana.common.na') : <Money value={projected.centralVnd} />}
+        note={projected === null ? undefined : t('ana.forecast.tile.band', { low: compactMoney(projected.lowVnd), high: compactMoney(projected.highVnd), ratio: commaText(ratio?.central ?? null) })}
         info={<AnaFigureInfo name={t('ana.forecast.tile.projection')} info={info} />}
       />
       <Tile
         id="needed"
         label={t('ana.forecast.tile.needed')}
-        value={needed.perWeekVnd === null ? t('ana.common.na') : `${vndText(needed.perWeekVnd)} ${unitVnd}`}
-        note={needed.status === 'REACHED' ? t('ana.forecast.tile.reached') : needed.multiple === null ? (needed.multipleNullReason === null ? undefined : outlookReason(t, needed.multipleNullReason)) : t('ana.forecast.tile.multiple', { multiple: commaText(needed.multiple), speed: vndText(needed.speedVnd) })}
+        value={needed.perWeekVnd === null ? t('ana.common.na') : <Money value={needed.perWeekVnd} />}
+        note={needed.status === 'REACHED' ? t('ana.forecast.tile.reached') : needed.multiple === null ? (needed.multipleNullReason === null ? undefined : outlookReason(t, needed.multipleNullReason)) : t('ana.forecast.tile.multipleShort', { multiple: commaText(needed.multiple), speed: compactMoney(needed.speedVnd) })}
         info={<AnaFigureInfo name={t('ana.forecast.tile.needed')} info={info} />}
       />
       <Tile
         id="gap"
         label={t('ana.forecast.tile.gap')}
-        value={view.gapVnd === null ? t('ana.common.na') : `${vndText(view.gapVnd)} ${unitVnd}`}
+        value={view.gapVnd === null ? t('ana.common.na') : <Money value={view.gapVnd} />}
         note={view.attention === null ? undefined : view.attention ? t('ana.forecast.tile.attention', { pct: reading.model.attentionBelowPct }) : t('ana.forecast.tile.onTrack')}
         info={<AnaFigureInfo name={t('ana.forecast.tile.gap')} info={info} />}
       />
@@ -148,9 +148,9 @@ function WindowsTable({ view }: { view: OutlookView }) {
             <tr key={window.weeks}>
               <th scope="row">{t('ana.forecast.windows.weeksValue', { weeks: window.weeks })}</th>
               <td>{dayText(window.startDate)}</td>
-              <td className="num">{vndText(window.weeklySpeedVnd)}</td>
-              <td className="num">{vndText(window.linearYearEndVnd)}</td>
-              <td className="num">{window.seasonalYearEndVnd === null ? (window.seasonalNullReason === null ? '—' : t('ana.common.na')) : vndText(window.seasonalYearEndVnd)}</td>
+              <td className="num"><Money value={window.weeklySpeedVnd} /></td>
+              <td className="num"><Money value={window.linearYearEndVnd} /></td>
+              <td className="num">{window.seasonalYearEndVnd === null ? (window.seasonalNullReason === null ? '—' : t('ana.common.na')) : <Money value={window.seasonalYearEndVnd} />}</td>
             </tr>
           ))}
         </tbody>
@@ -189,19 +189,19 @@ function FundsTable({ funds }: { funds: readonly FundOutlook[] }) {
           {funds.map((fund) => (
             <tr key={fund.fundSourceVersionId ?? 'none'} data-testid="outlook-fund-row">
               <th scope="row">{fund.code === null ? t('ana.forecast.funds.none') : `${fund.code} ${fund.label ?? ''}`.trim()}</th>
-              <td className="num">{vndText(fund.outlook.cumulativeVnd)}</td>
-              <td className="num">{vndText(fund.outlook.planTotalVnd)}</td>
+              <td className="num"><Money value={fund.outlook.cumulativeVnd} /></td>
+              <td className="num"><Money value={fund.outlook.planTotalVnd} /></td>
               {fund.outlook.linear === null ? (
                 <td className="num" colSpan={2}>
                   {fund.outlook.nullReason === null ? t('ana.common.na') : outlookReason(t, fund.outlook.nullReason)}
                 </td>
               ) : (
                 <>
-                  <td className="num">{vndText(fund.outlook.linear.centralVnd)}</td>
+                  <td className="num"><Money value={fund.outlook.linear.centralVnd} /></td>
                   <td className="num">{commaText(fund.outlook.linearRatioPct?.central ?? null)}</td>
                 </>
               )}
-              <td className="num">{vndText(fund.outlook.needed.perWeekVnd)}</td>
+              <td className="num"><Money value={fund.outlook.needed.perWeekVnd} /></td>
             </tr>
           ))}
         </tbody>
@@ -244,7 +244,7 @@ function OutlookContent({ route }: ScreenProps) {
           <p>{t('ana.forecast.page.subtitle')}</p>
         </div>
       </div>
-      <ContextBar items={contextItems} unit={t('ana.forecast.context.unit')} />
+      <ContextBar items={contextItems} />
       <div className="ana-controls" role="group" aria-label={t('ana.forecast.controls.aria')}>
         <label>
           {t('ana.forecast.controls.basis')}
@@ -287,7 +287,7 @@ function OutlookContent({ route }: ScreenProps) {
                   <FlowChart series={flowSeriesOf(t, lines)} unit={t('ana.forecast.unit.billion')} caption={t('ana.forecast.chart.caption')} state={lines.length === 0 ? 'empty' : 'ready'} />
                   <p className="ana-caveat">{t('ana.forecast.chart.caveat', { min: reading.model.windowMinWeeks, max: reading.model.windowMaxWeeks })}</p>
                 </SectionCard>
-                <SectionCard title={t('ana.forecast.windows.title')} unit={t('ana.forecast.unit.vnd')}>
+                <SectionCard title={t('ana.forecast.windows.title')}>
                   <WindowsTable view={whole} />
                   {whole.skipped.length === 0 ? null : (
                     <p className="ana-caveat" data-testid="outlook-skipped">
@@ -298,7 +298,7 @@ function OutlookContent({ route }: ScreenProps) {
               </>
             )}
             {reading.funds.length === 0 ? null : (
-              <SectionCard title={t('ana.forecast.funds.title')} unit={t('ana.forecast.unit.vnd')}>
+              <SectionCard title={t('ana.forecast.funds.title')}>
                 <FundsTable funds={reading.funds} />
               </SectionCard>
             )}

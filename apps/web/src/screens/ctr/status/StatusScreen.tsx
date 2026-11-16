@@ -8,7 +8,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import { wireControl } from '../../field-wiring';
 import { BackLink, StatusBadge, DefaultContractBar } from '../components';
 import { useContractChoice } from '../hooks';
-import { LIST_PATH, amountText } from '../model';
+import { LIST_PATH } from '../model';
 import { useSummary } from '../workspace/hooks';
 import { formProblemMessage, problemMessage } from '../workspace/labels';
 import { HALT_ACTIONS, MAX_TEXT, describeProblem, vietnamToday } from '../workspace/model';
@@ -19,7 +19,7 @@ import { actionLabel, dayLabel, guaranteeLabel, impactLabel, submitLabel } from 
 import { GUARANTEE_ACTIONS, SUSPEND_PERMISSION, TERMINATE_PERMISSION, emptyHalt, haltBody, validateHalt } from './model';
 import type { GuaranteeAction, HaltForm } from './model';
 import '../ctr.css';
-import { SectionCard } from '../../../ui';
+import { Money, SectionCard } from '../../../ui';
 
 /**
  * CTR-22: suspend, resume or terminate a contract (ST-CTR-005, CTR 3.2). The person chooses among the actions that apply to the status of the contract and that they may take, says why,
@@ -86,7 +86,7 @@ interface HaltProps {
   onDone(): void;
 }
 
-function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
+function Halt({ summary, today, readOnly, done, onDone }: HaltProps) {
   const { t } = useTranslation();
   const { permissions } = useSession();
   const { contract } = summary;
@@ -120,7 +120,9 @@ function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
             <dt>{t('ctr.workspace.fact.contractor')}</dt>
             <dd>{contract.contractorName ?? t('ctr.workspace.none.text')}</dd>
             <dt>{t('ctr.workspace.fact.value')}</dt>
-            <dd data-testid="value">{t('ctr.value.amount', { amount: amountText(contract.contractValueVnd, locale) })}</dd>
+            <dd data-testid="value">
+              <Money value={contract.contractValueVnd} />
+            </dd>
             <dt>{t('ctr.workspace.fact.due')}</dt>
             <dd>{contract.completionDue ?? t('ctr.workspace.none.text')}</dd>
           </dl>

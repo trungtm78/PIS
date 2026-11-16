@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText } from '../../i18n/money';
 
 /** The permissions that gate the buttons of these screens; the server decides again on every request (scope included). */
 export const READ_PERMISSION = 'contract.read';
@@ -314,7 +315,7 @@ export function toContractorOption(raw: unknown): Option[] {
 /** An amount in VND from its decimal string: the digits are grouped by the language of the screen and the string is never turned into a float. */
 export function amountText(amount: string, locale: string): string {
   const [integer = ''] = amount.split('.');
-  return /^\d+$/.test(integer) ? new Intl.NumberFormat(locale).format(BigInt(integer)) : amount;
+  return /^\d+$/.test(integer) ? dongText(integer, locale) : amount;
 }
 
 // ---- the form of the draft (CTR-02) ----------------------------------------------------------------------------------

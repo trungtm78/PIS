@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText } from '../../../i18n/money';
 
 /** The permissions of BID-07, BID-08 and BID-09 (x-permission of the operations in openapi.json); the server judges each call again, with the scope of the project and the full view of the proposal. */
 export const START_PERMISSION = 'ai.analyze';
@@ -140,7 +141,7 @@ export function toRunList(raw: unknown): RunList {
 
 /** The whole VND of a cost as a person reads it, by the digits of the text: no float is made of it. */
 export function formatVnd(cost: string | null, locale: string): string {
-  return cost === null || !/^[0-9]+$/.test(cost) ? '' : new Intl.NumberFormat(locale).format(BigInt(cost));
+  return cost === null || !/^[0-9]+$/.test(cost) ? '' : dongText(cost, locale);
 }
 
 export const hasFindings = (run: Run): boolean => run.findingCount > 0;

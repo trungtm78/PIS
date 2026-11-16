@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText } from '../../i18n/money';
 import type { ReportField, ReportView } from './types';
 import { APPROVE_REPORT_PERMISSION, EXPORT_REPORT_PERMISSION, ISSUE_REPORT_PERMISSION, PREPARE_REPORT_PERMISSION } from './types';
 import type { PackageView } from './types';
@@ -113,11 +114,9 @@ export function missingCells(report: Pick<ReportView, 'fields'>, drafts: Drafts)
 
 // ---- how a cell is shown ----
 
-const GROUP = /\B(?=(\d{3})+(?!\d))/g;
-
-/** Whole dong with a dot between thousands, as the Vietnamese write them; a negative amount keeps its sign. */
+/** Whole dong written exactly, its thousands grouped by the mark of the language (the cell of a report is the exact figure); a negative amount keeps its sign. */
 export function dong(amount: string): string {
-  return amount.startsWith('-') ? `-${dong(amount.slice(1))}` : amount.replace(GROUP, '.');
+  return dongText(amount);
 }
 
 /** A locked or written value in the form of its kind; an empty cell is null so that the screen says it is empty. */

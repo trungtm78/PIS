@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { compactMoney, dongText } from '../../i18n/money';
 import { badgeOf } from './dataset-model';
 import type { Badge } from './dataset-model';
 
@@ -110,12 +111,15 @@ export function toQueryResult(raw: unknown): QueryResult | undefined {
 
 const grouped = (digits: string, locale: string): string => new Intl.NumberFormat(locale).format(BigInt(digits));
 
-/** A figure as it is written: money in dong, a ratio in percent, a count as a number; no figure is "no data" (or "not applicable"), never 0. */
-export function formatFigure(figure: Figure, unit: string, locale: string, words: { noData: string; notApplicable: string }): string {
+/**
+ * A figure as it is written: money in the short form of the shared formatter ("1,23 tỷ đồng"), a ratio in percent, a count as a number; no figure is "no data" (or "not applicable"), never 0.
+ * `exact` is for a table whose rows must add up to its total on screen: money is then whole dong, every digit.
+ */
+export function formatFigure(figure: Figure, unit: string, locale: string, words: { noData: string; notApplicable: string }, form: 'short' | 'exact' = 'short'): string {
   if (figure.value === null) return figure.nullReason === 'NOT_APPLICABLE' ? words.notApplicable : words.noData;
   if (unit === 'index') return new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(figure.value));
   if (unit === 'percent') return `${new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(figure.value))}%`;
-  return /^-?\d+$/.test(figure.value) ? (unit === 'VND' ? `${grouped(figure.value, locale)} ₫` : grouped(figure.value, locale)) : figure.value;
+  return /^-?\d+$/.test(figure.value) ? (unit === 'VND' ? (form === 'exact' ? `${dongText(figure.value, locale)} ₫` : compactMoney(figure.value, { locale })) : grouped(figure.value, locale)) : figure.value;
 }
 
 /** What the chain of a drill is: the dimensions gone down through, from the first query. */

@@ -6,8 +6,8 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ContextBar, SectionCard } from '../../ui';
-import { commaText, dayText, vndText } from './common';
+import { ContextBar, Money, SectionCard } from '../../ui';
+import { commaText, dayText } from './common';
 import { AnaFigureInfo, NaNote, UnverifiedNote } from './components';
 import { useHeatmap } from './insight-hooks';
 import { BACKTEST_PATH, HEAT_VIEWS } from './insight-model';
@@ -83,7 +83,7 @@ function CellView({ cell, view }: { cell: Cell | undefined; view: HeatView }) {
       )}
       <br />
       <span className="ana-caveat">
-        {view === 'UNIT_FUND' ? t('ana.heat.count.projects', { count: cell.count ?? 0 }) : t('ana.heat.count.contracts', { count: cell.count ?? 0 })} {vndText(cell.numeratorVnd)} / {vndText(cell.denominatorVnd)}
+        {view === 'UNIT_FUND' ? t('ana.heat.count.projects', { count: cell.count ?? 0 }) : t('ana.heat.count.contracts', { count: cell.count ?? 0 })} <Money value={cell.numeratorVnd} /> / <Money value={cell.denominatorVnd} />
       </span>
     </td>
   );

@@ -1,6 +1,0 @@
-{
-  "money.unit.dong": "VND",
-  "money.unit.million": "million VND",
-  "money.unit.billion": "billion VND",
-  "money.value.amount": "{number} {unit}"
-}

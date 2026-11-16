@@ -1,4 +1,5 @@
 import { useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { Translator } from '../../i18n';
 import { InfoFormula, StatusPill } from '../../ui';
 import type { InfoFormulaLabels, Tone } from '../../ui';
@@ -29,12 +30,18 @@ export function reasonLabel(t: T, reason: string | null): string {
 /** The words for a figure that has no text: the reason the server gave. */
 export const noneText = (t: T, tile: Pick<Tile, 'nullReason' | 'flags'>): string => reasonLabel(t, figureReason(tile));
 
-/** What a figure says in one string: the text of the server and its unit, or why there is none. Never a number the server did not write. */
+/** Whether the text of a figure in dong is a whole amount: only then is it read in the short form (tỷ, triệu); any other text of the server is shown as it came. */
+export const isWholeDong = (text: string | null): text is string => text !== null && /^-?\d+$/.test(text);
+
+/**
+ * What a figure says in one string: the text of the server and its unit, or why there is none. Never a number the server did not write: an amount in dong is the
+ * text of the server read in the short form of `i18n/money.ts`, never a figure made from `value`.
+ */
 export function figureShown(t: T, tile: Tile): string {
   if (tile.displayValue === null) return noneText(t, tile);
   const text = figureText(tile);
   if (tile.unit === 'PERCENT') return t('home.tile.value.percent', { value: text });
-  if (tile.unit === 'VND') return t('home.tile.value.vnd', { value: text });
+  if (tile.unit === 'VND') return isWholeDong(text) ? compactMoney(text) : t('home.tile.value.vnd', { value: text });
   return text;
 }
 

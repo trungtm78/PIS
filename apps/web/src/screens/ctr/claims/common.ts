@@ -2,6 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import type { components } from '@machvon/contracts';
 import type { Translator } from '../../../i18n';
 import type { Tone } from '../../../ui';
+import { dongText } from '../../../i18n/money';
 
 type T = Translator['t'];
 
@@ -35,7 +36,7 @@ export function stampText(value: string | null | undefined): string {
 /** Whole dong from a decimal string, the digits grouped by the language; a text that is not whole digits is left as it came (money is never a float). */
 export function vnd(amount: string | null | undefined, locale: string): string {
   if (amount === null || amount === undefined || amount === '') return '';
-  return /^\d+$/.test(amount) ? new Intl.NumberFormat(locale).format(BigInt(amount)) : amount;
+  return /^\d+$/.test(amount) ? dongText(amount, locale) : amount;
 }
 
 export const isWholeAmount = (value: string): boolean => /^\d{1,23}$/.test(value);

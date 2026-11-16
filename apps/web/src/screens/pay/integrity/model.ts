@@ -1,3 +1,4 @@
+import { dongText } from '../../../i18n/money';
 /**
  * The checks of a payment request before money goes out (PAY-03 panel, PAY-21, AUD-12; G4-2, G4-5): what the server says is read once, here, into the shapes the screens use. Amounts stay whole-dong text
  * (never a float), a figure the server did not give is an empty text and never a zero, and an unknown code is shown as it came (a code a newer server adds is not hidden).
@@ -23,7 +24,7 @@ export const EXCEPTION_STATUSES: readonly ExceptionStatus[] = ['REQUESTED', 'APP
 export function vnd(value: string | null | undefined, locale: string): string {
   if (value === null || value === undefined || value === '') return '';
   if (!/^-?\d{1,24}$/.test(value)) return value;
-  return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'vi-VN').format(BigInt(value));
+  return dongText(value, locale);
 }
 
 /** The day of an instant or a date, written dd/mm/yyyy; text that is neither is shown as it came. */

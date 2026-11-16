@@ -7,6 +7,7 @@ import { useSession } from '../../../session/SessionContext';
 import { NavigationDialog } from '../../../shell/NavigationDialog';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { Money } from '../../../ui';
 import { Field } from '../components';
 import { useProjects } from '../hooks';
 import '../prj.css';
@@ -126,7 +127,6 @@ function RevisionContent({ route }: ScreenProps) {
   const projects = useProjects();
   const project = (projects.data ?? []).find((candidate) => candidate.id === projectId);
   const list = useRevisions(projectId);
-  const money = useMoney();
   const items = list.data?.items ?? [];
   const pending = pendingOf(items);
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: projectId === undefined || list.data === undefined ? undefined : items, isEmpty: () => false });
@@ -149,7 +149,7 @@ function RevisionContent({ route }: ScreenProps) {
           {list.data === undefined ? null : (
             <>
               <p data-testid="current-total">
-                <strong>{t('prj.revision.current.total')}</strong> {money(list.data.currentTotalVnd)}
+                <strong>{t('prj.revision.current.total')}</strong> <Money value={list.data.currentTotalVnd} />
               </p>
               {pending === undefined ? null : (
                 <p className="callout" role="status" data-testid="pending-notice">

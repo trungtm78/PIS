@@ -5,6 +5,7 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { Money } from '../../../ui';
 import { Field } from '../components';
 import { useProjects } from '../hooks';
 import '../prj.css';
@@ -81,7 +82,9 @@ function ComponentsContent({ route }: ScreenProps) {
                           <span className="prj-code">{t('prj.wbs.level', { level: item.depth })}</span>
                         </td>
                         <td>{item.parentId === null ? NONE : (parents.get(item.parentId) ?? NONE)}</td>
-                        <td>{money(item.plannedValueVnd)}</td>
+                        <td>
+                          <Money value={item.plannedValueVnd} />
+                        </td>
                         <td>{item.validFrom}</td>
                       </tr>
                     ))}

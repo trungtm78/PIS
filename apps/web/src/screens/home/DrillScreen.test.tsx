@@ -70,11 +70,12 @@ describe('HOME-10 trace of a figure (ST-HOME-002, HOME 3 F2)', () => {
   it('AC-ST-HOME-002-1: UAT-AC266 shows the formula, the snapshot and the day, and the children that add up to the figure, with the proof', async () => {
     mount(<DrillScreen route={ROUTE} />, client(() => drillBody()), { permissions: READER }, OPEN);
     const figure = await screen.findByTestId('drill-figure');
-    expect(within(figure).getByText(fill(vi_['home.tile.value.vnd'], { value: '1.750.000.000.000' }))).toBeTruthy();
+    expect(within(figure).getByText('1.750 tỷ đồng')).toBeTruthy();
     expect(within(figure).getByTestId('drill-formula').textContent).toContain('plan_pm_assigned_vnd');
     expect(within(figure).getByTestId('drill-snapshot').getAttribute('title')).toBe(S40);
     expect(within(contextBar()).getByText('12/10/2027')).toBeTruthy();
-    expect(screen.getByTestId(`child-value-${NORTH}`).textContent).toBe(fill(vi_['home.tile.value.vnd'], { value: '1.250.000.000.000' }));
+    expect(screen.getByTestId(`child-value-${NORTH}`).textContent).toBe('1.250 tỷ đồng');
+    expect(screen.getByTestId(`child-value-${NORTH}`).getAttribute('title')).toBe('1.250.000.000.000 đồng');
     expect(screen.getByTestId('drill-reconciliation').textContent).toBe(vi_['home.drill.reconcile.ok']);
   });
 
@@ -242,7 +243,7 @@ describe('HOME-10 trace of a figure (ST-HOME-002, HOME 3 F2)', () => {
     await waitFor(() => expect(drillCalls(h).map((query) => query.context_token)).toContain('token-renewed'));
     await waitFor(() => expect(screen.queryByTestId(`child-value-${SOUTH}`)).toBeNull());
     expect(screen.getByTestId(`child-value-${NORTH}`)).toBeTruthy();
-    expect(within(screen.getByTestId('drill-figure')).getByText(fill(vi_['home.tile.value.vnd'], { value: '1.250.000.000.000' }))).toBeTruthy();
+    expect(within(screen.getByTestId('drill-figure')).getByText('1.250 tỷ đồng')).toBeTruthy();
     expect(screen.queryByTestId('scope-changed')).toBeNull();
   });
 

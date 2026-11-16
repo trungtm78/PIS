@@ -69,13 +69,13 @@ describe('BI-21 year-end disbursement outlook (G3-5, G3-11)', () => {
     mount(<OutlookScreen route={ROUTE} />, client(), { permissions: READER });
     const tiles = await screen.findByTestId('outlook-tiles');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(tr('ana.forecast.page.title'));
-    expect(within(tiles).getByTestId('ana-tile-cumulative').textContent).toContain('480.000.000');
-    expect(within(tiles).getByTestId('ana-tile-plan').textContent).toContain('1.000.000.000');
-    expect(within(tiles).getByTestId('ana-tile-projection').textContent).toContain('567.142.857');
-    expect(tiles.textContent).toContain(fill(tr('ana.forecast.tile.band'), { low: '567.142.857', high: '567.142.857', ratio: '56,7' }));
-    expect(within(tiles).getByTestId('ana-tile-needed').textContent).toContain('59.672.131');
-    expect(tiles.textContent).toContain(fill(tr('ana.forecast.tile.multiple'), { multiple: '5,97', speed: '10.000.000' }));
-    expect(within(tiles).getByTestId('ana-tile-gap').textContent).toContain('-432.857.143');
+    expect(within(tiles).getByTestId('ana-tile-cumulative').textContent).toContain('480 triệu đồng (480.000.000 đồng)');
+    expect(within(tiles).getByTestId('ana-tile-plan').textContent).toContain('1 tỷ đồng (1.000.000.000 đồng)');
+    expect(within(tiles).getByTestId('ana-tile-projection').textContent).toContain('567,14 triệu đồng (567.142.857 đồng)');
+    expect(tiles.textContent).toContain(fill(tr('ana.forecast.tile.band'), { low: '567,14 triệu đồng', high: '567,14 triệu đồng', ratio: '56,7' }));
+    expect(within(tiles).getByTestId('ana-tile-needed').textContent).toContain('59,67 triệu đồng (59.672.131 đồng)');
+    expect(tiles.textContent).toContain(fill(tr('ana.forecast.tile.multipleShort'), { multiple: '5,97', speed: '10 triệu đồng' }));
+    expect(within(tiles).getByTestId('ana-tile-gap').textContent).toContain('-432,86 triệu đồng (-432.857.143 đồng)');
     expect(tiles.textContent).toContain(fill(tr('ana.forecast.tile.attention'), { pct: 90 }));
     // The i of every figure says the formula and that the rule is not confirmed.
     expect(within(tiles).getAllByRole('button', { name: /./ }).length).toBeGreaterThanOrEqual(5);

@@ -6,7 +6,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { DataTable, StatusPill } from '../../ui';
+import { DataTable, Money, StatusPill } from '../../ui';
 import type { DataTableColumn } from '../../ui';
 import { AnalyticsFilters, ReportContext, ReportKpis, ReportTable } from './analytics/components';
 import { usePortfolio } from './analytics/hooks';
@@ -16,7 +16,7 @@ import { StatusBadge } from './components';
 import { useContracts } from './hooks';
 import { ScopeBar } from './kit';
 import { typeLabel } from './labels';
-import { CREATE_PERMISSION, DRAFT_PATH, amountText, draftLink } from './model';
+import { CREATE_PERMISSION, DRAFT_PATH, draftLink } from './model';
 import type { ContractLine } from './model';
 import './ctr.css';
 
@@ -177,7 +177,7 @@ function ContractListContent({ route }: ScreenProps) {
 
 /** The register of the contracts of a member the portfolio does not serve (a guest contractor): the lines the server shows them, with no total. */
 function OwnRegister({ contracts }: { contracts: readonly ContractLine[] }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const from = pageIndex * pageSize + 1;
@@ -211,7 +211,7 @@ function OwnRegister({ contracts }: { contracts: readonly ContractLine[] }) {
       ),
     },
     { key: 'type', header: t('ctr.list.column.type'), render: (contract) => typeLabel(t, contract.type) },
-    { key: 'value', header: t('ctr.list.column.value'), align: 'right', render: (contract) => t('ctr.value.amount', { amount: amountText(contract.contractValueVnd, locale) }) },
+    { key: 'value', header: t('ctr.list.column.value'), align: 'right', render: (contract) => <Money value={contract.contractValueVnd} /> },
     { key: 'due', header: t('ctr.list.column.due'), render: (contract) => contract.completionDue ?? t('ctr.list.none.text') },
     { key: 'status', header: t('ctr.list.column.status'), render: (contract) => <StatusBadge status={contract.status} /> },
   ];

@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { compactMoney, fullMoney } from '../../../i18n/money';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { holds } from '../../../session/holds';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { SectionCard, StatusPill } from '../../../ui';
+import { Money, SectionCard, StatusPill } from '../../../ui';
 import { BackLink, StatusBadge, DefaultContractBar } from '../components';
 import { ScopeBar } from '../kit';
 import { useContractChoice } from '../hooks';
-import { LIST_PATH, amountText, haltLink } from '../model';
+import { LIST_PATH, haltLink } from '../model';
 import { CHANGEABLE_CONTRACT_STATUSES, requestLink } from '../change/model';
 import { measurementLink } from '../measurement/model';
 import { versionsLink } from '../revision/model';
@@ -176,7 +177,9 @@ function Workspace({ summary, locale, readOnly, permissions, onOpen }: Workspace
               <dt>{t('ctr.workspace.fact.contractor')}</dt>
               <dd>{contract.contractorName ?? t('ctr.workspace.none.text')}</dd>
               <dt>{t('ctr.workspace.fact.value')}</dt>
-              <dd data-testid="value">{t('ctr.value.amount', { amount: amountText(contract.contractValueVnd, locale) })}</dd>
+              <dd data-testid="value">
+              <Money value={contract.contractValueVnd} />
+            </dd>
               <dt>{t('ctr.workspace.fact.due')}</dt>
               <dd>{contract.completionDue ?? t('ctr.workspace.none.text')}</dd>
               {summary.signedOn === null ? null : (
@@ -232,8 +235,8 @@ function Workspace({ summary, locale, readOnly, permissions, onOpen }: Workspace
                   <li key={check.key} data-closure={check.key} data-ok={String(check.ok)}>
                     <strong>{closureCheckLabel(t, check)}</strong>{' '}
                     <StatusPill tone={check.ok ? 'success' : 'warning'}>{check.ok ? t('ctr.workspace.check.met') : t('ctr.workspace.check.unmet')}</StatusPill>
-                    {check.key === 'advance' && !check.ok ? <span className="sub"> {t('ctr.workspace.closure.amount', { amount: amountText(closure.advanceOutstandingVnd, locale) })}</span> : null}
-                    {check.key === 'retention' && !check.ok ? <span className="sub"> {t('ctr.workspace.closure.amount', { amount: amountText(closure.retention.unresolvedVnd, locale) })}</span> : null}
+                    {check.key === 'advance' && !check.ok ? <span className="sub" title={fullMoney(closure.advanceOutstandingVnd, locale)}> {t('ctr.workspace.closure.amount', { amount: compactMoney(closure.advanceOutstandingVnd, { locale }) })}</span> : null}
+                    {check.key === 'retention' && !check.ok ? <span className="sub" title={fullMoney(closure.retention.unresolvedVnd, locale)}> {t('ctr.workspace.closure.amount', { amount: compactMoney(closure.retention.unresolvedVnd, { locale }) })}</span> : null}
                   </li>
                 ))}
               </ul>

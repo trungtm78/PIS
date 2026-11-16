@@ -2,6 +2,9 @@ import { Component } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import type { Translator } from '../../../i18n';
+import { compactMoney, dongText, moneyParts } from '../../../i18n/money';
+import type { MoneyOptions, MoneyValue } from '../../../i18n/money';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard } from '../../../ui';
@@ -97,6 +100,11 @@ export function TabFallback() {
 
 export const money = (value: string | number | null | undefined, locale: string): string => {
   if (value === null || value === undefined || value === '') return '–';
-  const n = typeof value === 'number' ? value : Number(value);
-  return Number.isFinite(n) ? new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'vi-VN').format(n) : String(value);
+  return dongText(String(value), locale);
 };
+
+/** The short form of an amount as the two texts of a KPI tile: the figure, and the unit the size of the amount chose (tỷ, triệu or đồng). */
+export function tileMoney(t: Translator['t'], value: MoneyValue, locale: string, options: Omit<MoneyOptions, 'locale' | 'unit'> = {}): { value: string; unit?: string } {
+  const parts = moneyParts(value, { ...options, locale });
+  return parts === null ? { value: compactMoney(value, { locale }) } : { value: parts.number, unit: t(`money.unit.${parts.unit}`) };
+}

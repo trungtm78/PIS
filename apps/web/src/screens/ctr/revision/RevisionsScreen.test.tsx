@@ -45,7 +45,8 @@ describe('RevisionsScreen (CTR-26): the revisions of a contract and when they ap
     open(stateOf());
     await screen.findByTestId('timeline');
     expect(screen.getByTestId('contract-code').textContent).toBe('HD-A-001');
-    expect(screen.getByTestId('value').textContent).toBe(text('ctr.value.amount', { amount: '10.200.000.000' }));
+    expect(screen.getByTestId('value').textContent).toBe('10,2 tỷ đồng (10.200.000.000 đồng)');
+    expect(within(screen.getByTestId('value')).getByTitle('10.200.000.000 đồng').textContent).toBe('10,2 tỷ đồng (10.200.000.000 đồng)');
     expect(screen.getByTestId('workspace-link').getAttribute('href')).toBe(`/ctr/ctr-03?id=${contractId(1)}`);
     const items = Array.from(document.querySelectorAll('[data-revision]'));
     expect(items.map((item) => [item.getAttribute('data-revision'), item.getAttribute('data-standing')])).toEqual([

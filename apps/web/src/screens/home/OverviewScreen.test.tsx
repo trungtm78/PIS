@@ -232,9 +232,9 @@ describe('HOME-01 the leader home: work first, then the numbers (decision 2A)', 
     it('gives the amount disbursed as the text of the server, the ring, and the two rates side by side, each with its "i"', async () => {
       mount(<OverviewScreen route={OV} />, client(), { permissions: READER });
       const hero = await screen.findByRole('region', { name: fill(tr('home.ov.hero.label'), { year: '2026' }) });
-      // The text is the server's `display_value`: nothing is re-formatted here.
-      expect(hero.textContent).toContain('214710000000');
-      expect(hero.textContent).toContain(tr('govc.home.unit.vnd'));
+      // The figure is the server's `display_value` read in the short form, with the exact amount of the server in the caption.
+      expect(hero.textContent).toContain(`214,71${tr('money.unit.billion')}`);
+      expect(within(hero).getByTestId('hero-exact').textContent).toContain(fill(tr('home.ov.hero.exact'), { amount: `214.710.000.000 ${tr('govc.home.unit.vnd')}` }));
       expect(hero.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '21.47' }));
       expect(hero.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '17.18' }));
       expect(hero.textContent).toContain(tr('home.ov.hero.chip.pm'));
@@ -278,8 +278,8 @@ describe('HOME-01 the leader home: work first, then the numbers (decision 2A)', 
     it('gives the plan, the early warnings with the overdue explanations, the reallocations awaiting a decision, and the coverage of the projects', async () => {
       mount(<OverviewScreen route={OV} />, client(), { permissions: READER });
       const kpis = await screen.findByTestId('home-kpis');
-      expect(kpis.textContent).toContain('1250000000000');
-      expect(kpis.textContent).toContain(fill(tr('govc.home.kpi.plan.sub'), { pm: '1000000000000' }));
+      expect(kpis.textContent).toContain(`1.250${tr('money.unit.billion')}`);
+      expect(kpis.textContent).toContain(fill(tr('home.ov.plan.subPm'), { pm: '1.000 tỷ đồng' }));
       expect(kpis.textContent).toContain(tr('home.ov.kpi.openWarnings.label'));
       expect(kpis.textContent).toContain(fill(tr('home.ov.kpi.warnings.sub'), { count: 1 }));
       expect(kpis.textContent).toContain(tr('home.ov.kpi.realloc.label'));
@@ -370,7 +370,8 @@ describe('HOME-01 the leader home: work first, then the numbers (decision 2A)', 
     mount(<OverviewScreen route={OV} />, client(), { permissions: READER });
     const details = await screen.findByTestId('home-details');
     expect(within(details).getByTestId('tile-formula-DISBURSEMENT_RATE_PM').textContent).toContain('plan_pm_assigned_vnd');
-    expect(within(details).getByTestId('tile-sums-DISBURSEMENT_RATE_PM').textContent).toContain('214.710.000.000');
+    expect(within(details).getByTestId('tile-sums-DISBURSEMENT_RATE_PM').textContent).toContain(fill(tr('home.tile.numerator'), { value: '214,71 tỷ đồng' }));
+    expect(within(details).getByTestId('tile-sums-DISBURSEMENT_RATE_PM').getAttribute('title')).toContain('214.710.000.000 đồng');
     expect(within(details).getByTestId('context-snapshot').getAttribute('title')).toBe(S40);
   });
 });

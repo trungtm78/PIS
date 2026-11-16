@@ -1,6 +1,0 @@
-{
-  "money.unit.dong": "đồng",
-  "money.unit.million": "triệu đồng",
-  "money.unit.billion": "tỷ đồng",
-  "money.value.amount": "{number} {unit}"
-}

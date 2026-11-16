@@ -1,3 +1,4 @@
+import { moneyInUnit } from '../../i18n/money';
 import { ALL_ORIGINS, CATEGORIES, ORIGINS, categoryOf, isPublished, sumVnd, toAppropriation } from '../cap/model';
 import type { AppropriationLine, Category, Origin } from '../cap/model';
 
@@ -9,8 +10,6 @@ const ALWAYS_DRAWN: readonly Category[] = ['NSTW', 'NSDP', 'ODA'];
 export const SUBSET_PARENT: Category = 'NSTW';
 
 const VND = /^(0|[1-9]\d*)$/;
-const BILLION = 1_000_000_000n;
-const BILLION_FRACTION = 10_000_000n; // two decimals of a billion
 
 /** An appropriation of the register, as the funding structure reads it. */
 export type FundingRow = AppropriationLine;
@@ -142,9 +141,5 @@ function detailRows(additive: readonly FundingRow[], registered: readonly Fundin
 /** An amount of whole VND in billions of dong, to two decimals and never rounded up (so a card never says more than was published); the exact amount is shown beside it. */
 export function billionsText(vnd: string, locale: string): string {
   if (!VND.test(vnd)) return vnd;
-  const value = BigInt(vnd);
-  const fraction = ((value % BILLION) / BILLION_FRACTION).toString().padStart(2, '0').replace(/0+$/, '');
-  const mark = new Intl.NumberFormat(locale).formatToParts(1.1).find((piece) => piece.type === 'decimal')?.value ?? '.';
-  const grouped = new Intl.NumberFormat(locale).format(value / BILLION);
-  return fraction === '' ? grouped : `${grouped}${mark}${fraction}`;
+  return moneyInUnit(vnd, 'billion', { locale, rounding: 'down' });
 }

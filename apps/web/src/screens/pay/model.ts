@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText } from '../../i18n/money';
 
 /** The permission that starts an import (granted on the whole tenant: a file covers every project) and the one that reads it. */
 export const IMPORT_PERMISSION = 'treasury.import';
@@ -353,7 +354,7 @@ export function describeProblem(error: unknown): ProblemView {
 
 /** The amount of VND from its decimal string, the digits grouped by the language of the screen; a string is never turned into a float. */
 export function amountText(amount: string, locale: string): string {
-  return /^\d+$/.test(amount) ? new Intl.NumberFormat(locale).format(BigInt(amount)) : amount;
+  return /^\d+$/.test(amount) ? dongText(amount, locale) : amount;
 }
 
 /** A signed difference in VND, with its sign shown. */

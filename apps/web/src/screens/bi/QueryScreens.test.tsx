@@ -366,7 +366,7 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
     });
     mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
     expect(await findFigure(RATE.id)).toBeTruthy();
-    await waitFor(() => expect((figureOf(DISBURSED.id) as HTMLElement).textContent).toBe('10.500.000.000 ₫'));
+    await waitFor(() => expect((figureOf(DISBURSED.id) as HTMLElement).textContent).toBe('10,5 tỷ đồng'));
     expect((figureOf(RATE.id) as HTMLElement).textContent).toBe('35,00%');
     expect(document.querySelector(`[data-metric-id="${DRAFT.id}"]`)).toBeNull();
     expect(h.command.mock.calls.every(([, input]) => (input as { body: { snapshot_id: string } }).body.snapshot_id === V1)).toBe(true);
@@ -502,7 +502,9 @@ describe('the answer of a query as the screens read it', () => {
   it('writes a figure by its unit: money in dong, a ratio in percent, a count, and no figure as the words for it', () => {
     const words = { noData: 'no data', notApplicable: 'n/a' };
     const figure = (value: string | null, nullReason: 'NO_DATA' | 'NOT_APPLICABLE' | null = null) => ({ value, numerator: null, denominator: null, nullReason });
-    expect(formatFigure(figure('1234567890'), 'VND', 'vi', words)).toBe('1.234.567.890 ₫');
+    expect(formatFigure(figure('1234567890'), 'VND', 'vi', words)).toBe('1,23 tỷ đồng');
+    expect(formatFigure(figure('1234567890'), 'VND', 'vi', words, 'exact')).toBe('1.234.567.890 ₫');
+    expect(formatFigure(figure('950000'), 'VND', 'vi', words)).toBe('950.000 đồng');
     expect(formatFigure(figure('12'), 'count', 'en', words)).toBe('12');
     expect(formatFigure(figure('35.5'), 'percent', 'en', words)).toBe('35.50%');
     expect(formatFigure(figure('x'), 'VND', 'en', words)).toBe('x');
@@ -669,7 +671,7 @@ describe('a query that became a job (ST-BI-009, BI F3: 202 ASYNC_JOB)', () => {
       await findFigure(RATE.id);
       expect(figureOf(DISBURSED.id)).toBeNull();
       await vi.advanceTimersByTimeAsync(JOB_WAIT.intervalMs * 3);
-      await waitFor(() => expect((figureOf(DISBURSED.id) as HTMLElement).textContent).toBe('10.500.000.000 ₫'));
+      await waitFor(() => expect((figureOf(DISBURSED.id) as HTMLElement).textContent).toBe('10,5 tỷ đồng'));
       // One question, one job: the run was looked at, the question was not made again until the job had completed.
       expect(asked).toBe(2);
     });

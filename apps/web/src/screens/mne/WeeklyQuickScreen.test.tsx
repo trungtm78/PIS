@@ -96,8 +96,10 @@ describe('MNE-07 weekly quick report (ST-MNE-005, MNE F3, CV 3665 [CXN-11])', ()
     // The words are the ones DIS-19 uses for the two rates.
     expect(pair.textContent).toContain(vi_['dis.rates.col.ratePm']);
     expect(pair.textContent).toContain(vi_['dis.rates.col.rateTotal']);
-    expect(pair.textContent).toContain('1.250.000.000.000');
-    expect(pair.textContent).toContain('750.000.000.000');
+    expect(pair.textContent).toContain('Tổng kế hoạch vốn: 1.250 tỷ đồng');
+    expect(pair.textContent).toContain('Giải ngân lũy kế theo Kho bạc: 750 tỷ đồng');
+    expect(within(pair).getByTestId('weekly-plan').getAttribute('title')).toBe('1.250.000.000.000 đồng');
+    expect(within(pair).getByTestId('weekly-disbursed').getAttribute('title')).toBe('750.000.000.000 đồng');
     const slow = within(screen.getByTestId('weekly-slow'));
     expect(slow.getByText(/DA-02 - Cầu Bến Lức; lãnh đạo phụ trách: Nguyễn Văn A; chậm 35\.5000/)).toBeTruthy();
     expect(slow.getByText(/DA-07 - Đường tỉnh 9; lãnh đạo phụ trách: chưa phân công/)).toBeTruthy();

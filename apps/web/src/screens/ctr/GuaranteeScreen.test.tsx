@@ -3,6 +3,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/re
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import GuaranteeScreen from './GuaranteeScreen';
+import { message } from './test-catalogue';
 import { ACCOUNTANT, GUARANTEE_OFFICER, GUARANTEE_READER, LEAD, SECOND, TENANT, client, contractId, detail, guarantee, mount, party, routeOf, world } from './test-support';
 import type { World } from './test-support';
 
@@ -47,7 +48,7 @@ describe('GuaranteeScreen (CTR-05): the guarantees and insurances', () => {
       `${vi_['ctr.guarantee.kind.performance.label']}${vi_['ctr.guarantee.status.active.label']}`,
       'Ngân hàng Tỉnh',
       'BL-A-002',
-      '500.000.000',
+      '500 triệu đồng (500.000.000 đồng)',
       expect.stringContaining('2026-12-31'),
       vi_['ctr.guarantee.alert.d15.label'],
       '',
@@ -59,7 +60,7 @@ describe('GuaranteeScreen (CTR-05): the guarantees and insurances', () => {
       `${vi_['ctr.guarantee.kind.insurance.label']}${vi_['ctr.guarantee.status.released.label']}`,
       'Ngân hàng Tỉnh',
       'BL-A-005',
-      '500.000.000',
+      '500 triệu đồng (500.000.000 đồng)',
       '2026-12-31',
       vi_['ctr.guarantee.alert.none.label'],
       'Liên danh Hà Giang',
@@ -67,9 +68,13 @@ describe('GuaranteeScreen (CTR-05): the guarantees and insurances', () => {
       'Hoàn thành nghĩa vụ',
       '',
     ]);
-    for (const column of ['kind', 'issuer', 'number', 'amount', 'expires', 'alert', 'member', 'verification', 'release'] as const) {
+    for (const column of ['kind', 'issuer', 'number', 'expires', 'alert', 'member', 'verification', 'release'] as const) {
       expect(screen.getByRole('columnheader', { name: vi_[`ctr.guarantee.column.${column}`] })).toBeTruthy();
     }
+    // The column of money names no unit: each amount carries its own (triệu đồng, tỷ đồng) and the exact amount in its title.
+    expect(screen.getByRole('columnheader', { name: message('ctr.guarantee.column.value.label') })).toBeTruthy();
+    expect(screen.queryByRole('columnheader', { name: /VND/ })).toBeNull();
+    expect(within(rowOf('BL-A-002')).getByText('500 triệu đồng').getAttribute('title')).toBe('500.000.000 đồng');
     expect(within(rowOf('BL-A-002')).getByText(/còn \d+ ngày|còn -\d+ ngày/)).toBeTruthy();
   });
 
@@ -445,9 +450,11 @@ describe('GuaranteeScreen (CTR-05): the guarantees and insurances', () => {
       await openTab(h);
       const rows = screen.getAllByTestId('expiring-row').map((row) => within(row).getAllByRole('cell').map((cell) => cell.textContent));
       expect(rows).toEqual([
-        [vi_['ctr.guarantee.kind.advance.label'], 'HD-A-001', 'Ngân hàng Tỉnh', '500.000.000', '2026-10-27', '3', '1.250.000.000'],
-        [vi_['ctr.guarantee.kind.performance.label'], 'HD-A-001', 'Ngân hàng Tỉnh', '500.000.000', '2026-11-13', '20', ''],
+        [vi_['ctr.guarantee.kind.advance.label'], 'HD-A-001', 'Ngân hàng Tỉnh', '500 triệu đồng (500.000.000 đồng)', '2026-10-27', '3', '1,25 tỷ đồng (1.250.000.000 đồng)'],
+        [vi_['ctr.guarantee.kind.performance.label'], 'HD-A-001', 'Ngân hàng Tỉnh', '500 triệu đồng (500.000.000 đồng)', '2026-11-13', '20', ''],
       ]);
+      expect(screen.getByRole('columnheader', { name: message('ctr.guarantee.column.advanceLeft.label') })).toBeTruthy();
+      expect(screen.queryByRole('columnheader', { name: /VND/ })).toBeNull();
       expect(h.read.mock.calls.at(-1)).toEqual(['listExpiringGuarantees', { query: { within_days: 30, limit: 200 } }]);
       set(vi_['ctr.guarantee.window.label'], '7');
       await waitFor(() => expect(h.read.mock.calls.at(-1)).toEqual(['listExpiringGuarantees', { query: { within_days: 7, limit: 200 } }]));

@@ -6,6 +6,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { Money } from '../../ui';
 import { AppraisalFrame } from './appraisal-components';
 import { useSubmitProposal } from './appraisal-hooks';
 import { fieldProblemMessage, problemMessage } from './appraisal-labels';
@@ -13,7 +14,7 @@ import { DECISION_PATH, EMPTY_PROPOSAL, SCORE_PATH, SUBMIT_PERMISSION, appraisal
 import type { ProposalForm } from './appraisal-model';
 import { Field, SuggestionPanel } from './components';
 import { useDefaultProject, useProject } from './hooks';
-import { LIST_PATH, amountText } from './model';
+import { LIST_PATH } from './model';
 import type { ProjectView } from './model';
 import './prj.css';
 
@@ -60,7 +61,7 @@ function ProposalContent({ route }: ScreenProps) {
 }
 
 function Proposal({ project }: { project: ProjectView }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const send = useSubmitProposal();
   const [form, setForm] = useState<ProposalForm>(EMPTY_PROPOSAL);
@@ -140,7 +141,9 @@ function Proposal({ project }: { project: ProjectView }) {
           <dt>{t('prj.proposal.summary.name.label')}</dt>
           <dd>{project.name}</dd>
           <dt>{t('prj.proposal.summary.scale.label')}</dt>
-          <dd>{t('prj.proposal.summary.amount.text', { amount: amountText(project.totalInvestmentVnd, locale) })}</dd>
+          <dd>
+            <Money value={project.totalInvestmentVnd} />
+          </dd>
           <dt>{t('prj.proposal.summary.area.label')}</dt>
           <dd>{project.area.label}</dd>
           <dt>{t('prj.proposal.summary.sector.label')}</dt>

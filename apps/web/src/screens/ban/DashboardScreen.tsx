@@ -130,7 +130,6 @@ function DashboardContent() {
           { label: t('ban.dash.context.year'), value: data === undefined ? '–' : String(data.fiscal_year) },
           { label: t('ban.dash.context.asOf'), value: data === undefined ? '–' : dayText(data.as_of) },
         ]}
-        unit={t('ban.dash.unit.vnd')}
         {...(query.dataUpdatedAt > 0 ? { asOf: clockText(query.dataUpdatedAt) } : {})}
         stale={query.isError && data !== undefined}
       />

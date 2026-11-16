@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
+import { compactMoney, fullMoney, moneyParts } from '../../i18n/money';
 import type { Translator } from '../../i18n';
-import { CommandHero, DataTable, FlowChart, KpiStrip, KpiTile, PeriodProgress, SectionCard, StatusPill } from '../../ui';
+import { CommandHero, DataTable, FlowChart, KpiStrip, KpiTile, Money, PeriodProgress, SectionCard, StatusPill } from '../../ui';
 import type { Severity, Tone } from '../../ui';
 import type { HomeDisbursed } from '../../editions/edition';
-import { FigureInfo, FlagPills, figureShown, noneText } from './figure-components';
+import { FigureInfo, FlagPills, figureShown, isWholeDong, noneText } from './figure-components';
 import { MY_WORK_PATH, REALLOCATION_PATH, WARNINGS_PATH, countTileOf, drillPathOf, figureText } from './model';
 import type { CommandCenter, Tile, WaitingCounts } from './model';
 import { billionsOf, bottlenecksOf, coverageOf, dayText, hasCurve, heroOf, percentOf, tileOf, topRanked } from './overview-model';
@@ -73,13 +74,16 @@ export function Hero({ center, year }: { center: CommandCenter; year: string }) 
   const total = tileOf(center, 'DISBURSEMENT_RATE_TOTAL');
   const amount = snapshot !== undefined ? (snapshot.state === 'ready' ? snapshot.valueVnd : null) : disbursedTile === undefined ? null : disbursedTile.displayValue;
   const missing = snapshot !== undefined || disbursedTile === undefined || disbursedTile.nullReason === null || disbursedTile.nullReason === 'NO_DATA' ? t('home.ov.hero.noData') : noneText(t, disbursedTile);
+  // A whole amount of dong is read in the short form (tỷ, triệu) with the exact amount under it; any other text of the server is shown as it came.
+  const short = isWholeDong(amount) ? moneyParts(amount, { locale }) : null;
   return (
     <CommandHero
       label={t('home.ov.hero.label', { year })}
-      value={amount === null ? '—' : groupedText(figureText({ displayValue: amount }), locale, style?.groupDigits === true)}
-      unit={amount === null ? '' : t('govc.home.unit.vnd')}
+      value={amount === null ? '—' : short !== null ? short.number : groupedText(figureText({ displayValue: amount }), locale, style?.groupDigits === true)}
+      unit={amount === null ? '' : short !== null ? t(`money.unit.${short.unit}`) : t('govc.home.unit.vnd')}
       caption={
         <>
+          {amount !== null && short !== null && short.unit !== 'dong' ? <span data-testid="hero-exact">{t('home.ov.hero.exact', { amount: fullMoney(amount, locale) })} </span> : null}
           {amount === null
             ? snapshot?.state === 'loading'
               ? t('home.ov.hero.loading')
@@ -121,7 +125,7 @@ export function Hero({ center, year }: { center: CommandCenter; year: string }) 
 
 /** The four tiles under the command block: the plan, the early warnings, the reallocations awaiting a decision, and how many projects have a figure. */
 export function Kpis({ center, waiting, counts }: { center: CommandCenter; waiting: WaitingCounts; counts?: readonly Tile[] }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const planTile = tileOf(center, 'PLAN_TOTAL');
   const pmTile = tileOf(center, 'PLAN_PM_ASSIGNED');
   const given = counts ?? center.countTiles;
@@ -133,17 +137,18 @@ export function Kpis({ center, waiting, counts }: { center: CommandCenter; waiti
   const style = useEdition().slots?.homeFigures;
   const planText = planTile?.displayValue ?? null;
   const pmText = pmTile?.displayValue ?? null;
+  const planShort = isWholeDong(planText) ? moneyParts(planText, { locale }) : null;
   return (
     <div data-testid="home-kpis">
       <KpiStrip label={t('home.ov.kpi.group')}>
         {style?.publicPlanBlocks === false ? null : (
         <KpiTile
           label={t('home.ov.kpi.plan.label')}
-          value={planText ?? '—'}
-          {...(planText === null ? {} : { unit: t('govc.home.unit.vnd') })}
+          value={planShort !== null ? planShort.number : (planText ?? '—')}
+          {...(planText === null ? {} : { unit: planShort !== null ? t(`money.unit.${planShort.unit}`) : t('govc.home.unit.vnd') })}
           sub={
             <>
-              {planText === null ? (planTile === undefined ? t('home.ov.kpi.missing') : noneText(t, planTile)) : pmText === null ? t('home.ov.kpi.plan.subMissing') : t('govc.home.kpi.plan.sub', { pm: pmText })} <FigureNotes tile={planTile} />
+              {planText === null ? (planTile === undefined ? t('home.ov.kpi.missing') : noneText(t, planTile)) : pmText === null ? t('home.ov.kpi.plan.subMissing') : isWholeDong(pmText) ? t('home.ov.plan.subPm', { pm: compactMoney(pmText, { locale }) }) : t('govc.home.kpi.plan.sub', { pm: pmText })} <FigureNotes tile={planTile} />
               {pmText === null ? null : <FigureNotes tile={pmTile} />}
             </>
           }
@@ -231,7 +236,7 @@ export function Causes() {
               key: 'impact',
               header: t('home.ov.cause.col.impact'),
               align: 'right',
-              render: (row) => billionsOf(row.impactVnd, locale) ?? t('home.ov.cause.noImpact'),
+              render: (row) => (billionsOf(row.impactVnd, locale) === null ? t('home.ov.cause.noImpact') : <Money value={row.impactVnd} bare unit="billion" fixed />),
             },
             {
               key: 'sample',
@@ -323,13 +328,13 @@ export function RankingCard() {
                 key: 'plan',
                 header: t('home.ranking.column.plan'),
                 align: 'right',
-                render: (row) => billionsOf(row.planVnd, locale) ?? '—',
+                render: (row) => (billionsOf(row.planVnd, locale) === null ? '—' : <Money value={row.planVnd} bare unit="billion" fixed />),
               },
               {
                 key: 'disbursed',
                 header: t('home.ranking.column.disbursed'),
                 align: 'right',
-                render: (row) => billionsOf(row.disbursedVnd, locale) ?? t('home.tile.nullReason.noData'),
+                render: (row) => (billionsOf(row.disbursedVnd, locale) === null ? t('home.tile.nullReason.noData') : <Money value={row.disbursedVnd} bare unit="billion" fixed />),
               },
               {
                 key: 'rate',

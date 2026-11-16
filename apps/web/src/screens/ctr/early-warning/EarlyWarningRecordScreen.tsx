@@ -6,9 +6,9 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { ContextBar, DataTable, SectionCard, StatusPill } from '../../../ui';
+import { ContextBar, DataTable, Money, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
-import { can, dayText, stampText, vnd } from '../claims/common';
+import { can, dayText, stampText } from '../claims/common';
 import { BackLink } from '../claims/components';
 import { PATHS as CLAIM_PATHS } from '../claims/model';
 import { useWarning } from './hooks';
@@ -41,7 +41,7 @@ function Fact({ label, children, testId }: { label: string; children: ReactNode;
 }
 
 function RecordContent({ route, warningId }: ScreenProps & { warningId: string | null }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const query = useWarning(warningId);
   const [dialog, setDialog] = useState<WarningDialog | undefined>(undefined);
@@ -159,7 +159,7 @@ function RecordContent({ route, warningId }: ScreenProps & { warningId: string |
                     {warning.expected_time_days !== null ? t('ctrWarn.record.days.text', { days: warning.expected_time_days }) : warning.no_impact_expected ? t('ctrWarn.cell.noImpact.text') : NONE}
                   </Fact>
                   <Fact label={t('ctrWarn.record.cost.label')} testId="cost">
-                    {warning.expected_cost_vnd !== null ? vnd(warning.expected_cost_vnd, locale) : warning.no_impact_expected ? t('ctrWarn.cell.noImpact.text') : NONE}
+                    {warning.expected_cost_vnd !== null ? <Money value={warning.expected_cost_vnd} /> : warning.no_impact_expected ? t('ctrWarn.cell.noImpact.text') : NONE}
                   </Fact>
                   <Fact label={t('ctrWarn.record.assessedBy.label')}>{warning.assessed_by_name === null ? NONE : `${warning.assessed_by_name} · ${stampText(warning.assessed_at)}`}</Fact>
                 </dl>

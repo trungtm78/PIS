@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText } from '../../../i18n/money';
 
 export const CHAIN_PATH = '/ctr/ctr-19';
 export const TIERS_PATH = '/ctr/ctr-20';
@@ -204,7 +205,7 @@ export function toChain(raw: unknown): Chain | undefined {
 /** A signed amount in VND from its decimal string: the digits are grouped by the language of the screen and the string is never turned into a float. */
 export function signedAmountText(amount: string | null, locale: string): string | null {
   if (amount === null) return null;
-  return SIGNED_AMOUNT.test(amount) ? new Intl.NumberFormat(locale).format(BigInt(amount)) : amount;
+  return SIGNED_AMOUNT.test(amount) ? dongText(amount, locale) : amount;
 }
 
 /** The requests of one tier, in the order they were raised. */

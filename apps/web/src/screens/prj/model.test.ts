@@ -135,7 +135,8 @@ describe('the list and the refusals', () => {
   it('writes an amount in the grouping of the language without turning it into a float, and the address of a workspace', () => {
     expect(amountText('500000000000', 'vi')).toBe(new Intl.NumberFormat('vi').format(500000000000n));
     expect(amountText('9007199254740993', 'en')).toBe('9,007,199,254,740,993');
-    expect(amountText('12.50', 'en')).toBe('12');
+    expect(amountText('12.49', 'en')).toBe('12');
+    expect(amountText('12.50', 'en')).toBe('13');
     expect(amountText('abc', 'en')).toBe('abc');
     expect(workspaceLink('a b')).toBe('/prj/prj-03?id=a+b');
   });

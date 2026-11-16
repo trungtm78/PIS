@@ -130,7 +130,6 @@ function AttentionContent() {
           { label: t('ban.dash.context.scope'), value: tenant?.name ?? '–' },
           { label: t('ban.dash.context.asOf'), value: data === undefined ? '–' : dayText(data.as_of) },
         ]}
-        unit={t('ban.dash.unit.vnd')}
         {...(query.dataUpdatedAt > 0 ? { asOf: clockText(query.dataUpdatedAt) } : {})}
         stale={query.isError && data !== undefined}
       />
