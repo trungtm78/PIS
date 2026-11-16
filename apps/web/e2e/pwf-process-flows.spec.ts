@@ -17,7 +17,6 @@ import { membershipOf, sql, stackInfo } from './support/stack.ts';
  * The screens belong to the public edition (its built-in templates PUBLIC_INVESTMENT and PUBLIC_PROCUREMENT are what the flows open); the enterprise edition runs its own templates.
  */
 
-const DAY = /\d{2}\/\d{2}\/\d{4}/;
 const ENTERPRISE = editionOf() === 'enterprise';
 const PERSON = 'owner';
 const TEMPLATE = 'PUBLIC_INVESTMENT';
