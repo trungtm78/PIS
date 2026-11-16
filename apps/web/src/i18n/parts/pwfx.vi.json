@@ -1,0 +1,9 @@
+{
+  "pwfx.gantt.legend.idle": "Chưa tới ngưỡng",
+  "pwfx.gantt.legend.green": "Vùng Xanh",
+  "pwfx.gantt.legend.yellow": "Vùng Vàng",
+  "pwfx.gantt.legend.red": "Vùng Đỏ (sát hạn)",
+  "pwfx.gantt.legend.overall": "Hạn chung của hồ sơ",
+  "pwfx.gantt.overall.mark": "★ hạn chung",
+  "pwfx.gantt.col.note": "Ghi chú"
+}

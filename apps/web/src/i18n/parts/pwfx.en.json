@@ -1,0 +1,9 @@
+{
+  "pwfx.gantt.legend.idle": "Below the threshold",
+  "pwfx.gantt.legend.green": "Green zone",
+  "pwfx.gantt.legend.yellow": "Yellow zone",
+  "pwfx.gantt.legend.red": "Red zone (close to the deadline)",
+  "pwfx.gantt.legend.overall": "Deadline of the whole file",
+  "pwfx.gantt.overall.mark": "★ overall deadline",
+  "pwfx.gantt.col.note": "Note"
+}
