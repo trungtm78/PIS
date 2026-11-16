@@ -54,8 +54,11 @@
 .pwfp-remaining {
   display: inline-flex;
   align-items: flex-start;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
+}
+.pwfp-remaining__text strong {
+  white-space: nowrap;
 }
 .pwfp-remaining .pwfp-dot {
   margin-top: 5px;

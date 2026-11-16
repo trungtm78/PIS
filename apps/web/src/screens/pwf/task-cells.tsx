@@ -177,7 +177,8 @@ export function RemainingCell({ task, asOf }: { task: CellTask; asOf?: string | 
     <span className="pwfp-remaining" data-testid="cell-remaining" data-band={task.band.band}>
       <BandDot band={task.band.band} />
       <span className="pwfp-remaining__text">
-        <strong>{bandWord(t, task.band.band)}</strong>
+        {/* A deadline still out of the ladder (no colour yet) says its days only; the word stays for a screen reader. */}
+        <strong className={task.band.band === 'NONE' ? 'ui-sr-only' : undefined}>{bandWord(t, task.band.band)}</strong>
         {days === undefined ? null : <span className="pwf-hint">{days}</span>}
       </span>
       <TierInfo task={task} asOf={asOf} />

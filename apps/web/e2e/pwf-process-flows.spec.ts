@@ -333,7 +333,8 @@ if (ENTERPRISE) {
       await page.goto(`/pwf/pwf-04?id=${row.id}&project=${project.id}&devUser=${PERSON}`);
       const taskLegal = page.getByTestId('task-legal');
       await expect(taskLegal).toBeAttached();
-      await showTabOf(page, taskLegal);
+      // The legal grounds are a block of PWF-04 that is closed until asked for.
+      await page.getByTestId('block-legal').locator('summary').click();
       await expect(taskLegal).toBeVisible();
       await expect(taskLegal.locator('[data-document]').first()).toHaveAttribute('data-state', 'IN_FORCE');
       await expect(taskLegal).toContainText(/\d+\/\d{4}\/(QH\d+|NĐ-CP)/);
