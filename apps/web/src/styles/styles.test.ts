@@ -7,10 +7,18 @@ const BRAND = read('../../../../Design/MACHVON_Design/02_Prototype/brand-theme.c
 const APP = read('./app.css');
 const TENANT = read('./tenant-theme.css');
 const TOKENS = read('../../../../packages/design-tokens/dist-css/tokens.css');
+const UI = read('../ui/ui.css');
 const FONTS = resolve(__dirname, '../../public/fonts');
 
 const withoutComments = (css: string): string => css.replace(/\/\*[\s\S]*?\*\//g, '');
 const BRAND_CODE = withoutComments(BRAND);
+
+describe('the primary button on hover', () => {
+  it('keeps its text light: the page-wide button:hover would otherwise paint it in the colour of its own background', () => {
+    expect(BRAND_CODE).toMatch(/button:hover[\s\S]*?color: var\(--brand-hover\)/);
+    expect(withoutComments(UI)).toMatch(/\.ui-button--primary:hover:not\(:disabled\)\s*\{\s*color: var\(--mv-color-surface\)/);
+  });
+});
 
 describe('brand-theme.css ("Xanh dầu điều hành")', () => {
   it('names a colour only through the tokens: a hex literal appears only as the fallback inside var()', () => {

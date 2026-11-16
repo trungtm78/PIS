@@ -55,6 +55,8 @@ code {
 .ui-button:disabled { cursor: not-allowed; opacity: 0.6; }
 .ui-button--primary { background: var(--mv-color-primary); border-color: var(--mv-color-primary); color: var(--mv-color-surface); }
 .ui-button--primary:hover:not(:disabled) { background: var(--mv-color-primary-hover); }
+/* The page-wide `button:hover` (prototype) turns the text of every button to the hover colour, which is the very colour of this background: the text must stay light. */
+.ui-button--primary:hover:not(:disabled) { color: var(--mv-color-surface); }
 .ui-button--outline { background: var(--mv-color-surface); border-color: var(--mv-color-primary); color: var(--mv-color-primary); }
 .ui-button--outline:hover:not(:disabled) { background: var(--mv-color-primary-soft); }
 .ui-button--small { min-height: 32px; padding: 0 var(--mv-space-12); }
