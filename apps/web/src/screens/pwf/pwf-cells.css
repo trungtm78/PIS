@@ -82,3 +82,11 @@
   gap: 2px;
   font-size: 13px;
 }
+
+/* PWF-06: the heads of the groups of changes (extended, moved behind another, other). */
+.pwf-resched__group th {
+  background: var(--mv-color-surface2);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--mv-color-border);
+}
