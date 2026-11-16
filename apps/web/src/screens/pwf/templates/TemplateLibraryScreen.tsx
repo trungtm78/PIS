@@ -1,57 +1,69 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../../ui';
+import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
-import { useCatalogue } from '../../adm/governance/hooks';
-import { statusText } from '../../adm/governance/labels';
-import type { RuleStatus } from '../../adm/governance/model';
+import { MoveDialog } from '../../adm/governance/components';
+import type { Receipt } from '../../adm/governance/components';
+import { useCatalogue, useEffective } from '../../adm/governance/hooks';
+import { moveText, receiptText } from '../../adm/governance/labels';
+import { movesOf } from '../../adm/governance/model';
 import { ProjectTypeName } from '../codes';
+import { UnverifiedLabel } from '../components';
 import { useProjectTypeNames } from '../hooks';
-import { FigureInfo, UnverifiedLabel } from '../components';
-import { PATHS, PERMISSIONS, TEMPLATE_RULE_TYPE, dayText, editorLink, holds } from '../model';
-import { useTemplateCodes } from './hooks';
-import { DEFAULT_SIDE, compareSides, libraryRow, libraryTotals } from './library-model';
-import type { CompareSide, LibraryRow } from './library-model';
-import { TemplateCompare } from './Compare';
+import { PATHS, PERMISSIONS, RULE_PERMISSIONS, TEMPLATE_RULE_TYPE, dayText, editorLink, holds, todayInVietnam } from '../model';
+import { ASSIGNMENT_RULE_CODE, ASSIGNMENT_RULE_TYPE, linesFor } from './assignment-model';
+import { useTemplateCodes, useTemplateUsage } from './hooks';
+import { libraryRow } from './library-model';
+import type { LibraryRow } from './library-model';
 import '../pwf.css';
 import './templates.css';
+import './editor.css';
 
-/** ADM-20, the versions of one code in the rule store. */
-const RULE_VERSIONS_PATH = '/adm/adm-20';
-const STATUS_ORDER: readonly RuleStatus[] = ['DRAFT', 'SUBMITTED', 'APPROVED', 'RETIRED'];
-
-/** PWF-01: the library of workflow templates by kind of project: versions and their state, the day each begins, whether it was confirmed, and two versions side by side. */
+/**
+ * PWF-01: the library of procedures, one row for each template: its name, the kinds of project that take it, its steps and total time, the version in force and its state, the projects running it, the steps whose legal
+ * grounds nobody checked against the source text, and the last change; open it, copy it, retire it. A new procedure starts from the kinds the platform ships, from a copy, from rows pasted from a spreadsheet, or empty.
+ */
 export default function TemplateLibraryScreen({ route }: ScreenProps) {
   const { tenant } = useSession();
   return <LibraryContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
 }
 
+/** The ways a new procedure starts, as the address of the editor says them (`?start=`). */
+export const startLink = (kind: 'blank' | 'paste' | 'builtin' | 'clone', code?: string): string => `${PATHS.editor}?start=${kind}${code === undefined ? '' : `:${encodeURIComponent(code)}`}`;
+
 function LibraryContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { permissions, mode } = useSession();
+  const { permissions, mode, tenant } = useSession();
   const mayRead = holds(permissions, PERMISSIONS.read);
   const canEdit = holds(permissions, PERMISSIONS.templateManage, mode === 'READ_ONLY');
+  const canStore = mode !== 'READ_ONLY' && (permissions === undefined || permissions.includes(RULE_PERMISSIONS.manage));
+  const canApprove = mode !== 'READ_ONLY' && (permissions === undefined || permissions.includes(RULE_PERMISSIONS.approve));
   const catalogue = useCatalogue(mayRead);
   const entry = catalogue.data?.find((one) => one.ruleType === TEMPLATE_RULE_TYPE);
-  const codes = entry?.codes ?? [];
+  const codes = useMemo(() => entry?.codes ?? [], [entry]);
   const reads = useTemplateCodes(
     codes.map((code) => code.code),
     mayRead && entry !== undefined,
   );
+  const assignment = useEffective(ASSIGNMENT_RULE_TYPE, ASSIGNMENT_RULE_CODE, undefined, mayRead);
+  const usage = useTemplateUsage(mayRead);
   const queryState = useScreenState({ isLoading: catalogue.isLoading, error: catalogue.error, data: catalogue.data === undefined ? undefined : codes });
   const state = !mayRead ? 'denied' : queryState;
   const failed = reads.some((read) => read.isError);
-  const loading = reads.some((read) => read.isLoading);
   const rows = codes.flatMap((code, index): LibraryRow[] => {
     const read = reads[index]?.data;
-    return read === undefined ? [] : [libraryRow(code, read.versions, read.effective)];
+    if (read === undefined) return [];
+    const mapped = linesFor(assignment.data?.params, code.code).flatMap((line) => line.when.filter((one) => one.field === 'project_type').flatMap((one) => one.in));
+    return [libraryRow(code, read.versions, read.effective, mapped)];
   });
-  const totals = libraryTotals(rows);
+  const [retiring, setRetiring] = useState<LibraryRow | undefined>(undefined);
+  const [receipt, setReceipt] = useState<Receipt | undefined>(undefined);
+  const me = tenant?.membershipId;
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -60,11 +72,6 @@ function LibraryContent({ route }: ScreenProps) {
           <h1 id="screen-title">{t('pwf.templates.lib.title.text')}</h1>
           <p>{t('pwf.templates.lib.subtitle.text')}</p>
         </div>
-        {canEdit ? (
-          <Link className="ui-button ui-button--primary" to={editorLink()} data-testid="new-template">
-            {t('pwf.templates.lib.new.action')}
-          </Link>
-        ) : null}
       </div>
       <StateBoundary state={state} onRetry={() => void catalogue.refetch()}>
         {failed ? (
@@ -72,32 +79,34 @@ function LibraryContent({ route }: ScreenProps) {
             {t('pwf.templates.lib.failed.text')}
           </p>
         ) : null}
-        <KpiStrip label={t('pwf.templates.lib.totals.label')}>
-          <KpiTile
-            label={t('pwf.templates.lib.totals.templates')}
-            value={String(totals.templates)}
-            sub={<FigureInfo name={t('pwf.templates.lib.totals.templates')} formula={t('pwf.templates.lib.formula.templates')} source={t('pwf.templates.lib.source.store')} asOf={null} version={t('pwf.templates.lib.version.store')} />}
-            state={loading ? 'loading' : 'ready'}
-          />
-          <KpiTile
-            label={t('pwf.templates.lib.totals.governed')}
-            value={String(totals.governed)}
-            sub={<FigureInfo name={t('pwf.templates.lib.totals.governed')} formula={t('pwf.templates.lib.formula.governed')} source={t('pwf.templates.lib.source.store')} asOf={null} version={t('pwf.templates.lib.version.store')} />}
-            state={loading ? 'loading' : 'ready'}
-          />
-          <KpiTile
-            label={t('pwf.templates.lib.totals.unverified')}
-            value={String(totals.unverified)}
-            tone={totals.unverified > 0 ? 'warning' : 'default'}
-            sub={<FigureInfo name={t('pwf.templates.lib.totals.unverified')} formula={t('pwf.templates.lib.formula.unverified')} source={t('pwf.templates.lib.source.catalogue')} asOf={null} version={t('pwf.templates.lib.version.store')} unverified />}
-            state={loading ? 'loading' : 'ready'}
-          />
-        </KpiStrip>
+        {receipt === undefined ? null : (
+          <p className="callout success" role="status" data-testid="receipt">
+            {receiptText(t, receipt.move, { version: receipt.version, code: receipt.code, time: receipt.time })}
+          </p>
+        )}
+        {canEdit ? <QuickStart rows={rows} builtIn={codes.filter((code) => code.hasDefault).map((code) => code.code)} /> : null}
         <SectionCard title={t('pwf.templates.lib.table.title')}>
-          <LibraryTable rows={rows} canEdit={canEdit} />
+          <LibraryTable
+            rows={rows}
+            canEdit={canEdit}
+            usage={usage}
+            retireAllowed={(row) => row.inForce !== undefined && movesOf(row.inForce, { me, canManage: canStore, canApprove, today: todayInVietnam() }).some((option) => option.move === 'retire' && option.allowed)}
+            onRetire={setRetiring}
+          />
         </SectionCard>
-        <ComparePanel rows={rows} />
       </StateBoundary>
+      {retiring?.inForce === undefined ? null : (
+        <MoveDialog
+          version={retiring.inForce}
+          move="retire"
+          me={me}
+          onClose={() => setRetiring(undefined)}
+          onDone={(done) => {
+            setRetiring(undefined);
+            setReceipt(done);
+          }}
+        />
+      )}
       <p className="adm-kit-foot" data-testid="footer">
         {t('gova1.footer.reference', { id: route.id, req: route.req ?? '' })}
       </p>
@@ -105,15 +114,114 @@ function LibraryContent({ route }: ScreenProps) {
   );
 }
 
-function ForceCell({ row }: { row: LibraryRow }) {
+/** "Tạo quy trình": four ways to begin, each one a step to the editor and nothing written yet. */
+function QuickStart({ rows, builtIn }: { rows: readonly LibraryRow[]; builtIn: readonly string[] }) {
   const { t } = useTranslation();
-  if (row.force === 'RULE') return <StatusPill tone="success" icon="✔">{t('pwf.templates.lib.force.rule', { version: row.forceVersion })}</StatusPill>;
-  if (row.force === 'DEFAULT') return <StatusPill tone="neutral" icon="◇">{t('pwf.templates.lib.force.default')}</StatusPill>;
-  return <StatusPill tone="warning" icon="⚠">{t('pwf.templates.lib.force.none')}</StatusPill>;
+  const [open, setOpen] = useState(false);
+  const [shipped, setShipped] = useState('');
+  const [copied, setCopied] = useState('');
+  const nameOf = (code: string): string => rows.find((row) => row.code === code)?.summary?.name || code;
+  return (
+    <div className="pwfx-quick">
+      <p>
+        <button type="button" className="ui-button ui-button--primary" aria-expanded={open} data-testid="new-template" onClick={() => setOpen(!open)}>
+          {t('pwfx.lib.new.action')}
+        </button>
+      </p>
+      {!open ? null : (
+        <div className="pwfx-quick__choices" data-testid="quick-start">
+          <div className="pwfx-quick__choice">
+            <strong>{t('pwfx.lib.start.builtin')}</strong>
+            <span className="pwf-hint">{t('pwfx.lib.start.builtin.hint')}</span>
+            <label htmlFor="pwfx-start-builtin">{t('pwfx.lib.start.builtin.pick')}</label>
+            <select id="pwfx-start-builtin" value={shipped} data-testid="start-builtin" onChange={(event) => setShipped(event.target.value)}>
+              <option value="">{t('pwfx.lib.start.choose')}</option>
+              {builtIn.map((code) => (
+                <option key={code} value={code}>
+                  {nameOf(code)}
+                </option>
+              ))}
+            </select>
+            {shipped === '' ? null : (
+              <Link className="ui-button ui-button--outline ui-button--small" to={startLink('builtin', shipped)} data-testid="go-builtin">
+                {t('pwfx.lib.start.go')}
+              </Link>
+            )}
+          </div>
+          <div className="pwfx-quick__choice">
+            <strong>{t('pwfx.lib.start.clone')}</strong>
+            <span className="pwf-hint">{t('pwfx.lib.start.clone.hint')}</span>
+            <label htmlFor="pwfx-start-clone">{t('pwfx.lib.start.clone.pick')}</label>
+            <select id="pwfx-start-clone" value={copied} data-testid="start-clone" onChange={(event) => setCopied(event.target.value)}>
+              <option value="">{t('pwfx.lib.start.choose')}</option>
+              {rows.map((row) => (
+                <option key={row.code} value={row.code}>
+                  {row.summary?.name || row.code}
+                </option>
+              ))}
+            </select>
+            {copied === '' ? null : (
+              <Link className="ui-button ui-button--outline ui-button--small" to={startLink('clone', copied)} data-testid="go-clone">
+                {t('pwfx.lib.start.go')}
+              </Link>
+            )}
+          </div>
+          <div className="pwfx-quick__choice">
+            <strong>{t('pwfx.lib.start.paste')}</strong>
+            <span className="pwf-hint">{t('pwfx.lib.start.paste.hint')}</span>
+            <Link className="ui-button ui-button--outline ui-button--small" to={startLink('paste')} data-testid="go-paste">
+              {t('pwfx.lib.start.go')}
+            </Link>
+          </div>
+          <div className="pwfx-quick__choice">
+            <strong>{t('pwfx.lib.start.blank')}</strong>
+            <span className="pwf-hint">{t('pwfx.lib.start.blank.hint')}</span>
+            <Link className="ui-button ui-button--outline ui-button--small" to={startLink('blank')} data-testid="go-blank">
+              {t('pwfx.lib.start.go')}
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit: boolean }) {
+function StateCell({ row }: { row: LibraryRow }) {
   const { t } = useTranslation();
+  const drafts = row.statusCounts.DRAFT;
+  const waiting = row.statusCounts.SUBMITTED;
+  return (
+    <span className="pwf-tpl-name">
+      {row.force === 'RULE' ? (
+        <StatusPill tone="success" icon="✔">
+          {t('pwf.templates.lib.force.rule', { version: row.forceVersion })}
+        </StatusPill>
+      ) : row.force === 'DEFAULT' ? (
+        <StatusPill tone="neutral" icon="◇">
+          {t('pwf.templates.lib.force.default')}
+        </StatusPill>
+      ) : (
+        <StatusPill tone="warning" icon="⚠">
+          {t('pwf.templates.lib.force.none')}
+        </StatusPill>
+      )}
+      {row.effectiveFrom === null ? null : <span className="pwf-hint">{t('pwfx.lib.from', { day: dayText(row.effectiveFrom) })}</span>}
+      {drafts === 0 ? null : <StatusPill tone="neutral" icon="✎">{t('pwfx.lib.drafts', { count: drafts })}</StatusPill>}
+      {waiting === 0 ? null : <StatusPill tone="info" icon="⏳">{t('pwfx.lib.waiting', { count: waiting })}</StatusPill>}
+    </span>
+  );
+}
+
+interface TableProps {
+  rows: readonly LibraryRow[];
+  canEdit: boolean;
+  usage: ReadonlyMap<string, number> | undefined;
+  retireAllowed: (row: LibraryRow) => boolean;
+  onRetire: (row: LibraryRow) => void;
+}
+
+function LibraryTable({ rows, canEdit, usage, retireAllowed, onRetire }: TableProps) {
+  const { t, locale } = useTranslation();
   const typeNames = useProjectTypeNames();
   const columns: DataTableColumn<LibraryRow>[] = [
     {
@@ -124,78 +232,62 @@ function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit:
         <span className="pwf-tpl-name">
           <strong>{row.summary?.name === '' || row.summary === null ? t('pwf.templates.lib.noName.text') : row.summary.name}</strong>
           <span className="pwf-code">{row.code}</span>
+          {row.unverified ? <UnverifiedLabel /> : null}
         </span>
       ),
     },
     {
-      // The kind of project the template is for; a template for every kind says so (the field is empty in the editor).
       key: 'type',
       header: t('fix9.pwf01.col.type'),
       render: (row) =>
-        row.summary === null ? null : row.summary.projectType === null || row.summary.projectType === undefined ? (
+        row.types.length === 0 ? (
           <span className="pwf-hint">{t('fix9.pwf01.type.any')}</span>
         ) : (
-          <span data-testid={`type-${row.code}`}>
-            <ProjectTypeName code={row.summary.projectType} names={typeNames} />
-          </span>
-        ),
-    },
-    {
-      key: 'versions',
-      header: t('fix9.pwf01.col.versions'),
-      render: (row) =>
-        row.versions.length === 0 ? (
-          <span className="pwf-hint">{t('pwf.templates.lib.noVersions.text')}</span>
-        ) : (
-          <span className="pwf-pills">
-            {STATUS_ORDER.filter((status) => row.statusCounts[status] > 0).map((status) => (
-              <span key={status} data-status={status}>
-                <VersionPillByStatus status={status} count={row.statusCounts[status]} />
-              </span>
+          <span data-testid={`type-${row.code}`} className="pwf-pills">
+            {row.types.map((type) => (
+              <ProjectTypeName key={type} code={type} names={typeNames} />
             ))}
           </span>
         ),
     },
+    { key: 'steps', header: t('pwfx.lib.col.steps'), align: 'right', render: (row) => <span data-testid={`steps-${row.code}`}>{row.steps}</span> },
+    { key: 'days', header: t('pwfx.lib.col.days'), align: 'right', render: (row) => <span data-testid={`days-${row.code}`}>{t('pwfx.lib.days', { days: row.totalDays })}</span> },
+    { key: 'state', header: t('pwfx.lib.col.state'), render: (row) => <StateCell row={row} /> },
     {
-      key: 'force',
-      header: t('fix9.pwf01.col.from'),
-      render: (row) => (
-        <span className="pwf-tpl-name">
-          {row.effectiveFrom === null ? null : <span data-testid={`from-${row.code}`}>{dayText(row.effectiveFrom)}</span>}
-          <ForceCell row={row} />
-        </span>
-      ),
+      key: 'projects',
+      header: t('pwfx.lib.col.projects'),
+      align: 'right',
+      render: (row) => <span data-testid={`projects-${row.code}`}>{usage === undefined ? '–' : (usage.get(row.code) ?? 0)}</span>,
     },
     {
-      key: 'size',
-      header: t('fix9.pwf01.col.size'),
-      render: (row) =>
-        row.summary === null ? null : (
-          <span className="pwf-tpl-name pwf-nowrap">
-            <span>{t('pwf.templates.lib.size.text', { phases: row.summary.phases, tasks: row.summary.tasks })}</span>
-            {row.summary.steps === undefined ? null : <span className="pwf-hint">{t('pwf.templates.lib.steps.text', { steps: row.summary.steps })}</span>}
-          </span>
-        ),
+      key: 'unverified',
+      header: t('pwfx.lib.col.unverified'),
+      align: 'right',
+      render: (row) => (row.unverifiedSteps === 0 ? <span className="pwf-hint">{t('fix9.pwf01.flag.none')}</span> : <StatusPill tone="warning" icon="⚠">{t('pwfx.lib.unverified', { count: row.unverifiedSteps })}</StatusPill>),
     },
     {
-      // The flag of a built-in default nobody of the organisation has confirmed yet; a template the organisation approved carries none.
-      key: 'flag',
-      header: t('fix9.pwf01.col.flag'),
-      render: (row) => (row.unverified ? <UnverifiedLabel /> : <span className="pwf-hint">{t('fix9.pwf01.flag.none')}</span>),
+      key: 'last',
+      header: t('pwfx.lib.col.last'),
+      render: (row) => <span data-testid={`last-${row.code}`}>{row.lastChange === null ? '–' : new Intl.DateTimeFormat(locale, { dateStyle: 'short' }).format(new Date(row.lastChange))}</span>,
     },
     {
       key: 'actions',
       header: t('pwf.templates.col.actions.header'),
       render: (row) => (
         <span className="pwf-pills pwf-nowrap">
+          <Link className="ui-button ui-button--outline ui-button--small" to={editorLink(row.code)} data-testid={`open-${row.code}`}>
+            {t('pwfx.lib.open')}
+          </Link>
           {canEdit ? (
-            <Link className="ui-button ui-button--outline ui-button--small" to={editorLink(row.code)} data-testid={`edit-${row.code}`}>
-              {t('pwf.templates.lib.edit.action')}
+            <Link className="ui-button ui-button--outline ui-button--small" to={startLink('clone', row.code)} data-testid={`clone-${row.code}`}>
+              {t('pwfx.lib.clone')}
             </Link>
           ) : null}
-          <Link className="ui-button ui-button--outline ui-button--small" to={`${RULE_VERSIONS_PATH}?type=${TEMPLATE_RULE_TYPE}&code=${encodeURIComponent(row.code)}`} data-testid={`versions-${row.code}`}>
-            {t('pwf.templates.lib.versions.action')}
-          </Link>
+          {canEdit && row.force === 'RULE' ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={!retireAllowed(row)} title={retireAllowed(row) ? undefined : t('pwfx.lib.retire.needsBoth')} data-testid={`retire-${row.code}`} onClick={() => onRetire(row)}>
+              {moveText(t, 'retire', 'APPROVED')}
+            </button>
+          ) : null}
         </span>
       ),
     },
@@ -204,101 +296,5 @@ function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit:
     <div className="pwf-free pwf-lib">
       <DataTable columns={columns} rows={[...rows]} rowKey={(row) => row.code} caption={t('pwf.templates.lib.table.caption')} stacked />
     </div>
-  );
-
-}
-
-const STATUS_LOOK: Readonly<Record<RuleStatus, { tone: 'neutral' | 'info' | 'success'; icon: string }>> = {
-  DRAFT: { tone: 'neutral', icon: '✎' },
-  SUBMITTED: { tone: 'info', icon: '⏳' },
-  APPROVED: { tone: 'success', icon: '✔' },
-  RETIRED: { tone: 'neutral', icon: '■' },
-};
-
-function VersionPillByStatus({ status, count }: { status: RuleStatus; count: number }) {
-  const { t } = useTranslation();
-  const look = STATUS_LOOK[status];
-  return (
-    <StatusPill tone={look.tone} icon={look.icon}>
-      {t('pwf.templates.lib.count.text', { status: statusText(t, status), count })}
-    </StatusPill>
-  );
-}
-
-function ComparePanel({ rows }: { rows: readonly LibraryRow[] }) {
-  const { t } = useTranslation();
-  const [code, setCode] = useState('');
-  const [leftId, setLeftId] = useState('');
-  const [rightId, setRightId] = useState('');
-  const row = rows.find((one) => one.code === code);
-  const reads = useTemplateCodes(row === undefined ? [] : [row.code], row !== undefined);
-  const data = reads[0]?.data;
-  const sides: CompareSide[] = data === undefined ? [] : compareSides(data.versions, data.effective);
-  const left = sides.find((side) => side.id === leftId);
-  const right = sides.find((side) => side.id === rightId);
-  const changes = left === undefined || right === undefined ? undefined : true;
-  const sideLabel = (side: CompareSide): string => (side.id === DEFAULT_SIDE ? t('pwf.templates.compare.default.option') : t('pwf.templates.compare.version.option', { version: side.version, status: side.status === 'DEFAULT' ? '' : statusText(t, side.status) }).trim());
-
-  return (
-    <SectionCard title={t('pwf.templates.compare.title')}>
-      <div className="pwf-filters">
-        <div className="pwf-field">
-          <label htmlFor="pwf-cmp-code">{t('pwf.templates.compare.code.label')}</label>
-          <select
-            id="pwf-cmp-code"
-            data-testid="compare-code"
-            value={code}
-            onChange={(event) => {
-              setCode(event.target.value);
-              setLeftId('');
-              setRightId('');
-            }}
-          >
-            <option value="">{t('pwf.templates.compare.choose.option')}</option>
-            {rows.map((one) => (
-              <option key={one.code} value={one.code}>
-                {one.summary === null || one.summary.name === '' ? one.code : t('pwf6.lib.option.text', { name: one.summary.name, code: one.code })}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="pwf-field">
-          <label htmlFor="pwf-cmp-left">{t('pwf.templates.compare.left.label')}</label>
-          <select id="pwf-cmp-left" data-testid="compare-left" value={leftId} disabled={sides.length === 0} onChange={(event) => setLeftId(event.target.value)}>
-            <option value="">{t('pwf.templates.compare.choose.option')}</option>
-            {sides.map((side) => (
-              <option key={side.id} value={side.id}>
-                {sideLabel(side)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="pwf-field">
-          <label htmlFor="pwf-cmp-right">{t('pwf.templates.compare.right.label')}</label>
-          <select id="pwf-cmp-right" data-testid="compare-right" value={rightId} disabled={sides.length === 0} onChange={(event) => setRightId(event.target.value)}>
-            <option value="">{t('pwf.templates.compare.choose.option')}</option>
-            {sides.map((side) => (
-              <option key={side.id} value={side.id}>
-                {sideLabel(side)}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-      {changes === undefined ? (
-        <p className="callout" role="status" data-testid="compare-pick">
-          {t('pwf.templates.compare.pick.text')}
-        </p>
-      ) : left === undefined || right === undefined ? null : (
-        <TemplateCompare before={left.template} after={right.template} left={sideLabel(left)} right={sideLabel(right)} />
-      )}
-      {left !== undefined && right !== undefined && left.id !== DEFAULT_SIDE && right.id !== DEFAULT_SIDE ? (
-        <p>
-          <Link className="pwf-hint" to={`${PATHS.ruleDiff}?rule=${right.id}&against=${left.id}`} data-testid="compare-diff">
-            {t('pwf6.cmp.raw.action')}
-          </Link>
-        </p>
-      ) : null}
-    </SectionCard>
   );
 }

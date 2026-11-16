@@ -1,4 +1,5 @@
 import type { CodeEntry, Resolved, RuleStatus, RuleVersion } from '../../adm/governance/model';
+import { rowCount, totalNominalDays, unverifiedRows } from './table-model';
 import { readTemplate, summaryOf } from './template-model';
 import type { Template, TemplateSummary } from './template-model';
 
@@ -18,6 +19,18 @@ export interface LibraryRow {
   effectiveFrom: string | null;
   /** Shipped as a starting point and not confirmed with the owner of the process. */
   unverified: boolean;
+  /** The version in force, when a rule of the tenant governs the code (the one that can be retired). */
+  inForce: RuleVersion | undefined;
+  /** Rows of the table (steps; the tasks of a procedure written without steps). */
+  steps: number;
+  /** The nominal working days of every row added up (the dates of a project are the server's). */
+  totalDays: number;
+  /** Rows whose legal grounds nobody checked against the source text. */
+  unverifiedSteps: number;
+  /** The day of the last change of any version (written, submitted or approved), ISO. */
+  lastChange: string | null;
+  /** The kinds of project that take this procedure: the one the template names and those the mapping rule sends to it. */
+  types: string[];
 }
 
 const STATUSES: readonly RuleStatus[] = ['DRAFT', 'SUBMITTED', 'APPROVED', 'RETIRED'];
@@ -27,12 +40,21 @@ export function statusCountsOf(versions: readonly RuleVersion[]): Record<RuleSta
 }
 
 /** One row of the library from the code of the catalogue and what was read for it (the versions and the rule in force). */
-export function libraryRow(entry: CodeEntry, versions: readonly RuleVersion[], effective: Resolved | null): LibraryRow {
+export function libraryRow(entry: CodeEntry, versions: readonly RuleVersion[], effective: Resolved | null, mappedTypes: readonly string[] = []): LibraryRow {
   const force: ForceKind = effective === null ? 'NONE' : effective.source;
   const inForceVersion = force === 'RULE' ? versions.find((version) => version.version === effective?.version) : undefined;
   const newest = versions[0];
   const params = effective?.params ?? newest?.params;
+  const template = params === undefined ? undefined : readTemplate(params);
+  const stamps = versions.flatMap((version) => [version.createdAt, version.submittedAt, version.approvedAt, version.retiredAt].filter((stamp): stamp is string => typeof stamp === 'string'));
+  const named = template?.project_type ?? null;
   return {
+    inForce: inForceVersion,
+    steps: template === undefined ? 0 : rowCount(template),
+    totalDays: template === undefined ? 0 : totalNominalDays(template),
+    unverifiedSteps: template === undefined ? 0 : unverifiedRows(template),
+    lastChange: stamps.length === 0 ? null : [...stamps].sort()[stamps.length - 1] ?? null,
+    types: [...new Set([...(named === null ? [] : [named]), ...mappedTypes])],
     code: entry.code,
     summary: params === undefined ? null : summaryOf(params),
     versions: [...versions],

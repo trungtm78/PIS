@@ -1,4 +1,4 @@
-import { useMutation, useQueries } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { useScopeKey } from '../../adm/governance/hooks';
@@ -75,4 +75,25 @@ export function useDebouncedValue<V>(value: V, delay: number): V {
     return () => clearTimeout(timer);
   }, [value, delay]);
   return settled;
+}
+
+/**
+ * How many projects run each template, by the code of the template (the library, PWF-01): the projects whose workflow was started from it and is still running. Undefined while it is read or when it cannot be:
+ * the library then says nothing in that column, never a zero.
+ */
+export function useTemplateUsage(enabled: boolean): ReadonlyMap<string, number> | undefined {
+  const client = useApiClient();
+  const key = useScopeKey();
+  const found = useQuery<ReadonlyMap<string, number>>({
+    queryKey: [...key, 'pwf-template-usage'],
+    enabled: enabled && key[1] !== undefined,
+    retry: false,
+    queryFn: async () => {
+      const body = (await client.read('listProjectWorkflowTemplateUsage' as never, {} as never)) as { items?: { template_code?: unknown; active_projects?: unknown }[] } | null;
+      const usage = new Map<string, number>();
+      for (const item of body?.items ?? []) if (typeof item.template_code === 'string' && typeof item.active_projects === 'number') usage.set(item.template_code, item.active_projects);
+      return usage;
+    },
+  });
+  return found.data;
 }

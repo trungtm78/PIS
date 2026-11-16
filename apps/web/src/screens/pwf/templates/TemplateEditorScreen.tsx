@@ -105,7 +105,7 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
   const [openLine, setOpenLine] = useState<string | undefined>(undefined);
   const [panel, setPanel] = useState<'history' | undefined>(undefined);
   const [renaming, setRenaming] = useState(false);
-  const [pasting, setPasting] = useState(false);
+  const [pasting, setPasting] = useState(source.base.kind === 'new' && source.base.start === 'paste' && canEdit);
   const [sampleStart, setSampleStart] = useState(() => todayInVietnam());
   const [undo, setUndo] = useState<{ before: Template; after: Template } | undefined>(undefined);
   const change = useCallback((next: Template): void => setEdited(next), []);
