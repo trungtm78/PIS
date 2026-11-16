@@ -2,7 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { useId } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
-import { compactMoney } from '../../../i18n/money';
+import { compactMoney, fullMoney } from '../../../i18n/money';
 import { useSession } from '../../../session/SessionContext';
 import { ContextBar, DataTable, FilterPanel, InfoFormula, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
@@ -214,6 +214,7 @@ export function ReportKpis({ view }: { view: ReportView }) {
         <KpiTile
           label={columnLabel(t, money.key)}
           value={moneyValue === null ? '—' : compactMoney(String(moneyValue), { locale })}
+          valueTitle={moneyValue === null ? undefined : fullMoney(String(moneyValue), locale)}
           sub={moneyValue === null ? lockOr(t, view.totals.na[money.key]) : undefined}
         />
       )}
@@ -224,6 +225,7 @@ export function ReportKpis({ view }: { view: ReportView }) {
             key={indicator.code}
             label={definition === undefined ? indicator.code : indicatorName(t, definition)}
             value={indicatorText(t, locale, definition, indicator)}
+            valueTitle={definition?.unit === 'VND' && indicator.value !== null ? fullMoney(indicator.value, locale) : undefined}
             sub={
               <span className="ca1-kpi-sub">
                 {indicator.value === null && indicator.reason !== null ? <span data-testid="kpi-reason">{reasonText(t, indicator.reason)}</span> : null}

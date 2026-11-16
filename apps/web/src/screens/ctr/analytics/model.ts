@@ -1,4 +1,5 @@
 import { dongText } from '../../../i18n/money';
+import { formatPercent } from '../../../i18n/format';
 /**
  * The analytics of the contract portfolio (CA-1, part 2; CTR-28 to CTR-31 and the register CTR-01): the shapes the server answers with, read defensively (a body that is not what the contract says is an error of the
  * read, never an empty table), and the words and figures a screen shows. Money is whole dong kept as text: nothing here turns it into a float, and no total is made in the browser (the server's totals row is shown).
@@ -708,9 +709,9 @@ export function billionsOf(value: string | null): number | null {
 /** A decimal figure (an index of four places) with the decimal mark of the language. */
 export const decimalText = (value: string, locale: string): string => (locale === 'vi' ? value.replace('.', ',') : value);
 
-/** A percent with two decimals from its text, with the decimal mark of the language. */
+/** A percent from its text: two decimals at most, with the decimal mark of the language (the shared `formatPercent`). */
 export function percentText(value: string, locale: string): string {
-  return `${locale === 'vi' ? value.replace('.', ',') : value}%`;
+  return formatPercent(value, 2, locale === 'en' ? 'en' : 'vi');
 }
 
 /** `YYYY-MM-DD` as `dd/MM/yyyy`; other text as it came. */

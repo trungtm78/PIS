@@ -68,8 +68,8 @@ describe('RetentionScreen (CTR-21): the retention by BOQ line', () => {
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['ctr.retention.page.title']);
     expect(screen.getByText(text('ctr.retention.footer.reference', { id: 'CTR-21', req: 'FR-CTR-21' }))).toBeTruthy();
     expect(screen.getByTestId('contract').textContent).toBe(text('ctr.retention.contract.label', { code: 'HD-A-001' }));
-    expect(screen.getByTestId('held-total').textContent).toBe(text('ctr.retention.totals.held', { amount: money(150000000n) }));
-    expect(screen.getByTestId('released-total').textContent).toBe(text('ctr.retention.totals.released', { amount: money(40000000n) }));
+    expect(screen.getByTestId('held-total').textContent).toBe(text('ctr.retention.totals.held', { amount: '150 triệu đồng' }));
+    expect(screen.getByTestId('released-total').textContent).toBe(text('ctr.retention.totals.released', { amount: '40 triệu đồng' }));
 
     const waiting = row(holdId(1));
     expect(within(waiting).getByTestId('item').textContent).toBe('B01');

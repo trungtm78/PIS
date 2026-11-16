@@ -11,6 +11,7 @@ import { partyProblemMessage, problemMessage, roleLabel } from './labels';
 import { PARTY_ROLES, UPDATE_PERMISSION, amountText, describeProblem, draftLink, draftsOf, partiesBody, partyTotals, validateParties } from './model';
 import type { ContractView, Option, PartyDraft, PartyRole } from './model';
 import './ctr.css';
+import { formatPercent } from '../../i18n/format';
 
 const NEVER_EMPTY = (): boolean => false;
 
@@ -196,8 +197,8 @@ function Parties({ contract }: { contract: ContractView }) {
               {totals.share === undefined
                 ? t('ctr.parties.total.shareUnknown')
                 : totals.sharesComplete
-                  ? t('ctr.parties.total.shareOk', { share: totals.share })
-                  : t('ctr.parties.total.shareBad', { share: totals.share })}
+                  ? t('ctr.parties.total.shareOk', { share: formatPercent(totals.share).replace('%', '') })
+                  : t('ctr.parties.total.shareBad', { share: formatPercent(totals.share).replace('%', '') })}
             </p>
             <p className={totals.workMatchesValue ? 'ok' : 'bad'} data-testid="work-total">
               {totals.work === undefined

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
-import { compactMoney } from '../../../i18n/money';
+import { compactMoney, fullMoney } from '../../../i18n/money';
 import { FlowChart, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../../ui';
 import type { FlowSeries } from '../../../ui';
 import { Info, definitionOf, indicatorText } from './components';
@@ -54,6 +54,7 @@ function indexTile(t: ReturnType<typeof useTranslation>['t'], locale: string, vi
       key={value.code}
       label={t(`ca1.indicator.${value.code === 'SPI' ? 'spi' : 'cpi'}.name`)}
       value={value.value === null ? '—' : indicatorText(t, locale, definition, value)}
+      valueTitle={definition?.unit === 'VND' && value.value !== null ? fullMoney(value.value, locale) : undefined}
       sub={
         <span className="ca1-kpi-sub" data-testid={testId}>
           {value.value === null && value.reason !== null ? <span>{reasonText(t, value.reason)}</span> : null}
@@ -76,7 +77,7 @@ export function EvmFigures({ view, evm }: { view: ReportView; evm: EvmView }) {
   }
   const figures = evm.figures;
   const money = (label: string, value: string | null): ReactNode => (
-    <KpiTile label={label} value={value === null ? '—' : compactMoney(value, { locale })} />
+    <KpiTile label={label} value={value === null ? '—' : compactMoney(value, { locale })} valueTitle={value === null ? undefined : fullMoney(value, locale)} />
   );
   const missing = Object.entries(evm.coverage.missing);
   return (

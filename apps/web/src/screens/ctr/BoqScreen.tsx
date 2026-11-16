@@ -16,6 +16,7 @@ import { revisionStatusLabel } from './labels';
 import { amountText, draftLink } from './model';
 import type { ContractView, RevisionLine } from './model';
 import './ctr.css';
+import { formatPercent } from '../../i18n/format';
 
 const NEVER_EMPTY = (): boolean => false;
 const LATER_REVISION_STATES: readonly string[] = ['ACTIVE', 'SUSPENDED'];
@@ -213,7 +214,7 @@ function Grid({ lines }: { lines: readonly BoqLine[] }) {
                 <td className="ctr-amount">{decimalText(line.unitPrice, locale)}</td>
                 <td className="ctr-amount">{amountText(line.amountVnd, locale)}</td>
                 <td>{line.milestoneCode === null ? '' : `${line.milestoneCode}${line.milestoneDueOn === null ? '' : ` · ${line.milestoneDueOn}`}`}</td>
-                <td className="ctr-amount">{decimalText(line.retentionPct, locale)}</td>
+                <td className="ctr-amount">{formatPercent(line.retentionPct).replace('%', '')}</td>
                 <td>{roundingLabel(t, line.roundingRule)}</td>
                 <td>{line.partyName ?? ''}</td>
               </tr>
@@ -290,7 +291,7 @@ function ImportPanel({ contract, revision }: { contract: ContractView; revision:
         <>
           <p className="sub">{t('ctr.boq.import.help')}</p>
           <p className="sub" data-testid="retention-rule">
-            {t('ctr.boq.retention.rule', { pct: decimalText(DEFAULT_RETENTION_PCT, locale) })}
+            {t('ctr.boq.retention.rule', { pct: formatPercent(DEFAULT_RETENTION_PCT).replace('%', '') })}
           </p>
           <div className="field">
             <label htmlFor="boq-mode">{t('ctr.boq.mode.label')}</label>
@@ -348,7 +349,7 @@ function ImportPanel({ contract, revision }: { contract: ContractView; revision:
         <div className="callout" role="status" data-testid="result">
           <p>{result.duplicate ? t('ctr.boq.result.duplicate', { count: result.linesImported }) : t('ctr.boq.result.done', { lines: result.linesImported, items: result.itemsCreated })}</p>
           {result.retentionDefaulted > 0 ? (
-            <p data-testid="retention-defaulted">{t('ctr.boq.result.retention', { count: result.retentionDefaulted, pct: decimalText(DEFAULT_RETENTION_PCT, locale) })}</p>
+            <p data-testid="retention-defaulted">{t('ctr.boq.result.retention', { count: result.retentionDefaulted, pct: formatPercent(DEFAULT_RETENTION_PCT).replace('%', '') })}</p>
           ) : null}
           <p>{result.balanced ? t('ctr.boq.result.balanced') : t('ctr.boq.result.unbalanced', { difference: amountText(result.difference, locale) })}</p>
         </div>

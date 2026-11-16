@@ -45,9 +45,9 @@ describe('BoqScreen (CTR-04): the BOQ of a contract revision', () => {
     const rows = within(screen.getByTestId('boq-grid')).getAllByTestId('boq-row');
     expect(rows).toHaveLength(2);
     const first = within(rows[0] as HTMLElement).getAllByRole('cell').map((cell) => cell.textContent);
-    expect(first).toEqual(['B01Hạng mục 1', 'M3', '3', '1.234,5', '3.704', '', '5,0000', vi_['ctr.boq.rounding.halfUp.label'], '']);
+    expect(first).toEqual(['B01Hạng mục 1', 'M3', '3', '1.234,5', '3.704', '', '5', vi_['ctr.boq.rounding.halfUp.label'], '']);
     const second = within(rows[1] as HTMLElement).getAllByRole('cell').map((cell) => cell.textContent);
-    expect(second).toEqual(['B02Hạng mục 2', 'M3', '2', '500', '1.000', 'M-1 · 2026-12-31', '7,5000', vi_['ctr.boq.rounding.down.label'], 'Liên danh Hà Giang']);
+    expect(second).toEqual(['B02Hạng mục 2', 'M3', '2', '500', '1.000', 'M-1 · 2026-12-31', '7,5', vi_['ctr.boq.rounding.down.label'], 'Liên danh Hà Giang']);
     expect(screen.getByTestId('grid-total').textContent).toBe('4.704');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(`HD-A-001 · ${vi_['ctr.boq.page.title']}`);
     for (const column of ['item', 'unit', 'quantity', 'price', 'amount', 'milestone', 'retention', 'rounding', 'member'] as const) {

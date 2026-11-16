@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
-import { compactMoney } from '../../../i18n/money';
+import { compactMoney, fullMoney } from '../../../i18n/money';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
@@ -54,7 +54,7 @@ function ConcentrationContent({ route }: ScreenProps) {
             sub={<Info definition={definitionOf(view?.definitions ?? [], 'TOP_N_SHARE')} asOf={asOf} />}
           />
           <KpiTile label={t('ca1.concentration.hhi')} value={figureText(t, dimension.hhi, 'index', locale)} sub={<Info definition={definitionOf(view?.definitions ?? [], 'HHI')} asOf={asOf} />} />
-          <KpiTile label={t('ca1.concentration.total')} value={compactMoney(dimension.totalVnd, { locale })} />
+          <KpiTile label={t('ca1.concentration.total')} value={compactMoney(dimension.totalVnd, { locale })} valueTitle={fullMoney(dimension.totalVnd, locale)} />
         </KpiStrip>
         {dimension.shareAnomalies.length > 0 ? (
           <p className="callout warning ca1-notice" role="status" data-testid="share-anomalies">
@@ -124,7 +124,7 @@ function ConcentrationContent({ route }: ScreenProps) {
             </p>
             <KpiStrip label={t('ca1.kpi.label')}>
               <KpiTile label={t('ca1.concentration.active')} value={String(view.activeContracts)} />
-              <KpiTile label={t('ca1.concentration.activeValue')} value={compactMoney(view.activeValueVnd, { locale })} />
+              <KpiTile label={t('ca1.concentration.activeValue')} value={compactMoney(view.activeValueVnd, { locale })} valueTitle={fullMoney(view.activeValueVnd, locale)} />
               <KpiTile
                 label={t('ca1.concentration.single')}
                 value={figureText(t, view.singleBidder, 'percent', locale)}

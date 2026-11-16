@@ -157,7 +157,6 @@ function Workspace({ summary, locale, readOnly, permissions, onOpen }: Workspace
         </div>
       </div>
       <ScopeBar
-        money
         extra={[
           { label: t('w2pay.ctr.ctx.project'), value: contract.projectCode },
           { label: t('w2pay.ctr.ctx.contractor'), value: contract.contractorName ?? t('ctr.workspace.none.text') },

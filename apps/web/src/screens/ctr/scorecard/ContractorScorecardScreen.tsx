@@ -15,6 +15,7 @@ import type { Range } from './hooks';
 import { criterionLabel, evaluationStatusLabel, kindLabel, penaltyLabel, ratingLabel, severityLabel, violationKindLabel, violationStatusLabel } from './labels';
 import { APPROVE_PERMISSION, CONFIRM_PERMISSION, CRITERIA, EVALUATE_PERMISSION, READ_PERMISSION, RECORD_PERMISSION, SEVERITIES, rangeProblem, shownError } from './model';
 import type { EvaluationLine, Scorecard, ViolationLine } from './model';
+import { formatPercent } from '../../../i18n/format';
 
 type Dialog = { kind: 'evaluate' } | { kind: 'record' } | { kind: 'approve'; evaluation: EvaluationLine } | { kind: 'confirm'; violation: ViolationLine };
 
@@ -157,7 +158,7 @@ function ScorecardContent({ route }: ScreenProps) {
               )}
               <p className="callout" role="note" data-testid="rule">
                 {t('ctr.scorecard.rule.weights', {
-                  weights: CRITERIA.map((criterion) => `${criterionLabel(t, criterion)} ${view.rule.weights[criterion]}%`).join(', '),
+                  weights: CRITERIA.map((criterion) => `${criterionLabel(t, criterion)} ${formatPercent(view.rule.weights[criterion])}`).join(', '),
                 })}{' '}
                 {view.rule.thresholds.map((threshold) => `${ratingLabel(t, threshold.rating)} ≥ ${threshold.min}`).join(', ')}
                 {view.rule.awaitingConfirmation ? <strong data-testid="assumption"> {t('ctr.scorecard.rule.assumption')}</strong> : null}
