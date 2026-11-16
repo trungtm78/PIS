@@ -48,14 +48,18 @@ void main() {
       expect(_text(const Figure(value: '9007199254740993')), 'MONEY(9007199254740993)', reason: 'more digits than a float holds');
     });
 
-    test('a ratio is a percentage with two decimals, rounded half up on the exact decimal', () {
+    test('a ratio is a percentage with two decimals at most, trailing zeros dropped, rounded half away from zero on the exact decimal', () {
       expect(_text(const Figure(value: '64.125'), unit: 'percent'), '64,13%');
       expect(_text(const Figure(value: '64.124'), unit: 'percent'), '64,12%');
       expect(_text(const Figure(value: '64.125'), unit: 'percent', language: 'en'), '64.13%');
-      expect(_text(const Figure(value: '100'), unit: 'percent'), '100,00%');
-      expect(_text(const Figure(value: '0.004'), unit: 'percent'), '0,00%');
+      expect(_text(const Figure(value: '100'), unit: 'percent'), '100%');
+      expect(_text(const Figure(value: '0.004'), unit: 'percent'), '0%');
       expect(_text(const Figure(value: '-12.345'), unit: 'percent'), '-12,35%');
-      expect(_text(const Figure(value: '1234.5'), unit: 'percent'), '1.234,50%');
+      expect(_text(const Figure(value: '1234.5'), unit: 'percent'), '1.234,5%');
+      expect(_text(const Figure(value: '1234.5'), unit: 'percent', language: 'en'), '1,234.5%');
+      expect(_text(const Figure(value: '64.10'), unit: 'percent'), '64,1%');
+      expect(_text(const Figure(value: '-0.004'), unit: 'percent'), '0%', reason: 'a fall that rounds to zero has no sign');
+      expect(_text(const Figure(value: '99.999'), unit: 'percent'), '100%');
       expect(_text(const Figure(value: 'abc'), unit: 'percent'), 'abc', reason: 'text that is not a number is returned as it came');
     });
 

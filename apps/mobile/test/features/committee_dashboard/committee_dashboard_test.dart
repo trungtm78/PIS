@@ -203,11 +203,11 @@ void main() {
       expect(find.text('Y tế'), findsOneWidget);
       expect(find.text('Đỏ: chậm nhiều so với đường kỳ vọng'), findsWidgets);
       expect(find.text('Xanh: kịp đường kỳ vọng'), findsWidgets);
-      expect(find.text('Tỷ lệ giải ngân: 30,00%, đường kỳ vọng 45,30%'), findsOneWidget);
+      expect(find.text('Tỷ lệ giải ngân: 30%, đường kỳ vọng 45,3%'), findsOneWidget);
       expect(find.text('5 dự án, 2 cần quan tâm'), findsWidgets);
       expect(find.text('Kế hoạch vốn: 100 tỷ đồng'), findsWidgets);
-      expect(find.text('-15,30 điểm phần trăm'), findsOneWidget);
-      expect(find.text('+4,70 điểm phần trăm'), findsOneWidget);
+      expect(find.text('-15,3 điểm phần trăm'), findsOneWidget);
+      expect(find.text('+4,7 điểm phần trăm'), findsOneWidget);
       // A sector whose rate is held back says so and is never given a colour of its own or a zero.
       expect(find.text('Chưa có tỷ lệ giải ngân'), findsOneWidget);
       expect(find.text('2 dòng vốn chưa có số liệu'), findsOneWidget);
@@ -224,6 +224,22 @@ void main() {
       await tester.tap(find.text('Nguồn vốn'));
       await tester.pumpAndSettle();
       expect(find.text('Ngân sách trung ương'), findsOneWidget);
+    });
+
+    testWidgets('a gap that two decimals round to zero is written without a sign, never "+0" or "-0"', (WidgetTester tester) async {
+      useDevice(tester, _veryTall);
+      final Map<String, Object?> body = _full();
+      body['by_sector'] = <Object?>[_row('SECTOR', 'GT', 'Giao thông', rag: 'GREEN', rate: '45.30', gap: '0.004'), _row('SECTOR', 'YT', 'Y tế', rag: 'GREEN', rate: '45.31', gap: '0.005')];
+      body['by_district'] = <Object?>[_row('DISTRICT', 'A', 'Huyện A', rag: 'GREEN', rate: '45.30', gap: '-0.004')];
+      await _open(tester, _server(body));
+
+      expect(find.text('0 điểm phần trăm'), findsOneWidget);
+      expect(find.text('+0 điểm phần trăm'), findsNothing);
+      expect(find.text('+0,01 điểm phần trăm'), findsOneWidget, reason: 'the smallest rise that is written keeps its sign');
+      await tester.tap(find.text('Huyện'));
+      await tester.pumpAndSettle();
+      expect(find.text('0 điểm phần trăm'), findsOneWidget);
+      expect(find.text('-0 điểm phần trăm'), findsNothing);
     });
 
     testWidgets('the four cuts can be switched from the screen reader: each has a tap action (Codex review P2)', (WidgetTester tester) async {

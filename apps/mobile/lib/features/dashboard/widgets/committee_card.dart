@@ -312,7 +312,8 @@ String committeeFigureText(BuildContext context, CommitteeFigure? figure, {bool 
 String _withSign(String digits, String raw) {
   if (raw.startsWith('-') || raw.startsWith('+')) return digits;
   final double? number = double.tryParse(raw);
-  return number != null && number > 0 ? '+$digits' : digits;
+  // A rise that the two decimals round to zero has no sign, as a fall has none (`0`, never `+0`).
+  return number != null && number > 0 && digits != '0' ? '+$digits' : digits;
 }
 
 String _noValueText(BuildContext context, String? reason) {
