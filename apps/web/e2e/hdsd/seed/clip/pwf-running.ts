@@ -1,6 +1,6 @@
 import type { CommandReply, Obj, SeedContext } from '../context.ts';
 import { ensureWorkCalendar } from '../field-assurance/shared.ts';
-import { CHECKER, MAKER, OWNER, TEMPLATE_TYPE, TENANT_TEMPLATE, arr, detailOf, effectiveParams, play, rule, startDay, str, tasksOf, team } from './pwf-review.ts';
+import { CHECKER, MAKER, OWNER, TEMPLATE_TYPE, TENANT_TEMPLATE, arr, begin, complete, detailOf, effectiveParams, play, rule, work, startDay, str, tasksOf, team } from './pwf-review.ts';
 import type { ProjectSpec } from './pwf-review.ts';
 
 /**
@@ -47,7 +47,7 @@ const PROJECTS: RunSpec[] = [
   // The template of the tenant for the roads, as the province ran it before the units were named.
   { existing: 'DA-GT107', code: 'DA-GT107', name: '', template: TENANT_TEMPLATE, elapsed: 38, billions: 0, reason: 'Sửa chữa đường giao thông địa phương theo mẫu quy trình của tỉnh', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, consulted: 'nobody', workers: [OWNER, MAKER, MAKER, OWNER], past: [0, 0, 2, 0, 'OPEN'] },
   // The template with units: the overall deadline at risk and an extension asked for on the first; tasks nobody has taken, and one taken through "Nhận việc", on the second.
-  { existing: 'DA-DT205', code: 'DA-DT205', name: '', template: UNIT_TEMPLATE, elapsed: 14, billions: 0, reason: 'Sửa chữa đường giao thông địa phương theo mẫu có đơn vị nhận việc của tỉnh', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, consulted: 'unitAdmin', workers: [MAKER, STAFFER, MAKER], past: [0, 0, 0] },
+  { existing: 'DA-DT205', code: 'DA-DT205', name: '', template: UNIT_TEMPLATE, elapsed: 14, billions: 0, reason: 'Sửa chữa đường giao thông địa phương theo mẫu có đơn vị nhận việc của tỉnh', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, consulted: 'unitAdmin', workers: [MAKER, OWNER, MAKER], past: [0, 0, 0] },
   { existing: 'DA-GT105', code: 'DA-GT105', name: '', template: UNIT_TEMPLATE, elapsed: 3, billions: 0, reason: 'Sửa chữa đường giao thông địa phương theo mẫu có đơn vị nhận việc của tỉnh', facts: { project_group: 'C', funding_source: 'STATE_BUDGET' }, fresh: true, consulted: 'unitAdmin' },
 ];
 
@@ -151,17 +151,43 @@ async function ensureWorkflow(ctx: SeedContext, spec: RunSpec): Promise<{ id: st
   return { id: projectId, started: true };
 }
 
+/**
+ * The work of a workflow whose tasks name a unit, as far as it stands today: every task whose planned finish is past is begun on its planned day, finished on its planned finish and approved by the leader where
+ * it asks; the task that is under way today is begun and a part of its work is in. Unlike `play` it reads the state of each task, so a run that stopped half way is taken up where it stopped.
+ * The officer of the staff (STAFF_MEMBER) holds no right to the tasks of a project: the people who do the work here are the owner and the officer of the project board.
+ */
+async function resume(ctx: SeedContext, spec: RunSpec, projectId: string): Promise<void> {
+  const tasks = (await tasksOf(ctx, projectId)).filter((task) => task.planned_finish !== null);
+  let turn = 0;
+  const next = (index: number): string => spec.workers?.[index] ?? [MAKER, OWNER][(turn += 1) % 2] as string;
+  for (const [index, task] of tasks.entries()) {
+    const past = str(task.planned_finish) < ctx.today;
+    const under = str(task.planned_start) <= ctx.today && !past;
+    if ((!past && !under) || task.status === 'DONE') continue;
+    const who = next(index);
+    if (!(await begin(ctx, task, who, str(task.planned_start), spec.consulted))) continue;
+    if (under) {
+      await work(ctx, task.id, who, 'PART');
+      continue;
+    }
+    if (task.status === 'AWAITING_APPROVAL') continue;
+    if (!(await complete(ctx, task.id, who, str(task.planned_finish)))) continue;
+    const now = await detailOf(ctx, CHECKER, task.id);
+    if (now.status === 'AWAITING_APPROVAL') await ctx.attempt(CHECKER, 'POST', `/project-tasks/${task.id}/approve-completion`, { decision: 'APPROVE', note: 'Hồ sơ đủ, đồng ý hoàn thành' }, { version: Number(now.version) });
+  }
+}
+
 // ---- the extension and the claim ------------------------------------------------------------------------------------------------------
 
-/** An extension asked for by the officer on the first project with units: the step now under way gets three more working days, and the proposal waits for the decision (PWF-06). */
+/** An extension asked for by the officer on the first project with units: the step now under way gets two more working days, and the proposal waits for the decision (PWF-06). */
 async function extensionAsked(ctx: SeedContext, projectId: string): Promise<void> {
   const workflow = await ctx.get<Obj>(OWNER, `/projects/${projectId}/workflow`);
   if (workflow.pending_reschedule !== null && workflow.pending_reschedule !== undefined) return;
   const current = (await tasksOf(ctx, projectId)).find((task) => ['IN_PROGRESS', 'NOT_STARTED'].includes(task.status) && task.task_code === 'RR_DECISION');
   if (current === undefined) return;
   const asked = await ctx.attempt<Obj>(MAKER, 'POST', `/projects/${projectId}/workflow/reschedules`, {
-    reason: 'Đề nghị gia hạn thêm ba ngày làm việc cho việc quyết định phê duyệt: chờ ý kiến bằng văn bản của Sở Tài chính về nguồn vốn',
-    extensions: [{ task_code: 'RR_DECISION', add_value: 3 }],
+    reason: 'Đề nghị gia hạn thêm hai ngày làm việc cho việc quyết định phê duyệt: chờ ý kiến bằng văn bản của Sở Tài chính về nguồn vốn',
+    extensions: [{ task_code: 'RR_DECISION', add_value: 2 }],
   }, { version: Number(workflow.version) });
   if (asked.ok) ctx.record({ module: 'PWF', kind: 'reschedule', id: str(asked.json.proposal_id), code: UNITS_PROJECTS.overallAtRisk, note: 'an extension of RR_DECISION asked for, waiting for the decision', screen: 'PWF-06' });
 }
@@ -202,7 +228,7 @@ export async function seedClipPwfRunning(ctx: SeedContext): Promise<void> {
     const id = ids[UNITS_PROJECTS.overallAtRisk];
     if (id === undefined) return;
     const spec = PROJECTS.find((one) => one.existing === UNITS_PROJECTS.overallAtRisk) as RunSpec;
-    if ((await tasksOf(ctx, id)).every((task) => task.status === 'NOT_STARTED')) await play(ctx, spec, id, 0);
+    await resume(ctx, spec, id);
     for (const task of await tasksOf(ctx, id)) if (['IN_PROGRESS', 'AWAITING_APPROVAL'].includes(task.status)) await team(ctx, task.id, spec.consulted);
     await extensionAsked(ctx, id);
   });
