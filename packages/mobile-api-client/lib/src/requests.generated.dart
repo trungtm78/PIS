@@ -14059,6 +14059,7 @@ final class PwfRescheduleRequest implements RequestModel {
     this.statusDate,
     this.progress,
     this.overrides,
+    this.extensions,
   });
 
   final String? plannedStartDate;
@@ -14066,6 +14067,7 @@ final class PwfRescheduleRequest implements RequestModel {
   final List<PwfRescheduleRequestProgressItem>? progress;
   final PwfRescheduleRequestOverrides? overrides;
   final String reason;
+  final List<PwfRescheduleRequestExtensionsItem>? extensions;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -14074,6 +14076,23 @@ final class PwfRescheduleRequest implements RequestModel {
         if (progress != null) 'progress': progress,
         if (overrides != null) 'overrides': overrides,
         'reason': reason,
+        if (extensions != null) 'extensions': extensions,
+      };
+}
+
+final class PwfRescheduleRequestExtensionsItem implements RequestModel {
+  const PwfRescheduleRequestExtensionsItem({
+    required this.taskCode,
+    required this.addValue,
+  });
+
+  final String taskCode;
+  final int addValue;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'task_code': taskCode,
+        'add_value': addValue,
       };
 }
 
@@ -14148,17 +14167,20 @@ final class PwfRescheduleRequestOverridesChangeItem implements RequestModel {
     required this.taskCode,
     this.durationWorkingDays,
     this.predecessors,
+    this.durationValue,
   });
 
   final String taskCode;
   final int? durationWorkingDays;
   final List<PwfRescheduleRequestOverridesChangeItemPredecessorsItem>? predecessors;
+  final int? durationValue;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'task_code': taskCode,
         if (durationWorkingDays != null) 'duration_working_days': durationWorkingDays,
         if (predecessors != null) 'predecessors': predecessors,
+        if (durationValue != null) 'duration_value': durationValue,
       };
 }
 

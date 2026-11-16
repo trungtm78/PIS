@@ -236718,7 +236718,11 @@
           "PWF_SCHEDULE_INVALID",
           "PWF_DEPENDENCY_CYCLE",
           "VERSION_CONFLICT",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "PWF_EXTENSION_NOT_ALLOWED",
+          "PWF_EXTENSION_LIMIT_EXCEEDED",
+          "PWF_EXTENSION_TASK_CLOSED",
+          "PWF_EXTENSION_REQUIRED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -327381,6 +327385,52 @@
                 "unclaimed": {
                   "type": "boolean",
                   "description": "Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay"
+                },
+                "extension": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "allowed",
+                    "max_times",
+                    "max_value",
+                    "unit",
+                    "times_used",
+                    "value_used"
+                  ],
+                  "description": "Quy tắc gia hạn của công việc theo mẫu đã đóng băng và phần đã dùng bởi các gia hạn ĐÃ DUYỆT (R72). Vắng: mẫu không khai `extension` cho công việc này. Trần `null` = không giới hạn.",
+                  "properties": {
+                    "allowed": {
+                      "type": "boolean"
+                    },
+                    "max_times": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "max_value": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "WORKING_DAY",
+                        "CALENDAR_DAY",
+                        "MONTH"
+                      ]
+                    },
+                    "times_used": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "value_used": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
                 }
               }
             }
@@ -328032,6 +328082,52 @@
                 "unclaimed": {
                   "type": "boolean",
                   "description": "Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay"
+                },
+                "extension": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "allowed",
+                    "max_times",
+                    "max_value",
+                    "unit",
+                    "times_used",
+                    "value_used"
+                  ],
+                  "description": "Quy tắc gia hạn của công việc theo mẫu đã đóng băng và phần đã dùng bởi các gia hạn ĐÃ DUYỆT (R72). Vắng: mẫu không khai `extension` cho công việc này. Trần `null` = không giới hạn.",
+                  "properties": {
+                    "allowed": {
+                      "type": "boolean"
+                    },
+                    "max_times": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "max_value": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "WORKING_DAY",
+                        "CALENDAR_DAY",
+                        "MONTH"
+                      ]
+                    },
+                    "times_used": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "value_used": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
                 }
               }
             }
@@ -329762,6 +329858,52 @@
           "can_claim": {
             "type": "boolean",
             "description": "Người đọc bấm được \"Nhận việc\" (cùng luật với claimProjectTask); chỉ có khi công việc có đơn vị nhận"
+          },
+          "extension": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "allowed",
+              "max_times",
+              "max_value",
+              "unit",
+              "times_used",
+              "value_used"
+            ],
+            "description": "Quy tắc gia hạn của công việc theo mẫu đã đóng băng và phần đã dùng bởi các gia hạn ĐÃ DUYỆT (R72). Vắng: mẫu không khai `extension` cho công việc này. Trần `null` = không giới hạn.",
+            "properties": {
+              "allowed": {
+                "type": "boolean"
+              },
+              "max_times": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "max_value": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "unit": {
+                "type": "string",
+                "enum": [
+                  "WORKING_DAY",
+                  "CALENDAR_DAY",
+                  "MONTH"
+                ]
+              },
+              "times_used": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "value_used": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
           }
         }
       },
@@ -330289,6 +330431,12 @@
                         }
                       },
                       "maxItems": 20
+                    },
+                    "duration_value": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 1095,
+                      "description": "Thời hạn mới của công việc CÓ `duration`, theo đơn vị của chính nó (R58). Không gửi cùng `duration_working_days`. Tăng thời hạn của công việc có khai `extension` phải đi qua `extensions[]` (422 PWF_EXTENSION_REQUIRED)."
                     }
                   }
                 }
@@ -330307,6 +330455,30 @@
             "type": "string",
             "minLength": 20,
             "maxLength": 1000
+          },
+          "extensions": {
+            "type": "array",
+            "maxItems": 100,
+            "description": "Gia hạn (R72): mỗi dòng tăng thời hạn của CHÍNH công việc đó thêm `add_value`, theo đơn vị `extension.unit` của công việc trong mẫu đã đóng băng. Nhiều dòng cho một công việc được cộng lại, mỗi dòng tính một lần. Chỉ đề nghị được duyệt mới tiêu trần.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "task_code",
+                "add_value"
+              ],
+              "properties": {
+                "task_code": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+                },
+                "add_value": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 1095
+                }
+              }
+            }
           }
         }
       },
@@ -330391,6 +330563,14 @@
                 },
                 "state_changed": {
                   "type": "boolean"
+                },
+                "cause": {
+                  "type": "string",
+                  "enum": [
+                    "EXTENDED",
+                    "CASCADED"
+                  ],
+                  "description": "Vì sao ngày của công việc đổi (R72): `EXTENDED` = gia hạn của chính nó trong đề nghị này; `CASCADED` = lùi theo dây chuyền (việc đứng trước, lịch làm việc, ngày bắt đầu). Vắng: ngày không đổi, hoặc đề nghị đổi trực tiếp công việc đó bằng cách khác (tiến độ, `change`, `remove`)."
                 }
               }
             }
@@ -330420,6 +330600,35 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "extensions": {
+            "type": "array",
+            "description": "Các dòng gia hạn của đề nghị (R72); vắng hoặc rỗng khi đề nghị không gia hạn.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "task_code",
+                "add_value",
+                "unit"
+              ],
+              "properties": {
+                "task_code": {
+                  "type": "string"
+                },
+                "add_value": {
+                  "type": "integer"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "WORKING_DAY",
+                    "CALENDAR_DAY",
+                    "MONTH"
+                  ]
+                }
+              }
+            }
           }
         }
       },

@@ -49352,6 +49352,16 @@ export interface components {
                 }[];
                 /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
                 unclaimed?: boolean;
+                /** @description Quy tắc gia hạn của công việc theo mẫu đã đóng băng và phần đã dùng bởi các gia hạn ĐÃ DUYỆT (R72). Vắng: mẫu không khai `extension` cho công việc này. Trần `null` = không giới hạn. */
+                extension?: {
+                    allowed: boolean;
+                    max_times: number | null;
+                    max_value: number | null;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    times_used: number;
+                    value_used: number;
+                };
             }[];
             gates: {
                 /** @enum {string} */
@@ -49522,6 +49532,16 @@ export interface components {
                 }[];
                 /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
                 unclaimed?: boolean;
+                /** @description Quy tắc gia hạn của công việc theo mẫu đã đóng băng và phần đã dùng bởi các gia hạn ĐÃ DUYỆT (R72). Vắng: mẫu không khai `extension` cho công việc này. Trần `null` = không giới hạn. */
+                extension?: {
+                    allowed: boolean;
+                    max_times: number | null;
+                    max_value: number | null;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    times_used: number;
+                    value_used: number;
+                };
             }[];
             next_cursor: string | null;
             total: number;
@@ -49941,6 +49961,16 @@ export interface components {
             unclaimed?: boolean;
             /** @description Người đọc bấm được "Nhận việc" (cùng luật với claimProjectTask); chỉ có khi công việc có đơn vị nhận */
             can_claim?: boolean;
+            /** @description Quy tắc gia hạn của công việc theo mẫu đã đóng băng và phần đã dùng bởi các gia hạn ĐÃ DUYỆT (R72). Vắng: mẫu không khai `extension` cho công việc này. Trần `null` = không giới hạn. */
+            extension?: {
+                allowed: boolean;
+                max_times: number | null;
+                max_value: number | null;
+                /** @enum {string} */
+                unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                times_used: number;
+                value_used: number;
+            };
         };
         PwfTaskStart: {
             /** @description Bắt buộc khi bắt đầu trước khi tiền nhiệm đủ điều kiện theo loại liên kết (quản lý cho phép bắt đầu sớm) */
@@ -50082,10 +50112,17 @@ export interface components {
                         kind: "FS" | "SS" | "FF" | "SF";
                         lag_working_days: number;
                     }[];
+                    /** @description Thời hạn mới của công việc CÓ `duration`, theo đơn vị của chính nó (R58). Không gửi cùng `duration_working_days`. Tăng thời hạn của công việc có khai `extension` phải đi qua `extensions[]` (422 PWF_EXTENSION_REQUIRED). */
+                    duration_value?: number;
                 }[];
                 remove?: string[];
             };
             reason: string;
+            /** @description Gia hạn (R72): mỗi dòng tăng thời hạn của CHÍNH công việc đó thêm `add_value`, theo đơn vị `extension.unit` của công việc trong mẫu đã đóng băng. Nhiều dòng cho một công việc được cộng lại, mỗi dòng tính một lần. Chỉ đề nghị được duyệt mới tiêu trần. */
+            extensions?: {
+                task_code: string;
+                add_value: number;
+            }[];
         };
         PwfReschedulePreview: {
             /** Format: uuid */
@@ -50102,6 +50139,11 @@ export interface components {
                 became_critical: boolean;
                 became_non_critical: boolean;
                 state_changed: boolean;
+                /**
+                 * @description Vì sao ngày của công việc đổi (R72): `EXTENDED` = gia hạn của chính nó trong đề nghị này; `CASCADED` = lùi theo dây chuyền (việc đứng trước, lịch làm việc, ngày bắt đầu). Vắng: ngày không đổi, hoặc đề nghị đổi trực tiếp công việc đó bằng cách khác (tiến độ, `change`, `remove`).
+                 * @enum {string}
+                 */
+                cause?: "EXTENDED" | "CASCADED";
             }[];
             project_finish_shift_days: number | null;
             input_hash: string;
@@ -50112,6 +50154,13 @@ export interface components {
             version: number;
             /** Format: date-time */
             as_of: string;
+            /** @description Các dòng gia hạn của đề nghị (R72); vắng hoặc rỗng khi đề nghị không gia hạn. */
+            extensions?: {
+                task_code: string;
+                add_value: number;
+                /** @enum {string} */
+                unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+            }[];
         };
         PwfDeadlineBoard: {
             items: {

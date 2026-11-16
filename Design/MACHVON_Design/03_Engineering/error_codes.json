@@ -7787,6 +7787,38 @@
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
+    },
+    "PWF_EXTENSION_NOT_ALLOWED": {
+      "status": 422,
+      "title": "The time limit of this task cannot be extended",
+      "meaning": "Công việc này không được gia hạn (mẫu quy trình không cho phép hoặc không khai quy tắc gia hạn)",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_EXTENSION_LIMIT_EXCEEDED": {
+      "status": 422,
+      "title": "The extension exceeds the cap of times or of value of the task",
+      "meaning": "Gia hạn vượt trần số lần hoặc trần tổng thời gian gia hạn của công việc",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_EXTENSION_TASK_CLOSED": {
+      "status": 422,
+      "title": "A task that is done, cancelled or left out cannot be extended",
+      "meaning": "Công việc đã xong, đã hủy hoặc bị cắt nhánh thì không gia hạn được",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_EXTENSION_REQUIRED": {
+      "status": 422,
+      "title": "Raising the time limit of this task is an extension and must be asked through extensions",
+      "meaning": "Tăng thời hạn của công việc có quy tắc gia hạn phải đi qua mục gia hạn (extensions) của đề nghị dời lịch",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
     }
   }
 }
