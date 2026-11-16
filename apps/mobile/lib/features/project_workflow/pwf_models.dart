@@ -1,7 +1,9 @@
 import '../read_support/wire.dart';
 import 'pwf_process_models.dart';
+import 'pwf_step_models.dart';
 
 export 'pwf_process_models.dart';
+export 'pwf_step_models.dart';
 
 /// What the phone reads of the workflow of a project (PWF, MOB-78 to MOB-82). Every figure and every day comes from the server: the phone
 /// never counts a deadline from its own clock. An answer that lacks what makes a row citable is refused as a whole (null), and the screen shows
@@ -101,6 +103,9 @@ final class PwfTaskRow {
     this.stepCode,
     this.checklistTotal = 0,
     this.checklistDone = 0,
+    this.tracked = true,
+    this.baselineFinish,
+    this.facts = PwfStepFacts.none,
   });
 
   final String id;
@@ -108,6 +113,13 @@ final class PwfTaskRow {
   final String name;
   final String phaseCode;
   final bool isMilestone;
+
+  /// The workflow follows the task (a task that is not followed has no deadline of its own to count).
+  final bool tracked;
+  final String? baselineFinish;
+
+  /// The members of the step table (PWF-5): the tier of the colour, the time limit, the receiving unit, the extension, the star. Empty in an older answer.
+  final PwfStepFacts facts;
 
   /// The step of the phase the task belongs to; null for a task the project added itself, or in an answer from before steps existed.
   final String? stepCode;
@@ -167,6 +179,9 @@ PwfTaskRow? parsePwfTaskRow(Object? raw) {
     stepCode: filled(record['step_code']),
     checklistTotal: count(record['checklist_total']),
     checklistDone: count(record['checklist_done']),
+    tracked: record['tracked'] != false,
+    baselineFinish: day(record['baseline_finish']),
+    facts: parsePwfStepFacts(record),
   );
 }
 
@@ -251,7 +266,19 @@ final class PwfWorkflow {
     this.steps = const <PwfStep>[],
     this.standardWorkingDays,
     this.lapsedLegalDocuments = const <String>[],
+    this.overallDeadline,
+    this.version,
+    this.projectId,
+    this.canProposeReschedule = false,
   });
+
+  /// The deadline of the whole file with its official colour; null when the template marks none.
+  final PwfOverallDeadline? overallDeadline;
+
+  /// The version the workflow is at (the base of a request to move its schedule) and whether the person may make one.
+  final int? version;
+  final String? projectId;
+  final bool canProposeReschedule;
 
   final String status;
   final String templateCode;
@@ -360,6 +387,10 @@ PwfWorkflowView? parsePwfWorkflowView(Object? raw) {
       steps: parsePwfSteps(record['steps']),
       standardWorkingDays: whole(record['standard_working_days']),
       lapsedLegalDocuments: <String>[for (final Object? code in listOf(record['lapsed_legal_documents'])) ?filled(code)],
+      overallDeadline: parsePwfOverallDeadline(record['overall_deadline']),
+      version: whole(record['version']),
+      projectId: filled(record['project_id']),
+      canProposeReschedule: record['can_propose_reschedule'] == true,
       countsByBand: <PwfBandKind, int>{
         PwfBandKind.none: count(counts['NONE']),
         PwfBandKind.green: count(counts['GREEN']),
@@ -391,7 +422,11 @@ final class PwfMyTask {
     this.dueDate,
     this.forecastFinish,
     this.finishedOn,
+    this.facts = PwfStepFacts.none,
   });
+
+  /// The members of the step table (PWF-5) of the task; empty in an older answer.
+  final PwfStepFacts facts;
 
   final String taskId;
   final String code;
@@ -469,6 +504,7 @@ PwfMyTasks? parsePwfMyTasks(Object? raw) {
         personal: personal,
         critical: item['critical'] == true,
         version: version,
+        facts: parsePwfStepFacts(item),
       ),
     );
   }
@@ -613,7 +649,17 @@ final class PwfTaskDetail {
     this.legalBasis = const <PwfLegalBasis>[],
     this.stepLegalBasis = const <PwfLegalBasis>[],
     this.formRevisions = const <PwfFormRevision>[],
+    this.canClaim = false,
+    this.facts = PwfStepFacts.none,
+    this.projectId,
   });
+
+  /// The person may take the task (the server decides: the unit, the role, nobody holds it yet).
+  final bool canClaim;
+
+  /// The members of the step table (PWF-5) of the task; empty in an older answer.
+  final PwfStepFacts facts;
+  final String? projectId;
 
   final String id;
   final String code;
@@ -798,19 +844,13 @@ PwfTaskDetail? parsePwfTaskDetail(Object? raw) {
     returnCount: count(record['return_count']),
     missingYear: whole(record['missing_year']),
     percentComplete: whole(record['percent_complete']),
+    canClaim: record['can_claim'] == true,
+    facts: parsePwfStepFacts(record),
+    projectId: filled(record['project_id']),
   );
 }
 
 // ---- The personal deadline settings (MOB-82) -------------------------------------------------------------------------------------
-
-/// The three thresholds of the official rule: red up to `red`, yellow up to `yellow`, green up to `green` (null: every larger count is green).
-final class PwfThresholds {
-  const PwfThresholds({required this.yellow, required this.red, this.green});
-
-  final int? green;
-  final int yellow;
-  final int red;
-}
 
 final class PwfPreference {
   const PwfPreference({required this.reminderDays, required this.version, this.green, this.yellow, this.red, this.official, this.clamped = const <String>[]});
