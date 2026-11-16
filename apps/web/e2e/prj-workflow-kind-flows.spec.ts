@@ -97,9 +97,9 @@ if (ENTERPRISE) {
       await expect(page.getByTestId('kind-suggestion')).toHaveText(vi['pwf.process.kind.waiting.text']);
       await fillProject(page, code, 'CB-SKHDT-QLDA');
 
-      // The suggestion: the code and the name of the kind, why (the default of the rule), and the version of the rule.
+      // The suggestion: the name of the kind (the code is kept in data-suggested, never typed or read by the person), why (the default of the rule), and the version of the rule.
       const suggestion = page.getByTestId('kind-suggestion');
-      await expect(suggestion).toContainText(SUGGESTED);
+      await expect(suggestion).toHaveAttribute('data-suggested', SUGGESTED);
       await expect(suggestion).toContainText(vi['pwf.process.basis.default.text']);
       // The rule behind the suggestion is named with its version, or as the system default when the tenant has no version of its own.
       await expect(suggestion).toContainText(part['pwf6.kind.rule.label'] ?? '');
@@ -144,7 +144,7 @@ if (ENTERPRISE) {
       const code = unique('WK8');
       await open(page);
       await fillProject(page, code, 'CB-SKHDT-QLDA');
-      await expect(page.getByTestId('kind-suggestion')).toContainText(SUGGESTED);
+      await expect(page.getByTestId('kind-suggestion')).toHaveAttribute('data-suggested', SUGGESTED);
       await page.getByTestId('kind-template').selectOption(OTHER);
       await expect(page.getByTestId('kind-reason')).toBeVisible();
       await step(page, 2);
