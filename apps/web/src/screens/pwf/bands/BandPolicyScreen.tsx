@@ -7,19 +7,21 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { SectionCard, StatusPill } from '../../../ui';
+import { SectionCard } from '../../../ui';
 import { useEffective } from '../../adm/governance/hooks';
+import { KitTable } from '../../adm/KitTable';
 import { BandBadge, FigureInfo, ProblemBanner, UnverifiedLabel } from '../components';
 import { priorityWord, kindWord, unitWord } from '../labels';
 import { BAND_RULE_TYPE, PATHS, PERMISSIONS, RULE_PERMISSIONS, describeProblem, holds } from '../model';
-import type { BandUnit } from '../model';
 import { RuleSavePanel, RuleVersionList } from '../templates/store';
-import { OWNER_EXAMPLE, PRIORITIES, SOURCES, SOURCE_UNIT, TASK_KINDS, UNITS, addOverride, blankForm, formOf, paramsOf, problemsOf, removeOverride, thresholdsOf, updateOverride } from './band-model';
-import type { BandForm, BandProblem, Ladder, OverrideForm, Source, Thresholds } from './band-model';
+import { MAX_OVERRIDES, PRIORITIES, SOURCES, SOURCE_UNIT, TASK_KINDS, addOverride, blankForm, formOf, paramsOf, problemsOf, removeOverride, thresholdsOf, updateOverride, withSourceUnit } from './band-model';
+import type { BandForm, BandProblem, Ladder, OverrideForm, Source } from './band-model';
+import { StepBands, useStepBands } from './StepBands';
 import { useBandPreview } from './hooks';
-import { sentenceText } from './sentence';
+import { ladderSentence } from './sentence';
 import '../pwf.css';
 import '../templates/templates.css';
+import './bands.css';
 
 type T = Translator['t'];
 
@@ -44,8 +46,6 @@ function problemWord(t: T, problem: BandProblem): string {
       return t('pwf.bands.problem.range.error', { min: problem.min ?? 0, max: problem.max ?? 0 });
     case 'order':
       return t('pwf.bands.problem.order.error');
-    case 'unitMismatch':
-      return t('pwf.bands.problem.unitMismatch.error');
     case 'phase':
       return t('pwf.bands.problem.phase.error');
     case 'listSize':
@@ -56,8 +56,8 @@ function problemWord(t: T, problem: BandProblem): string {
 }
 
 /**
- * PWF-08: the three-colour policy of a source of alerts. The numbers that turn a deadline green, yellow and red, with overrides by kind of task, priority and phase, the reminder days and the escalation. The effect of the numbers is
- * shown before anything is written ("5 days left: green, 2 days: yellow, under 1 day: red"); a draft goes into the rule store and a different person approves it.
+ * PWF-08, "Ngưỡng mặc định": one short table of the numbers that turn a deadline red, yellow and green (the default and the exceptions by kind of task, priority and phase), the unit said once, the sentence the numbers make, the reminder
+ * days and the escalation, and, read-only, the steps of the templates that carry thresholds of their own (R59). A draft goes into the rule store and a different person approves it.
  */
 export default function BandPolicyScreen({ route }: ScreenProps) {
   const { tenant } = useSession();
@@ -76,14 +76,15 @@ function PolicyContent({ route }: ScreenProps) {
   const canStore = writable && (permissions === undefined || permissions.includes(RULE_PERMISSIONS.manage));
   const canApprove = writable && (permissions === undefined || permissions.includes(RULE_PERMISSIONS.approve));
   const effective = useEffective(BAND_RULE_TYPE, source, undefined, mayRead);
+  const stepBands = useStepBands(mayRead && source === 'PROJECT_TASK');
   const [edited, setEdited] = useState<BandForm | undefined>(undefined);
   const [attempted, setAttempted] = useState(false);
   const base = useMemo(() => (effective.data === null || effective.data === undefined ? blankForm(SOURCE_UNIT[source]) : formOf(effective.data.params)), [effective.data, source]);
-  const form = edited ?? base;
-  const problems = useMemo(() => problemsOf(form, source), [form, source]);
+  const form = withSourceUnit(edited ?? base, source);
+  const problems = useMemo(() => problemsOf(form), [form]);
   const show = attempted || edited !== undefined;
   const thresholds = thresholdsOf(form);
-  const preview = useBandPreview(thresholds, form.unit, mayRead && form.unit === SOURCE_UNIT[source]);
+  const preview = useBandPreview(thresholds, form.unit, mayRead);
   // Only the first read holds the screen back; choosing another source keeps the choice on the screen while the policy of that source is read.
   const state = useScreenState({ isLoading: effective.isLoading && chosen === undefined, error: effective.error, data: effective.isLoading && chosen === undefined ? undefined : true, isEmpty: () => false });
   const screenState = !mayRead ? 'denied' : state;
@@ -96,8 +97,8 @@ function PolicyContent({ route }: ScreenProps) {
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
         <div>
-          <h1 id="screen-title">{t('pwf.bands.title.text')}</h1>
-          <p>{t('pwf.bands.subtitle.text')}</p>
+          <h1 id="screen-title">{t('wfxbands.title.text')}</h1>
+          <p>{t('wfxbands.subtitle.text')}</p>
         </div>
         <nav aria-label={t('pwf.bands.links.label')}>
           <Link to={PATHS.board} data-testid="link-board">
@@ -111,8 +112,8 @@ function PolicyContent({ route }: ScreenProps) {
             {t('pwf.bands.readOnly.text')}
           </p>
         )}
-        <SectionCard title={t('pwf.bands.source.title')} status={unverified ? <UnverifiedLabel /> : undefined}>
-          <div className="pwf-tpl-row">
+        <SectionCard title={t('wfxbands.table.title')} status={unverified ? <UnverifiedLabel /> : undefined}>
+          <div className="pwf-band-toolbar">
             <div className="pwf-field">
               <label htmlFor="pwf-band-source">{t('pwf.bands.source.label')}</label>
               <select
@@ -131,12 +132,10 @@ function PolicyContent({ route }: ScreenProps) {
                   </option>
                 ))}
               </select>
-              {/* The codes the three sources carry in the rule store, where the versions of this rule are listed by code. */}
-              <span className="gova1-hint" data-testid="source-codes">
-                {t('fix9.pwf08.source.codes')}
-              </span>
             </div>
-            <SelectUnit value={form.unit} source={source} disabled={!canStore} problems={problems} show={show} onChange={(unit) => set({ ...form, unit })} />
+            <p className="pwf-band-unit" data-testid="unit-declared">
+              {t('wfxbands.unit.declared.text', { unit: unitWord(t, form.unit) })}
+            </p>
           </div>
           <p className="adm-kit-sub" data-testid="base-note">
             {baseNote}
@@ -146,37 +145,38 @@ function PolicyContent({ route }: ScreenProps) {
               {t('pwf.bands.unverified.hint')}
             </p>
           ) : null}
+          <StateBoundary state={effective.isLoading ? 'loading' : 'default'}>
+            <LadderTable form={form} disabled={!canStore} problems={problems} show={show} onChange={set} />
+            <p className="pwf-actions">
+              <button type="button" className="ui-button ui-button--outline" disabled={!canStore || form.overrides.length >= MAX_OVERRIDES} data-action="add-override" onClick={() => set(addOverride(form))}>
+                {t('wfxbands.exception.add.action')}
+              </button>{' '}
+              <span className="adm-kit-sub" data-testid="override-count">
+                {t('wfxbands.exception.count', { count: form.overrides.length })}
+              </span>
+            </p>
+            <dl className="pwf-band-reading">
+              <dt>{t('wfxbands.col.red.label')}</dt>
+              <dd>{t('pwf.bands.red.hint')}</dd>
+              <dt>{t('wfxbands.col.yellow.label')}</dt>
+              <dd>{t('pwf.bands.yellow.hint')}</dd>
+              <dt>{t('wfxbands.col.green.label')}</dt>
+              <dd>{t('pwf.bands.green.hint')}</dd>
+            </dl>
+            <p className="adm-kit-sub">{t('wfxbands.exception.hint')}</p>
+            <Preview form={form} preview={preview} />
+          </StateBoundary>
         </SectionCard>
         <StateBoundary state={effective.isLoading ? 'loading' : 'default'}>
-        <SectionCard title={t('fix9.pwf08.ladder.title')}>
-          <LadderFields prefix="" ladder={form.ladder} disabled={!canStore} problems={problems} show={show} onChange={(ladder) => set({ ...form, ladder })} withInfo />
-          <Preview thresholds={thresholds} unit={form.unit} preview={preview} />
-        </SectionCard>
-        <SectionCard title={t('pwf.bands.overrides.title')} status={<span data-testid="override-count">{t('pwf.bands.overrides.count', { count: form.overrides.length })}</span>}>
-          <p className="adm-kit-sub">{t('pwf.bands.overrides.hint')}</p>
-          <ol className="pwf-tpl-rows" data-testid="overrides">
-            {form.overrides.map((override, index) => (
-              <li key={index}>
-                <OverrideRow index={index} override={override} disabled={!canStore} problems={problems} show={show} onChange={(patch) => set(updateOverride(form, index, patch))} onRemove={() => set(removeOverride(form, index))} />
-              </li>
-            ))}
-          </ol>
-          <p className="pwf-actions">
-            <button type="button" className="ui-button ui-button--outline" disabled={!canStore || form.overrides.length >= 20} data-action="add-override" onClick={() => set(addOverride(form))}>
-              {t('pwf.bands.override.add.action')}
-            </button>
-          </p>
-        </SectionCard>
-        <SectionCard title={t('fix9.pwf08.reminders.title')}>
-          <div className="pwf-tpl-row">
-            <BandField label={t('pwf.bands.reminders.label')} path="reminder_days" hint={t('pwf.bands.reminders.hint')} value={form.reminders} disabled={!canStore} problems={problems} show={show} onChange={(value) => set({ ...form, reminders: value })} />
-            <BandField label={t('pwf.bands.escalate.label')} path="escalate_after_overdue_days" hint={t('pwf.bands.escalate.hint')} value={form.escalate} disabled={!canStore} problems={problems} show={show} onChange={(value) => set({ ...form, escalate: value })} />
-          </div>
-        </SectionCard>
+          <SectionCard title={t('fix9.pwf08.reminders.title')}>
+            <div className="pwf-tpl-row">
+              <BandField label={t('pwf.bands.reminders.label')} path="reminder_days" hint={t('pwf.bands.reminders.hint')} value={form.reminders} disabled={!canStore} problems={problems} show={show} onChange={(value) => set({ ...form, reminders: value })} />
+              <BandField label={t('pwf.bands.escalate.label')} path="escalate_after_overdue_days" hint={t('pwf.bands.escalate.hint')} value={form.escalate} disabled={!canStore} problems={problems} show={show} onChange={(value) => set({ ...form, escalate: value })} />
+            </div>
+          </SectionCard>
         </StateBoundary>
-        {canStore ? (
-          <RuleSavePanel ruleType={BAND_RULE_TYPE} code={source} codeValid formOk={problems.length === 0} params={() => paramsOf(form)} onAttempt={() => setAttempted(true)} disabled={false} />
-        ) : null}
+        {canStore ? <RuleSavePanel ruleType={BAND_RULE_TYPE} code={source} codeValid formOk={problems.length === 0} params={() => paramsOf(form)} onAttempt={() => setAttempted(true)} disabled={false} /> : null}
+        {source === 'PROJECT_TASK' ? <StepBands rows={stepBands.rows} loading={stepBands.loading} failed={stepBands.failed} /> : null}
         <RuleVersionList
           ruleType={BAND_RULE_TYPE}
           code={source}
@@ -205,10 +205,9 @@ interface BandFieldProps {
   problems: readonly BandProblem[];
   show: boolean;
   hint?: string | undefined;
-  info?: ReactNode;
 }
 
-function BandField({ label, path, value, onChange, disabled, problems, show, hint, info }: BandFieldProps) {
+function BandField({ label, path, value, onChange, disabled, problems, show, hint }: BandFieldProps) {
   const { t } = useTranslation();
   const id = useId();
   const problem = problems.find((one) => one.path === path);
@@ -216,9 +215,7 @@ function BandField({ label, path, value, onChange, disabled, problems, show, hin
   const describedBy = [invalid ? `${id}-error` : '', hint === undefined ? '' : `${id}-hint`].filter((part) => part !== '').join(' ');
   return (
     <div className="pwf-field">
-      <label htmlFor={id}>
-        {label} {info}
-      </label>
+      <label htmlFor={id}>{label}</label>
       <input id={id} type="text" inputMode="numeric" autoComplete="off" value={value} disabled={disabled} aria-invalid={invalid} aria-describedby={describedBy === '' ? undefined : describedBy} data-testid={`field-${path}`} onChange={(event) => onChange(event.target.value)} />
       {hint === undefined ? null : (
         <span className="gova1-hint" id={`${id}-hint`}>
@@ -235,55 +232,90 @@ function BandField({ label, path, value, onChange, disabled, problems, show, hin
   );
 }
 
-function SelectUnit({ value, source, disabled, problems, show, onChange }: { value: BandUnit; source: Source; disabled: boolean; problems: readonly BandProblem[]; show: boolean; onChange: (unit: BandUnit) => void }) {
+interface NumberCellProps {
+  path: string;
+  label: string;
+  value: string;
+  disabled: boolean;
+  problems: readonly BandProblem[];
+  show: boolean;
+  onChange: (value: string) => void;
+}
+
+/** One of the three numbers of a row: a labelled box in a table cell, its problem said under it. */
+function NumberCell({ path, label, value, disabled, problems, show, onChange }: NumberCellProps) {
   const { t } = useTranslation();
   const id = useId();
-  const problem = problems.find((one) => one.path === 'unit');
+  const problem = problems.find((one) => one.path === path);
   const invalid = show && problem !== undefined;
   return (
-    <div className="pwf-field">
-      <label htmlFor={id}>{t('fix9.pwf08.unit.label')}</label>
-      <select id={id} value={value} disabled={disabled} aria-invalid={invalid} aria-describedby={`${id}-hint`} data-testid="field-unit" onChange={(event) => onChange(event.target.value as BandUnit)}>
-        {UNITS.map((unit) => (
-          <option key={unit} value={unit}>
-            {unitWord(t, unit)}
-          </option>
-        ))}
-      </select>
-      <span className="gova1-hint" id={`${id}-hint`}>
-        {t('pwf.bands.unit.hint', { source: sourceWord(t, source), unit: unitWord(t, SOURCE_UNIT[source]) })}
-      </span>
+    <td className="pwf-band-num">
+      <label className="ui-sr-only" htmlFor={id}>
+        {label}
+      </label>
+      <input id={id} type="text" inputMode="numeric" autoComplete="off" value={value} disabled={disabled} aria-invalid={invalid} aria-describedby={invalid ? `${id}-error` : undefined} data-testid={`field-${path}`} onChange={(event) => onChange(event.target.value)} />
       {invalid && problem !== undefined ? (
-        <span className="pwf-field__error" data-testid="error-unit">
+        <span className="pwf-field__error" id={`${id}-error`} data-testid={`error-${path}`}>
           <span aria-hidden="true">⚠ </span>
           {problemWord(t, problem)}
         </span>
       ) : null}
-    </div>
+    </td>
   );
 }
 
-interface LadderFieldsProps {
-  prefix: string;
-  ladder: Ladder;
+interface LadderTableProps {
+  form: BandForm;
   disabled: boolean;
   problems: readonly BandProblem[];
   show: boolean;
-  onChange: (ladder: Ladder) => void;
-  withInfo?: boolean;
+  onChange: (next: BandForm) => void;
 }
 
-function LadderFields({ prefix, ladder, disabled, problems, show, onChange, withInfo }: LadderFieldsProps) {
+/** Red, yellow and green for the default and for each exception: three numbers on every row, the column heads carry the "i" of the formula. */
+function LadderTable({ form, disabled, problems, show, onChange }: LadderTableProps) {
   const { t } = useTranslation();
-  const info = (name: string, formula: string): ReactNode =>
-    withInfo === true ? <FigureInfo name={name} formula={formula} source={t('pwf.bands.info.source')} asOf={null} version={t('pwf.bands.info.version')} /> : undefined;
-  const common = { disabled, problems, show };
+  const info = (name: string, formula: string): ReactNode => <FigureInfo name={name} formula={formula} source={t('pwf.bands.info.source')} asOf={null} version={t('pwf.bands.info.version')} />;
+  const cells = (prefix: string, ladder: Ladder, row: string, change: (next: Ladder) => void): ReactNode => (
+    <>
+      <NumberCell path={`${prefix}red_days`} label={t('wfxbands.cell.red.label', { row })} value={ladder.red} disabled={disabled} problems={problems} show={show} onChange={(red) => change({ ...ladder, red })} />
+      <NumberCell path={`${prefix}yellow_days`} label={t('wfxbands.cell.yellow.label', { row })} value={ladder.yellow} disabled={disabled} problems={problems} show={show} onChange={(yellow) => change({ ...ladder, yellow })} />
+      <NumberCell path={`${prefix}green_days`} label={t('wfxbands.cell.green.label', { row })} value={ladder.green} disabled={disabled} problems={problems} show={show} onChange={(green) => change({ ...ladder, green })} />
+    </>
+  );
   return (
-    <div className="pwf-tpl-row">
-      <BandField label={t('pwf.bands.green.label')} path={`${prefix}green_days`} hint={t('pwf.bands.green.hint')} value={ladder.green} info={info(t('pwf.bands.green.label'), t('pwf.bands.green.formula'))} onChange={(green) => onChange({ ...ladder, green })} {...common} />
-      <BandField label={t('pwf.bands.yellow.label')} path={`${prefix}yellow_days`} hint={t('pwf.bands.yellow.hint')} value={ladder.yellow} info={info(t('pwf.bands.yellow.label'), t('pwf.bands.yellow.formula'))} onChange={(yellow) => onChange({ ...ladder, yellow })} {...common} />
-      <BandField label={t('pwf.bands.red.label')} path={`${prefix}red_days`} hint={t('pwf.bands.red.hint')} value={ladder.red} info={info(t('pwf.bands.red.label'), t('pwf.bands.red.formula'))} onChange={(red) => onChange({ ...ladder, red })} {...common} />
-    </div>
+    <KitTable caption={t('wfxbands.table.caption')} testId="ladder-table">
+      <thead>
+        <tr>
+          <th>{t('wfxbands.col.scope.label')}</th>
+          <th className="pwf-band-num pwf-band-head--red">
+            {t('wfxbands.col.red.label')} {info(t('wfxbands.col.red.label'), t('pwf.bands.red.formula'))}
+          </th>
+          <th className="pwf-band-num pwf-band-head--yellow">
+            {t('wfxbands.col.yellow.label')} {info(t('wfxbands.col.yellow.label'), t('pwf.bands.yellow.formula'))}
+          </th>
+          <th className="pwf-band-num pwf-band-head--green">
+            {t('wfxbands.col.green.label')} {info(t('wfxbands.col.green.label'), t('pwf.bands.green.formula'))}
+          </th>
+          <th>
+            <span className="ui-sr-only">{t('wfxbands.col.actions.label')}</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-row="default">
+          <th scope="row" className="pwf-band-scope">
+            <strong>{t('wfxbands.row.default.label')}</strong>
+            <span className="adm-kit-sub">{t('wfxbands.row.default.hint')}</span>
+          </th>
+          {cells('', form.ladder, t('wfxbands.row.default.name'), (ladder) => onChange({ ...form, ladder }))}
+          <td />
+        </tr>
+        {form.overrides.map((override, index) => (
+          <OverrideRow key={index} index={index} override={override} disabled={disabled} problems={problems} show={show} onChange={(patch) => onChange(updateOverride(form, index, patch))} onRemove={() => onChange(removeOverride(form, index))} cells={cells} />
+        ))}
+      </tbody>
+    </KitTable>
   );
 }
 
@@ -295,66 +327,74 @@ interface OverrideRowProps {
   show: boolean;
   onChange: (patch: Partial<OverrideForm>) => void;
   onRemove: () => void;
+  cells: (prefix: string, ladder: Ladder, row: string, change: (next: Ladder) => void) => ReactNode;
 }
 
-function OverrideRow({ index, override, disabled, problems, show, onChange, onRemove }: OverrideRowProps) {
+function OverrideRow({ index, override, disabled, problems, show, onChange, onRemove, cells }: OverrideRowProps) {
   const { t } = useTranslation();
   const prefix = `overrides[${index}].`;
+  const row = t('wfxbands.row.exception.name', { number: index + 1 });
+  const phaseProblem = problems.find((one) => one.path === `${prefix}phase`);
+  const phaseInvalid = show && phaseProblem !== undefined;
   return (
-    <fieldset className="pwf-tpl-sub" data-override={index}>
-      <legend>{t('pwf.bands.override.legend', { number: index + 1 })}</legend>
-      <div className="pwf-tpl-row">
-        <div className="pwf-field">
-          <label htmlFor={`pwf-ov-kind-${index}`}>{t('pwf.bands.override.kind.label')}</label>
-          <select id={`pwf-ov-kind-${index}`} value={override.task_kind} disabled={disabled} data-testid={`field-${prefix}task_kind`} onChange={(event) => onChange({ task_kind: event.target.value as OverrideForm['task_kind'] })}>
-            <option value="">{t('pwf.bands.override.any.option')}</option>
-            {TASK_KINDS.map((kind) => (
-              <option key={kind} value={kind}>
-                {kindWord(t, kind)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="pwf-field">
-          <label htmlFor={`pwf-ov-priority-${index}`}>{t('pwf.bands.override.priority.label')}</label>
-          <select id={`pwf-ov-priority-${index}`} value={override.priority} disabled={disabled} data-testid={`field-${prefix}priority`} onChange={(event) => onChange({ priority: event.target.value as OverrideForm['priority'] })}>
-            <option value="">{t('pwf.bands.override.any.option')}</option>
-            {PRIORITIES.map((priority) => (
-              <option key={priority} value={priority}>
-                {priorityWord(t, priority)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <BandField label={t('pwf.bands.override.phase.label')} path={`${prefix}phase`} hint={t('pwf.bands.override.phase.hint')} value={override.phase} disabled={disabled} problems={problems} show={show} onChange={(phase) => onChange({ phase })} />
-      </div>
-      <LadderFields prefix={prefix} ladder={override.ladder} disabled={disabled} problems={problems} show={show} onChange={(ladder) => onChange({ ladder })} />
-      <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={disabled} data-action={`remove-override-${index}`} onClick={onRemove}>
-        {t('pwf.bands.override.remove.action')}
-      </button>
-    </fieldset>
+    <tr data-override={index}>
+      <th scope="row" className="pwf-band-scope">
+        <strong>{t('wfxbands.row.exception.label', { number: index + 1 })}</strong>
+        <span className="pwf-band-scope__fields">
+          <span className="pwf-band-scope__field">
+            <label htmlFor={`pwf-ov-kind-${index}`}>{t('pwf.bands.override.kind.label')}</label>
+            <select id={`pwf-ov-kind-${index}`} value={override.task_kind} disabled={disabled} data-testid={`field-${prefix}task_kind`} onChange={(event) => onChange({ task_kind: event.target.value as OverrideForm['task_kind'] })}>
+              <option value="">{t('pwf.bands.override.any.option')}</option>
+              {TASK_KINDS.map((kind) => (
+                <option key={kind} value={kind}>
+                  {kindWord(t, kind)}
+                </option>
+              ))}
+            </select>
+          </span>
+          <span className="pwf-band-scope__field">
+            <label htmlFor={`pwf-ov-priority-${index}`}>{t('pwf.bands.override.priority.label')}</label>
+            <select id={`pwf-ov-priority-${index}`} value={override.priority} disabled={disabled} data-testid={`field-${prefix}priority`} onChange={(event) => onChange({ priority: event.target.value as OverrideForm['priority'] })}>
+              <option value="">{t('pwf.bands.override.any.option')}</option>
+              {PRIORITIES.map((priority) => (
+                <option key={priority} value={priority}>
+                  {priorityWord(t, priority)}
+                </option>
+              ))}
+            </select>
+          </span>
+          <span className="pwf-band-scope__field">
+            <label htmlFor={`pwf-ov-phase-${index}`}>{t('pwf.bands.override.phase.label')}</label>
+            <input id={`pwf-ov-phase-${index}`} type="text" autoComplete="off" value={override.phase} disabled={disabled} placeholder={t('pwf.bands.override.any.option')} aria-invalid={phaseInvalid} data-testid={`field-${prefix}phase`} onChange={(event) => onChange({ phase: event.target.value })} />
+            {phaseInvalid && phaseProblem !== undefined ? (
+              <span className="pwf-field__error" data-testid={`error-${prefix}phase`}>
+                <span aria-hidden="true">⚠ </span>
+                {problemWord(t, phaseProblem)}
+              </span>
+            ) : null}
+          </span>
+        </span>
+      </th>
+      {cells(prefix, override.ladder, row, (ladder) => onChange({ ladder }))}
+      <td>
+        <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={disabled} data-action={`remove-override-${index}`} aria-label={t('wfxbands.exception.remove.label', { number: index + 1 })} onClick={onRemove}>
+          {t('wfxbands.exception.remove.action')}
+        </button>
+      </td>
+    </tr>
   );
 }
 
 // ---- the preview -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-function Preview({ thresholds, unit, preview }: { thresholds: Thresholds | undefined; unit: BandUnit; preview: ReturnType<typeof useBandPreview> }) {
+/** The sentence the default numbers make, and what the server says each number of days left turns into. */
+function Preview({ form, preview }: { form: BandForm; preview: ReturnType<typeof useBandPreview> }) {
   const { t } = useTranslation();
+  const thresholds = thresholdsOf(form);
   const loading = preview.isLoading && thresholds !== undefined;
   return (
     <div className="pwf-tpl-sub" data-testid="preview">
       <h3>{t('pwf.bands.preview.title')}</h3>
-      <p className="pwf-hint" data-testid="preview-pattern">
-        {t('fix9.pwf08.preview.pattern')}
-      </p>
-      {thresholds !== undefined && thresholds.green_days === OWNER_EXAMPLE.green_days && thresholds.yellow_days === OWNER_EXAMPLE.yellow_days && thresholds.red_days === OWNER_EXAMPLE.red_days ? null : (
-        <p className="pwf-band-sentence" data-testid="owner-example">
-          <StatusPill tone="info" icon="ⓘ">
-            {t('pwf.bands.preview.owner.label')}
-          </StatusPill>{' '}
-          {sentenceText(t, OWNER_EXAMPLE, unit)}
-        </p>
-      )}
       {thresholds === undefined ? (
         <p className="callout warning" role="status" data-testid="preview-blocked">
           <span aria-hidden="true">⚠ </span>
@@ -363,7 +403,7 @@ function Preview({ thresholds, unit, preview }: { thresholds: Thresholds | undef
       ) : (
         <>
           <p className="pwf-band-sentence" data-testid="sentence">
-            {sentenceText(t, thresholds, unit)}
+            {ladderSentence(t, thresholds)}
           </p>
           {preview.error === null || preview.error === undefined ? null : <ProblemBanner problem={describeProblem(preview.error)} />}
           <StateBoundary state={loading ? 'loading' : 'default'}>
@@ -371,7 +411,7 @@ function Preview({ thresholds, unit, preview }: { thresholds: Thresholds | undef
               <ul className="pwf-tpl-findings" data-testid="examples" aria-label={t('pwf.bands.preview.examples.label')}>
                 {preview.data.examples.map((example) => (
                   <li key={example.remaining_days} data-days={example.remaining_days}>
-                    <BandBadge band={{ band: example.band, remaining_days: example.remaining_days, unit: preview.data?.unit ?? unit, overdue: example.remaining_days < 0 }} />
+                    <BandBadge band={{ band: example.band, remaining_days: example.remaining_days, unit: preview.data?.unit ?? form.unit, overdue: example.remaining_days < 0 }} />
                   </li>
                 ))}
               </ul>

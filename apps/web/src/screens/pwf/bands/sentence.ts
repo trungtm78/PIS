@@ -19,3 +19,15 @@ export function sentenceText(t: T, thresholds: Thresholds, unit: BandUnit): stri
   const text = [green, yellow, red].join(', ');
   return `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 }
+
+/**
+ * The ladder in the plain words of the owner, with no unit in it (the page says the unit once): "Còn 5 ngày: xanh, còn 2 ngày: vàng, hôm hạn: đỏ". Each part reads "up to this many days left"; a red line of 0 is the day of the
+ * deadline and -1 is only once it is overdue.
+ */
+export function ladderSentence(t: T, thresholds: Thresholds): string {
+  const green = thresholds.green_days === null ? t('wfxbands.part.greenOpen.text', { days: thresholds.yellow_days }) : t('wfxbands.part.green.text', { days: thresholds.green_days });
+  const yellow = t('wfxbands.part.yellow.text', { days: thresholds.yellow_days });
+  const red = thresholds.red_days > 0 ? t('wfxbands.part.red.text', { days: thresholds.red_days }) : thresholds.red_days === 0 ? t('wfxbands.part.redDay.text') : t('wfxbands.part.redOverdue.text');
+  const text = [green, yellow, red].join(', ');
+  return `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
+}

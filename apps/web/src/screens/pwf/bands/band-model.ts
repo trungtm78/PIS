@@ -16,7 +16,6 @@ export const OWNER_EXAMPLE: Thresholds = { green_days: 5, yellow_days: 2, red_da
 
 export const TASK_KINDS: readonly TaskKind[] = ['TASK', 'MILESTONE'];
 export const PRIORITIES: readonly Priority[] = ['LOW', 'NORMAL', 'HIGH', 'CRITICAL'];
-export const UNITS: readonly BandUnit[] = ['CALENDAR', 'WORKING'];
 export const MAX_OVERRIDES = 20;
 export const MAX_REMINDERS = 6;
 export const MAX_DAYS = 3650;
@@ -51,6 +50,9 @@ export interface BandForm {
 }
 
 const blankLadder = (): Ladder => ({ green: '', yellow: '', red: '' });
+/** The unit of a policy is the unit of its source, never a choice: the rule store refuses another. */
+export const withSourceUnit = (form: BandForm, source: Source): BandForm => (form.unit === SOURCE_UNIT[source] ? form : { ...form, unit: SOURCE_UNIT[source] });
+
 export const blankForm = (unit: BandUnit): BandForm => ({ unit, ladder: blankLadder(), overrides: [], reminders: '', escalate: '' });
 
 // ---- reading and writing the params ----------------------------------------------------------------------------------------------------------------------------------
@@ -105,7 +107,7 @@ export const removeOverride = (form: BandForm, index: number): BandForm => ({ ..
 
 // ---- the checks --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-export type BandProblemKind = 'required' | 'integer' | 'range' | 'order' | 'unitMismatch' | 'phase' | 'listSize' | 'reminderOrder';
+export type BandProblemKind = 'required' | 'integer' | 'range' | 'order' | 'phase' | 'listSize' | 'reminderOrder';
 export interface BandProblem {
   path: string;
   kind: BandProblemKind;
@@ -145,9 +147,8 @@ export function reminderProblem(text: string): BandProblem | undefined {
 }
 
 /** What is wrong with the form, by the path of the field in the params. */
-export function problemsOf(form: BandForm, source: Source): BandProblem[] {
+export function problemsOf(form: BandForm): BandProblem[] {
   const out: BandProblem[] = [];
-  if (form.unit !== SOURCE_UNIT[source]) out.push({ path: 'unit', kind: 'unitMismatch' });
   out.push(...ladderProblems('', form.ladder));
   form.overrides.forEach((override, index) => {
     if (override.phase.trim() !== '' && !PHASE.test(override.phase.trim())) out.push({ path: `overrides[${index}].phase`, kind: 'phase' });

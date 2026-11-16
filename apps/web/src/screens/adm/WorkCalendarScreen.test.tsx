@@ -1,8 +1,9 @@
 import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
+import { translator } from '../../i18n';
 import { routeOf } from '../doc/test-support';
 import { harness, mountInSession } from './security/test-support';
 import WorkCalendarScreen from './WorkCalendarScreen';
@@ -14,7 +15,7 @@ const MANAGER = ['adm.calendar.manage', 'adm.calendar.read'];
 
 const row = (id: string, year: number, status: string) => ({
   id,
-  calendar_code: 'VN-STD',
+  calendar_code: 'WORKDAY_VN',
   year,
   revision: 1,
   working_days: [1, 2, 3, 4, 5],
@@ -34,15 +35,26 @@ function withReads(readAll: (operation: string) => Promise<unknown[]>) {
   return h;
 }
 
-afterEach(cleanup);
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-06-15T05:00:00Z'));
+});
+
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe('WorkCalendarScreen (ADM-07)', () => {
-  it('reads the versions of the tenant and shows them with the month grids of the one in force (AC-ST-ADM-010-3)', async () => {
+  it('reads the versions of the tenant and lists their years, opening the current year with its twelve months (AC-ST-ADM-010-3)', async () => {
     const h = withReads((operation) => (operation === 'get_resources_work_calendar_version' ? Promise.resolve([row('c2', 2027, 'Draft'), row('c1', 2026, 'Published')]) : Promise.reject(new Error('unexpected read'))));
     mountInSession(<WorkCalendarScreen route={ROUTE} />, h, { permissions: MANAGER });
-    expect(await screen.findByTestId('version-in-view')).toBeTruthy();
-    expect(document.querySelectorAll('[data-calendar-id][data-status]')).toHaveLength(2);
-    expect(screen.getByTestId('version-in-view').getAttribute('data-calendar-id')).toBe('c1');
+    expect(await screen.findByTestId('year-editor')).toBeTruthy();
+    expect([...document.querySelectorAll('[data-testid="years"] tr[data-year]')].map((one) => one.getAttribute('data-year'))).toEqual(['2028', '2027', '2026', '2025']);
+    expect(screen.getByTestId('year-editor').getAttribute('data-year')).toBe('2026');
+    expect(screen.getByTestId('month-grids').querySelectorAll('table.cal-month')).toHaveLength(12);
+    // The year in view is the one in force: 2026 is confirmed, so no warning that it is provisional.
+    expect(screen.queryByTestId('provisional-note')).toBeNull();
   });
 
   it('shows the loading state while the versions are read', () => {
@@ -52,8 +64,9 @@ describe('WorkCalendarScreen (ADM-07)', () => {
 
   it('still offers the form to a tenant with no calendar: an empty register is not an empty screen', async () => {
     mountInSession(<WorkCalendarScreen route={ROUTE} />, withReads(() => Promise.resolve([])), { permissions: MANAGER });
-    expect(await screen.findByText(vi_['adm.calendar.versions.empty'])).toBeTruthy();
-    expect(screen.getByRole('button', { name: vi_['adm.calendar.draft.submit.action'] })).toBeTruthy();
+    expect(await screen.findByTestId('year-editor')).toBeTruthy();
+    expect(screen.getByTestId('provisional-note').textContent).toBe(translator.t('wfxcal.provisional.note'));
+    expect(screen.getByRole('button', { name: translator.t('wfxcal.save.action') })).toBeTruthy();
   });
 
   it.each([
@@ -71,7 +84,7 @@ describe('WorkCalendarScreen (ADM-07)', () => {
     const h = withReads(() => (++calls === 1 ? Promise.reject(new ApiError({ status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' })) : Promise.resolve([row('c1', 2026, 'Published')])));
     mountInSession(<WorkCalendarScreen route={ROUTE} />, h, { permissions: MANAGER });
     await userEvent.setup().click(await screen.findByRole('button', { name: vi_['states.retry.action'] }));
-    await waitFor(() => expect(screen.getByTestId('version-in-view')).toBeTruthy());
+    await waitFor(() => expect(screen.getByTestId('year-editor')).toBeTruthy());
     expect(calls).toBe(2);
   });
 });

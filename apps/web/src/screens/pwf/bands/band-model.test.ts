@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { OWNER_EXAMPLE, SOURCE_UNIT, addOverride, blankForm, formOf, paramsOf, problemsOf, removeOverride, sentenceOf, thresholdsOf, updateOverride } from './band-model';
+import { OWNER_EXAMPLE, SOURCE_UNIT, addOverride, blankForm, formOf, paramsOf, problemsOf, removeOverride, sentenceOf, thresholdsOf, updateOverride, withSourceUnit } from './band-model';
 
 const good = () => formOf({ unit: 'WORKING', green_days: 5, yellow_days: 2, red_days: 0, overrides: [], reminder_days: [5, 2, 0, -1], escalate_after_overdue_days: 3 });
 
@@ -53,42 +53,44 @@ describe('band model: reading and writing the params of a policy', () => {
 
 describe('band model: the checks', () => {
   it('finds nothing wrong with the owner example in working days for the task source', () => {
-    expect(problemsOf(good(), 'PROJECT_TASK')).toEqual([]);
+    expect(problemsOf(good())).toEqual([]);
   });
 
   it('asks for the numbers and for whole numbers in range', () => {
     const form = { ...good(), ladder: { green: '0', yellow: '', red: '-2' } };
-    const found = problemsOf(form, 'PROJECT_TASK').map((problem) => `${problem.path}:${problem.kind}`);
+    const found = problemsOf(form).map((problem) => `${problem.path}:${problem.kind}`);
     expect(found).toEqual(expect.arrayContaining(['green_days:range', 'yellow_days:required', 'red_days:range']));
-    expect(problemsOf({ ...good(), ladder: { green: '1.5', yellow: 'x', red: '0' } }, 'PROJECT_TASK').map((problem) => `${problem.path}:${problem.kind}`)).toEqual(expect.arrayContaining(['green_days:integer', 'yellow_days:integer']));
+    expect(problemsOf({ ...good(), ladder: { green: '1.5', yellow: 'x', red: '0' } }).map((problem) => `${problem.path}:${problem.kind}`)).toEqual(expect.arrayContaining(['green_days:integer', 'yellow_days:integer']));
   });
 
   it('asks the days to fall from green through yellow to red', () => {
-    const found = problemsOf({ ...good(), ladder: { green: '2', yellow: '2', red: '2' } }, 'PROJECT_TASK').map((problem) => `${problem.path}:${problem.kind}`);
+    const found = problemsOf({ ...good(), ladder: { green: '2', yellow: '2', red: '2' } }).map((problem) => `${problem.path}:${problem.kind}`);
     expect(found).toEqual(expect.arrayContaining(['green_days:order', 'yellow_days:order']));
-    expect(problemsOf({ ...good(), ladder: { green: '', yellow: '2', red: '0' } }, 'PROJECT_TASK')).toEqual([]);
+    expect(problemsOf({ ...good(), ladder: { green: '', yellow: '2', red: '0' } })).toEqual([]);
   });
 
-  it('refuses a unit other than the unit of the source', () => {
-    expect(problemsOf({ ...good(), unit: 'CALENDAR' }, 'PROJECT_TASK').map((problem) => problem.kind)).toEqual(['unitMismatch']);
-    expect(problemsOf({ ...good(), unit: 'CALENDAR' }, 'HOME_WORK')).toEqual([]);
+  it('takes the unit of the source: a policy has no unit to choose', () => {
+    expect(withSourceUnit({ ...good(), unit: 'CALENDAR' }, 'PROJECT_TASK').unit).toBe('WORKING');
+    expect(withSourceUnit({ ...good(), unit: 'WORKING' }, 'HOME_WORK').unit).toBe('CALENDAR');
+    const same = good();
+    expect(withSourceUnit(same, 'PROJECT_TASK')).toBe(same);
   });
 
   it('checks every override: its ladder, the phase code and the order', () => {
     let form = addOverride(good());
     form = updateOverride(form, 0, { phase: 'bad phase', ladder: { green: '1', yellow: '2', red: '0' } });
-    const found = problemsOf(form, 'PROJECT_TASK').map((problem) => `${problem.path}:${problem.kind}`);
+    const found = problemsOf(form).map((problem) => `${problem.path}:${problem.kind}`);
     expect(found).toEqual(expect.arrayContaining(['overrides[0].phase:phase', 'overrides[0].green_days:order']));
   });
 
   it('asks the reminders to fall strictly, at most six whole numbers in range, and the escalation to be a number of days', () => {
     const base = good();
-    expect(problemsOf({ ...base, reminders: '5, 5, 0' }, 'PROJECT_TASK').map((problem) => problem.kind)).toEqual(['reminderOrder']);
-    expect(problemsOf({ ...base, reminders: '1, 0, -1, -2, -3, -4, -5' }, 'PROJECT_TASK').map((problem) => problem.kind)).toEqual(['listSize']);
-    expect(problemsOf({ ...base, reminders: '5, x' }, 'PROJECT_TASK').map((problem) => problem.kind)).toEqual(['integer']);
-    expect(problemsOf({ ...base, reminders: '400' }, 'PROJECT_TASK').map((problem) => problem.kind)).toEqual(['range']);
-    expect(problemsOf({ ...base, escalate: '0' }, 'PROJECT_TASK').map((problem) => `${problem.path}:${problem.kind}`)).toEqual(['escalate_after_overdue_days:range']);
-    expect(problemsOf({ ...base, escalate: 'x' }, 'PROJECT_TASK').map((problem) => problem.kind)).toEqual(['integer']);
+    expect(problemsOf({ ...base, reminders: '5, 5, 0' }).map((problem) => problem.kind)).toEqual(['reminderOrder']);
+    expect(problemsOf({ ...base, reminders: '1, 0, -1, -2, -3, -4, -5' }).map((problem) => problem.kind)).toEqual(['listSize']);
+    expect(problemsOf({ ...base, reminders: '5, x' }).map((problem) => problem.kind)).toEqual(['integer']);
+    expect(problemsOf({ ...base, reminders: '400' }).map((problem) => problem.kind)).toEqual(['range']);
+    expect(problemsOf({ ...base, escalate: '0' }).map((problem) => `${problem.path}:${problem.kind}`)).toEqual(['escalate_after_overdue_days:range']);
+    expect(problemsOf({ ...base, escalate: 'x' }).map((problem) => problem.kind)).toEqual(['integer']);
   });
 });
 

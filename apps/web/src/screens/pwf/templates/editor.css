@@ -150,28 +150,42 @@
   font-size: 12.5px;
 }
 .pwfx-w-num {
-  width: 58px;
+  width: 52px;
 }
 .pwfx-w-unit {
-  width: 130px;
+  width: 160px;
 }
 .pwfx-w-anchor {
-  width: 138px;
+  width: 156px;
 }
 .pwfx-w-limit {
-  width: 160px;
+  width: 172px;
 }
 .pwfx-w-bands {
   width: 150px;
 }
 .pwfx-w-basis {
-  width: 128px;
+  width: 110px;
 }
 .pwfx-w-dossier {
-  width: 86px;
+  width: 78px;
 }
 .pwfx-w-actions {
-  width: 98px;
+  width: 88px;
+}
+/* The version in force is only read: its boxes show their text and nothing that looks like a field that is switched off (no frame, no arrow, no dimming). */
+.ui-table.pwfx-table[data-readonly='true'] select:disabled:not(.pwfx-fit__select),
+.ui-table.pwfx-table[data-readonly='true'] input:disabled:not([type='checkbox']) {
+  appearance: none;
+  -webkit-appearance: none;
+  border-color: transparent;
+  background: transparent;
+  color: var(--mv-color-ink);
+  -webkit-text-fill-color: var(--mv-color-ink);
+  opacity: 1;
+  padding-left: 0;
+  cursor: default;
+  text-overflow: ellipsis;
 }
 .pwfx-table th,
 .pwfx-table td {
@@ -305,6 +319,64 @@
 }
 .pwfx-unit select {
   width: 100%;
+  text-overflow: ellipsis;
+}
+/* A select whose selected text is shown in full: two lines at most, the native select over it with no opacity. */
+.pwfx-fit {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+.pwfx-fit__text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  box-sizing: border-box;
+  min-height: 28px;
+  padding: 4px 18px 4px 6px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 6px;
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  font-size: 12.5px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.pwfx-fit::after {
+  content: '▾';
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  font-size: 11px;
+  color: var(--mv-color-text-secondary);
+  pointer-events: none;
+}
+.ui-table.pwfx-table .pwfx-fit .pwfx-fit__select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+}
+.pwfx-fit:focus-within .pwfx-fit__text {
+  outline: 2px solid var(--mv-color-primary);
+  outline-offset: 1px;
+}
+/* The version in force: the text only, no frame and no arrow. */
+.pwfx-fit[data-disabled='true'] .pwfx-fit__text {
+  border-color: transparent;
+  background: transparent;
+  padding-left: 0;
+}
+.pwfx-fit[data-disabled='true']::after {
+  content: none;
+}
+.pwfx-fit[data-disabled='true'] .pwfx-fit__select {
+  cursor: default;
 }
 .pwfx-unit__role {
   display: flex;

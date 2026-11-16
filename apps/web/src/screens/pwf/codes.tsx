@@ -97,7 +97,7 @@ export function ProjectTypeName({ code, names }: { code: string; names: Readonly
     );
   }
   return (
-    <span className="pwf-taskname" data-project-type={code}>
+    <span className="pwf-taskname" data-project-type={code} title={code}>
       <span className="pwf-taskname__name">{name}</span>
       {name === code ? null : <span className="pwf-code pwf-taskname__code">{code}</span>}
     </span>

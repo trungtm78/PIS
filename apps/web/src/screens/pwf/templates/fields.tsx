@@ -1,9 +1,31 @@
-import { useId, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useId, useLayoutEffect, useRef, useState } from 'react';
+import type { ReactNode, SelectHTMLAttributes } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
 import { joinCodes, splitCodes } from './template-model';
 import type { TemplateProblem, TemplateProblemKind } from './template-model';
+
+/**
+ * A select that shows the whole of its selected text: up to two lines, with the full text as its tooltip and in the list of options (a native select shows one line and cuts the rest, and "Lãnh đạo Ban quản lý dự án" is cut at any
+ * width a table column can give it). The native select lies over the text with no opacity, so the keyboard, the screen reader and the list of options are the browser's own.
+ */
+export function FitSelect(props: SelectHTMLAttributes<HTMLSelectElement>) {
+  const ref = useRef<HTMLSelectElement>(null);
+  const [text, setText] = useState('');
+  // The text follows the selected option whenever the value or the options change.
+  const { value, children } = props;
+  useLayoutEffect(() => {
+    setText(ref.current?.selectedOptions[0]?.textContent ?? '');
+  }, [value, children]);
+  return (
+    <span className="pwfx-fit" data-disabled={props.disabled === true ? 'true' : undefined}>
+      <span className="pwfx-fit__text" aria-hidden="true" title={text}>
+        {text}
+      </span>
+      <select {...props} ref={ref} className="pwfx-fit__select" title={text} />
+    </span>
+  );
+}
 
 /** The problems of the editor by path, for the field that has one. */
 export type ProblemMap = ReadonlyMap<string, TemplateProblemKind>;

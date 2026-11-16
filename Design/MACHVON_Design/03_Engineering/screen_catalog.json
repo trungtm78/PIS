@@ -14283,8 +14283,8 @@
       "Số bước",
       "Tổng thời hạn",
       "Phiên bản và trạng thái",
-      "Dự án đang dùng",
-      "Bước chưa đối chiếu căn cứ",
+      "Số dự án",
+      "Chưa đối chiếu",
       "Sửa lần cuối",
       "Tạo quy trình"
     ],
@@ -14441,12 +14441,15 @@
     "title": "Chính sách ba màu",
     "kind": "form",
     "fields": [
-      "Nguồn cảnh báo: HOME_WORK, REPORT_SCHEDULE, PROJECT_TASK",
-      "Đơn vị: ngày lịch hoặc ngày làm việc",
-      "Ngưỡng xanh, vàng, đỏ",
-      "Ghi đè theo loại việc, mức ưu tiên, giai đoạn",
+      "Nguồn cảnh báo",
+      "Áp dụng cho",
+      "Đỏ",
+      "Vàng",
+      "Xanh",
+      "Thêm ngoại lệ",
       "Mốc nhắc và ngày leo thang",
-      "Xem trước \"còn 5 ngày: xanh, còn 2 ngày: vàng, dưới 1 ngày: đỏ\""
+      "Bước có ngưỡng riêng",
+      "Xem trước tác dụng của các ngưỡng"
     ],
     "role": "Quản trị quy trình dự án (soạn), người duyệt quy tắc (duyệt)",
     "rule": "Thứ tự nghiêm ngặt xanh > vàng > đỏ ≥ -1; đơn vị phải khớp nguồn (DEADLINE_BAND_UNIT_MISMATCH); quy tắc có phiên bản, người duyệt khác người soạn",

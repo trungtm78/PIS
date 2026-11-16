@@ -3,7 +3,7 @@ import type { KeyboardEvent, ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { gateWord } from '../labels';
 import { codeKey } from '../codes';
-import { problemWord } from './fields';
+import { FitSelect, problemWord } from './fields';
 import { LegalBasisEditor, BasisStamp } from './legal-basis';
 import { problemsOf, roleChoices, unitChoices } from './editor-choices';
 import type { Choice } from './editor-choices';
@@ -136,7 +136,7 @@ export function StepsTable(props: StepsTableProps) {
   let phaseNumber = 0;
   return (
     <div className="ui-table-scroll pwfx-scroll" role="region" aria-label={t('pwfx.table.region')} tabIndex={0} data-testid="steps-table">
-      <table className="ui-table pwfx-table">
+      <table className="ui-table pwfx-table" data-readonly={disabled ? 'true' : undefined}>
         <caption className="pwfx-sr">{t('pwfx.table.caption', { count: total })}</caption>
         <colgroup>
           <col className="pwfx-w-num" />
@@ -388,7 +388,7 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
   };
 
   const unitSelect = (value: string, onPick: (ref: string) => void, what: string): ReactNode => (
-    <select
+    <FitSelect
       aria-label={what}
       value={value}
       disabled={readOnlyLine}
@@ -406,10 +406,10 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
         </option>
       ))}
       <option value="~new">{t('pwfx.unit.new')}</option>
-    </select>
+    </FitSelect>
   );
   const roleSelect = (value: string, onPick: (code: string) => void, what: string, support?: number): ReactNode => (
-    <select
+    <FitSelect
       aria-label={what}
       value={value}
       disabled={readOnlyLine}
@@ -425,7 +425,7 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
         </option>
       ))}
       <option value="~new">{t('pwfx.role.new')}</option>
-    </select>
+    </FitSelect>
   );
 
   const unitRow = (): ReactNode => (
@@ -547,7 +547,7 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
             <span className="pwf-hint">–</span>
           ) : (
             <div className="pwfx-anchor">
-              <select
+              <FitSelect
                 aria-label={label(t('pwfx.cell.anchor'))}
                 value={anchor.kind === 'start' ? 'start' : anchor.kind === 'after' ? anchor.key : '~advanced'}
                 disabled={readOnlyLine}
@@ -564,7 +564,7 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
                   </option>
                 ))}
                 {anchor.kind === 'advanced' ? <option value="~advanced">{t('pwfx.anchor.advanced')}</option> : null}
-              </select>
+              </FitSelect>
               <CellProblem id={`${line.key}-anchor-error`} list={anchorProblems} t={t} />
               {notes.length === 0 ? null : (
                 <>
@@ -605,13 +605,13 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
                   data-testid={`limit-${line.key}`}
                   onChange={(event) => onChange(setLimit(template, taskIndex, { value: asNumber(event.target.value) }))}
                 />
-                <select aria-label={label(t('pwfx.cell.unitOfLimit'))} value={limit.unit} disabled={readOnlyLine} onChange={(event) => onChange(setLimit(template, taskIndex, { unit: event.target.value as DurationUnit }))}>
+                <FitSelect aria-label={label(t('pwfx.cell.unitOfLimit'))} value={limit.unit} disabled={readOnlyLine} onChange={(event) => onChange(setLimit(template, taskIndex, { unit: event.target.value as DurationUnit }))}>
                   {DURATION_UNITS.map((unit) => (
                     <option key={unit} value={unit}>
                       {t(`pwfx.limit.unit.${codeKey(unit)}`)}
                     </option>
                   ))}
-                </select>
+                </FitSelect>
               </span>
               {limit.unit === 'WORKING_DAY' ? null : (
                 <label className="pwfx-check">

@@ -1,0 +1,87 @@
+/* PWF-08: the short table of default and exception thresholds. Tokens only. */
+.pwf-band-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-8) var(--mv-space-24);
+  align-items: end;
+}
+
+.pwf-band-unit {
+  margin: 0;
+  font-weight: 600;
+}
+
+.pwf-band-num {
+  text-align: center;
+  width: 108px;
+  min-width: 96px;
+}
+
+.pwf-band-num input {
+  width: 84px;
+  text-align: right;
+}
+
+.pwf-band-head--red {
+  color: var(--mv-color-danger);
+}
+
+.pwf-band-head--yellow {
+  color: var(--mv-color-warning);
+}
+
+.pwf-band-head--green {
+  color: var(--mv-color-success);
+}
+
+.pwf-band-scope {
+  text-align: left;
+  min-width: 220px;
+  font-weight: 400;
+}
+
+.pwf-band-scope strong {
+  display: block;
+}
+
+.pwf-band-scope__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mv-space-8);
+  margin-top: var(--mv-space-4);
+}
+
+.pwf-band-scope__field {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.pwf-band-scope__field select,
+.pwf-band-scope__field input {
+  max-width: 150px;
+}
+
+.pwf-band-reading {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px var(--mv-space-12);
+  margin: var(--mv-space-12) 0 var(--mv-space-4);
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+
+.pwf-band-reading dt {
+  font-weight: 600;
+}
+
+.pwf-band-reading dd {
+  margin: 0;
+}
+
+/* The label of a row is a cell of the table, not a dark head. */
+.ui-table .pwf-band-scope {
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  position: static;
+}
