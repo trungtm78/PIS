@@ -1,3 +1,4 @@
+import { percentFigure } from '../percent-figure';
 import type { components } from '@machvon/contracts';
 import { ApiError } from '@machvon/api-client';
 import type { Tone } from '../../ui';
@@ -102,7 +103,7 @@ export const reasonOk = (text: string): boolean => text.trim().length >= REASON_
 
 /** The share of figures that count for the headline: monitored connectors as "n of m", or a dash when nothing is monitored (no figure beats a false one). */
 export const healthyLabel = (summary: HubSummary): { value: string; of: string } =>
-  summary.healthy_percent === null ? { value: '–', of: `0/${summary.total}` } : { value: String(summary.healthy_percent), of: `${summary.healthy}/${summary.monitored}` };
+  summary.healthy_percent === null ? { value: '–', of: `0/${summary.total}` } : { value: percentFigure(summary.healthy_percent), of: `${summary.healthy}/${summary.monitored}` };
 
 /** The fields of a mapping typed as JSON by a person: an array of objects, at least one; anything else is refused before the request. */
 export function parseMappingFields(text: string): Array<Record<string, unknown>> | undefined {

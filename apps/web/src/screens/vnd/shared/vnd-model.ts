@@ -1,3 +1,4 @@
+import { formatPercent } from '../../../i18n/format';
 import type { components } from '@machvon/contracts';
 import type { StepperStep, Tone } from '../../../ui';
 
@@ -356,7 +357,7 @@ export function isDay(value: string): boolean {
 
 /** A percent as the figures of the answer carry it (null when there is nothing to divide). */
 export function percentText(value: number | null, locale: string): string {
-  return value === null ? '–' : `${value.toLocaleString(locale, { maximumFractionDigits: 1 })}%`;
+  return value === null ? '–' : formatPercent(value, 2, locale.startsWith('en') ? 'en' : 'vi');
 }
 
 // ---- where the screens of the module live (the alert centre and the screens link by these) -------------------------------------------------------------------------

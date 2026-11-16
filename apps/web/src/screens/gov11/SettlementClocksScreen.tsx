@@ -4,7 +4,7 @@ import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StatusPill } from '../../ui';
-import { Figure, Frame, Info, UnverifiedNote, asList, asRecord, dayLabel, num, text, useGovRead } from './gov11-kit';
+import { Figure, Frame, Info, UnverifiedNote, asList, asRecord, dayLabel, num, percent, text, useGovRead } from './gov11-kit';
 import type { RuleReading } from './gov11-kit';
 
 type Tone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
@@ -68,7 +68,7 @@ export default function SettlementClocksScreen({ route }: ScreenProps) {
               <Figure label={t('gov11.settlement.open')} value={text(num(summary.open))} rule={rule} fallbackFormula={t('gov11.settlement.open.formula')} owner={t('gov11.settlement.owner')} asOf={asOf} />
               <Figure label={t('gov11.settlement.overdue')} value={text(num(summary.overdue))} tone={num(summary.overdue) > 0 ? 'danger' : 'default'} rule={rule} fallbackFormula={t('gov11.settlement.overdue.formula')} owner={t('gov11.settlement.owner')} asOf={asOf} />
               <Figure label={t('gov11.settlement.near')} value={text(num(summary.near))} tone={num(summary.near) > 0 ? 'warning' : 'default'} rule={rule} fallbackFormula={t('gov11.settlement.near.formula')} owner={t('gov11.settlement.owner')} asOf={asOf} />
-              <Figure label={t('gov11.settlement.inTime')} value={summary.in_time_rate_pct === null ? '–' : `${text(summary.in_time_rate_pct)}%`} rule={rule} fallbackFormula={t('gov11.settlement.inTime.formula')} owner={t('gov11.settlement.owner')} asOf={asOf} />
+              <Figure label={t('gov11.settlement.inTime')} value={percent(summary.in_time_rate_pct)} rule={rule} fallbackFormula={t('gov11.settlement.inTime.formula')} owner={t('gov11.settlement.owner')} asOf={asOf} />
             </div>
             <p data-testid="months-line">
               {t('gov11.settlement.months', { large: text(months.A), small: text(months.C) })}

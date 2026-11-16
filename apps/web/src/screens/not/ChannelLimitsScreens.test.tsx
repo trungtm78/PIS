@@ -42,7 +42,7 @@ describe('NOT-04 the operations overview (UI-NOT-04)', () => {
     overview(READER, () => overviewRow());
     const table = await screen.findByRole('table');
     const sms = table.querySelector('[data-channel="SMS"]') as HTMLElement;
-    expect(sms.querySelector('[data-rate]')?.textContent).toBe('84.21%');
+    expect(sms.querySelector('[data-rate]')?.textContent).toBe('84,21%');
     expect(sms.querySelector('[data-denominator]')?.textContent).toBe('95');
     expect(sms.querySelector('[data-unknown]')?.textContent).toContain('11');
     expect(within(sms).getByRole('link', { name: vi_['not.overview.unknown.reconcile'] }).getAttribute('href')).toBe('/not/not-11');

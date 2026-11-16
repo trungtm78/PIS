@@ -53,8 +53,8 @@ describe('MasterApprovalScreen (MDM-32): a succession request', () => {
     await ready();
     await userEvent.setup().click(within(rowOf(split.id)).getByRole('button', { name: vi_['mdm.approval.review.action'] }));
     await waitFor(() => expect(document.querySelector(`[data-successor="${COMMUNE_B.id}"]`)?.textContent).toContain('XA-B'));
-    expect(document.querySelector(`[data-successor="${COMMUNE_B.id}"]`)?.textContent).toContain(vi_['mdm.succession.share.text'].replace('{share}', '60.00'));
-    expect(document.querySelector(`[data-successor="${MERGED.id}"]`)?.textContent).toContain(vi_['mdm.succession.share.text'].replace('{share}', '40.00'));
+    expect(document.querySelector(`[data-successor="${COMMUNE_B.id}"]`)?.textContent).toContain(vi_['mdm.succession.share.text'].replace('{share}', '60'));
+    expect(document.querySelector(`[data-successor="${MERGED.id}"]`)?.textContent).toContain(vi_['mdm.succession.share.text'].replace('{share}', '40'));
   });
 
   it('says so when the proposal cannot be read, and still lets the reviewer decide', async () => {

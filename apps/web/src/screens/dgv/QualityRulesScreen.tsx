@@ -1,3 +1,5 @@
+import { percentFigure } from '../percent-figure';
+import { percentOfText } from '../../i18n/format';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -155,8 +157,8 @@ function RuleLine({ rule, mayApprove, own }: { rule: RuleView; mayApprove: boole
           <code>{expressionSummary(rule.expression)}</code>
         </td>
         <td>
-          {t('dgv.score.rule.percent', { value: rule.minPassRate })}
-          {rule.warnPassRate === null ? null : <span className="sub">{t('dgv.rules.threshold.warn', { value: rule.warnPassRate })}</span>}
+          {percentOfText(rule.minPassRate)}
+          {rule.warnPassRate === null ? null : <span className="sub">{t('dgv.rules.threshold.warn', { value: percentFigure(rule.warnPassRate) })}</span>}
         </td>
         <td>
           {actionLabel(t, rule.action)}

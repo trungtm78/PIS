@@ -95,7 +95,7 @@ describe('PRJ-26: the baseline, the deviation and the number of moves', () => {
     const cost = screen.getByText(text('govb1.baseline.kpi.cost')).closest('article');
     expect(cost?.className).toContain('ui-tone-danger');
     expect(within(cost as HTMLElement).getByText('12 tỷ đồng')).toBeTruthy();
-    expect(within(cost as HTMLElement).getByText(text('govb1.baseline.kpi.pct', { pct: '12.00' }))).toBeTruthy();
+    expect(within(cost as HTMLElement).getByText(text('govb1.baseline.kpi.pct', { pct: '12' }))).toBeTruthy();
     const slip = screen.getByText(text('govb1.baseline.kpi.slip')).closest('article');
     expect(slip?.className).not.toContain('ui-tone-danger');
     expect(within(slip as HTMLElement).getByText(text('govb1.baseline.days', { count: 59 }))).toBeTruthy();
@@ -460,7 +460,8 @@ describe('PRJ-27: earned value and the S-curve', () => {
     expect(toggle.getAttribute('aria-pressed')).toBe('true');
     const table = screen.getByRole('table', { name: text('govb1.evm.curve.table') });
     expect(within(table).getAllByRole('row')).toHaveLength(1 + 4);
-    expect(within(table).getByText('90.000.000.000')).toBeTruthy();
+    expect(within(table).getByText('90')).toBeTruthy();
+    expect(within(table).getByTitle('90.000.000.000 đồng')).toBeTruthy();
     expect(within(table).getAllByText(text('govb1.common.na')).length).toBe(2);
     expect(screen.getByTestId('chart-note').textContent).toBe(text('govb1.evm.chart.note', { count: 4 }));
   });

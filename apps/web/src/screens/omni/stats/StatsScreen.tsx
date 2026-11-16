@@ -1,3 +1,4 @@
+import { percentOfText } from '../../../i18n/format';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
@@ -82,7 +83,7 @@ function StatsContent({ route }: ScreenProps) {
 function rateText(t: Translator['t'], figures: Figures): string {
   switch (figures.basis) {
     case 'computed':
-      return t('omni.stats.rate.value', { rate: figures.rate ?? '' });
+      return percentOfText(figures.rate ?? '');
     case 'noBasis':
       return t('omni.stats.rate.noBasis');
     case 'unreported':
@@ -154,7 +155,7 @@ function Breakdown({ title, first, groups, name, testId }: { title: string; firs
                   <td>{group.opened}</td>
                   <td>{group.denominator}</td>
                   <td>{group.answeredInTime ?? '—'}</td>
-                  <td>{group.basis === 'noBasis' ? t('omni.stats.rate.noBasis') : group.rate === null ? '—' : t('omni.stats.rate.value', { rate: group.rate })}</td>
+                  <td>{group.basis === 'noBasis' ? t('omni.stats.rate.noBasis') : group.rate === null ? '—' : percentOfText(group.rate)}</td>
                 </tr>
               ))}
             </tbody>

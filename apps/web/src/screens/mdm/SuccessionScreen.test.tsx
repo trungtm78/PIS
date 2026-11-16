@@ -129,7 +129,7 @@ describe('SuccessionScreen (MDM-37): the inheritance tree', () => {
       return found as HTMLElement;
     });
     expect(row.textContent).toContain('XA-A');
-    expect(row.textContent).toContain('XA-Y (60.00%)');
+    expect(row.textContent).toContain('XA-Y (60%)');
     expect(row.textContent).toContain(vi_['mdm.value.successionKind.split']);
     expect(document.querySelector(`tr[data-change-id="${other.id}"]`)).toBeNull();
   });

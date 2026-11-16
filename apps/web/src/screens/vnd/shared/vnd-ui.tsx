@@ -1,3 +1,4 @@
+import { formatPercent } from '../../../i18n/format';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -204,7 +205,7 @@ export function CoverageBar({ coverage, label }: { coverage: Coverage; label: st
       <span className="vnd-bar" role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}>
         <span className="vnd-bar__fill" style={{ width: `${percent}%` }} />
       </span>
-      <span className="vnd-coverage__pct">{percent}%</span>
+      <span className="vnd-coverage__pct">{formatPercent(percent)}</span>
     </span>
   );
 }

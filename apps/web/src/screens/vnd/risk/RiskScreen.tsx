@@ -1,3 +1,4 @@
+import { formatPercent } from '../../../i18n/format';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -212,7 +213,7 @@ function Figures({ figures, asOf, unverified }: { figures: ControlFigure[]; asOf
       {figures.map((figure) => (
         <li key={figure.code}>
           <span>{figure.code === 'VENDOR_HIGH_RISK_CONTRACTORS' ? t('vnd.risk.figure.high.name') : t('vnd.risk.figure.review.name')}</span>{' '}
-          <strong data-testid={`figure-${figure.code}`}>{figure.code === 'VENDOR_HIGH_RISK_CONTRACTORS' ? String(figure.numerator) : figure.denominator === 0 ? NONE : `${Math.round((figure.numerator * 1000) / figure.denominator) / 10}%`}</strong>{' '}
+          <strong data-testid={`figure-${figure.code}`}>{figure.code === 'VENDOR_HIGH_RISK_CONTRACTORS' ? String(figure.numerator) : figure.denominator === 0 ? NONE : formatPercent((figure.numerator * 100) / figure.denominator, 1)}</strong>{' '}
           <CountInfo
             name={figure.code === 'VENDOR_HIGH_RISK_CONTRACTORS' ? t('vnd.risk.figure.high.name') : t('vnd.risk.figure.review.name')}
             formula={figure.code === 'VENDOR_HIGH_RISK_CONTRACTORS' ? t('vnd.risk.figure.high.formula') : t('vnd.risk.figure.review.formula')}

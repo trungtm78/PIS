@@ -151,7 +151,7 @@ describe('PortalManageScreen (VND-20)', () => {
     await screen.findByTestId('request-counts');
     fireEvent.click(screen.getByTestId('tab-reconfirmations'));
     await screen.findByTestId('reconfirm-counts');
-    expect(screen.getByTestId('rc-current').textContent).toContain('41.7%');
+    expect(screen.getByTestId('rc-current').textContent).toContain('41,7%');
     expect(screen.getByTestId('rc-state-lapsed').textContent).toContain('1');
     expect(screen.getByTestId('rc-state-never').textContent).toContain('3');
     const lapsed = document.querySelector(`tr[data-contractor-id="${uuid('0001', 2)}"]`) as HTMLElement;

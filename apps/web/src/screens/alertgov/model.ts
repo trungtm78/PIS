@@ -3,6 +3,8 @@
  * The server sends snake_case; a row that has not the shape of its kind is dropped rather than shown half filled, and an answer that has not the shape of its page is refused (the screen shows an error, never an empty page).
  */
 
+import { percentFigure } from '../percent-figure';
+
 type Raw = Record<string, unknown>;
 const isRecord = (value: unknown): value is Raw => typeof value === 'object' && value !== null && !Array.isArray(value);
 const text = (value: unknown): string => (typeof value === 'string' ? value : '');
@@ -179,7 +181,7 @@ export function toHealth(raw: unknown): Health | undefined {
 /** The figure as it is written: a number with its unit, or a dash when the indicator has none (never a zero for "no data"). */
 export function figureOf(value: number | null, unit: KpiUnit): { number: string; unit: KpiUnit } | null {
   if (value === null) return null;
-  const formatted = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(value);
+  const formatted = unit === 'PERCENT' ? percentFigure(value) : new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(value);
   return { number: formatted, unit };
 }
 

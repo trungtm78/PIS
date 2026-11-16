@@ -50,9 +50,9 @@ describe('CAP-22: the contract against its price, the estimate against the appro
     expect(screen.getByText('6 tỷ đồng')).toBeTruthy();
     expect(screen.getAllByText(text('govb2.control.within')).length).toBe(2);
     expect(screen.getByTestId('contract-formula').textContent).toBe(text('govb2.control.contract.formula'));
-    expect(within(screen.getByTestId('line')).getByText(text('govb2.control.verdict', { state: 'OK', pct: '21.66' }))).toBeTruthy();
+    expect(within(screen.getByTestId('line')).getByText(text('govb2.control.verdict', { state: 'OK', pct: '21,66' }))).toBeTruthy();
     expect(screen.getByText('CO-001')).toBeTruthy();
-    expect(screen.getByText(text('govb2.control.verdict', { state: 'WARN', pct: '92.00' }))).toBeTruthy();
+    expect(screen.getByText(text('govb2.control.verdict', { state: 'WARN', pct: '92' }))).toBeTruthy();
     expect(screen.getByText(text('govb2.control.changes.status.evaluated'))).toBeTruthy();
     // The estimate: over the approved total, with the gap in capital and the method that made it.
     expect(await screen.findByText(text('govb2.control.eac.verdict.alert'))).toBeTruthy();
@@ -245,11 +245,11 @@ describe('CTR-27: the tier of a change order', () => {
   it('shows the tier, the cumulative variation against the original price, the amount put to the authority, what is lacking and the check that waits', async () => {
     open(tier());
     expect(await screen.findByText(text('govb2.tier.kpi.tier.value', { tier: 3 }))).toBeTruthy();
-    expect(screen.getByText('11.00%')).toBeTruthy();
+    expect(screen.getByText('11%')).toBeTruthy();
     expect(screen.getByTestId('shortfall').textContent).toBe('1.100.000.000');
     expect(screen.getByText(text('govb2.tier.funding.short'))).toBeTruthy();
     expect(screen.getByText(text('govb2.tier.check.required'))).toBeTruthy();
-    expect(screen.getByTestId('check').textContent).toContain('11.00% / 10.00%');
+    expect(screen.getByTestId('check').textContent).toContain('11% / 10%');
     expect(screen.getByTestId('formula').textContent).toContain(text('govb2.policy.default'));
     expect((screen.getByTestId('reserve-link') as HTMLAnchorElement).getAttribute('href')).toBe(`/prj/prj-22?project=${PROJECT}`);
   });

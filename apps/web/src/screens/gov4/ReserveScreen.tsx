@@ -1,9 +1,11 @@
+import { percentOfText } from '../../i18n/format';
+import { percentFigure } from '../percent-figure';
 import { ApiError } from '@machvon/api-client';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
-import { compactMoney } from '../../i18n/money';
+import { compactMoney, fullMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -59,7 +61,7 @@ function ReserveContent({ route }: ScreenProps) {
           <p>{t('govb2.reserve.subtitle')}</p>
         </div>
       </div>
-      <ContextBar items={[{ label: t('govb2.ctx.scope'), value: tenant?.name ?? t('govb2.ctx.scope.all') }, ...(view === undefined ? [] : [{ label: t('govb2.reserve.ctx.project'), value: view.projectCode }])]} unit={t('govb2.control.unit')} {...(view === undefined ? {} : { asOf: asOfText(view.asOf) })} />
+      <ContextBar items={[{ label: t('govb2.ctx.scope'), value: tenant?.name ?? t('govb2.ctx.scope.all') }, ...(view === undefined ? [] : [{ label: t('govb2.reserve.ctx.project'), value: view.projectCode }])]} {...(view === undefined ? {} : { asOf: asOfText(view.asOf) })} />
       {projectId === undefined ? (
         <p className="callout" data-testid="no-target">
           {t('govb2.reserve.noTarget')}
@@ -78,18 +80,18 @@ function ReserveContent({ route }: ScreenProps) {
                 </p>
               )}
               <KpiStrip label={t('govb2.reserve.kpi.label')}>
-                <KpiTile label={t('govb2.reserve.kpi.contingency')} value={balanceOf('CONTINGENCY') === null ? t('govb2.reserve.kpi.none') : short(balanceOf('CONTINGENCY'))} sub={t('govb2.reserve.kpi.contingency.sub')} />
-                <KpiTile label={t('govb2.reserve.kpi.mgmt')} value={balanceOf('MGMT_RESERVE') === null ? t('govb2.reserve.kpi.none') : short(balanceOf('MGMT_RESERVE'))} sub={t('govb2.reserve.kpi.mgmt.sub')} />
-                <KpiTile label={t('govb2.reserve.kpi.ev')} value={short(view.expectedValueVnd)} sub={t('govb2.reserve.kpi.ev.sub', { count: view.risks.length })} />
+                <KpiTile label={t('govb2.reserve.kpi.contingency')} value={balanceOf('CONTINGENCY') === null ? t('govb2.reserve.kpi.none') : short(balanceOf('CONTINGENCY'))} valueTitle={balanceOf('CONTINGENCY') === null ? undefined : fullMoney(balanceOf('CONTINGENCY'), locale)} sub={t('govb2.reserve.kpi.contingency.sub')} />
+                <KpiTile label={t('govb2.reserve.kpi.mgmt')} value={balanceOf('MGMT_RESERVE') === null ? t('govb2.reserve.kpi.none') : short(balanceOf('MGMT_RESERVE'))} valueTitle={balanceOf('MGMT_RESERVE') === null ? undefined : fullMoney(balanceOf('MGMT_RESERVE'), locale)} sub={t('govb2.reserve.kpi.mgmt.sub')} />
+                <KpiTile label={t('govb2.reserve.kpi.ev')} value={short(view.expectedValueVnd)} valueTitle={fullMoney(view.expectedValueVnd, locale)} sub={t('govb2.reserve.kpi.ev.sub', { count: view.risks.length })} />
                 <KpiTile
                   label={t('govb2.reserve.kpi.cover')}
-                  value={view.cover === null ? t('govb2.reserve.kpi.none') : view.cover.coverPct === null ? t('govb2.reserve.cover.norisk') : `${view.cover.coverPct}%`}
+                  value={view.cover === null ? t('govb2.reserve.kpi.none') : view.cover.coverPct === null ? t('govb2.reserve.cover.norisk') : percentOfText(view.cover.coverPct)}
                   tone={view.cover === null ? 'default' : view.cover.covered ? 'success' : 'danger'}
                   sub={view.cover === null || view.cover.covered ? undefined : t('govb2.reserve.cover.short', { amount: short(view.cover.shortfallVnd) })}
                 />
               </KpiStrip>
               <p className="muted" data-testid="formula">
-                {t('govb2.reserve.formula', { pct: view.policy.coverAlertBelowPct, source: view.policy.source === 'DEFAULT' ? t('govb2.policy.default') : t('govb2.policy.rule', { version: view.policy.version ?? 0 }) })}
+                {t('govb2.reserve.formula', { pct: percentFigure(view.policy.coverAlertBelowPct), source: view.policy.source === 'DEFAULT' ? t('govb2.policy.default') : t('govb2.policy.rule', { version: view.policy.version ?? 0 }) })}
               </p>
               {view.unassessedRiskCount > 0 ? (
                 <p className="callout" role="status" data-testid="unassessed">
@@ -114,7 +116,7 @@ function ReserveContent({ route }: ScreenProps) {
                   state={view.risks.length === 0 ? 'empty' : 'ready'}
                   columns={[
                     { key: 'code', header: t('govb2.reserve.risks.code'), render: (row) => `${row.code} · ${row.title}` },
-                    { key: 'p', header: t('govb2.reserve.risks.probability'), align: 'right', render: (row) => (row.probabilityPct === null ? <StatusPill tone="warning">{t('govb2.reserve.risks.unassessed')}</StatusPill> : `${row.probabilityPct}%`) },
+                    { key: 'p', header: t('govb2.reserve.risks.probability'), align: 'right', render: (row) => (row.probabilityPct === null ? <StatusPill tone="warning">{t('govb2.reserve.risks.unassessed')}</StatusPill> : percentOfText(row.probabilityPct)) },
                     { key: 'cost', header: t('govb2.reserve.risks.cost'), align: 'right', render: (row) => (row.costImpactVnd === null ? '' : <Money value={row.costImpactVnd} />) },
                     { key: 'ev', header: t('govb2.reserve.risks.ev'), align: 'right', render: (row) => (row.expectedValueVnd === null ? '' : <Money value={row.expectedValueVnd} />) },
                   ]}
@@ -127,7 +129,7 @@ function ReserveContent({ route }: ScreenProps) {
               <ConfirmDialog
                 open={decision !== undefined}
                 title={decision?.kind === 'approve' ? t('govb2.reserve.decide.approve.title') : t('govb2.reserve.decide.reject.title')}
-                context={decision === undefined ? [] : [{ label: t('govb2.reserve.decide.amount'), value: money(decision.drawdown.amountVnd) }, { label: t('govb2.reserve.decide.reason'), value: decision.drawdown.reason }]}
+                context={decision === undefined ? [] : [{ label: t('govb2.reserve.decide.amount'), value: fullMoney(decision.drawdown.amountVnd, locale) }, { label: t('govb2.reserve.decide.reason'), value: decision.drawdown.reason }]}
                 confirmLabel={decision?.kind === 'approve' ? t('govb2.reserve.decide.approve') : t('govb2.reserve.decide.reject')}
                 cancelLabel={t('govb2.common.cancel')}
                 pending={decide.isPending}

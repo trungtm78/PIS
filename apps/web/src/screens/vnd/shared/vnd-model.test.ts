@@ -243,7 +243,8 @@ describe('small helpers', () => {
 
   it('writes percents and widths for the strip and the bar', () => {
     expect(percentText(null, 'vi')).toBe('–');
-    expect(percentText(66.67, 'en')).toBe('66.7%');
+    expect(percentText(66.67, 'en')).toBe('66.67%');
+    expect(percentText(66.67, 'vi')).toBe('66,67%');
     expect(coverageWidth({ coverage_pct: 140 } as never)).toBe(100);
     expect(coverageWidth({ coverage_pct: -5 } as never)).toBe(0);
   });

@@ -1,3 +1,4 @@
+import { formatPercent } from '../../i18n/format';
 import { ApiError } from '@machvon/api-client';
 import type { Severity, Tone } from '../../ui';
 
@@ -509,9 +510,7 @@ export function amountText(value: string | null | undefined, locale: string): st
 /** A percent the server wrote as text ("87.50") with the digits of the locale and the sign; null means "not computable", never zero. */
 export function percentText(value: string | null | undefined, locale: string): string {
   if (value === null || value === undefined) return '';
-  const number = Number(value);
-  if (!Number.isFinite(number)) return value;
-  return `${number.toLocaleString(locale, { maximumFractionDigits: 2 })}%`;
+  return formatPercent(value, 2, locale.startsWith('en') ? 'en' : 'vi');
 }
 
 /** The first twelve characters of a file hash: enough to tell two files apart on a list. */

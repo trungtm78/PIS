@@ -1,3 +1,4 @@
+import { formatPercent } from '../../i18n/format';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
@@ -111,7 +112,7 @@ function OverviewContent({ route }: ScreenProps) {
                             ) : null}
                           </td>
                           <td data-denominator>{row.denominator}</td>
-                          <td data-rate>{row.rate === undefined ? t('not.overview.rate.none') : `${row.rate.toFixed(2)}%`}</td>
+                          <td data-rate>{row.rate === undefined ? t('not.overview.rate.none') : formatPercent(row.rate)}</td>
                         </tr>
                       ))}
                     </tbody>

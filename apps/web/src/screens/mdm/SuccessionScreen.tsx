@@ -1,3 +1,5 @@
+import { percentOfText } from '../../i18n/format';
+import { percentFigure } from '../percent-figure';
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
@@ -141,7 +143,7 @@ function SuccessionContent({ route }: ScreenProps) {
                     {connector.after.map((entry) => (
                       <li key={entry.recordId} data-key={entry.key}>
                         <code>{entry.key}</code> {entry.label ?? ''}
-                        {entry.sharePct === null ? null : <span className="sub"> {t('mdm.succession.share.text', { share: entry.sharePct })}</span>}
+                        {entry.sharePct === null ? null : <span className="sub"> {t('mdm.succession.share.text', { share: percentFigure(entry.sharePct) })}</span>}
                       </li>
                     ))}
                   </ul>
@@ -189,7 +191,7 @@ function PendingSuccessions({ changes, records }: { changes: readonly ChangeView
                   <td>
                     <code>{change.businessKey ?? ''}</code>
                   </td>
-                  <td>{proposed?.edges.map((edge) => keyOf(edge.successorRecordId) + (edge.sharePct === null ? '' : ` (${edge.sharePct}%)`)).join(', ') ?? ''}</td>
+                  <td>{proposed?.edges.map((edge) => keyOf(edge.successorRecordId) + (edge.sharePct === null ? '' : ` (${percentOfText(edge.sharePct)})`)).join(', ') ?? ''}</td>
                   <td>{proposed === undefined ? '' : successionKindLabel(t, proposed.kind)}</td>
                   <td>{change.effectiveFrom}</td>
                   <td>{changeStatusLabel(t, change.status)}</td>

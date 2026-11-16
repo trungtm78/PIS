@@ -83,7 +83,7 @@ describe('SectionScreen (LND-10): the handover of land by section and km', () =>
     expect(first.textContent).toContain(text('lnd.sections.km.range', { from: '0.00', to: '3.00' }));
     expect(within(first).getByTestId('contract').textContent).toBe('HD-A-001');
     expect(within(first).getByTestId('handed').textContent).toBe(new Intl.NumberFormat('vi', { minimumFractionDigits: 2 }).format(18000));
-    expect(first.textContent).toContain(text('lnd.sections.ratio.value', { ratio: '60.00' }));
+    expect(first.textContent).toContain(text('lnd.sections.ratio.value', { ratio: '60' }));
     expect(within(first).getByTestId('status').textContent).toBe(vi_['lnd.sections.status.partial']);
     const second = rowOf('SEC-02');
     expect(second.textContent).toContain(vi_['lnd.sections.km.none']);
@@ -94,7 +94,7 @@ describe('SectionScreen (LND-10): the handover of land by section and km', () =>
   it('AC-ST-LND-009-1, UAT-AC386: computes the share of the project from the sums of the areas: 30,000 of 58,000 is 51.72%', async () => {
     open(worldOf([section(1, { handed_area_m2: '30000.00', handed_over_on: '2026-10-20', status: 'HANDED_OVER' }), section(2, { required_area_m2: '28000.00' })]));
     await ready();
-    expect(screen.getByTestId('total-ratio').textContent).toBe(text('lnd.sections.ratio.value', { ratio: '51.72' }));
+    expect(screen.getByTestId('total-ratio').textContent).toBe(text('lnd.sections.ratio.value', { ratio: '51,72' }));
     expect(screen.getByTestId('total-sections').textContent).toBe('1/2');
     const format = new Intl.NumberFormat('vi', { minimumFractionDigits: 2 });
     expect(screen.getByTestId('total-required').textContent).toBe(format.format(58000));
@@ -104,7 +104,7 @@ describe('SectionScreen (LND-10): the handover of land by section and km', () =>
   it('says so when the project has no section, and still offers to create the first one to someone who manages the land', async () => {
     open(worldOf([]), { permissions: WITH_CREATE });
     expect((await screen.findByTestId('no-sections')).textContent).toBe(vi_['lnd.sections.none.notice']);
-    expect(screen.getByTestId('total-ratio').textContent).toBe(text('lnd.sections.ratio.value', { ratio: '0.00' }));
+    expect(screen.getByTestId('total-ratio').textContent).toBe(text('lnd.sections.ratio.value', { ratio: '0' }));
     fireEvent.click(screen.getByRole('button', { name: vi_['lnd.sections.create.action'] }));
     expect(within(dialog()).getByText(vi_['lnd.sectionDialog.title.text'])).toBeTruthy();
   });

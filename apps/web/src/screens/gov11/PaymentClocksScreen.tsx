@@ -3,7 +3,7 @@ import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StatusPill } from '../../ui';
-import { Figure, Frame, Info, UnverifiedNote, asList, asRecord, dayLabel, money, num, stamp, text, useGovRead } from './gov11-kit';
+import { Figure, Frame, Info, UnverifiedNote, asList, asRecord, dayLabel, money, num, percent, stamp, text, useGovRead } from './gov11-kit';
 import type { RuleReading } from './gov11-kit';
 
 type Tone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
@@ -84,7 +84,7 @@ export default function PaymentClocksScreen({ route }: ScreenProps) {
               <Figure label={t('gov11.clocks.open')} value={text(num(summary.open))} rule={payment} fallbackFormula={t('gov11.clocks.open.formula')} owner={t('gov11.clocks.owner')} asOf={asOf} />
               <Figure label={t('gov11.clocks.breached')} value={text(num(summary.breached))} tone={num(summary.breached) > 0 ? 'danger' : 'default'} rule={payment} fallbackFormula={t('gov11.clocks.breached.formula')} owner={t('gov11.clocks.owner')} asOf={asOf} />
               <Figure label={t('gov11.clocks.near')} value={text(num(summary.near))} tone={num(summary.near) > 0 ? 'warning' : 'default'} rule={payment} fallbackFormula={t('gov11.clocks.near.formula')} owner={t('gov11.clocks.owner')} asOf={asOf} />
-              <Figure label={t('gov11.clocks.inTime')} value={summary.in_time_rate_pct === null ? '–' : `${text(summary.in_time_rate_pct)}%`} rule={payment} fallbackFormula={t('gov11.clocks.inTime.formula')} owner={t('gov11.clocks.owner')} asOf={asOf} />
+              <Figure label={t('gov11.clocks.inTime')} value={percent(summary.in_time_rate_pct)} rule={payment} fallbackFormula={t('gov11.clocks.inTime.formula')} owner={t('gov11.clocks.owner')} asOf={asOf} />
             </div>
             <p data-testid="rules-line">
               {t('gov11.clocks.rules', { payment: text(payment?.working_days), advance: text(advance?.working_days) })}

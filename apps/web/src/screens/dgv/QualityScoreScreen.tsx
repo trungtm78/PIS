@@ -1,3 +1,4 @@
+import { percentOfText } from '../../i18n/format';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -262,8 +263,8 @@ function RuleTable({ rules }: { rules: ScoredRuleView[] }) {
                   <span className="sub">{t('dgv.score.rule.revision', { revision: rule.revision })}</span>
                 </td>
                 <td>{dimensionLabel(t, rule.dimension)}</td>
-                <td>{rule.measuredValue === null ? t('dgv.score.rule.notMeasured') : t('dgv.score.rule.percent', { value: rule.measuredValue })}</td>
-                <td>{rule.minPassRate === null ? '' : t('dgv.score.rule.percent', { value: rule.minPassRate })}</td>
+                <td>{rule.measuredValue === null ? t('dgv.score.rule.notMeasured') : percentOfText(rule.measuredValue)}</td>
+                <td>{rule.minPassRate === null ? '' : percentOfText(rule.minPassRate)}</td>
                 <td>{t('dgv.score.rule.counts', { evaluated: rule.evaluated, failed: rule.failed, quarantined: rule.quarantined })}</td>
                 <td>
                   {actionLabel(t, rule.action)}

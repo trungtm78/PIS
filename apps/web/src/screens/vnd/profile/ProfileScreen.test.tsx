@@ -235,7 +235,7 @@ describe('ProfileScreen (VND-02): the contractor profile', () => {
       await gotoTab('owners');
       const current = document.querySelector('tr[data-owner-id]') as HTMLElement;
       expect(current.textContent).toContain('Chủ sở hữu 1');
-      expect(current.textContent).toContain('60.00%');
+      expect(current.textContent).toContain('60%');
       expect(current.textContent).toContain(word('vnd.owners.beneficial.yes'));
       expect(current.textContent).toContain(word('vnd.basis.shareCapital.name'));
       expect(current.textContent).toContain(word('vnd.owners.status.current'));

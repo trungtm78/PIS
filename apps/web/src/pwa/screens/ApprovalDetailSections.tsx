@@ -1,3 +1,4 @@
+import { percentFigure } from '../../screens/percent-figure';
 import { useTranslation } from '../../i18n';
 import { dongText } from '../../i18n/money';
 import { cellTitle } from './approval-labels';
@@ -78,7 +79,7 @@ export function PlanComparison({ read, locale }: { read: ReportRead; locale: str
         <dt>{t('pwa2.approvalDetail.plan.allocated')}</dt>
         <dd>{report.allocatedVnd === null ? '—' : money(report.allocatedVnd, locale)}</dd>
         <dt>{t('pwa2.approvalDetail.plan.shareLabel')}</dt>
-        <dd data-testid="plan-share">{share === null ? t('pwa2.approvalDetail.plan.noPlan') : t('pwa2.approvalDetail.plan.share', { percent: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(share / 10) })}</dd>
+        <dd data-testid="plan-share">{share === null ? t('pwa2.approvalDetail.plan.noPlan') : t('pwa2.approvalDetail.plan.share', { percent: percentFigure(share / 10, 1) })}</dd>
         {change === null ? null : (
           <>
             <dt>{t('pwa2.approvalDetail.plan.change')}</dt>

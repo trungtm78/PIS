@@ -1,13 +1,14 @@
+import { percentFigure } from '../percent-figure';
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
-import { compactMoney } from '../../i18n/money';
+import { compactMoney, fullMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ContextBar, DataTable, FlowChart, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../ui';
+import { ContextBar, DataTable, FlowChart, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../ui';
 import type { FlowSeries } from '../../ui';
 import { LIST_PATH } from '../prj/model';
 import { useDefaultProject } from '../prj/hooks';
@@ -90,6 +91,8 @@ function EvmContent({ route }: ScreenProps) {
   const money = (value: string | null | undefined): string => vnd(value, locale);
   /** An amount in the short form of the shared formatter ("1,23 tỷ đồng"), for the tiles read at a glance; the tables under them keep every dong. */
   const short = (value: string | null | undefined): string => compactMoney(value, { locale });
+  /** The exact dong of a short amount, for the tooltip of its tile; no amount has none. */
+  const exact = (value: string | null | undefined): string | undefined => (value === null || value === undefined ? undefined : fullMoney(value, locale));
   const view = evm.data ?? undefined;
   const writable = mode !== 'READ_ONLY';
   const needsRef = scope !== 'PROJECT' && ref === undefined;
@@ -154,7 +157,6 @@ function EvmContent({ route }: ScreenProps) {
           { label: t('govb1.ctx.scope'), value: tenant?.name ?? t('govb1.ctx.scope.all') },
           ...(view === undefined ? [] : [{ label: t('govb1.ctx.project'), value: view.projectCode }, { label: t('govb1.evm.ctx.baseline'), value: view.baseline.version === null ? t('govb1.common.na') : t('govb1.evm.ctx.version', { version: view.baseline.version }) }]),
         ]}
-        unit={t('govb1.common.unit')}
         {...(view === undefined ? {} : { asOf: dayText(view.asOf) })}
       />
       {projectId === undefined && named === undefined && fallback.isLoading ? (
@@ -257,10 +259,10 @@ function EvmContent({ route }: ScreenProps) {
                       </div>
                     ) : null}
                     <KpiStrip label={t('govb1.evm.kpi.title', { code: view.projectCode })}>
-                      <KpiTile label={t('govb1.evm.kpi.bac')} value={metric(figures.bacVnd, 'bac').value} sub={metric(figures.bacVnd, 'bac').sub} />
-                      <KpiTile label={t('govb1.evm.kpi.pv')} value={metric(figures.pvVnd, 'pv').value} sub={metric(figures.pvVnd, 'pv').sub ?? t('govb1.evm.kpi.pv.sub')} />
-                      <KpiTile label={t('govb1.evm.kpi.ev')} value={metric(figures.evVnd, 'ev').value} sub={metric(figures.evVnd, 'ev').sub ?? t('govb1.evm.kpi.ev.sub')} />
-                      <KpiTile label={t('govb1.evm.kpi.ac')} value={metric(figures.acVnd, 'ac').value} sub={metric(figures.acVnd, 'ac').sub ?? t('govb1.evm.kpi.ac.sub')} />
+                      <KpiTile label={t('govb1.evm.kpi.bac')} value={metric(figures.bacVnd, 'bac').value} valueTitle={exact(figures.bacVnd)} sub={metric(figures.bacVnd, 'bac').sub} />
+                      <KpiTile label={t('govb1.evm.kpi.pv')} value={metric(figures.pvVnd, 'pv').value} valueTitle={exact(figures.pvVnd)} sub={metric(figures.pvVnd, 'pv').sub ?? t('govb1.evm.kpi.pv.sub')} />
+                      <KpiTile label={t('govb1.evm.kpi.ev')} value={metric(figures.evVnd, 'ev').value} valueTitle={exact(figures.evVnd)} sub={metric(figures.evVnd, 'ev').sub ?? t('govb1.evm.kpi.ev.sub')} />
+                      <KpiTile label={t('govb1.evm.kpi.ac')} value={metric(figures.acVnd, 'ac').value} valueTitle={exact(figures.acVnd)} sub={metric(figures.acVnd, 'ac').sub ?? t('govb1.evm.kpi.ac.sub')} />
                       <KpiTile
                         label={t('govb1.evm.kpi.cpi')}
                         value={index(figures.cpi, 'cpi').value}
@@ -273,15 +275,16 @@ function EvmContent({ route }: ScreenProps) {
                         tone={figures.ragSpi === null ? 'default' : ragTone(figures.ragSpi)}
                         sub={figures.ragSpi === null ? index(figures.spi, 'spi').sub : <StatusPill tone={ragTone(figures.ragSpi)}>{ragText(t, figures.ragSpi)}</StatusPill>}
                       />
-                      <KpiTile label={t('govb1.evm.kpi.eac')} value={metric(figures.eacVnd, 'eac').value} sub={metric(figures.eacVnd, 'eac').sub ?? t('govb1.evm.kpi.eac.sub', { method: methodText(t, figures.eacMethod) })} />
-                      <KpiTile label={t('govb1.evm.kpi.etc')} value={metric(figures.etcVnd, 'etc').value} sub={metric(figures.etcVnd, 'etc').sub} />
-                      <KpiTile label={t('govb1.evm.kpi.vac')} value={metric(figures.vacVnd, 'vac').value} sub={metric(figures.vacVnd, 'vac').sub} />
+                      <KpiTile label={t('govb1.evm.kpi.eac')} value={metric(figures.eacVnd, 'eac').value} valueTitle={exact(figures.eacVnd)} sub={metric(figures.eacVnd, 'eac').sub ?? t('govb1.evm.kpi.eac.sub', { method: methodText(t, figures.eacMethod) })} />
+                      <KpiTile label={t('govb1.evm.kpi.etc')} value={metric(figures.etcVnd, 'etc').value} valueTitle={exact(figures.etcVnd)} sub={metric(figures.etcVnd, 'etc').sub} />
+                      <KpiTile label={t('govb1.evm.kpi.vac')} value={metric(figures.vacVnd, 'vac').value} valueTitle={exact(figures.vacVnd)} sub={metric(figures.vacVnd, 'vac').sub} />
                       <KpiTile label={t('govb1.evm.kpi.tcpi')} value={index(figures.tcpi, 'tcpi').value} sub={index(figures.tcpi, 'tcpi').sub} />
                       <KpiTile
                         label={t('govb1.evm.kpi.over')}
                         value={view.eacAgainstTotal === null ? t('govb1.common.na') : short(view.eacAgainstTotal.overVnd)}
+                        valueTitle={exact(view.eacAgainstTotal?.overVnd)}
                         tone={view.eacAgainstTotal !== null && WHOLE.test(view.eacAgainstTotal.overVnd) && BigInt(view.eacAgainstTotal.overVnd) > 0n ? 'danger' : 'default'}
-                        sub={view.eacAgainstTotal === null ? t('govb1.evm.kpi.over.none') : view.eacAgainstTotal.overPct === null ? t('govb1.evm.kpi.over.total', { total: short(view.totalInvestmentVnd) }) : t('govb1.evm.kpi.over.pct', { pct: view.eacAgainstTotal.overPct, total: short(view.totalInvestmentVnd) })}
+                        sub={view.eacAgainstTotal === null ? t('govb1.evm.kpi.over.none') : view.eacAgainstTotal.overPct === null ? t('govb1.evm.kpi.over.total', { total: short(view.totalInvestmentVnd) }) : t('govb1.evm.kpi.over.pct', { pct: percentFigure(view.eacAgainstTotal.overPct), total: short(view.totalInvestmentVnd) })}
                       />
                     </KpiStrip>
                     <p className="muted" data-testid="formula">
@@ -374,10 +377,10 @@ function EvmContent({ route }: ScreenProps) {
                         state={curve.data.points.length === 0 ? 'empty' : 'ready'}
                         columns={[
                           { key: 'day', header: t('govb1.evm.curve.day'), render: (row) => dayText(row.day) },
-                          { key: 'pv0', header: t('govb1.evm.series.pvV0'), align: 'right', render: (row) => money(row.pvV0Vnd) },
-                          { key: 'pvc', header: t('govb1.evm.series.pvCurrent'), align: 'right', render: (row) => money(row.pvCurrentVnd) },
-                          { key: 'ev', header: t('govb1.evm.series.ev'), align: 'right', render: (row) => (row.evVnd === null ? t('govb1.common.na') : money(row.evVnd)) },
-                          { key: 'ac', header: t('govb1.evm.series.ac'), align: 'right', render: (row) => (row.acVnd === null ? t('govb1.common.na') : money(row.acVnd)) },
+                          { key: 'pv0', header: t('govb1.evm.series.pvV0'), align: 'right', render: (row) => <Money bare unit="billion" value={row.pvV0Vnd} /> },
+                          { key: 'pvc', header: t('govb1.evm.series.pvCurrent'), align: 'right', render: (row) => <Money bare unit="billion" value={row.pvCurrentVnd} /> },
+                          { key: 'ev', header: t('govb1.evm.series.ev'), align: 'right', render: (row) => (row.evVnd === null ? t('govb1.common.na') : <Money bare unit="billion" value={row.evVnd} />) },
+                          { key: 'ac', header: t('govb1.evm.series.ac'), align: 'right', render: (row) => (row.acVnd === null ? t('govb1.common.na') : <Money bare unit="billion" value={row.acVnd} />) },
                         ]}
                       />
                     ) : null}

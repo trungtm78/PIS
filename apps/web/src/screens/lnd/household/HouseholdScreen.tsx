@@ -1,3 +1,4 @@
+import { percentFigure } from '../../percent-figure';
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -178,7 +179,7 @@ function HouseholdTable({ households, canLink, canOpen, requestTo, onLink, onRev
             ? t('lnd.households.parcels.none')
             : household.parcels.map((parcel) => (
                 <span key={parcel.id} className="lnd-line" data-parcel-link={parcel.id}>
-                  {t('lnd.households.parcels.line', { code: parcel.parcelCode, right: rightKindLabel(t, parcel.rightKind), share: parcel.sharePct })}
+                  {t('lnd.households.parcels.line', { code: parcel.parcelCode, right: rightKindLabel(t, parcel.rightKind), share: percentFigure(parcel.sharePct) })}
                 </span>
               ))}
         </span>

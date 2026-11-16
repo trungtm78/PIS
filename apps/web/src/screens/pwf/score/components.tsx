@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
-import { decimalText } from '../../../i18n/format';
+import { decimalText, formatPercent } from '../../../i18n/format';
+import { percentFigure } from '../../percent-figure';
 import { DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { gradeLook, gradeName, versionText, TaskName } from '../codes';
@@ -122,7 +123,7 @@ export function ScoreInfo({ basis, asOf }: { basis: ScoreLine['basis']; asOf: st
   );
 }
 
-const percentText = (fraction: number): string => `${decimalText(fraction * 100)}%`;
+const percentText = (fraction: number): string => formatPercent(fraction * 100);
 
 /** The results of the KPIs of one task of a line, each with the formula, the value, the score and the facts it was computed from; read when the person opens them. */
 function TaskFacts({ taskId }: { taskId: string }) {
@@ -216,7 +217,7 @@ export function ContributionsTable({ contributions }: { contributions: readonly 
       render: (row) => (
         <ul className="pwfs-spans">
           {row.spans.map((span, at) => (
-            <li key={at}>{t('pwfs.contribution.span.text', { role: roleWord(t, span.role), from: dayText(span.valid_from), to: span.valid_to === null ? t('pwfs.contribution.open.text') : dayText(span.valid_to), share: span.share_pct })}</li>
+            <li key={at}>{t('pwfs.contribution.span.text', { role: roleWord(t, span.role), from: dayText(span.valid_from), to: span.valid_to === null ? t('pwfs.contribution.open.text') : dayText(span.valid_to), share: percentFigure(span.share_pct) })}</li>
           ))}
         </ul>
       ),

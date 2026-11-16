@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { ContextBar, DataTable, FilterPanel, StatusPill } from '../../../ui';
+import { compactMoney } from '../../../i18n/money';
+import { ContextBar, DataTable, FilterPanel, Money, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
-import { amountText } from '../../ctr/model';
 import { useHandovers } from '../handover/hooks';
 import { useAssets } from './hooks';
 import { basisLabel, statusLabel } from './labels';
@@ -30,7 +31,7 @@ export default function AssetScreen({ route }: ScreenProps) {
 type Dialog = { kind: 'register' } | { kind: 'transfer'; asset: AssetLine };
 
 function AssetContent({ route }: ScreenProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { permissions, mode, tenant } = useSession();
   const [search, setSearch] = useSearchParams();
   const handovers = useHandovers('');
@@ -45,7 +46,8 @@ function AssetContent({ route }: ScreenProps) {
   const lines = assets.data ?? [];
   const choose = (id: string): void => setSearch(id === '' ? {} : { handover: id });
   const writable = mode !== 'READ_ONLY';
-  const money = (value: string | null): string => (value === null ? t('ast.asset.value.hidden') : t('ctr.value.amount', { amount: amountText(value, locale) }));
+  /** The recorded value in the short form of the shared formatter (the exact dong one hover away); a value the caller may not read is said so. */
+  const money = (value: string | null): ReactNode => (value === null ? t('ast.asset.value.hidden') : <Money value={value} />);
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -107,7 +109,7 @@ const STATUS_TONE: Readonly<Record<AssetStatus, 'neutral' | 'info' | 'success' |
 interface AssetTableProps {
   lines: AssetLine[];
   writable: boolean;
-  money(value: string | null): string;
+  money(value: string | null): ReactNode;
   onTransfer(asset: AssetLine): void;
 }
 
@@ -155,7 +157,7 @@ function AssetTable({ lines, writable, money, onTransfer }: AssetTableProps) {
             {line.valueBasis === null ? null : <small className="sub qms-regime">{basisLabel(t, line.valueBasis)}</small>}
             {left === undefined ? null : (
               <small className="sub qms-regime" data-testid="remaining">
-                {t('ast.asset.remaining.label', { left: amountText(left, locale), contract: amountText(line.contract.valueVnd ?? '0', locale) })}
+                {t('ast.asset.remaining.label', { left: compactMoney(left, { locale }), contract: compactMoney(line.contract.valueVnd ?? '0', { locale }) })}
               </small>
             )}
           </span>

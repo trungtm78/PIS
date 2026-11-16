@@ -1,6 +1,8 @@
+import { percentOfText } from '../../i18n/format';
+import { percentFigure } from '../percent-figure';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
-import { compactMoney } from '../../i18n/money';
+import { compactMoney, fullMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -64,10 +66,10 @@ function ContractControlContent({ route }: ScreenProps) {
           ) : (
             <SectionCard title={t('govb2.control.eac.title', { code: estimate.projectCode })}>
               <KpiStrip label={t('govb2.control.eac.title', { code: estimate.projectCode })}>
-                <KpiTile label={t('govb2.control.eac.eac')} value={money(estimate.eacVnd)} sub={t('govb2.control.eac.method', { method: estimate.method })} />
-                <KpiTile label={t('govb2.control.eac.approved')} value={money(estimate.approvedTotalVnd)} />
-                <KpiTile label={t('govb2.control.eac.over')} value={money(estimate.overByVnd)} tone={estimate.raisesAlert ? 'danger' : 'default'} sub={estimate.overPct === null ? undefined : `${estimate.overPct}%`} />
-                <KpiTile label={t('govb2.control.eac.gap')} value={money(estimate.fundingGapVnd)} tone={BigInt(estimate.fundingGapVnd || '0') > 0n ? 'warning' : 'default'} sub={t('govb2.control.eac.allocated', { amount: money(estimate.allocatedVnd) })} />
+                <KpiTile label={t('govb2.control.eac.eac')} value={money(estimate.eacVnd)} valueTitle={fullMoney(estimate.eacVnd, locale)} sub={t('govb2.control.eac.method', { method: estimate.method })} />
+                <KpiTile label={t('govb2.control.eac.approved')} value={money(estimate.approvedTotalVnd)} valueTitle={fullMoney(estimate.approvedTotalVnd, locale)} />
+                <KpiTile label={t('govb2.control.eac.over')} value={money(estimate.overByVnd)} valueTitle={fullMoney(estimate.overByVnd, locale)} tone={estimate.raisesAlert ? 'danger' : 'default'} sub={estimate.overPct === null ? undefined : percentOfText(estimate.overPct)} />
+                <KpiTile label={t('govb2.control.eac.gap')} value={money(estimate.fundingGapVnd)} valueTitle={fullMoney(estimate.fundingGapVnd, locale)} tone={BigInt(estimate.fundingGapVnd || '0') > 0n ? 'warning' : 'default'} sub={t('govb2.control.eac.allocated', { amount: money(estimate.allocatedVnd) })} />
               </KpiStrip>
               <p data-testid="eac-verdict">
                 <StatusPill tone={estimate.raisesAlert ? 'danger' : estimate.verdict === 'OVER' ? 'warning' : 'success'}>
@@ -75,7 +77,7 @@ function ContractControlContent({ route }: ScreenProps) {
                 </StatusPill>
               </p>
               <p className="muted" data-testid="eac-formula">
-                {t('govb2.control.eac.formula', { tolerance: estimate.policy.eacAlertAbovePct, source: estimate.policy.source === 'DEFAULT' ? t('govb2.policy.default') : t('govb2.policy.rule', { version: estimate.policy.version ?? 0 }) })}
+                {t('govb2.control.eac.formula', { tolerance: percentFigure(estimate.policy.eacAlertAbovePct), source: estimate.policy.source === 'DEFAULT' ? t('govb2.policy.default') : t('govb2.policy.rule', { version: estimate.policy.version ?? 0 }) })}
               </p>
             </SectionCard>
           )}
@@ -92,11 +94,11 @@ function ContractControlContent({ route }: ScreenProps) {
             <>
               <SectionCard title={t('govb2.control.contract.title', { code: statement.contract.code })} status={<StatusPill tone={statement.money.withinPrice ? 'success' : 'danger'}>{statement.money.withinPrice ? t('govb2.control.within') : t('govb2.control.exceeds')}</StatusPill>}>
                 <KpiStrip label={t('govb2.control.contract.title', { code: statement.contract.code })}>
-                  <KpiTile label={t('govb2.control.price')} value={money(statement.money.currentPriceVnd)} sub={t('govb2.control.price.sub', { original: money(statement.money.originalPriceVnd), variation: money(statement.money.approvedVariationVnd) })} />
-                  <KpiTile label={t('govb2.control.pending')} value={money(statement.money.pendingIncreaseVnd)} sub={t('govb2.control.pending.sub')} tone={BigInt(statement.money.pendingIncreaseVnd || '0') > 0n ? 'info' : 'default'} />
-                  <KpiTile label={t('govb2.control.requested')} value={money(statement.money.requestedTotalVnd)} sub={statement.money.requestedPct === null ? undefined : t('govb2.control.requested.sub', { pct: statement.money.requestedPct, paid: money(statement.money.paidTotalVnd) })} />
-                  <KpiTile label={t('govb2.control.advance')} value={money(statement.money.advanceOutstandingVnd)} sub={t('govb2.control.advance.sub')} />
-                  <KpiTile label={t('govb2.control.remaining')} value={money(statement.money.remainingPayableVnd)} sub={t('govb2.control.remaining.sub', { headroom: money(statement.money.cashHeadroomVnd) })} />
+                  <KpiTile label={t('govb2.control.price')} value={money(statement.money.currentPriceVnd)} valueTitle={fullMoney(statement.money.currentPriceVnd, locale)} sub={t('govb2.control.price.sub', { original: money(statement.money.originalPriceVnd), variation: money(statement.money.approvedVariationVnd) })} />
+                  <KpiTile label={t('govb2.control.pending')} value={money(statement.money.pendingIncreaseVnd)} valueTitle={fullMoney(statement.money.pendingIncreaseVnd, locale)} sub={t('govb2.control.pending.sub')} tone={BigInt(statement.money.pendingIncreaseVnd || '0') > 0n ? 'info' : 'default'} />
+                  <KpiTile label={t('govb2.control.requested')} value={money(statement.money.requestedTotalVnd)} valueTitle={fullMoney(statement.money.requestedTotalVnd, locale)} sub={statement.money.requestedPct === null ? undefined : t('govb2.control.requested.sub', { pct: percentFigure(statement.money.requestedPct), paid: money(statement.money.paidTotalVnd) })} />
+                  <KpiTile label={t('govb2.control.advance')} value={money(statement.money.advanceOutstandingVnd)} valueTitle={fullMoney(statement.money.advanceOutstandingVnd, locale)} sub={t('govb2.control.advance.sub')} />
+                  <KpiTile label={t('govb2.control.remaining')} value={money(statement.money.remainingPayableVnd)} valueTitle={fullMoney(statement.money.remainingPayableVnd, locale)} sub={t('govb2.control.remaining.sub', { headroom: money(statement.money.cashHeadroomVnd) })} />
                 </KpiStrip>
                 <p className="muted" data-testid="contract-formula">
                   {t('govb2.control.contract.formula')}
@@ -128,7 +130,7 @@ function ContractControlContent({ route }: ScreenProps) {
                       {statement.line.verdict === null ? (
                         t('govb2.control.line.noPolicy')
                       ) : (
-                        <StatusPill tone={verdictTone(statement.line.verdict)}>{t('govb2.control.verdict', { state: statement.line.verdict.state, pct: statement.line.verdict.consumptionPct })}</StatusPill>
+                        <StatusPill tone={verdictTone(statement.line.verdict)}>{t('govb2.control.verdict', { state: statement.line.verdict.state, pct: percentFigure(statement.line.verdict.consumptionPct) })}</StatusPill>
                       )}
                     </dd>
                   </dl>
@@ -148,7 +150,7 @@ function ContractControlContent({ route }: ScreenProps) {
                     {
                       key: 'verdict',
                       header: t('govb2.control.changes.verdict'),
-                      render: (row) => (row.verdict === null ? t('govb2.control.changes.noVerdict') : <StatusPill tone={verdictTone(row.verdict)}>{t('govb2.control.verdict', { state: row.verdict.state, pct: row.verdict.consumptionPct })}</StatusPill>),
+                      render: (row) => (row.verdict === null ? t('govb2.control.changes.noVerdict') : <StatusPill tone={verdictTone(row.verdict)}>{t('govb2.control.verdict', { state: row.verdict.state, pct: percentFigure(row.verdict.consumptionPct) })}</StatusPill>),
                     },
                   ]}
                 />

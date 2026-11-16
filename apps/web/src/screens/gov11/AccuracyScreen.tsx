@@ -2,7 +2,7 @@ import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StatusPill } from '../../ui';
-import { Figure, Frame, Info, UnverifiedNote, asList, asRecord, money, num, text, useGovRead } from './gov11-kit';
+import { Figure, Frame, Info, ShortMoney, UnverifiedNote, asList, asRecord, num, percent, text, useGovRead } from './gov11-kit';
 import type { RuleReading } from './gov11-kit';
 
 type Tone = 'success' | 'warning' | 'danger' | 'neutral';
@@ -51,8 +51,8 @@ export default function AccuracyScreen({ route }: ScreenProps) {
               </p>
             )}
             <div className="gov11-row">
-              <Figure label={t('gov11.accuracy.wape')} value={overall.wape_pct === null ? '–' : `${text(overall.wape_pct)}%`} tone={BAND[text(overall.band, 'INSUFFICIENT')] ?? 'neutral'} sub={bandLabel(text(overall.band, 'INSUFFICIENT'))} rule={rule} fallbackFormula={t('gov11.accuracy.wape.formula')} owner={t('gov11.accuracy.owner')} asOf={asOf} />
-              <Figure label={t('gov11.accuracy.bias')} value={overall.bias_pct === null ? '–' : `${text(overall.bias_pct)}%`} rule={rule} fallbackFormula={t('gov11.accuracy.bias.formula')} owner={t('gov11.accuracy.owner')} asOf={asOf} />
+              <Figure label={t('gov11.accuracy.wape')} value={percent(overall.wape_pct)} tone={BAND[text(overall.band, 'INSUFFICIENT')] ?? 'neutral'} sub={bandLabel(text(overall.band, 'INSUFFICIENT'))} rule={rule} fallbackFormula={t('gov11.accuracy.wape.formula')} owner={t('gov11.accuracy.owner')} asOf={asOf} />
+              <Figure label={t('gov11.accuracy.bias')} value={percent(overall.bias_pct)} rule={rule} fallbackFormula={t('gov11.accuracy.bias.formula')} owner={t('gov11.accuracy.owner')} asOf={asOf} />
               <Figure label={t('gov11.accuracy.months')} value={text(num(overall.months))} sub={t('gov11.accuracy.lastMonth', { month: text(data.last_measured_month) })} rule={rule} fallbackFormula={t('gov11.accuracy.months.formula')} owner={t('gov11.accuracy.owner')} asOf={asOf} />
             </div>
             <div className="gov11-scroll">
@@ -65,10 +65,10 @@ export default function AccuracyScreen({ route }: ScreenProps) {
                       {t('gov11.accuracy.col.months')}
                     </th>
                     <th scope="col" className="gov11-num">
-                      {t('gov11.accuracy.col.forecast')}
+                      {t('gov11.accuracy.col.forecastShort')}
                     </th>
                     <th scope="col" className="gov11-num">
-                      {t('gov11.accuracy.col.actual')}
+                      {t('gov11.accuracy.col.actualShort')}
                     </th>
                     <th scope="col" className="gov11-num">
                       {t('gov11.accuracy.col.wape')}
@@ -89,11 +89,11 @@ export default function AccuracyScreen({ route }: ScreenProps) {
                       <tr key={text(investor.id, `row-${index}`)} data-testid={`investor-${text(investor.code, String(index))}`}>
                         <th scope="row">{text(investor.name, t('gov11.accuracy.noInvestor'))}</th>
                         <td className="gov11-num">{text(num(row.months))}</td>
-                        <td className="gov11-num">{money(row.forecast_vnd)}</td>
-                        <td className="gov11-num">{money(row.actual_vnd)}</td>
-                        <td className="gov11-num">{row.wape_pct === null ? '–' : `${text(row.wape_pct)}%`}</td>
+                        <td className="gov11-num"><ShortMoney value={row.forecast_vnd} /></td>
+                        <td className="gov11-num"><ShortMoney value={row.actual_vnd} /></td>
+                        <td className="gov11-num">{percent(row.wape_pct)}</td>
                         <td className="gov11-num">
-                          {row.bias_pct === null ? '–' : `${text(row.bias_pct)}%`}
+                          {percent(row.bias_pct)}
                           {flag !== null && ` · ${flag}`}
                         </td>
                         <td>

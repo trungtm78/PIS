@@ -211,7 +211,7 @@ describe('UAT-PWA-02 step 1: the figures of the snapshot of HOME-09 on the phone
     const rankRows = within(ranking).getAllByRole('row').slice(1);
     expect(rankRows).toHaveLength(2);
     expect(rankRows[0]?.textContent).toContain('Sở Giáo dục');
-    expect(rankRows[0]?.textContent).toContain('50,00%');
+    expect(rankRows[0]?.textContent).toContain('50%');
     expect(rankRows[1]?.textContent).toContain('Sở Giao thông');
     expect(ranking.textContent).not.toContain('SGD');
     // the causes: the open warnings counted by the rule that raised them
@@ -231,8 +231,8 @@ describe('UAT-PWA-02 step 1: the figures of the snapshot of HOME-09 on the phone
     const changes = await screen.findByTestId('changes-lines');
     const lines = Array.from(changes.querySelectorAll('li'));
     expect(lines.map((line) => line.getAttribute('data-kind'))).toEqual(['RATE_CHANGE', 'UNITS_TO_RED', 'WARNINGS_DELTA']);
-    expect(lines[0]?.textContent).toContain('12.50');
-    expect(lines[0]?.textContent).toContain('10.00');
+    expect(lines[0]?.textContent).toContain('12,5%');
+    expect(lines[0]?.textContent).toContain('10%');
     expect(lines[1]?.getAttribute('data-direction')).toBe('DOWN');
     expect(screen.getByTestId('changes-range').textContent).toContain('04/10/2027');
     // every card read the snapshot it belongs to
@@ -274,7 +274,7 @@ describe('UAT-PWA-02 step 1: the figures of the snapshot of HOME-09 on the phone
     const ranking = await cardOf(word('home.ov.rank.title'));
     await waitFor(() => expect(within(ranking).getByText('Sở Giáo dục')).toBeTruthy());
     expect(() => expect(within(ranking).getAllByRole('row')[1]?.textContent).toContain('Sở Giao thông')).toThrow();
-    expect(() => expect(within(ranking).getAllByRole('row')[1]?.textContent).toContain('51,00%')).toThrow();
+    expect(() => expect(within(ranking).getAllByRole('row')[1]?.textContent).toContain('51%')).toThrow();
     expect(() => expect(screen.getByTestId('changes-lines').querySelectorAll('li')).toHaveLength(5)).toThrow();
     expect(() => expect(screen.getByTestId('figures-amounts').textContent).toContain('700')).toThrow();
   });

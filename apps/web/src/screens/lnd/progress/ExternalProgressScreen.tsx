@@ -1,3 +1,4 @@
+import { percentOfText } from '../../../i18n/format';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -113,7 +114,7 @@ function StageRow({ stage, sectionCode, canEdit, onEdit }: { stage: StageLine; s
       <td data-testid="executor">{`${stage.executorUnitName} (${executorKindLabel(t, stage.executorKind)})`}</td>
       <td data-testid="mode">{modeLabel(t, stage.mode)}</td>
       <td className="lnd-numeric" data-testid="parcels">{`${stage.parcelsDone} / ${stage.parcelsTotal}`}</td>
-      <td className="lnd-numeric" data-testid="progress">{`${stage.progressPct}%`}</td>
+      <td className="lnd-numeric" data-testid="progress">{percentOfText(stage.progressPct)}</td>
       <td>{stage.plannedEnd ?? ''}</td>
       <td>
         <span className={stage.status === 'LATE' || stage.status === 'BLOCKED' ? 'lnd-badge warning' : 'lnd-badge'} data-testid="status">

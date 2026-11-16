@@ -1,3 +1,5 @@
+import { percentFigure } from '../../percent-figure';
+import { formatPercent } from '../../../i18n/format';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -157,7 +159,7 @@ export function IdentityTab({ view, canEdit, onEdit }: { view: ProfileView; canE
 // ---- owners -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 export function OwnersTab({ view, canManage, onAdd, onEnd, onDeclare }: { view: ProfileView; canManage: boolean; onAdd: () => void; onEnd: (owner: Owner) => void; onDeclare: () => void }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const threshold = paramNumber(view.policies.profile, 'beneficial_owner_pct');
   return (
     <SectionCard
@@ -177,7 +179,7 @@ export function OwnersTab({ view, canManage, onAdd, onEnd, onDeclare }: { view: 
       }
     >
       <p className="vnd-note vnd-row" data-testid="owners-rule">
-        <span>{threshold === undefined ? t('vnd.owners.rule.plain.text') : t('vnd.owners.rule.text', { pct: numberText(threshold, locale) })}</span>
+        <span>{threshold === undefined ? t('vnd.owners.rule.plain.text') : t('vnd.owners.rule.text', { pct: percentFigure(threshold) })}</span>
         <PolicyInfo name={t('vnd.owners.figure.threshold.name')} policy={view.policies.profile} />
       </p>
       <p className="vnd-note" data-testid="owners-declaration">
@@ -194,7 +196,7 @@ export function OwnersTab({ view, canManage, onAdd, onEnd, onDeclare }: { view: 
           columns={[
             { key: 'name', header: t('vnd.owners.column.name'), pinned: true, render: (row) => <span>{row.owner_name}</span> },
             { key: 'kind', header: t('vnd.owners.column.kind'), render: (row) => ownerKindLabel(t, row.owner_kind) },
-            { key: 'share', header: t('vnd.owners.column.share'), align: 'right', render: (row) => (row.share_pct === null ? NONE : `${row.share_pct}%`) },
+            { key: 'share', header: t('vnd.owners.column.share'), align: 'right', render: (row) => (row.share_pct === null ? NONE : formatPercent(row.share_pct)) },
             {
               key: 'beneficial',
               header: t('vnd.owners.column.beneficial'),
@@ -468,7 +470,7 @@ export function VenturesTab({ view }: { view: ProfileView }) {
                 <ul className="vnd-list">
                   {row.members.map((member) => (
                     <li key={member.contractor_id}>
-                      {t('vnd.ventures.member.text', { name: member.contractor_name, share: member.share_pct })}
+                      {t('vnd.ventures.member.text', { name: member.contractor_name, share: percentFigure(member.share_pct) })}
                       {member.lead && <StatusPill tone="info">{t('vnd.ventures.lead.badge')}</StatusPill>}
                     </li>
                   ))}

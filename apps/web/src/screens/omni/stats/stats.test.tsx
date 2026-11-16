@@ -153,7 +153,7 @@ describe('OMNI-10: statistics of the interactions (ST-OMNI-008, UI-OMNI-10)', ()
     open([conversation(1), conversation(2, { first_response_at: null }), conversation(3, { channel: 'EMAIL', queue_unit_name: null }), conversation(4, { channel: 'VOICE' })]);
     await screen.findByTestId('stats-sla');
     expect(screen.getByTestId('stats-sla').getAttribute('data-basis')).toBe('computed');
-    expect(within(screen.getByTestId('stats-rate')).getByText(word('omni.stats.rate.value', { rate: '75.0' }))).toBeTruthy();
+    expect(within(screen.getByTestId('stats-rate')).getByText('75%')).toBeTruthy();
     expect(screen.getByTestId('stats-rate').textContent).toContain(word('omni.stats.rate.of', { answered: 3, total: 4 }));
     expect(within(screen.getByTestId('stats-denominator')).getByText('4')).toBeTruthy();
     const byChannel = screen.getByTestId('stats-by-channel');
@@ -162,7 +162,7 @@ describe('OMNI-10: statistics of the interactions (ST-OMNI-008, UI-OMNI-10)', ()
     expect(byChannel.querySelector('[data-group="VOICE"]')?.textContent).toContain('VOICE');
     const byUnit = screen.getByTestId('stats-by-unit');
     expect(byUnit.querySelector('[data-group=""]')?.textContent).toContain(word('omni.stats.unit.tenant'));
-    expect(byUnit.querySelector('[data-group="Ban A"]')?.textContent).toContain('66.7%');
+    expect(byUnit.querySelector('[data-group="Ban A"]')?.textContent).toContain('66,7%');
     expect(document.body.textContent).not.toContain('Người dân');
   });
 

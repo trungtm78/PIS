@@ -65,7 +65,7 @@ describe('HouseholdScreen (LND-03): the households affected by a land recovery',
     expect(first.querySelector('td')?.textContent).toBe('HH-000001');
     expect(within(first).getByTestId('head').textContent).toBe('N***** V** A');
     expect(within(first).getByTestId('national-id').textContent).toBe('********0001');
-    expect(within(first).getByTestId('parcels').textContent).toBe(vi_['lnd.households.parcels.line'].replace('{code}', 'TB-1/10').replace('{right}', vi_['lnd.rightKind.owner.label']).replace('{share}', '60.0000'));
+    expect(within(first).getByTestId('parcels').textContent).toBe(vi_['lnd.households.parcels.line'].replace('{code}', 'TB-1/10').replace('{right}', vi_['lnd.rightKind.owner.label']).replace('{share}', '60'));
     expect(within(first).getByTestId('basis').textContent).toBe(vi_['lnd.legalBasis.publicTask.label']);
     expect(within(first).getByTestId('retention').textContent).toBe(vi_['lnd.households.retention.line'].replace('{until}', '2036-12-31'));
     expect(within(first).getByTestId('status').textContent).toBe(vi_['lnd.householdStatus.registered.label']);

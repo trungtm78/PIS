@@ -1,3 +1,4 @@
+import { formatPercent } from '../../../i18n/format';
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
@@ -38,7 +39,7 @@ export function AssignmentLedger({ taskId, canAssign }: AssignmentLedgerProps) {
     { key: 'person', header: t('pwf.ledger.col.person'), render: (item) => item.display_name },
     { key: 'role', header: t('pwf.ledger.col.role'), render: (item) => roleWord(t, item.role) },
     { key: 'period', header: t('pwf.ledger.col.period'), render: (item) => periodText(t, item) },
-    { key: 'share', header: t('pwf.ledger.col.share'), align: 'right', render: (item) => `${item.share_pct}%` },
+    { key: 'share', header: t('pwf.ledger.col.share'), align: 'right', render: (item) => formatPercent(item.share_pct) },
     { key: 'reason', header: t('pwf.ledger.col.reason'), render: (item) => item.reason },
   ];
   return (

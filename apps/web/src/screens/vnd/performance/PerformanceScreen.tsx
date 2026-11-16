@@ -1,3 +1,4 @@
+import { formatPercent } from '../../../i18n/format';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -93,7 +94,7 @@ function Figures({ figures, asOf, unverified }: { figures: ControlFigure[]; asOf
         const name = published ? t('vnd.performance.figure.published.name') : t('vnd.performance.figure.response.name');
         return (
           <li key={figure.code}>
-            <span>{name}</span> <strong data-testid={`figure-${figure.code}`}>{figure.denominator === 0 ? NONE : `${Math.round((figure.numerator * 1000) / figure.denominator) / 10}%`}</strong>{' '}
+            <span>{name}</span> <strong data-testid={`figure-${figure.code}`}>{figure.denominator === 0 ? NONE : formatPercent((figure.numerator * 100) / figure.denominator, 1)}</strong>{' '}
             <CountInfo name={name} formula={published ? t('vnd.performance.figure.published.formula') : t('vnd.performance.figure.response.formula')} source={t('vnd.performance.figure.source')} asOf={asOf} unverified={unverified} />
           </li>
         );

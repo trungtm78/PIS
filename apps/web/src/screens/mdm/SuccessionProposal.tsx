@@ -1,3 +1,4 @@
+import { percentFigure } from '../percent-figure';
 import { useTranslation } from '../../i18n';
 import { useRecords } from './hooks';
 import type { ChangeView } from './model';
@@ -42,7 +43,7 @@ export function SuccessionProposal({ change }: { change: ChangeView }) {
             {proposed.edges.map((edge) => (
               <div key={edge.successorRecordId} data-successor={edge.successorRecordId}>
                 <code>{keyOf(edge.successorRecordId)}</code>
-                {edge.sharePct === null ? null : <span className="sub"> {t('mdm.succession.share.text', { share: edge.sharePct })}</span>}
+                {edge.sharePct === null ? null : <span className="sub"> {t('mdm.succession.share.text', { share: percentFigure(edge.sharePct) })}</span>}
               </div>
             ))}
           </td>

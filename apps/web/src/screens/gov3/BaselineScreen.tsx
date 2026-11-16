@@ -1,7 +1,8 @@
+import { percentFigure } from '../percent-figure';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
-import { compactMoney } from '../../i18n/money';
+import { compactMoney, fullMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -72,7 +73,6 @@ function BaselineContent({ route }: ScreenProps) {
       </div>
       <ContextBar
         items={[{ label: t('govb1.ctx.scope'), value: tenant?.name ?? t('govb1.ctx.scope.all') }, ...(view === undefined ? [] : [{ label: t('govb1.ctx.project'), value: view.projectCode }])]}
-        unit={t('govb1.common.unit')}
         {...(view === undefined ? {} : { asOf: asOfText(view.asOf) })}
       />
       {projectId === undefined && named === undefined && fallback.isLoading ? (
@@ -176,14 +176,16 @@ function BaselineContent({ route }: ScreenProps) {
                         <KpiTile
                           label={t('govb1.baseline.kpi.cost')}
                           value={short(view.deviation.costVnd)}
+                          valueTitle={fullMoney(view.deviation.costVnd, locale)}
                           tone={deviationTone(view.deviation.costPct, view.policy.costPct)}
-                          sub={view.deviation.costPct === null ? t('govb1.baseline.kpi.pct.none') : t('govb1.baseline.kpi.pct', { pct: view.deviation.costPct })}
+                          sub={view.deviation.costPct === null ? t('govb1.baseline.kpi.pct.none') : t('govb1.baseline.kpi.pct', { pct: percentFigure(view.deviation.costPct) })}
                         />
                         <KpiTile
                           label={t('govb1.baseline.kpi.bac')}
                           value={short(view.deviation.bacVnd)}
+                          valueTitle={fullMoney(view.deviation.bacVnd, locale)}
                           tone={deviationTone(view.deviation.bacPct, view.policy.costPct)}
-                          sub={view.deviation.bacPct === null ? t('govb1.baseline.kpi.pct.none') : t('govb1.baseline.kpi.pct', { pct: view.deviation.bacPct })}
+                          sub={view.deviation.bacPct === null ? t('govb1.baseline.kpi.pct.none') : t('govb1.baseline.kpi.pct', { pct: percentFigure(view.deviation.bacPct) })}
                         />
                         <KpiTile
                           label={t('govb1.baseline.kpi.slip')}
@@ -191,7 +193,7 @@ function BaselineContent({ route }: ScreenProps) {
                           tone={deviationTone(view.deviation.finishSlipDays, view.policy.slipDays)}
                           sub={view.deviation.finishSlipDays === null ? t('govb1.baseline.kpi.slip.none') : undefined}
                         />
-                        <KpiTile label={t('govb1.baseline.kpi.forecast')} value={view.deviation.forecastFinish === null ? t('govb1.common.na') : dayText(view.deviation.forecastFinish)} sub={t('govb1.baseline.kpi.forecast.sub', { current: money(view.current.totalInvestmentVnd) })} />
+                        <KpiTile label={t('govb1.baseline.kpi.forecast')} value={view.deviation.forecastFinish === null ? t('govb1.common.na') : dayText(view.deviation.forecastFinish)} sub={t('govb1.baseline.kpi.forecast.sub', { current: short(view.current.totalInvestmentVnd) })} />
                       </KpiStrip>
                     )}
                     {view.reasons.length === 0 ? null : (
@@ -206,7 +208,7 @@ function BaselineContent({ route }: ScreenProps) {
                     <p className="muted" data-testid="policy">
                       {view.policy.costPct === null || view.policy.slipDays === null || view.policy.rescheduleAlertCount === null
                         ? t('govb1.baseline.policy.unknown')
-                        : t('govb1.baseline.policy', { cost: view.policy.costPct, days: view.policy.slipDays, moves: view.policy.rescheduleAlertCount, version: view.policy.version })}{' '}
+                        : t('govb1.baseline.policy', { cost: percentFigure(view.policy.costPct), days: view.policy.slipDays, moves: view.policy.rescheduleAlertCount, version: view.policy.version })}{' '}
                       <StatusPill tone={view.policy.source === 'BUILT_IN' ? 'warning' : 'success'}>{policySource(t, view.policy)}</StatusPill>
                     </p>
                   </SectionCard>
@@ -266,7 +268,7 @@ function BaselineContent({ route }: ScreenProps) {
                       columns={[
                         { key: 'status', header: t('govb1.reapp.status'), render: (row) => <StatusPill tone={reappraisalStatus(t, row).tone}>{reappraisalStatus(t, row).text}</StatusPill> },
                         { key: 'reasons', header: t('govb1.reapp.reasons'), render: (row) => row.reasons.map((reason) => (reason === 'COST' ? t('govb1.baseline.reason.cost') : t('govb1.baseline.reason.slip'))).join(', ') },
-                        { key: 'cost', header: t('govb1.reapp.cost'), align: 'right', render: (row) => (row.costPct === null ? t('govb1.common.na') : t('govb1.reapp.cost.value', { pct: row.costPct, limit: row.thresholdCostPct })) },
+                        { key: 'cost', header: t('govb1.reapp.cost'), align: 'right', render: (row) => (row.costPct === null ? t('govb1.common.na') : t('govb1.reapp.cost.value', { pct: percentFigure(row.costPct), limit: percentFigure(row.thresholdCostPct) })) },
                         { key: 'slip', header: t('govb1.reapp.slip'), align: 'right', render: (row) => (row.finishSlipDays === null ? t('govb1.common.na') : t('govb1.reapp.slip.value', { days: row.finishSlipDays, limit: row.thresholdSlipDays ?? 0 })) },
                         { key: 'asked', header: t('govb1.reapp.asked'), render: (row) => `${asOfText(row.requestedAt)} · ${t('govb1.reapp.rule', { version: row.ruleVersion })}` },
                         { key: 'decided', header: t('govb1.reapp.decided'), render: (row) => (row.decidedAt === null ? '' : `${asOfText(row.decidedAt)} · ${row.decisionReason ?? ''}`) },
@@ -323,7 +325,7 @@ function BaselineContent({ route }: ScreenProps) {
                 title={t('govb1.baseline.capture.title')}
                 context={[
                   { label: t('govb1.ctx.project'), value: view.projectCode },
-                  { label: t('govb1.baseline.capture.total'), value: money(view.current.totalInvestmentVnd) },
+                  { label: t('govb1.baseline.capture.total'), value: fullMoney(view.current.totalInvestmentVnd, locale) },
                   { label: t('govb1.baseline.capture.effect'), value: t('govb1.baseline.capture.effect.text') },
                 ]}
                 confirmLabel={t('govb1.baseline.capture.confirm')}

@@ -1,6 +1,8 @@
+import { percentOfText } from '../../i18n/format';
+import { percentFigure } from '../percent-figure';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
-import { compactMoney } from '../../i18n/money';
+import { compactMoney, fullMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -27,9 +29,9 @@ function PositionCard({ position, money }: { position: AdvancePosition; money: (
   return (
     <SectionCard title={t('govb2.recovery.position.title', { code: position.contractCode })} status={<StatusPill tone={position.exceedsRemaining ? 'danger' : 'success'}>{position.exceedsRemaining ? t('govb2.recovery.position.exceeds') : t('govb2.recovery.position.ok')}</StatusPill>}>
       <KpiStrip label={t('govb2.recovery.position.title', { code: position.contractCode })}>
-        <KpiTile label={t('govb2.recovery.position.outstanding')} value={money(position.outstandingVnd)} tone={position.exceedsRemaining ? 'danger' : 'default'} />
-        <KpiTile label={t('govb2.recovery.position.remaining')} value={money(position.remainingPayableVnd)} sub={t('govb2.recovery.position.remaining.sub')} />
-        {position.exceedsRemaining ? <KpiTile label={t('govb2.recovery.position.unrecoverable')} value={money(position.unrecoverableVnd)} tone="danger" /> : null}
+        <KpiTile label={t('govb2.recovery.position.outstanding')} value={money(position.outstandingVnd)} valueTitle={fullMoney(position.outstandingVnd)} tone={position.exceedsRemaining ? 'danger' : 'default'} />
+        <KpiTile label={t('govb2.recovery.position.remaining')} value={money(position.remainingPayableVnd)} valueTitle={fullMoney(position.remainingPayableVnd)} sub={t('govb2.recovery.position.remaining.sub')} />
+        {position.exceedsRemaining ? <KpiTile label={t('govb2.recovery.position.unrecoverable')} value={money(position.unrecoverableVnd)} valueTitle={fullMoney(position.unrecoverableVnd)} tone="danger" /> : null}
       </KpiStrip>
       <p className="muted" data-testid="final-rule">
         {position.finalPaymentRequiresFullRecovery ? t('govb2.recovery.final.requires', { source: position.policy.source === 'DEFAULT' ? t('govb2.policy.default') : t('govb2.policy.rule', { version: position.policy.version ?? 0 }) }) : t('govb2.recovery.final.free')}
@@ -63,7 +65,7 @@ function RecoveryTableContent({ route }: ScreenProps) {
           <p>{t('govb2.recovery.subtitle')}</p>
         </div>
       </div>
-      <ContextBar items={[{ label: t('govb2.ctx.scope'), value: tenant?.name ?? t('govb2.ctx.scope.all') }]} unit={t('govb2.control.unit')} {...(asOf === undefined ? {} : { asOf: asOfText(asOf) })} />
+      <ContextBar items={[{ label: t('govb2.ctx.scope'), value: tenant?.name ?? t('govb2.ctx.scope.all') }]} {...(asOf === undefined ? {} : { asOf: asOfText(asOf) })} />
       {advanceId === undefined && contractId === undefined ? (
         <p className="callout" data-testid="no-target">
           {t('govb2.recovery.noTarget')}
@@ -90,7 +92,7 @@ function RecoveryTableContent({ route }: ScreenProps) {
                     rowKey={(row) => `${row.kind}:${row.requestNo ?? row.atPct ?? row.grossCumVnd}`}
                     state={view.rows.length === 0 ? 'empty' : 'ready'}
                     columns={[
-                      { key: 'row', header: t('govb2.recovery.table.row'), render: (row) => (row.kind === 'ACTUAL' ? (row.requestNo ?? t('govb2.recovery.table.manual')) : t('govb2.recovery.table.milestone', { pct: row.atPct ?? 0 })) },
+                      { key: 'row', header: t('govb2.recovery.table.row'), render: (row) => (row.kind === 'ACTUAL' ? (row.requestNo ?? t('govb2.recovery.table.manual')) : t('govb2.recovery.table.milestone', { pct: percentFigure(row.atPct ?? 0) })) },
                       { key: 'on', header: t('govb2.recovery.table.on'), render: (row) => row.on ?? '' },
                       { key: 'gross', header: t('govb2.recovery.table.gross'), align: 'right', render: (row) => money(row.grossCumVnd) },
                       { key: 'planned', header: t('govb2.recovery.table.planned'), align: 'right', render: (row) => money(row.plannedRecoveredVnd) },
@@ -99,7 +101,7 @@ function RecoveryTableContent({ route }: ScreenProps) {
                     ]}
                   />
                   <p className="muted" data-testid="formula">
-                    {t('govb2.recovery.formula', { pct: view.advance.thresholdPct })}
+                    {t('govb2.recovery.formula', { pct: percentFigure(view.advance.thresholdPct) })}
                   </p>
                 </SectionCard>
               )}
@@ -117,8 +119,8 @@ function RecoveryTableContent({ route }: ScreenProps) {
             columns={[
               { key: 'category', header: t('govb2.recovery.policy.category'), render: (row) => row.advanceCategory },
               { key: 'period', header: t('govb2.recovery.policy.period'), render: (row) => `${row.validFrom} → ${row.validUntil ?? t('govb2.recovery.policy.open')}` },
-              { key: 'tiers', header: t('govb2.recovery.policy.tiers'), render: (row) => row.tiers.map((tier) => `${money(tier.minValueVnd)}: ${tier.capPct}%`).join('; ') },
-              { key: 'threshold', header: t('govb2.recovery.policy.threshold'), align: 'right', render: (row) => (row.recoveryThresholdPct === null ? '' : `${row.recoveryThresholdPct}%`) },
+              { key: 'tiers', header: t('govb2.recovery.policy.tiers'), render: (row) => row.tiers.map((tier) => `${money(tier.minValueVnd)}: ${percentOfText(tier.capPct)}`).join('; ') },
+              { key: 'threshold', header: t('govb2.recovery.policy.threshold'), align: 'right', render: (row) => (row.recoveryThresholdPct === null ? '' : percentOfText(row.recoveryThresholdPct)) },
               { key: 'basis', header: t('govb2.recovery.policy.basis'), render: (row) => row.legalBasis },
               {
                 key: 'status',

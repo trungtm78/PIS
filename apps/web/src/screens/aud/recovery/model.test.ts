@@ -108,8 +108,8 @@ describe('what the caller may do', () => {
   });
 
   it('writes the percentage in the way the language writes it, and says nothing for a rate that is not applicable', () => {
-    expect(percentText({ numerator: '1', denominator: '8', percent: '12.50' }, 'vi')).toBe('12,50%');
-    expect(percentText({ numerator: '1', denominator: '8', percent: '12.50' }, 'en')).toBe('12.50%');
+    expect(percentText({ numerator: '1', denominator: '8', percent: '12.50' }, 'vi')).toBe('12,5%');
+    expect(percentText({ numerator: '1', denominator: '8', percent: '12.50' }, 'en')).toBe('12.5%');
     expect(percentText({ numerator: '0', denominator: '0', percent: null }, 'vi')).toBeNull();
   });
 
