@@ -21,10 +21,11 @@ const store = (): Storage | undefined => {
   }
 };
 
-/** A person is signed in in this tab: remember it for the next load. */
+/** A person is signed in in this tab: remember it for the next load. A trip that ended in a session is not a failed attempt, so the cooldown (which only stops a loop of failed trips) starts over. */
 export function rememberSession(): void {
   try {
     store()?.setItem(MARK, '1');
+    store()?.removeItem(LAST);
   } catch {
     // A storage that refuses is a tab that cannot resume, nothing more.
   }

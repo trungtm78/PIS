@@ -1,4 +1,5 @@
 import { cleanup, render, screen } from '@testing-library/react';
+import { rememberSession, takeResumeTurn } from './resume';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -64,6 +65,13 @@ describe('picking the session up again after a reload', () => {
     const signIn = mount('/home/home-01');
     expect(signIn).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: vi_['session.oidc.signIn.action'] })).toBeTruthy();
+  });
+
+  it('a trip that ended in a session does not count against the cooldown', () => {
+    window.sessionStorage.setItem(MARK, '1');
+    window.sessionStorage.setItem('pis.session.resume.at', String(Date.now()));
+    rememberSession();
+    expect(takeResumeTurn()).toBe(true);
   });
 
   it('does nothing in a tab that never held a session, or whose person signed out on purpose', () => {
