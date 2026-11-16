@@ -105,7 +105,8 @@ const query = (params: Record<string, string | undefined>): string => {
 export const workflowLink = (projectId: string): string => `${PATHS.project}${query({ id: projectId, tab: 'workflow' })}`;
 export const taskLink = (taskId: string, projectId?: string): string => `${PATHS.task}${query({ id: taskId, project: projectId })}`;
 export const startLink = (projectId: string): string => `${PATHS.start}${query({ id: projectId })}`;
-export const rescheduleLink = (projectId: string, proposalId?: string): string => `${PATHS.reschedule}${query({ id: projectId, proposal: proposalId })}`;
+/** PWF-06 of a project; `extend` names the task whose extension is being asked (the form opens with it). */
+export const rescheduleLink = (projectId: string, proposalId?: string, extend?: string): string => `${PATHS.reschedule}${query({ id: projectId, proposal: proposalId, extend })}`;
 export const assignmentsLink = (taskId: string): string => `${PATHS.assignments}${query({ id: taskId })}`;
 export const editorLink = (code?: string, from?: string): string => `${PATHS.editor}${query({ code, from })}`;
 
@@ -221,6 +222,16 @@ export type ProblemKind =
   | 'templateInvalid'
   | 'bandThresholds'
   | 'bandUnit'
+  | 'claimNotEligible'
+  | 'alreadyClaimed'
+  | 'unitUnresolved'
+  | 'unitOverrideDenied'
+  | 'unitUnknown'
+  | 'extensionNotAllowed'
+  | 'extensionLimit'
+  | 'extensionTaskClosed'
+  | 'extensionRequired'
+  | 'extensionRefused'
   | 'validation'
   | 'notFound'
   | 'denied'
@@ -233,7 +244,17 @@ export interface Problem {
   /** What the server listed with the refusal: the blockers of a completion, the missing tasks of a gate. */
   blockers: readonly Blocker[];
   missing: readonly GateAssessment['missing'][number][];
+  /** What the server named of the refusal of a claim, a unit or an extension (R61, R71, R72): the unit refs, the task, the cap that was hit and how far it was used. */
+  unitRefs: readonly string[];
+  taskCode: string | undefined;
+  limit: 'TIMES' | 'VALUE' | undefined;
+  used: number | undefined;
+  asked: number | undefined;
+  max: number | undefined;
+  reason: string | undefined;
 }
+
+const NO_FACTS = { unitRefs: [] as readonly string[], taskCode: undefined, limit: undefined, used: undefined, asked: undefined, max: undefined, reason: undefined } as const;
 
 const KIND_BY_CODE: Readonly<Record<string, ProblemKind>> = {
   VERSION_CONFLICT: 'versionConflict',
@@ -262,14 +283,41 @@ const KIND_BY_CODE: Readonly<Record<string, ProblemKind>> = {
   FIELD_NOT_ALLOWED: 'validation',
   RESOURCE_NOT_FOUND: 'notFound',
   SCOPE_DENIED: 'denied',
+  PWF_CLAIM_NOT_ELIGIBLE: 'claimNotEligible',
+  PWF_TASK_ALREADY_CLAIMED: 'alreadyClaimed',
+  PWF_UNIT_UNRESOLVED: 'unitUnresolved',
+  PWF_UNIT_OVERRIDE_DENIED: 'unitOverrideDenied',
+  PWF_UNIT_UNKNOWN: 'unitUnknown',
+  PWF_EXTENSION_NOT_ALLOWED: 'extensionNotAllowed',
+  PWF_EXTENSION_LIMIT_EXCEEDED: 'extensionLimit',
+  PWF_EXTENSION_TASK_CLOSED: 'extensionTaskClosed',
+  PWF_EXTENSION_REQUIRED: 'extensionRequired',
 };
 
 const list = <T>(value: unknown): readonly T[] => (Array.isArray(value) ? (value as T[]) : []);
+const whole = (value: unknown): number | undefined => (typeof value === 'number' && Number.isFinite(value) ? value : undefined);
+const word = (value: unknown): string | undefined => (typeof value === 'string' && value !== '' ? value : undefined);
 
 /** What a refused command was refused for; anything the screens have no word for is `general`. */
 export function describeProblem(error: unknown): Problem {
-  if (!(error instanceof ApiError)) return { kind: 'general', field: undefined, blockers: [], missing: [] };
-  return { kind: KIND_BY_CODE[error.code] ?? 'general', field: error.detail, blockers: list<Blocker>(error.extensions.blockers), missing: list<GateAssessment['missing'][number]>(error.extensions.missing) };
+  if (!(error instanceof ApiError)) return { kind: 'general', field: undefined, blockers: [], missing: [], ...NO_FACTS };
+  const ext = error.extensions;
+  const limit = ext.limit === 'TIMES' || ext.limit === 'VALUE' ? ext.limit : undefined;
+  // A 409 of a schedule whose reason is a refused extension (R72, at the decision) says what the extension rules said, not "somebody changed it first".
+  const refused = error.code === 'PWF_SCHEDULE_VERSION_CONFLICT' && ext.reason === 'EXTENSION_REFUSED';
+  return {
+    kind: refused ? 'extensionRefused' : (KIND_BY_CODE[error.code] ?? 'general'),
+    field: error.detail,
+    blockers: list<Blocker>(ext.blockers),
+    missing: list<GateAssessment['missing'][number]>(ext.missing),
+    unitRefs: list<unknown>(ext.unit_refs).filter((one): one is string => typeof one === 'string'),
+    taskCode: word(ext.task_code),
+    limit,
+    used: whole(ext.used),
+    asked: whole(ext.asked),
+    max: whole(ext.max),
+    reason: word(ext.reason),
+  };
 }
 
 /** The refusals that say "somebody changed it first": the screen offers to read the newer version. */
