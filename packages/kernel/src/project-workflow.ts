@@ -1,6 +1,7 @@
 import { isEvidenceKind } from './bid-workflow.ts';
 import { canonicalJson, sha256Hex } from './canonical-json.ts';
-import { TASK_KINDS, TASK_PRIORITIES } from './deadline-band.ts';
+import { TASK_KINDS, TASK_PRIORITIES, bandThresholdsDefect } from './deadline-band.ts';
+import type { BandThresholds } from './deadline-band.ts';
 import { DOCUMENT_CLASSES } from './doc-repository.ts';
 import { DomainError } from './errors.ts';
 import type { FieldSpec, RuleParams, RuleRegistry } from './governance-rules.ts';
@@ -95,6 +96,58 @@ export interface TemplateLegalBasis {
   article: string | null;
   note: string | null;
   verification: LegalBasisVerification;
+  /** Who checked the citation against the original text and when (R75): stamped by the server when the draft is saved, never taken from the client; absent on a citation written before the stamp existed. */
+  verifiedBy?: string | null;
+  verifiedAt?: string | null;
+}
+
+/** The unit a time limit is written in (R58): working days of the calendar, days of the calendar, or months. */
+export const DURATION_UNITS = ['WORKING_DAY', 'CALENDAR_DAY', 'MONTH'] as const;
+export type DurationUnit = (typeof DURATION_UNITS)[number];
+
+/** The time limit of a task as the law or the agency words it (R58). A task without one lasts `durationWorkingDays`. */
+export interface TemplateDuration {
+  value: number;
+  unit: DurationUnit;
+  /** A last day nobody works is moved to the next working day. */
+  rollToWorkingDay: boolean;
+}
+
+/**
+ * The working days a time limit stands for where there is no calendar to count on (old readers, the reach of the standard week): the value itself, five sevenths of the calendar days rounded up, 22 a month. A template
+ * that writes a duration carries exactly this number in `duration_working_days`, so nobody types one limit twice; the dates of a project never use it (project-schedule.ts counts the real days).
+ */
+export function nominalWorkingDays(duration: Pick<TemplateDuration, 'value' | 'unit'>): number {
+  if (duration.unit === 'WORKING_DAY') return duration.value;
+  if (duration.unit === 'CALENDAR_DAY') return Math.max(1, Math.ceil((duration.value * 5) / 7));
+  return duration.value * 22;
+}
+
+export const UNIT_PARTS = ['LEAD', 'SUPPORT'] as const;
+export type UnitPart = (typeof UNIT_PARTS)[number];
+/** The parties of a project the project itself names a unit for (`project.investor_unit_id`, `project.decision_authority_unit_id`); any other party is a slot the person who starts the workflow fills. */
+export const BUILT_IN_PARTIES = ['INVESTOR', 'DECISION_AUTHORITY'] as const;
+export const UNIT_REF_PATTERN = '^(PROJECT_OWNER|PROJECT_PARTY:[A-Z][A-Z0-9_]{1,39}|UNIT:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$';
+
+/** A unit that receives a task (R61, R71): the owning unit of the project, a party of the project, or one unit of the tenant; the role its people hold there; and whether it leads or supports. */
+export interface TemplateResponsibleUnit {
+  unitRef: string;
+  role: string;
+  part: UnitPart;
+}
+
+/** Whether the time limit of a task may be extended and how far (R72); the unit is the unit of the limit. A cap that is null is no cap. */
+export interface TemplateExtension {
+  allowed: boolean;
+  maxTimes: number | null;
+  maxValue: number | null;
+  unit: DurationUnit;
+}
+
+/** A party of the project the template names itself (a slot for a unit), and what people call it. */
+export interface TemplateParty {
+  code: string;
+  name: string;
 }
 
 /** Which revision of a form a task uses (R46): the newest approved one on the day the form is used, or one revision the template pins. */
@@ -153,6 +206,13 @@ export interface TemplateTask {
   kpiCodes: readonly string[];
   /** All of them must hold for the task to be part of a project; a task with none is in every project. */
   when: readonly TemplateCondition[];
+  /** The time limit in its own unit (R58); absent or null: `durationWorkingDays`. */
+  duration?: TemplateDuration | null;
+  /** The thresholds of the three colours of this task (R59), ahead of the policy of the tenant. */
+  bands?: BandThresholds | null;
+  /** The units that receive the task (R61); absent or empty in a template that names none. */
+  responsibleUnits?: readonly TemplateResponsibleUnit[];
+  extension?: TemplateExtension | null;
 }
 
 export interface TemplatePhase {
@@ -179,6 +239,10 @@ export interface ProjectWorkflowTemplate {
   /** The steps the template names, in the order of the template; absent or empty in a template without steps. */
   steps?: readonly TemplateStep[];
   tasks: readonly TemplateTask[];
+  /** The parties the template names for `PROJECT_PARTY:<code>`; absent or empty in a template that names none. */
+  parties?: readonly TemplateParty[];
+  /** The task whose finish is the deadline of the whole file (the star of the table); absent or null when the template marks none. */
+  overallDeadlineTask?: string | null;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -206,6 +270,40 @@ const LEGAL_BASIS: FieldSpec = object({
   article: { kind: 'text', max: 160, optional: true },
   note: { kind: 'text', max: 400, optional: true },
   verification: { kind: 'enum', values: LEGAL_BASIS_VERIFICATIONS },
+  verified_by: { kind: 'text', max: 36, optional: true, pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' },
+  verified_at: { kind: 'text', max: 30, optional: true, pattern: '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,3})?Z$' },
+});
+
+const DURATION: FieldSpec = object({
+  value: { kind: 'int', min: 1, max: 1095 },
+  unit: { kind: 'enum', values: DURATION_UNITS },
+  roll_to_working_day: { kind: 'boolean' },
+});
+
+const BANDS: FieldSpec = object({
+  green_days: { kind: 'int', min: 1, max: 3650, optional: true },
+  yellow_days: { kind: 'int', min: 0, max: 3650 },
+  red_days: { kind: 'int', min: -1, max: 3650 },
+});
+
+export const MAX_RESPONSIBLE_UNITS = 8;
+const RESPONSIBLE_UNIT: FieldSpec = object({
+  unit_ref: { kind: 'text', max: 60, pattern: UNIT_REF_PATTERN },
+  role: codeText(),
+  part: { kind: 'enum', values: UNIT_PARTS },
+});
+
+const EXTENSION: FieldSpec = object({
+  allowed: { kind: 'boolean' },
+  max_times: { kind: 'int', min: 1, max: 20, optional: true },
+  max_value: { kind: 'int', min: 1, max: 1095, optional: true },
+  unit: { kind: 'enum', values: DURATION_UNITS },
+});
+
+export const MAX_TEMPLATE_PARTIES = 30;
+const PARTY: FieldSpec = object({
+  code: codeText(),
+  name: { kind: 'text', max: 120 },
 });
 
 /** The code of a form as the document store names it (`document_template.template_code`, the pattern of `document-template-store.ts`): capitals, digits, dot, underscore and hyphen, 3 to 80 characters (R49). */
@@ -259,6 +357,10 @@ const TASK: FieldSpec = object({
   checklist: { ...list(CHECKLIST_ITEM, 30), optional: true },
   kpi_codes: { ...list(codeText(), 10), optional: true },
   when: { ...list(CONDITION, 5), optional: true },
+  duration: { ...DURATION, optional: true },
+  bands: { ...BANDS, optional: true },
+  responsible_units: { ...list(RESPONSIBLE_UNIT, MAX_RESPONSIBLE_UNITS), optional: true },
+  extension: { ...EXTENSION, optional: true },
 });
 
 const PHASE: FieldSpec = object({
@@ -280,6 +382,8 @@ export const PROJECT_WORKFLOW_SCHEMA: Readonly<Record<string, FieldSpec>> = {
   phases: list(PHASE, MAX_TEMPLATE_PHASES, 1),
   steps: { ...list(STEP, MAX_TEMPLATE_STEPS), optional: true },
   tasks: list(TASK, MAX_TEMPLATE_TASKS, 1),
+  parties: { ...list(PARTY, MAX_TEMPLATE_PARTIES), optional: true },
+  overall_deadline_task: codeText(true),
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -380,6 +484,9 @@ function legalBasisDefect(value: unknown): string | undefined {
     const key = `${String(one.document)}|${typeof one.article === 'string' ? one.article : ''}`;
     if (typeof one.document !== 'string' || seen.has(key)) return `[${index}].document`;
     seen.add(key);
+    // The stamp of a verification (R75): who and when together, and only on a citation that is verified.
+    const stamped = one.verified_by !== undefined || one.verified_at !== undefined;
+    if (stamped && (one.verified_by === undefined || one.verified_at === undefined || one.verification !== 'VERIFIED')) return `[${index}].verified_by`;
   }
   return undefined;
 }
@@ -406,6 +513,13 @@ export function templateDefect(params: unknown): string | undefined {
     if (typeof role.code !== 'string' || roleCodes.has(role.code)) return `roles[${index}].code`;
     if (typeof role.name !== 'string' || role.name.trim() === '') return `roles[${index}].name`;
     roleCodes.add(role.code);
+  }
+  const partyCodes = new Set<string>(BUILT_IN_PARTIES);
+  for (const [index, raw] of arrayOf(params.parties).entries()) {
+    const party = isRecord(raw) ? raw : {};
+    if (typeof party.code !== 'string' || partyCodes.has(party.code)) return `parties[${index}].code`;
+    if (typeof party.name !== 'string' || party.name.trim() === '') return `parties[${index}].name`;
+    partyCodes.add(party.code);
   }
   // The steps (R44): a template names none (every phase is one step) or it names the step of every task, and a step lies in one phase and has at least one task.
   const steps = arrayOf(params.steps);
@@ -442,6 +556,41 @@ export function templateDefect(params: unknown): string | undefined {
     }
     const duration = one.duration_working_days;
     if (one.kind === 'MILESTONE' ? duration !== 0 : typeof duration !== 'number' || duration < 1) return `${at}.duration_working_days`;
+    // The time limit in its own unit (R58): never on a milestone, and the working days beside it are the nominal ones, not a second number somebody typed.
+    const limit = isRecord(one.duration) ? one.duration : undefined;
+    if (limit !== undefined) {
+      if (one.kind === 'MILESTONE') return `${at}.duration`;
+      if (duration !== nominalWorkingDays({ value: limit.value as number, unit: limit.unit as DurationUnit })) return `${at}.duration_working_days`;
+    }
+    if (isRecord(one.bands)) {
+      const ladder = bandThresholdsDefect({ green_days: (one.bands.green_days ?? null) as number | null, yellow_days: one.bands.yellow_days as number, red_days: one.bands.red_days as number });
+      if (ladder !== undefined) return `${at}.bands.${ladder}`;
+    }
+    // The units that receive the task (R61): one of them leads, in the role that answers for the task; a unit holds a role once; a party is one the template (or the project) names.
+    const units = arrayOf(one.responsible_units);
+    if (units.length > 0) {
+      const held = new Set<string>();
+      let leads = 0;
+      for (const [position, entry] of units.entries()) {
+        const unit = isRecord(entry) ? entry : {};
+        const ref = String(unit.unit_ref);
+        const key = `${ref}|${String(unit.role)}`;
+        if (held.has(key) || (ref.startsWith('PROJECT_PARTY:') && !partyCodes.has(ref.slice('PROJECT_PARTY:'.length)))) return `${at}.responsible_units[${position}].unit_ref`;
+        held.add(key);
+        if (unit.part === 'LEAD') {
+          leads += 1;
+          if (unit.role !== one.responsible_role) return `${at}.responsible_units[${position}].role`;
+        }
+      }
+      if (leads !== 1) return `${at}.responsible_units`;
+    }
+    if (isRecord(one.extension)) {
+      const extension = one.extension;
+      if (one.kind === 'MILESTONE') return `${at}.extension`;
+      if (extension.unit !== (limit === undefined ? 'WORKING_DAY' : limit.unit)) return `${at}.extension.unit`;
+      if (extension.allowed !== true && extension.max_times !== undefined) return `${at}.extension.max_times`;
+      if (extension.allowed !== true && extension.max_value !== undefined) return `${at}.extension.max_value`;
+    }
     const links = new Set<string>();
     for (const [position, link] of arrayOf(one.predecessors).entries()) {
       const edge = isRecord(link) ? link : {};
@@ -479,6 +628,7 @@ export function templateDefect(params: unknown): string | undefined {
   const loop = findDependencyCycle(parsed);
   if (loop !== null) return `tasks[${parsed.findIndex((one) => one.code === loop[0])}].predecessors`;
   if (dependencyDepth(parsed) > MAX_TEMPLATE_DEPTH) return 'tasks';
+  if (params.overall_deadline_task !== undefined && params.overall_deadline_task !== null && (typeof params.overall_deadline_task !== 'string' || !codes.has(params.overall_deadline_task))) return 'overall_deadline_task';
   return undefined;
 }
 
@@ -488,11 +638,17 @@ const strings = (value: unknown): string[] => arrayOf(value).map(text);
 const legalBasisOf = (value: unknown): TemplateLegalBasis[] =>
   arrayOf(value).map((entry) => {
     const one = entry as Record<string, unknown>;
-    return { document: text(one.document), article: typeof one.article === 'string' ? one.article : null, note: typeof one.note === 'string' ? one.note : null, verification: one.verification === 'VERIFIED' ? 'VERIFIED' : 'UNVERIFIED' };
+    return {
+      document: text(one.document),
+      article: typeof one.article === 'string' ? one.article : null,
+      note: typeof one.note === 'string' ? one.note : null,
+      verification: one.verification === 'VERIFIED' ? 'VERIFIED' : 'UNVERIFIED',
+      ...(typeof one.verified_by === 'string' && typeof one.verified_at === 'string' ? { verifiedBy: one.verified_by, verifiedAt: one.verified_at } : {}),
+    };
   });
 
 const legalBasisParams = (basis: readonly TemplateLegalBasis[]): RuleParams[] =>
-  basis.map((one) => ({ document: one.document, ...(one.article === null ? {} : { article: one.article }), ...(one.note === null ? {} : { note: one.note }), verification: one.verification }));
+  basis.map((one) => ({ document: one.document, ...(one.article === null ? {} : { article: one.article }), ...(one.note === null ? {} : { note: one.note }), verification: one.verification, ...(typeof one.verifiedBy === 'string' && typeof one.verifiedAt === 'string' ? { verified_by: one.verifiedBy, verified_at: one.verifiedAt } : {}) }));
 
 function taskOf(raw: Record<string, unknown>): TemplateTask {
   const constraint = isRecord(raw.constraint) ? { kind: raw.constraint.kind as ConstraintKind, offsetWorkingDays: raw.constraint.offset_working_days as number } : null;
@@ -528,6 +684,15 @@ function taskOf(raw: Record<string, unknown>): TemplateTask {
       const condition = entry as Record<string, unknown>;
       return { field: condition.field as ConditionField, in: strings(condition.in) };
     }),
+    duration: isRecord(raw.duration) ? { value: raw.duration.value as number, unit: raw.duration.unit as DurationUnit, rollToWorkingDay: raw.duration.roll_to_working_day === true } : null,
+    bands: isRecord(raw.bands) ? { green_days: typeof raw.bands.green_days === 'number' ? raw.bands.green_days : null, yellow_days: raw.bands.yellow_days as number, red_days: raw.bands.red_days as number } : null,
+    responsibleUnits: arrayOf(raw.responsible_units).map((entry) => {
+      const unit = entry as Record<string, unknown>;
+      return { unitRef: text(unit.unit_ref), role: text(unit.role), part: unit.part === 'LEAD' ? 'LEAD' : 'SUPPORT' };
+    }),
+    extension: isRecord(raw.extension)
+      ? { allowed: raw.extension.allowed === true, maxTimes: typeof raw.extension.max_times === 'number' ? raw.extension.max_times : null, maxValue: typeof raw.extension.max_value === 'number' ? raw.extension.max_value : null, unit: raw.extension.unit as DurationUnit }
+      : null,
   };
 }
 
@@ -560,6 +725,11 @@ export function parseProjectWorkflowTemplate(params: unknown): ProjectWorkflowTe
     }),
     steps: explicitSteps(source.steps),
     tasks: arrayOf(source.tasks).map((entry) => taskOf(entry as Record<string, unknown>)),
+    parties: arrayOf(source.parties).map((entry) => {
+      const party = entry as Record<string, unknown>;
+      return { code: text(party.code), name: text(party.name).trim() };
+    }),
+    overallDeadlineTask: typeof source.overall_deadline_task === 'string' ? source.overall_deadline_task : null,
   };
 }
 
@@ -603,7 +773,16 @@ export function templateParamsOf(template: ProjectWorkflowTemplate): RuleParams 
       checklist: one.checklist.map((item) => ({ code: item.code, name: item.name, required: item.required, evidence_kinds: [...item.evidenceKinds] })),
       kpi_codes: [...one.kpiCodes],
       when: one.when.map((condition) => ({ field: condition.field, in: [...condition.in] })),
+      // The fields of the table of steps (R58, R59, R61, R72): left out when the task has none, so that the params and the hash of every template written before are what they always were.
+      ...(one.duration === undefined || one.duration === null ? {} : { duration: { value: one.duration.value, unit: one.duration.unit, roll_to_working_day: one.duration.rollToWorkingDay } }),
+      ...(one.bands === undefined || one.bands === null ? {} : { bands: { ...(one.bands.green_days === null ? {} : { green_days: one.bands.green_days }), yellow_days: one.bands.yellow_days, red_days: one.bands.red_days } }),
+      ...((one.responsibleUnits ?? []).length === 0 ? {} : { responsible_units: (one.responsibleUnits ?? []).map((unit) => ({ unit_ref: unit.unitRef, role: unit.role, part: unit.part })) }),
+      ...(one.extension === undefined || one.extension === null
+        ? {}
+        : { extension: { allowed: one.extension.allowed, ...(one.extension.maxTimes === null ? {} : { max_times: one.extension.maxTimes }), ...(one.extension.maxValue === null ? {} : { max_value: one.extension.maxValue }), unit: one.extension.unit } }),
     })),
+    ...((template.parties ?? []).length === 0 ? {} : { parties: (template.parties ?? []).map((party) => ({ code: party.code, name: party.name })) }),
+    ...(template.overallDeadlineTask === undefined || template.overallDeadlineTask === null ? {} : { overall_deadline_task: template.overallDeadlineTask }),
   };
 }
 

@@ -121,6 +121,9 @@ function thresholdDefect(thresholds: BandThresholds): string | undefined {
   return undefined;
 }
 
+/** The field of a ladder that breaks the strict order, or undefined: for a caller that reports the defect in its own words (the ladder of a task of a workflow template, R59). */
+export const bandThresholdsDefect = (thresholds: BandThresholds): string | undefined => thresholdDefect(thresholds);
+
 /** Refuses a ladder that is not strictly ordered or not made of whole days: 422 DEADLINE_BAND_THRESHOLDS_INVALID naming the field. */
 export function validateThresholds(thresholds: BandThresholds): void {
   const field = thresholdDefect(thresholds);
@@ -289,7 +292,35 @@ export function thresholdsFor(policy: BandPolicy, context: BandContext): BandThr
 // The three tiers.
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Where the official ladder of a deadline came from (R59, the specific wins over the general): the thresholds of the task itself in the frozen template of its project, the first override of the policy that fits, the policy's own
+ * ladder, or the system default of the source. The person's own thresholds are never a tier of the official colour.
+ */
+export const BAND_TIERS = ['STEP', 'POLICY_OVERRIDE', 'POLICY', 'SYSTEM'] as const;
+export type BandTier = (typeof BAND_TIERS)[number];
+
+export interface OfficialThresholds {
+  thresholds: BandThresholds;
+  tier: BandTier;
+}
+
+/** The thresholds of a policy for one task and whether an override gave them. */
+export function policyThresholds(policy: BandPolicy, context: BandContext): OfficialThresholds {
+  const found = policy.overrides.find((override) => matches(override, context));
+  const source = found ?? policy;
+  return { thresholds: { green_days: source.green_days, yellow_days: source.yellow_days, red_days: source.red_days }, tier: found === undefined ? 'POLICY' : 'POLICY_OVERRIDE' };
+}
+
+/** The official ladder of one deadline and the tier that gave it: step, then the policy (override before default), then the system. */
+export function officialThresholds(tiers: Pick<BandTiers, 'system' | 'policy' | 'step'>, context: BandContext): OfficialThresholds {
+  if (tiers.step !== undefined && tiers.step !== null) return { thresholds: { green_days: tiers.step.green_days, yellow_days: tiers.step.yellow_days, red_days: tiers.step.red_days }, tier: 'STEP' };
+  if (tiers.policy !== undefined) return policyThresholds(tiers.policy, context);
+  return { thresholds: tiers.system, tier: 'SYSTEM' };
+}
+
 export interface BandTiers {
+  /** The thresholds the frozen template of the project gives this very task (R59, R73): they win over every policy. */
+  step?: BandThresholds | null | undefined;
   /** Tier 1: the system default of the source. */
   system: BandThresholds;
   /** Tier 2: the rule the tenant approved, when there is one. */
@@ -309,6 +340,9 @@ export interface ResolvedBand {
   personalApplied: boolean;
   /** The thresholds the person asked to be later than the official ones and that were raised to them. */
   clamped: string[];
+  /** The tier that gave the official ladder, and the ladder itself, for the screen that explains a colour. */
+  tier: BandTier;
+  thresholds: BandThresholds;
 }
 
 /** Merges the person's thresholds into the official ones so that no level starts later; `null` for a green line is the earliest of all (everything is green). */
@@ -334,13 +368,13 @@ function mergePersonal(official: BandThresholds, personal: PersonalThresholds): 
  * once merged is refused (422 DEADLINE_BAND_THRESHOLDS_INVALID).
  */
 export function resolveBand(tiers: BandTiers, context: BandContext, due: DueInfo): ResolvedBand {
-  const official = tiers.policy === undefined ? tiers.system : thresholdsFor(tiers.policy, context);
+  const { thresholds: official, tier } = officialThresholds(tiers, context);
   const officialResult = deadlineBand({ ...due, thresholds: official });
-  if (tiers.personal === undefined || tiers.personal === null) return { official: officialResult, personal: null, personalApplied: false, clamped: [] };
+  if (tiers.personal === undefined || tiers.personal === null) return { official: officialResult, personal: null, personalApplied: false, clamped: [], tier, thresholds: official };
   const { merged, clamped } = mergePersonal(official, tiers.personal);
   validateThresholds(merged);
   const applied = merged.green_days !== official.green_days || merged.yellow_days !== official.yellow_days || merged.red_days !== official.red_days;
-  return { official: officialResult, personal: deadlineBand({ ...due, thresholds: merged }), personalApplied: applied, clamped };
+  return { official: officialResult, personal: deadlineBand({ ...due, thresholds: merged }), personalApplied: applied, clamped, tier, thresholds: official };
 }
 
 export interface BandExample {
