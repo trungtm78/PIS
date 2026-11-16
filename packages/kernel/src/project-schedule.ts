@@ -482,6 +482,11 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
     if (node.mode === 'DONE' || ((task.status ?? 'NOT_STARTED') === 'IN_PROGRESS' && typeof task.actualStart === 'string')) continue;
     const before = task.predecessors.map((link) => ({ link, node: nodes.get(link.task) as Node }));
     if (before.some((one) => offLine(one.node))) node.unplaced = true;
+    // A point of zero length (a milestone, a task left out) that sits where a limit ends keeps the day the calendar gave that limit, which may be a day nobody works: it is not pulled back to the last working day before it.
+    if (node.e === node.s && node.unitFinish === undefined) {
+      const ends = before.filter((one) => (one.link.kind === 'FS' || one.link.kind === 'FF') && typeof one.node.unitFinish === 'string' && one.node.e + one.link.lagWorkingDays === node.e).map((one) => one.node.unitFinish as string);
+      if (ends.length > 0) node.unitFinish = ends.reduce((last, day) => (day > last ? day : last));
+    }
   }
 
   // Constraints that cap how late a task may be, and the ones the schedule breaks.
@@ -547,8 +552,10 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
       if (!findings.some((one) => one.code === 'CALENDAR_UNAVAILABLE')) findings.push({ code: 'CALENDAR_UNAVAILABLE', task: null, year: line.missingYear });
     }
     const done = node.mode === 'DONE' && placed;
-    const finish = done ? (task.actualFinish as string) : placed ? (node.mode === 'ACTIVE' && typeof node.unitFinish === 'string' ? node.unitFinish : line.dateAt(last)) : null;
-    const first = done ? (isMilestone(task) ? finish : (task.actualStart ?? line.dateAt(node.s))) : placed ? line.dateAt(isMilestone(task) ? last : node.s) : null;
+    // The day the calendar gave a limit (or the limit a milestone closes) stands when it is later than the last working day the task covers; the slots stay what the float is counted in.
+    const boundary = (lineDay: string | null): string | null => (node.mode === 'ACTIVE' && typeof node.unitFinish === 'string' && (lineDay === null || node.unitFinish > lineDay) ? node.unitFinish : lineDay);
+    const finish = done ? (task.actualFinish as string) : placed ? boundary(line.dateAt(last)) : null;
+    const first = done ? (isMilestone(task) ? finish : (task.actualStart ?? line.dateAt(node.s))) : placed ? (isMilestone(task) ? finish : line.dateAt(node.s)) : null;
     const base = baseline?.[code];
     const variance = (date: string | null, reference: string | null | undefined, pick: (value: string) => number): number | null => {
       if (date === null || reference === undefined || reference === null) return null;
@@ -557,14 +564,19 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
       return here >= length || there >= length || there < 0 ? null : here - there;
     };
     const late = node.mode === 'ACTIVE';
+    // The late finish of a limit in calendar days or months is the day the calendar gives from its late start; a milestone with no float keeps its day.
+    const limit = calendarLimit(task);
+    const lateSpan = late && limit !== null ? spanOf(task, limit, node.ls) : null;
+    const lateLine = line.dateAt(isMilestone(task) ? Math.max(node.le - 1, startIdx) : node.le - 1);
+    const lateFinish = lateSpan !== null && lateSpan.ok && lateSpan.e === node.le ? lateSpan.finish : isMilestone(task) && node.le === node.e ? finish ?? lateLine : lateLine;
     results.set(code, {
       code,
       kind: task.kind,
       state,
       start: first,
       finish,
-      lateStart: late ? line.dateAt(isMilestone(task) ? Math.max(node.le - 1, startIdx) : node.ls) : null,
-      lateFinish: late ? line.dateAt(isMilestone(task) ? Math.max(node.le - 1, startIdx) : node.le - 1) : null,
+      lateStart: late ? (isMilestone(task) ? lateFinish : line.dateAt(node.ls)) : null,
+      lateFinish: late ? lateFinish : null,
       startSlot: node.s,
       endSlot: node.e,
       totalFloat: node.totalFloat,

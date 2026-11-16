@@ -386,6 +386,25 @@ describe('defects found by the independent review of the lane (scheduler)', () =
     expect(dates(result, 'F')).toEqual(['2026-12-01', '2026-12-03']);
   });
 
+  it('2. a milestone and the late finish keep the calendar day a limit ends on when it does not roll', () => {
+    // A starts on Friday 13 November for three calendar days and does not roll: it ends on Sunday the 15th. The milestone that closes it is that Sunday, not the Friday of the last working slot.
+    const result = run([task('A', 3, { duration: limit(3, 'CALENDAR_DAY', false) }), { code: 'M', kind: 'MILESTONE', durationWorkingDays: 0, predecessors: [link('A')] }, task('B', 1, { predecessors: [link('A')] })], { plannedStart: '2026-11-13' });
+    expect(dates(result, 'A')).toEqual(['2026-11-13', '2026-11-15']);
+    expect(dates(result, 'M')).toEqual(['2026-11-15', '2026-11-15']);
+    expect(dates(result, 'B')).toEqual(['2026-11-16', '2026-11-16']);
+    const alone = run([task('A', 3, { duration: limit(3, 'CALENDAR_DAY', false) }), { code: 'M', kind: 'MILESTONE', durationWorkingDays: 0, predecessors: [link('A')] }], { plannedStart: '2026-11-13' });
+    expect(find(alone, 'A')).toMatchObject({ totalFloat: 0, lateStart: '2026-11-13', lateFinish: '2026-11-15', effectiveWorkingDays: 1 });
+    expect(find(alone, 'M')).toMatchObject({ start: '2026-11-15', finish: '2026-11-15', lateFinish: '2026-11-15', totalFloat: 0 });
+    expect(alone.projectFinish).toBe('2026-11-15');
+  });
+
+  it('2b. a milestone after a limit that rolls, or after a lag, is dated on its working day as before', () => {
+    const rolled = run([task('A', 3, { duration: limit(3, 'CALENDAR_DAY', true) }), { code: 'M', kind: 'MILESTONE', durationWorkingDays: 0, predecessors: [link('A')] }], { plannedStart: '2026-11-13' });
+    expect(dates(rolled, 'M')).toEqual(['2026-11-16', '2026-11-16']);
+    const lagged = run([task('A', 3, { duration: limit(3, 'CALENDAR_DAY', false) }), { code: 'M', kind: 'MILESTONE', durationWorkingDays: 0, predecessors: [link('A', 'FS', 1)] }], { plannedStart: '2026-11-13' });
+    expect(dates(lagged, 'M')).toEqual(['2026-11-16', '2026-11-16']);
+  });
+
   it('no dated task has an undated predecessor anywhere in its chain', () => {
     const UNITS = ['WORKING_DAY', 'CALENDAR_DAY', 'MONTH'] as const;
     const KINDS = ['FS', 'SS', 'FF', 'SF'] as const;
