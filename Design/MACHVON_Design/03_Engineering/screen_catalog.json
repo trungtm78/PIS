@@ -5647,7 +5647,7 @@
       "Dataset gắn"
     ],
     "role": "Data owner, steward, data engineer, auditor",
-    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Nguồn thuật ngữ duy nhất là MDM glossary_term; duyệt qua workflow MDM; DGV chỉ gắn thuật ngữ PUBLISHED.",
+    "rule": "Dữ liệu trọng yếu cần owner, contract, quality rules, lineage và lịch sử. Điểm trưởng thành chỉ xác nhận khi có bằng chứng. Nguồn thuật ngữ duy nhất là MDM glossary_term; duyệt qua quy trình MDM; DGV chỉ gắn thuật ngữ PUBLISHED.",
     "phase": "P1",
     "platform": "web",
     "req": "FR-DGV-02",
@@ -14343,7 +14343,7 @@
       "Việc chưa tính được hạn: thiếu lịch năm N"
     ],
     "role": "Chủ đầu tư, Ban QLDA, lãnh đạo và giám sát trong scope (tab của chi tiết dự án PRJ-03)",
-    "rule": "Giai đoạn workflow là dẫn xuất từ công việc, không phải trạng thái pháp định; việc thiếu lịch không có ngày đoán và không bao giờ xanh; nhánh bị loại không hiện",
+    "rule": "Giai đoạn quy trình là dẫn xuất từ công việc, không phải trạng thái pháp định; việc thiếu lịch không có ngày đoán và không bao giờ xanh; nhánh bị loại không hiện",
     "phase": "P1",
     "platform": "web",
     "req": "FR-PWF-03",
@@ -14386,7 +14386,7 @@
       "Nhập hàng loạt theo danh mục dự án"
     ],
     "role": "Chủ đầu tư, Ban QLDA (quyền pwf.workflow.manage hoặc pwf.workflow.adopt)",
-    "rule": "Mỗi dự án một workflow; chạy thử không ghi dữ liệu; áp dụng là một giao dịch; việc NOT_TRACKED không vào mẫu số KPI",
+    "rule": "Mỗi dự án một quy trình; chạy thử không ghi dữ liệu; áp dụng là một giao dịch; việc NOT_TRACKED không vào mẫu số KPI",
     "phase": "P1",
     "platform": "web",
     "req": "FR-PWF-05",
@@ -14406,7 +14406,7 @@
       "Duyệt hoặc trả"
     ],
     "role": "Quản lý dự án (đề nghị), người duyệt dời lịch khác người đề nghị",
-    "rule": "Một đề nghị chờ duyệt mỗi workflow; đường cơ sở không đổi khi dời lịch; duyệt kèm phiên bản workflow, người sau nhận xung đột",
+    "rule": "Một đề nghị chờ duyệt mỗi quy trình; đường cơ sở không đổi khi dời lịch; duyệt kèm phiên bản quy trình, người sau nhận xung đột",
     "phase": "P1",
     "platform": "web",
     "req": "FR-PWF-06",
@@ -14465,7 +14465,7 @@
     "title": "Bộ KPI quy trình",
     "kind": "form",
     "fields": [
-      "Mã bộ và mẫu workflow áp dụng",
+      "Mã bộ và mẫu quy trình áp dụng",
       "Phép tính chọn từ danh mục của hệ thống",
       "Tham số phép tính và phạm vi áp dụng",
       "Thang điểm tuyến tính hoặc bậc thang có xem trước đường quy đổi",
