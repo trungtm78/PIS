@@ -47,7 +47,6 @@ export function ReportContext({ context, updatedAt, onUseLatest }: ReportContext
           { label: t('ca1.ctx.cutoff'), value: context.cutoffDate === null ? t('ca1.ctx.cutoff.none') : dateText(context.cutoffDate) },
           { label: t('ca1.ctx.freshness'), value: freshness },
         ]}
-        unit={t('w2pay.ctx.unit')}
         stale={stale}
         {...(updatedAt === undefined || updatedAt <= 0 ? {} : { asOf: momentText(updatedAt) })}
       />
@@ -182,6 +181,7 @@ export function ReportTable({ view, linkOf, page, caption }: ReportTableProps) {
     header: columnLabel(t, column.key),
     align: ['MONEY', 'PERCENT', 'DAYS', 'COUNT', 'INDEX'].includes(column.kind) ? 'right' : 'left',
     pinned: position === 0,
+    text: column.kind === 'TEXT',
     render: (row) => (position === 0 && linkOf !== undefined ? linkOf(row) : cellNode(t, locale, column, row.cells[column.key] ?? null, row.na[column.key])),
   }));
   const totals: Record<string, ReactNode> = {};
@@ -325,7 +325,7 @@ export function AnalyticsFilters({ value, onChange, sort, direction, sortKeys, o
   const set = (patch: Partial<AnalyticsFilter>): void => onChange({ ...value, ...patch });
   const id = useId();
   return (
-    <FilterPanel applied={filterCount(value)} unitLabel={t('w2pay.ctx.unit')} {...(updatedAt === undefined ? {} : { updatedAt })} {...(actions === undefined ? {} : { actions })}>
+    <FilterPanel applied={filterCount(value)} {...(updatedAt === undefined ? {} : { updatedAt })} {...(actions === undefined ? {} : { actions })}>
       <form className="ca1-filters" role="search" aria-label={t('ctr.list.filters.title')} onSubmit={(event) => event.preventDefault()}>
         <div className="field">
           <label htmlFor={`${id}-q`}>{t('ctr.list.query.label')}</label>

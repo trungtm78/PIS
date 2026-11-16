@@ -309,7 +309,6 @@ function RegisterContent({ route }: ScreenProps) {
       </div>
       <ContextBar
         items={[{ label: t('ctrWarn.context.separate.label'), value: t('ctrWarn.context.separate.value') }]}
-        unit={t('ctrWarn.unit.vnd.text')}
         stale={refreshFailed}
         {...(first === undefined ? {} : { asOf: stampText(first.as_of) })}
       />

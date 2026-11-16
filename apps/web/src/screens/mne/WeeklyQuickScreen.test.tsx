@@ -91,8 +91,8 @@ describe('MNE-07 weekly quick report (ST-MNE-005, MNE F3, CV 3665 [CXN-11])', ()
     // The week that is due by today is the one that opens.
     expect((screen.getByLabelText(vi_['mne.weekly.week.label']) as HTMLSelectElement).value).toBe(REPORT_40);
     const pair = screen.getByTestId('weekly-rates');
-    expect(pair.querySelector('[data-rate="pm"]')?.textContent).toContain('60.0000%');
-    expect(pair.querySelector('[data-rate="total"]')?.textContent).toContain('48.0000%');
+    expect(pair.querySelector('[data-rate="pm"]')?.textContent).toContain('60%');
+    expect(pair.querySelector('[data-rate="total"]')?.textContent).toContain('48%');
     // The words are the ones DIS-19 uses for the two rates.
     expect(pair.textContent).toContain(vi_['dis.rates.col.ratePm']);
     expect(pair.textContent).toContain(vi_['dis.rates.col.rateTotal']);
@@ -124,7 +124,7 @@ describe('MNE-07 weekly quick report (ST-MNE-005, MNE F3, CV 3665 [CXN-11])', ()
     const h = client(page([W40]), { [REPORT_40]: reportBody(REPORT_40, 'W2026-40', '2026-10-02', { status: 'SUPERSEDED', history }), [CORRECTION]: { ...corrected, history: history.map((entry) => ({ ...entry, current: entry.id === CORRECTION })) } });
     mount(<WeeklyQuickScreen route={ROUTE} />, h, { permissions: READER });
     await screen.findByTestId('weekly-rates');
-    await waitFor(() => expect(screen.getByTestId('weekly-rates').querySelector('[data-rate="pm"]')?.textContent).toContain('61.5000%'));
+    await waitFor(() => expect(screen.getByTestId('weekly-rates').querySelector('[data-rate="pm"]')?.textContent).toContain('61,5%'));
     expect(screen.getByTestId('weekly-revision').textContent).toBe(fill(vi_['mne.weekly.header.revision'], { revision: 2 }));
     expect(screen.getByRole('link', { name: vi_['mne.weekly.open'] }).getAttribute('href')).toBe(`/mne/mne-03?report=${CORRECTION}`);
     // The picker still names the week by the report the calendar lists, with the unit.
@@ -163,7 +163,7 @@ describe('MNE-07 weekly quick report (ST-MNE-005, MNE F3, CV 3665 [CXN-11])', ()
     const pair = await screen.findByTestId('weekly-rates');
     expect(pair.querySelector('[data-rate="pm"]')?.textContent).toContain(vi_['mne.weekly.rate.missing']);
     expect(pair.querySelector('[data-rate="pm"]')?.textContent).not.toContain('0%');
-    expect(pair.querySelector('[data-rate="total"]')?.textContent).toContain('48.0000%');
+    expect(pair.querySelector('[data-rate="total"]')?.textContent).toContain('48%');
     // Without a snapshot there is no list either, and the screen says why.
     expect(screen.getByTestId('weekly-header').textContent).toContain(vi_['mne.weekly.header.noSnapshot']);
     expect(screen.getByTestId('weekly-slow').textContent).toContain(vi_['mne.weekly.slow.missing']);

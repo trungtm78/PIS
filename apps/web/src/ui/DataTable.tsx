@@ -10,6 +10,8 @@ export interface DataTableColumn<T> {
   group?: string;
   align?: 'left' | 'right';
   pinned?: boolean;
+  /** A column of running text (a name, a contractor, a unit): it keeps a width a name can be read in, so that wide columns of figures do not squeeze it into a strip of one word a line. */
+  text?: boolean;
   /** In a stacked table (narrow screen) this column is the title of the card of a row, in place of the first one: for a table whose first column is a rank or a mark that names nothing. */
   stackedTitle?: boolean;
   render: (row: T) => ReactNode;
@@ -49,8 +51,8 @@ export interface DataTableProps<T> {
 
 const SKELETON_ROWS = 5;
 
-const cellClass = (column: { align?: 'left' | 'right'; pinned?: boolean }, base: string): string =>
-  [base, column.align === 'right' ? `${base}--right` : '', column.pinned === true ? `${base}--pinned` : ''].filter(Boolean).join(' ');
+const cellClass = (column: { align?: 'left' | 'right'; pinned?: boolean; text?: boolean }, base: string): string =>
+  [base, column.align === 'right' ? `${base}--right` : '', column.pinned === true ? `${base}--pinned` : '', column.text === true ? `${base}--text` : ''].filter(Boolean).join(' ');
 
 interface HeadCell {
   key: string;

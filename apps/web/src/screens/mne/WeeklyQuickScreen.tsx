@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { percentOfText } from '../../i18n/format';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { compactMoney, fullMoney } from '../../i18n/money';
@@ -103,7 +104,7 @@ function WeeklyBody({ report }: { report: ReportView }) {
   const rates = pairedRates(report);
   const slow = slowLines(report);
   const proposals = proposalsOf(report);
-  const value = (rate: string | null): string => (rate === null ? t('mne.weekly.rate.missing') : t('dis.rates.value.text', { value: rate }));
+  const value = (rate: string | null): string => (rate === null ? t('mne.weekly.rate.missing') : percentOfText(rate));
   return (
     <div data-testid="weekly-report" data-report-status={report.status}>
       <div data-testid="weekly-header">

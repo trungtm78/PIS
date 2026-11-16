@@ -43,7 +43,7 @@ describe('ContractListScreen (CTR-01): the register of contracts, read from the 
     expect(totals.queryByTitle('35.200.000.000 đồng')).toBeNull();
     expect(totals.getByText(message('ca1.table.totals'))).toBeTruthy();
     expect(screen.getByTestId('totals-note').textContent).toBe(message('ca1.register.totals.note', { total: 40 }));
-    expect(screen.getByRole('group', { name: vi_['ui.contextBar.label'] }).textContent).toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));
+    expect(screen.getByRole('group', { name: vi_['ui.contextBar.label'] }).textContent).not.toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));
   });
 
   it('sends the filters, the sort and the page size to the server and reads again when they change', async () => {

@@ -1,4 +1,5 @@
 import { Link, useSearchParams } from 'react-router-dom';
+import { percentOfText } from '../../../i18n/format';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -171,7 +172,7 @@ function AreaCluster({ cluster }: { cluster: Cluster }) {
   const columns: DataTableColumn<ClusterProject>[] = [
     { key: 'project', header: t('home.map.column.project'), pinned: true, render: (project) => <Link to={workspaceLink(project.id)}>{t('home.map.project.text', { code: project.code, name: project.name })}</Link> },
     { key: 'status', header: t('home.map.column.status'), render: (project) => <StatusPill tone="neutral">{stageLabel(t, project.status)}</StatusPill> },
-    { key: 'share', header: t('home.map.column.share'), align: 'right', render: (project) => (project.sharePct === '100.00' ? '—' : t('home.map.share.value', { share: project.sharePct })) },
+    { key: 'share', header: t('home.map.column.share'), align: 'right', render: (project) => (project.sharePct === '100.00' ? '—' : percentOfText(project.sharePct)) },
   ];
   return (
     <section aria-label={title} data-area={cluster.key} data-in-force={cluster.inForce}>

@@ -102,7 +102,7 @@ function PackageListContent({ route }: ScreenProps) {
         stale={packages.isRefetchError}
       />
       <StateBoundary state={state} onRetry={() => void packages.refetch()}>
-        <FilterPanel applied={applied} unitLabel={t('w2pay.ctx.unit')}>
+        <FilterPanel applied={applied}>
           <form className="bid-filters" role="search" aria-label={t('bid.packages.filters.title')} onSubmit={(event) => event.preventDefault()}>
             <div className="field">
               <label htmlFor="package-query">{t('bid.packages.query.label')}</label>

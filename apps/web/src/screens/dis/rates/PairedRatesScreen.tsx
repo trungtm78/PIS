@@ -123,9 +123,9 @@ function ProjectTable({ groups, whole }: { groups: readonly RateGroup[]; whole: 
         </>
       ),
     },
-    { key: 'planPm', header: t('dis.rates.col.planTtg'), group: planGroup, align: 'right', render: (group) => <Money value={group.planPmVnd} /> },
-    { key: 'planLocal', header: t('dis.rates.col.planLocal'), group: planGroup, align: 'right', render: (group) => <Money value={group.planLocalVnd} /> },
-    { key: 'numerator', header: t('dis.rates.col.disbursedTreasury'), align: 'right', render: (group) => <Money value={group.numeratorVnd} /> },
+    { key: 'planPm', header: t('dis.rates.col.planTtg'), group: planGroup, align: 'right', render: (group) => <Money value={group.planPmVnd} bare unit="billion" /> },
+    { key: 'planLocal', header: t('dis.rates.col.planLocal'), group: planGroup, align: 'right', render: (group) => <Money value={group.planLocalVnd} bare unit="billion" /> },
+    { key: 'numerator', header: t('dis.rates.col.disbursedTreasury'), align: 'right', render: (group) => <Money value={group.numeratorVnd} bare unit="billion" /> },
     ...rateColumns<RateGroup>(t, (group) => ({ ratePmPct: group.ratePmPct, rateTotalPct: group.rateTotalPct, reason: group.nullReason })),
     { key: 'coverage', header: t('dis.rates.col.coverage'), render: (group) => <CoveragePill coverage={group.coverage} /> },
   ];
@@ -137,9 +137,9 @@ function ProjectTable({ groups, whole }: { groups: readonly RateGroup[]; whole: 
       rowKey={(group) => group.id ?? group.code ?? 'row'}
       totalsLabel={t('dis.unitTotals.total.label')}
       totals={{
-        planPm: <Money value={whole.planPmVnd} />,
-        planLocal: <Money value={whole.planLocalVnd} />,
-        numerator: <Money value={whole.numeratorVnd} />,
+        planPm: <Money value={whole.planPmVnd} bare unit="billion" />,
+        planLocal: <Money value={whole.planLocalVnd} bare unit="billion" />,
+        numerator: <Money value={whole.numeratorVnd} bare unit="billion" />,
         ratePm: rateText(t, whole.ratePmPct, whole.nullReason),
         rateTotal: rateText(t, whole.rateTotalPct, whole.nullReason),
         coverage: <CoveragePill coverage={whole.coverage} />,

@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { percentOfText } from '../../i18n/format';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useEdition } from '../../editions/EditionContext';
@@ -206,7 +207,7 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
     { key: 'planPm', header: t('home.profile.evidence.planPm'), align: 'right', render: (cell) => <Money value={cell.planPmVnd} /> },
     ...(ownPlan ? [] : [{ key: 'planLocal', header: t('home.profile.evidence.planLocal'), align: 'right' as const, render: (cell: EvidenceCell) => <Money value={cell.planLocalVnd} /> }]),
     { key: 'disbursed', header: t('home.profile.evidence.disbursed'), align: 'right', render: (cell) => (cell.disbursedVnd === null ? t('home.tile.nullReason.noData') : <Money value={cell.disbursedVnd} />) },
-    { key: 'ratePm', header: t('home.profile.evidence.ratePm'), align: 'right', render: (cell) => (cell.ratePmPct === null ? t('home.tile.nullReason.noData') : t('home.tile.value.percent', { value: cell.ratePmPct })) },
+    { key: 'ratePm', header: t('home.profile.evidence.ratePm'), align: 'right', render: (cell) => (cell.ratePmPct === null ? t('home.tile.nullReason.noData') : percentOfText(cell.ratePmPct)) },
   ];
   const actionTitle = action === 'explain' ? t('home.profile.action.explain') : action === 'acknowledge' ? t('home.profile.action.acknowledge') : t('home.profile.action.dismiss');
 

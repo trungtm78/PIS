@@ -82,7 +82,7 @@ describe('BI-25 the ranking on several measures (G3-8)', () => {
     const rows = within(table).getAllByTestId('rank-row');
     expect(rows.map((row) => within(row).getByTestId('rank-position').textContent)).toEqual(['1', '2', tr('ana.common.na')]);
     expect(within(rows[0] as HTMLElement).getByTestId('rank-composite').textContent).toContain('90');
-    expect(within(rows[0] as HTMLElement).getByTestId('rank-metric-RATE').textContent).toContain(fill(tr('ana.rank.value.percent'), { value: '60' }));
+    expect(within(rows[0] as HTMLElement).getByTestId('rank-metric-RATE').textContent).toContain('60%');
     expect(within(rows[0] as HTMLElement).getByTestId('rank-metric-EXPLANATIONS').textContent).toContain(fill(tr('ana.rank.value.perProject'), { value: '60' }));
     expect(within(rows[0] as HTMLElement).getByTestId('rank-pair').textContent).toContain(tr('ana.rank.pair.slowBoth'));
     expect(within(rows[2] as HTMLElement).getByTestId('rank-composite').textContent).toContain(tr('ana.rank.na.tooFew'));

@@ -104,7 +104,7 @@ describe('HOME-10 trace of a figure (ST-HOME-002, HOME 3 F2)', () => {
     expect(screen.getByTestId('drill-denominator').textContent).toBe('1.400.000.000.000');
     expect(screen.getByTestId('drill-reconciliation').textContent).toBe(vi_['home.drill.reconcile.ratio']);
     const row = document.querySelector(`[data-child-id="${NORTH}"]`)?.closest('tr') as HTMLElement;
-    expect(row.textContent).toContain('60.0000%');
+    expect(row.textContent).toContain('60%');
     expect(row.textContent).toContain('600.000.000.000');
     expect(row.textContent).toContain('1.000.000.000.000');
   });

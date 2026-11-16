@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { percentOfText } from '../../i18n/format';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { translator, useTranslation } from '../../i18n';
@@ -75,7 +76,7 @@ export const annotationReasonLabel = (t: T, code: string): string => (translator
 function valueText(t: T, metric: MetricView): string {
   if (metric.value === null) return t('ana.common.na');
   const text = commaText(String(metric.value));
-  return metric.code === 'EXPLANATIONS' || metric.code === 'WARNINGS' ? t('ana.rank.value.perProject', { value: text }) : t('ana.rank.value.percent', { value: text });
+  return metric.code === 'EXPLANATIONS' || metric.code === 'WARNINGS' ? t('ana.rank.value.perProject', { value: text }) : percentOfText(text);
 }
 
 type Dialog = { kind: 'annotate'; unit: UnitRank } | { kind: 'complain'; unit: UnitRank; metric: MetricCode };

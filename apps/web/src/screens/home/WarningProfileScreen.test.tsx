@@ -67,7 +67,7 @@ describe('HOME-06 warning profile (ST-HOME-003, HOME 3 F4)', () => {
     const evidence = screen.getByTestId('profile-evidence');
     expect(within(evidence).getByTestId('evidence-context').textContent).toBe(fill(vi_['home.profile.evidence.context'], { id: '00000000…00f2', date: '12/10/2027' }));
     expect(evidence.textContent).toContain('1.000.000.000.000');
-    expect(evidence.textContent).toContain('22.0000%');
+    expect(evidence.textContent).toContain('22%');
     expect(screen.getByTestId('profile-leader').textContent).toContain('Nguyễn Văn A');
     expect(screen.getByTestId('profile-explanation').textContent).toContain(fill(vi_['home.profile.explanation.status'], { status: vi_['home.explanation.status.accepted'], due: '2027-10-09' }));
     const history = within(screen.getByTestId('profile-history'));

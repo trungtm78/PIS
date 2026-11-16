@@ -124,7 +124,7 @@ function Detail({ plan, packages, mayManage, mayApprove }: { plan: PlanLine; pac
   ];
   return (
     <div data-testid="plan-detail">
-      <SectionCard title={t('bid.plans.detail.title', { title: plan.title, revision: plan.revision })} unit={t('w2pay.ctx.unit')} status={<PlanStatusBadge status={plan.status} />}>
+      <SectionCard title={t('bid.plans.detail.title', { title: plan.title, revision: plan.revision })} status={<PlanStatusBadge status={plan.status} />}>
         <p className="sub">{plan.legalBasis}</p>
         {plan.lastDecision === null ? null : (
           <p className="callout" role="status" data-testid="last-decision">

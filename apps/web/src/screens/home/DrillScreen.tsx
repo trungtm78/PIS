@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { percentOfText } from '../../i18n/format';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useApiClient } from '../../api/ApiClientContext';
@@ -62,7 +63,7 @@ function reasonLabel(t: T, reason: string | null): string {
 /** A figure of the drill as it is read: the percent with its decimals, an amount of dong in the short form (tỷ, triệu), or why there is none (never 0). */
 function figure(t: T, unit: 'PERCENT' | 'VND', value: string | null, reason: string | null): string {
   if (value === null) return reasonLabel(t, reason);
-  return unit === 'PERCENT' ? t('home.tile.value.percent', { value }) : compactMoney(value);
+  return unit === 'PERCENT' ? percentOfText(value) : compactMoney(value);
 }
 
 function dimensionLabel(t: T, dimension: DrillDimension): string {

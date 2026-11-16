@@ -212,7 +212,6 @@ function ClaimRegisterContent({ route }: ScreenProps) {
       </div>
       <ContextBar
         items={[{ label: t('ctrClaim.context.policy.label'), value: first === undefined ? NONE : first.policy.unverified ? t('ctrClaim.context.policy.unverified') : t('ctrClaim.context.policy.set') }]}
-        unit={t('ctrClaim.unit.vnd.text')}
         stale={refreshFailed}
         {...(first === undefined ? {} : { asOf: stampText(first.as_of) })}
       />

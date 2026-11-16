@@ -118,7 +118,7 @@ function RecordContent({ route, warningId }: ScreenProps & { warningId: string |
           </div>
         )}
       </div>
-      {warning !== undefined && <ContextBar items={[{ label: t('ctrWarn.dialog.contract.label'), value: warning.contract.code }]} stale={query.isError} asOf={stampText(warning.as_of)} unit={t('ctrWarn.unit.vnd.text')} />}
+      {warning !== undefined && <ContextBar items={[{ label: t('ctrWarn.dialog.contract.label'), value: warning.contract.code }]} stale={query.isError} asOf={stampText(warning.as_of)} />}
       {receipt !== undefined && (
         <p className="ctrreg-receipt" role="status" data-testid="receipt">
           {receipt}

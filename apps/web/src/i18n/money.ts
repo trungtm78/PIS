@@ -12,6 +12,8 @@ import { translator } from './index';
  *    with every digit ("950.000 đồng");
  *  - in tỷ and triệu the figure is rounded HALF AWAY FROM ZERO to two decimals and trailing zeros are dropped ("1,5 tỷ đồng", never "1,50");
  *  - a rounding that reaches 1.000 triệu is written in the next unit ("999.995.000" is "1 tỷ đồng", never "1.000 triệu đồng");
+ *  - under a unit that a column or a card declares (`unit`), a small amount that would round to zero gets the decimals that show its first digit: it is never written 0
+ *    (a column of `fixed` decimals keeps its alignment and writes 0,00; the exact amount is in its tooltip);
  *  - a negative amount carries a minus sign, and an amount that rounds to zero carries none; zero is "0 đồng";
  *  - no amount at all (null, undefined, an empty text) is a dash, never a zero; a text that is not an amount is shown as it came, never guessed;
  *  - Vietnamese groups thousands with a dot and has a decimal comma, English the other way round; the words of the units are catalogue keys.
@@ -110,6 +112,11 @@ export function moneyParts(value: MoneyValue, options: MoneyOptions = {}): Money
   if (options.unit === undefined && unit === 'million' && figure >= 1000n * 10n ** BigInt(places)) {
     unit = 'billion';
     places = decimals;
+    figure = scaled(magnitude, unit, places, rounding);
+  }
+  // Under a declared unit an amount that is not zero is never written as zero: a small amount gets the decimals that show its first digit (4.000.000 under tỷ đồng is 0,004).
+  while (options.unit !== undefined && options.fixed !== true && figure === 0n && magnitude !== 0n && SIZE[unit] > 10n ** BigInt(places)) {
+    places += 1;
     figure = scaled(magnitude, unit, places, rounding);
   }
   const divisor = 10n ** BigInt(places);

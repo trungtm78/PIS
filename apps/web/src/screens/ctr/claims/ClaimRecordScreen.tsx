@@ -152,7 +152,7 @@ function ClaimRecordContent({ route, claimId }: ScreenProps & { claimId: string 
           </div>
         )}
       </div>
-      {claim !== undefined && <ContextBar items={[{ label: t('ctrClaim.context.contract.label'), value: claim.contract.code }]} stale={refreshFailed} asOf={stampText(claim.as_of)} unit={t('ctrClaim.unit.vnd.text')} />}
+      {claim !== undefined && <ContextBar items={[{ label: t('ctrClaim.context.contract.label'), value: claim.contract.code }]} stale={refreshFailed} asOf={stampText(claim.as_of)} />}
       {receipt !== undefined && (
         <p className="ctrreg-receipt" role="status" data-testid="receipt">
           {receipt}

@@ -224,8 +224,10 @@ code {
 .ui-table__row[data-severity='URGENT'] > .ui-table__cell:first-child { box-shadow: inset 4px 0 0 var(--mv-color-danger); }
 .ui-table__row[data-severity='ACTION'] > .ui-table__cell:first-child { box-shadow: inset 4px 0 0 var(--mv-color-warning); }
 .ui-table__row[data-severity='WATCH'] > .ui-table__cell:first-child { box-shadow: inset 4px 0 0 var(--mv-color-info); }
-.ui-table__totals .ui-table__cell { background: var(--mv-color-primary-soft); font-weight: 700; text-align: left; border-top: 1px solid var(--mv-color-border); }
+.ui-table__totals .ui-table__cell { background: var(--mv-color-primary-soft); color: var(--mv-color-ink); font-weight: 700; text-align: left; border-top: 1px solid var(--mv-color-border); }
 .ui-table__totals .ui-table__cell--right { text-align: right; }
+/* A column of running text keeps a readable width; the table scrolls sideways when the columns do not fit. Not in the stacked form, where a row is a card. */
+@media (min-width: 641px) { .ui-table__cell--text, .ui-table__head--text { min-width: 14rem; } }
 .ui-table__message { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--mv-space-12); min-height: 96px; color: var(--mv-color-text-secondary); text-align: center; }
 .ui-pager { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-12) var(--mv-space-16); padding: var(--mv-space-12) var(--mv-space-16); border-top: 1px solid var(--mv-color-border); font-size: 12px; color: var(--mv-color-text-secondary); }
 .ui-pager__size select { min-height: 32px; padding: 0 var(--mv-space-8); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); color: var(--mv-color-ink); font: inherit; }

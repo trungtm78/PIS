@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { dayMonthYear, decimalText } from './format';
+import { dayMonthYear, decimalText, formatPercent } from './format';
 import { translator } from './index';
 
 afterEach(() => translator.setLocale('vi'));
@@ -27,5 +27,29 @@ describe('the shared formatters', () => {
     expect(dayMonthYear(null)).toBe('–');
     expect(dayMonthYear(undefined)).toBe('–');
     expect(dayMonthYear('soon')).toBe('–');
+  });
+
+  it('writes a percent with two decimals in the marks of the language, rounded on the digits of the text', () => {
+    expect(formatPercent('96.5414')).toBe('96,54%');
+    expect(formatPercent('37.6233')).toBe('37,62%');
+    expect(formatPercent('37.625')).toBe('37,63%');
+    expect(formatPercent('-37.625')).toBe('-37,63%');
+    expect(formatPercent('60')).toBe('60%');
+    expect(formatPercent('45.0000')).toBe('45%');
+    expect(formatPercent('197.5000')).toBe('197,5%');
+    expect(formatPercent('60', 2, 'vi', true)).toBe('60,00%');
+    expect(formatPercent('99.999')).toBe('100%');
+    expect(formatPercent('-0.001')).toBe('0%');
+    expect(formatPercent('1234.5')).toBe('1.234,5%');
+    expect(formatPercent(14)).toBe('14%');
+    expect(formatPercent(8.125, 1)).toBe('8,1%');
+    expect(formatPercent('12.5', 0)).toBe('13%');
+    expect(formatPercent(null)).toBe('–');
+    expect(formatPercent('')).toBe('–');
+    expect(formatPercent('n/a')).toBe('n/a');
+    expect(formatPercent(Number.NaN)).toBe('–');
+    translator.setLocale('en');
+    expect(formatPercent('96.5414')).toBe('96.54%');
+    expect(formatPercent('1234.5')).toBe('1,234.5%');
   });
 });

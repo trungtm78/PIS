@@ -150,8 +150,8 @@ describe('every number of the center is the text of the server, with the "i" of 
     expect(within(block).getByTestId('hero-exact').textContent).toContain(fill(tr('home.ov.hero.exact'), { amount: '600.000.000.000 đồng' }));
     expect(block.textContent).not.toContain('600000000001');
     expect(block.textContent).not.toContain('600.000.000.001');
-    expect(block.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '59.99' }));
-    expect(block.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '47.50' }));
+    expect(block.textContent).toContain('59,99%');
+    expect(block.textContent).toContain('47,5%');
     expect(block.textContent).not.toContain('60.0000');
     const kpis = screen.getByTestId('home-kpis');
     expect(kpis.textContent).toContain(`1.250${tr('money.unit.billion')}`);

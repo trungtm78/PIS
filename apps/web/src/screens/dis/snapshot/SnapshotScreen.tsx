@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { percentOfText } from '../../../i18n/format';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -398,7 +399,7 @@ function Lines({ id }: { id: string }) {
   const rates = t('w2dis.rates.group.rates');
   const rate = (line: SnapshotLineView, value: string | null, kind: 'pm' | 'total') => (
     <span data-rate={kind} title={value === null ? nullReasonLabel(t, line.rateNullReason) : undefined}>
-      {value === null ? NONE : t('dis.snapshot.rate.text', { value })}
+      {value === null ? NONE : percentOfText(value)}
     </span>
   );
   const columns: DataTableColumn<SnapshotLineView>[] = [

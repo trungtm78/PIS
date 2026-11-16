@@ -170,7 +170,7 @@ function Workspace({ summary, locale, readOnly, permissions, onOpen }: Workspace
       ) : null}
       <div className="ctr-grid">
         <div>
-          <SectionCard title={t('ctr.workspace.facts.title')} unit={t('w2pay.ctx.unit')}>
+          <SectionCard title={t('ctr.workspace.facts.title')}>
             <dl className="ctr-facts" data-testid="facts">
               <dt>{t('ctr.workspace.fact.project')}</dt>
               <dd>{`${contract.projectCode} · ${contract.projectName}`}</dd>
@@ -229,7 +229,7 @@ function Workspace({ summary, locale, readOnly, permissions, onOpen }: Workspace
             </SectionCard>
           )}
           {closureChecks.length === 0 || closure === undefined ? null : (
-            <SectionCard title={t('ctr.workspace.closure.title')} unit={t('w2pay.ctx.unit')}>
+            <SectionCard title={t('ctr.workspace.closure.title')}>
               <ul className="ctr-checks" data-testid="closure-checks">
                 {closureChecks.map((check) => (
                   <li key={check.key} data-closure={check.key} data-ok={String(check.ok)}>

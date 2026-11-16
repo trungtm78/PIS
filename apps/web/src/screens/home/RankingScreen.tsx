@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { percentOfText } from '../../i18n/format';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
@@ -175,7 +176,7 @@ function RankedTable({ rows, caption }: { rows: RankingRow[]; caption: string })
       key: 'rate',
       header: t('home.ranking.column.rate'),
       align: 'right',
-      render: (row) => <span data-testid={`rate-${row.unitId}`}>{row.ratePct === null ? t('home.tile.nullReason.noData') : t('home.tile.value.percent', { value: row.ratePct })}</span>,
+      render: (row) => <span data-testid={`rate-${row.unitId}`}>{row.ratePct === null ? t('home.tile.nullReason.noData') : percentOfText(row.ratePct)}</span>,
     },
   ];
   return <DataTable caption={caption} columns={columns} rows={rows} rowKey={(row) => row.unitId} />;

@@ -302,7 +302,7 @@ describe('HOME-05: the project map (ST-HOME-006, UI-HOME-05)', () => {
       path: '/home/home-05?as_of=2025-08-01',
     });
     await screen.findByTestId('map-areas');
-    expect((document.querySelector(`[data-area="${AREA_Y.record}"]`) as HTMLElement).textContent).toContain(word('home.map.share.value', { share: '60.00' }));
+    expect((document.querySelector(`[data-area="${AREA_Y.record}"]`) as HTMLElement).textContent).toContain('60%');
     const z = document.querySelector(`[data-area="${AREA_Z.record}"]`) as HTMLElement;
     expect(z.textContent).toContain('XA-Z');
     expect(z.textContent).toContain(word('home.map.notinforce.note'));

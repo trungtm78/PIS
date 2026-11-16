@@ -54,14 +54,14 @@ describe('HOME-04 ranking (ST-HOME-003, HOME 3 F3, BR-HOME-06)', () => {
     expect(tables.map((table) => table.getAttribute('data-table'))).toEqual(['PROJECT_MANAGEMENT_BOARD|PM_ASSIGNED', 'COMMUNE|PM_ASSIGNED']);
     const boards = tables[0] as HTMLElement;
     expect(Array.from(boards.querySelectorAll('tbody [data-unit-id]')).map((cell) => cell.getAttribute('data-unit-id'))).toEqual([U2, U1]);
-    expect(within(boards).getByTestId(`rate-${U1}`).textContent).toBe('14.0000%');
+    expect(within(boards).getByTestId(`rate-${U1}`).textContent).toBe('14%');
     expect(within(boards).getByTestId('ranking-excluded').textContent).toContain(vi_['home.ranking.reason.zeroDenominator']);
     // The other denominator is another table, with another order.
     await user.selectOptions(screen.getByLabelText(vi_['home.ranking.denominator.label']), 'TOTAL_INCL_LOCAL');
     const total = (await screen.findAllByTestId('ranking-table'))[0] as HTMLElement;
     expect(total.getAttribute('data-table')).toBe('PROJECT_MANAGEMENT_BOARD|TOTAL_INCL_LOCAL');
     expect(Array.from(total.querySelectorAll('tbody [data-unit-id]')).map((cell) => cell.getAttribute('data-unit-id'))).toEqual([U1, U2]);
-    expect(within(total).getByTestId(`rate-${U1}`).textContent).toBe('11.2000%');
+    expect(within(total).getByTestId(`rate-${U1}`).textContent).toBe('11,2%');
   });
 
   it('narrows to one comparison group and clears the narrowing with the button of the filter panel', async () => {

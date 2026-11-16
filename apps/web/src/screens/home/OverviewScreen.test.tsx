@@ -235,8 +235,8 @@ describe('HOME-01 the leader home: work first, then the numbers (decision 2A)', 
       // The figure is the server's `display_value` read in the short form, with the exact amount of the server in the caption.
       expect(hero.textContent).toContain(`214,71${tr('money.unit.billion')}`);
       expect(within(hero).getByTestId('hero-exact').textContent).toContain(fill(tr('home.ov.hero.exact'), { amount: `214.710.000.000 ${tr('govc.home.unit.vnd')}` }));
-      expect(hero.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '21.47' }));
-      expect(hero.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '17.18' }));
+      expect(hero.textContent).toContain('21,47%');
+      expect(hero.textContent).toContain('17,18%');
       expect(hero.textContent).toContain(tr('home.ov.hero.chip.pm'));
       expect(hero.textContent).toContain(tr('home.ov.hero.chip.total'));
       expect(within(hero).getByRole('img', { name: /21%/ })).toBeTruthy();
@@ -247,7 +247,7 @@ describe('HOME-01 the leader home: work first, then the numbers (decision 2A)', 
     it('shows an amount of 0 as 0, and a missing amount as missing with the reason, never as 0', async () => {
       mount(<OverviewScreen route={OV} />, client({ center: () => center({ tiles: [tile('DISBURSEMENT_RATE_PM', { value: '0.0000', numerator: '0' }), tile('DISBURSEMENT_RATE_TOTAL', { value: '0.0000', numerator: '0' }), tile('DISBURSED_TREASURY', { unit: 'VND', value: '0', numerator: null, denominator: null })] }) }), { permissions: READER });
       const hero = await screen.findByRole('region', { name: fill(tr('home.ov.hero.label'), { year: '2026' }) });
-      expect(hero.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '0.00' }));
+      expect(hero.textContent).toContain('0%');
       expect(hero.textContent).not.toContain(tr('home.ov.hero.noData'));
       cleanup();
       mount(<OverviewScreen route={OV} />, client({ center: () => center({ tiles: [tile('DISBURSEMENT_RATE_PM', { value: null, null_reason: 'NO_DATA', numerator: null }), tile('DISBURSEMENT_RATE_TOTAL', { value: null, null_reason: 'NO_DATA', numerator: null }), tile('DISBURSED_TREASURY', { unit: 'VND', value: null, null_reason: 'NO_DATA', numerator: null, denominator: null })] }) }), { permissions: READER });

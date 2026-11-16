@@ -26,7 +26,7 @@ describe('the portfolio and status (CTR-29)', () => {
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(message('ca1.report.portfolioStatus.title'));
     const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
     for (const text of [message('ca1.ctx.scope'), message('ca1.ctx.period'), message('ca1.ctx.cutoff'), message('ca1.ctx.freshness'), message('ca1.ctx.cutoff.none'), message('ca1.ctx.fresh.live')]) expect(bar.textContent).toContain(text);
-    expect(bar.textContent).toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));
+    expect(bar.textContent).not.toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));
     // the indicators of everything that matches, each with its "i"
     const kpis = screen.getByRole('group', { name: message('ca1.kpi.label') });
     expect(within(kpis).getByText('1,43%'.replace('.', ','))).toBeTruthy();

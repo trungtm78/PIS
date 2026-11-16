@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
-import { compactMoney } from '../../../i18n/money';
+import { formatPercent } from '../../../i18n/format';
+import { compactMoney, moneyInUnit } from '../../../i18n/money';
 import type { Translator } from '../../../i18n';
 import { useSession } from '../../../session/SessionContext';
 import { ContextBar, KpiStrip, KpiTile, ReadonlyStat, SectionCard, StatusPill } from '../../../ui';
@@ -20,7 +21,13 @@ export const NONE = '—';
 
 export const money = (value: string | null): string => (value === null ? NONE : formatVnd(value));
 
-/** The short form of an amount ("1,23 tỷ đồng") where a text is needed (a tile, a stat, a sentence); a table cell uses `<Money>`, which keeps the exact amount one hover away. */
+/**
+ * The screens of the rates are summaries for leaders and declare ONE unit, tỷ đồng, in their scope line: every amount is the figure in billions ("965,41") and the unit is not repeated in a cell.
+ * A table cell uses `<Money bare unit="billion">`, which keeps the exact dong one hover away; this is the same figure where a text is needed (a tile, a stat).
+ */
+export const inBillions = (value: string | null, signed = false): string => (value === null ? NONE : moneyInUnit(value, 'billion', { signed }));
+
+/** The short form of an amount with its own unit ("1,23 tỷ đồng"), for a screen that declares no unit (the forecast). */
 export const shortMoney = (value: string | null, signed = false): string => (value === null ? NONE : compactMoney(value, { signed }));
 
 /** A change with its sign: a fall is negative and a rise is shown with a plus, so that none of them is read as zero. */
@@ -57,10 +64,10 @@ export function coverageLabel(t: T, coverage: Coverage): string {
   return coverage === 'COMPLETE' ? t('dis.rates.coverage.complete') : coverage === 'PARTIAL' ? t('dis.rates.coverage.partial') : t('dis.rates.coverage.none');
 }
 
-const percent = (t: T, value: string): string => t('dis.rates.value.text', { value });
+const percent = (value: string): string => formatPercent(value);
 
-/** The sentence a rate is shown as: the percent with its four decimals, or why there is none. */
-export const rateText = (t: T, rate: string | null, reason: NullReason | null): string => (rate === null ? reasonLabel(t, reason) : percent(t, rate));
+/** The sentence a rate is shown as: the percent with two decimals in the marks of the language, or why there is none. */
+export const rateText = (t: T, rate: string | null, reason: NullReason | null): string => (rate === null ? reasonLabel(t, reason) : percent(rate));
 
 /** The label that says the formulas are proposals until the business owner signs them (D03). */
 export function DefinitionBadge({ definition }: { definition: Definition }) {
@@ -84,7 +91,7 @@ export function CoveragePill({ coverage }: { coverage: Coverage }) {
 
 /** The value of a rate tile: the percent, "Not applicable" when the denominator is zero, or the reason there is none (a rate that cannot be given is never 0%). */
 function tileValue(t: T, rate: string | null, reason: NullReason | null): string {
-  if (rate !== null) return percent(t, rate);
+  if (rate !== null) return percent(rate);
   return reason === 'ZERO_DENOMINATOR' ? t('w2dis.rates.tile.na') : reasonLabel(t, reason);
 }
 
@@ -103,6 +110,7 @@ export function RatesContext({ snapshotId, cutoff }: { snapshotId: string | unde
         { label: t('dis.wr.ctx.period'), value: period?.code ?? NONE },
         { label: t('dis.rates.fact.cutoff'), value: cutoff ?? NONE },
       ]}
+      unit={t('w2dis.home.unit.billion')}
     />
   );
 }
@@ -123,7 +131,7 @@ export function RatePair({ figures, definition, cutoff, basis }: { figures: Rate
                 tone="info"
                 sub={
                   <span className="w2dis-tile-sub">
-                    <span>{t('w2dis.rates.tile.sub', { numerator: shortMoney(figures.numeratorVnd), denominator: shortMoney(figures.planPmVnd) })}</span>
+                    <span>{t('w2dis.rates.tile.sub', { numerator: inBillions(figures.numeratorVnd), denominator: inBillions(figures.planPmVnd) })}</span>
                     {figures.ratePmPct === null && noBasis ? <small>{reasonLabel(t, figures.nullReason)}</small> : null}
                     <small>{t('dis.rates.formula.pm', { ref: FORMULA_REFERENCE })}</small>
                     {passesWhole(figures.ratePmPct) ? <small data-testid="rate-pm-over">{t('dis.rates.pair.over.note')}</small> : null}
@@ -135,7 +143,7 @@ export function RatePair({ figures, definition, cutoff, basis }: { figures: Rate
                 value={tileValue(t, figures.rateTotalPct, figures.nullReason)}
                 sub={
                   <span className="w2dis-tile-sub">
-                    <span>{t('w2dis.rates.tile.sub', { numerator: shortMoney(figures.numeratorVnd), denominator: shortMoney(figures.planTotalVnd) })}</span>
+                    <span>{t('w2dis.rates.tile.sub', { numerator: inBillions(figures.numeratorVnd), denominator: inBillions(figures.planTotalVnd) })}</span>
                     {figures.rateTotalPct === null && noBasis ? <small>{reasonLabel(t, figures.nullReason)}</small> : null}
                     <small>{t('dis.rates.formula.total', { ref: FORMULA_REFERENCE })}</small>
                   </span>
@@ -144,9 +152,9 @@ export function RatePair({ figures, definition, cutoff, basis }: { figures: Rate
             </KpiStrip>
           </div>
           <div className="w2dis-facts">
-            <ReadonlyStat label={t('dis.rates.fact.numerator')} value={shortMoney(figures.numeratorVnd)} />
-            <ReadonlyStat label={t('dis.rates.fact.planPm')} value={shortMoney(figures.planPmVnd)} />
-            <ReadonlyStat label={t('dis.rates.fact.planTotal')} value={shortMoney(figures.planTotalVnd)} />
+            <ReadonlyStat label={t('dis.rates.fact.numerator')} value={inBillions(figures.numeratorVnd)} />
+            <ReadonlyStat label={t('dis.rates.fact.planPm')} value={inBillions(figures.planPmVnd)} />
+            <ReadonlyStat label={t('dis.rates.fact.planTotal')} value={inBillions(figures.planTotalVnd)} />
             <ReadonlyStat label={t('dis.rates.fact.cutoff')} value={cutoff} />
             <ReadonlyStat label={t('dis.rates.fact.coverage')} value={coverageLabel(t, figures.coverage)} />
           </div>

@@ -52,7 +52,6 @@ describe('the shared money formatter', () => {
     expect(compactMoney('-0')).toBe('0 đồng');
     expect(compactMoney('2500000', { signed: true })).toBe('+2,5 triệu đồng');
     expect(compactMoney('0', { signed: true })).toBe('0 đồng');
-    expect(moneyInUnit('-4000000', 'billion')).toBe('0');
     expect(dongText('1250000', 'vi', true)).toBe('+1.250.000');
   });
 
@@ -85,6 +84,12 @@ describe('the shared money formatter', () => {
     expect(moneyInUnit('1250000', 'million', { decimals: 6 })).toBe('1,25');
     expect(moneyInUnit('1500000000', 'dong')).toBe('1.500.000.000');
     expect(moneyInUnit(null, 'billion')).toBe('—');
+    expect(moneyInUnit('40000000', 'billion')).toBe('0,04');
+    expect(moneyInUnit('4000000', 'billion')).toBe('0,004');
+    expect(moneyInUnit('-4000000', 'billion', { fixed: true })).toBe('0,00');
+    expect(moneyInUnit('1', 'billion')).toBe('0,000000001');
+    expect(moneyInUnit('400', 'million')).toBe('0,0004');
+    expect(moneyInUnit('0', 'billion', { fixed: true })).toBe('0,00');
   });
 
   it('says whether a figure shows the amount whole', () => {

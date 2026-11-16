@@ -1,4 +1,5 @@
 import { useTranslation } from '../../i18n';
+import { percentOfText } from '../../i18n/format';
 import { compactMoney } from '../../i18n/money';
 import type { Translator } from '../../i18n';
 import { InfoFormula, StatusPill } from '../../ui';
@@ -40,7 +41,7 @@ export const isWholeDong = (text: string | null): text is string => text !== nul
 export function figureShown(t: T, tile: Tile): string {
   if (tile.displayValue === null) return noneText(t, tile);
   const text = figureText(tile);
-  if (tile.unit === 'PERCENT') return t('home.tile.value.percent', { value: text });
+  if (tile.unit === 'PERCENT') return percentOfText(text);
   if (tile.unit === 'VND') return isWholeDong(text) ? compactMoney(text) : t('home.tile.value.vnd', { value: text });
   return text;
 }
