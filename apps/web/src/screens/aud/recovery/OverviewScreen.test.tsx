@@ -29,7 +29,7 @@ describe('AUD-01 overview of inspections and audits', () => {
     expect(within(screen.getByTestId('tile-overdue')).getByText('2')).toBeTruthy();
     expect(text('tile-money')).toContain('1,25 tỷ đồng');
     expect(text('tile-money')).toContain(vi_['aud.overview.tile.money.parts'].replace('{recovered}', '500 triệu đồng').replace('{remaining}', '750 triệu đồng'));
-    expect(text('overview-rate-money')).toBe(`40% ${vi_['aud.recovery.rate.parts'].replace('{numerator}', '500.000.000').replace('{denominator}', '1.250.000.000')}`);
+    expect(text('overview-rate-money')).toBe(`40% ${vi_['aud.recovery.rate.parts'].replace('{numerator}', '500 triệu đồng').replace('{denominator}', '1,25 tỷ đồng')}`);
     expect(text('overview-rate-count')).toBe(`12,5% ${vi_['aud.recovery.rate.parts'].replace('{numerator}', '1').replace('{denominator}', '8')}`);
     expect(screen.getByTestId('confidential-note').textContent).toBe(vi_['aud.overview.confidential.note']);
     expect(screen.queryByTestId('exceptions-note')).toBeNull();

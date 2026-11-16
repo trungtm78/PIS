@@ -172,7 +172,7 @@ test.describe('AUD-06 and AUD-07: the recommendations of an engagement', () => {
   test('the owner explains a financial recommendation recovered in part; the authority accepts the explanation and the verifier closes it on what was recovered (AC-ST-AUD-003-3, UAT-AC441)', async ({ page }) => {
     const aim = await seed();
     await open(page, 'audOwner', `/aud/aud-07?engagement=${aim.engagementId}`);
-    await expect(card(page, aim.financialCode)).toContainText('300.000.000 / 400.000.000');
+    await expect(card(page, aim.financialCode)).toContainText('300 triệu đồng / 400 triệu đồng');
     await card(page, aim.financialCode).getByRole('button', { name: vi['aud.remediation.dispute.action'] }).click();
     const dispute = page.getByRole('dialog');
     await dispute.getByLabel(vi['aud.remediation.dispute.reason.label'], { exact: true }).fill(REASON);

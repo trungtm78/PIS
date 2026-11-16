@@ -101,7 +101,7 @@ test.describe('LND-11 and LND-01: the progress of the stages that an external ce
 
     const row = page.locator('[data-stage-id]').first();
     await expect(row.getByTestId('parcels')).toHaveText('45 / 120');
-    await expect(row.getByTestId('progress')).toHaveText('37.50%');
+    await expect(row.getByTestId('progress')).toHaveText('37,5%');
     await expect(row.getByTestId('status')).toHaveText(vi['lnd.stageStatus.late.label']);
     await expect(row.getByTestId('mode')).toHaveText(vi['lnd.mode.trackedExternal.label']);
     await expect(row.getByTestId('evidence')).toBeVisible();
@@ -126,7 +126,7 @@ test.describe('LND-11 and LND-01: the progress of the stages that an external ce
     await page.getByLabel(vi['lnd.progress.field.parcelsDone'], { exact: true }).fill('60');
     await page.getByRole('button', { name: vi['lnd.dialog.submit.action'] }).click();
     await expect(row.getByTestId('parcels')).toHaveText('60 / 120');
-    await expect(row.getByTestId('progress')).toHaveText('50.00%');
+    await expect(row.getByTestId('progress')).toHaveText('50%');
     expect(await stageRows(project.id)).toHaveLength(1);
     expect(await asked()).toBe('1');
 

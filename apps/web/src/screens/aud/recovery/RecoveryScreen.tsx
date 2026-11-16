@@ -114,7 +114,7 @@ function Totals({ summary }: { summary: RecoverySummary }) {
         <dl className="aud-facts">
           <dt>{t('aud.recovery.rates.money')}</dt>
           <dd>
-            <RateText rate={summary.moneyRate} testId="rate-money" />
+            <RateText rate={summary.moneyRate} testId="rate-money" money />
           </dd>
           <dt>{t('aud.recovery.rates.count')}</dt>
           <dd>
