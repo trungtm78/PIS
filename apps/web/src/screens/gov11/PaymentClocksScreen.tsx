@@ -3,7 +3,7 @@ import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { Money, StatusPill } from '../../ui';
-import { Figure, Frame, Info, UnverifiedNote, asList, asRecord, dayLabel, money, num, percent, stamp, text, useGovRead } from './gov11-kit';
+import { Figure, Frame, Info, UnverifiedNote, asList, asRecord, dayLabel, num, percent, stamp, text, useGovRead } from './gov11-kit';
 import type { RuleReading } from './gov11-kit';
 
 type Tone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
