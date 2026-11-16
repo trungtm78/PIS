@@ -109,6 +109,19 @@ async function unitTemplate(ctx: SeedContext): Promise<boolean> {
   return true;
 }
 
+/** The leader who answers for a project (PRJ-17: LEADER_IN_CHARGE, with the officer of the board as focal officer) by the decision of the board; without one the alert of the overall deadline has nobody to go to and the tasks are not given to the leader. */
+async function leaderInCharge(ctx: SeedContext, spec: RunSpec): Promise<void> {
+  const project = await ctx.find(OWNER, '/resources/project', (row) => row.code === spec.existing);
+  if (project === undefined) return;
+  const projectId = str(project.id);
+  if ((await ctx.list<Obj>(OWNER, '/resources/project_accountability', { project_id: projectId })).length > 0) return;
+  const decision = await ctx.letter({ symbol: `PWF-PC-${spec.existing.replace(/D/gu, '')}/QD-BQLDA`, title: `Quyết định phân công lãnh đạo phụ trách dự án ${spec.existing}`, issuedOn: ctx.day(-90), sender: 'Ban Quản lý dự án xây dựng tỉnh Cà Mau', person: 'owner' });
+  const made = await ctx.attempt<CommandReply>(OWNER, 'POST', `/projects/${projectId}/accountability-assignments`, { leader_membership_id: ctx.person(CHECKER).membershipId, accountability_role: 'LEADER_IN_CHARGE', valid_from: ctx.day(-90), assignment_document_id: decision.documentId });
+  if (!made.ok) return;
+  await ctx.attempt(OWNER, 'POST', `/projects/${projectId}/accountability-assignments`, { leader_membership_id: ctx.person(MAKER).membershipId, accountability_role: 'FOCAL_OFFICER', valid_from: ctx.day(-90) });
+  ctx.record({ module: 'PRJ', kind: 'accountability', id: str(made.json.resource_id), code: spec.existing, note: `leader in charge: ${ctx.nameOf(CHECKER)}`, screen: 'PRJ-17' });
+}
+
 // ---- the workflows --------------------------------------------------------------------------------------------------------------------
 
 interface Suggestion {
@@ -212,6 +225,9 @@ export async function seedClipPwfRunning(ctx: SeedContext): Promise<void> {
   const ready = { units: false };
   await ctx.step('PWF', `the template ${UNIT_TEMPLATE}: the unit that receives each task, the extensions allowed, the overall deadline (drafted by the owner, approved by the leader)`, async () => {
     ready.units = await unitTemplate(ctx);
+  });
+  await ctx.step('PRJ', 'the leader in charge of each of the nine projects (PRJ-17): the alert of the overall deadline goes to them', async () => {
+    for (const spec of PROJECTS) await leaderInCharge(ctx, spec);
   });
   const ids: Record<string, string> = {};
   for (const [turn, spec] of PROJECTS.entries()) {
