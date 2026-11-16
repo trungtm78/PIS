@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { ContextBar, StatusPill } from '../../../ui';
 import type { Tone } from '../../../ui';
-import { templateKnown, templateName, versionText } from '../codes';
+import { projectKindLabel, templateKnown, templateName, versionText } from '../codes';
+import { useProjectTypeNames } from '../hooks';
 import { CalendarMissingNote, Meter, UnverifiedLabel } from '../components';
 import { bandWord, remainingText } from '../labels';
 import { dayText, rescheduleLink, stampText } from '../model';
@@ -54,6 +55,7 @@ export function WorkflowHeader({ detail, schedule, years, stale, canReschedule }
   const critical = schedule?.critical_path.length ?? null;
   const finish = schedule?.project_finish ?? null;
   const taskNames = new Map(detail.tasks.map((task) => [task.task_code, task.name]));
+  const typeNames = useProjectTypeNames();
   const template = templateKnown(detail.template_code) ? templateName(t, detail.template_code) : detail.template_code;
   const templateValue = t('pwf6.flow.template.text', { name: template, version: versionText(t, detail.template_rule_version) });
   const selection = detail.selection ?? null;
@@ -159,7 +161,7 @@ export function WorkflowHeader({ detail, schedule, years, stale, canReschedule }
       {detail.status === 'ON_HOLD' ? <p className="callout pwf-notice">{t('pwf.flow.hold.note')}</p> : null}
       {selection !== null && selection.mode === 'OVERRIDE' ? (
         <p className="callout pwf-notice" role="status" data-testid="steps-override">
-          {t('pwf.process.steps.override.text', { suggested: selection.suggested_template_code ?? '', reason: selection.reason ?? t('pwf.process.steps.override.noReason') })}
+          {t('pwf.process.steps.override.text', { suggested: projectKindLabel(t, selection.suggested_template_code ?? '', typeNames), reason: selection.reason ?? t('pwf.process.steps.override.noReason') })}
         </p>
       ) : null}
       {lapsed > 0 ? (

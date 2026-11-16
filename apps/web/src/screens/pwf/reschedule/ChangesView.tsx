@@ -140,8 +140,7 @@ export function ChangesView({ preview, before }: ChangesViewProps) {
                 <tr key={row.code} data-testid={`change-${row.code}`}>
                   <th scope="row">
                     <span className="pwf-cellstack">
-                      <span>{row.name}</span>
-                      <span className="pwf-code">{row.code}</span>
+                      <span title={row.code === row.name ? undefined : row.code}>{row.name}</span>
                     </span>
                   </th>
                   <td>{range(row.beforeStart, row.beforeFinish)}</td>

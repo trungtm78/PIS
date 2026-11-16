@@ -7,7 +7,8 @@ import { bandWord, blockerWord, dependencyWord, exceptionWord, formProblemText, 
 import { BANDS, describeProblem } from './model';
 import type { BlockerCode, DependencyKind, ExceptionKind, FormProblem, GateTarget, Priority, ProblemKind, TaskKind, TaskStatus } from './model';
 import { band, refusal, text } from './test/fixtures';
-import { RoleName, TaskName } from './codes';
+import { NamedTip, RoleName, TaskName, projectKindLabel } from './codes';
+import { t as translate } from '../../i18n';
 
 afterEach(cleanup);
 
@@ -200,21 +201,23 @@ describe('PWF labels', () => {
   });
 });
 
-describe('PWF codes: a name first, its code as a small note (owner review of 14/11/2026)', () => {
-  it('puts the code of a task on a line of its own under the name, outside the link, and leaves it out when it is the name', () => {
+describe('PWF codes: a name first, its code only as a tooltip (owner review of 17/11/2026)', () => {
+  it('keeps the code of a task out of the words: the tooltip of the name, the mark of the critical path as a note, and no tooltip when the code is the name', () => {
     render(
       <TaskName name="Lập báo cáo" code="PREP_DONE" note=" · găng">
         <a href="/x">Lập báo cáo</a>
       </TaskName>,
     );
-    const code = screen.getByTestId('task-code');
-    expect(code.textContent).toBe('PREP_DONE · găng');
-    expect(code.className).toContain('pwf-taskname__code');
+    const whole = document.querySelector('.pwf-taskname') as HTMLElement;
+    expect(whole.getAttribute('title')).toBe('PREP_DONE');
+    expect(whole.getAttribute('data-task-code')).toBe('PREP_DONE');
+    expect(whole.textContent).not.toContain('PREP_DONE');
+    expect(whole.querySelector('.pwf-taskname__code')?.textContent).toBe('găng');
     expect(screen.getByRole('link').textContent).toBe('Lập báo cáo');
-    expect(screen.getByRole('link').contains(code)).toBe(false);
     cleanup();
     render(<TaskName name="T1" code="T1" />);
-    expect(screen.queryByTestId('task-code')).toBeNull();
+    expect(document.querySelector('.pwf-taskname')?.getAttribute('title')).toBeNull();
+    expect(document.querySelector('.pwf-taskname__code')).toBeNull();
   });
 
   it('shows a role by the name its template gives it, then by the catalogue, and only then by its code', () => {
@@ -228,5 +231,21 @@ describe('PWF codes: a name first, its code as a small note (owner review of 14/
     const bare = document.querySelector('[data-role="PROVINCE_CLERK"]') as HTMLElement;
     expect(bare.textContent).toBe('PROVINCE_CLERK');
     expect(bare.className).toContain('pwf-code');
+  });
+
+  it('names a role of the product (STAFF_MEMBER) by the words of the shell, not by its code', () => {
+    render(<RoleName code="STAFF_MEMBER" />);
+    const named = document.querySelector('[data-role="STAFF_MEMBER"]') as HTMLElement;
+    expect(named.textContent).toBe(translate('shell.account.role.staffMember'));
+    expect(named.className).not.toContain('pwf-code');
+  });
+
+  it('names a kind of project by the catalogue, then by the shipped names, and only then by its code; a form shows its code as the tooltip', () => {
+    expect(projectKindLabel(translate, 'PUBLIC_INVESTMENT', new Map([['PUBLIC_INVESTMENT', 'Đầu tư công của tỉnh']]))).toBe('Đầu tư công của tỉnh');
+    expect(projectKindLabel(translate, 'PUBLIC_INVESTMENT')).toBe(translate('pwf6.template.publicInvestment.word'));
+    expect(projectKindLabel(translate, 'PROVINCE_OWN_KIND')).toBe('PROVINCE_OWN_KIND');
+    render(<NamedTip name="Quyết định phê duyệt sửa chữa" code="PWF_QD_PHE_DUYET_SUA_CHUA" />);
+    expect(document.querySelector('.pwf-named')?.getAttribute('title')).toBe('PWF_QD_PHE_DUYET_SUA_CHUA');
+    expect(document.body.textContent).not.toContain('PWF_QD_PHE_DUYET_SUA_CHUA');
   });
 });

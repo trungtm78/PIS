@@ -4,7 +4,7 @@ import { decimalText } from '../../../i18n/format';
 import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { FigureInfo } from '../components';
-import { Named, kpiName } from '../codes';
+import { NamedTip, kpiName } from '../codes';
 import { dayText, stampText } from '../model';
 import type { TaskDetail } from '../model';
 import { useTaskKpiResults } from './hooks';
@@ -102,7 +102,7 @@ export function KpiPanel({ taskId, active }: { taskId: string; active: boolean }
 export function KpiSection({ results }: { results: readonly KpiResult[] }) {
   const { t } = useTranslation();
   const columns: DataTableColumn<KpiResult>[] = [
-    { key: 'kpi', header: t('pwf.task.kpi.col.kpi'), render: (item) => <Named name={kpiName(t, item.kpi_code)} code={item.kpi_code} /> },
+    { key: 'kpi', header: t('pwf.task.kpi.col.kpi'), render: (item) => <NamedTip name={kpiName(t, item.kpi_code)} code={item.kpi_code} /> },
     {
       key: 'value',
       header: t('pwf.task.kpi.col.value'),

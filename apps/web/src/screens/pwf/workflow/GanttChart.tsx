@@ -107,6 +107,9 @@ export function GanttChart({ rows, phases, today, overall, variant = 'workflow' 
   const template = variant === 'template';
   const groups = ganttGroups(rows, phases);
   const track: CSSProperties = { width: `${width}px` };
+  // What a row says besides its name: the caption of a template row and the marks. The code of a task is the tooltip of its row, not words on the screen.
+  const tagsOf = (row: { caption?: string | undefined; overall?: boolean | undefined; critical?: boolean | undefined }): string[] =>
+    [row.caption, row.overall === true ? t('pwfx.gantt.overall.mark') : undefined, row.critical === true && !template ? t('pwf6.flow.critical.mark') : undefined].filter((part): part is string => part !== undefined && part !== '');
   return (
     <div className="pwf-gantt" data-testid="gantt">
       <ul className="pwf-gantt__legend" aria-label={t('pwf6.gantt.legend.label')}>
@@ -192,13 +195,10 @@ export function GanttChart({ rows, phases, today, overall, variant = 'workflow' 
             </div>,
             <div key={`${group.code}:track`} className="pwf-gantt__phase" style={track} />,
             ...group.rows.flatMap((row) => [
-              <div key={`${row.code}:label`} className="pwf-gantt__label" data-row={row.code}>
+              <div key={`${row.code}:label`} className="pwf-gantt__label" data-row={row.code} title={row.caption === undefined ? row.code : undefined}>
                 <span className="pwf-gantt__name">{row.name}</span>
-                <span className="pwf-code">
-                  {row.caption ?? row.code}
-                  {row.overall === true ? ` · ${t('pwfx.gantt.overall.mark')}` : ''}
-                  {row.critical && !template ? ` · ${t('pwf6.flow.critical.mark')}` : ''}
-                </span>
+                {/* The code of a task is the tooltip of its row; the caption of a template row and the marks are read. */}
+                {tagsOf(row).length === 0 ? null : <span className="pwf-hint">{tagsOf(row).join(' · ')}</span>}
               </div>,
               <div key={`${row.code}:track`} className="pwf-gantt__track" style={track} aria-hidden="true">
                 {scale.months.map((month) => (

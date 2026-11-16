@@ -226,7 +226,7 @@ describe('PWF-14: the signals for the reviewers', () => {
     // The tasks of a signal are named; the code is the note under the name, and a task nobody can name any more shows its code once.
     const tasks = within(list).getByTestId('flag-tasks');
     expect(tasks.querySelectorAll('li')[0]?.querySelector('.pwf-taskname__name')?.textContent).toBe('Lập hồ sơ mời thầu');
-    expect(tasks.querySelectorAll('li')[0]?.querySelector('.pwf-code')?.textContent).toBe('T4');
+    expect(tasks.querySelectorAll('li')[0]?.querySelector('.pwf-taskname')?.getAttribute('title')).toBe('T4');
     expect(tasks.querySelectorAll('li')[1]?.textContent).toBe('T5');
     expect(screen.getByTestId('flags-note').textContent).toBe(text('pwfs.flag.neverChanges.note'));
   });

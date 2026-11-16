@@ -90,7 +90,8 @@ describe('PWF-05: choose the process and start the workflow of a project', () =>
   it('asks the rule for the project and the facts, says what it suggests and why, and takes the suggestion on request', async () => {
     const h = open({ rule: () => suggestion({ suggested_template_code: 'PUBLIC_REPAIR', basis: 'RULE', line: 'REPAIR', rule: { rule_id: null, version: 4, unit_id: null, unverified: false } }) });
     const box = await screen.findByTestId('kind-suggestion');
-    await waitFor(() => expect(box.textContent).toContain('PUBLIC_REPAIR'));
+    await waitFor(() => expect(box.textContent).toContain('Dự án đầu tư công sửa chữa, cải tạo lớn'));
+    expect(box.textContent).not.toContain('PUBLIC_REPAIR');
     expect(box.textContent).toContain(text('pwf.process.basis.rule.text', { line: 'REPAIR' }));
     const asked = (h.read.mock.calls.find((call) => call[0] === 'suggestProjectWorkflow') as [string, { query: Record<string, string> }])[1].query;
     expect(asked).toMatchObject({ project_id: PROJECT_ID, project_group: 'B', project_type: 'CONSTRUCTION' });

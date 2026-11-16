@@ -3,7 +3,7 @@ import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
 import { SectionCard, StatusPill } from '../../../ui';
 import { ScrollRegion } from '../../scroll-region';
-import { Named, factName, versionText } from '../codes';
+import { NamedTip, factName, projectKindLabel, versionText } from '../codes';
 import { FigureInfo, UnverifiedLabel } from '../components';
 import { problemText } from '../labels';
 import { dayText } from '../model';
@@ -147,7 +147,7 @@ export function ProcessChooser({
       </div>
     ) : null;
   const touched = (which: 1 | 2): boolean => showProblems && stepProblems(which).length > 0;
-  const suggestedName = suggestion?.templates.find((one) => one.code === suggestion.suggested_template_code)?.name ?? suggestion?.suggested_template_code ?? '';
+  const suggestedName = suggestion?.templates.find((one) => one.code === suggestion.suggested_template_code)?.name ?? (suggestion?.suggested_template_code == null ? '' : projectKindLabel(t, suggestion.suggested_template_code));
 
   return (
     <SectionCard
@@ -203,7 +203,7 @@ export function ProcessChooser({
                 <>
                   <span className="pwf-suggestion__label">{t('pwf6.kind.suggested.label')}</span>
                   <strong className="pwf-suggestion__name">
-                    <Named name={suggestedName} code={suggestion.suggested_template_code} />
+                    <NamedTip name={suggestedName} code={suggestion.suggested_template_code} />
                   </strong>
                   <dl className="pwf-suggestion__why">
                     <dt>{t('pwf6.kind.reason.label')}</dt>
@@ -280,7 +280,7 @@ export function ProcessChooser({
                   <label htmlFor="kind-reason">{t('pwf.process.kind.reason.label')}</label>
                   <textarea id="kind-reason" rows={2} data-testid="kind-reason" value={form.reason} disabled={locked} aria-invalid={touched(1) && problems.includes('reasonRequired') ? true : undefined} onChange={(event) => onChange({ reason: event.target.value })} aria-describedby="kind-reason-hint" />
                   <span className="pwf-field__hint" id="kind-reason-hint">
-                    {t('pwf.process.kind.reason.hint', { code: suggestion?.suggested_template_code ?? '' })}
+                    {t('pwf.process.kind.reason.hint', { code: suggestedName })}
                   </span>
                 </div>
               ) : null}

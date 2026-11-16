@@ -62,9 +62,10 @@ describe('PWF-04: the head of the task', () => {
   it('shows what the task is, where it stands, the colour with its words and a way back to the workflow', async () => {
     open();
     await ready();
-    // The name is the title; the code is a note under it, with the phase.
+    // The name is the title; the code is its tooltip, never words.
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Công việc 2');
-    expect(screen.getByTestId('task-where').textContent).toContain('T2');
+    expect(screen.getByRole('heading', { level: 1 }).getAttribute('title')).toBe('T2');
+    expect(screen.getByTestId('task-where').textContent).not.toContain('T2');
     expect(screen.getByText(text('pwf.status.inProgress.word'))).toBeTruthy();
     expect(screen.getAllByText(text('pwf.band.yellow.word')).length).toBeGreaterThan(0);
     expect(screen.getByText(text('pwf.band.remaining.text', { days: 2, unit: text('pwf.unit.working.word') }))).toBeTruthy();
@@ -404,7 +405,7 @@ describe('PWF-04: checklist, documents and evidence', () => {
     open({ task: detail({ evidence: [{ id: uuid(30), item_code: 'C1', evidence_kind: 'DOCUMENT', document_id: null, legal_doc_type: 'INVESTMENT_DECISION', form_template_code: null, external_ref: null, note: 'bản ký', attached_by: ME, attached_at: '2026-12-03T03:00:00.000Z' }] }) });
     await ready();
     const table = within(screen.getByTestId('evidence')).getByRole('table');
-    expect(within(table).getByText('INVESTMENT_DECISION')).toBeTruthy();
+    expect(within(table).getByText(text('pwf6.doc.investmentDecision.word'))).toBeTruthy();
     expect(within(table).getByText('bản ký')).toBeTruthy();
     cleanup();
     open();

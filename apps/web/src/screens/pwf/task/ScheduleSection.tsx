@@ -66,7 +66,7 @@ export function ScheduleSection({ task, names }: { task: TaskDetail; names?: Rea
                 const name = names?.get(item.task);
                 return (
                   <li key={`${item.task}:${item.kind}`} data-predecessor={item.task}>
-                    {name ?? item.task} {name === undefined ? null : <span className="pwf-code">{item.task}</span>} · {dependencyWord(t, item.kind)}
+                    <span title={name === undefined ? undefined : item.task}>{name ?? item.task}</span> · {dependencyWord(t, item.kind)}
                     {item.lag_working_days === 0 ? null : ` · ${t('pwf6.task.lag.text', { days: item.lag_working_days })}`}
                   </li>
                 );

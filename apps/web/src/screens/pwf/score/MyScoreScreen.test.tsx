@@ -76,7 +76,8 @@ describe('PWF-11: my score', () => {
     // Lane fix11: a task left out is named; its code is the small note under the name, never the heading of the row.
     const left = within(card).getByTestId('excluded');
     expect(within(left).getByText('Lập đề xuất chủ trương đầu tư')).toBeTruthy();
-    expect(within(left).getByTestId('task-code').textContent).toBe('T9');
+    expect(left.querySelector('[data-task-code="T9"]')?.getAttribute('title')).toBe('T9');
+    expect(left.textContent).not.toContain('T9');
     expect(left.querySelector('strong')).toBeNull();
   });
 

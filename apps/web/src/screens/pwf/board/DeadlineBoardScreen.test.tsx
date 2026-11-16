@@ -67,7 +67,8 @@ describe('PWF-07: the list of the board', () => {
     expect(within(line).getByText(text('pwf.band.overdue.text', { days: 2, unit: text('pwf.unit.working.word') }))).toBeTruthy();
     expect(within(line).getByText('10/12/2026')).toBeTruthy();
     expect(line.textContent).toContain(text('pwf6.flow.critical.mark'));
-    expect(line.textContent).toContain('T2');
+    expect(line.textContent).not.toContain('T2');
+    expect(line.querySelector('[data-task-code="T2"]')).not.toBeNull();
     expect(within(line).getByText('Nguyễn Văn An')).toBeTruthy();
     expect(within(line).getByRole('link', { name: 'Công việc 2' }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${uuid(1002)}&project=${PROJECT_ID}`);
     expect(line.textContent).toContain('DA-001');

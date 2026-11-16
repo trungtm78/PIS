@@ -3,7 +3,7 @@ import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
 import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
-import { Named, docTypeKnown, docTypeName, evidenceKindName } from '../codes';
+import { NamedTip, docTypeKnown, docTypeName, evidenceKindName } from '../codes';
 import { Meter } from '../components';
 import { formProblemText } from '../labels';
 import { FormRevision } from '../process/TaskProcessSection';
@@ -50,7 +50,7 @@ function EvidenceWhat({ row, task }: { row: EvidenceRow; task: TaskDetail }) {
   const reference = row.external_ref !== null && !UUID.test(row.external_ref) ? row.external_ref : null;
   return (
     <span className="pwf-cellstack">
-      {title === null ? null : <Named name={title} code={code} />}
+      {title === null ? null : <NamedTip name={title} code={code} />}
       {reference === null ? null : <span>{reference}</span>}
       {documentTitle !== null && row.legal_doc_type !== null ? <span className="pwf-hint">{docTypeName(t, row.legal_doc_type)}</span> : null}
       {stored && documentTitle === null ? (
@@ -145,14 +145,14 @@ export function RequirementsSection({ task, canWork, onTick, onResult }: Require
               {task.legal_doc_types.map((item) => (
                 <li key={`legal:${item.code}`} className="pwf-docs__item" data-legal={item.code}>
                   <span className="pwf-docs__kind">{t('pwf6.task.documents.legal')}</span>
-                  <Named name={item.name ?? docTypeName(t, item.code)} code={(item.name ?? null) !== null || docTypeKnown(item.code) ? item.code : undefined} />
+                  <NamedTip name={item.name ?? docTypeName(t, item.code)} code={(item.name ?? null) !== null || docTypeKnown(item.code) ? item.code : undefined} />
                   <Satisfied satisfied={item.satisfied} />
                 </li>
               ))}
               {forms.map((item) => (
                 <li key={`form:${item.code}`} className="pwf-docs__item" data-form={item.code}>
                   <span className="pwf-docs__kind">{t('pwf6.task.documents.form')}</span>
-                  <Named name={item.current_title ?? item.code} code={item.current_title === null || item.current_title === undefined ? undefined : item.code} />
+                  <NamedTip name={item.current_title ?? item.code} code={item.current_title === null || item.current_title === undefined ? undefined : item.code} />
                   <Satisfied satisfied={item.satisfied} />
                   <FormRevision form={item} />
                 </li>

@@ -28,9 +28,10 @@ export function TaskHeader({ task }: { task: TaskDetail }) {
     <div className="pwf-taskhead-frame" data-testid="task-head">
     <header className="pwf-taskhead pwf-taskhead--sticky" data-testid="task-sticky">
       <div className="heading pwf-taskhead__title">
-        <h1 id="screen-title">{task.name}</h1>
+        <h1 id="screen-title" title={task.task_code}>
+          {task.name}
+        </h1>
         <p className="pwf-taskhead__where" data-testid="task-where">
-          <span className="pwf-code">{task.task_code}</span>
           <span>{phaseName(t, step?.phase_code ?? task.phase_code)}</span>
           {step === null ? null : (
             <span>
@@ -72,7 +73,7 @@ export function TaskHeader({ task }: { task: TaskDetail }) {
           <dt>{t('pwf6.task.doer.label')}</dt>
           <dd data-testid="task-doer">
             <UnitHolderCell task={task} />
-            <span className="pwf-code">
+            <span className="pwf-hint">
               <RoleName code={task.responsible_role} name={task.responsible_role_name} />
             </span>
           </dd>

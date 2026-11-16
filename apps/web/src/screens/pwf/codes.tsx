@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { translator, useTranslation } from '../../i18n';
+import { systemRoleLabel } from '../../shell/account-role';
 import type { Translator } from '../../i18n';
 import './pwf.css';
 import './pwf6.css';
@@ -19,8 +20,9 @@ export const codeKey = (code: string): string =>
 
 
 /** Whether the catalogue has a name for the role (a role of a province's own template may have none). */
-export const roleKnown = (code: string): boolean => translator.has(`pwf6.role.${codeKey(code)}.word`);
-export const roleName = (t: T, code: string): string => (translator.has(`pwf6.role.${codeKey(code)}.word`) ? t(`pwf6.role.${codeKey(code)}.word`) : code);
+export const roleKnown = (code: string): boolean => translator.has(`pwf6.role.${codeKey(code)}.word`) || systemRoleLabel(translator.t, code) !== undefined;
+/** The name of a role of a workflow: the name of the workflow's own catalogue, else the name of the role of the product (STAFF_MEMBER), else the code. */
+export const roleName = (t: T, code: string): string => (translator.has(`pwf6.role.${codeKey(code)}.word`) ? t(`pwf6.role.${codeKey(code)}.word`) : (systemRoleLabel(t, code) ?? code));
 /** The name of a phase: what the workflow or the template says first, else the name of the shipped phases, else the code. */
 export const phaseName = (t: T, code: string, phases?: readonly { code: string; name: string }[]): string => phases?.find((phase) => phase.code === code)?.name ?? (translator.has(`pwf6.phase.${codeKey(code)}.word`) ? t(`pwf6.phase.${codeKey(code)}.word`) : code);
 export const evidenceKindName = (t: T, code: string): string => (translator.has(`pwf6.evidence.${codeKey(code)}.word`) ? t(`pwf6.evidence.${codeKey(code)}.word`) : code);
@@ -65,21 +67,32 @@ export function Named({ name, code }: { name: string; code?: string | null | und
 }
 
 /**
- * The name of a task with its code as a small note UNDER it (owner review of 14/11/2026): on every list, table and card of the workflow screens the name is what a person reads, and the code (`PREP_DONE`) is a secondary line for
- * whoever has to match it against a template or a report, never beside the name and never part of the link. `children` is the name as the place shows it (a link); `note` is what follows the code on its line (the critical mark).
+ * The name of a task. Its code (`PREP_DONE`) is not read on the screen (owner review of 17/11/2026): it stays on the element as the tooltip and as `data-task-code`, for whoever has to match it against a template or a report.
+ * `children` is the name as the place shows it (a link); `note` is what the critical mark adds, shown as a small note under the name.
  */
 export function TaskName({ name, code, note, children }: { name: string; code: string; note?: ReactNode; children?: ReactNode }) {
+  const shown = typeof note === 'string' ? note.replace(/^[\s·]+/u, '') : note;
+  const hasNote = shown !== undefined && shown !== null && shown !== false && shown !== '';
   return (
-    <span className="pwf-taskname">
+    <span className="pwf-taskname" title={code === '' || code === name ? undefined : code} data-task-code={code === '' ? undefined : code}>
       <span className="pwf-taskname__name">{children ?? name}</span>
-      {code === '' || code === name ? null : (
-        <span className="pwf-code pwf-taskname__code" data-testid="task-code">
-          {code}
-          {note}
-        </span>
-      )}
+      {hasNote ? <span className="pwf-hint pwf-taskname__code">{shown}</span> : null}
     </span>
   );
+}
+
+/** A name that carries its code as the tooltip only: a form, a document type, a figure. The code is the name only where no name is known. */
+export function NamedTip({ name, code }: { name: string; code?: string | null | undefined }) {
+  return (
+    <span className="pwf-named" title={code === undefined || code === null || code === '' || code === name ? undefined : code}>
+      <span className="pwf-named__name">{name}</span>
+    </span>
+  );
+}
+
+/** The name of a kind of project (or of the template of that kind) for a sentence: the name the shared catalogue gives the code, else the name the screens know for it, else the code. */
+export function projectKindLabel(t: T, code: string, names?: ReadonlyMap<string, string>): string {
+  return names?.get(code) ?? (templateKnown(code) ? templateName(t, code) : translator.has(`pwf6.fact.${codeKey(code)}.word`) ? factName(t, code) : code);
 }
 
 /**
@@ -88,7 +101,8 @@ export function TaskName({ name, code, note, children }: { name: string; code: s
  */
 export function ProjectTypeName({ code, names }: { code: string; names: ReadonlyMap<string, string> }) {
   const { t } = useTranslation();
-  const name = names.get(code) ?? (templateKnown(code) ? templateName(t, code) : translator.has(`pwf6.fact.${codeKey(code)}.word`) ? factName(t, code) : undefined);
+  const label = projectKindLabel(t, code, names);
+  const name = label === code ? undefined : label;
   if (name === undefined) {
     return (
       <span className="pwf-code" data-project-type={code}>

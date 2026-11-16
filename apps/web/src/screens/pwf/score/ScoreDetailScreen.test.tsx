@@ -70,7 +70,7 @@ describe('PWF-13: the detail of a score', () => {
     const link = screen.getByRole('link', { name: 'Công việc 1' });
     expect(link.getAttribute('href')).toBe(`/pwf/pwf-04?id=${uuid(1001)}`);
     expect(link.textContent).not.toContain('T1');
-    expect(screen.getAllByTestId('task-code').map((one) => one.textContent)).toEqual(['T1', 'T9']);
+    expect([...document.querySelectorAll('.pwf-taskname[data-task-code]')].map((one) => one.getAttribute('data-task-code'))).toEqual(['T1', 'T9']);
   });
 
   it('tells two tasks of the same name apart by the project each belongs to, named under the task', async () => {

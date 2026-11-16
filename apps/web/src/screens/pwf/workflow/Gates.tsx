@@ -49,9 +49,9 @@ function GateItem({ row, projectId, names }: { row: GateRow; projectId: string; 
             {assessment.missing.map((item) => {
               const name = names.get(item.task) ?? item.task;
               return (
-                <li key={`${item.task}:${item.reason}`}>
+                <li key={`${item.task}:${item.reason}`} title={name === item.task ? undefined : item.task}>
                   {item.task_id === null ? name : <TaskLink id={item.task_id} projectId={projectId}>{name}</TaskLink>}
-                  {name === item.task ? null : <span className="pwf-code"> {item.task}</span>} · {missingReasonWord(t, item.reason)}
+                  {' '}· {missingReasonWord(t, item.reason)}
                 </li>
               );
             })}

@@ -197,7 +197,7 @@ describe('PWF-03 step table: the rows', () => {
     });
     await ready();
     expect(screen.getByTestId('steps-lapsed').textContent).toBe(text('pwf.process.steps.lapsed.text', { count: 1 }));
-    expect(screen.getByTestId('steps-override').textContent).toBe(text('pwf.process.steps.override.text', { suggested: 'PUBLIC_REPAIR', reason: 'Theo quyết định của chủ đầu tư' }));
+    expect(screen.getByTestId('steps-override').textContent).toBe(text('pwf.process.steps.override.text', { suggested: text('pwf6.template.publicRepair.word'), reason: 'Theo quyết định của chủ đầu tư' }));
     expect(within(screen.getByTestId('step-legal-S1')).getByRole('listitem').textContent).toContain('214/2025/NĐ-CP');
   });
 });
