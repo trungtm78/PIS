@@ -471,6 +471,24 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
     node.driving = at;
   }
 
+  // What the calendars could not say is never made up further down the chain (R58, R74): a task that follows one that could not be placed (its end is only the nominal working days, or it lies beyond the calendars given) is not
+  // placed either, whatever slot the arithmetic gave it. A task that is done or already under way keeps its own actual days.
+  const length = line.days.length;
+  const lastDay = (node: Node): number => (isMilestone(node.task) ? (node.mode === 'DONE' ? node.e - 1 : Math.max(node.e - 1, startIdx)) : node.e > node.s ? node.e - 1 : node.s);
+  const offLine = (node: Node): boolean => node.unplaced === true || (node.mode === 'ACTIVE' && !(node.s >= 0 && node.s < length && lastDay(node) < length && lastDay(node) >= 0));
+  for (const code of order) {
+    const node = nodes.get(code) as Node;
+    const { task } = node;
+    if (node.mode === 'DONE' || ((task.status ?? 'NOT_STARTED') === 'IN_PROGRESS' && typeof task.actualStart === 'string')) continue;
+    const before = task.predecessors.map((link) => ({ link, node: nodes.get(link.task) as Node }));
+    if (before.some((one) => offLine(one.node))) node.unplaced = true;
+    // A point of zero length (a milestone, a task left out) that sits where a limit ends keeps the day the calendar gave that limit, which may be a day nobody works: it is not pulled back to the last working day before it.
+    if (node.e === node.s && node.unitFinish === undefined) {
+      const ends = before.filter((one) => (one.link.kind === 'FS' || one.link.kind === 'FF') && typeof one.node.unitFinish === 'string' && one.node.e + one.link.lagWorkingDays === node.e).map((one) => one.node.unitFinish as string);
+      if (ends.length > 0) node.unitFinish = ends.reduce((last, day) => (day > last ? day : last));
+    }
+  }
+
   // Constraints that cap how late a task may be, and the ones the schedule breaks.
   const cap = (node: Node): number => {
     const constraint = resolve(node.task);
@@ -517,8 +535,6 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
   }
 
   // Dates, availability and the output.
-  const length = line.days.length;
-  const lastDay = (node: Node): number => (isMilestone(node.task) ? (node.mode === 'DONE' ? node.e - 1 : Math.max(node.e - 1, startIdx)) : node.e > node.s ? node.e - 1 : node.s);
   const findings: ScheduleFinding[] = [];
   const results = new Map<string, ScheduledTask>();
   const baseline = input.baseline ?? null;
@@ -536,8 +552,10 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
       if (!findings.some((one) => one.code === 'CALENDAR_UNAVAILABLE')) findings.push({ code: 'CALENDAR_UNAVAILABLE', task: null, year: line.missingYear });
     }
     const done = node.mode === 'DONE' && placed;
-    const finish = done ? (task.actualFinish as string) : placed ? (node.mode === 'ACTIVE' && typeof node.unitFinish === 'string' ? node.unitFinish : line.dateAt(last)) : null;
-    const first = done ? (isMilestone(task) ? finish : (task.actualStart ?? line.dateAt(node.s))) : placed ? line.dateAt(isMilestone(task) ? last : node.s) : null;
+    // The day the calendar gave a limit (or the limit a milestone closes) stands when it is later than the last working day the task covers; the slots stay what the float is counted in.
+    const boundary = (lineDay: string | null): string | null => (node.mode === 'ACTIVE' && typeof node.unitFinish === 'string' && (lineDay === null || node.unitFinish > lineDay) ? node.unitFinish : lineDay);
+    const finish = done ? (task.actualFinish as string) : placed ? boundary(line.dateAt(last)) : null;
+    const first = done ? (isMilestone(task) ? finish : (task.actualStart ?? line.dateAt(node.s))) : placed ? (isMilestone(task) ? finish : line.dateAt(node.s)) : null;
     const base = baseline?.[code];
     const variance = (date: string | null, reference: string | null | undefined, pick: (value: string) => number): number | null => {
       if (date === null || reference === undefined || reference === null) return null;
@@ -546,14 +564,19 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
       return here >= length || there >= length || there < 0 ? null : here - there;
     };
     const late = node.mode === 'ACTIVE';
+    // The late finish of a limit in calendar days or months is the day the calendar gives from its late start; a milestone with no float keeps its day.
+    const limit = calendarLimit(task);
+    const lateSpan = late && limit !== null ? spanOf(task, limit, node.ls) : null;
+    const lateLine = line.dateAt(isMilestone(task) ? Math.max(node.le - 1, startIdx) : node.le - 1);
+    const lateFinish = lateSpan !== null && lateSpan.ok && lateSpan.e === node.le ? lateSpan.finish : isMilestone(task) && node.le === node.e ? finish ?? lateLine : lateLine;
     results.set(code, {
       code,
       kind: task.kind,
       state,
       start: first,
       finish,
-      lateStart: late ? line.dateAt(isMilestone(task) ? Math.max(node.le - 1, startIdx) : node.ls) : null,
-      lateFinish: late ? line.dateAt(isMilestone(task) ? Math.max(node.le - 1, startIdx) : node.le - 1) : null,
+      lateStart: late ? (isMilestone(task) ? lateFinish : line.dateAt(node.ls)) : null,
+      lateFinish: late ? lateFinish : null,
       startSlot: node.s,
       endSlot: node.e,
       totalFloat: node.totalFloat,
@@ -621,7 +644,16 @@ export interface ScheduleChange {
   becameCritical: boolean;
   becameNonCritical: boolean;
   stateChanged: boolean;
+  /**
+   * Only on a task whose DAY moved while its working-day shift is 0 (a limit in calendar days that ends on a day nobody works: Saturday to Sunday): the calendar days the start or the finish moved, positive when later. The
+   * working-day shift stays the measure of the slots; this one says that the date itself is another day.
+   */
+  startCalendarShiftDays?: number;
+  finishCalendarShiftDays?: number;
 }
+
+/** Whether the finish of a task is a later day than before: by its working-day shift, or by the calendar when that shift is 0. */
+export const finishMovedLater = (change: Pick<ScheduleChange, 'finishShiftDays' | 'finishCalendarShiftDays'>): boolean => (change.finishShiftDays ?? 0) > 0 || (change.finishCalendarShiftDays ?? 0) > 0;
 
 /** What changed between two schedules of the same project, task by task, for the screen that previews a reschedule before it is applied. Tasks that did not change are not listed. */
 export function diffSchedules(before: ScheduleResult, after: ScheduleResult, calendars: readonly PinnedCalendar[]): ScheduleChange[] {
@@ -646,7 +678,12 @@ export function diffSchedules(before: ScheduleResult, after: ScheduleResult, cal
       becameNonCritical: was.critical && !now.critical,
       stateChanged: was.state !== now.state,
     };
-    if ((startShiftDays ?? 0) !== 0 || (finishShiftDays ?? 0) !== 0 || (floatChange ?? 0) !== 0 || change.becameCritical || change.becameNonCritical || change.stateChanged) changes.push(change);
+    const byCalendar = (left: string | null, right: string | null, slots: number | null): number => (left === null || right === null || slots !== 0 ? 0 : dayNumber(right) - dayNumber(left));
+    const startCalendar = byCalendar(was.start, now.start, startShiftDays);
+    const finishCalendar = byCalendar(was.finish, now.finish, finishShiftDays);
+    if (startCalendar !== 0) change.startCalendarShiftDays = startCalendar;
+    if (finishCalendar !== 0) change.finishCalendarShiftDays = finishCalendar;
+    if (startCalendar !== 0 || finishCalendar !== 0 || (startShiftDays ?? 0) !== 0 || (finishShiftDays ?? 0) !== 0 || (floatChange ?? 0) !== 0 || change.becameCritical || change.becameNonCritical || change.stateChanged) changes.push(change);
   }
   return changes;
 }

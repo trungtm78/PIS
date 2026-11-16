@@ -361,7 +361,7 @@ export class PwfRescheduleStore {
     }
     await this.applyProgress(tx, workflow.id, stored.input);
     // The tasks that finish later than they did count a move of their date (BR-PWF-08, the KPI of reschedules).
-    const moved = held.preview.changes.filter((change) => (change.finishShiftDays ?? 0) > 0).map((change) => change.code);
+    const moved = held.preview.changes.filter((change) => pwfSchedule.finishMovedLater(change)).map((change) => change.code);
     if (moved.length > 0) await tx.query('update machvon.project_task set reschedule_count = reschedule_count + 1 where workflow_id = $1::uuid and task_code = any($2::text[])', [workflow.id, moved]);
     const published = await publishSchedule(tx, {
       workflow: { id: workflow.id, projectId: project.id, version: workflow.version, scheduleVersion: workflow.schedule_version },

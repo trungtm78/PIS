@@ -446,7 +446,7 @@ export async function loadTaskBundles(tx: TenantTx, taskIds: readonly string[]):
     tx.query<DaySql>(
       `select t.id as task_id, ${VIETNAM_DAY('p.decided_at')} as day from machvon.project_reschedule_proposal p join machvon.project_task t on t.tenant_id = p.tenant_id and t.workflow_id = p.workflow_id
         where t.id = any($1::uuid[]) and p.status = 'APPROVED'
-          and exists (select 1 from jsonb_array_elements(p.preview -> 'changes') c where c ->> 'code' = t.task_code and coalesce((c ->> 'finishShiftDays')::numeric, 0) > 0)
+          and exists (select 1 from jsonb_array_elements(p.preview -> 'changes') c where c ->> 'code' = t.task_code and (coalesce((c ->> 'finishShiftDays')::numeric, 0) > 0 or coalesce((c ->> 'finishCalendarShiftDays')::numeric, 0) > 0))
         order by p.decided_at, p.id`,
       [ids],
     ),
