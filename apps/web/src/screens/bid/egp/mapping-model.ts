@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText as exactDong } from '../../../i18n/money';
 
 /** BID-23, "Mapping": the pure part. The answer of the API is read defensively, the filters live in the address, and the rules of a proposal are checked here before the server checks them again. */
 
@@ -230,14 +231,9 @@ export const instantTime = (instant: string): string => {
 
 export const likenessText = (value: number, locale: string): string => value.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 3 });
 
-/** An amount in whole dong (a decimal string) with the thousands marked by the locale. */
+/** An amount in whole dong (a decimal string) written exactly by the shared formatter: a suggestion rests on prices equal to the dong. */
 export function dongText(amount: string, locale: string): string {
-  if (!/^-?\d+$/.test(amount)) return amount;
-  try {
-    return BigInt(amount).toLocaleString(locale);
-  } catch {
-    return amount;
-  }
+  return /^-?\d+$/.test(amount) ? exactDong(amount, locale) : amount;
 }
 
 // ---- the proposal ---------------------------------------------------------------------------------------------------------------------------------------------------------

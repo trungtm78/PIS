@@ -1,12 +1,13 @@
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ContextBar, DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../ui';
+import { ContextBar, DataTable, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../ui';
 import { useContractAvailability, useProjectEac } from './hooks';
-import { asOfText, idFrom, vnd } from './model';
+import { asOfText, idFrom } from './model';
 import type { AvcVerdict } from './model';
 import './gov4.css';
 
@@ -33,7 +34,8 @@ function ContractControlContent({ route }: ScreenProps) {
   const eac = useProjectEac(projectId);
   const contractState = useScreenState({ isLoading: contract.isLoading, error: contract.error, data: contract.data, isEmpty: () => false });
   const eacState = useScreenState({ isLoading: eac.isLoading, error: eac.error, data: eac.data, isEmpty: () => false });
-  const money = (value: string | null | undefined): string => vnd(value, locale);
+  /** An amount in the short form of the shared formatter ("1,23 tỷ đồng"); the tiles take a text. */
+  const money = (value: string | null | undefined): string => compactMoney(value, { locale });
   const statement = contract.data ?? undefined;
   const estimate = eac.data ?? undefined;
   const asOf = statement?.asOf ?? estimate?.asOf;
@@ -46,7 +48,7 @@ function ContractControlContent({ route }: ScreenProps) {
           <p>{t('govb2.control.subtitle')}</p>
         </div>
       </div>
-      <ContextBar items={[{ label: t('govb2.ctx.scope'), value: tenant?.name ?? t('govb2.ctx.scope.all') }]} unit={t('govb2.control.unit')} {...(asOf === undefined ? {} : { asOf: asOfText(asOf) })} />
+      <ContextBar items={[{ label: t('govb2.ctx.scope'), value: tenant?.name ?? t('govb2.ctx.scope.all') }]} {...(asOf === undefined ? {} : { asOf: asOfText(asOf) })} />
       {contractId === undefined && projectId === undefined ? (
         <p className="callout" data-testid="no-target">
           {t('govb2.control.noTarget')}
@@ -60,7 +62,7 @@ function ContractControlContent({ route }: ScreenProps) {
               {t('govb2.control.eac.missing')}
             </p>
           ) : (
-            <SectionCard title={t('govb2.control.eac.title', { code: estimate.projectCode })} unit={t('govb2.control.unit')}>
+            <SectionCard title={t('govb2.control.eac.title', { code: estimate.projectCode })}>
               <KpiStrip label={t('govb2.control.eac.title', { code: estimate.projectCode })}>
                 <KpiTile label={t('govb2.control.eac.eac')} value={money(estimate.eacVnd)} sub={t('govb2.control.eac.method', { method: estimate.method })} />
                 <KpiTile label={t('govb2.control.eac.approved')} value={money(estimate.approvedTotalVnd)} />
@@ -88,7 +90,7 @@ function ContractControlContent({ route }: ScreenProps) {
             </p>
           ) : (
             <>
-              <SectionCard title={t('govb2.control.contract.title', { code: statement.contract.code })} unit={t('govb2.control.unit')} status={<StatusPill tone={statement.money.withinPrice ? 'success' : 'danger'}>{statement.money.withinPrice ? t('govb2.control.within') : t('govb2.control.exceeds')}</StatusPill>}>
+              <SectionCard title={t('govb2.control.contract.title', { code: statement.contract.code })} status={<StatusPill tone={statement.money.withinPrice ? 'success' : 'danger'}>{statement.money.withinPrice ? t('govb2.control.within') : t('govb2.control.exceeds')}</StatusPill>}>
                 <KpiStrip label={t('govb2.control.contract.title', { code: statement.contract.code })}>
                   <KpiTile label={t('govb2.control.price')} value={money(statement.money.currentPriceVnd)} sub={t('govb2.control.price.sub', { original: money(statement.money.originalPriceVnd), variation: money(statement.money.approvedVariationVnd) })} />
                   <KpiTile label={t('govb2.control.pending')} value={money(statement.money.pendingIncreaseVnd)} sub={t('govb2.control.pending.sub')} tone={BigInt(statement.money.pendingIncreaseVnd || '0') > 0n ? 'info' : 'default'} />
@@ -101,7 +103,7 @@ function ContractControlContent({ route }: ScreenProps) {
                 </p>
               </SectionCard>
 
-              <SectionCard title={t('govb2.control.line.title')} unit={t('govb2.control.unit')}>
+              <SectionCard title={t('govb2.control.line.title')}>
                 {statement.line === null ? (
                   <p className="muted" data-testid="no-line">
                     {t('govb2.control.line.none')}
@@ -109,12 +111,16 @@ function ContractControlContent({ route }: ScreenProps) {
                 ) : (
                   <dl className="gov4-facts" data-testid="line">
                     <dt>{t('govb2.control.line.allocated')}</dt>
-                    <dd>{money(statement.line.allocatedVnd)}</dd>
+                    <dd>
+                      <Money value={statement.line.allocatedVnd} />
+                    </dd>
                     <dt>{t('govb2.control.line.committed')}</dt>
-                    <dd>{money(statement.line.committedVnd)}</dd>
+                    <dd>
+                      <Money value={statement.line.committedVnd} />
+                    </dd>
                     <dt>{t('govb2.control.line.contract')}</dt>
                     <dd>
-                      {money(statement.line.contractCommittedVnd)}{' '}
+                      <Money value={statement.line.contractCommittedVnd} />{' '}
                       <StatusPill tone={statement.line.contractCommitsWithinLine ? 'success' : 'danger'}>{statement.line.contractCommitsWithinLine ? t('govb2.control.within') : t('govb2.control.exceeds')}</StatusPill>
                     </dd>
                     <dt>{t('govb2.control.line.verdict')}</dt>
@@ -129,7 +135,7 @@ function ContractControlContent({ route }: ScreenProps) {
                 )}
               </SectionCard>
 
-              <SectionCard title={t('govb2.control.changes.title')} unit={t('govb2.control.unit')}>
+              <SectionCard title={t('govb2.control.changes.title')}>
                 <DataTable
                   caption={t('govb2.control.changes.title')}
                   rows={statement.changeOrders}
@@ -138,7 +144,7 @@ function ContractControlContent({ route }: ScreenProps) {
                   columns={[
                     { key: 'code', header: t('govb2.control.changes.code'), render: (row) => row.code ?? row.id.slice(0, 8) },
                     { key: 'status', header: t('govb2.control.changes.status'), render: (row) => <StatusPill tone="neutral">{(row.status === 'APPROVED' ? t('govb2.control.changes.status.approved') : t('govb2.control.changes.status.evaluated'))}</StatusPill> },
-                    { key: 'delta', header: t('govb2.control.changes.delta'), align: 'right', render: (row) => money(row.deltaVnd) },
+                    { key: 'delta', header: t('govb2.control.changes.delta'), align: 'right', render: (row) => <Money value={row.deltaVnd} /> },
                     {
                       key: 'verdict',
                       header: t('govb2.control.changes.verdict'),

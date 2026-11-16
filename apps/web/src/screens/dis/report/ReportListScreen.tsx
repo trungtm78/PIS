@@ -2,11 +2,12 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { compactMoney } from '../../../i18n/money';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { ContextBar, DataTable, FilterPanel, KpiStrip, KpiTile, PeriodProgress, StatusPill } from '../../../ui';
+import { ContextBar, DataTable, FilterPanel, KpiStrip, KpiTile, Money, PeriodProgress, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { BOARD_PATH, defaultPeriod } from '../board/model';
 import { useBoard } from '../board/hooks';
@@ -257,7 +258,7 @@ function ScopeLine({ kpi }: { kpi: Kpi }) {
     <div className="dis-wr-scope" data-testid="kpi-scope">
       <strong>{t('dis.reports.kpi.scope.title')}</strong>
       <span data-testid="kpi-scope-counts">{t('dis.reports.kpi.counts', { reports: kpi.reports, projects: kpi.projects })}</span>
-      <span data-testid="kpi-scope-money">{t('dis.reports.kpi.money', { amount: formatVnd(kpi.cumulativeVnd), ctmtqg: formatVnd(kpi.ctmtqgVnd) })}</span>
+      <span data-testid="kpi-scope-money">{t('dis.reports.kpi.moneyShort', { amount: compactMoney(kpi.cumulativeVnd), ctmtqg: compactMoney(kpi.ctmtqgVnd) })}</span>
     </div>
   );
 }
@@ -301,7 +302,7 @@ function Table({ lines, total, filtered, index, size, onPage, onSize, onClear }:
         </>
       ),
     },
-    { key: 'cumulative', header: t('dis.wr.col.total'), group: t('dis.reports.col.cumulative'), align: 'right', render: (report) => formatVnd(report.cumulativeVnd) },
+    { key: 'cumulative', header: t('dis.wr.col.total'), group: t('dis.reports.col.cumulative'), align: 'right', render: (report) => <Money value={report.cumulativeVnd} /> },
     {
       key: 'ctmtqg',
       header: t('dis.reports.col.ctmtqg'),
@@ -311,7 +312,7 @@ function Table({ lines, total, filtered, index, size, onPage, onSize, onClear }:
         const share = ratioOf(report.ctmtqgVnd, report.cumulativeVnd);
         return (
           <>
-            {formatVnd(report.ctmtqgVnd)}
+            <Money value={report.ctmtqgVnd} />
             {share === null ? null : <small className="dis-wr-share">{t('dis.wr.row.share', { percent: share })}</small>}
           </>
         );
@@ -337,7 +338,7 @@ function Table({ lines, total, filtered, index, size, onPage, onSize, onClear }:
       rows={lines}
       rowKey={(report) => report.id}
       totalsLabel={t('dis.wr.totals.label')}
-      totals={{ cumulative: formatVnd(sums.cumulativeVnd), ctmtqg: formatVnd(sums.ctmtqgVnd) }}
+      totals={{ cumulative: <Money value={sums.cumulativeVnd} />, ctmtqg: <Money value={sums.ctmtqgVnd} /> }}
       emptyKind={filtered ? 'filtered' : 'none'}
       onClearFilters={onClear}
       page={{ from, to: from + lines.length - (lines.length === 0 ? 0 : 1), total, size, index, onPage, onSize }}

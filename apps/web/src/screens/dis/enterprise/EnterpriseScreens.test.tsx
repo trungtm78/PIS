@@ -118,8 +118,8 @@ describe('DIS-33: one enterprise period snapshot', () => {
 
   it('shows the totals with the year rate over its plan, a dash for what nobody has, and freezes after a confirmation with the version it saw', async () => {
     const h = open(detail());
-    expect((await screen.findByTestId('total-plan')).textContent).toBe('4.000');
-    expect(screen.getByTestId('total-ytd').textContent).toBe('1.000');
+    expect((await screen.findByTestId('total-plan')).textContent).toBe('4.000 đồng');
+    expect(screen.getByTestId('total-ytd').textContent).toBe('1.000 đồng');
     expect(screen.getByTestId('hash').textContent).toBe('–');
     fireEvent.click(screen.getByRole('button', { name: 'Chốt bản này' }));
     const buttons = await screen.findAllByRole('button', { name: 'Chốt bản này' });

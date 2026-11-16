@@ -8,12 +8,12 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { DataTable, FilterPanel, ReadonlyStat, SectionCard } from '../../../ui';
+import { DataTable, FilterPanel, Money, ReadonlyStat, SectionCard } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import '../dis.css';
 import { useSnapshotLines } from '../snapshot/hooks';
 import type { LinesPage, SnapshotLineView } from '../snapshot/model';
-import { CoveragePill, DefinitionBadge, NONE, RatesContext, SnapshotPicker, money, rateColumns, signedVnd } from './components';
+import { CoveragePill, DefinitionBadge, RatesContext, SnapshotPicker, rateColumns, shortMoney } from './components';
 import { useFrozenSnapshots, useRates } from './hooks';
 import { PAIRED_PATH, NULL_REASONS } from './model';
 import type { NullReason } from './model';
@@ -115,7 +115,7 @@ function FullTableContent({ route }: ScreenProps) {
     else value.set('snapshot', next);
     setParams(value, { replace: true });
   };
-  const totals: Record<string, ReactNode> = { reported: money(sum(items, (line) => line.reportedVnd)), ctmtqg: money(sum(items, (line) => line.ctmtqgVnd)) };
+  const totals: Record<string, ReactNode> = { reported: <Money value={sum(items, (line) => line.reportedVnd)} />, ctmtqg: <Money value={sum(items, (line) => line.ctmtqgVnd)} /> };
   const planGroup = t('w2dis.rates.group.plan');
   const paidGroup = t('w2dis.rates.group.disbursed');
   const columns: DataTableColumn<SnapshotLineView>[] = [
@@ -125,13 +125,13 @@ function FullTableContent({ route }: ScreenProps) {
       header: t('dis.snapshot.line.cell'),
       render: (line) => t('dis.snapshot.line.cell.text', { bucket: bucketLabel(t, line.bucket), level: line.budgetLevel === 'CENTRAL' ? t('dis.snapshot.level.central') : t('dis.snapshot.level.local') }),
     },
-    ...(shown('planPm') ? [{ key: 'planPm', header: t('dis.snapshot.line.planPm'), group: planGroup, align: 'right' as const, render: (line: SnapshotLineView) => money(line.planPmVnd) }] : []),
-    ...(shown('planLocal') ? [{ key: 'planLocal', header: t('dis.snapshot.line.planLocal'), group: planGroup, align: 'right' as const, render: (line: SnapshotLineView) => money(line.planLocalVnd) }] : []),
-    ...(shown('planTotal') ? [{ key: 'planTotal', header: t('dis.full.column.planTotal'), group: planGroup, align: 'right' as const, render: (line: SnapshotLineView) => money(line.planTotalVnd) }] : []),
-    ...(shown('treasury') ? [{ key: 'treasury', header: t('dis.snapshot.line.treasury'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => money(line.treasuryVnd) }] : []),
-    ...(shown('reported') ? [{ key: 'reported', header: t('dis.snapshot.line.reported'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => <span data-col="reported">{money(line.reportedVnd)}</span> }] : []),
-    ...(shown('ctmtqg') ? [{ key: 'ctmtqg', header: t('dis.full.col.ctmtqg'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => <span data-col="ctmtqg">{money(line.ctmtqgVnd)}</span> }] : []),
-    ...(shown('delta') ? [{ key: 'delta', header: t('dis.snapshot.line.delta'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => (line.deltaVnd === null ? NONE : signedVnd(line.deltaVnd)) }] : []),
+    ...(shown('planPm') ? [{ key: 'planPm', header: t('dis.snapshot.line.planPm'), group: planGroup, align: 'right' as const, render: (line: SnapshotLineView) => <Money value={line.planPmVnd} /> }] : []),
+    ...(shown('planLocal') ? [{ key: 'planLocal', header: t('dis.snapshot.line.planLocal'), group: planGroup, align: 'right' as const, render: (line: SnapshotLineView) => <Money value={line.planLocalVnd} /> }] : []),
+    ...(shown('planTotal') ? [{ key: 'planTotal', header: t('dis.full.column.planTotal'), group: planGroup, align: 'right' as const, render: (line: SnapshotLineView) => <Money value={line.planTotalVnd} /> }] : []),
+    ...(shown('treasury') ? [{ key: 'treasury', header: t('dis.snapshot.line.treasury'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => <Money value={line.treasuryVnd} /> }] : []),
+    ...(shown('reported') ? [{ key: 'reported', header: t('dis.snapshot.line.reported'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => <span data-col="reported"><Money value={line.reportedVnd} /></span> }] : []),
+    ...(shown('ctmtqg') ? [{ key: 'ctmtqg', header: t('dis.full.col.ctmtqg'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => <span data-col="ctmtqg"><Money value={line.ctmtqgVnd} /></span> }] : []),
+    ...(shown('delta') ? [{ key: 'delta', header: t('dis.snapshot.line.delta'), group: paidGroup, align: 'right' as const, render: (line: SnapshotLineView) => <Money value={line.deltaVnd} signed /> }] : []),
     ...(shown('rates') ? rateColumns<SnapshotLineView>(t, (line) => ({ ratePmPct: line.ratePmPct, rateTotalPct: line.rateTotalPct, reason: reasonOf(line.rateNullReason) })) : []),
     ...(shown('coverage') ? [{ key: 'coverage', header: t('dis.rates.col.coverage'), render: (line: SnapshotLineView) => <CoveragePill coverage={line.coverage === 'COMPLETE' || line.coverage === 'PARTIAL' ? line.coverage : 'NONE'} /> }] : []),
   ];
@@ -146,7 +146,6 @@ function FullTableContent({ route }: ScreenProps) {
       </div>
       <RatesContext snapshotId={chosen} cutoff={header?.cutoffDate} />
       <FilterPanel
-        unitLabel={t('dis.wr.unit')}
         applied={named === '' ? 0 : 1}
         actions={
           <button type="button" className="ui-button ui-button--outline" aria-expanded={configuring} aria-controls="full-columns" onClick={() => setConfiguring((open) => !open)}>
@@ -173,10 +172,10 @@ function FullTableContent({ route }: ScreenProps) {
       <StateBoundary state={state} onRetry={() => void lines.refetch()}>
         <div className="w2dis-stack">
           <div className="w2dis-facts" data-testid="full-totals">
-            <ReadonlyStat label={t('dis.full.total.reported')} value={money(sum(items, (line) => line.reportedVnd))} />
-            <ReadonlyStat label={t('dis.full.total.ctmtqg')} value={money(sum(items, (line) => line.ctmtqgVnd))} />
+            <ReadonlyStat label={t('dis.full.total.reported')} value={shortMoney(sum(items, (line) => line.reportedVnd))} />
+            <ReadonlyStat label={t('dis.full.total.ctmtqg')} value={shortMoney(sum(items, (line) => line.ctmtqgVnd))} />
           </div>
-          <SectionCard title={t('dis.full.table.title')} unit={t('dis.wr.unit')}>
+          <SectionCard title={t('dis.full.table.title')}>
             {header === undefined ? null : (
               <p className="w2dis-note" data-testid="full-cutoff">
                 {t('dis.full.cutoff.text', { cutoff: header.cutoffDate })} · <Link to={`${PAIRED_PATH}?snapshot=${header.id}`}>{t('dis.full.link.paired')}</Link>

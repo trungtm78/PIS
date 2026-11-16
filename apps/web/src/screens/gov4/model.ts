@@ -1,3 +1,5 @@
+import { dongText } from '../../i18n/money';
+
 type Raw = Record<string, unknown>;
 const isRecord = (value: unknown): value is Raw => typeof value === 'object' && value !== null && !Array.isArray(value);
 const str = (value: unknown): string => (typeof value === 'string' ? value : '');
@@ -7,11 +9,11 @@ const num = (value: unknown): number => (typeof value === 'number' && Number.isF
 const list = (value: unknown): Raw[] => (Array.isArray(value) ? value.filter(isRecord) : []);
 const rec = (value: unknown): Raw => (isRecord(value) ? value : {});
 
-/** A whole amount of dong as the reader of the locale writes it; text that is not a whole amount is shown as it came (never turned into zero). */
+/** A whole amount of dong written exactly by the shared formatter (thousands grouped, no unit), for the ledgers and tables that must add up; text that is not a whole amount is shown as it came (never turned into zero). */
 export function vnd(value: string | null | undefined, locale: string): string {
   if (value === null || value === undefined || value === '') return '';
   if (!/^-?\d{1,24}$/.test(value)) return value;
-  return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'vi-VN').format(BigInt(value));
+  return dongText(value, locale);
 }
 
 export interface AvcVerdict {

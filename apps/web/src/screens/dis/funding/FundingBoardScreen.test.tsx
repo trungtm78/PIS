@@ -22,7 +22,7 @@ describe('DIS-27: the figures of the funding model and their indicators', () => 
     expect(await screen.findByRole('heading', { name: /Số liệu vốn theo kỳ/ })).toBeTruthy();
     const tile = (await screen.findByText('Tỷ lệ thực hiện năm')).closest('.ui-kpi') as HTMLElement;
     expect(within(tile).getByText('12,50%')).toBeTruthy();
-    expect(within(tile).getByText('125.000.000 / 1.000.000.000')).toBeTruthy();
+    expect(within(tile).getByText('125 triệu đồng / 1 tỷ đồng')).toBeTruthy();
     // A rate with nothing to divide by is a dash with its reason, never 0%.
     const period = screen.getByText('Tỷ lệ thực hiện của kỳ').closest('.ui-kpi') as HTMLElement;
     expect(within(period).getByTestId('reason-RATE_PERIOD').textContent).toContain('Chưa có mẫu số');
@@ -60,7 +60,7 @@ describe('DIS-27: the figures of the funding model and their indicators', () => 
   it('shows the totals as the sum of the parts, with the remaining of the year and the conversion as a dash when nobody has it', async () => {
     open();
     const totals = await screen.findByTestId('totals');
-    expect(within(totals).getByText('Còn lại của năm').nextElementSibling?.textContent).toBe('875.000.000');
+    expect(within(totals).getByText('Còn lại của năm').nextElementSibling?.textContent).toBe('875 triệu đồng (875.000.000 đồng)');
     expect(within(totals).getByText('Chênh lệch số thực và số ước').nextElementSibling?.textContent).toBe('–');
   });
 

@@ -4,6 +4,7 @@ import type { FormEvent, ReactNode } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useTranslation } from '../../i18n';
+import { dongText } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -26,12 +27,10 @@ export const asList = (value: unknown): Array<Record<string, unknown>> => (Array
 export const text = (value: unknown, fallback = '–'): string => (typeof value === 'string' && value !== '' ? value : typeof value === 'number' ? String(value) : fallback);
 export const num = (value: unknown): number => (typeof value === 'number' ? value : typeof value === 'string' && value !== '' && !Number.isNaN(Number(value)) ? Number(value) : 0);
 
-/** Whole dong with thousands separators, from a decimal string; null stays a dash, never zero. */
+/** Whole dong written exactly by the shared formatter, from a decimal string; null stays a dash, never zero. */
 export function money(value: unknown): string {
   if (typeof value !== 'string' || !/^-?\d+$/.test(value)) return '–';
-  const negative = value.startsWith('-');
-  const digits = negative ? value.slice(1) : value;
-  return `${negative ? '-' : ''}${digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+  return dongText(value);
 }
 
 export const percent = (value: unknown): string => (typeof value === 'string' && value !== '' ? `${value}%` : '–');

@@ -44,9 +44,9 @@ describe('AdvanceListScreen (PAY-07): advances and recovery', () => {
     expect(within(first).getByTestId('member').textContent).toBe('Nhà thầu A');
     expect(within(first).getByTestId('status').textContent).toBe(vi_['pay.advance.status.recovering']);
     expect(within(first).getByTestId('status').querySelector('.ui-tone-warning')).not.toBeNull();
-    expect(within(first).getByTestId('paid').textContent).toBe('2.000.000.000');
-    expect(within(first).getByTestId('recovered').textContent).toBe('750.000.000');
-    expect(within(first).getByTestId('outstanding').textContent).toBe('1.250.000.000');
+    expect(within(first).getByTestId('paid').textContent).toBe('2 tỷ đồng (2.000.000.000 đồng)');
+    expect(within(first).getByTestId('recovered').textContent).toBe('750 triệu đồng (750.000.000 đồng)');
+    expect(within(first).getByTestId('outstanding').textContent).toBe('1,25 tỷ đồng (1.250.000.000 đồng)');
     expect(within(first).getByTestId('deadline').textContent).toBe('2026-07-31');
     expect(within(first).getByTestId('threshold').textContent).toBe(text('pay.advance.threshold', { pct: '80' }));
     expect(within(first).getByTestId('overdue').textContent).toBe('12');
@@ -96,7 +96,7 @@ describe('AdvanceListScreen (PAY-07): advances and recovery', () => {
   it('UI-PAY-07: offers neither recovery nor cancel to a person who only reads, even where the server allows both on the membership', async () => {
     open(world(), { permissions: READER });
     await screen.findByTestId('advances');
-    expect(within(rowOf(advanceId(1))).getByTestId('outstanding').textContent).toBe('1.250.000.000');
+    expect(within(rowOf(advanceId(1))).getByTestId('outstanding').textContent).toBe('1,25 tỷ đồng (1.250.000.000 đồng)');
     expect(document.querySelectorAll('button[data-action]')).toHaveLength(0);
     cleanup();
     open(world(), { permissions: ['advance.read', 'advance.cancel'] });

@@ -13,8 +13,10 @@ import { limitsProblemMessage, problemMessage } from './limits/labels';
 import { MANAGE_PERMISSION, READ_PERMISSION, describeProblem, formOf, limitsBody, limitsProblems, periodRange, utilisation } from './limits/model';
 import type { AccountUse, LimitsForm, LimitsProblem, Overview } from './limits/model';
 import { StatusPill } from '../../ui';
+import { compactMoney } from '../../i18n/money';
 
-const money = (locale: string, value: string): string => `${new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US').format(Number(value))} ₫`;
+/** What was spent and the budget, in the short form of the shared formatter with its unit. */
+const money = (locale: string, value: string): string => compactMoney(value, { locale });
 
 /**
  * NOT-15: the cap and the budget of the channel accounts. For each account that is not closed: what it has sent today against its daily cap, what it has spent this month against its budget, and what waits because of them;

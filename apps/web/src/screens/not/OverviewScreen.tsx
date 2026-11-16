@@ -14,8 +14,10 @@ import { useOverview } from './limits/hooks';
 import { PERIODS, READ_PERMISSION, isSpentUp, periodRange, utilisation } from './limits/model';
 import type { Overview, Period } from './limits/model';
 import { StatusPill } from '../../ui';
+import { compactMoney } from '../../i18n/money';
 
-const money = (locale: string, value: string): string => `${new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US').format(Number(value))} ₫`;
+/** What was spent and the budget, in the short form of the shared formatter with its unit. */
+const money = (locale: string, value: string): string => compactMoney(value, { locale });
 
 /**
  * NOT-04: the operations overview of the delivery of messages. For each channel the attempts of the period that ended, and the delivery rate by the formula of BR-NOT-14 — delivered and read over what ended minus what was

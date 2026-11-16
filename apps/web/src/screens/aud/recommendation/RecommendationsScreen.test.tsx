@@ -37,7 +37,7 @@ describe('AUD-06 recommendations and assignment', () => {
     expect(rows[0]?.slice(0, 6)).toEqual([
       expect.stringContaining('KN-001'),
       vi_['aud.recommendationType.financialRecovery'],
-      '100.000.000 / 800.000.000',
+      '100 triệu đồng / 800 triệu đồng',
       'Sở Xây dựngNguyễn Văn An',
       '2026-12-01',
       vi_['aud.recommendationStatus.inProgress'],

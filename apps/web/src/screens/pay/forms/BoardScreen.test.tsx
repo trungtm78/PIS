@@ -39,7 +39,7 @@ describe('BoardScreen (PAY-04): the requests on their way to the Treasury', () =
     expect(within(first).getByTestId('forms').textContent).toBe(text('pay.board.forms', { count: 4, total: 4 }));
     expect(within(first).getByTestId('sent-on').textContent).toBe('2026-07-24');
     expect(within(first).getByTestId('ref').textContent).toBe('KB-2026-0001');
-    expect(within(first).getByTestId('net').textContent).toBe('2.100.000.000');
+    expect(within(first).getByTestId('net').textContent).toBe('2,1 tỷ đồng (2.100.000.000 đồng)');
     expect(within(first).getByTestId('contract').textContent).toBe('HD-A-001');
     expect((within(first).getByTestId('open') as HTMLAnchorElement).getAttribute('href')).toBe(`/pay/pay-14?request=${paymentId(2)}`);
     expect((within(first).getByTestId('detail') as HTMLAnchorElement).getAttribute('href')).toBe(`/pay/pay-03?request=${paymentId(2)}`);

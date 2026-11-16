@@ -4,11 +4,11 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { DataTable, FilterPanel, SectionCard } from '../../../ui';
+import { DataTable, FilterPanel, Money, SectionCard } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { Field } from '../components';
 import '../dis.css';
-import { CoveragePill, RatesContext, RatePair, SnapshotPicker, money, problemMessage, rateColumns, rateText } from './components';
+import { CoveragePill, RatesContext, RatePair, SnapshotPicker, problemMessage, rateColumns, rateText } from './components';
 import { useFrozenSnapshots, useRates } from './hooks';
 import { FULL_TABLE_PATH, UNIT_TOTALS_PATH, describeRates } from './model';
 import type { Basis, RateGroup, Rates } from './model';
@@ -51,7 +51,7 @@ function PairedRatesContent({ route }: ScreenProps) {
         </div>
       </div>
       <RatesContext snapshotId={data?.snapshotId} cutoff={data?.cutoffDate} />
-      <FilterPanel unitLabel={t('dis.wr.unit')} applied={applied}>
+      <FilterPanel applied={applied}>
         <div className="dis-filters">
           <SnapshotPicker id="paired-snapshot" value={snapshotId} onChange={(next) => change('snapshot', next)} snapshots={frozen.data ?? []} />
           <Field id="paired-basis" label={t('dis.rates.basis.label')} error={undefined}>
@@ -86,7 +86,7 @@ function PairedRatesContent({ route }: ScreenProps) {
         ) : (
           <div className="w2dis-stack">
             <RatePair figures={data} definition={data.definition} cutoff={data.cutoffDate} basis={data.basis} />
-            <SectionCard title={t('dis.paired.table.title')} unit={t('dis.wr.unit')}>
+            <SectionCard title={t('dis.paired.table.title')}>
               <p className="w2dis-links">
                 <Link to={`${UNIT_TOTALS_PATH}?snapshot=${data.snapshotId}`}>{t('dis.paired.link.units')}</Link>
                 <Link to={`${FULL_TABLE_PATH}?snapshot=${data.snapshotId}`}>{t('dis.paired.link.full')}</Link>
@@ -123,9 +123,9 @@ function ProjectTable({ groups, whole }: { groups: readonly RateGroup[]; whole: 
         </>
       ),
     },
-    { key: 'planPm', header: t('dis.rates.col.planTtg'), group: planGroup, align: 'right', render: (group) => money(group.planPmVnd) },
-    { key: 'planLocal', header: t('dis.rates.col.planLocal'), group: planGroup, align: 'right', render: (group) => money(group.planLocalVnd) },
-    { key: 'numerator', header: t('dis.rates.col.disbursedTreasury'), align: 'right', render: (group) => money(group.numeratorVnd) },
+    { key: 'planPm', header: t('dis.rates.col.planTtg'), group: planGroup, align: 'right', render: (group) => <Money value={group.planPmVnd} /> },
+    { key: 'planLocal', header: t('dis.rates.col.planLocal'), group: planGroup, align: 'right', render: (group) => <Money value={group.planLocalVnd} /> },
+    { key: 'numerator', header: t('dis.rates.col.disbursedTreasury'), align: 'right', render: (group) => <Money value={group.numeratorVnd} /> },
     ...rateColumns<RateGroup>(t, (group) => ({ ratePmPct: group.ratePmPct, rateTotalPct: group.rateTotalPct, reason: group.nullReason })),
     { key: 'coverage', header: t('dis.rates.col.coverage'), render: (group) => <CoveragePill coverage={group.coverage} /> },
   ];
@@ -137,9 +137,9 @@ function ProjectTable({ groups, whole }: { groups: readonly RateGroup[]; whole: 
       rowKey={(group) => group.id ?? group.code ?? 'row'}
       totalsLabel={t('dis.unitTotals.total.label')}
       totals={{
-        planPm: money(whole.planPmVnd),
-        planLocal: money(whole.planLocalVnd),
-        numerator: money(whole.numeratorVnd),
+        planPm: <Money value={whole.planPmVnd} />,
+        planLocal: <Money value={whole.planLocalVnd} />,
+        numerator: <Money value={whole.numeratorVnd} />,
         ratePm: rateText(t, whole.ratePmPct, whole.nullReason),
         rateTotal: rateText(t, whole.rateTotalPct, whole.nullReason),
         coverage: <CoveragePill coverage={whole.coverage} />,

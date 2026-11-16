@@ -14,7 +14,7 @@ import { useSaveDraft } from './hooks';
 import { basisLabel, reportProblemMessage, volumeProblemMessage } from './labels';
 import { BASES, EDIT_PATH, REPORTS_PATH, SAVED_PATH, canEdit, describeReport } from './model';
 import type { Basis, ReportDetail } from './model';
-import { formatVnd } from './money';
+import { compactMoney } from '../../../i18n/money';
 import { StepFrame } from './StepFrame';
 import { progressBody, progressFormOf, validateProgress } from './step-model';
 import type { ProgressField, ProgressForm } from './step-model';
@@ -133,7 +133,7 @@ function Editor({ detail }: { detail: ReportDetail }) {
         <div className="dis-wr-stack">
           <div className="dis-wr-stats">
             <ReadonlyStat label={t('dis.wr.stat.asOf')} value={detail.period.endDate} sub={t('dis.wr.stat.asOf.sub')} />
-            <ReadonlyStat label={t('dis.wr.stat.cumulativeFunds')} value={formatVnd(detail.totals.cumulativeVnd)} sub={t('dis.wr.stat.cumulativeFunds.sub')} tone="info" />
+            <ReadonlyStat label={t('dis.wr.stat.cumulativeFunds')} value={compactMoney(detail.totals.cumulativeVnd)} sub={t('dis.wr.stat.cumulativeFunds.sub')} tone="info" />
           </div>
           <p className="sub" data-testid="progress-note">
             {t('dis.progress.note')} {t('dis.progress.asOf.text', { date: detail.period.endDate })}

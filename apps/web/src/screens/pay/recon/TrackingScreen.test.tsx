@@ -30,11 +30,11 @@ describe('TrackingScreen (PAY-09): the projects with the Treasury', () => {
     const first = rowOf(PROJECT);
     expect(within(first).getByTestId('project').textContent).toBe('Dự án 1');
     expect(within(first).getByTestId('code').textContent).toBe('DA-A-001');
-    expect(within(first).getByTestId('sent').textContent).toBe(text('pay.track.count', { count: 2, amount: '4.200.000.000' }));
-    expect(within(first).getByTestId('settled').textContent).toBe(text('pay.track.count', { count: 1, amount: '2.100.000.000' }));
-    expect(within(first).getByTestId('confirmed').textContent).toBe(text('pay.track.count', { count: 3, amount: '5.190.000.000' }));
+    expect(within(first).getByTestId('sent').textContent).toBe('2 · 4,2 tỷ đồng');
+    expect(within(first).getByTestId('settled').textContent).toBe('1 · 2,1 tỷ đồng');
+    expect(within(first).getByTestId('confirmed').textContent).toBe('3 · 5,19 tỷ đồng');
     expect(within(first).getByTestId('unmatched').textContent).toBe('1');
-    expect(within(first).getByTestId('differences').textContent).toBe(text('pay.track.count', { count: 1, amount: '-10.000.000' }));
+    expect(within(first).getByTestId('differences').textContent).toBe('1 · -10 triệu đồng');
     expect((within(first).getByTestId('differences').querySelector('a') as HTMLAnchorElement).getAttribute('href')).toBe('/pay/pay-05');
     expect(within(first).getByTestId('sync').textContent).not.toBe(vi_['pay.track.never']);
     const second = within(screen.getByTestId('tracking')).getAllByRole('row')[2] as HTMLElement;

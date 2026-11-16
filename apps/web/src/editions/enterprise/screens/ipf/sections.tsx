@@ -3,8 +3,9 @@ import { useTranslation } from '../../../../i18n';
 import type { Translator } from '../../../../i18n';
 import { decisionKindLabel } from '../../../../screens/cap/labels';
 import { documentLink } from '../../../../screens/doc/repository/model';
-import { DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../../../ui';
-import { dayText, moneyText } from '../shared/format';
+import { DataTable, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../../../ui';
+import { compactMoney } from '../../../../i18n/money';
+import { dayText } from '../shared/format';
 import { Fact } from '../shared/parts';
 import { BUILT_IN_DOC_TYPES, camel, evidenceOf, findingsOf, isNamedOrigin, milestoneTone, reachedWithoutEvidence } from './model';
 import type { LegalGroup, Milestone, OriginAmount, Profile } from './model';
@@ -201,10 +202,10 @@ export function OriginSplitSection({ profile }: { profile: Profile }) {
       ) : (
         <>
           <KpiStrip label={t('ipf.origin.strip.label')}>
-            <KpiTile label={t('ipf.origin.total.label')} value={moneyText(split.total_vnd, locale)} unit={t('ipf.origin.unit.label')} tone="info" />
-            <KpiTile label={t('ipf.origin.groupAssigned.label')} value={moneyText(split.group_assigned_vnd, locale)} unit={t('ipf.origin.unit.label')} />
-            <KpiTile label={t('ipf.origin.boardApproved.label')} value={moneyText(split.board_approved_vnd, locale)} unit={t('ipf.origin.unit.label')} />
-            <KpiTile label={t('ipf.origin.rest.label')} value={moneyText(split.other_vnd, locale)} unit={t('ipf.origin.unit.label')} />
+            <KpiTile label={t('ipf.origin.total.label')} value={compactMoney(split.total_vnd)} tone="info" />
+            <KpiTile label={t('ipf.origin.groupAssigned.label')} value={compactMoney(split.group_assigned_vnd)} />
+            <KpiTile label={t('ipf.origin.boardApproved.label')} value={compactMoney(split.board_approved_vnd)} />
+            <KpiTile label={t('ipf.origin.rest.label')} value={compactMoney(split.other_vnd)} />
           </KpiStrip>
           <DataTable<OriginAmount>
             caption={t('ipf.origin.caption')}
@@ -214,7 +215,7 @@ export function OriginSplitSection({ profile }: { profile: Profile }) {
             columns={[
               { key: 'origin', header: t('ipf.origin.col.origin'), render: (row) => originLabel(t, row.origin) },
               { key: 'lines', header: t('ipf.origin.col.lines'), align: 'right', render: (row) => row.lines.toLocaleString(locale) },
-              { key: 'amount', header: t('ipf.origin.col.amount'), align: 'right', render: (row) => moneyText(row.amount_vnd, locale) },
+              { key: 'amount', header: t('ipf.origin.col.amountShort'), align: 'right', render: (row) => <Money value={row.amount_vnd} none="–" /> },
               {
                 key: 'decisions',
                 header: t('ipf.origin.col.decisions'),

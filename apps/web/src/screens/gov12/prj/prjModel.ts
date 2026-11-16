@@ -1,5 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import type { Tone } from '../../../ui';
+import { dongText as exactDong } from '../../../i18n/money';
 
 /** The read models of PRJ-31 to PRJ-34 as the API answers them (the controllers of apps/api/src/modules/prj name every field). */
 
@@ -237,10 +238,11 @@ export function vietnamDateTime(iso: string): string {
   return `${dayText(shifted.slice(0, 10))} ${shifted.slice(11, 16)}`;
 }
 
-/** Whole dong written in groups of three with dots (the form that Vietnamese readers use). */
+/** Whole dong written exactly by the shared formatter, in groups of three (the form that Vietnamese readers use). */
 export function dongText(value: string | number | null | undefined): string {
   if (value === null || value === undefined || value === '') return '–';
-  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const digits = String(value);
+  return /^-?\d+$/.test(digits) ? exactDong(digits) : digits;
 }
 
 export const noticeTone = (state: NoticeView['state']): Tone => (state === 'OVERDUE' || state === 'SENT_LATE' ? 'danger' : state === 'DUE_SOON' ? 'warning' : state === 'SENT_ON_TIME' ? 'success' : 'neutral');

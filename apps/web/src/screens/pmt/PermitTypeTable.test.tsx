@@ -38,7 +38,7 @@ describe('PermitTypeTable (PMT-03): the permit types by code', () => {
       vi_['pmt.category.constructionPermit.text'],
       'Nghị định 1/2026, điều 1',
       '2026-01-01 → ',
-      'Loại công trình: ROAD · Tổng mức đầu tư đến 9000 đồng',
+      'Loại công trình: ROAD · Tổng mức đầu tư đến 9.000 đồng',
       vi_['pmt.type.exempt.yes.text'],
       vi_['pmt.type.phase.inForce.text'],
     ]);

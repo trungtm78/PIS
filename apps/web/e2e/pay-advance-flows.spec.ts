@@ -118,8 +118,9 @@ test.describe('the advance of a contract', () => {
     await expect(page.getByRole('heading', { level: 1, name: vi['pay.advance.list.title'] })).toBeVisible();
     const late = page.locator(`tr[data-advance="${seeded.paid}"]`);
     const planned = page.locator(`tr[data-advance="${seeded.planned}"]`);
-    await expect(late.getByTestId('outstanding')).toHaveText('1.250.000.000');
-    await expect(late.getByTestId('recovered')).toHaveText('750.000.000');
+    await expect(late.getByTestId('outstanding')).toContainText('1,25 tỷ đồng');
+    await expect(late.getByTestId('outstanding')).toContainText('1.250.000.000 đồng');
+    await expect(late.getByTestId('recovered')).toContainText('750 triệu đồng');
     await expect(late.getByTestId('deadline')).toHaveText('2026-07-31');
     await expect(late.getByTestId('threshold')).toHaveText(vi['pay.advance.threshold'].replace('{pct}', '80'));
     await expect(late.getByTestId('status')).toHaveText(vi['pay.advance.status.recovering']);
@@ -141,7 +142,7 @@ test.describe('the advance of a contract', () => {
     await page.getByRole('dialog').getByRole('button', { name: vi['pay.advance.recovery.submit'] }).click();
     await expect(page.getByTestId('done')).toHaveText(vi['pay.advance.done.recovered']);
     await expect(late.getByTestId('status')).toHaveText(vi['pay.advance.status.fullyRecovered']);
-    await expect(late.getByTestId('outstanding')).toHaveText('0');
+    await expect(late.getByTestId('outstanding')).toContainText('0 đồng');
     expect(await advanceOf(seeded.paid)).toMatchObject({ status: 'FULLY_RECOVERED', recovered: '2000000000', outstanding: '0' });
     expect(await journalOf(seeded.paid)).toEqual([{ entry_kind: 'RECOVER', amount: '1250000000', basis: 'REFUND', evidence: seeded.paper, outstanding_after: '0' }]);
     expect(await eventsOf(seeded.paid, 'pay.advance.recovered.v1')).toHaveLength(1);

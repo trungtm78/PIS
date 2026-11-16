@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { moneyInUnit } from '../../../i18n/money';
 import type { ProcessTreeEdge, ProcessTreeHealth, ProcessTreeNode } from '../../../ui';
 
 /** The permissions of PRC-1 (x-permission of the operations in openapi.json); the server judges each command again, with the scope of the project, and tells the screen which commands the caller may press (`actions`). */
@@ -354,15 +355,10 @@ export function toDetail(raw: unknown): DetailDto {
 
 // ---- money, days, filters ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-/** Whole VND as billions with two decimals ("128,40"): the digits are counted with BigInt, so no figure is rounded by a float. */
+/** Whole VND as billions with two decimals ("128,40") under a unit the screen declares, by the shared formatter: counted as integers, so no figure is rounded by a float. */
 export function billions(valueVnd: string, locale: string): string {
   if (!/^\d{1,24}$/.test(valueVnd)) return '';
-  // A billion is 10^9 VND, so a hundredth of a billion is 10^7.
-  const hundredths = (BigInt(valueVnd) + 5_000_000n) / 10_000_000n;
-  const whole = hundredths / 100n;
-  const fraction = (hundredths % 100n).toString().padStart(2, '0');
-  const groups = whole.toString().replace(/\B(?=(\d{3})+(?!\d))/g, locale === 'en' ? ',' : '.');
-  return `${groups}${locale === 'en' ? '.' : ','}${fraction}`;
+  return moneyInUnit(valueVnd, 'billion', { locale, fixed: true });
 }
 
 /** One day as the people of the screen read it: day and month, and the year too when it is another year than today's. */

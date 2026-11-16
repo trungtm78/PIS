@@ -10,7 +10,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import { ContextBar, DataTable, FilterPanel, SectionCard, StatusPill, StickyActions } from '../../../ui';
 import type { DataTableColumn, Tone } from '../../../ui';
 import { Field } from '../components';
-import { formatVnd } from '../report/money';
+import { compactMoney } from '../../../i18n/money';
 import '../dis.css';
 import { useAcknowledge, useCreateRule, useDismiss, usePublishRule, useRules, useWarnings } from './hooks';
 import type { WarningFilter } from './hooks';
@@ -110,7 +110,7 @@ function observedText(t: T, warning: WarningView): string {
     case 'NATIONAL_CODE_MISSING':
       return t('dis.warning.observed.nationalCode');
     case 'PERIOD_DELTA_NEGATIVE':
-      return t('dis.warning.observed.negativeDelta', { delta: typeof seen.delta_vnd === 'string' ? formatVnd(seen.delta_vnd) : NONE });
+      return t('dis.warning.observed.negativeDeltaShort', { delta: typeof seen.delta_vnd === 'string' ? compactMoney(seen.delta_vnd) : NONE });
     default:
       return NONE;
   }

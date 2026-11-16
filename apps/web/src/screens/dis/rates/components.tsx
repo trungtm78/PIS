@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { compactMoney } from '../../../i18n/money';
 import type { Translator } from '../../../i18n';
 import { useSession } from '../../../session/SessionContext';
 import { ContextBar, KpiStrip, KpiTile, ReadonlyStat, SectionCard, StatusPill } from '../../../ui';
@@ -18,6 +19,9 @@ type T = Translator['t'];
 export const NONE = '—';
 
 export const money = (value: string | null): string => (value === null ? NONE : formatVnd(value));
+
+/** The short form of an amount ("1,23 tỷ đồng") where a text is needed (a tile, a stat, a sentence); a table cell uses `<Money>`, which keeps the exact amount one hover away. */
+export const shortMoney = (value: string | null, signed = false): string => (value === null ? NONE : compactMoney(value, { signed }));
 
 /** A change with its sign: a fall is negative and a rise is shown with a plus, so that none of them is read as zero. */
 export const signedVnd = (amount: string): string => (amount.startsWith('-') ? formatVnd(amount) : amount === '0' ? '0' : `+${formatVnd(amount)}`);
@@ -99,7 +103,6 @@ export function RatesContext({ snapshotId, cutoff }: { snapshotId: string | unde
         { label: t('dis.wr.ctx.period'), value: period?.code ?? NONE },
         { label: t('dis.rates.fact.cutoff'), value: cutoff ?? NONE },
       ]}
-      unit={t('dis.wr.unit')}
     />
   );
 }
@@ -110,7 +113,7 @@ export function RatePair({ figures, definition, cutoff, basis }: { figures: Rate
   const noBasis = figures.nullReason === 'ZERO_DENOMINATOR';
   return (
     <div data-testid="rate-pair">
-      <SectionCard title={basis === 'CURRENT_YEAR' ? t('dis.rates.pair.title.year') : t('dis.rates.pair.title.carryover')} unit={t('dis.wr.unit')} status={<DefinitionBadge definition={definition} />}>
+      <SectionCard title={basis === 'CURRENT_YEAR' ? t('dis.rates.pair.title.year') : t('dis.rates.pair.title.carryover')} status={<DefinitionBadge definition={definition} />}>
         <div className="w2dis-stack">
           <div className="w2dis-pair">
             <KpiStrip label={t('dis.rates.pair.aria')}>
@@ -120,7 +123,7 @@ export function RatePair({ figures, definition, cutoff, basis }: { figures: Rate
                 tone="info"
                 sub={
                   <span className="w2dis-tile-sub">
-                    <span>{t('w2dis.rates.tile.sub', { numerator: money(figures.numeratorVnd), denominator: money(figures.planPmVnd) })}</span>
+                    <span>{t('w2dis.rates.tile.sub', { numerator: shortMoney(figures.numeratorVnd), denominator: shortMoney(figures.planPmVnd) })}</span>
                     {figures.ratePmPct === null && noBasis ? <small>{reasonLabel(t, figures.nullReason)}</small> : null}
                     <small>{t('dis.rates.formula.pm', { ref: FORMULA_REFERENCE })}</small>
                     {passesWhole(figures.ratePmPct) ? <small data-testid="rate-pm-over">{t('dis.rates.pair.over.note')}</small> : null}
@@ -132,7 +135,7 @@ export function RatePair({ figures, definition, cutoff, basis }: { figures: Rate
                 value={tileValue(t, figures.rateTotalPct, figures.nullReason)}
                 sub={
                   <span className="w2dis-tile-sub">
-                    <span>{t('w2dis.rates.tile.sub', { numerator: money(figures.numeratorVnd), denominator: money(figures.planTotalVnd) })}</span>
+                    <span>{t('w2dis.rates.tile.sub', { numerator: shortMoney(figures.numeratorVnd), denominator: shortMoney(figures.planTotalVnd) })}</span>
                     {figures.rateTotalPct === null && noBasis ? <small>{reasonLabel(t, figures.nullReason)}</small> : null}
                     <small>{t('dis.rates.formula.total', { ref: FORMULA_REFERENCE })}</small>
                   </span>
@@ -141,9 +144,9 @@ export function RatePair({ figures, definition, cutoff, basis }: { figures: Rate
             </KpiStrip>
           </div>
           <div className="w2dis-facts">
-            <ReadonlyStat label={t('dis.rates.fact.numerator')} value={money(figures.numeratorVnd)} />
-            <ReadonlyStat label={t('dis.rates.fact.planPm')} value={money(figures.planPmVnd)} />
-            <ReadonlyStat label={t('dis.rates.fact.planTotal')} value={money(figures.planTotalVnd)} />
+            <ReadonlyStat label={t('dis.rates.fact.numerator')} value={shortMoney(figures.numeratorVnd)} />
+            <ReadonlyStat label={t('dis.rates.fact.planPm')} value={shortMoney(figures.planPmVnd)} />
+            <ReadonlyStat label={t('dis.rates.fact.planTotal')} value={shortMoney(figures.planTotalVnd)} />
             <ReadonlyStat label={t('dis.rates.fact.cutoff')} value={cutoff} />
             <ReadonlyStat label={t('dis.rates.fact.coverage')} value={coverageLabel(t, figures.coverage)} />
           </div>

@@ -1,8 +1,8 @@
 import { ApiError } from '@machvon/api-client';
-import { NONE, camel, money, percent } from '../funding/model';
+import { NONE, camel, percent, shortMoney } from '../funding/model';
 import type { Money, Rate } from '../funding/model';
 
-export { NONE, camel, money, percent };
+export { NONE, camel, percent, shortMoney };
 export type { Money, Rate };
 
 /**

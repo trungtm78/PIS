@@ -1,4 +1,5 @@
 import type { useTranslation } from '../../i18n';
+import { dongText } from '../../i18n/money';
 import type { Applicability, Category, FieldProblem, Phase, ProblemView } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
@@ -42,8 +43,8 @@ export function applicabilityText(t: Translate, applies: Applicability): string 
   const parts = [
     applies.projectGroupKeys.length === 0 ? null : t('pmt.type.applies.groups.text', { keys: applies.projectGroupKeys.join(', ') }),
     applies.workTypes.length === 0 ? null : t('pmt.type.applies.works.text', { keys: applies.workTypes.join(', ') }),
-    applies.minTotalInvestmentVnd === null ? null : t('pmt.type.applies.min.text', { amount: applies.minTotalInvestmentVnd }),
-    applies.maxTotalInvestmentVnd === null ? null : t('pmt.type.applies.max.text', { amount: applies.maxTotalInvestmentVnd }),
+    applies.minTotalInvestmentVnd === null ? null : t('pmt.type.applies.min.text', { amount: dongText(applies.minTotalInvestmentVnd) }),
+    applies.maxTotalInvestmentVnd === null ? null : t('pmt.type.applies.max.text', { amount: dongText(applies.maxTotalInvestmentVnd) }),
   ].filter((part): part is string => part !== null);
   return parts.length === 0 ? t('pmt.type.applies.all.text') : parts.join(' · ');
 }

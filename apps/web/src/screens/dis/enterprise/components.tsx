@@ -3,7 +3,7 @@ import { useTranslation } from '../../../i18n';
 import { KpiTile } from '../../../ui';
 import type { Tone } from '../../../ui';
 import { FigureInfo } from '../funding/components';
-import { DETAIL_PATH, NONE, camel, missingCells, money, monthsText, percent } from './model';
+import { DETAIL_PATH, NONE, camel, missingCells, monthsText, percent, shortMoney } from './model';
 import type { MissingUnit, Rate, SnapshotStatus, WaitingBatch } from './model';
 import '../funding/funding.css';
 import './enterprise.css';
@@ -63,7 +63,7 @@ export function RateText({ rate }: { rate: Rate | undefined }) {
   return (
     <span data-testid={`rate-${rate.code}`}>
       {percent(rate.rate_pct)}
-      <small className="dis-funding-flag">{rate.null_reason === null ? ` ${money(rate.numerator_vnd)} / ${money(rate.denominator_vnd)}` : ` ${t(`dis.funding.reason.${camel(rate.null_reason)}`)}`}</small>
+      <small className="dis-funding-flag">{rate.null_reason === null ? ` ${shortMoney(rate.numerator_vnd)} / ${shortMoney(rate.denominator_vnd)}` : ` ${t(`dis.funding.reason.${camel(rate.null_reason)}`)}`}</small>
     </span>
   );
 }
@@ -88,7 +88,7 @@ export function SinceStartTile(props: SinceStartTileProps) {
       value={percent(props.ratePct)}
       sub={
         <>
-          {props.nullReason === null ? <span>{t('dis.funding.rate.sub', { numerator: money(props.numerator), denominator: money(props.denominator) })}</span> : <span data-testid="reason-RATE_SINCE_START">{t(`dis.funding.reason.${camel(props.nullReason)}`)}</span>}{' '}
+          {props.nullReason === null ? <span>{t('dis.funding.rate.sub', { numerator: shortMoney(props.numerator), denominator: shortMoney(props.denominator) })}</span> : <span data-testid="reason-RATE_SINCE_START">{t(`dis.funding.reason.${camel(props.nullReason)}`)}</span>}{' '}
           <FigureInfo
             code="RATE_SINCE_START"
             asOf={props.asOf}

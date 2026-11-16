@@ -44,8 +44,8 @@ describe('ApprovalQueueScreen (PWA-02): the queue of period data', () => {
     // The colour is never the only cue: the pill says it.
     expect(within(late).getByText(word('pwa.approvals.status.late'))).toBeInTheDocument();
     expect(within(card(taskId(3))).getByText(word('pwa.approvals.status.escalated'))).toBeInTheDocument();
+    expect(within(late).getByText('2,5 tỷ đồng').getAttribute('title')).toBe('2.500.000.000 đồng');
     expect(late.textContent).toContain('2.500.000.000');
-    expect(late.textContent).toContain(word('pwa.approvals.unit.vnd'));
     expect(late.textContent).toContain('Rà soát số liệu kỳ');
     expect(within(late).getByRole('time')).toBeInTheDocument();
     expect(screen.getByTestId('counts').textContent).toContain('3 việc chờ duyệt, 1 quá hạn');

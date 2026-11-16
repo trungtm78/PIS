@@ -53,12 +53,12 @@ describe('DIS-19 the two rates side by side', () => {
     expect(tiles[0]?.querySelector('.ui-kpi__value')?.textContent).toBe('60.0000%');
     expect(tiles[1]?.querySelector('.ui-kpi__value')?.textContent).toBe('48.0000%');
     // Each tile carries its denominator, so a rate is never read without the plan it is of.
-    expect(tiles[0]?.textContent).toContain(w2.tileSub.replace('{numerator}', '600.000.000').replace('{denominator}', '1.000.000.000'));
-    expect(tiles[1]?.textContent).toContain(w2.tileSub.replace('{numerator}', '600.000.000').replace('{denominator}', '1.250.000.000'));
+    expect(tiles[0]?.textContent).toContain(w2.tileSub.replace('{numerator}', '600 triệu đồng').replace('{denominator}', '1 tỷ đồng'));
+    expect(tiles[1]?.textContent).toContain(w2.tileSub.replace('{numerator}', '600 triệu đồng').replace('{denominator}', '1,25 tỷ đồng'));
     const fact = (name: string): string => within(pair).getByRole('group', { name }).querySelector('.ui-stat__value')?.textContent ?? '';
-    expect(fact(vi_['dis.rates.fact.numerator'])).toBe('600.000.000');
-    expect(fact(vi_['dis.rates.fact.planPm'])).toBe('1.000.000.000');
-    expect(fact(vi_['dis.rates.fact.planTotal'])).toBe('1.250.000.000');
+    expect(fact(vi_['dis.rates.fact.numerator'])).toBe('600 triệu đồng');
+    expect(fact(vi_['dis.rates.fact.planPm'])).toBe('1 tỷ đồng');
+    expect(fact(vi_['dis.rates.fact.planTotal'])).toBe('1,25 tỷ đồng');
     expect(fact(vi_['dis.rates.fact.cutoff'])).toBe('2027-01-10');
     // The formula of each rate is written under it, with the reference, and in the text that opens.
     expect(within(tiles[0] as HTMLElement).getByText(vi_['dis.rates.formula.pm'].replace('{ref}', 'CXN-03'))).toBeTruthy();
@@ -78,7 +78,7 @@ describe('DIS-19 the two rates side by side', () => {
       expect(row.querySelectorAll('[data-rate="total"]')).toHaveLength(1);
     }
     const first = within(table).getByRole('row', { name: /DA-2027-001/ });
-    expect(Array.from(first.querySelectorAll('td')).map((cell) => cell.textContent)).toEqual(['DA-2027-001Tên DA-2027-001', '1.000.000.000', '250.000.000', '600.000.000', '60.0000%', '48.0000%', vi_['dis.rates.coverage.complete']]);
+    expect(Array.from(first.querySelectorAll('td')).map((cell) => cell.textContent)).toEqual(['DA-2027-001Tên DA-2027-001', '1 tỷ đồng (1.000.000.000 đồng)', '250 triệu đồng (250.000.000 đồng)', '600 triệu đồng (600.000.000 đồng)', '60.0000%', '48.0000%', vi_['dis.rates.coverage.complete']]);
   });
 
   it('AC-ST-DIS-010-3 / UAT-AC04: says "Chưa có cơ sở tính" for a project with no plan, never 0% and never an infinite rate, with the Treasury coverage of the project', async () => {
@@ -116,7 +116,7 @@ describe('DIS-19 the two rates side by side', () => {
     const table = screen.getByRole('table', { name: vi_['dis.paired.table.aria'] });
     const total = table.querySelector('tfoot tr') as HTMLElement;
     expect(within(total).getByRole('rowheader').textContent).toBe(vi_['dis.unitTotals.total.label']);
-    expect(Array.from(total.querySelectorAll('td')).slice(0, 3).map((cell) => cell.textContent)).toEqual(['0', '0', '0']);
+    expect(Array.from(total.querySelectorAll('td')).slice(0, 3).map((cell) => cell.textContent)).toEqual(['0 đồng', '0 đồng', '0 đồng']);
   });
 
   it('notes that the rate on the plan of the Prime Minister can pass 100% when the province adds capital', async () => {

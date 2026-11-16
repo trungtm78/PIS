@@ -2,9 +2,10 @@ import { ApiError } from '@machvon/api-client';
 import { useTranslation } from '../../../../i18n';
 import type { LeaderPanelPart } from '../../../edition';
 import { DirectiveWidget } from '../../../../screens/dir/DirectiveWidget';
-import { DataTable, KpiStrip, KpiTile, SectionCard } from '../../../../ui';
+import { DataTable, KpiStrip, KpiTile, Money, SectionCard } from '../../../../ui';
 import type { DataTableColumn } from '../../../../ui';
-import { dayText, moneyText } from '../shared/format';
+import { compactMoney } from '../../../../i18n/money';
+import { dayText } from '../shared/format';
 import { useBlockedProjects, useLeaderRates } from './hooks';
 import type { BlockedProjects, LeaderRateRow } from './hooks';
 import { deltaText, percentText } from './model';
@@ -39,20 +40,20 @@ function Rates({ compact = false }: { compact?: boolean }) {
       </SectionCard>
     );
   }
-  const money = (value: string | null | undefined): string => (value === null || value === undefined ? t('ent.leader.noData.text') : moneyText(value, locale));
+  const money = (value: string | null | undefined): string => (value === null || value === undefined ? t('ent.leader.noData.text') : compactMoney(value));
   const rateCell = (row: LeaderRateRow): string => (row.rate_pct === null ? t('ent.leader.noData.text') : percentText(row.rate_pct, locale));
   const lastCell = (row: LeaderRateRow): string => (row.last_year.rate_pct !== null ? percentText(row.last_year.rate_pct, locale) : row.last_year.null_reason === 'NO_PRIOR_SNAPSHOT' ? t('ent.leader.lastYear.none') : row.last_year.null_reason === 'NOT_IN_PRIOR_SNAPSHOT' ? t('ent.leader.lastYear.new') : t('ent.leader.noData.text'));
   const columns = (first: string): DataTableColumn<LeaderRateRow>[] => [
     { key: 'name', header: first, pinned: true, render: (row) => `${row.code ?? ''} ${row.name ?? ''}`.trim() },
-    { key: 'plan', header: t('ent.leader.col.plan'), align: 'right', render: (row) => (row.plan_vnd === '0' && row.rate_pct === null ? t('ent.leader.noData.text') : money(row.plan_vnd)) },
-    { key: 'disbursed', header: t('ent.leader.col.disbursed'), align: 'right', render: (row) => money(row.disbursed_vnd) },
+    { key: 'plan', header: t('ent.leader.col.plan'), align: 'right', render: (row) => (row.plan_vnd === '0' && row.rate_pct === null ? t('ent.leader.noData.text') : <Money value={row.plan_vnd} none={t('ent.leader.noData.text')} />) },
+    { key: 'disbursed', header: t('ent.leader.col.disbursed'), align: 'right', render: (row) => <Money value={row.disbursed_vnd} none={t('ent.leader.noData.text')} /> },
     { key: 'rate', header: t('ent.leader.col.rate'), align: 'right', render: rateCell },
     { key: 'last', header: t('ent.leader.col.lastYear'), align: 'right', render: lastCell },
     { key: 'delta', header: t('ent.leader.col.delta'), align: 'right', render: (row) => (row.delta_points === null ? t('ent.leader.noData.text') : `${deltaText(row.delta_points, locale)} ${trendText(row.trend)}`) },
   ];
   const company = data.company;
   return (
-    <SectionCard title={t('ent.leader.rates.title')} unit={t('ent.leader.rates.unit')}>
+    <SectionCard title={t('ent.leader.rates.title')}>
       <div data-testid="leader-rates">
         <KpiStrip label={t('ent.leader.company.aria')}>
           <KpiTile label={t('ent.leader.company.rate')} value={rateCell(company)} sub={company.rate_pct === null ? nullText(company.null_reason ?? null) : `${money(company.disbursed_vnd)} / ${money(company.plan_vnd)}`} tone="info" />

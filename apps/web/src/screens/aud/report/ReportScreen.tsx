@@ -2,6 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { compactMoney } from '../../../i18n/money';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
@@ -10,7 +11,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import '../aud.css';
 import { EngagementPicker } from '../conclusion/components';
 import { useConclusions } from '../conclusion/hooks';
-import { currentOf, formatVnd } from '../conclusion/model';
+import { currentOf } from '../conclusion/model';
 import type { ConclusionLine } from '../conclusion/model';
 import { useEngagement } from '../hooks';
 import { engagementStatusLabel } from '../labels';
@@ -218,7 +219,7 @@ function Figures({ report }: { report: ReportLine }) {
     <div data-testid="report-figures">
       <div data-testid="figures-counts">{t('aud.report.figures.counts', { closed: totals.closed, inProgress: totals.inProgress, open: totals.open, disputed: totals.disputed, total: totals.total })}</div>
       <div data-testid="figures-money">
-        {t('aud.report.figures.money', { amount: formatVnd(totals.amountVnd), recovered: formatVnd(totals.recoveredVnd), remaining: formatVnd(totals.remainingVnd) })}
+        {t('aud.report.figures.money', { amount: compactMoney(totals.amountVnd), recovered: compactMoney(totals.recoveredVnd), remaining: compactMoney(totals.remainingVnd) })}
       </div>
       <div>
         {t('aud.report.figures.moneyRate')}: <RateText rate={totals.moneyRate} testId="report-rate-money" />

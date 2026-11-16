@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { camel } from '../../../../screens/mdm/catalogues';
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../../i18n';
 import type { ScreenProps } from '../../../../routes/types';
 import { useSession } from '../../../../session/SessionContext';
 import { StateBoundary } from '../../../../states/StateBoundary';
 import { useScreenState } from '../../../../states/useScreenState';
-import { SectionCard, StatusPill } from '../../../../ui';
+import { Money, SectionCard, StatusPill } from '../../../../ui';
 import { Fact } from '../shared/parts';
-import { moneyText } from '../shared/format';
 import { DataGuide } from './DataGuide';
 import { useEquipmentLine, useEquipmentLines, useUpdateLine } from './hooks';
 import { LIST_PATH, MANAGE_PERMISSION, describeProblem, stageTone, validateLink } from './model';
@@ -23,7 +22,7 @@ export default function EquipmentDetailScreen({ route }: ScreenProps) {
 }
 
 function EquipmentDetailContent({ route }: ScreenProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const [params] = useSearchParams();
   const namedId = params.get('line') ?? undefined;
@@ -36,7 +35,7 @@ function EquipmentDetailContent({ route }: ScreenProps) {
   const detail = found.data;
   const line = detail?.line;
   const masked = (what: 'CONTRACT' | 'PAYMENT'): boolean => line?.masked.includes(what) === true;
-  const money = (value: string | null, what: 'CONTRACT' | 'PAYMENT'): string => (masked(what) ? t('eqp.list.masked') : moneyText(value, locale));
+  const money = (value: string | null, what: 'CONTRACT' | 'PAYMENT'): ReactNode => (masked(what) ? t('eqp.list.masked') : <Money value={value} none="–" />);
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title" className="ent2-page">
@@ -64,8 +63,8 @@ function EquipmentDetailContent({ route }: ScreenProps) {
                 <Fact label={t('eqp.col.unit')} testId="fact-unit">
                   {line.ownerUnit.name}
                 </Fact>
-                <Fact label={t('eqp.col.planned')} testId="fact-planned">
-                  {moneyText(line.plannedValueVnd, locale)}
+                <Fact label={t('eqp.col.plannedShort')} testId="fact-planned">
+                  <Money value={line.plannedValueVnd} none="–" />
                   {line.planRef === null ? '' : ` · ${line.planRef}`}
                 </Fact>
                 <Fact label={t('eqp.col.package')} testId="fact-package">
@@ -83,13 +82,13 @@ function EquipmentDetailContent({ route }: ScreenProps) {
                 <Fact label={t('eqp.col.contract')} testId="fact-contract">
                   {line.contract === null ? t('eqp.detail.none') : `${line.contract.code} (${line.contract.status})`}
                 </Fact>
-                <Fact label={t('eqp.detail.contractValue')} testId="fact-contract-value">
+                <Fact label={t('eqp.detail.contractValueShort')} testId="fact-contract-value">
                   {money(line.contractValueVnd, 'CONTRACT')}
                 </Fact>
-                <Fact label={t('eqp.detail.variance')} testId="fact-variance">
+                <Fact label={t('eqp.detail.varianceShort')} testId="fact-variance">
                   {money(line.planVarianceVnd, 'CONTRACT')}
                 </Fact>
-                <Fact label={t('eqp.col.paid')} testId="fact-paid">
+                <Fact label={t('eqp.col.paidShort')} testId="fact-paid">
                   {money(line.paidVnd, 'PAYMENT')}
                   {line.disbursementPercent === null || masked('PAYMENT') || masked('CONTRACT') ? '' : ` (${line.disbursementPercent}%)`}
                 </Fact>

@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText } from '../../../i18n/money';
 
 /** The permissions of SAS-07 and SAS-08 (x-permission of the operations in openapi.json). */
 export const READ_SUBSCRIPTION_PERMISSION = 'system.tenant.read';
@@ -149,9 +150,9 @@ export function toPreview(raw: unknown): PreviewResult {
   };
 }
 
-/** Whole VND with the thousands separators of the language, exact for any size; anything that is not digits is shown as it came. */
+/** Whole VND written exactly by the shared formatter (thousands grouped, no unit): a billing figure is never shortened; anything that is not digits is shown as it came. */
 export function formatVnd(amount: string, locale: string): string {
-  return /^-?[0-9]{1,24}$/.test(amount) ? BigInt(amount).toLocaleString(locale) : amount;
+  return /^-?[0-9]{1,24}$/.test(amount) ? dongText(amount, locale) : amount;
 }
 
 /** Whether a change to the target plan may take effect now: only a plan that costs more (the server judges the same); a cheaper or equal one waits for the next cycle. */

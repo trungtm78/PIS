@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -87,6 +88,8 @@ function EvmContent({ route }: ScreenProps) {
   const evmState = useScreenState({ isLoading: evm.isLoading, error: evm.error, data: evm.data, isEmpty: () => false });
   const curveState = useScreenState({ isLoading: curve.isLoading, error: curve.error, data: curve.data, isEmpty: () => false });
   const money = (value: string | null | undefined): string => vnd(value, locale);
+  /** An amount in the short form of the shared formatter ("1,23 tỷ đồng"), for the tiles read at a glance; the tables under them keep every dong. */
+  const short = (value: string | null | undefined): string => compactMoney(value, { locale });
   const view = evm.data ?? undefined;
   const writable = mode !== 'READ_ONLY';
   const needsRef = scope !== 'PROJECT' && ref === undefined;
@@ -109,7 +112,7 @@ function EvmContent({ route }: ScreenProps) {
   const figures = view?.figures;
   const reasons = figures === undefined ? [] : reasonCodes(figures);
   const metric = (value: string | null, name: EvmMetricName): { value: string; sub: string | undefined } =>
-    value !== null ? { value: money(value), sub: undefined } : { value: t('govb1.common.na'), sub: figures?.unavailable[name] === undefined ? undefined : reasonText(t, figures.unavailable[name] as string).reason };
+    value !== null ? { value: short(value), sub: undefined } : { value: t('govb1.common.na'), sub: figures?.unavailable[name] === undefined ? undefined : reasonText(t, figures.unavailable[name] as string).reason };
   const index = (value: string | null, name: EvmMetricName): { value: string; sub: string | undefined } => (value !== null ? { value, sub: undefined } : { value: t('govb1.common.na'), sub: figures?.unavailable[name] === undefined ? undefined : reasonText(t, figures.unavailable[name] as string).reason });
 
   const download = (file: ExportFile): void => {
@@ -232,7 +235,6 @@ function EvmContent({ route }: ScreenProps) {
                   )}
                   <SectionCard
                     title={t('govb1.evm.kpi.title', { code: view.projectCode })}
-                    unit={t('govb1.common.unit')}
                     status={
                       view.source === 'FROZEN' ? (
                         <StatusPill tone="info">{t('govb1.evm.frozen')}</StatusPill>
@@ -277,9 +279,9 @@ function EvmContent({ route }: ScreenProps) {
                       <KpiTile label={t('govb1.evm.kpi.tcpi')} value={index(figures.tcpi, 'tcpi').value} sub={index(figures.tcpi, 'tcpi').sub} />
                       <KpiTile
                         label={t('govb1.evm.kpi.over')}
-                        value={view.eacAgainstTotal === null ? t('govb1.common.na') : money(view.eacAgainstTotal.overVnd)}
+                        value={view.eacAgainstTotal === null ? t('govb1.common.na') : short(view.eacAgainstTotal.overVnd)}
                         tone={view.eacAgainstTotal !== null && WHOLE.test(view.eacAgainstTotal.overVnd) && BigInt(view.eacAgainstTotal.overVnd) > 0n ? 'danger' : 'default'}
-                        sub={view.eacAgainstTotal === null ? t('govb1.evm.kpi.over.none') : view.eacAgainstTotal.overPct === null ? t('govb1.evm.kpi.over.total', { total: money(view.totalInvestmentVnd) }) : t('govb1.evm.kpi.over.pct', { pct: view.eacAgainstTotal.overPct, total: money(view.totalInvestmentVnd) })}
+                        sub={view.eacAgainstTotal === null ? t('govb1.evm.kpi.over.none') : view.eacAgainstTotal.overPct === null ? t('govb1.evm.kpi.over.total', { total: short(view.totalInvestmentVnd) }) : t('govb1.evm.kpi.over.pct', { pct: view.eacAgainstTotal.overPct, total: short(view.totalInvestmentVnd) })}
                       />
                     </KpiStrip>
                     <p className="muted" data-testid="formula">

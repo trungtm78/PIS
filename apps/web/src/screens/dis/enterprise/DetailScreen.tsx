@@ -5,13 +5,13 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { ConfirmDialog, ContextBar, DataTable, SectionCard, StatusPill } from '../../../ui';
+import { ConfirmDialog, ContextBar, DataTable, Money, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import '../dis.css';
 import { Banner } from '../funding/components';
 import { useFreeze, useSnapshot } from './hooks';
 import { RateText, STATUS_TONES, SinceStartTile, SnapshotLink } from './components';
-import { BUILD_PATH, FREEZE_PERMISSION, NONE, SUMMARY_COLUMNS, camel, describeProblem, money, moneyOf, rateOf, shortHash } from './model';
+import { BUILD_PATH, FREEZE_PERMISSION, NONE, SUMMARY_COLUMNS, camel, describeProblem, moneyOf, rateOf, shortHash, shortMoney } from './model';
 import type { IndicatorRow, LineageRow, ProjectRow, SnapshotDetail, UnitRow } from './model';
 import './enterprise.css';
 
@@ -54,14 +54,14 @@ function DetailContent({ route }: ScreenProps) {
   const unitColumns: DataTableColumn<UnitRow>[] = [
     { key: 'unit', header: t('ent3a.detail.col.unit'), pinned: true, render: (row) => `${row.unit_code} · ${row.unit_name}` },
     { key: 'projects', header: t('ent3a.detail.col.projects'), align: 'right', render: (row) => String(row.projects) },
-    ...SUMMARY_COLUMNS.map((code) => ({ key: code, header: t(`ent3a.detail.money.${camel(code)}`), align: 'right' as const, render: (row: UnitRow) => money(moneyOf(row.money, code)) })),
+    ...SUMMARY_COLUMNS.map((code) => ({ key: code, header: t(`ent3a.detail.money.${camel(code)}`), align: 'right' as const, render: (row: UnitRow) => <Money value={moneyOf(row.money, code)} none={NONE} /> })),
     { key: 'rate', header: t('ent3a.detail.col.rate'), align: 'right', render: (row) => <RateText rate={rateOf(row.rates, 'RATE_YEAR_IN_FORCE')} /> },
   ];
   const projectColumns: DataTableColumn<ProjectRow>[] = [
     { key: 'project', header: t('ent3a.detail.col.project'), pinned: true, render: (row) => `${row.project_code} · ${row.project_name}` },
     { key: 'unit', header: t('ent3a.detail.col.unit'), render: (row) => row.unit_code },
-    { key: 'tmdt', header: t('ent3a.detail.col.tmdt'), align: 'right', render: (row) => money(row.tmdt_in_force_vnd) },
-    ...SUMMARY_COLUMNS.map((code) => ({ key: code, header: t(`ent3a.detail.money.${camel(code)}`), align: 'right' as const, render: (row: ProjectRow) => money(moneyOf(row.money, code)) })),
+    { key: 'tmdt', header: t('ent3a.detail.col.tmdt'), align: 'right', render: (row) => <Money value={row.tmdt_in_force_vnd} none={NONE} /> },
+    ...SUMMARY_COLUMNS.map((code) => ({ key: code, header: t(`ent3a.detail.money.${camel(code)}`), align: 'right' as const, render: (row: ProjectRow) => <Money value={moneyOf(row.money, code)} none={NONE} /> })),
     { key: 'rate', header: t('ent3a.detail.col.rate'), align: 'right', render: (row) => <RateText rate={rateOf(row.rates, 'RATE_YEAR_IN_FORCE')} /> },
   ];
   const indicatorColumns: DataTableColumn<IndicatorRow>[] = [
@@ -148,11 +148,15 @@ function DetailContent({ route }: ScreenProps) {
                 <dl className="dis-ent-facts">
                   <div>
                     <dt>{t('ent3a.detail.totals.planInForce')}</dt>
-                    <dd data-testid="total-plan">{money(moneyOf(data.totals.money, 'PLAN_IN_FORCE'))}</dd>
+                    <dd data-testid="total-plan">
+                      <Money value={moneyOf(data.totals.money, 'PLAN_IN_FORCE')} none={NONE} />
+                    </dd>
                   </div>
                   <div>
                     <dt>{t('ent3a.detail.totals.ytd')}</dt>
-                    <dd data-testid="total-ytd">{money(moneyOf(data.totals.money, 'CUMULATIVE_YTD'))}</dd>
+                    <dd data-testid="total-ytd">
+                      <Money value={moneyOf(data.totals.money, 'CUMULATIVE_YTD')} none={NONE} />
+                    </dd>
                   </div>
                   <div>
                     <dt>{t('ent3a.detail.totals.rateYear')}</dt>
@@ -162,7 +166,9 @@ function DetailContent({ route }: ScreenProps) {
                   </div>
                   <div>
                     <dt>{t('ent3a.detail.totals.tmdt')}</dt>
-                    <dd>{money(data.totals.total_investment_vnd)}</dd>
+                    <dd>
+                      <Money value={data.totals.total_investment_vnd} none={NONE} />
+                    </dd>
                   </div>
                 </dl>
                 <SinceStartTile
@@ -177,7 +183,7 @@ function DetailContent({ route }: ScreenProps) {
                 />
                 <ul className="dis-ent-lineage" data-testid="by-class">
                   {data.totals.by_class.map((one) => (
-                    <li key={one.class_code}>{t('ent3a.detail.byClass', { class: one.class_code, plan: money(moneyOf(one.money, 'PLAN_IN_FORCE', one.class_code)), ytd: money(moneyOf(one.money, 'CUMULATIVE_YTD', one.class_code)) })}</li>
+                    <li key={one.class_code}>{t('ent3a.detail.byClass', { class: one.class_code, plan: shortMoney(moneyOf(one.money, 'PLAN_IN_FORCE', one.class_code)), ytd: shortMoney(moneyOf(one.money, 'CUMULATIVE_YTD', one.class_code)) })}</li>
                   ))}
                 </ul>
               </SectionCard>

@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText } from '../../../i18n/money';
 import reconBasis from './recon-basis.vi.json';
 
 export const MAPPING_STATUSES = ['PROPOSED', 'CONFIRMED', 'REJECTED', 'RETIRED'] as const;
@@ -196,10 +197,9 @@ export function resourceIdOf(raw: unknown): string | undefined {
   return text(record(raw)?.resource_id);
 }
 
-/** A whole number of dong as the reader writes it: groups of three, the sign kept. Never rounded, never turned into a float. */
+/** A whole number of dong written exactly by the shared formatter: groups of three, the sign kept. Never rounded, never turned into a float (a reconciliation is to the dong). */
 export function formatDong(value: string, locale: string): string {
-  const number = BigInt(value);
-  return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(number);
+  return dongText(value, locale);
 }
 
 // ---- the forms --------------------------------------------------------------------------------------------------------------------

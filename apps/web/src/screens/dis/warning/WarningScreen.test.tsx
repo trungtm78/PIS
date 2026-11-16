@@ -112,7 +112,7 @@ describe('DIS-20 early-warning rules and warnings', () => {
     expect(within(cleared).getByText('Trễ hạn 2 ngày, chưa có báo cáo')).toBeTruthy();
     expect(within(cleared).getByText(vi_['dis.warning.resolution.autoCleared'])).toBeTruthy();
     const dismissed = rowIn(table, 'warning', WARNING(3));
-    expect(within(dismissed).getByText('Giải ngân trong kỳ -20.000.000 đồng')).toBeTruthy();
+    expect(within(dismissed).getByText('Giải ngân trong kỳ -20 triệu đồng')).toBeTruthy();
     expect(within(dismissed).getByText('Dự án chuyển sang kế hoạch quý sau.')).toBeTruthy();
     // A warning that is closed cannot be handled.
     expect(within(cleared).queryAllByRole('button')).toHaveLength(0);

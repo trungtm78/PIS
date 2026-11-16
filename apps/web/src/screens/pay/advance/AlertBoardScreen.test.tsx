@@ -51,7 +51,7 @@ describe('AlertBoardScreen (PAY-12): overdue advances and recovery alerts', () =
     const overdue = rowOf(advanceId(1));
     expect(within(overdue).getByTestId('schedule').textContent).toBe('HD-A-001');
     expect(within(overdue).getByTestId('member').textContent).toBe('Nhà thầu A');
-    expect(within(overdue).getByTestId('outstanding').textContent).toBe('1.250.000.000');
+    expect(within(overdue).getByTestId('outstanding').textContent).toBe('1,25 tỷ đồng (1.250.000.000 đồng)');
     expect(within(overdue).getByTestId('deadline').textContent).toBe('2026-07-31');
     expect(within(overdue).getByTestId('overdue').textContent).toBe('10');
     expect(within(overdue).getByTestId('level').textContent).toBe(vi_['pay.alert.level.overdue']);

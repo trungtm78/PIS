@@ -74,15 +74,15 @@ describe('DIS-01 weekly reports', () => {
     expect(cells[0]).toEqual([
       `DA-2027-001Cầu số 1${vi_['dis.reportStatus.draft']}`,
       `2027-W01${vi_['dis.reports.revision.text'].replace('{revision}', '1')}`,
-      '420.000.000',
-      `40.000.000${t('dis.wr.row.share', { percent: '9,5' })}`,
+      '420 triệu đồng (420.000.000 đồng)',
+      `40 triệu đồng (40.000.000 đồng)${t('dis.wr.row.share', { percent: '9,5' })}`,
       '2027-01-05',
       vi_['dis.reports.open.action'].replace('{code}', 'DA-2027-001'),
     ]);
     // The status of a report that was handed in late is a chip, and the late mark is another.
     expect(cells[1]?.[0]).toBe(`DA-2027-002Cầu số 2${vi_['dis.reportStatus.submitted']}${vi_['dis.reports.late.text']}`);
-    expect(cells[1]?.[2]).toBe('1.250.000.000');
-    expect(cells[1]?.[3]).toBe(`0${t('dis.wr.row.share', { percent: '0,0' })}`);
+    expect(cells[1]?.[2]).toBe('1,25 tỷ đồng (1.250.000.000 đồng)');
+    expect(cells[1]?.[3]).toBe(`0 đồng${t('dis.wr.row.share', { percent: '0,0' })}`);
     expect(screen.getByRole('link', { name: vi_['dis.reports.open.action'].replace('{code}', 'DA-2027-001') }).getAttribute('href')).toBe(`/dis/dis-04?report=${lineRecord(1).id as string}`);
     // A report that was handed in is read on its detail (DIS-07), where the reviewer decides and the maker corrects; only a draft is edited.
     expect(screen.getByRole('link', { name: vi_['dis.reports.open.action'].replace('{code}', 'DA-2027-002') }).getAttribute('href')).toBe(`/dis/dis-07?report=${lineRecord(2).id as string}`);
@@ -103,7 +103,7 @@ describe('DIS-01 weekly reports', () => {
     await screen.findByText('DA-2027-001');
     const total = document.querySelector('tfoot tr') as HTMLElement;
     expect(within(total).getByRole('rowheader').textContent).toBe(t('dis.wr.totals.label'));
-    expect(Array.from(total.querySelectorAll('td')).map((cell) => cell.textContent)).toEqual(['', '1.670.000.000', '40.000.000', '', '']);
+    expect(Array.from(total.querySelectorAll('td')).map((cell) => cell.textContent)).toEqual(['', '1,67 tỷ đồng (1.670.000.000 đồng)', '40 triệu đồng (40.000.000 đồng)', '', '']);
   });
 
   it('AC-ST-DIS-003-4 / UI-DIS-01: gives four figures with the scope each counts and the exact amount next to the short form, and the figures of everything the caller sees apart once the table is filtered', async () => {
@@ -128,7 +128,7 @@ describe('DIS-01 weekly reports', () => {
     expect(filteredTile()).toContain('420.000.000');
     expect(text('kpi-scope')).toContain(vi_['dis.reports.kpi.scope.title']);
     expect(text('kpi-scope-counts')).toBe(vi_['dis.reports.kpi.counts'].replace('{reports}', '2').replace('{projects}', '2'));
-    expect(text('kpi-scope-money')).toBe(vi_['dis.reports.kpi.money'].replace('{amount}', '840.000.000').replace('{ctmtqg}', '80.000.000'));
+    expect(text('kpi-scope-money')).toBe('Lũy kế 840 triệu đồng, trong đó CTMTQG 80 triệu đồng');
     expect(text('kpi-note')).toBe(vi_['dis.reports.kpi.note']);
     expect(queryOfLastRead(h)).toMatchObject({ project_id: PROJECT, limit: 25 });
   });

@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -24,7 +25,7 @@ export default function RecoveryTableScreen({ route }: ScreenProps) {
 function PositionCard({ position, money }: { position: AdvancePosition; money: (value: string) => string }) {
   const { t } = useTranslation();
   return (
-    <SectionCard title={t('govb2.recovery.position.title', { code: position.contractCode })} unit={t('govb2.control.unit')} status={<StatusPill tone={position.exceedsRemaining ? 'danger' : 'success'}>{position.exceedsRemaining ? t('govb2.recovery.position.exceeds') : t('govb2.recovery.position.ok')}</StatusPill>}>
+    <SectionCard title={t('govb2.recovery.position.title', { code: position.contractCode })} status={<StatusPill tone={position.exceedsRemaining ? 'danger' : 'success'}>{position.exceedsRemaining ? t('govb2.recovery.position.exceeds') : t('govb2.recovery.position.ok')}</StatusPill>}>
       <KpiStrip label={t('govb2.recovery.position.title', { code: position.contractCode })}>
         <KpiTile label={t('govb2.recovery.position.outstanding')} value={money(position.outstandingVnd)} tone={position.exceedsRemaining ? 'danger' : 'default'} />
         <KpiTile label={t('govb2.recovery.position.remaining')} value={money(position.remainingPayableVnd)} sub={t('govb2.recovery.position.remaining.sub')} />
@@ -49,6 +50,7 @@ function RecoveryTableContent({ route }: ScreenProps) {
   const state = useScreenState({ isLoading: table.isLoading || position.isLoading, error: table.error ?? position.error, data: advanceId === undefined ? position.data : table.data, isEmpty: () => false });
   const policyState = useScreenState({ isLoading: policy.isLoading, error: policy.error, data: policy.data, isEmpty: (data) => Array.isArray(data) && data.length === 0 });
   const money = (value: string | null | undefined): string => vnd(value, locale);
+  const short = (value: string | null | undefined): string => compactMoney(value, { locale });
   const view = table.data ?? undefined;
   const contractPosition = view?.position ?? position.data ?? undefined;
   const asOf = view?.asOf;
@@ -74,7 +76,7 @@ function RecoveryTableContent({ route }: ScreenProps) {
             </p>
           ) : (
             <>
-              <PositionCard position={contractPosition} money={money} />
+              <PositionCard position={contractPosition} money={short} />
               {view === undefined ? null : (
                 <SectionCard title={t('govb2.recovery.table.title', { contract: view.advance.contractCode, tranche: view.advance.trancheNo })} unit={t('govb2.control.unit')}>
                   {view.advance.awaitingConfirmation ? (

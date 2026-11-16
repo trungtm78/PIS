@@ -1,6 +1,7 @@
 import type { components } from '@machvon/contracts';
 import { camel } from '../shared/vnd-model';
 import type { Translator } from '../../../i18n';
+import { compactMoney, dongText } from '../../../i18n/money';
 
 /** VND-07 and VND-08: the independence of the bidders of a package and the finance and load of a contractor. The shapes are the contract's; nothing here is invented. */
 type S = components['schemas'];
@@ -74,10 +75,16 @@ export const CONTROLS_PATHS = {
   },
 } as const;
 
-/** Whole dong with the grouping of the locale; a figure that is not known is a dash. */
+/** Whole dong written exactly by the shared formatter (no unit: the label declares it); a figure that is not known is a dash. */
 export function moneyText(value: number | null | undefined, locale: string): string {
   if (value === null || value === undefined) return '–';
-  return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'vi-VN', { maximumFractionDigits: 0 }).format(value);
+  return Number.isFinite(value) ? dongText(BigInt(Math.round(value)), locale) : '–';
+}
+
+/** An amount in the short form of the shared formatter ("1,23 tỷ đồng"), for a fact read at a glance; a figure that is not known is a dash. */
+export function moneyShortText(value: number | null | undefined, locale: string): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) return '–';
+  return compactMoney(BigInt(Math.round(value)), { locale });
 }
 
 /** A ratio or a percentage with at most two decimals; a figure that is not known is a dash. */

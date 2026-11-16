@@ -5,7 +5,7 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { FilterPanel, SectionCard, StatusPill } from '../../../ui';
+import { FilterPanel, Money, SectionCard, StatusPill } from '../../../ui';
 import { Field } from '../../dgv/components';
 import { KitTable } from '../KitTable';
 import { CommandFrame } from '../../qms/CommandFrame';
@@ -41,7 +41,6 @@ function MonitorContent({ route }: ScreenProps) {
   const shown = byUrgency(applyFilters(all, filters));
   const late = all.filter((task) => task.overdue).length;
   const moment = (iso: string): string => new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(iso));
-  const money = (value: string | null): string => (value === null ? t('adm.monitor.none') : new Intl.NumberFormat(locale).format(Number(value)));
 
   return (
     <section className="adm-approvals" data-screen-id={route.id} aria-labelledby="screen-title">
@@ -84,7 +83,7 @@ function MonitorContent({ route }: ScreenProps) {
                 <tr>
                   <th scope="col">{t('adm.monitor.column.record')}</th>
                   <th scope="col">{t('adm.monitor.column.type')}</th>
-                  <th scope="col">{t('adm.monitor.column.amount')}</th>
+                  <th scope="col">{t('adm.monitor.column.amountShort')}</th>
                   <th scope="col">{t('adm.monitor.column.step')}</th>
                   <th scope="col">{t('adm.monitor.column.assignee')}</th>
                   <th scope="col">{t('adm.monitor.column.due')}</th>
@@ -102,7 +101,9 @@ function MonitorContent({ route }: ScreenProps) {
                       {task.resourceType} <code>{task.resourceId.slice(0, 8)}</code>
                     </td>
                     <td>{businessTypeLabel(t, task.businessType)}</td>
-                    <td>{money(task.amountVnd)}</td>
+                    <td>
+                      <Money value={task.amountVnd} none={t('adm.monitor.none')} />
+                    </td>
                     <td>{task.stepName}</td>
                     <td>{task.assigneeName === '' ? t('adm.monitor.none') : task.assigneeName}</td>
                     <td>{moment(task.dueAt)}</td>

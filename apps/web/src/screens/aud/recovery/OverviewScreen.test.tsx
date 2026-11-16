@@ -27,8 +27,8 @@ describe('AUD-01 overview of inspections and audits', () => {
     expect(text('tile-engagements')).toContain(vi_['aud.overview.tile.engagements.parts'].replace('{ongoing}', '2').replace('{followUp}', '3'));
     expect(within(screen.getByTestId('tile-open')).getByText('7')).toBeTruthy();
     expect(within(screen.getByTestId('tile-overdue')).getByText('2')).toBeTruthy();
-    expect(text('tile-money')).toContain('1.250.000.000');
-    expect(text('tile-money')).toContain(vi_['aud.overview.tile.money.parts'].replace('{recovered}', '500.000.000').replace('{remaining}', '750.000.000'));
+    expect(text('tile-money')).toContain('1,25 tỷ đồng');
+    expect(text('tile-money')).toContain(vi_['aud.overview.tile.money.parts'].replace('{recovered}', '500 triệu đồng').replace('{remaining}', '750 triệu đồng'));
     expect(text('overview-rate-money')).toBe(`40,00% ${vi_['aud.recovery.rate.parts'].replace('{numerator}', '500.000.000').replace('{denominator}', '1.250.000.000')}`);
     expect(text('overview-rate-count')).toBe(`12,50% ${vi_['aud.recovery.rate.parts'].replace('{numerator}', '1').replace('{denominator}', '8')}`);
     expect(screen.getByTestId('confidential-note').textContent).toBe(vi_['aud.overview.confidential.note']);
@@ -40,7 +40,7 @@ describe('AUD-01 overview of inspections and audits', () => {
     await screen.findByTestId('tiles');
     const rows = Array.from(document.querySelectorAll('tbody tr.ui-table__row')).map((row) => within(row as HTMLElement).getAllByRole('cell').map((cell) => cell.textContent));
     // An engagement with a recommendation that is overdue carries the stripe, and says its level in words before the code.
-    expect(rows).toEqual([[`${vi_['ui.dataTable.severityPrefix'].replace('{label}', vi_['ui.dataTable.severity.action'])}. TTCP-2026-001Thanh tra đầu tư cầu số 1`, vi_['aud.engagementStatus.followUp'], '4', '2', '800.000.000', '500.000.000', `${vi_['aud.overview.watch.open.link']}${vi_['aud.overview.watch.recovery.link']}`]]);
+    expect(rows).toEqual([[`${vi_['ui.dataTable.severityPrefix'].replace('{label}', vi_['ui.dataTable.severity.action'])}. TTCP-2026-001Thanh tra đầu tư cầu số 1`, vi_['aud.engagementStatus.followUp'], '4', '2', '800 triệu đồng (800.000.000 đồng)', '500 triệu đồng (500.000.000 đồng)', `${vi_['aud.overview.watch.open.link']}${vi_['aud.overview.watch.recovery.link']}`]]);
     expect(document.querySelector('tbody tr.ui-table__row')?.getAttribute('data-severity')).toBe('ACTION');
     expect(screen.getByRole('link', { name: vi_['aud.overview.watch.open.link'] }).getAttribute('href')).toBe(`/aud/aud-03?engagement=${ID}`);
     expect(screen.getByRole('link', { name: vi_['aud.overview.watch.recovery.link'] }).getAttribute('href')).toBe(`/aud/aud-08?engagement=${ID}`);

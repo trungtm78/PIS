@@ -625,9 +625,9 @@ test.describe('the payment request', () => {
     // PAY-09: the project stands as the rows say, and a reader sees the board and the item and no command.
     await open(page, '/pay/pay-09', 'reconcileReader');
     const row = page.locator(`tr[data-project="${project!.project_id}"]`);
-    await expect(row.getByTestId('sent')).toHaveText(terms['pay.track.count'].replace('{count}', '0').replace('{amount}', '0'));
-    await expect(row.getByTestId('settled')).toHaveText(terms['pay.track.count'].replace('{count}', '1').replace('{amount}', '2.100.000.000'));
-    await expect(row.getByTestId('confirmed')).toHaveText(terms['pay.track.count'].replace('{count}', '2').replace('{amount}', '4.190.000.000'));
+    await expect(row.getByTestId('sent')).toHaveText(terms['pay.track.countShort'].replace('{count}', '0').replace('{amount}', '0 đồng'));
+    await expect(row.getByTestId('settled')).toHaveText(terms['pay.track.countShort'].replace('{count}', '1').replace('{amount}', '2,1 tỷ đồng'));
+    await expect(row.getByTestId('confirmed')).toHaveText(terms['pay.track.countShort'].replace('{count}', '2').replace('{amount}', '4,19 tỷ đồng'));
     await expect(row.getByTestId('unmatched')).toHaveText('0');
     await expect(row.getByTestId('differences')).toHaveText('0');
     await open(page, '/pay/pay-05', 'reconcileReader');

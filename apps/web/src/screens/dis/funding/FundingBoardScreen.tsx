@@ -1,16 +1,17 @@
+import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { ContextBar, DataTable, FilterPanel, KpiStrip, SectionCard } from '../../../ui';
+import { ContextBar, DataTable, FilterPanel, KpiStrip, Money as Amount, SectionCard } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { Field } from '../components';
 import '../dis.css';
 import { Banner, FigureInfo, RateTile } from './components';
 import { useBoard, useTaxonomy } from './hooks';
-import { BATCH_PATH, BOARD_COLUMNS, GRAINS, HISTORY_PATH, NONE, VIEWS, money, moneyOf, ordinalsOf, ratesOverall, sharesOf, todayOf, camel } from './model';
+import { BATCH_PATH, BOARD_COLUMNS, GRAINS, HISTORY_PATH, NONE, VIEWS, moneyOf, ordinalsOf, ratesOverall, sharesOf, todayOf, camel } from './model';
 import type { BoardProject, Cell, Grain, Money, View } from './model';
 import './funding.css';
 
@@ -162,12 +163,12 @@ function BoardContent({ route }: ScreenProps) {
               <ul className="dis-funding-totals" data-testid="totals">
                 {['PLAN_IN_FORCE', 'CUMULATIVE_YTD', 'REMAINING_YEAR', 'CONVERSION_DELTA'].map((code) => (
                   <li key={code}>
-                    <span>{t(`dis.funding.figure.${camel(code)}`)}</span> <strong>{money(moneyOf(data.totals.money, code))}</strong> {headerInfo(code, t('dis.funding.source.derived'))}
+                    <span>{t(`dis.funding.figure.${camel(code)}`)}</span> <strong><Amount value={moneyOf(data.totals.money, code)} none={NONE} /></strong> {headerInfo(code, t('dis.funding.source.derived'))}
                   </li>
                 ))}
               </ul>
             </SectionCard>
-            <SectionCard title={t('dis.funding.table.title')} unit={t('dis.funding.table.unit')}>
+            <SectionCard title={t('dis.funding.table.title')}>
               <div className="dis-funding-headers" data-testid="header-info">
                 {BOARD_COLUMNS.map((column) => (
                   <span key={column.code}>
@@ -192,9 +193,9 @@ const ordinals = ordinalsOf;
 /** A row of the table is shown when the cell has any figure at all (a class nobody has a figure of is not a row of dashes). */
 const hasFigures = (cell: Cell): boolean => BOARD_COLUMNS.some((column) => cell[column.key] !== null);
 
-function totalsOf(data: { totals: { money: Money[] } }, label: string): Record<string, string> {
+function totalsOf(data: { totals: { money: Money[] } }, label: string): Record<string, ReactNode> {
   const figures = data.totals.money;
-  const byCode = (code: string): string => money(moneyOf(figures, code));
+  const byCode = (code: string): ReactNode => <Amount value={moneyOf(figures, code)} none={NONE} />;
   return { project: label, plan_year_vnd: byCode('PLAN_YEAR'), plan_adjusted_vnd: byCode('PLAN_ADJUSTED'), plan_in_force_vnd: byCode('PLAN_IN_FORCE'), plan_period_vnd: byCode('PLAN_PERIOD'), estimate_vnd: byCode('ESTIMATE'), actual_vnd: byCode('ACTUAL'), cumulative_ytd_vnd: byCode('CUMULATIVE_YTD'), cumulative_since_start_vnd: byCode('CUMULATIVE_SINCE_START') };
 }
 
@@ -219,7 +220,7 @@ function Figure({ value, flash, gaps }: { value: string | null; flash: boolean; 
   const { t } = useTranslation();
   return (
     <span>
-      {money(value)}
+      <Amount value={value} none={NONE} />
       {flash ? <small className="dis-funding-flag"> {t('dis.funding.flash')}</small> : null}
       {gaps.length > 0 ? <small className="dis-funding-flag"> {t('dis.funding.gap', { months: gaps.join(', ') })}</small> : null}
     </span>

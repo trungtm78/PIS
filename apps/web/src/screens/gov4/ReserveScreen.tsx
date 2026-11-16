@@ -3,11 +3,12 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ConfirmDialog, ContextBar, DataTable, KpiStrip, KpiTile, MakerCheckerBadge, SectionCard, StatusPill } from '../../ui';
+import { ConfirmDialog, ContextBar, DataTable, KpiStrip, KpiTile, MakerCheckerBadge, Money, SectionCard, StatusPill } from '../../ui';
 import { useDecideDrawdown, useFundReserve, useProjectReserve, useRequestDrawdown, useSetExposure } from './hooks';
 import { asOfText, idFrom, vnd } from './model';
 import type { OpenDrawdown, ReserveFund } from './model';
@@ -42,6 +43,7 @@ function ReserveContent({ route }: ScreenProps) {
   const reserve = useProjectReserve(projectId);
   const state = useScreenState({ isLoading: reserve.isLoading, error: reserve.error, data: reserve.data, isEmpty: () => false });
   const money = (value: string | null | undefined): string => vnd(value, locale);
+  const short = (value: string | null | undefined): string => compactMoney(value, { locale });
   const view = reserve.data ?? undefined;
   const writable = mode !== 'READ_ONLY';
   const [decision, setDecision] = useState<{ drawdown: OpenDrawdown; kind: 'approve' | 'reject' } | undefined>(undefined);
@@ -76,14 +78,14 @@ function ReserveContent({ route }: ScreenProps) {
                 </p>
               )}
               <KpiStrip label={t('govb2.reserve.kpi.label')}>
-                <KpiTile label={t('govb2.reserve.kpi.contingency')} value={balanceOf('CONTINGENCY') === null ? t('govb2.reserve.kpi.none') : money(balanceOf('CONTINGENCY'))} sub={t('govb2.reserve.kpi.contingency.sub')} />
-                <KpiTile label={t('govb2.reserve.kpi.mgmt')} value={balanceOf('MGMT_RESERVE') === null ? t('govb2.reserve.kpi.none') : money(balanceOf('MGMT_RESERVE'))} sub={t('govb2.reserve.kpi.mgmt.sub')} />
-                <KpiTile label={t('govb2.reserve.kpi.ev')} value={money(view.expectedValueVnd)} sub={t('govb2.reserve.kpi.ev.sub', { count: view.risks.length })} />
+                <KpiTile label={t('govb2.reserve.kpi.contingency')} value={balanceOf('CONTINGENCY') === null ? t('govb2.reserve.kpi.none') : short(balanceOf('CONTINGENCY'))} sub={t('govb2.reserve.kpi.contingency.sub')} />
+                <KpiTile label={t('govb2.reserve.kpi.mgmt')} value={balanceOf('MGMT_RESERVE') === null ? t('govb2.reserve.kpi.none') : short(balanceOf('MGMT_RESERVE'))} sub={t('govb2.reserve.kpi.mgmt.sub')} />
+                <KpiTile label={t('govb2.reserve.kpi.ev')} value={short(view.expectedValueVnd)} sub={t('govb2.reserve.kpi.ev.sub', { count: view.risks.length })} />
                 <KpiTile
                   label={t('govb2.reserve.kpi.cover')}
                   value={view.cover === null ? t('govb2.reserve.kpi.none') : view.cover.coverPct === null ? t('govb2.reserve.cover.norisk') : `${view.cover.coverPct}%`}
                   tone={view.cover === null ? 'default' : view.cover.covered ? 'success' : 'danger'}
-                  sub={view.cover === null || view.cover.covered ? undefined : t('govb2.reserve.cover.short', { amount: money(view.cover.shortfallVnd) })}
+                  sub={view.cover === null || view.cover.covered ? undefined : t('govb2.reserve.cover.short', { amount: short(view.cover.shortfallVnd) })}
                 />
               </KpiStrip>
               <p className="muted" data-testid="formula">
@@ -104,7 +106,7 @@ function ReserveContent({ route }: ScreenProps) {
                 <FundCard key={fund.id} fund={fund} money={money} canDecide={writable && view.actions.decideDrawdown} onDecide={(drawdown, kind) => setDecision({ drawdown, kind })} />
               ))}
 
-              <SectionCard title={t('govb2.reserve.risks.title')} unit={t('govb2.control.unit')}>
+              <SectionCard title={t('govb2.reserve.risks.title')}>
                 <DataTable
                   caption={t('govb2.reserve.risks.title')}
                   rows={view.risks}
@@ -113,8 +115,8 @@ function ReserveContent({ route }: ScreenProps) {
                   columns={[
                     { key: 'code', header: t('govb2.reserve.risks.code'), render: (row) => `${row.code} · ${row.title}` },
                     { key: 'p', header: t('govb2.reserve.risks.probability'), align: 'right', render: (row) => (row.probabilityPct === null ? <StatusPill tone="warning">{t('govb2.reserve.risks.unassessed')}</StatusPill> : `${row.probabilityPct}%`) },
-                    { key: 'cost', header: t('govb2.reserve.risks.cost'), align: 'right', render: (row) => (row.costImpactVnd === null ? '' : money(row.costImpactVnd)) },
-                    { key: 'ev', header: t('govb2.reserve.risks.ev'), align: 'right', render: (row) => (row.expectedValueVnd === null ? '' : money(row.expectedValueVnd)) },
+                    { key: 'cost', header: t('govb2.reserve.risks.cost'), align: 'right', render: (row) => (row.costImpactVnd === null ? '' : <Money value={row.costImpactVnd} />) },
+                    { key: 'ev', header: t('govb2.reserve.risks.ev'), align: 'right', render: (row) => (row.expectedValueVnd === null ? '' : <Money value={row.expectedValueVnd} />) },
                   ]}
                 />
               </SectionCard>

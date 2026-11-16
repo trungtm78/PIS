@@ -46,8 +46,8 @@ describe('CAP-22: the contract against its price, the estimate against the appro
   it('shows the price in force, what is left to pay, the capital line, each change order against it, the formula and the time it was read', async () => {
     const h = harness((operation) => (operation === 'getContractAvailability' ? availability : eac));
     mount(<ContractControlScreen route={route} />, h, ['capital.read'], `/cap/cap-22?contract=${CONTRACT}&project=${PROJECT}`);
-    expect((await screen.findAllByText('10.000.000.000')).length).toBeGreaterThan(0);
-    expect(screen.getByText('6.000.000.000')).toBeTruthy();
+    expect((await screen.findAllByText('10 tỷ đồng')).length).toBeGreaterThan(0);
+    expect(screen.getByText('6 tỷ đồng')).toBeTruthy();
     expect(screen.getAllByText(text('govb2.control.within')).length).toBe(2);
     expect(screen.getByTestId('contract-formula').textContent).toBe(text('govb2.control.contract.formula'));
     expect(within(screen.getByTestId('line')).getByText(text('govb2.control.verdict', { state: 'OK', pct: '21.66' }))).toBeTruthy();
@@ -56,7 +56,7 @@ describe('CAP-22: the contract against its price, the estimate against the appro
     expect(screen.getByText(text('govb2.control.changes.status.evaluated'))).toBeTruthy();
     // The estimate: over the approved total, with the gap in capital and the method that made it.
     expect(await screen.findByText(text('govb2.control.eac.verdict.alert'))).toBeTruthy();
-    expect(screen.getByText('3.000.000.000')).toBeTruthy();
+    expect(screen.getByText('3 tỷ đồng')).toBeTruthy();
     expect(screen.getByTestId('eac-formula').textContent).toContain(text('govb2.policy.default'));
     expect(document.querySelector('.ui-context__asof')?.textContent).toContain('08/11/2026');
   });
@@ -118,7 +118,7 @@ describe('PRJ-22: the contingency and the management reserve', () => {
     open(reserve());
     expect((await screen.findAllByText('Wet foundation', { exact: false })).length).toBeGreaterThan(0);
     expect(screen.getByText(text('govb2.reserve.fund.balance', { amount: '1.500.000.000' }))).toBeTruthy();
-    expect(screen.getByText(text('govb2.reserve.cover.short', { amount: '500.000.000' }))).toBeTruthy();
+    expect(screen.getByText(text('govb2.reserve.cover.short', { amount: '500 triệu đồng' }))).toBeTruthy();
     expect(screen.getByTestId('unassessed').textContent).toBe(text('govb2.reserve.unassessed', { count: 1 }));
     expect(screen.getByTestId('formula').textContent).toContain(text('govb2.policy.default'));
     expect(screen.getByText(text('govb2.reserve.risks.unassessed'))).toBeTruthy();

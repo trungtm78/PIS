@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -69,13 +70,14 @@ function ChangeTierContent({ route }: ScreenProps) {
 function TierBody({ view, money, writable }: { view: ChangeTier; money: (value: string | null | undefined) => string; writable: boolean }) {
   const { t } = useTranslation();
   const funding = view.funding;
+  const short = (value: string | null | undefined): string => compactMoney(value);
   const source = view.policy.source === 'DEFAULT' ? t('govb2.policy.default') : t('govb2.policy.rule', { version: view.policy.version ?? 0 });
   return (
     <>
       <KpiStrip label={t('govb2.tier.kpi.label')}>
         <KpiTile label={t('govb2.tier.kpi.tier')} value={t('govb2.tier.kpi.tier.value', { tier: view.tier })} tone={tierTone(view.tier)} sub={t('govb2.tier.kpi.tier.sub')} />
-        <KpiTile label={t('govb2.tier.kpi.cumulative')} value={view.cumulativePct === null ? t('govb2.tier.kpi.none') : `${view.cumulativePct}%`} tone={view.forcesAdjustment ? 'danger' : 'default'} sub={t('govb2.tier.kpi.cumulative.sub', { amount: money(view.cumulativeAfterVnd) })} />
-        <KpiTile label={t('govb2.tier.kpi.authority')} value={money(view.authorityAmountVnd)} sub={t('govb2.tier.kpi.authority.sub')} />
+        <KpiTile label={t('govb2.tier.kpi.cumulative')} value={view.cumulativePct === null ? t('govb2.tier.kpi.none') : `${view.cumulativePct}%`} tone={view.forcesAdjustment ? 'danger' : 'default'} sub={t('govb2.tier.kpi.cumulative.sub', { amount: short(view.cumulativeAfterVnd) })} />
+        <KpiTile label={t('govb2.tier.kpi.authority')} value={short(view.authorityAmountVnd)} sub={t('govb2.tier.kpi.authority.sub')} />
       </KpiStrip>
       <p className="muted" data-testid="formula">
         {t('govb2.tier.formula', { adjustment: view.policy.projectAdjustmentPct, source })}

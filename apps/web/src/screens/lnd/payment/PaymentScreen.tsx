@@ -12,6 +12,7 @@ import { planStatusLabel } from '../plan/labels';
 import { formatVnd } from '../plan/model';
 import type { PlanLine } from '../plan/model';
 import { useProjectOptions } from '../read-hooks';
+import { Money } from '../../../ui';
 import { ConfirmDialog, DepositDialog, ScheduleDialog } from './dialogs';
 import { usePayments } from './hooks';
 import { paymentMethodLabel, paymentStatusLabel } from './labels';
@@ -91,7 +92,7 @@ function PaymentContent({ route }: ScreenProps) {
                   <tr>
                     <th scope="col">{t('lnd.payments.column.code')}</th>
                     <th scope="col">{t('lnd.payments.column.revision')}</th>
-                    <th scope="col">{t('lnd.payments.column.grand')}</th>
+                    <th scope="col">{t('lnd.payments.column.grandShort')}</th>
                     <th scope="col">{t('lnd.payments.column.status')}</th>
                     <th scope="col">{t('lnd.payments.column.approved')}</th>
                     <th scope="col">{t('lnd.payments.column.due')}</th>
@@ -104,7 +105,7 @@ function PaymentContent({ route }: ScreenProps) {
                       <th scope="row">{plan.planCode}</th>
                       <td data-testid="revision">{plan.revision}</td>
                       <td className="lnd-numeric" data-testid="total-grand">
-                        {formatVnd(plan.grandTotalVnd)}
+                        <Money value={plan.grandTotalVnd} />
                       </td>
                       <td>
                         <span className="lnd-badge" data-testid="status">
@@ -135,19 +136,27 @@ function PaymentContent({ route }: ScreenProps) {
               <div className="lnd-tiles">
                 <div className="lnd-tile" data-testid="tile-plan">
                   <span>{t('lnd.payments.tile.plan')}</span>
-                  <strong>{formatVnd(selected.grandTotalVnd)}</strong>
+                  <strong>
+                    <Money value={selected.grandTotalVnd} />
+                  </strong>
                 </div>
                 <div className="lnd-tile" data-testid="tile-scheduled">
                   <span>{t('lnd.payments.tile.scheduled')}</span>
-                  <strong>{formatVnd(totals.scheduled.toString())}</strong>
+                  <strong>
+                    <Money value={totals.scheduled.toString()} />
+                  </strong>
                 </div>
                 <div className="lnd-tile" data-testid="tile-settled">
                   <span>{t('lnd.payments.tile.settled')}</span>
-                  <strong>{formatVnd(totals.settled.toString())}</strong>
+                  <strong>
+                    <Money value={totals.settled.toString()} />
+                  </strong>
                 </div>
                 <div className="lnd-tile" data-testid="tile-pending">
                   <span>{t('lnd.payments.tile.pending')}</span>
-                  <strong>{formatVnd(totals.pending.toString())}</strong>
+                  <strong>
+                    <Money value={totals.pending.toString()} />
+                  </strong>
                 </div>
               </div>
               <p className="sub">{t('lnd.payments.tile.note')}</p>

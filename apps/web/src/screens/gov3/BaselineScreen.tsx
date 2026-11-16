@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -47,6 +48,8 @@ function BaselineContent({ route }: ScreenProps) {
   const baseline = useBaseline(projectId);
   const state = useScreenState({ isLoading: baseline.isLoading, error: baseline.error, data: baseline.data, isEmpty: () => false });
   const money = (value: string | null | undefined): string => vnd(value, locale);
+  /** An amount in the short form of the shared formatter ("1,23 tỷ đồng"), for the tiles read at a glance; the tables under them keep every dong. */
+  const short = (value: string | null | undefined): string => compactMoney(value, { locale });
   const view = baseline.data ?? undefined;
   const writable = mode !== 'READ_ONLY';
   const [message, setMessage] = useState<Message | undefined>(undefined);
@@ -162,7 +165,6 @@ function BaselineContent({ route }: ScreenProps) {
 
                   <SectionCard
                     title={t('govb1.baseline.kpi.title')}
-                    unit={t('govb1.common.unit')}
                     status={view.reasons.length === 0 ? <StatusPill tone="success">{t('govb1.baseline.within')}</StatusPill> : <StatusPill tone="danger">{t('govb1.baseline.beyond')}</StatusPill>}
                   >
                     {view.deviation === null ? (
@@ -173,13 +175,13 @@ function BaselineContent({ route }: ScreenProps) {
                       <KpiStrip label={t('govb1.baseline.kpi.title')}>
                         <KpiTile
                           label={t('govb1.baseline.kpi.cost')}
-                          value={money(view.deviation.costVnd)}
+                          value={short(view.deviation.costVnd)}
                           tone={deviationTone(view.deviation.costPct, view.policy.costPct)}
                           sub={view.deviation.costPct === null ? t('govb1.baseline.kpi.pct.none') : t('govb1.baseline.kpi.pct', { pct: view.deviation.costPct })}
                         />
                         <KpiTile
                           label={t('govb1.baseline.kpi.bac')}
-                          value={money(view.deviation.bacVnd)}
+                          value={short(view.deviation.bacVnd)}
                           tone={deviationTone(view.deviation.bacPct, view.policy.costPct)}
                           sub={view.deviation.bacPct === null ? t('govb1.baseline.kpi.pct.none') : t('govb1.baseline.kpi.pct', { pct: view.deviation.bacPct })}
                         />

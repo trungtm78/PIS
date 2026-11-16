@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { compactMoney } from '../../../i18n/money';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { instantText } from '../model';
 import { useTracking } from './hooks';
-import { TRANSACTION_READ_PERMISSION, boardLink, differenceText, vndText } from './model';
+import { TRANSACTION_READ_PERMISSION, boardLink } from './model';
 import '../pay.css';
 import { SectionCard } from '../../../ui';
 
@@ -79,13 +80,13 @@ function TrackingContent({ route }: ScreenProps) {
                         <td data-testid="project">{row.projectName}</td>
                         <td data-testid="code">{row.projectCode}</td>
                         <td className="pay-amount" data-testid="sent">
-                          {t('pay.track.count', { count: row.sent.count, amount: vndText(row.sent.amountVnd, locale) })}
+                          {t('pay.track.countShort', { count: row.sent.count, amount: compactMoney(row.sent.amountVnd) })}
                         </td>
                         <td className="pay-amount" data-testid="settled">
-                          {t('pay.track.count', { count: row.settled.count, amount: vndText(row.settled.amountVnd, locale) })}
+                          {t('pay.track.countShort', { count: row.settled.count, amount: compactMoney(row.settled.amountVnd) })}
                         </td>
                         <td className="pay-amount" data-testid="confirmed">
-                          {t('pay.track.count', { count: row.confirmed.count, amount: vndText(row.confirmed.amountVnd, locale) })}
+                          {t('pay.track.countShort', { count: row.confirmed.count, amount: compactMoney(row.confirmed.amountVnd) })}
                         </td>
                         <td className="pay-amount" data-testid="unmatched">
                           {row.unmatched}
@@ -94,7 +95,7 @@ function TrackingContent({ route }: ScreenProps) {
                           {row.differences.count === 0 ? (
                             '0'
                           ) : (
-                            <Link to={boardLink()}>{t('pay.track.count', { count: row.differences.count, amount: differenceText(row.differences.amountVnd, locale) })}</Link>
+                            <Link to={boardLink()}>{t('pay.track.countShort', { count: row.differences.count, amount: compactMoney(row.differences.amountVnd, { signed: true }) })}</Link>
                           )}
                         </td>
                         <td data-testid="sync">{row.lastImportAt === null ? t('pay.track.never') : instantText(row.lastImportAt, locale)}</td>

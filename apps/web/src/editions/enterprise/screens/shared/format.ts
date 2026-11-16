@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { groupDigits } from '../../../../i18n/money';
 import type { Severity, Tone } from '../../../../ui';
 
 /** The shared words of the two connections of the enterprise edition (HPM and Oracle EBS): time, numbers, shape checks and the reading of a failed command. */
@@ -28,16 +29,14 @@ export function numberText(value: number, locale: string): string {
   return value.toLocaleString(locale, { maximumFractionDigits: 1 });
 }
 
-/** An exact decimal string (whole dong, at most two places) with group separators, never through a float: `-1234567.5` is `-1.234.567,5` in Vietnamese. */
+/** An exact decimal string (whole dong, at most two places) with its thousands grouped by the one grouper of `i18n/money.ts`, never through a float: `-1234567.5` is `-1.234.567,5` in Vietnamese. */
 export function moneyText(value: string | null | undefined, locale: string): string {
   if (value === null || value === undefined || value === '') return '–';
   const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(value);
   if (match === null) return value;
   const [, sign = '', integer = '0', fraction] = match;
-  const groupSeparator = locale === 'vi' ? '.' : ',';
   const decimalSeparator = locale === 'vi' ? ',' : '.';
-  const grouped = integer.replace(/\B(?=(\d{3})+(?!\d))/g, groupSeparator);
-  return `${sign}${grouped}${fraction === undefined ? '' : `${decimalSeparator}${fraction}`}`;
+  return `${sign}${groupDigits(BigInt(integer), locale)}${fraction === undefined ? '' : `${decimalSeparator}${fraction}`}`;
 }
 
 export const asRecord = (value: unknown): Record<string, unknown> | undefined => (typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined);

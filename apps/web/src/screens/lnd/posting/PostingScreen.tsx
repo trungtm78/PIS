@@ -10,7 +10,8 @@ import { timerLabel } from '../labels';
 import { todayInVietnam } from '../model';
 import { planStatusLabel } from '../plan/labels';
 import { usePlans } from '../plan/hooks';
-import { PLANS_PATH, formatVnd } from '../plan/model';
+import { PLANS_PATH } from '../plan/model';
+import { Money } from '../../../ui';
 import type { PlanLine } from '../plan/model';
 import { useProjectOptions } from '../read-hooks';
 import { ApproveDialog, CloseDialog, FeedbackDialog, HandleDialog, PostDialog } from './dialogs';
@@ -99,7 +100,7 @@ function PostingContent({ route }: ScreenProps) {
                   <tr>
                     <th scope="col">{t('lnd.posting.column.code')}</th>
                     <th scope="col">{t('lnd.posting.column.revision')}</th>
-                    <th scope="col">{t('lnd.posting.column.grand')}</th>
+                    <th scope="col">{t('lnd.posting.column.grandShort')}</th>
                     <th scope="col">{t('lnd.posting.column.status')}</th>
                     <th scope="col">{t('lnd.posting.column.start')}</th>
                     <th scope="col">{t('lnd.posting.column.end')}</th>
@@ -168,7 +169,7 @@ function PlanRow({ plan, open, canPostIt, onOpen, onPost }: RowProps) {
       <th scope="row">{plan.planCode}</th>
       <td data-testid="revision">{plan.revision}</td>
       <td className="lnd-numeric" data-testid="total-grand">
-        {formatVnd(plan.grandTotalVnd)}
+        <Money value={plan.grandTotalVnd} />
       </td>
       <td>
         <span className="lnd-badge" data-testid="status">

@@ -5,7 +5,7 @@ import { DeadlineCountdown, StatusPill } from '../../../ui';
 import { concludable } from '../conclusion/model';
 import { useEngagements } from '../hooks';
 import { engagementStatusLabel } from '../labels';
-import { formatVnd } from '../conclusion/model';
+import { compactMoney, fullMoney } from '../../../i18n/money';
 import { lateDays } from './model';
 import type { BoardItem, Caller } from './model';
 
@@ -61,9 +61,9 @@ export function DueDay({ item, today, countdown = false }: { item: Pick<BoardIte
   );
 }
 
-/** What was recommended and what has been recovered of it, in dong; a recommendation that is not financial has no money. */
+/** What was recommended and what has been recovered of it, in the short form with the exact dong in the tooltip (the ledger of AUD-08 has every digit); a recommendation that is not financial has no money. */
 export function Money({ item }: { item: Pick<BoardItem, 'amountVnd' | 'recoveredVnd'> }) {
   const { t } = useTranslation();
   if (item.amountVnd === null) return <span>—</span>;
-  return <span>{t('aud.remediation.money.text', { recovered: formatVnd(item.recoveredVnd), amount: formatVnd(item.amountVnd) })}</span>;
+  return <span title={t('aud.remediation.money.text', { recovered: fullMoney(item.recoveredVnd), amount: fullMoney(item.amountVnd) })}>{t('aud.remediation.money.text', { recovered: compactMoney(item.recoveredVnd), amount: compactMoney(item.amountVnd) })}</span>;
 }

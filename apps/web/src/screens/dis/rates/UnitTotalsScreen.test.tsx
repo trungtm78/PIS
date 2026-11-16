@@ -28,7 +28,7 @@ describe('DIS-12 totals by investor', () => {
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.unitTotals.page.title'] })).toBeTruthy();
     const table = await screen.findByRole('table', { name: vi_['dis.unitTotals.table.aria'] });
     const one = within(table).getByRole('row', { name: /Ban quản lý 1/ });
-    expect(Array.from(one.querySelectorAll('td')).map((cell) => cell.textContent)).toEqual(['Ban quản lý 1U-1', '2', '1.000.000.000', '0', '140.000.000', '14.0000%', '14.0000%', vi_['dis.rates.coverage.complete'], '2027-01-10']);
+    expect(Array.from(one.querySelectorAll('td')).map((cell) => cell.textContent)).toEqual(['Ban quản lý 1U-1', '2', '1 tỷ đồng (1.000.000.000 đồng)', '0 đồng', '140 triệu đồng (140.000.000 đồng)', '14.0000%', '14.0000%', vi_['dis.rates.coverage.complete'], '2027-01-10']);
     const two = within(table).getByRole('row', { name: /Ban quản lý 2/ });
     expect(two.querySelector('[data-rate="pm"]')?.textContent).toBe('60.0000%');
     expect(two.querySelector('[data-rate="total"]')?.textContent).toBe('48.0000%');
@@ -39,7 +39,7 @@ describe('DIS-12 totals by investor', () => {
     open();
     const table = await screen.findByRole('table', { name: vi_['dis.unitTotals.table.aria'] });
     const row = table.querySelector('tfoot tr') as HTMLElement;
-    expect(Array.from(row.querySelectorAll('td')).map((cell) => cell.textContent)).toEqual(['3', '2.000.000.000', '250.000.000', '740.000.000', '37.0000%', '32.8889%', vi_['dis.rates.coverage.complete'], '2027-01-10']);
+    expect(Array.from(row.querySelectorAll('td')).map((cell) => cell.textContent)).toEqual(['3', '2 tỷ đồng (2.000.000.000 đồng)', '250 triệu đồng (250.000.000 đồng)', '740 triệu đồng (740.000.000 đồng)', '37.0000%', '32.8889%', vi_['dis.rates.coverage.complete'], '2027-01-10']);
     expect(within(row).getByRole('rowheader').textContent).toBe(vi_['dis.unitTotals.total.label']);
     expect(screen.getByTestId('definition-pending').textContent).toBe('CHỜ KÝ D03');
   });

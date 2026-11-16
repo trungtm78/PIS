@@ -9,10 +9,10 @@ import { useScreenState } from '../../../states/useScreenState';
 import { AcknowledgeDialog, RecoveryDialog } from './AdvanceDialogs';
 import { useOverdueAdvances } from './hooks';
 import { kindLabel, levelLabel } from './labels';
-import { ACKNOWLEDGE_PERMISSION, ALERT_LEVELS, RECOVER_PERMISSION, scheduleLink, signedAmountText } from './model';
+import { ACKNOWLEDGE_PERMISSION, ALERT_LEVELS, RECOVER_PERMISSION, scheduleLink } from './model';
 import type { Advance, AlertLevel } from './model';
 import '../pay.css';
-import { SectionCard } from '../../../ui';
+import { Money, SectionCard } from '../../../ui';
 import { ScrollRegion } from '../../scroll-region';
 
 type Dialog = { kind: 'recovery' | 'acknowledge'; advance: Advance };
@@ -31,7 +31,7 @@ export default function AlertBoardScreen({ route }: ScreenProps) {
 }
 
 function AlertBoardContent({ route }: ScreenProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { mode, permissions } = useSession();
   const [search, setSearch] = useSearchParams();
   const level = levelOf(search.get('level'));
@@ -39,7 +39,6 @@ function AlertBoardContent({ route }: ScreenProps) {
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
   const [done, setDone] = useState<string | undefined>(undefined);
   const state = useScreenState({ isLoading: board.isLoading, error: board.error, data: board.data, isEmpty: () => false });
-  const money = (value: string): string => signedAmountText(value, locale) ?? value;
   const writable = mode !== 'READ_ONLY';
   // The server says what each advance allows the membership; the session says what the person holds (a person who only reads holds neither right).
   const mayRecover = writable && holds(permissions, RECOVER_PERMISSION);
@@ -93,7 +92,7 @@ function AlertBoardContent({ route }: ScreenProps) {
                   <th scope="col">{t('pay.advance.column.contract')}</th>
                   <th scope="col">{t('pay.advance.column.member')}</th>
                   <th scope="col" className="pay-amount">
-                    {t('pay.advance.column.outstanding')}
+                    {t('pay.advance.column.outstandingShort')}
                   </th>
                   <th scope="col">{t('pay.advance.column.deadline')}</th>
                   <th scope="col" className="pay-amount">
@@ -118,7 +117,7 @@ function AlertBoardContent({ route }: ScreenProps) {
                     </td>
                     <td data-testid="member">{advance.party.name ?? advance.party.role}</td>
                     <td className="pay-amount" data-testid="outstanding">
-                      {money(advance.outstandingVnd)}
+                      <Money value={advance.outstandingVnd} />
                     </td>
                     <td data-testid="deadline">{advance.recoveryDeadline ?? ''}</td>
                     <td className="pay-amount" data-testid="overdue">

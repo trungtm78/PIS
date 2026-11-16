@@ -51,7 +51,7 @@ describe('AUD-07 follow-up of the recommendations', () => {
     const card = within(cardOf('KN-002'));
     expect(card.getByText('Nguyễn Văn An')).toBeTruthy();
     expect(card.getByText('2026-12-01')).toBeTruthy();
-    expect(card.getByText('100.000.000 / 800.000.000')).toBeTruthy();
+    expect(card.getByText('100 triệu đồng / 800 triệu đồng').getAttribute('title')).toBe('100.000.000 đồng / 800.000.000 đồng');
     expect(card.getByText(vi_['aud.remediation.card.evidence.count'].replace('{count}', '2'))).toBeTruthy();
     expect(screen.getByRole('link', { name: vi_['aud.remediation.board.list.link'] }).getAttribute('href')).toBe('/aud/aud-06');
   });

@@ -249,14 +249,14 @@ describe('InvestmentProfileScreen (IPF-01): the investment profile of one projec
     const rows = within(table).getAllByRole('row').slice(1);
     expect(rows.map((row) => row.getAttribute('data-origin'))).toEqual(['BOARD_APPROVED', 'GROUP_ASSIGNED']);
     expect(within(rows[0] as HTMLElement).getAllByText(translator.t('ipf.origin.boardApproved.label')).length).toBeGreaterThan(0);
-    expect(within(rows[0] as HTMLElement).getByText('1.000.000.000')).toBeTruthy();
+    expect(within(rows[0] as HTMLElement).getByText('1 tỷ đồng').getAttribute('title')).toBe('1.000.000.000 đồng');
     expect(within(rows[0] as HTMLElement).getByText('12/QD-PVFCCo')).toBeTruthy();
     expect(within(rows[1] as HTMLElement).getByText(translator.t('ipf.origin.groupAssigned.label'))).toBeTruthy();
     expect(within(rows[1] as HTMLElement).getByText('88/NQ-PVN')).toBeTruthy();
     expect(within(rows[1] as HTMLElement).getByText('KHAC-1')).toBeTruthy();
     const strip = screen.getByRole('group', { name: translator.t('ipf.origin.strip.label') });
-    expect(within(strip).getByText('3.000.000.000')).toBeTruthy();
-    expect(within(strip).getByText('2.000.000.000')).toBeTruthy();
+    expect(within(strip).getByText('3 tỷ đồng')).toBeTruthy();
+    expect(within(strip).getByText('2 tỷ đồng')).toBeTruthy();
   });
 
   it('shows an origin the pack does not name by its code, and a line with no document as such', async () => {

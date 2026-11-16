@@ -67,10 +67,10 @@ describe('PlanScreen (LND-05): the plans of compensation, support and resettleme
       vi_['lnd.plans.column.code'],
       vi_['lnd.plans.column.revision'],
       vi_['lnd.plans.column.executor'],
-      vi_['lnd.plans.column.compensation'],
-      vi_['lnd.plans.column.support'],
-      vi_['lnd.plans.column.resettlement'],
-      vi_['lnd.plans.column.grand'],
+      'Bồi thường',
+      'Hỗ trợ',
+      'Tái định cư',
+      'Tổng cộng',
       vi_['lnd.plans.column.status'],
       'Quyết định',
       vi_['lnd.plans.column.action'],
@@ -79,10 +79,10 @@ describe('PlanScreen (LND-05): the plans of compensation, support and resettleme
     expect(first.querySelector('th')?.textContent).toBe('PA-0001');
     expect(within(first).getByTestId('revision').textContent).toBe('1');
     expect(within(first).getByText(vi_['lnd.executorKind.landFundCentre.label'])).toBeTruthy();
-    expect(within(first).getByTestId('total-compensation').textContent).toBe('360.000.000');
-    expect(within(first).getByTestId('total-support').textContent).toBe('10.000.000');
-    expect(within(first).getByTestId('total-resettlement').textContent).toBe('0');
-    expect(within(first).getByTestId('total-grand').textContent).toBe('370.000.000');
+    expect(within(first).getByTestId('total-compensation').textContent).toBe('360 triệu đồng (360.000.000 đồng)');
+    expect(within(first).getByTestId('total-support').textContent).toBe('10 triệu đồng (10.000.000 đồng)');
+    expect(within(first).getByTestId('total-resettlement').textContent).toBe('0 đồng');
+    expect(within(first).getByTestId('total-grand').textContent).toBe('370 triệu đồng (370.000.000 đồng)');
     expect(within(first).getByTestId('status').textContent).toBe(vi_['lnd.planStatus.draft.label']);
     expect(within(rowOf(3)).getByTestId('status').textContent).toBe(vi_['lnd.planStatus.revised.label']);
     expect(within(rowOf(4)).getByTestId('reason').textContent).toBe('Giá đất thay đổi');

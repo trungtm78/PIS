@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText } from '../../../i18n/money';
 
 /** The permission of SAS-06 (x-permission of the plan operations in openapi.json): the billing operator and the System Admin hold it. */
 export const MANAGE_PLANS_PERMISSION = 'system.billing.manage';
@@ -82,9 +83,9 @@ export function toPlan(raw: unknown): PlanRow | undefined {
   };
 }
 
-/** Whole VND with the thousands separators of the language, exact for any size; anything that is not digits is shown as it came. */
+/** Whole VND written exactly by the shared formatter (thousands grouped, no unit): a billing figure is never shortened; anything that is not digits is shown as it came. */
 export function formatPrice(amount: string, locale: string): string {
-  return /^-?[0-9]{1,24}$/.test(amount) ? BigInt(amount).toLocaleString(locale) : amount;
+  return /^-?[0-9]{1,24}$/.test(amount) ? dongText(amount, locale) : amount;
 }
 
 // ---- the form -----------------------------------------------------------------------------------------------------------

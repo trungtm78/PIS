@@ -10,7 +10,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import { failureStatus, isUuid, vietnamStamp } from '../shared/vnd-model';
 import { CountInfo, Empty, PartialNotice, PolicyInfo, ReadOnlyNote, ReceiptNote, Screen, ScreenFooter, ScreenHead, StaleNotice, UnverifiedPill, WithInfo, useIdParam, useReceipt, useWriter } from '../shared/vnd-ui';
-import { CONTROLS_PATHS, PERMISSION_A, capacitySignalLabel, capacityStatusLabel, financeStatusLabel, financeTestLabel, moneyText, overallLabel, ratioText } from '../controls/controls-model';
+import { CONTROLS_PATHS, PERMISSION_A, capacitySignalLabel, capacityStatusLabel, financeStatusLabel, financeTestLabel, moneyShortText, moneyText, overallLabel, ratioText } from '../controls/controls-model';
 import type { CapacityView, FinanceResult, FinanceView, FinancialPeriod } from '../controls/controls-model';
 import { useCapacity, useFinance } from '../controls/controls-hooks';
 import { RecordPeriodDialog, VerifyPeriodDialog } from './finance-dialogs';
@@ -235,11 +235,11 @@ function CapacityCard({ query, locale }: { query: ReturnType<typeof useCapacity>
             <PolicyInfo name={t('vnd.finance.figure.capacity.name')} policy={data.capacity_policy} />
           </p>
           <dl className="vnd-facts" data-testid="capacity-facts">
-            <CapacityFact label={t('vnd.finance.capacity.open')} value={`${moneyText(data.facts.open_contract_value, locale)} (${data.facts.open_contract_count})`} data={data} />
+            <CapacityFact label={t('vnd.finance.capacity.open')} value={`${moneyShortText(data.facts.open_contract_value, locale)} (${data.facts.open_contract_count})`} data={data} />
             <CapacityFact label={t('vnd.finance.capacity.late')} value={String(data.facts.late_contract_count)} data={data} />
-            <CapacityFact label={t('vnd.finance.capacity.pending')} value={`${moneyText(data.facts.pending_award_value, locale)} (${data.facts.pending_award_count})`} data={data} />
-            <CapacityFact label={t('vnd.finance.capacity.revenue')} value={moneyText(data.facts.average_annual_revenue, locale)} data={data} />
-            <CapacityFact label={t('vnd.finance.capacity.load')} value={moneyText(data.load, locale)} data={data} />
+            <CapacityFact label={t('vnd.finance.capacity.pending')} value={`${moneyShortText(data.facts.pending_award_value, locale)} (${data.facts.pending_award_count})`} data={data} />
+            <CapacityFact label={t('vnd.finance.capacity.revenue')} value={moneyShortText(data.facts.average_annual_revenue, locale)} data={data} />
+            <CapacityFact label={t('vnd.finance.capacity.load')} value={moneyShortText(data.load, locale)} data={data} />
             <CapacityFact label={t('vnd.finance.capacity.multiple')} value={ratioText(data.load_multiple, locale)} data={data} />
           </dl>
           {data.signals.length > 0 && (

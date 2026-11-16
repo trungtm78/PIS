@@ -9,6 +9,7 @@ import { BackLink } from '../../ctr/components';
 import { useTrace } from './hooks';
 import { documentRoleLabel, kindLabel, punchStatusLabel, severityLabel, statusLabel } from './labels';
 import { openCritical } from './model';
+import { fullMoney } from '../../../i18n/money';
 import type { PunchItem, Trace } from './model';
 import { DecisionDialog, FixDialog, ItemDialog, VerifyDialog, WaiveDialog } from './HandoverDialogs';
 import '../../qms/qms.css';
@@ -237,7 +238,7 @@ function Review({ trace, readOnly, onOpen }: { trace: Trace; readOnly: boolean; 
             {trace.assets.map((asset) => (
               <li key={asset.id} data-asset={asset.id}>
                 {asset.assetCode}
-                {asset.name === null ? '' : ` · ${asset.name}`} · {asset.valueVnd}
+                {asset.name === null ? '' : ` · ${asset.name}`} · {fullMoney(asset.valueVnd)}
               </li>
             ))}
           </ul>

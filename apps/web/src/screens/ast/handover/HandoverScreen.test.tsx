@@ -86,7 +86,7 @@ describe('HandoverScreen (AST-02): the minutes of a handover and its punch list'
         .map((entry) => entry.getAttribute('data-role')),
     ).toEqual(['MINUTES', 'AS_BUILT', null]);
     expect(screen.getByTestId('minutes').textContent).toBe(text('ast.handover.minutes.label', { recordNo: 'QA-C-001' }));
-    expect(within(screen.getByTestId('assets')).getByText(/AS-001 · Trạm bơm · 3200000000/)).toBeTruthy();
+    expect(within(screen.getByTestId('assets')).getByText(/AS-001 · Trạm bơm · 3\.200\.000\.000 đồng/)).toBeTruthy();
   });
 
   it('AC-ST-AST-001-1, UAT-AC388: says, with the number, that critical defects are still open, and that the as-built dossier is missing', async () => {

@@ -4,12 +4,12 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { DataTable, StatusPill } from '../../../ui';
+import { DataTable, Money, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { ScopeBar } from '../../ctr/kit';
 import { usePayments } from '../payment/hooks';
 import { kindLabel, statusLabel, statusTone } from '../payment/labels';
-import { paymentLink, signedAmountText } from '../payment/model';
+import { paymentLink } from '../payment/model';
 import type { PaymentRequest } from '../payment/model';
 import { BOARD_STATUSES, FORM_CODES, formsLink, standingCount } from './model';
 import '../pay.css';
@@ -25,11 +25,10 @@ export default function BoardScreen({ route }: ScreenProps) {
 }
 
 function BoardContent({ route }: ScreenProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const payments = usePayments({});
   const state = useScreenState({ isLoading: payments.isLoading, error: payments.error, data: payments.data, isEmpty: () => false });
   const onTheWay = (payments.data ?? []).filter((request) => (BOARD_STATUSES as readonly string[]).includes(request.status));
-  const money = (value: string): string => signedAmountText(value, locale) ?? value;
 
   const columns: DataTableColumn<PaymentRequest>[] = [
     {
@@ -49,7 +48,7 @@ function BoardContent({ route }: ScreenProps) {
     },
     { key: 'contract', header: t('pay.board.column.contract'), render: (request) => <span data-testid="contract">{request.contract.code}</span> },
     { key: 'kind', header: t('pay.board.column.kind'), render: (request) => <span data-testid="kind">{kindLabel(t, request.requestKind)}</span> },
-    { key: 'net', header: t('pay.board.column.net'), align: 'right', render: (request) => <span data-testid="net">{money(request.netVnd)}</span> },
+    { key: 'net', header: t('pay.payment.column.netShort'), align: 'right', render: (request) => <span data-testid="net"><Money value={request.netVnd} /></span> },
     {
       key: 'status',
       header: t('pay.board.column.status'),

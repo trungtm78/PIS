@@ -1,5 +1,6 @@
 import type { components } from '@machvon/contracts';
 import type { Tone } from '../../../ui';
+import { dongText } from '../../../i18n/money';
 
 /** VND-09 and VND-10: the bid security register and the subcontracts of a contract (VND-2). The shapes are the contract's. */
 type S = components['schemas'];
@@ -52,8 +53,8 @@ export const subcontractTone = (state: SubcontractState): Tone => (state === 'AP
 
 export const expiryTone = (facet: NonNullable<SecurityRow['expiry_facet']>): Tone => (facet === 'EXPIRED' ? 'danger' : facet === 'SECOND' ? 'warning' : 'info');
 
-/** Dong in the grouping of the Vietnamese locale. */
-export const money = (value: number): string => new Intl.NumberFormat('vi-VN').format(value);
+/** Whole dong written exactly by the shared formatter (a security is a document: never shortened); the contract gives the amount as a number. */
+export const money = (value: number): string => (Number.isFinite(value) ? dongText(BigInt(Math.round(value))) : String(value));
 
 /** A share of a contract as the server gives it (a number with up to four decimals), said without a trailing zero. */
 export const shareText = (value: number): string => `${Number(value.toFixed(4))}%`;

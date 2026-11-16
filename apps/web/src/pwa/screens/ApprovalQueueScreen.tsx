@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from '../../i18n';
+import { dongText } from '../../i18n/money';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { useOrgUnits } from '../../screens/adm/org-tree/hooks';
 import { BUSINESS_TYPES } from '../../screens/adm/approvals/labels';
-import { DeadlineCountdown, StatusPill } from '../../ui';
+import { DeadlineCountdown, Money, StatusPill } from '../../ui';
 import { clock, todayOf } from '../../ui/alerts/format';
 import { Link } from 'react-router-dom';
 import { useApprovalQueue, useDecideTask } from './approval-hooks';
@@ -90,7 +91,8 @@ function QueueContent() {
   const today = todayOf(new Date(now));
   const staleList = queue.data !== undefined && (queue.isError || now - queue.dataUpdatedAt > STALE_AFTER_MS);
   const unitName = (id: string | null): string | undefined => (id === null ? undefined : units.data?.find((unit) => unit.id === id)?.name);
-  const money = (value: string | null): string | null => (value === null ? null : new Intl.NumberFormat(locale).format(Number(value)));
+  /** The exact amount, for the line of the sheet that says what is being decided (a card of the queue shows the short form). */
+  const money = (value: string | null): string | null => (value === null ? null : dongText(value, locale));
 
   const close = (): void => {
     setActing(undefined);
@@ -234,7 +236,7 @@ function QueueContent() {
         ) : (
           <ul className="pwa-cards" aria-label={t('pwa.approvals.list.aria')}>
             {shown.map((task) => {
-              const amount = money(task.amountVnd);
+              const amount = task.amountVnd;
               const unit = unitName(task.unitId);
               const may = mayDecide(task, readOnly) && mayDecideAtAll;
               return (
@@ -280,7 +282,7 @@ function QueueContent() {
                       <>
                         <dt>{t('pwa.approvals.field.amount')}</dt>
                         <dd>
-                          {amount} <span className="pwa-unit">{t('pwa.approvals.unit.vnd')}</span>
+                          <Money value={amount} />
                         </dd>
                       </>
                     )}

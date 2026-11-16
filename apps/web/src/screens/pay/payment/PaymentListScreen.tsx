@@ -5,13 +5,13 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { DataTable, FilterPanel, StatusPill } from '../../../ui';
+import { DataTable, FilterPanel, Money, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { useContracts } from '../../ctr/hooks';
 import { ScopeBar, sumAmounts } from '../../ctr/kit';
 import { usePayments } from './hooks';
 import { kindLabel, statusLabel, statusTone } from './labels';
-import { STATUSES, canCreate, createLink, paymentLink, signedAmountText } from './model';
+import { STATUSES, canCreate, createLink, paymentLink } from './model';
 import type { PaymentRequest, PaymentStatus } from './model';
 import '../pay.css';
 
@@ -26,7 +26,7 @@ export default function PaymentListScreen({ route }: ScreenProps) {
 }
 
 function PaymentListContent({ route }: ScreenProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const [search, setSearch] = useSearchParams();
   const [pageIndex, setPageIndex] = useState(0);
@@ -42,7 +42,6 @@ function PaymentListContent({ route }: ScreenProps) {
     data: payments.data,
     isEmpty: () => false,
   });
-  const money = (value: string): string => signedAmountText(value, locale) ?? value;
   const setFilter = (name: 'contract' | 'status', value: string): void => {
     const next = new URLSearchParams(search);
     if (value === '') next.delete(name);
@@ -88,15 +87,15 @@ function PaymentListContent({ route }: ScreenProps) {
     },
     {
       key: 'gross',
-      header: t('pay.payment.column.gross'),
+      header: t('pay.payment.column.grossShort'),
       align: 'right',
-      render: (request) => <span data-testid="gross">{money(request.grossVnd)}</span>,
+      render: (request) => <span data-testid="gross"><Money value={request.grossVnd} /></span>,
     },
     {
       key: 'net',
-      header: t('pay.payment.column.net'),
+      header: t('pay.payment.column.netShort'),
       align: 'right',
-      render: (request) => <span data-testid="net">{money(request.netVnd)}</span>,
+      render: (request) => <span data-testid="net"><Money value={request.netVnd} /></span>,
     },
     {
       key: 'status',
@@ -137,7 +136,7 @@ function PaymentListContent({ route }: ScreenProps) {
         updatedAt={payments.dataUpdatedAt}
         stale={payments.isRefetchError}
       />
-      <FilterPanel applied={applied} unitLabel={t('w2pay.ctx.unit')}>
+      <FilterPanel applied={applied}>
         <div className="pay-form-grid" role="group" aria-label={t('pay.payment.list.filter')}>
           <label>
             {t('pay.payment.list.contract')}
@@ -178,8 +177,8 @@ function PaymentListContent({ route }: ScreenProps) {
               rowAttrs={(request) => ({ 'data-request': request.id, 'data-status': request.status })}
               totalsLabel={t('w2pay.pay.list.totals')}
               totals={{
-                gross: money(sumAmounts(standing.map((request) => request.grossVnd))),
-                net: money(sumAmounts(standing.map((request) => request.netVnd))),
+                gross: <Money value={sumAmounts(standing.map((request) => request.grossVnd))} />,
+                net: <Money value={sumAmounts(standing.map((request) => request.netVnd))} />,
               }}
               emptyKind={filtered ? 'filtered' : 'none'}
               onClearFilters={clear}

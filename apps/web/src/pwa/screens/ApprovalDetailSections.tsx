@@ -1,12 +1,13 @@
 import { useTranslation } from '../../i18n';
+import { dongText } from '../../i18n/money';
 import { cellTitle } from './approval-labels';
 import type { ReportRead, StepRead, Unavailable } from './approval-detail-hooks';
 import { compareRevisions, differenceDong, isNegative, kilobytes, orderedCells, planShareTenths } from './approval-detail-model';
 import type { Cell, ReportFigures } from './approval-detail-model';
 import { clockAndDay } from '../../ui/alerts/format';
 
-/** A whole amount of dong with thousands separators (exact for any size). */
-export const money = (value: string, locale: string): string => BigInt(value).toLocaleString(locale);
+/** A whole amount of dong written exactly by the shared formatter (the detail is what the approver signs against: never shortened). */
+export const money = (value: string, locale: string): string => dongText(value, locale);
 
 /** A change as a person reads it: a rise has a plus, a fall a minus. */
 export function signed(change: string, locale: string): string {

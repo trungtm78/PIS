@@ -6,14 +6,14 @@ import { useSession } from '../../../session/SessionContext';
 import { holds } from '../../../session/holds';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { DataTable, FilterPanel, StatusPill } from '../../../ui';
+import { DataTable, FilterPanel, Money, StatusPill } from '../../../ui';
 import type { DataTableColumn, Tone } from '../../../ui';
 import { useContracts } from '../../ctr/hooks';
 import { ScopeBar, sumAmounts } from '../../ctr/kit';
 import { CancelDialog, RecoveryDialog } from './AdvanceDialogs';
 import { useAdvances } from './hooks';
 import { kindLabel, statusLabel } from './labels';
-import { STATUSES, isOverdue, scheduleLink, signedAmountText } from './model';
+import { STATUSES, isOverdue, scheduleLink } from './model';
 import type { Advance } from './model';
 
 type AdvanceStatus = (typeof STATUSES)[number];
@@ -37,7 +37,7 @@ const RECOVER_PERMISSION = 'advance.recover';
 const CANCEL_PERMISSION = 'advance.cancel';
 
 function AdvanceListContent({ route }: ScreenProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { mode, permissions } = useSession();
   const [search, setSearch] = useSearchParams();
   const contractId = search.get('contract');
@@ -48,7 +48,6 @@ function AdvanceListContent({ route }: ScreenProps) {
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
   const [done, setDone] = useState<string | undefined>(undefined);
   const state = useScreenState({ isLoading: advances.isLoading, error: advances.error, data: advances.data, isEmpty: () => false });
-  const money = (value: string): string => signedAmountText(value, locale) ?? value;
   const writable = mode !== 'READ_ONLY';
   // The server says what each advance allows the membership; the session says what the person holds (a person who only reads holds neither right).
   const mayRecover = writable && holds(permissions, RECOVER_PERMISSION);
@@ -94,9 +93,9 @@ function AdvanceListContent({ route }: ScreenProps) {
         </span>
       ),
     },
-    { key: 'paid', header: t('pay.advance.column.paid'), group: figures, align: 'right', render: (advance) => <span data-testid="paid">{money(advance.paidVnd)}</span> },
-    { key: 'recovered', header: t('pay.advance.column.recovered'), group: figures, align: 'right', render: (advance) => <span data-testid="recovered">{money(advance.recoveredVnd)}</span> },
-    { key: 'outstanding', header: t('pay.advance.column.outstanding'), group: figures, align: 'right', render: (advance) => <span data-testid="outstanding">{money(advance.outstandingVnd)}</span> },
+    { key: 'paid', header: t('pay.advance.column.paidShort'), group: figures, align: 'right', render: (advance) => <span data-testid="paid"><Money value={advance.paidVnd} /></span> },
+    { key: 'recovered', header: t('pay.advance.column.recoveredShort'), group: figures, align: 'right', render: (advance) => <span data-testid="recovered"><Money value={advance.recoveredVnd} /></span> },
+    { key: 'outstanding', header: t('pay.advance.column.outstandingShort'), group: figures, align: 'right', render: (advance) => <span data-testid="outstanding"><Money value={advance.outstandingVnd} /></span> },
     { key: 'deadline', header: t('pay.advance.column.deadline'), render: (advance) => <span data-testid="deadline">{advance.recoveryDeadline ?? ''}</span> },
     {
       key: 'threshold',
@@ -142,7 +141,7 @@ function AdvanceListContent({ route }: ScreenProps) {
         updatedAt={advances.dataUpdatedAt}
         stale={advances.isRefetchError}
       />
-      <FilterPanel applied={[contractId, status].filter((value) => value !== null).length} unitLabel={t('w2pay.ctx.unit')}>
+      <FilterPanel applied={[contractId, status].filter((value) => value !== null).length}>
         <div className="pay-form-grid" role="group" aria-label={t('pay.advance.list.filter')}>
           <label>
             {t('pay.advance.list.contract')}
@@ -195,9 +194,9 @@ function AdvanceListContent({ route }: ScreenProps) {
               rowAttrs={(advance) => ({ 'data-advance': advance.id, 'data-status': advance.status })}
               totalsLabel={t('w2pay.pay.advance.totals')}
               totals={{
-                paid: money(sumAmounts(standing.map((advance) => advance.paidVnd))),
-                recovered: money(sumAmounts(standing.map((advance) => advance.recoveredVnd))),
-                outstanding: money(sumAmounts(standing.map((advance) => advance.outstandingVnd))),
+                paid: <Money value={sumAmounts(standing.map((advance) => advance.paidVnd))} />,
+                recovered: <Money value={sumAmounts(standing.map((advance) => advance.recoveredVnd))} />,
+                outstanding: <Money value={sumAmounts(standing.map((advance) => advance.outstandingVnd))} />,
               }}
             />
             <p className="sub" data-testid="totals-note">

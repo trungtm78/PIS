@@ -32,8 +32,8 @@ describe('PaymentListScreen (PAY-01): the payment requests', () => {
     const first = rowOf(paymentId(2));
     expect(within(first).getByTestId('contract').textContent).toBe('HD-A-001');
     expect(within(first).getByTestId('kind').textContent).toBe(vi_['pay.payment.kind.interim']);
-    expect(within(first).getByTestId('gross').textContent).toBe('3.000.000.000');
-    expect(within(first).getByTestId('net').textContent).toBe('2.100.000.000');
+    expect(within(first).getByTestId('gross').textContent).toBe('3 tỷ đồng (3.000.000.000 đồng)');
+    expect(within(first).getByTestId('net').textContent).toBe('2,1 tỷ đồng (2.100.000.000 đồng)');
     expect(within(first).getByTestId('status').textContent).toBe(vi_['pay.payment.status.cancelled']);
     expect(within(first).getByTestId('status').querySelector('.ui-tone-danger')).not.toBeNull();
     expect(
@@ -100,7 +100,7 @@ describe('PaymentListScreen (PAY-01): the payment requests', () => {
     open(world({ payments: [payment(2, { status: 'CANCELLED' }), payment(1)] }));
     await screen.findByTestId('payments');
     const totals = document.querySelector('tfoot') as HTMLElement;
-    expect(within(totals).getByText('3.000.000.000')).toBeTruthy();
+    expect(within(totals).getByText('3 tỷ đồng').getAttribute('title')).toBe('3.000.000.000 đồng');
     expect(screen.getByTestId('totals-note').textContent).toBe(message('w2pay.pay.list.totals.note', { standing: 1, total: 2 }));
     expect(screen.getByRole('group', { name: vi_['ui.contextBar.label'] }).textContent).toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));
     cleanup();

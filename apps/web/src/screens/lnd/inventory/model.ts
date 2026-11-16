@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { isDay, isUuid } from '../model';
 import { hasControlCharacter } from '../../control-characters';
+import { dongText } from '../../../i18n/money';
 
 /** LND-04: the inventory of the assets of an affected household, counted at a price decision in force and answered by the household (ST-LND-004, LND 3.2, BR-LND-04). */
 export const INVENTORY_PATH = '/lnd/lnd-04';
@@ -116,8 +117,8 @@ export function amountOf(quantity: string, unitPriceVnd: string): string | undef
   return ((BigInt(integer + fraction.padEnd(6, '0')) * BigInt(p) + scale / 2n) / scale).toString();
 }
 
-/** A figure of dong with the dots of the thousands, for people to read (the figure itself is whole dong). */
-export const formatVnd = (amount: string): string => amount.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+/** A figure of dong written exactly by the shared formatter (thousands grouped, no unit), for the records and lines whose purpose is the exact amount. */
+export const formatVnd = (amount: string): string => dongText(amount);
 
 /** The records of a status, in the order of the read. */
 export const recordsOf = (records: readonly InventoryLine[], status: '' | InventoryStatus): InventoryLine[] => (status === '' ? [...records] : records.filter((record) => record.status === status));

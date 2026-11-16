@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { compactMoney } from '../../../i18n/money';
 import { formatVnd } from '../report/money';
 
 /**
@@ -232,6 +233,9 @@ export function toHistory(raw: unknown): FundingHistory {
 
 /** Whole dong with a dot every three digits; a figure nobody has is a dash, never zero. */
 export const money = (value: string | null | undefined): string => (value === null || value === undefined ? NONE : formatVnd(value));
+
+/** The short form of an amount ("1,23 tỷ đồng") where a text is needed (the line of a tile, a sentence); a dash when nobody has the figure. A table cell uses `<Money>`, which keeps the exact amount one hover away. */
+export const shortMoney = (value: string | null | undefined): string => (value === null || value === undefined ? NONE : compactMoney(value));
 
 /** A percent as the API wrote it (four decimals) shown with two; null is a dash. The text is cut, never turned into a float. */
 export function percent(value: string | null | undefined): string {

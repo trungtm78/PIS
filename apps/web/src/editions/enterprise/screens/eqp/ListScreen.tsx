@@ -7,9 +7,8 @@ import type { ScreenProps } from '../../../../routes/types';
 import { useSession } from '../../../../session/SessionContext';
 import { StateBoundary } from '../../../../states/StateBoundary';
 import { useScreenState } from '../../../../states/useScreenState';
-import { SectionCard, StatusPill } from '../../../../ui';
+import { Money, SectionCard, StatusPill } from '../../../../ui';
 import { KitTable } from '../../../../screens/adm/KitTable';
-import { moneyText } from '../shared/format';
 import { DataGuide } from './DataGuide';
 import { useCreateLine, useEquipmentLines, useProjectOptions } from './hooks';
 import { DETAIL_PATH, EMPTY_CREATE, EQUIPMENT_STAGES, MANAGE_PERMISSION, describeProblem, stageTone, toCreateBody, validateCreate } from './model';
@@ -28,7 +27,7 @@ export default function EquipmentListScreen({ route }: ScreenProps) {
 }
 
 function EquipmentListContent({ route }: ScreenProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const mayManage = (permissions === undefined || permissions.includes(MANAGE_PERMISSION)) && mode !== 'READ_ONLY';
   const [stage, setStage] = useState<EquipmentStage | undefined>(undefined);
@@ -75,11 +74,11 @@ function EquipmentListContent({ route }: ScreenProps) {
                   <th scope="col">{t('eqp.col.line')}</th>
                   <th scope="col">{t('eqp.col.project')}</th>
                   <th scope="col" className="eqp-unit">{t('eqp.col.unit')}</th>
-                  <th scope="col">{t('eqp.col.planned')}</th>
+                  <th scope="col">{t('eqp.col.plannedShort')}</th>
                   <th scope="col">{t('eqp.col.package')}</th>
                   <th scope="col">{t('eqp.col.selection')}</th>
-                  <th scope="col">{t('eqp.col.contract')}</th>
-                  <th scope="col">{t('eqp.col.paid')}</th>
+                  <th scope="col">{t('eqp.col.contractShort')}</th>
+                  <th scope="col">{t('eqp.col.paidShort')}</th>
                   <th scope="col">{t('eqp.col.stage')}</th>
                 </tr>
               </thead>
@@ -92,16 +91,18 @@ function EquipmentListContent({ route }: ScreenProps) {
                     </th>
                     <td>{line.project.code}</td>
                     <td className="eqp-unit">{line.ownerUnit.name}</td>
-                    <td>{moneyText(line.plannedValueVnd, locale)}</td>
+                    <td>
+                      <Money value={line.plannedValueVnd} none="–" />
+                    </td>
                     <td>{line.package === null ? '–' : line.package.code}</td>
                     <td>{line.selection === null ? '–' : t(`eqp.outcome.${camel(line.selection.outcome)}`)}</td>
-                    <td>{line.masked.includes('CONTRACT') ? <span className="sub">{t('eqp.list.masked')}</span> : moneyText(line.contractValueVnd, locale)}</td>
+                    <td>{line.masked.includes('CONTRACT') ? <span className="sub">{t('eqp.list.masked')}</span> : <Money value={line.contractValueVnd} none="–" />}</td>
                     <td>
                       {line.masked.includes('PAYMENT') ? (
                         <span className="sub">{t('eqp.list.masked')}</span>
                       ) : (
                         <>
-                          {moneyText(line.paidVnd, locale)}
+                          <Money value={line.paidVnd} none="–" />
                           {line.disbursementPercent === null ? '' : ` (${line.disbursementPercent}%)`}
                         </>
                       )}

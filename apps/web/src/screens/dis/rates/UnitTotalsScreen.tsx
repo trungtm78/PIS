@@ -4,10 +4,10 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { DataTable, FilterPanel, SectionCard } from '../../../ui';
+import { DataTable, FilterPanel, Money, SectionCard } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import '../dis.css';
-import { CoveragePill, DefinitionBadge, RatesContext, SnapshotPicker, money, problemMessage, rateColumns, rateText } from './components';
+import { CoveragePill, DefinitionBadge, RatesContext, SnapshotPicker, problemMessage, rateColumns, rateText } from './components';
 import { useFrozenSnapshots, useRates } from './hooks';
 import { PAIRED_PATH, describeRates } from './model';
 import type { RateGroup, Rates } from './model';
@@ -48,7 +48,7 @@ function UnitTotalsContent({ route }: ScreenProps) {
         {data === undefined ? null : <DefinitionBadge definition={data.definition} />}
       </div>
       <RatesContext snapshotId={data?.snapshotId} cutoff={data?.cutoffDate} />
-      <FilterPanel unitLabel={t('dis.wr.unit')} applied={snapshotId === '' ? 0 : 1}>
+      <FilterPanel applied={snapshotId === '' ? 0 : 1}>
         <div className="dis-filters">
           <SnapshotPicker id="totals-snapshot" value={snapshotId} onChange={choose} snapshots={frozen.data ?? []} />
         </div>
@@ -67,7 +67,7 @@ function UnitTotalsContent({ route }: ScreenProps) {
             {t('dis.rates.none.text')}
           </p>
         ) : (
-          <SectionCard title={t('dis.unitTotals.table.title')} unit={t('dis.wr.unit')}>
+          <SectionCard title={t('dis.unitTotals.table.title')}>
             <p className="w2dis-note" data-testid="totals-cutoff">
               {t('dis.unitTotals.cutoff.text', { cutoff: data.cutoffDate })}
             </p>
@@ -102,9 +102,9 @@ function UnitTable({ groups, whole }: { groups: readonly RateGroup[]; whole: Rat
       ),
     },
     { key: 'projects', header: t('dis.rates.col.projects'), align: 'right', render: (group) => String(group.projects) },
-    { key: 'planPm', header: t('dis.rates.col.planPm'), group: planGroup, align: 'right', render: (group) => money(group.planPmVnd) },
-    { key: 'planLocal', header: t('dis.rates.col.planLocal'), group: planGroup, align: 'right', render: (group) => money(group.planLocalVnd) },
-    { key: 'numerator', header: t('dis.rates.col.numerator'), align: 'right', render: (group) => money(group.numeratorVnd) },
+    { key: 'planPm', header: t('dis.rates.col.planPm'), group: planGroup, align: 'right', render: (group) => <Money value={group.planPmVnd} /> },
+    { key: 'planLocal', header: t('dis.rates.col.planLocal'), group: planGroup, align: 'right', render: (group) => <Money value={group.planLocalVnd} /> },
+    { key: 'numerator', header: t('dis.rates.col.numerator'), align: 'right', render: (group) => <Money value={group.numeratorVnd} /> },
     ...rateColumns<RateGroup>(t, (group) => ({ ratePmPct: group.ratePmPct, rateTotalPct: group.rateTotalPct, reason: group.nullReason })),
     { key: 'coverage', header: t('dis.rates.col.coverage'), render: (group) => <CoveragePill coverage={group.coverage} /> },
     { key: 'cutoff', header: t('dis.unitTotals.col.cutoff'), render: () => whole.cutoffDate },
@@ -118,9 +118,9 @@ function UnitTable({ groups, whole }: { groups: readonly RateGroup[]; whole: Rat
       totalsLabel={t('dis.unitTotals.total.label')}
       totals={{
         projects: String(whole.projects),
-        planPm: money(whole.planPmVnd),
-        planLocal: money(whole.planLocalVnd),
-        numerator: money(whole.numeratorVnd),
+        planPm: <Money value={whole.planPmVnd} />,
+        planLocal: <Money value={whole.planLocalVnd} />,
+        numerator: <Money value={whole.numeratorVnd} />,
         ratePm: rateText(t, whole.ratePmPct, whole.nullReason),
         rateTotal: rateText(t, whole.rateTotalPct, whole.nullReason),
         coverage: <CoveragePill coverage={whole.coverage} />,

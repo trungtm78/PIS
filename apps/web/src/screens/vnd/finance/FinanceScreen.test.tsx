@@ -185,8 +185,9 @@ describe('FinanceScreen (VND-08): the finance and the load of a contractor', () 
     expect(status.textContent).toContain(word('vnd.finance.capacityStatus.over.name'));
     expect(status.textContent).toContain(text('vnd.finance.capacity.rule.text', { limit: 3 }));
     const facts = screen.getByTestId('capacity-facts');
-    expect(facts.textContent).toContain('600.000 (1)');
-    expect(facts.textContent).toContain('700.000 (1)');
+    expect(facts.textContent).toContain('600.000 đồng (1)');
+    expect(facts.textContent).toContain('700.000 đồng (1)');
+    expect(facts.textContent).toContain('1,3 triệu đồng');
     expect(within(facts).getAllByRole('button').length).toBe(6);
     expect(screen.getByTestId('capacity-signals').textContent).toContain(word('vnd.finance.signal.lateContracts.name'));
   });

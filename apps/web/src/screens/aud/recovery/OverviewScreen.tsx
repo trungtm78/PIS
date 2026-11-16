@@ -4,10 +4,10 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { ContextBar, DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../../ui';
+import { compactMoney } from '../../../i18n/money';
+import { ContextBar, DataTable, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import '../aud.css';
-import { formatVnd } from '../conclusion/model';
 import { engagementStatusLabel } from '../labels';
 import { ENGAGEMENT_PATH, ENGAGEMENTS_PATH } from '../model';
 import type { EngagementStatus } from '../model';
@@ -68,7 +68,7 @@ function OverviewContent({ route }: ScreenProps) {
                   <KpiTile label={t('aud.overview.tile.overdue')} value={String(data.recommendationsOverdue)} tone={data.recommendationsOverdue > 0 ? 'danger' : 'default'} />
                 </div>
                 <div className="aud-tile" data-testid="tile-money">
-                  <KpiTile label={t('aud.overview.tile.money')} value={formatVnd(data.amountVnd)} tone="info" sub={t('aud.overview.tile.money.parts', { recovered: formatVnd(data.recoveredVnd), remaining: formatVnd(data.remainingVnd) })} />
+                  <KpiTile label={t('aud.overview.tile.moneyShort')} value={compactMoney(data.amountVnd)} tone="info" sub={t('aud.overview.tile.money.parts', { recovered: compactMoney(data.recoveredVnd), remaining: compactMoney(data.remainingVnd) })} />
                 </div>
               </KpiStrip>
             </div>
@@ -126,8 +126,8 @@ function WatchTable({ engagements }: { engagements: WatchedEngagement[] }) {
     { key: 'status', header: t('aud.overview.watch.col.status'), render: (engagement) => <StatusPill tone="info">{engagementStatusLabel(t, engagement.status as EngagementStatus)}</StatusPill> },
     { key: 'open', header: t('aud.overview.watch.col.open'), align: 'right', render: (engagement) => String(engagement.recommendationsOpen) },
     { key: 'overdue', header: t('aud.overview.watch.col.overdue'), align: 'right', render: (engagement) => String(engagement.recommendationsOverdue) },
-    { key: 'amount', header: t('aud.overview.watch.col.amount'), align: 'right', render: (engagement) => formatVnd(engagement.amountVnd) },
-    { key: 'recovered', header: t('aud.overview.watch.col.recovered'), align: 'right', render: (engagement) => formatVnd(engagement.recoveredVnd) },
+    { key: 'amount', header: t('aud.overview.watch.col.amount'), align: 'right', render: (engagement) => <Money value={engagement.amountVnd} /> },
+    { key: 'recovered', header: t('aud.overview.watch.col.recovered'), align: 'right', render: (engagement) => <Money value={engagement.recoveredVnd} /> },
     {
       key: 'links',
       header: t('aud.overview.watch.col.links'),

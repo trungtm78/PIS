@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { InfoFormula, KpiTile } from '../../../ui';
 import type { InfoFormulaLabels } from '../../../ui';
-import { money, percent, camel } from './model';
+import { shortMoney, percent, camel } from './model';
 import type { Rate } from './model';
 
 /** The words of the "i" on every number of the funding screens: formula, source and the day the number is as of (FND-1 I8). */
@@ -68,7 +68,7 @@ export function RateTile({ rate, version, unverified }: { rate: Rate; version: n
       value={value}
       sub={
         <>
-          {rate.null_reason === null ? <span>{t('dis.funding.rate.sub', { numerator: money(rate.numerator_vnd), denominator: money(rate.denominator_vnd) })}</span> : <span data-testid={`reason-${rate.code}`}>{t(`dis.funding.reason.${camel(rate.null_reason)}`)}</span>}{' '}
+          {rate.null_reason === null ? <span>{t('dis.funding.rate.sub', { numerator: shortMoney(rate.numerator_vnd), denominator: shortMoney(rate.denominator_vnd) })}</span> : <span data-testid={`reason-${rate.code}`}>{t(`dis.funding.reason.${camel(rate.null_reason)}`)}</span>}{' '}
           <FigureInfo code={rate.code} asOf={rate.as_of} packCode={rate.pack_code} version={version} unverified={unverified} numeratorTerm={rate.numerator_term} denominatorTerm={rate.denominator_term} source={t(`dis.funding.basis.${camel(rate.basis)}`)} />
         </>
       }

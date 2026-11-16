@@ -79,10 +79,10 @@ describe('DIS-16 the full table and the configuration of its columns', () => {
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.full.page.title'] })).toBeTruthy();
     const table = await tableOf();
     expect(headers(table)).toContain(vi_['dis.full.col.ctmtqg']);
-    expect(bodyRows(table)[0]?.querySelector('[data-col="ctmtqg"]')?.textContent).toBe('40.000.000');
-    expect(bodyRows(table)[0]?.querySelector('[data-col="reported"]')?.textContent).toBe('100.000.000');
-    expect(stat(vi_['dis.full.total.reported'])).toBe('420.000.000');
-    expect(stat(vi_['dis.full.total.ctmtqg'])).toBe('40.000.000');
+    expect(bodyRows(table)[0]?.querySelector('[data-col="ctmtqg"]')?.textContent).toBe('40 triệu đồng (40.000.000 đồng)');
+    expect(bodyRows(table)[0]?.querySelector('[data-col="reported"]')?.textContent).toBe('100 triệu đồng (100.000.000 đồng)');
+    expect(stat(vi_['dis.full.total.reported'])).toBe('420 triệu đồng');
+    expect(stat(vi_['dis.full.total.ctmtqg'])).toBe('40 triệu đồng');
     expect(screen.getByText(vi_['dis.full.total.note'])).toBeTruthy();
   });
 
@@ -106,7 +106,7 @@ describe('DIS-16 the full table and the configuration of its columns', () => {
     expect(first.querySelector('[data-rate="total"]')?.textContent).toBe('50.0000%');
     const second = bodyRows(table)[1] as HTMLElement;
     expect(second.querySelector('[data-rate="pm"]')?.textContent).toBe(vi_['dis.rates.reason.noData']);
-    expect(first.textContent).toContain('-20.000.000');
+    expect(first.textContent).toContain('-20 triệu đồng (-20.000.000 đồng)');
   });
 
   it('lets a person choose the columns, keeps the two rates as one choice, and remembers the choice for the next visit', async () => {
@@ -141,7 +141,7 @@ describe('DIS-16 the full table and the configuration of its columns', () => {
     const table = await tableOf();
     const total = table.querySelector('tfoot tr') as HTMLElement;
     expect(within(total).getByRole('rowheader').textContent).toBe(vi_['dis.wr.totals.label']);
-    expect(Array.from(total.querySelectorAll('td')).map((cell) => cell.textContent).filter((text) => text !== '')).toEqual(['420.000.000', '40.000.000']);
+    expect(Array.from(total.querySelectorAll('td')).map((cell) => cell.textContent).filter((text) => text !== '')).toEqual(['420 triệu đồng (420.000.000 đồng)', '40 triệu đồng (40.000.000 đồng)']);
     // The head has a group row over the plan, the disbursement and the two rates.
     for (const group of ['w2dis.rates.group.plan', 'w2dis.rates.group.disbursed', 'w2dis.rates.group.rates']) {
       expect(within(table).getByRole('columnheader', { name: viParts[group as keyof typeof viParts] })).toBeTruthy();
@@ -155,9 +155,9 @@ describe('DIS-16 the full table and the configuration of its columns', () => {
       next: { snapshot, items: [line(1)], next_cursor: null },
     });
     await tableOf();
-    expect(stat(vi_['dis.full.total.reported'])).toBe('100.000.000');
+    expect(stat(vi_['dis.full.total.reported'])).toBe('100 triệu đồng');
     await user.click(screen.getByRole('button', { name: vi_['dis.snapshot.lines.more.action'] }));
-    await waitFor(() => expect(stat(vi_['dis.full.total.reported'])).toBe('300.000.000'));
+    await waitFor(() => expect(stat(vi_['dis.full.total.reported'])).toBe('300 triệu đồng'));
     expect(screen.queryByRole('button', { name: vi_['dis.snapshot.lines.more.action'] })).toBeNull();
   });
 });

@@ -1,6 +1,7 @@
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
 import { decimalText } from '../../../i18n/format';
+import { dongText } from '../../../i18n/money';
 import { priorityWord, statusWord } from '../labels';
 import { dayText } from '../model';
 import type { Priority, TaskStatus } from '../model';
@@ -18,7 +19,7 @@ function valueText(t: T, row: KpiInputRow, locale: string): string {
   const value = row.value;
   if (value === null || value === undefined) return t('fix11.kpi.fact.none');
   if (typeof value === 'boolean') return value ? t('fix11.kpi.fact.yes') : t('fix11.kpi.fact.no');
-  if (row.key === 'estimateVnd' || row.key === 'actualVnd') return typeof value === 'number' || typeof value === 'string' ? t('fix11.kpi.fact.vnd', { amount: new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'vi-VN').format(Number(value)) }) : t('fix11.kpi.fact.none');
+  if (row.key === 'estimateVnd' || row.key === 'actualVnd') return typeof value === 'number' || typeof value === 'string' ? t('fix11.kpi.fact.vnd', { amount: dongText(typeof value === 'number' ? (Number.isFinite(value) ? BigInt(Math.round(value)) : null) : value, locale) }) : t('fix11.kpi.fact.none');
   if (typeof value === 'number') return decimalText(value);
   if (row.key === 'calendars' && Array.isArray(value)) {
     return value

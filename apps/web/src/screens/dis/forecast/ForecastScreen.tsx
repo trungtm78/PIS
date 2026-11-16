@@ -5,10 +5,10 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { ContextBar, DataTable, FilterPanel, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../../ui';
+import { ContextBar, DataTable, FilterPanel, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn, Tone } from '../../../ui';
 import '../dis.css';
-import { DefinitionBadge, NONE, SnapshotPicker, money, signedVnd } from '../rates/components';
+import { DefinitionBadge, NONE, SnapshotPicker, shortMoney } from '../rates/components';
 import { useFrozenSnapshots } from '../rates/hooks';
 import '../rates/rates.css';
 import './forecast.css';
@@ -44,7 +44,7 @@ function CashFlowChart({ curve, plan, t }: { curve: readonly CurvePoint[]; plan:
           <g key={tick.vnd}>
             <line x1={CHART.left} x2={geometry.width - CHART.right} y1={tick.y} y2={tick.y} className="grid" />
             <text x={CHART.left - 6} y={tick.y + 4} textAnchor="end" className="tick">
-              {money(tick.vnd)}
+              {shortMoney(tick.vnd)}
             </text>
           </g>
         ))}
@@ -129,9 +129,8 @@ function ForecastContent({ route }: ScreenProps) {
           { label: t('w2dis.forecast.ctx.year'), value: first === undefined ? NONE : String(first.planYear) },
           { label: t('dis.rates.fact.cutoff'), value: first === undefined ? NONE : first.cutoffDate },
         ]}
-        unit={t('dis.wr.unit')}
       />
-      <FilterPanel unitLabel={t('dis.wr.unit')} applied={snapshotId === '' ? 0 : 1}>
+      <FilterPanel applied={snapshotId === '' ? 0 : 1}>
         <div className="dis-filters">
           <SnapshotPicker id="forecast-snapshot" value={snapshotId} onChange={choose} snapshots={frozen.data ?? []} />
         </div>
@@ -144,17 +143,17 @@ function ForecastContent({ route }: ScreenProps) {
       <StateBoundary state={refused ? 'default' : state} onRetry={() => void forecast.refetch()}>
         {first === undefined ? null : (
           <div className="w2dis-stack">
-            <SectionCard title={t('dis.forecast.total.title', { year: String(first.planYear) })} unit={t('dis.wr.unit')}>
+            <SectionCard title={t('dis.forecast.total.title', { year: String(first.planYear) })}>
               <div className="w2dis-stack">
                 <p className="w2dis-note" data-testid="forecast-cutoff">
                   {t('dis.forecast.cutoff.text', { cutoff: first.cutoffDate })}
                 </p>
                 <div data-testid="forecast-tiles">
                   <KpiStrip label={t('dis.forecast.total.title', { year: String(first.planYear) })}>
-                    <KpiTile label={t('dis.forecast.tile.disbursedTreasury')} value={money(first.disbursedVnd)} />
+                    <KpiTile label={t('dis.forecast.tile.disbursedTreasury')} value={shortMoney(first.disbursedVnd)} />
                     <KpiTile
                       label={t('dis.forecast.tile.yearEnd')}
-                      value={money(first.eacVnd)}
+                      value={shortMoney(first.eacVnd)}
                       tone="info"
                       sub={
                         <span data-testid="forecast-coverage">
@@ -162,8 +161,8 @@ function ForecastContent({ route }: ScreenProps) {
                         </span>
                       }
                     />
-                    <KpiTile label={t('dis.forecast.tile.plan')} value={money(first.planTotalVnd)} />
-                    <KpiTile label={t('dis.forecast.tile.gapPlan')} value={first.gapVnd === null ? NONE : signedVnd(first.gapVnd)} sub={first.ratioPct === null ? undefined : t('dis.forecast.ratio.text', { value: first.ratioPct })} />
+                    <KpiTile label={t('dis.forecast.tile.plan')} value={shortMoney(first.planTotalVnd)} />
+                    <KpiTile label={t('dis.forecast.tile.gapPlan')} value={shortMoney(first.gapVnd, true)} sub={first.ratioPct === null ? undefined : t('dis.forecast.ratio.text', { value: first.ratioPct })} />
                   </KpiStrip>
                 </div>
                 <dl className="w2dis-facts" data-testid="forecast-method">
@@ -182,7 +181,7 @@ function ForecastContent({ route }: ScreenProps) {
                 )}
               </div>
             </SectionCard>
-            <SectionCard title={t('dis.forecast.curve.title')} unit={t('dis.wr.unit')}>
+            <SectionCard title={t('dis.forecast.curve.title')}>
               <CashFlowChart curve={first.curve} plan={first.planTotalVnd} t={t} />
               <div className="tablewrap">
                 <table className="table" aria-label={t('dis.forecast.curve.aria')} data-testid="forecast-curve-table">
@@ -206,13 +205,13 @@ function ForecastContent({ route }: ScreenProps) {
                       <tr key={point.month} data-month={point.month}>
                         <th scope="row">{point.month === 13 ? t('dis.forecast.month.adjustment') : t('dis.forecast.month.number', { month: String(point.month) })}</th>
                         <td className="num" data-cell="actual">
-                          {money(point.actualVnd)}
+                          <Money value={point.actualVnd} />
                         </td>
                         <td className="num" data-cell="forecast">
-                          {money(point.forecastVnd)}
+                          <Money value={point.forecastVnd} />
                         </td>
                         <td className="num" data-cell="plan">
-                          {money(first.planTotalVnd)}
+                          <Money value={first.planTotalVnd} />
                         </td>
                       </tr>
                     ))}
@@ -235,7 +234,9 @@ function ForecastContent({ route }: ScreenProps) {
                     {first.months.map((month) => (
                       <tr key={month.month} data-month={month.month}>
                         <th scope="row">{month.month === 13 ? t('dis.forecast.month.adjustment') : t('dis.forecast.month.number', { month: String(month.month) })}</th>
-                        <td className="num">{money(month.amountVnd)}</td>
+                        <td className="num">
+                          <Money value={month.amountVnd} />
+                        </td>
                         <td>{sourceLabel(t, month.source)}</td>
                       </tr>
                     ))}
@@ -243,7 +244,7 @@ function ForecastContent({ route }: ScreenProps) {
                 </table>
               </div>
             </SectionCard>
-            <SectionCard title={t('dis.forecast.projects.title')} unit={t('dis.wr.unit')}>
+            <SectionCard title={t('dis.forecast.projects.title')}>
               <ProjectTable projects={projects} threshold={first.thresholdPct} />
               {forecast.hasNextPage ? (
                 <p className="w2dis-more">
@@ -276,10 +277,10 @@ function ProjectTable({ projects, threshold }: { projects: readonly ProjectEstim
         </>
       ),
     },
-    { key: 'disbursed', header: t('dis.forecast.tile.disbursedTreasury'), align: 'right', render: (project) => money(project.disbursedVnd) },
-    { key: 'eac', header: t('dis.forecast.tile.yearEnd'), align: 'right', render: (project) => money(project.eacVnd) },
-    { key: 'plan', header: t('dis.forecast.tile.plan'), align: 'right', render: (project) => money(project.planTotalVnd) },
-    { key: 'gap', header: t('dis.forecast.tile.gapPlan'), align: 'right', render: (project) => (project.gapVnd === null ? NONE : signedVnd(project.gapVnd)) },
+    { key: 'disbursed', header: t('dis.forecast.tile.disbursedTreasury'), align: 'right', render: (project) => <Money value={project.disbursedVnd} /> },
+    { key: 'eac', header: t('dis.forecast.tile.yearEnd'), align: 'right', render: (project) => <Money value={project.eacVnd} /> },
+    { key: 'plan', header: t('dis.forecast.tile.plan'), align: 'right', render: (project) => <Money value={project.planTotalVnd} /> },
+    { key: 'gap', header: t('dis.forecast.tile.gapPlan'), align: 'right', render: (project) => <Money value={project.gapVnd} signed /> },
     {
       key: 'verdict',
       header: t('dis.forecast.projects.col.verdict'),

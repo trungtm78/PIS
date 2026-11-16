@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useTranslation } from '../../i18n';
+import { dongText } from '../../i18n/money';
 import type { Translator } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
 import { InfoFormula, StatusPill } from '../../ui';
@@ -166,10 +167,10 @@ export const vietnamDay = (day: string | null | undefined): string => (day === n
 /** A hash short enough to read in a table, with both ends so two hashes are told apart. */
 export const shortHash = (sha: string): string => `${sha.slice(0, 12)}…${sha.slice(-6)}`;
 
-/** Money in whole dong with thousands groups; the text is exact (no number rounding). */
+/** Money in whole dong written exactly by the shared formatter; the text is exact (no number rounding). */
 export function dong(value: string | null | undefined): string {
   if (value === null || value === undefined || !/^-?\d+$/.test(value)) return '–';
-  return value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return dongText(value);
 }
 
 export const word = (value: string): string => value.toLowerCase().replace(/_(\w)/g, (_m, letter: string) => letter.toUpperCase());

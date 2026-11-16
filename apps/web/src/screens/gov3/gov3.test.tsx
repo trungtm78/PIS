@@ -94,7 +94,7 @@ describe('PRJ-26: the baseline, the deviation and the number of moves', () => {
     // The deviation: the cost is beyond the threshold (12 > 10), the finish slip is within it (59 < 90).
     const cost = screen.getByText(text('govb1.baseline.kpi.cost')).closest('article');
     expect(cost?.className).toContain('ui-tone-danger');
-    expect(within(cost as HTMLElement).getByText('12.000.000.000')).toBeTruthy();
+    expect(within(cost as HTMLElement).getByText('12 tỷ đồng')).toBeTruthy();
     expect(within(cost as HTMLElement).getByText(text('govb1.baseline.kpi.pct', { pct: '12.00' }))).toBeTruthy();
     const slip = screen.getByText(text('govb1.baseline.kpi.slip')).closest('article');
     expect(slip?.className).not.toContain('ui-tone-danger');
@@ -379,19 +379,19 @@ describe('PRJ-27: earned value and the S-curve', () => {
 
   it('shows the nine figures, the colour band of the indices in words, the method named, the policy and the packages with their contracts', async () => {
     open();
-    expect(await screen.findByText('36.000.000.000', { selector: '.ui-kpi__value' })).toBeTruthy();
-    expect(within(kpi('govb1.evm.kpi.pv')).getByText('40.000.000.000')).toBeTruthy();
-    expect(within(kpi('govb1.evm.kpi.ac')).getByText('38.000.000.000')).toBeTruthy();
+    expect(await screen.findByText('36 tỷ đồng', { selector: '.ui-kpi__value' })).toBeTruthy();
+    expect(within(kpi('govb1.evm.kpi.pv')).getByText('40 tỷ đồng')).toBeTruthy();
+    expect(within(kpi('govb1.evm.kpi.ac')).getByText('38 tỷ đồng')).toBeTruthy();
     expect(within(kpi('govb1.evm.kpi.cpi')).getByText('0.9474')).toBeTruthy();
     expect(within(kpi('govb1.evm.kpi.cpi')).getByText(text('govb1.rag.amber'))).toBeTruthy();
     expect(within(kpi('govb1.evm.kpi.spi')).getByText(text('govb1.rag.red'))).toBeTruthy();
     expect(kpi('govb1.evm.kpi.spi').className).toContain('ui-tone-danger');
-    expect(within(kpi('govb1.evm.kpi.eac')).getByText('94.999.999.999')).toBeTruthy();
+    expect(within(kpi('govb1.evm.kpi.eac')).getByText('95 tỷ đồng')).toBeTruthy();
     expect(within(kpi('govb1.evm.kpi.eac')).getByText(text('govb1.evm.kpi.eac.sub', { method: text('govb1.method.cpi') }))).toBeTruthy();
-    expect(within(kpi('govb1.evm.kpi.etc')).getByText('56.999.999.999')).toBeTruthy();
-    expect(within(kpi('govb1.evm.kpi.vac')).getByText('-4.999.999.999')).toBeTruthy();
+    expect(within(kpi('govb1.evm.kpi.etc')).getByText('57 tỷ đồng')).toBeTruthy();
+    expect(within(kpi('govb1.evm.kpi.vac')).getByText('-5 tỷ đồng')).toBeTruthy();
     expect(within(kpi('govb1.evm.kpi.tcpi')).getByText('1.0370')).toBeTruthy();
-    expect(within(kpi('govb1.evm.kpi.over')).getByText('-5.000.000.001')).toBeTruthy();
+    expect(within(kpi('govb1.evm.kpi.over')).getByText('-5 tỷ đồng')).toBeTruthy();
     expect(kpi('govb1.evm.kpi.over').className).not.toContain('ui-tone-danger');
     expect(screen.getByTestId('formula').textContent).toContain(text('govb1.policy.builtIn'));
     expect(screen.queryByTestId('frozen')).toBeNull();
@@ -471,7 +471,7 @@ describe('PRJ-27: earned value and the S-curve', () => {
     expect(notice.textContent).toContain(text('govb1.evm.curve.noBaseline'));
     expect(within(notice).getByRole('link').getAttribute('href')).toBe(`/prj/prj-26?project=${PROJECT}`);
     expect((screen.getByTestId('export') as HTMLButtonElement).disabled).toBe(true);
-    expect(await screen.findByText('36.000.000.000', { selector: '.ui-kpi__value' })).toBeTruthy();
+    expect(await screen.findByText('36 tỷ đồng', { selector: '.ui-kpi__value' })).toBeTruthy();
   });
 
   it('does not ask for the curve of a project whose baseline read says it has no version 0 (no failed request), and still says so', async () => {
@@ -607,7 +607,7 @@ describe('PRJ-27: earned value and the S-curve', () => {
     open({ listProjectComponentContracts: refusal('SCOPE_DENIED', 403) });
     expect((await screen.findByTestId('links-denied')).textContent).toBe(text('govb1.link.denied'));
     expect(screen.queryByTestId('link-submit')).toBeNull();
-    expect(await screen.findByText('36.000.000.000', { selector: '.ui-kpi__value' })).toBeTruthy();
+    expect(await screen.findByText('36 tỷ đồng', { selector: '.ui-kpi__value' })).toBeTruthy();
   });
 
   it('says a project that is not there for the caller, a forbidden read, and a failing read with a retry', async () => {
@@ -623,7 +623,7 @@ describe('PRJ-27: earned value and the S-curve', () => {
     expect(failed.textContent).toContain(text('states.error.title'));
     expect(screen.queryByTestId('missing')).toBeNull();
     fireEvent.click(within(failed).getByRole('button', { name: text('states.retry.action') }));
-    expect(await screen.findByText('36.000.000.000', { selector: '.ui-kpi__value' })).toBeTruthy();
+    expect(await screen.findByText('36 tỷ đồng', { selector: '.ui-kpi__value' })).toBeTruthy();
   });
 
   it('shows a skeleton and no figure while the read is in flight', () => {

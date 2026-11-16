@@ -1,3 +1,5 @@
+import { dongText } from '../../../i18n/money';
+
 /**
  * The delegation-of-authority rules of the matrix, for the band chart, the findings before a submission and the "who approves"
  * preview of ADM-15. The rule is the one of packages/kernel/src/doa.ts (the server decides and stores); both are held to the same
@@ -231,8 +233,8 @@ export function unitPathsOf(units: ReadonlyArray<{ id: string; parent_id: string
   return paths;
 }
 
-/** A whole-VND amount with the thousands separators of the language, exact for any size. */
+/** A whole-VND amount written exactly by the shared formatter (thousands grouped, no unit): a threshold of authority is compared to the dong and is never shortened. */
 export function formatVnd(amount: string, locale: string): string {
   const value = parseVnd(amount);
-  return value === undefined ? amount : value.toLocaleString(locale);
+  return value === undefined ? amount : dongText(value, locale);
 }

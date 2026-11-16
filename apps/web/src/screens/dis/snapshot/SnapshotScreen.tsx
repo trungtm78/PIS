@@ -7,13 +7,12 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { ConfirmDialog, ContextBar, DataTable, FilterPanel, SectionCard, StatusPill, StickyActions } from '../../../ui';
+import { ConfirmDialog, ContextBar, DataTable, FilterPanel, Money, SectionCard, StatusPill, StickyActions } from '../../../ui';
 import type { DataTableColumn, Tone } from '../../../ui';
 import { Field } from '../components';
 import { usePeriods } from '../hooks';
 import { periodsOf, yearsOf } from '../model';
 import type { PeriodView } from '../model';
-import { formatVnd } from '../report/money';
 import { dueMoment } from '../report/weekly-model';
 import '../dis.css';
 import '../rates/rates.css';
@@ -91,8 +90,6 @@ function nullReasonLabel(t: T, reason: string | null): string {
       return NONE;
   }
 }
-
-const money = (value: string | null): string => (value === null ? NONE : formatVnd(value));
 
 /** The label that says the formulas are proposals until the business owner signs them (D03). */
 function DefinitionPill({ definition }: { definition: SnapshotView['definitionStatus'] }) {
@@ -407,18 +404,18 @@ function Lines({ id }: { id: string }) {
   const columns: DataTableColumn<SnapshotLineView>[] = [
     { key: 'project', header: t('dis.snapshot.line.project'), pinned: true, render: (line) => <strong>{line.projectCode}</strong> },
     { key: 'cell', header: t('dis.snapshot.line.cell'), render: (line) => t('dis.snapshot.line.cell.text', { bucket: bucketLabel(t, line.bucket), level: levelLabel(t, line.budgetLevel) }) },
-    { key: 'planPm', header: t('dis.snapshot.line.planPm'), group: plan, align: 'right', render: (line) => money(line.planPmVnd) },
-    { key: 'planLocal', header: t('dis.snapshot.line.planLocal'), group: plan, align: 'right', render: (line) => money(line.planLocalVnd) },
-    { key: 'treasury', header: t('dis.snapshot.line.treasury'), group: paid, align: 'right', render: (line) => money(line.treasuryVnd) },
-    { key: 'reported', header: t('dis.snapshot.line.reported'), group: paid, align: 'right', render: (line) => money(line.reportedVnd) },
-    { key: 'delta', header: t('dis.snapshot.line.delta'), group: paid, align: 'right', render: (line) => (line.deltaVnd === null ? NONE : signed(line.deltaVnd)) },
+    { key: 'planPm', header: t('dis.snapshot.line.planPm'), group: plan, align: 'right', render: (line) => <Money value={line.planPmVnd} /> },
+    { key: 'planLocal', header: t('dis.snapshot.line.planLocal'), group: plan, align: 'right', render: (line) => <Money value={line.planLocalVnd} /> },
+    { key: 'treasury', header: t('dis.snapshot.line.treasury'), group: paid, align: 'right', render: (line) => <Money value={line.treasuryVnd} /> },
+    { key: 'reported', header: t('dis.snapshot.line.reported'), group: paid, align: 'right', render: (line) => <Money value={line.reportedVnd} /> },
+    { key: 'delta', header: t('dis.snapshot.line.delta'), group: paid, align: 'right', render: (line) => <Money value={line.deltaVnd} signed /> },
     { key: 'ratePm', header: t('dis.snapshot.line.ratePm'), group: rates, align: 'right', render: (line) => rate(line, line.ratePmPct, 'pm') },
     { key: 'rateTotal', header: t('dis.snapshot.line.rateTotal'), group: rates, align: 'right', render: (line) => rate(line, line.rateTotalPct, 'total') },
     { key: 'coverage', header: t('dis.snapshot.line.coverage'), render: (line) => <StatusPill tone={line.coverage === 'COMPLETE' ? 'success' : line.coverage === 'PARTIAL' ? 'warning' : 'neutral'}>{coverageLabel(t, line.coverage)}</StatusPill> },
   ];
   return (
     <div data-testid="snapshot-lines">
-      <SectionCard title={t('dis.snapshot.lines.title')} unit={t('dis.wr.unit')}>
+      <SectionCard title={t('dis.snapshot.lines.title')}>
         <StateBoundary state={state} onRetry={() => void lines.refetch()}>
           <DataTable caption={t('dis.snapshot.lines.aria')} columns={columns} rows={items} rowKey={(line) => line.id} />
           {lines.hasNextPage ? (
@@ -432,9 +429,4 @@ function Lines({ id }: { id: string }) {
       </SectionCard>
     </div>
   );
-}
-
-/** A change with its sign: a fall is negative and a rise is shown with a plus, so that none of them is read as zero. */
-function signed(amount: string): string {
-  return amount.startsWith('-') ? formatVnd(amount) : amount === '0' ? '0' : `+${formatVnd(amount)}`;
 }

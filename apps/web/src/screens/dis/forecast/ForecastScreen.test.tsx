@@ -62,7 +62,7 @@ describe('DIS-23 disbursement forecast and year-end estimate', () => {
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.forecast.page.title'] })).toBeTruthy();
     const tiles = await screen.findByTestId('forecast-tiles');
     const tile = (label: string): string => within(tiles).getByText(label).closest('article')?.querySelector('.ui-kpi__value')?.textContent ?? '';
-    expect([tile(((vi_ as Record<string, string>)['dis.forecast.tile.disbursedTreasury'] ?? '')), tile(((vi_ as Record<string, string>)['dis.forecast.tile.yearEnd'] ?? '')), tile(vi_['dis.forecast.tile.plan']), tile(((vi_ as Record<string, string>)['dis.forecast.tile.gapPlan'] ?? ''))]).toEqual(['400.000.000', '650.000.000', '1.000.000.000', '-350.000.000']);
+    expect([tile(((vi_ as Record<string, string>)['dis.forecast.tile.disbursedTreasury'] ?? '')), tile(((vi_ as Record<string, string>)['dis.forecast.tile.yearEnd'] ?? '')), tile(vi_['dis.forecast.tile.plan']), tile(((vi_ as Record<string, string>)['dis.forecast.tile.gapPlan'] ?? ''))]).toEqual(['400 triệu đồng', '650 triệu đồng', '1 tỷ đồng', '-350 triệu đồng']);
     expect(tiles.textContent).toContain(vi_['dis.forecast.ratio.text'].replace('{value}', '65.0'));
     expect(screen.getByTestId('forecast-coverage').textContent).toBe(vi_['dis.forecast.coverage.complete']);
     expect(screen.getByTestId('forecast-verdict').textContent).toContain(vi_['dis.forecast.candidate.yes'].replace('{pct}', '80'));
@@ -87,9 +87,9 @@ describe('DIS-23 disbursement forecast and year-end estimate', () => {
     for (const legend of ['actual', 'forecast', 'plan']) expect(document.querySelector(`[data-legend="${legend}"]`)?.textContent).toContain(vi_[`dis.forecast.legend.${legend}` as keyof typeof vi_]);
     const table = screen.getByTestId('forecast-curve-table');
     const row = (number: number): string[] => Array.from(table.querySelectorAll(`tr[data-month="${number}"] td`)).map((cell) => cell.textContent ?? '');
-    expect(row(3)).toEqual(['120.000.000', '—', '1.000.000.000']);
-    expect(row(10)).toEqual(['400.000.000', '400.000.000', '1.000.000.000']);
-    expect(row(12)).toEqual(['—', '650.000.000', '1.000.000.000']);
+    expect(row(3)).toEqual(['120 triệu đồng (120.000.000 đồng)', '—', '1 tỷ đồng (1.000.000.000 đồng)']);
+    expect(row(10)).toEqual(['400 triệu đồng (400.000.000 đồng)', '400 triệu đồng (400.000.000 đồng)', '1 tỷ đồng (1.000.000.000 đồng)']);
+    expect(row(12)).toEqual(['—', '650 triệu đồng (650.000.000 đồng)', '1 tỷ đồng (1.000.000.000 đồng)']);
     expect(table.querySelectorAll('tbody tr')).toHaveLength(12);
     expect(within(table).getByRole('columnheader', { name: vi_['dis.forecast.curve.col.forecast'] })).toBeTruthy();
   });
@@ -108,7 +108,7 @@ describe('DIS-23 disbursement forecast and year-end estimate', () => {
       }),
     );
     const months = await screen.findByTestId('forecast-months-table');
-    expect(Array.from(months.querySelectorAll('tr[data-month="11"] td')).map((cell) => cell.textContent)).toEqual(['90.000.000', vi_['dis.forecast.source.registered']]);
+    expect(Array.from(months.querySelectorAll('tr[data-month="11"] td')).map((cell) => cell.textContent)).toEqual(['90 triệu đồng (90.000.000 đồng)', vi_['dis.forecast.source.registered']]);
     expect(Array.from(months.querySelectorAll('tr[data-month="12"] td')).map((cell) => cell.textContent)).toEqual(['—', vi_['dis.forecast.source.missing']]);
     expect(screen.getByTestId('forecast-partial-note').textContent).toBe(vi_['dis.forecast.partial.note']);
     expect(screen.getByTestId('forecast-verdict').textContent).toContain(vi_['dis.forecast.candidate.unknown']);

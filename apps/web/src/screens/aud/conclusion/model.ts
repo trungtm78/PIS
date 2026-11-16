@@ -2,6 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { isDay, isUuid } from '../model';
 import type { EngagementStatus, FormProblem, ScopeItem, ScopeKind } from '../model';
 import { hasControlCharacter } from '../../control-characters';
+import { dongText } from '../../../i18n/money';
 
 /** AUD-04 and AUD-05: what an authority concluded about an engagement, the findings in it and the recommendations on it (ST-AUD-002, AUD 3.2). */
 export const CONCLUSIONS_PATH = '/aud/aud-04';
@@ -46,8 +47,8 @@ const flag = (value: unknown): boolean => value === true;
 const oneOf = <T extends string>(values: readonly T[], value: unknown): T | undefined => values.find((candidate) => candidate === value);
 const dong = (value: unknown): string | undefined => (typeof value === 'string' && /^[0-9]{1,24}$/.test(value) ? value : undefined);
 
-/** A whole amount of dong in the way it is read, with a dot between the thousands. */
-export const formatVnd = (amount: string): string => amount.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+/** A whole amount of dong written exactly by the shared formatter (thousands grouped, no unit): for the ledgers, the dialogs and the messages whose purpose is the exact figure. */
+export const formatVnd = (amount: string): string => dongText(amount);
 
 /** The digits of an amount typed with or without separators ("1.250.000.000", "1,250,000,000", "1 250 000 000"); anything else is not an amount. */
 export function digitsOf(typed: string): string | undefined {

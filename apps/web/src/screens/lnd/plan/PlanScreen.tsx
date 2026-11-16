@@ -14,6 +14,7 @@ import { executorKindLabel, planItemKindLabel, planStatusLabel } from './labels'
 import { PLAN_STATUSES, acceptsItems, canRevise, canWritePlan, formatVnd, plansOf } from './model';
 import type { PlanItem, PlanLine, PlanStatus } from './model';
 import { ScrollRegion } from '../../scroll-region';
+import { Money } from '../../../ui';
 import '../lnd.css';
 
 type Dialog = { kind: 'draft' } | { kind: 'items'; plan: PlanLine } | { kind: 'revise'; plan: PlanLine };
@@ -145,7 +146,7 @@ function inForce(plans: readonly PlanLine[]): PlanLine | null {
 /** The totals of the plan in force: what the decision approved for compensation, support and resettlement, and the sum (computed by the server). */
 function PlanTotals({ plan }: { plan: PlanLine | null | undefined }) {
   const { t } = useTranslation();
-  const value = (amount: string | undefined): string => (amount === undefined ? t('scr2.lnd.plans.totals.none') : formatVnd(amount));
+  const value = (amount: string | undefined): ReactNode => (amount === undefined ? t('scr2.lnd.plans.totals.none') : <Money value={amount} />);
   return (
     <div className="card" data-testid="plan-totals">
       <h2>{t('scr2.lnd.plans.totals.title')}</h2>
@@ -180,10 +181,10 @@ function PlansTable({ empty, emptyTestId, children }: { empty: string | undefine
             <th scope="col">{t('lnd.plans.column.code')}</th>
             <th scope="col">{t('lnd.plans.column.revision')}</th>
             <th scope="col">{t('lnd.plans.column.executor')}</th>
-            <th scope="col">{t('lnd.plans.column.compensation')}</th>
-            <th scope="col">{t('lnd.plans.column.support')}</th>
-            <th scope="col">{t('lnd.plans.column.resettlement')}</th>
-            <th scope="col">{t('lnd.plans.column.grand')}</th>
+            <th scope="col">{t('lnd.plans.column.compensationShort')}</th>
+            <th scope="col">{t('lnd.plans.column.supportShort')}</th>
+            <th scope="col">{t('lnd.plans.column.resettlementShort')}</th>
+            <th scope="col">{t('lnd.plans.column.grandShort')}</th>
             <th scope="col">{t('lnd.plans.column.status')}</th>
             <th scope="col">{t('scr2.lnd.plans.column.decision')}</th>
             <th scope="col">{t('lnd.plans.column.action')}</th>
@@ -222,16 +223,16 @@ function PlanRow({ plan, open, canAdd, canReviseIt, onOpen, onAdd, onRevise }: R
       <td data-testid="revision">{plan.revision}</td>
       <td>{executorKindLabel(t, plan.executorKind)}</td>
       <td className="lnd-numeric" data-testid="total-compensation">
-        {formatVnd(plan.totalCompensationVnd)}
+        <Money value={plan.totalCompensationVnd} />
       </td>
       <td className="lnd-numeric" data-testid="total-support">
-        {formatVnd(plan.totalSupportVnd)}
+        <Money value={plan.totalSupportVnd} />
       </td>
       <td className="lnd-numeric" data-testid="total-resettlement">
-        {formatVnd(plan.totalResettlementVnd)}
+        <Money value={plan.totalResettlementVnd} />
       </td>
       <td className="lnd-numeric" data-testid="total-grand">
-        {formatVnd(plan.grandTotalVnd)}
+        <Money value={plan.grandTotalVnd} />
       </td>
       <td>
         <span className="lnd-badge" data-testid="status">
