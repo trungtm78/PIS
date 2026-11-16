@@ -43,7 +43,7 @@ for (const width of [1440, 1280]) {
     const m = await table.evaluate((root) => {
       const scroll = root.querySelector('.ui-table-scroll') as HTMLElement;
       const box = scroll.getBoundingClientRect();
-      const pills = [...root.querySelectorAll('td[data-label] .ui-pill')] as HTMLElement[];
+      const pills = Array.from(root.querySelectorAll<HTMLElement>('td[data-label] .ui-pill'));
       return {
         pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
         scrollClient: scroll.clientWidth,
