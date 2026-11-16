@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import { StatusPill } from '../../../ui';
@@ -27,8 +28,26 @@ export interface ActionsBarProps {
 }
 
 /** What may be done with the task now (the buttons come from the `can_*` flags of the server) and, while it is in progress, what still stops its completion. */
+/** The custom property that carries the height of the bar of actions: the page keeps that much room below what a link, a focus or a scroll brings into view (task.css). */
+export const BAR_HEIGHT_PROPERTY = '--pwft-bar-h';
+
 export function ActionsBar({ task, actions, onOpen, onWaive, onClaim, claiming, projectId, canPropose }: ActionsBarProps) {
   const { t } = useTranslation();
+  const bar = useRef<HTMLElement>(null);
+  // The bar sticks to the foot of the window and its height changes with what is left to do: its height is told to the page, so that nothing the person scrolls or tabs to is left behind it.
+  useEffect(() => {
+    const element = bar.current;
+    if (element === null) return undefined;
+    const root = document.documentElement;
+    const measure = (): void => root.style.setProperty(BAR_HEIGHT_PROPERTY, `${Math.ceil(element.getBoundingClientRect().height)}px`);
+    measure();
+    const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(measure);
+    observer?.observe(element);
+    return () => {
+      observer?.disconnect();
+      root.style.removeProperty(BAR_HEIGHT_PROPERTY);
+    };
+  }, []);
   const rows = blockerRows(task.completion);
   const buttons: Array<[boolean, 'start' | 'complete' | 'approve' | 'return' | 'resume', string]> = [
     [actions.start, 'start', t('pwf.task.start.action')],
@@ -47,7 +66,7 @@ export function ActionsBar({ task, actions, onOpen, onWaive, onClaim, claiming, 
     return row.subject;
   };
   return (
-    <section className="pwft-bar" aria-label={t('pwf.task.actions.title')} data-testid="task-actions">
+    <section ref={bar} className="pwft-bar" aria-label={t('pwf.task.actions.title')} data-testid="task-actions">
       {task.status === 'IN_PROGRESS' ? (
         <div data-testid="completion-check">
           {task.completion.ok ? (

@@ -261,6 +261,14 @@
 .pwft-block {
   margin: 0 0 8px;
 }
+/* The bar sticks to the foot of the window: what a link, a focus or a scroll brings into view stops above it (its height is --pwft-bar-h, set by ActionsBar) and a block ends above it. */
+html:has(.pwft-bar) {
+  scroll-padding-bottom: calc(var(--pwft-bar-h, 0px) + 16px);
+}
+.pwft-todo,
+.pwft-block {
+  scroll-margin-bottom: calc(var(--pwft-bar-h, 0px) + 16px);
+}
 .pwft-bar {
   position: sticky;
   bottom: 0;

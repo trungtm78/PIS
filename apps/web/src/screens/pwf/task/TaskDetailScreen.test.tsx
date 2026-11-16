@@ -205,6 +205,35 @@ describe('PWF-04: the states of the screen', () => {
   });
 });
 
+describe('PWF-04: the bar of actions keeps its room', () => {
+  it('tells the page the height of the bar, so that nothing scrolled or tabbed to is left behind it, and takes it back on leaving', async () => {
+    const seen: Array<() => void> = [];
+    class Observer {
+      constructor(callback: () => void) {
+        seen.push(callback);
+      }
+      observe(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal('ResizeObserver', Observer);
+    const bar = HTMLElement.prototype.getBoundingClientRect;
+    HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+      return this.classList.contains('pwft-bar') ? ({ height: 104.4, width: 0, top: 0, left: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect) : bar.call(this);
+    };
+    try {
+      open({ task: detail({ can_start: true }) });
+      await ready();
+      expect(document.documentElement.style.getPropertyValue('--pwft-bar-h')).toBe('105px');
+      expect(seen.length).toBeGreaterThan(0);
+      cleanup();
+      expect(document.documentElement.style.getPropertyValue('--pwft-bar-h')).toBe('');
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = bar;
+      vi.unstubAllGlobals();
+    }
+  });
+});
+
 describe('PWF-04: which buttons show', () => {
   it('shows exactly the buttons the server allows', async () => {
     open({ task: detail({ can_start: true, can_complete: false, can_approve: false, can_return: true, can_resume: false, can_request_exception: false, can_assign: false }) });

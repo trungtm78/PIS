@@ -10,7 +10,7 @@ import { membershipOf, sql, stackInfo } from './support/stack.ts';
 const PERSON = 'owner';
 const today = (): string => new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
 
-async function runningProject(): Promise<string> {
+async function runningProject(): Promise<{ id: string; taskId: string }> {
   const code = `E2E-POL2-${Date.now().toString(36).toUpperCase()}`;
   const [area] = await sql<{ id: string }>("select id from machvon.master_record_version where tenant_id = $1 and code = 'E2E_AREA_1'", [stackInfo().tenants.A]);
   const made = await apiCall(PERSON, 'POST', '/projects', {
@@ -20,18 +20,22 @@ async function runningProject(): Promise<string> {
   const [project] = await sql<{ id: string }>('select id from machvon.project where code = $1', [code]);
   if (project === undefined) throw new Error('the project was not made');
   // One task runs, so that the table shows the longest state word as well.
+  let taskId = '';
   const listed = (await apiCall(PERSON, 'GET', `/projects/${project.id}/workflow/tasks?status=NOT_STARTED&limit=100`)).json as unknown as { items: Array<{ id: string; kind: string }> };
   for (const row of listed.items.filter((task) => task.kind !== 'MILESTONE').slice(0, 10)) {
     await apiCall(PERSON, 'POST', `/project-tasks/${row.id}/assignments`, { body: { membership_id: membershipOf(PERSON), role: 'RESPONSIBLE', valid_from: today(), share_pct: 100, reason: 'Giao việc cho người phụ trách trực tiếp theo phân công của dự án' } });
     const detail = (await apiCall(PERSON, 'GET', `/project-tasks/${row.id}`)).json as unknown as { version: number };
-    if ((await apiCall(PERSON, 'POST', `/project-tasks/${row.id}/start`, { body: {}, version: detail.version })).status < 300) break;
+    if ((await apiCall(PERSON, 'POST', `/project-tasks/${row.id}/start`, { body: {}, version: detail.version })).status < 300) {
+      taskId = row.id;
+      break;
+    }
   }
-  return project.id;
+  return { id: project.id, taskId };
 }
 
 for (const width of [1440, 1280]) {
   test(`PWF-03 step table: the state badge is whole and the table scrolls inside its region at ${width} px`, async ({ page }) => {
-    const id = await runningProject();
+    const { id } = await runningProject();
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`/pwf/pwf-03?id=${id}&devUser=${PERSON}`);
     const table = page.getByTestId('step-table');
@@ -71,3 +75,19 @@ for (const path of ['/cap/cap-23', '/dis/dis-30']) {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 }
+
+test('PWF-04 at 900 px high: the bar of actions leaves room below what the page scrolls to', async ({ page }) => {
+  const { id, taskId } = await runningProject();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`/pwf/pwf-04?id=${taskId}&project=${id}&devUser=${PERSON}`);
+  const bar = page.getByTestId('task-actions');
+  await expect(bar).toBeVisible();
+  const height = (await bar.boundingBox())?.height ?? 0;
+  expect(height).toBeGreaterThan(0);
+  const room = await page.evaluate(() => Number.parseFloat(getComputedStyle(document.documentElement).scrollPaddingBottom));
+  expect(room).toBeGreaterThanOrEqual(height);
+  // A block brought into view by the page (an anchor, a focus) ends above the bar.
+  await page.locator('.pwft-block').last().evaluate((element) => element.scrollIntoView({ block: 'end' }));
+  const [block, barBox] = await Promise.all([page.locator('.pwft-block').last().boundingBox(), bar.boundingBox()]);
+  expect((block?.y ?? 0) + (block?.height ?? 0)).toBeLessThanOrEqual((barBox?.y ?? 0) + 1);
+});
