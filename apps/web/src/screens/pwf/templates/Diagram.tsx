@@ -8,6 +8,7 @@ import { ProblemBanner } from '../components';
 import { describeProblem, dayText, isDay } from '../model';
 import type { TemplateValidation } from '../model';
 import { GanttChart } from '../workflow/GanttChart';
+import '../workflow/workflow.css';
 import { ganttScale } from '../workflow/model';
 import type { LivePreview } from './live-preview';
 import { diagramOf } from './preview-model';

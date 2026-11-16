@@ -149,6 +149,7 @@
   "pwfx.gates.hint": "Set by the kind of procedure by default.",
   "pwfx.gates.legend": "Until this phase is done, these are refused:",
   "pwfx.gates.none": "Gates on project commands: none",
+  "pwfx.history.none": "The procedure is not saved yet, so it has no version",
   "pwfx.history.title": "Version history",
   "pwfx.lib.clone": "Copy",
   "pwfx.lib.col.days": "Total time",

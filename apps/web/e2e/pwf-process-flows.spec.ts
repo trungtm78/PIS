@@ -241,8 +241,12 @@ if (ENTERPRISE) {
       await stepEditor.getByRole('button', { name: 'Đã đối chiếu văn bản gốc' }).last().click();
       await expect(stepEditor.getByText(/chờ máy chủ đóng dấu/).last()).toBeVisible();
 
-      // A ground of the task with its article.
-      const taskEditor = sub.locator('.pwfx-basis').nth(1);
+      // A ground of the first task of the step, with its article (a step of several tasks shows its tasks as rows under it).
+      const child = page.locator('tr.pwfx-row[data-child="true"]').first();
+      const taskKey = (await child.getAttribute('data-line')) ?? '';
+      expect(taskKey).toMatch(/^task:/);
+      await child.getByRole('button', { name: /^căn cứ/i }).click();
+      const taskEditor = page.locator(`tr[data-basis-of="${taskKey}"] .pwfx-basis`).first();
       const taskCited = await taskEditor.locator('select[aria-label^="Văn bản"]').evaluateAll((selects) => selects.map((select) => (select as HTMLSelectElement).value));
       const taskDocument = ['DECREE_85_2025_ND_CP', 'LAW_22_2023_QH15', 'LAW_50_2014_QH13'].find((code) => !taskCited.includes(code)) ?? '';
       expect(taskDocument).not.toBe('');
@@ -253,7 +257,7 @@ if (ENTERPRISE) {
       await saveDraft(page, 'Ghi căn cứ pháp lý của bước và của việc (kiểm thử trình duyệt)');
       const draft = await draftOf('PUBLIC_PROCUREMENT');
       expect(JSON.stringify(draft?.steps?.[0]?.legal_basis)).toContain(stepDocument);
-      expect(draft?.tasks[0]?.legal_basis?.at(-1)).toMatchObject({ document: taskDocument, article: 'Điều 12' });
+      expect(draft?.tasks.find((one) => one.code === taskKey.slice('task:'.length))?.legal_basis?.at(-1)).toMatchObject({ document: taskDocument, article: 'Điều 12' });
       // The server stamped the citation the person marked: who checked it and when.
       expect((draft?.steps?.[0]?.legal_basis as Array<Record<string, unknown>>).find((one) => one.document === stepDocument)).toMatchObject({ verification: 'VERIFIED', verified_by: membershipOf(PERSON) });
 

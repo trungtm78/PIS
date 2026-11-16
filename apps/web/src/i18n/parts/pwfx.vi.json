@@ -149,6 +149,7 @@
   "pwfx.gates.hint": "Mặc định theo gợi ý của loại quy trình.",
   "pwfx.gates.legend": "Chưa xong giai đoạn này thì không được:",
   "pwfx.gates.none": "Cổng chặn lệnh dự án: không có",
+  "pwfx.history.none": "Quy trình chưa được lưu nên chưa có phiên bản nào",
   "pwfx.history.title": "Lịch sử phiên bản",
   "pwfx.lib.clone": "Nhân bản",
   "pwfx.lib.col.days": "Tổng thời hạn",

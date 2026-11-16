@@ -33,7 +33,7 @@ import { PasteDialog } from './PasteDialog';
 import { StepDrawer } from './StepDrawer';
 import { StepsTable } from './StepsTable';
 import { storeRefusalText } from './store';
-import { lineOf, lineOfProblem, linesOf, settleAll, unverifiedRows } from './table-model';
+import { lineOf, lineOfProblem, linesOf, settleAll, settleChecklistCodes, unverifiedRows } from './table-model';
 import { localProblems, paramsOfTemplate, readTemplate, stepsOf } from './template-model';
 import type { Template, TemplateProblem } from './template-model';
 import '../pwf.css';
@@ -94,6 +94,8 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
   // ---- what is on screen ------------------------------------------------------------------------------------------------------------------------------------------
   const [edited, setEdited] = useState<Template | undefined>(undefined);
   const template = edited ?? source.template;
+  // A checklist item that has a name and no code yet is given its code from the name when it is saved (R63); what is judged and drawn meanwhile is the table with that code, while the item itself stays as it is typed.
+  const checked = useMemo(() => settleChecklistCodes(template), [template]);
   const [forking, setForking] = useState(false);
   const isNew = source.base.kind === 'new';
   const isDraft = source.base.kind === 'rule' && source.base.version.status === 'DRAFT';
@@ -123,15 +125,15 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
   }, []);
 
   const name = template.name.trim();
-  const local = useMemo(() => localProblems(template), [template]);
+  const local = useMemo(() => localProblems(checked), [checked]);
   const problems = useMemo(() => problemMapOf(local), [local]);
   const baseKey = useMemo(() => JSON.stringify(paramsOfTemplate(source.template)), [source.template]);
-  const key = useMemo(() => JSON.stringify(paramsOfTemplate(template)), [template]);
+  const key = useMemo(() => JSON.stringify(paramsOfTemplate(checked)), [checked]);
   const dirty = edited !== undefined && key !== baseKey;
 
   // ---- the checks of the server -----------------------------------------------------------------------------------------------------------------------------------
-  const live = useLivePreview({ template, start: sampleStart, facts: {}, enabled: mayUse && isDay(sampleStart), blocked: local.length > 0 });
-  const validation = useLiveValidation(template, mayUse && local.length === 0);
+  const live = useLivePreview({ template: checked, start: sampleStart, facts: {}, enabled: mayUse && isDay(sampleStart), blocked: local.length > 0 });
+  const validation = useLiveValidation(checked, mayUse && local.length === 0);
   const ladders = useMemo(() => {
     const found = new Map<string, { green: number | null; yellow: number; red: number }>();
     for (const task of live.result?.preview.tasks ?? []) if (task.band_thresholds !== undefined) found.set(task.task_code, { green: task.band_thresholds.green_days, yellow: task.band_thresholds.yellow_days, red: task.band_thresholds.red_days });
@@ -276,11 +278,9 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
               {t('pwfx.action.rename')}
             </button>
           ) : null}
-          {source.code === '' ? null : (
-            <button type="button" className="ui-button ui-button--outline" data-testid="history" onClick={() => setPanel('history')}>
-              {t('pwfx.action.history')}
-            </button>
-          )}
+          <button type="button" className="ui-button ui-button--outline" data-testid="history" disabled={source.code === ''} title={source.code === '' ? t('pwfx.history.none') : undefined} onClick={() => setPanel('history')}>
+            {t('pwfx.action.history')}
+          </button>
           {canEdit ? (
             <>
               <button type="button" className="ui-button ui-button--outline" disabled={!canStore || pending} data-testid="save-draft" onClick={() => ask('draft')}>
@@ -475,7 +475,7 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
         </p>
       </section>
 
-      <Diagram template={template} live={live} start={sampleStart} onStart={setSampleStart} blockedBy={local.length} />
+      <Diagram template={checked} live={live} start={sampleStart} onStart={setSampleStart} blockedBy={local.length} />
       <ServerChecks result={validation.result?.value} current={validation.current} pending={validation.pending} error={validation.error} rowOf={(path) => (path.startsWith('tasks:') ? lines.find((line) => template.tasks.some((task) => task.code === path.slice(6) && line.taskIndexes.includes(template.tasks.indexOf(task))))?.number : rowNumber(path))} />
 
       {openLine === undefined || lineOf(template, openLine) === undefined ? null : (

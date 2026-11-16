@@ -235,6 +235,20 @@ describe('PWF-02: the details of a step', () => {
     expect((lastBody(h, 'createGovernanceRuleDraft').params as { tasks: { approver_role: string }[] }).tasks[1]?.approver_role).toBe('AUDITOR');
   });
 
+  it('does not block the diagram for a checklist item that has a name and no code yet: its code is made from the name when it is saved', async () => {
+    const h = open();
+    await fork();
+    fireEvent.click(screen.getByTestId('details-task:T1'));
+    const drawer = await screen.findByTestId('step-drawer');
+    fireEvent.click(within(drawer).getByRole('button', { name: text('pwf.templates.checklist.add.action') }));
+    fireEvent.change(within(drawer).getByLabelText(text('pwf.templates.checklist.name.label')), { target: { value: 'Hồ sơ đủ thành phần' } });
+    fireEvent.keyDown(drawer, { key: 'Escape' });
+    expect(screen.queryByTestId('problem-summary')).toBeNull();
+    await saveWith('Thêm mục kiểm bắt buộc');
+    await waitFor(() => expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(1));
+    expect((lastBody(h, 'createGovernanceRuleDraft').params as { tasks: { checklist: { code: string }[] }[] }).tasks[0]?.checklist.at(-1)?.code).toBe('HO_SO_DU_THANH_PHAN');
+  });
+
   it('cites a legal ground on the row: the person marks it checked and the stamp is the server\'s, never the browser\'s', async () => {
     const h = open();
     await fork();
