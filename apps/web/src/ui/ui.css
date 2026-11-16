@@ -134,7 +134,7 @@ code {
 .ui-hero button:focus-visible { outline: 2px solid var(--mv-color-focus-on-dark); outline-offset: 2px; }
 .ui-hero__main { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: var(--mv-space-8); }
 .ui-hero__label { margin: 0; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mv-color-menu-muted); font-weight: 600; }
-.ui-hero__figure { margin: 0; display: flex; align-items: baseline; gap: var(--mv-space-12); flex-wrap: wrap; }
+.ui-hero__figure { position: relative; margin: 0; display: flex; align-items: baseline; gap: var(--mv-space-12); flex-wrap: wrap; }
 /* A figure is never broken in the middle of its digits: it stays on one line, shrinks with the width, and ends in an ellipsis only as a last resort. */
 .ui-hero__value { font-size: 56px; line-height: 1.05; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 1100px) { .ui-hero__value { font-size: 44px; } }
@@ -208,7 +208,8 @@ code {
 
 /* DataTable */
 .ui-table-wrap { background: var(--mv-color-surface); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); overflow: hidden; }
-.ui-table-scroll { overflow: auto; max-height: 70vh; max-width: 100%; }
+/* position: relative makes the scroller the containing block of anything absolutely positioned in a cell (visually hidden text), so it scrolls and clips with the table instead of widening the page. */
+.ui-table-scroll { position: relative; overflow: auto; max-height: 70vh; max-width: 100%; }
 .ui-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; color: var(--mv-color-ink); }
 /* The kit rules are written as .ui-table .x (0,2,0) so the global `.workspace-app th, th` of the brand sheet (0,1,1: sticky, top 0, z-index 1) cannot flatten the header layers: a pinned body cell (z-index 1) must always sit under the header, and a pinned header cell above both. */
 .ui-table .ui-table__head { position: sticky; top: 0; z-index: 2; padding: var(--mv-space-12); background: var(--mv-color-table-head); color: var(--mv-color-menu-text); font-size: 12px; font-weight: 700; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--mv-color-table-head-group); }
@@ -523,7 +524,10 @@ code {
 .ui-info__panel > .ui-info__list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .ui-info__panel > .ui-info__title, .ui-info__panel > .ui-button, .ui-info__panel > .ui-info__note { flex: 0 0 auto; }
 
-/* An amount of money: the figure and its unit never break apart. */
+/* An amount of money: the figure and its unit never break apart. It is the containing block of its visually hidden exact amount: an absolutely positioned
+   element is not clipped by a scrolling ancestor that is not its containing block, so without this the hidden text of an amount far right in a wide table
+   widens the whole page (the page scrolled sideways by about 1000 px on CTR-01). */
 .ui-money {
+  position: relative;
   white-space: nowrap;
 }

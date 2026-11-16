@@ -249,7 +249,7 @@ class AlertCard extends StatelessWidget {
     final String? escalation = _escalationLine(context);
     final String? snooze = _snoozeLine(context);
     final String? reminders = _remindersLine(context);
-    final String title = item.title.isEmpty ? alertSourceLabel(context, item.source) : item.title;
+    final String title = item.title.isEmpty ? alertSourceLabel(context, item.source) : percentsInText(item.title, AppStrings.of(context).language);
     final bool claimIsPrimary = onOpen == null && canClaim;
     final Widget? primary = onOpen != null
         ? FilledButton(onPressed: busy ? null : onOpen, style: v2PrimaryButtonStyle(v2), child: Text(context.t('mob.alert.action.open.label')))
@@ -276,7 +276,7 @@ class AlertCard extends StatelessWidget {
           const SizedBox(height: MachvonV2Space.s8),
           Text(title, style: text.heading),
           Text(
-            <String>[context.t('mob.alert.card.source.line', <String, Object>{'source': alertSourceLabel(context, item.source)}), if (item.subtitle != null) item.subtitle!].join(' · '),
+            <String>[context.t('mob.alert.card.source.line', <String, Object>{'source': alertSourceLabel(context, item.source)}), if (item.subtitle != null) percentsInText(item.subtitle!, AppStrings.of(context).language)].join(' · '),
             style: text.caption,
           ),
           const SizedBox(height: MachvonV2Space.s8),

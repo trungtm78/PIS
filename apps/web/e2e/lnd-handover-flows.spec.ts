@@ -103,7 +103,7 @@ test.describe('LND-10: site handover by section and km', () => {
     await expect(page.getByRole('heading', { level: 1, name: vi['lnd.sections.page.title'] })).toBeVisible();
     await expect(page.locator('[data-section]')).toHaveCount(2);
     await expect(page.locator('[data-section="SEC-01"] [data-testid="contract"]')).toContainText('HD-HDV-A-');
-    await expect(page.getByTestId('total-ratio')).toHaveText(vi['lnd.sections.ratio.value'].replace('{ratio}', '0.00'));
+    await expect(page.getByTestId('total-ratio')).toHaveText('0%');
 
     // 18,000 of 30,000: PARTIAL.
     await page.locator('[data-handover="SEC-01"]').click();
@@ -120,7 +120,7 @@ test.describe('LND-10: site handover by section and km', () => {
     await send(page, '30000', seeded.document);
     await expect(page.locator('[data-section="SEC-01"] [data-testid="status"]')).toHaveText(vi['lnd.sections.status.handedOver']);
     await expect(page.locator('[data-handover="SEC-01"]')).toHaveCount(0);
-    await expect(page.getByTestId('total-ratio')).toHaveText(vi['lnd.sections.ratio.value'].replace('{ratio}', '51.72'));
+    await expect(page.getByTestId('total-ratio')).toHaveText('51,72%');
     await expect(page.getByTestId('total-sections')).toHaveText('1/2');
     expect((await sectionOf(first)).status).toBe('HANDED_OVER');
 

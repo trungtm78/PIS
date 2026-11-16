@@ -1,5 +1,5 @@
 import { percentOfText } from '../../i18n/format';
-import { percentFigure } from '../percent-figure';
+import { percentFigure } from '../../i18n/format';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { compactMoney, fullMoney } from '../../i18n/money';

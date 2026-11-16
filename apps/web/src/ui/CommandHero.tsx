@@ -5,6 +5,8 @@ import type { UiState } from './types';
 export interface CommandHeroProps {
   label: string;
   value: string;
+  /** What the figure is in full (the exact amount of a short figure): the tooltip of the value, also read out after it. */
+  valueTitle?: string;
   unit: string;
   caption?: ReactNode;
   ratio?: { percent: number | null; label: string };
@@ -50,7 +52,7 @@ function Ring({ percent, label }: { percent: number | null; label: string }) {
 }
 
 /** The dark command block of the leader home: one big number with its unit, an optional ring, chips and actions. */
-export function CommandHero({ label, value, unit, caption, ratio, chips, actions, state = 'ready', onRetry }: CommandHeroProps) {
+export function CommandHero({ label, value, valueTitle, unit, caption, ratio, chips, actions, state = 'ready', onRetry }: CommandHeroProps) {
   const { t } = useTranslation();
   if (state === 'loading') {
     return (
@@ -83,8 +85,9 @@ export function CommandHero({ label, value, unit, caption, ratio, chips, actions
       <div className="ui-hero__main">
         <p className="ui-hero__label">{label}</p>
         <p className="ui-hero__figure">
-          <span className="ui-hero__value">{value}</span>
+          <span className="ui-hero__value" title={valueTitle}>{value}</span>
           <span className="ui-hero__unit">{unit}</span>
+          {valueTitle !== undefined && <span className="ui-sr-only"> ({valueTitle})</span>}
         </p>
         {caption !== undefined && <div className="ui-hero__caption">{caption}</div>}
         {chips !== undefined && chips.length > 0 && (

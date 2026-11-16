@@ -1,4 +1,4 @@
-import { percentFigure } from '../../percent-figure';
+import { percentFigure } from '../../../i18n/format';
 import { formatPercent } from '../../../i18n/format';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';

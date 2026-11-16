@@ -11,7 +11,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { ContextBar, InfoFormula, KpiTile, Money } from '../../ui';
-import { percentFigure } from '../percent-figure';
+import { percentFigure } from '../../i18n/format';
 import type { InfoFormulaLabels } from '../../ui';
 import './gov11.css';
 

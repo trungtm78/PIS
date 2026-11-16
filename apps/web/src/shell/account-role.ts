@@ -1,5 +1,6 @@
 import { useTranslation } from '../i18n';
 import { useEffectiveAccess } from '../screens/iam/effective-access/hooks';
+import { useSession } from '../session/SessionContext';
 
 /** What the shell needs of a grant to name the role of the person. */
 export interface RoleOfGrant {
@@ -59,7 +60,9 @@ export function highestRoleLabel(grants: readonly RoleOfGrant[], t: T): string |
 /** The role label of the signed-in person, read from their own effective access (`getMyEffectiveAccess`). */
 export function useAccountRoleLabel(): string | undefined {
   const { t } = useTranslation();
-  const access = useEffectiveAccess();
+  // A control-plane session (the platform operator) has no membership of a tenant: the tenant plane refuses the question (403), so it is not asked.
+  const { controlPlane } = useSession();
+  const access = useEffectiveAccess({ enabled: controlPlane !== true });
   if (access.data === undefined) return undefined;
   return highestRoleLabel(access.data.grants, t);
 }

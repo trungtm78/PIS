@@ -247,7 +247,7 @@ void main() {
       final SemanticsHandle semantics = tester.ensureSemantics();
       await pumpV2(tester, gallery(const <Widget>[ProgressMeter(value: 0.581, label: 'Giải ngân'), ProgressMeter(value: 2)]));
       expect(find.bySemanticsLabel('Giải ngân, 58,1%'), findsOneWidget);
-      expect(find.bySemanticsLabel('100,0%'), findsOneWidget, reason: 'a share above 1 is held at the full bar');
+      expect(find.bySemanticsLabel('100%'), findsOneWidget, reason: 'a share above 1 is held at the full bar, and a trailing zero is not written');
       semantics.dispose();
     });
 

@@ -79,11 +79,11 @@ export function Hero({ center, year }: { center: CommandCenter; year: string }) 
   return (
     <CommandHero
       label={t('home.ov.hero.label', { year })}
+      {...(amount !== null && short !== null && short.unit !== 'dong' ? { valueTitle: fullMoney(amount, locale) } : {})}
       value={amount === null ? '—' : short !== null ? short.number : groupedText(figureText({ displayValue: amount }), locale, style?.groupDigits === true)}
       unit={amount === null ? '' : short !== null ? t(`money.unit.${short.unit}`) : t('govc.home.unit.vnd')}
       caption={
         <>
-          {amount !== null && short !== null && short.unit !== 'dong' ? <span data-testid="hero-exact">{t('home.ov.hero.exact', { amount: fullMoney(amount, locale) })} </span> : null}
           {amount === null
             ? snapshot?.state === 'loading'
               ? t('home.ov.hero.loading')

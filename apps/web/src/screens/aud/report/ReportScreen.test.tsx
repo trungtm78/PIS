@@ -51,7 +51,7 @@ describe('AUD-10 report of the results and closure', () => {
     expect(text('report-engagement')).toContain('TTCP-2026-001');
     expect(text('figures-counts')).toBe(vi_['aud.report.figures.counts'].replace('{closed}', '2').replace('{inProgress}', '1').replace('{open}', '0').replace('{disputed}', '0').replace('{total}', '3'));
     expect(text('figures-money')).toBe(vi_['aud.report.figures.money'].replace('{amount}', '1,2 tỷ đồng').replace('{recovered}', '1,1 tỷ đồng').replace('{remaining}', '100 triệu đồng'));
-    expect(text('report-rate-money')).toBe(`91,67% ${vi_['aud.recovery.rate.parts'].replace('{numerator}', '1.100.000.000').replace('{denominator}', '1.200.000.000')}`);
+    expect(text('report-rate-money')).toBe(`91,67% ${vi_['aud.recovery.rate.parts'].replace('{numerator}', '1,1 tỷ đồng').replace('{denominator}', '1,2 tỷ đồng')}`);
     expect(text('report-rate-count')).toBe(`66,67% ${vi_['aud.recovery.rate.parts'].replace('{numerator}', '2').replace('{denominator}', '3')}`);
     const reportRow = row.closest('tr') as HTMLElement;
     const cells = within(reportRow).getAllByRole('cell');

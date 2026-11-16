@@ -31872,7 +31872,6 @@
   "gov11.clocks.col.left": "Còn lại hoặc quá hạn",
   "gov11.clocks.col.state": "Trạng thái",
   "gov11.clocks.col.reason": "Lý do trả lại",
-  "gov11.clocks.col.net": "Số tiền (đồng)",
   "gov11.clocks.noCalendar": "Chưa có lịch làm việc",
   "gov11.clocks.left": "Còn {hours} giờ làm việc",
   "gov11.clocks.late": "Quá {hours} giờ làm việc",
@@ -40601,7 +40600,6 @@
   "ca2.ladder.col.money": "Số tiền",
   "home.changes.disbursed.up": "Tuần này giải ngân thêm {amount}.",
   "home.changes.disbursed.down": "Giải ngân lũy kế giảm {amount} so với tuần trước.",
-  "home.ov.hero.exact": "Chính xác: {amount}.",
   "home.ov.plan.subPm": "Trong đó Thủ tướng giao {pm}",
   "mne.weekly.plan.amount": "Tổng kế hoạch vốn: {value}",
   "mne.weekly.disbursed.amount": "Giải ngân lũy kế theo Kho bạc: {value}",
@@ -40678,5 +40676,6 @@
   "cap.avc.zones.warn": "Từ {warn} đến {block}: cảnh báo, cần xác nhận",
   "cap.avc.zones.block": "Trên {block}: bị chặn",
   "cap.reservation.refusal.warn": "Giữ vốn này đưa dòng lên {consumption} (ngưỡng cảnh báo {warn}, ngưỡng chặn {block}). Hãy xác nhận cảnh báo rồi gửi lại.",
-  "cap.reservation.refusal.blocked": "Không giữ được: dòng sẽ lên {consumption}, vượt ngưỡng chặn {block}."
+  "cap.reservation.refusal.blocked": "Không giữ được: dòng sẽ lên {consumption}, vượt ngưỡng chặn {block}.",
+  "gov11.clocks.col.netShort": "Số tiền"
 }

@@ -1,4 +1,4 @@
-import { percentFigure } from '../percent-figure';
+import { percentFigure } from '../../i18n/format';
 import { useTranslation } from '../../i18n';
 import { useRecords } from './hooks';
 import type { ChangeView } from './model';

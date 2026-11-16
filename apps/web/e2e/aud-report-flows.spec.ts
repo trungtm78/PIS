@@ -163,8 +163,8 @@ test.describe('AUD-10: the report of the results and the closure', () => {
     const row = page.locator('tr[data-report-id]').filter({ hasText: vi['aud.reportStatus.issueRequested'] });
     await expect(row).toContainText(first.payload_sha256.slice(0, 12));
     await expect(row.getByTestId('figures-counts')).toHaveText(vi['aud.report.figures.counts'].replace('{closed}', '1').replace('{inProgress}', '1').replace('{open}', '0').replace('{disputed}', '0').replace('{total}', '2'));
-    await expect(row.getByTestId('figures-money')).toContainText('800.000.000');
-    await expect(row.getByTestId('report-rate-money')).toContainText('50,00%');
+    await expect(row.getByTestId('figures-money')).toContainText('800 triệu đồng');
+    await expect(row.getByTestId('report-rate-money')).toContainText('50% (400 triệu đồng / 800 triệu đồng)');
     const requested = await sql<{ type: string; payload: Record<string, unknown> }>("select type, payload from machvon.outbox_event where aggregate_id = $1 and type = 'aud.report.issue_requested.v1'", [first.id]);
     expect(requested[0]?.payload).toMatchObject({ source_module: 'AUD', source_ref: refOf(first.id, 1), payload_sha256: first.payload_sha256, template_code: TEMPLATE_CODE });
     // The trail keeps the hash and the counts, not the words of the engagement.

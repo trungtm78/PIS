@@ -202,12 +202,12 @@ String findingMessage(BuildContext context, Finding finding) {
       final String? ratio = finding.values['ratio_pct'];
       return ratio == null
           ? context.t('mob.rep.finding.volumeNoCapital.body', <String, Object>{'construction': _dong(context, finding.values['construction_vnd'])})
-          : context.t('mob.rep.finding.volumeExceeds.body', <String, Object>{'construction': _dong(context, finding.values['construction_vnd']), 'ratio': ratio, 'allocated': _dong(context, finding.values['allocated_vnd'])});
+          : context.t('mob.rep.finding.volumeExceeds.body', <String, Object>{'construction': _dong(context, finding.values['construction_vnd']), 'ratio': formatPercent(ratio, AppStrings.of(context).language), 'allocated': _dong(context, finding.values['allocated_vnd'])});
     case 'TREASURY_GAP':
       final String? gap = finding.values['gap_pct'];
       return gap == null
           ? context.t('mob.rep.finding.treasuryNone.body', <String, Object>{'reported': _dong(context, finding.values['reported_vnd'])})
-          : context.t('mob.rep.finding.treasuryGap.body', <String, Object>{'reported': _dong(context, finding.values['reported_vnd']), 'pct': gap, 'treasury': _dong(context, finding.values['treasury_vnd'])});
+          : context.t('mob.rep.finding.treasuryGap.body', <String, Object>{'reported': _dong(context, finding.values['reported_vnd']), 'pct': formatPercent(gap, AppStrings.of(context).language), 'treasury': _dong(context, finding.values['treasury_vnd'])});
     case 'NEXT_MONTH_EMPTY_WITH_CAPITAL_LEFT':
       return context.t('mob.rep.finding.nextMonth.body', <String, Object>{'remaining': _dong(context, finding.values['remaining_vnd'])});
     default:

@@ -213,7 +213,6 @@ function Acceptances({ contract, acceptances, measurements }: AcceptancesProps) 
       <ScopeBar money extra={[{ label: t('w2pay.ctr.ctx.contract'), value: contract.code }]} />
       <SectionCard
         title={t('ctr.acceptance.contract.title')}
-        unit={t('w2pay.ctx.unit')}
         status={<StatusBadge status={contract.status} />}
         actions={
           mayDraft ? (
@@ -245,7 +244,7 @@ function Acceptances({ contract, acceptances, measurements }: AcceptancesProps) 
           {done}
         </p>
       )}
-      <SectionCard title={t('ctr.acceptance.list.title')} unit={t('w2pay.ctx.unit')}>
+      <SectionCard title={t('ctr.acceptance.list.title')}>
         {acceptances.length === 0 ? (
           <p className="sub" data-testid="no-acceptances">
             {t('ctr.acceptance.list.empty')}
