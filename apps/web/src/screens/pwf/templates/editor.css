@@ -492,3 +492,10 @@
 .pwfx-unit {
   min-width: 330px;
 }
+.pwfx-anchor select {
+  min-width: 150px;
+}
+.pwfx-apply__add select {
+  width: auto;
+  min-width: 180px;
+}
