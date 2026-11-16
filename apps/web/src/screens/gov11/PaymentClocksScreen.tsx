@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
-import { StatusPill } from '../../ui';
+import { Money, StatusPill } from '../../ui';
 import { Figure, Frame, Info, UnverifiedNote, asList, asRecord, dayLabel, money, num, percent, stamp, text, useGovRead } from './gov11-kit';
 import type { RuleReading } from './gov11-kit';
 
@@ -130,7 +130,7 @@ export default function PaymentClocksScreen({ route }: ScreenProps) {
                       <th scope="col">{t('gov11.clocks.col.state')}</th>
                       <th scope="col">{t('gov11.clocks.col.reason')}</th>
                       <th scope="col" className="gov11-num">
-                        {t('gov11.clocks.col.net')}
+                        {t('gov11.clocks.col.netShort')}
                       </th>
                     </tr>
                   </thead>
@@ -151,7 +151,9 @@ export default function PaymentClocksScreen({ route }: ScreenProps) {
                             <StatusPill tone={TONE[value] ?? 'neutral'}>{stateLabel(value)}</StatusPill>
                           </td>
                           <td>{row.end_kind === 'RETURNED' ? reasonName(row.return_reason_code) : '–'}</td>
-                          <td className="gov11-num">{money(row.net_vnd)}</td>
+                          <td className="gov11-num">
+                            <Money value={typeof row.net_vnd === 'string' ? row.net_vnd : null} />
+                          </td>
                         </tr>
                       );
                     })}
