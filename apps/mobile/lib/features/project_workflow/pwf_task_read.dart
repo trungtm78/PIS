@@ -9,10 +9,13 @@ import '../read_support/read_cache.dart';
 import 'pwf_models.dart';
 import 'pwf_step_logic.dart';
 
+/// A read that failed says so and waits for the person to try again: the provider does not retry by itself (it would leave the sheet "checking" while a refusal stands).
+Duration? _noRetry(int count, Object error) => null;
+
 /// The task of a row of MOB-78, read for the sheet of its actions: what the person may do on it (`can_claim`, `can_complete`, the blockers) is only in the detail of the
 /// task. It follows the rules of BR-MOB-01 like every read of the phone and shares the copy of MOB-79 (the same key), so a task the person has opened has its copy here:
 /// the server is asked first; when it cannot be reached the copy of the last read is shown, marked as a copy ([Loaded.fromCache]); a refusal never falls back to a copy and drops it.
-final pwfSheetTaskProvider = FutureProvider.autoDispose.family<Loaded<PwfTaskDetail>, String>((Ref ref, String taskId) async {
+final pwfSheetTaskProvider = FutureProvider.autoDispose.family<Loaded<PwfTaskDetail>, String>(retry: _noRetry, (Ref ref, String taskId) async {
   final SessionSnapshot session = ref.watch(sessionProvider);
   final String? tenant = session.tenantId;
   final String? user = session.userId;

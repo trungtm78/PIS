@@ -114,6 +114,17 @@ void main() {
       expect(alertScreenOf(_item('PROJECT_TASK', 'PWF-04', ''), has: has), isNull, reason: 'a task alert without a task opens nothing');
     });
 
+    test('PWF-5: an unclaimed task opens the task (MOB-79) and a deadline of the whole file at risk opens the workflow of the project (MOB-78), each by its id', () {
+      const String task = '7f3a0000-0000-4000-8000-000000000012';
+      const String project = '3b1c2f10-0000-4000-8000-000000000001';
+      // PWF_TASK_UNCLAIMED names PWF-04 with the id of the task; PWF_OVERALL_DEADLINE_AT_RISK names PWF-03 with the id of the project (packages/db/src/home-pwf-sources.ts).
+      expect(alertScreenOf(_item('PROJECT_TASK', 'PWF-04', task), has: has, available: (String id) => id == 'MOB-79'), (screenId: 'MOB-79', pathSuffix: '/$task'));
+      expect(alertScreenOf(_item('PROJECT_TASK', 'PWF-03', project), has: has, available: (String id) => id == 'MOB-78'), (screenId: 'MOB-78', pathSuffix: '/$project'));
+      final String sources = File('$_root/packages/db/src/home-pwf-sources.ts').readAsStringSync();
+      expect(sources, contains("target: { screen: 'PWF-04', id: row.id }"), reason: 'the unclaimed alert still names the task');
+      expect(sources, contains("target: { screen: 'PWF-03', id: row.project_id }"), reason: 'the alert of the whole file still names the project');
+    });
+
     test('permits and audit have no phone screen: the alert is handled from its actions', () {
       for (final String screen in <String>['PMT-02', 'AUD-11', 'AUD-13', 'AUD-15']) {
         expect(alertScreenOf(_item('PERMIT', screen, 'x-1'), has: has), isNull, reason: screen);
