@@ -11732,7 +11732,7 @@
       "rule": "Chỉ đọc, chỉ bản enterprise. Mốc chưa có hiển thị là CHƯA CÓ, không hiển thị là đã xong. Mốc đạt trước mốc đứng trước hoặc mốc bắt buộc bị bỏ qua được nêu thành cảnh báo. Hồ sơ pháp lý chỉ gồm hồ sơ còn hiệu lực người xem được đọc theo phạm vi. Số tiền theo nguồn là số của bản kế hoạch đã phát hành (người soạn thấy thêm bản đang soạn)."
     },
     "PWF-01": {
-      "title": "Thư viện mẫu workflow",
+      "title": "Thư viện mẫu quy trình",
       "module": "PWF",
       "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "table",
@@ -11753,7 +11753,7 @@
       "rule": "Mỗi quy trình một dòng. Mở, nhân bản, ngừng áp dụng. Mẫu là quy tắc có phiên bản. Người duyệt khác người soạn. Dự án đang chạy giữ bản đã đóng băng. Căn cứ chưa đối chiếu được đếm."
     },
     "PWF-02": {
-      "title": "Soạn mẫu workflow",
+      "title": "Soạn mẫu quy trình",
       "module": "PWF",
       "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "form",
@@ -11783,7 +11783,7 @@
       "rule": "Một bảng, mỗi dòng một bước. Sơ đồ do máy chủ tính từ bảng. Phiên bản đang áp dụng chỉ để xem. Sửa thì tạo bản nháp mới. Lưu nháp, trình duyệt qua kho quy tắc, người duyệt khác người soạn. Áp cho trình cùng quy trình."
     },
     "PWF-03": {
-      "title": "Workflow của dự án",
+      "title": "Quy trình của dự án",
       "module": "PWF",
       "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "detail",
@@ -11819,7 +11819,7 @@
       "rule": "Nút theo quyền và trạng thái do máy chủ trả. Hoàn thành thiếu điều kiện hiện danh sách blockers. Người duyệt khác mọi người làm, không ngoại lệ nào che được."
     },
     "PWF-05": {
-      "title": "Khởi tạo và tiếp nhận workflow",
+      "title": "Khởi tạo và tiếp nhận quy trình",
       "module": "PWF",
       "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "form",
@@ -11913,7 +11913,7 @@
       "rule": "Thứ tự nghiêm ngặt xanh > vàng > đỏ ≥ -1. Quy tắc có phiên bản, người duyệt khác người soạn."
     },
     "PWF-09": {
-      "title": "Bộ KPI workflow",
+      "title": "Bộ KPI quy trình",
       "module": "PWF",
       "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "form",

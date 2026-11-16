@@ -2143,7 +2143,7 @@
     "IMPACT_NOT_COMPUTED": {
       "status": 422,
       "title": "Impact not computed",
-      "meaning": "…project, dashboards/metric, crosswalk, workflow) — không có impact → không submit được (IMPACT_NOT_COMPUTED);",
+      "meaning": "…project, dashboards/metric, crosswalk, quy trình) — không có impact → không submit được (IMPACT_NOT_COMPUTED);",
       "module": "MDM",
       "statusBasis": "spec",
       "source": "spec:MDM"
@@ -7543,7 +7543,7 @@
     "PROJECT_WORKFLOW_TEMPLATE_INVALID": {
       "status": 422,
       "title": "Project workflow template invalid",
-      "meaning": "Mẫu workflow dự án không hợp lệ: thiếu trường, tham chiếu không tồn tại hoặc vượt giới hạn 400 việc, 12 giai đoạn, 20 liên kết mỗi việc (PWF, BR-PWF-12).",
+      "meaning": "Mẫu quy trình dự án không hợp lệ: thiếu trường, tham chiếu không tồn tại hoặc vượt giới hạn 400 việc, 12 giai đoạn, 20 liên kết mỗi việc (PWF, BR-PWF-12).",
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
@@ -7551,7 +7551,7 @@
     "PWF_WORKFLOW_EXISTS": {
       "status": 409,
       "title": "The project already has a workflow",
-      "meaning": "Dự án đã có workflow (hoặc người khác vừa tạo trước); mỗi dự án chỉ có một workflow (PWF, F2).",
+      "meaning": "Dự án đã có quy trình (hoặc người khác vừa tạo trước); mỗi dự án chỉ có một quy trình (PWF, F2).",
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
@@ -7559,7 +7559,7 @@
     "PWF_TEMPLATE_NOT_FOUND": {
       "status": 404,
       "title": "No such workflow template in force",
-      "meaning": "Không có mẫu workflow đang hiệu lực với mã đã chọn (PWF, F2).",
+      "meaning": "Không có mẫu quy trình đang hiệu lực với mã đã chọn (PWF, F2).",
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
@@ -7583,7 +7583,7 @@
     "PWF_TASK_STATE_INVALID": {
       "status": 409,
       "title": "The task state does not allow this",
-      "meaning": "Trạng thái của công việc hoặc của workflow (đã hủy, đã đóng) không cho phép thao tác này (PWF, mục 4).",
+      "meaning": "Trạng thái của công việc hoặc của quy trình (đã hủy, đã đóng) không cho phép thao tác này (PWF, mục 4).",
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
@@ -7599,7 +7599,7 @@
     "PWF_GATE_CLOSED": {
       "status": 422,
       "title": "The stage gate is closed",
-      "meaning": "Cổng giai đoạn của workflow đang đóng: còn việc bắt buộc chưa xong nên lệnh của dự án chưa chạy được; danh sách việc còn thiếu kèm theo (PWF, BR-PWF-13).",
+      "meaning": "Cổng giai đoạn của quy trình đang đóng: còn việc bắt buộc chưa xong nên lệnh của dự án chưa chạy được; danh sách việc còn thiếu kèm theo (PWF, BR-PWF-13).",
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
@@ -7607,7 +7607,7 @@
     "PWF_SCHEDULE_VERSION_CONFLICT": {
       "status": 409,
       "title": "The schedule changed meanwhile",
-      "meaning": "Lịch của workflow đã đổi trước khi duyệt (người khác dời lịch cùng lúc); xem lại bản mới (PWF, BR-PWF-28).",
+      "meaning": "Lịch của quy trình đã đổi trước khi duyệt (người khác dời lịch cùng lúc); xem lại bản mới (PWF, BR-PWF-28).",
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
@@ -7615,7 +7615,7 @@
     "PWF_RESCHEDULE_PENDING_EXISTS": {
       "status": 409,
       "title": "A reschedule proposal is already pending",
-      "meaning": "Workflow đã có một đề nghị dời lịch chờ duyệt; mỗi workflow tối đa một đề nghị (PWF, mục 4).",
+      "meaning": "Quy trình đã có một đề nghị dời lịch chờ duyệt; mỗi quy trình tối đa một đề nghị (PWF, mục 4).",
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
@@ -7759,7 +7759,7 @@
     "PWF_UNIT_OVERRIDE_DENIED": {
       "status": 422,
       "title": "A unit the project or the template already names cannot be replaced when the workflow starts",
-      "meaning": "Không được chọn lại đơn vị mà dự án hoặc mẫu quy trình đã xác định; sửa dự án, không sửa workflow",
+      "meaning": "Không được chọn lại đơn vị mà dự án hoặc mẫu quy trình đã xác định; sửa dự án, không sửa quy trình",
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"

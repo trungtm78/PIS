@@ -2580,10 +2580,10 @@
       ]
     },
     "PWF": {
-      "name": "Workflow dự án và hạn ba màu",
+      "name": "Quy trình dự án và hạn ba màu",
       "groups": [
         {
-          "title": "Mẫu workflow dự án",
+          "title": "Mẫu quy trình dự án",
           "description": "Thư viện mẫu, soạn mẫu và duyệt mẫu theo loại dự án",
           "ids": [
             1,
@@ -2597,7 +2597,7 @@
           }
         },
         {
-          "title": "Workflow của dự án",
+          "title": "Quy trình của dự án",
           "description": "Khởi tạo, tiếp nhận, thực hiện công việc, phân công và dời lịch của một dự án",
           "ids": [
             3,
@@ -2634,7 +2634,7 @@
         },
         {
           "title": "KPI và chính sách chấm điểm",
-          "description": "Bộ KPI của workflow và chính sách chấm điểm nhân viên, mỗi mục do người khác duyệt",
+          "description": "Bộ KPI của quy trình và chính sách chấm điểm nhân viên, mỗi mục do người khác duyệt",
           "ids": [
             9,
             10
@@ -3200,7 +3200,7 @@
     "PWA": "Phê duyệt số liệu kỳ, bảng điều hành và theo dõi chỉ đạo trên điện thoại, cài đặt được và có thông báo đẩy.",
     "RML": "Lịch gửi email biểu mẫu đã phát hành tới các thành viên, kèm tệp phát hành, mã băm SHA-256 và nhật ký từng thư (chỉ bản doanh nghiệp).",
     "IPF": "Hồ sơ đầu tư của một dự án trong bản enterprise: loại dự án, cờ khởi công mới hoặc chuyển tiếp, mốc vòng đời so với danh mục, hồ sơ pháp lý theo loại và phần tách kế hoạch vốn theo Nghị quyết PVN và Quyết định của Tổng công ty.",
-    "PWF": "Mẫu workflow theo loại dự án, lịch công việc có đường găng, cổng giai đoạn của dự án, hạn ba màu xanh vàng đỏ và sổ phân công."
+    "PWF": "Mẫu quy trình theo loại dự án, lịch công việc có đường găng, cổng giai đoạn của dự án, hạn ba màu xanh vàng đỏ và sổ phân công."
   },
   "adminLibraryModules": [
     "IAM",
@@ -8591,31 +8591,31 @@
     },
     {
       "id": "PWF-01",
-      "title": "Thư viện mẫu workflow",
+      "title": "Thư viện mẫu quy trình",
       "kind": "table",
       "area": "investment",
       "module": "PWF",
-      "group": "Mẫu workflow dự án",
+      "group": "Mẫu quy trình dự án",
       "role": "workspace",
       "parent": null
     },
     {
       "id": "PWF-02",
-      "title": "Soạn mẫu workflow",
+      "title": "Soạn mẫu quy trình",
       "kind": "form",
       "area": "investment",
       "module": "PWF",
-      "group": "Mẫu workflow dự án",
+      "group": "Mẫu quy trình dự án",
       "role": "detail",
       "parent": "PWF-01"
     },
     {
       "id": "PWF-03",
-      "title": "Workflow của dự án",
+      "title": "Quy trình của dự án",
       "kind": "detail",
       "area": "investment",
       "module": "PWF",
-      "group": "Workflow của dự án",
+      "group": "Quy trình của dự án",
       "role": "workspace",
       "parent": null
     },
@@ -8625,17 +8625,17 @@
       "kind": "detail",
       "area": "investment",
       "module": "PWF",
-      "group": "Workflow của dự án",
+      "group": "Quy trình của dự án",
       "role": "detail",
       "parent": "PWF-03"
     },
     {
       "id": "PWF-05",
-      "title": "Khởi tạo và tiếp nhận workflow",
+      "title": "Khởi tạo và tiếp nhận quy trình",
       "kind": "form",
       "area": "investment",
       "module": "PWF",
-      "group": "Workflow của dự án",
+      "group": "Quy trình của dự án",
       "role": "detail",
       "parent": "PWF-03"
     },
@@ -8645,7 +8645,7 @@
       "kind": "detail",
       "area": "investment",
       "module": "PWF",
-      "group": "Workflow của dự án",
+      "group": "Quy trình của dự án",
       "role": "detail",
       "parent": "PWF-03"
     },
@@ -8655,7 +8655,7 @@
       "kind": "table",
       "area": "investment",
       "module": "PWF",
-      "group": "Workflow của dự án",
+      "group": "Quy trình của dự án",
       "role": "detail",
       "parent": "PWF-04"
     },
@@ -8681,7 +8681,7 @@
     },
     {
       "id": "PWF-09",
-      "title": "Bộ KPI workflow",
+      "title": "Bộ KPI quy trình",
       "kind": "form",
       "area": "investment",
       "module": "PWF",
@@ -10147,7 +10147,7 @@
     },
     {
       "id": "MOB-78",
-      "title": "Workflow dự án trên điện thoại",
+      "title": "Quy trình dự án trên điện thoại",
       "kind": "list",
       "bottomNavigation": "projects",
       "tabRoot": "MOB-09"
