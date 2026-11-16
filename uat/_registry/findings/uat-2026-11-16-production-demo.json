@@ -1,0 +1,72 @@
+{
+  "run_id": "uat-2026-11-16-production-demo",
+  "at": "2026-11-16T06:54:12+07:00",
+  "build": "894ab209f6",
+  "findings": [
+    {
+      "tc_id": "TC-UI-BI-02",
+      "run_id": "uat-2026-11-16-production-demo",
+      "at": "2026-11-16T06:54:12+07:00",
+      "build": "894ab209f6",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Kỳ, Nguồn vốn, Đơn vị\n2. Thử loading/empty/error/denied; kiểm các action th",
+      "action": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route BI-02\n1. Mở route bằng menu và deep link; kiểm tên trường: Kỳ, Nguồn vốn, Đơn vị\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ tiêu có định nghĩa phiên bản; quyền dữ liệu áp dụng khi truy vấn và xuất\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "actual": "Error: expect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= 1\nReceived:    6",
+      "evidence": [
+        "uat/run/uat-2026-11-16-production-demo/artifacts/screens.e2e-TC-UI-BI-02-BI-b462d--không-tràn-control-có-nhãn-e2e/test-failed-1.png",
+        "uat/run/uat-2026-11-16-production-demo/artifacts/screens.e2e-TC-UI-BI-02-BI-b462d--không-tràn-control-có-nhãn-e2e/video.webm",
+        "uat/run/uat-2026-11-16-production-demo/artifacts/screens.e2e-TC-UI-BI-02-BI-b462d--không-tràn-control-có-nhãn-e2e/error-context.md",
+        "uat/run/uat-2026-11-16-production-demo/artifacts/screens.e2e-TC-UI-BI-02-BI-b462d--không-tràn-control-có-nhãn-e2e/trace.zip"
+      ],
+      "repro": "2/2",
+      "regression_hint": [
+        "COV-FR-BI-02"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-CTR-11",
+      "run_id": "uat-2026-11-16-production-demo",
+      "at": "2026-11-16T06:54:12+07:00",
+      "build": "894ab209f6",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Hạng mục, Tiêu chuẩn, Kết quả, Không phù hợp, Biện pháp, Hạn khắc phục\n2. ",
+      "action": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route CTR-11\n1. Mở route bằng menu và deep link; kiểm tên trường: Hạng mục, Tiêu chuẩn, Kết quả, Không phù hợp, Biện pháp, Hạn khắc phục\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Chỉ ghi nhận giá trị trên hợp đồng/phụ lục và khối lượng đã duyệt. Giữ lịch sử phiên bản; không đồng nhất khối lượng, nghiệm thu, đề",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "actual": "Test timeout of 60000ms exceeded.",
+      "evidence": [
+        "uat/run/uat-2026-11-16-production-demo/artifacts/screens.e2e-TC-UI-CTR-11-C-61e70--không-tràn-control-có-nhãn-e2e/video.webm",
+        "uat/run/uat-2026-11-16-production-demo/artifacts/screens.e2e-TC-UI-CTR-11-C-61e70--không-tràn-control-có-nhãn-e2e/error-context.md",
+        "uat/run/uat-2026-11-16-production-demo/artifacts/screens.e2e-TC-UI-CTR-11-C-61e70--không-tràn-control-có-nhãn-e2e/trace.zip"
+      ],
+      "repro": "1/2",
+      "regression_hint": [
+        "COV-FR-CTR-11"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-LLM-09",
+      "run_id": "uat-2026-11-16-production-demo",
+      "at": "2026-11-16T06:54:12+07:00",
+      "build": "894ab209f6",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route LLM-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Request ID, Model thực tế, Token, Giá, Trạng thái đối soát\n2. Thử loading/",
+      "action": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route LLM-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Request ID, Model thực tế, Token, Giá, Trạng thái đối soát\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Gateway thi hành chính sách ngoài prompt; giữ log tối thiểu cần thiết\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "actual": "Error: expect(locator).toBeVisible() failed\n\nLocator: locator('[data-screen-id=\"LLM-09\"]').first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 45000ms\n  - waiting for locator('[data-screen-id=\"LLM-09\"]').first()\n    - waiting for \"https://180-93-34-176.sslip.io:8443/idp/realms/machvon/protocol/openid-connect/auth?response_type=code&client_id=machvon-web&redirect_uri=https%3A%2F%2F180-93-34-176.sslip.io%3A8443%2Fauth%2Fcallback…\" navigation to finish...\n    - navigated to \"https://180-93-34-176.sslip.io:8443/auth/callback?state",
+      "evidence": [
+        "uat/run/uat-2026-11-16-production-demo/artifacts/screens.e2e-TC-UI-LLM-09-L-cd12b--không-tràn-control-có-nhãn-e2e/test-failed-1.png",
+        "uat/run/uat-2026-11-16-production-demo/artifacts/screens.e2e-TC-UI-LLM-09-L-cd12b--không-tràn-control-có-nhãn-e2e/video.webm",
+        "uat/run/uat-2026-11-16-production-demo/artifacts/screens.e2e-TC-UI-LLM-09-L-cd12b--không-tràn-control-có-nhãn-e2e/error-context.md",
+        "uat/run/uat-2026-11-16-production-demo/artifacts/screens.e2e-TC-UI-LLM-09-L-cd12b--không-tràn-control-có-nhãn-e2e/trace.zip"
+      ],
+      "repro": "1/2",
+      "regression_hint": [
+        "COV-FR-LLM-09"
+      ]
+    }
+  ]
+}

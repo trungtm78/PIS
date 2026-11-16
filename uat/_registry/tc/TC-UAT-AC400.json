@@ -45,6 +45,15 @@
       "reason": "",
       "repro": null,
       "duration_ms": 161
+    },
+    {
+      "run_id": "uat-2026-11-16-production-demo",
+      "at": "2026-11-16T06:54:12+07:00",
+      "build": "894ab209f6",
+      "status": "KHONG_CHAY",
+      "reason": "khong-co-kich-ban",
+      "repro": null,
+      "duration_ms": 0
     }
   ],
   "flake_rate": 0.0,

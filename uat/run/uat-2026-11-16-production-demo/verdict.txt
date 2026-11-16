@@ -1,0 +1,49 @@
+## Kết quả UAT
+VERDICT: FAIL
+KẾT LUẬN: NO-GO
+TỔNG: 1199 | PASS: 258 | FAIL: 3 | KHÔNG CHẠY: 938
+BUILD: 894ab209f6 · URL: https://180-93-34-176.sslip.io:8443 · Playwright 1.62.1 · spec-hash a8989a27d6a6 · rào: git · monkey: web×2
+FILE: uat/run/uat-2026-11-16-production-demo/report.md
+KHUYẾT PHÉP ĐO: G8 (Độ bền (monkey)), G14 (Ma trận quyền · IDOR), G15 (Dữ liệu · Audit · Idempotency · Trạng thái), G17 (Hiệu năng (ngân sách người đặt)) — không đo được nên KHÔNG được coi là đạt; cần người xác nhận.
+FINDINGS:
+  - TC-UAT-AC103 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC104 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC105 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC106 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC107 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC108 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC110 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC111 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC112 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC113 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC116 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC117 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC126 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC127 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC129 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC130 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC131 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC132 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC134 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC139 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC141 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC143 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-15 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-16 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-17 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-18 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-PLAN-12 [P0] KHÔNG CHẠY (can-du-lieu-stack-e2e)
+  - TC-UAT-AC388 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC392 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-AUD-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-AUD-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-AUD-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-AUD-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-AUD-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-AUD-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-AUD-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-AUD-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-AUD-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC433 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC434 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - … và 907 phát hiện khác trong report.md

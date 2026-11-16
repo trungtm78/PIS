@@ -1,0 +1,7 @@
+# Thư mục kết quả của một lượt uat-test-only. Chỉ giữ báo cáo và khối kết luận;
+# phần còn lại là hiện vật lớn (video, trace) hoặc phụ thuộc tải về.
+/*
+!/.gitignore
+!/report.md
+!/verdict.txt
+!/verdict.json

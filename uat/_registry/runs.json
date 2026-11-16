@@ -64,6 +64,19 @@
         "KHONG_CHAY": 740
       },
       "green": false
+    },
+    {
+      "run_id": "uat-2026-11-16-production-demo",
+      "at": "2026-11-16T06:54:12+07:00",
+      "build": "894ab209f6",
+      "out": "uat/run/uat-2026-11-16-production-demo",
+      "counts": {
+        "total": 1199,
+        "PASS": 258,
+        "FAIL": 3,
+        "KHONG_CHAY": 938
+      },
+      "green": false
     }
   ]
 }

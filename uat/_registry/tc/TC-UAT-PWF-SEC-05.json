@@ -1,0 +1,17 @@
+{
+  "tc_id": "TC-UAT-PWF-SEC-05",
+  "runs": [
+    {
+      "run_id": "uat-2026-11-16-production-demo",
+      "at": "2026-11-16T06:54:12+07:00",
+      "build": "894ab209f6",
+      "status": "KHONG_CHAY",
+      "reason": "can-du-lieu-stack-e2e",
+      "repro": null,
+      "duration_ms": 0
+    }
+  ],
+  "flake_rate": 0.0,
+  "fail_runs": 0,
+  "untrusted": false
+}
