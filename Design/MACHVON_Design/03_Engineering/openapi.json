@@ -327075,6 +327075,79 @@
                   ],
                   "format": "date",
                   "description": "Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)"
+                },
+                "band_tier": {
+                  "type": "string",
+                  "enum": [
+                    "STEP",
+                    "POLICY_OVERRIDE",
+                    "POLICY",
+                    "SYSTEM"
+                  ],
+                  "description": "Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source."
+                },
+                "band_thresholds": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "green_days",
+                    "yellow_days",
+                    "red_days"
+                  ],
+                  "description": "The ladder the official colour was judged on, in working days left (PWF R73).",
+                  "properties": {
+                    "green_days": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "yellow_days": {
+                      "type": "integer"
+                    },
+                    "red_days": {
+                      "type": "integer",
+                      "minimum": -1
+                    }
+                  }
+                },
+                "duration": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "additionalProperties": false,
+                  "required": [
+                    "value",
+                    "unit",
+                    "roll_to_working_day"
+                  ],
+                  "description": "The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone.",
+                  "properties": {
+                    "value": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "WORKING_DAY",
+                        "CALENDAR_DAY",
+                        "MONTH"
+                      ]
+                    },
+                    "roll_to_working_day": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "effective_working_days": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "description": "The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown."
                 }
               }
             }
@@ -327598,6 +327671,79 @@
                   ],
                   "format": "date",
                   "description": "Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)"
+                },
+                "band_tier": {
+                  "type": "string",
+                  "enum": [
+                    "STEP",
+                    "POLICY_OVERRIDE",
+                    "POLICY",
+                    "SYSTEM"
+                  ],
+                  "description": "Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source."
+                },
+                "band_thresholds": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "green_days",
+                    "yellow_days",
+                    "red_days"
+                  ],
+                  "description": "The ladder the official colour was judged on, in working days left (PWF R73).",
+                  "properties": {
+                    "green_days": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "yellow_days": {
+                      "type": "integer"
+                    },
+                    "red_days": {
+                      "type": "integer",
+                      "minimum": -1
+                    }
+                  }
+                },
+                "duration": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "additionalProperties": false,
+                  "required": [
+                    "value",
+                    "unit",
+                    "roll_to_working_day"
+                  ],
+                  "description": "The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone.",
+                  "properties": {
+                    "value": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "WORKING_DAY",
+                        "CALENDAR_DAY",
+                        "MONTH"
+                      ]
+                    },
+                    "roll_to_working_day": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "effective_working_days": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "description": "The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown."
                 }
               }
             }
@@ -329196,6 +329342,79 @@
               "null"
             ],
             "description": "Tên vai trò duyệt theo danh mục vai trò của mẫu; null khi không có vai trò duyệt hoặc mẫu không khai tên"
+          },
+          "band_tier": {
+            "type": "string",
+            "enum": [
+              "STEP",
+              "POLICY_OVERRIDE",
+              "POLICY",
+              "SYSTEM"
+            ],
+            "description": "Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source."
+          },
+          "band_thresholds": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "green_days",
+              "yellow_days",
+              "red_days"
+            ],
+            "description": "The ladder the official colour was judged on, in working days left (PWF R73).",
+            "properties": {
+              "green_days": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "yellow_days": {
+                "type": "integer"
+              },
+              "red_days": {
+                "type": "integer",
+                "minimum": -1
+              }
+            }
+          },
+          "duration": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "unit",
+              "roll_to_working_day"
+            ],
+            "description": "The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone.",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "unit": {
+                "type": "string",
+                "enum": [
+                  "WORKING_DAY",
+                  "CALENDAR_DAY",
+                  "MONTH"
+                ]
+              },
+              "roll_to_working_day": {
+                "type": "boolean"
+              }
+            }
+          },
+          "effective_working_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown."
           }
         }
       },
@@ -330025,6 +330244,79 @@
                   ],
                   "format": "date",
                   "description": "Ngày kết thúc dự báo, chỉ có khi khác hạn chính thức (R49)"
+                },
+                "band_tier": {
+                  "type": "string",
+                  "enum": [
+                    "STEP",
+                    "POLICY_OVERRIDE",
+                    "POLICY",
+                    "SYSTEM"
+                  ],
+                  "description": "Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source."
+                },
+                "band_thresholds": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "green_days",
+                    "yellow_days",
+                    "red_days"
+                  ],
+                  "description": "The ladder the official colour was judged on, in working days left (PWF R73).",
+                  "properties": {
+                    "green_days": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "yellow_days": {
+                      "type": "integer"
+                    },
+                    "red_days": {
+                      "type": "integer",
+                      "minimum": -1
+                    }
+                  }
+                },
+                "duration": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "additionalProperties": false,
+                  "required": [
+                    "value",
+                    "unit",
+                    "roll_to_working_day"
+                  ],
+                  "description": "The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone.",
+                  "properties": {
+                    "value": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "WORKING_DAY",
+                        "CALENDAR_DAY",
+                        "MONTH"
+                      ]
+                    },
+                    "roll_to_working_day": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "effective_working_days": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "description": "The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown."
                 }
               }
             }
@@ -330648,6 +330940,79 @@
                   ],
                   "format": "date",
                   "description": "Ngày hoàn thành thực tế; chỉ có với việc đã xong (status=DONE)"
+                },
+                "band_tier": {
+                  "type": "string",
+                  "enum": [
+                    "STEP",
+                    "POLICY_OVERRIDE",
+                    "POLICY",
+                    "SYSTEM"
+                  ],
+                  "description": "Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source."
+                },
+                "band_thresholds": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "green_days",
+                    "yellow_days",
+                    "red_days"
+                  ],
+                  "description": "The ladder the official colour was judged on, in working days left (PWF R73).",
+                  "properties": {
+                    "green_days": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "yellow_days": {
+                      "type": "integer"
+                    },
+                    "red_days": {
+                      "type": "integer",
+                      "minimum": -1
+                    }
+                  }
+                },
+                "duration": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "additionalProperties": false,
+                  "required": [
+                    "value",
+                    "unit",
+                    "roll_to_working_day"
+                  ],
+                  "description": "The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone.",
+                  "properties": {
+                    "value": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "WORKING_DAY",
+                        "CALENDAR_DAY",
+                        "MONTH"
+                      ]
+                    },
+                    "roll_to_working_day": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "effective_working_days": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "description": "The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown."
                 }
               }
             }

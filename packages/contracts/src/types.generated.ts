@@ -49285,6 +49285,26 @@ export interface components {
                  * @description Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)
                  */
                 forecast_finish?: string | null;
+                /**
+                 * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+                 * @enum {string}
+                 */
+                band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+                /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+                band_thresholds?: {
+                    green_days: number | null;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                } | null;
+                /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+                effective_working_days?: number | null;
             }[];
             gates: {
                 /** @enum {string} */
@@ -49418,6 +49438,26 @@ export interface components {
                  * @description Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)
                  */
                 forecast_finish?: string | null;
+                /**
+                 * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+                 * @enum {string}
+                 */
+                band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+                /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+                band_thresholds?: {
+                    green_days: number | null;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                } | null;
+                /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+                effective_working_days?: number | null;
             }[];
             next_cursor: string | null;
             total: number;
@@ -49798,6 +49838,26 @@ export interface components {
             responsible_role_name?: string | null;
             /** @description Tên vai trò duyệt theo danh mục vai trò của mẫu; null khi không có vai trò duyệt hoặc mẫu không khai tên */
             approver_role_name?: string | null;
+            /**
+             * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+             * @enum {string}
+             */
+            band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+            /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+            band_thresholds?: {
+                green_days: number | null;
+                yellow_days: number;
+                red_days: number;
+            };
+            /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+            duration?: {
+                value: number;
+                /** @enum {string} */
+                unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                roll_to_working_day: boolean;
+            } | null;
+            /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+            effective_working_days?: number | null;
         };
         PwfTaskStart: {
             /** @description Bắt buộc khi bắt đầu trước khi tiền nhiệm đủ điều kiện theo loại liên kết (quản lý cho phép bắt đầu sớm) */
@@ -50013,6 +50073,26 @@ export interface components {
                  * @description Ngày kết thúc dự báo, chỉ có khi khác hạn chính thức (R49)
                  */
                 forecast_finish?: string | null;
+                /**
+                 * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+                 * @enum {string}
+                 */
+                band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+                /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+                band_thresholds?: {
+                    green_days: number | null;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                } | null;
+                /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+                effective_working_days?: number | null;
             }[];
             next_cursor: string | null;
             shown: number;
@@ -50181,6 +50261,26 @@ export interface components {
                  * @description Ngày hoàn thành thực tế; chỉ có với việc đã xong (status=DONE)
                  */
                 finished_on?: string | null;
+                /**
+                 * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+                 * @enum {string}
+                 */
+                band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+                /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+                band_thresholds?: {
+                    green_days: number | null;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                } | null;
+                /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+                effective_working_days?: number | null;
             }[];
             next_cursor: string | null;
             total: number;
