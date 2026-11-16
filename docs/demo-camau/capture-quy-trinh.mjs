@@ -37,8 +37,8 @@ const SCREENS = [
   ['owner', '04-bang-deadline', '/pwf/pwf-07', 'PWF-07', 'PWF-07 Bảng deadline toàn danh mục'],
   ['owner', '05-trang-chu-canh-bao', '/home/home-03', 'HOME-03', 'HOME-03 Cảnh báo sớm'],
   ['projectManager', '06-viec-chua-co-nguoi-nhan', `/pwf/pwf-04?id=${estimate}&project=${idOf(CLAIM)}`, 'PWF-04', 'PWF-04 Việc chưa có người nhận (canbo.qlda, nút "Nhận việc")'],
-  ['projectManager', '07-viec-cua-toi', '/home/home-02', 'HOME-02', 'HOME-02 Việc của tôi (canbo.qlda)'],
-  ['projectManager', '08-canh-bao-chua-co-nguoi-nhan', '/home/home-03', 'HOME-03', 'HOME-03 Cảnh báo sớm (canbo.qlda)'],
+  ['projectManager', '07-viec-chua-co-nguoi-nhan-trang-chu', '/home/home-02', 'HOME-02', 'HOME-02 Việc của tôi: việc chưa có người nhận (canbo.qlda)', 'Chưa có người nhận'],
+  ['capApprover', '08-han-chung-co-nguy-co-lanh-dao', '/home/home-02', 'HOME-02', 'HOME-02 Việc của tôi của lãnh đạo: hạn chung của hồ sơ có nguy cơ (lanhdao)', 'Hạn chung của hồ sơ'],
 ];
 
 const browser = await chromium.launch();
@@ -55,7 +55,7 @@ try {
     });
     await signIn(page, credentials.origin, account);
     process.stdout.write(`signed in as ${account.username}\n`);
-    for (const [who, file, path, screenId, title] of SCREENS) {
+    for (const [who, file, path, screenId, title, focus] of SCREENS) {
       if (who !== person) continue;
       errors.length = 0;
       failed.length = 0;
@@ -63,6 +63,21 @@ try {
       await page.waitForTimeout(3000);
       const sideways = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
       const body = await page.evaluate(() => document.body.innerText);
+      if (focus !== undefined) {
+        // A long list: the window is moved to the row the picture is about.
+        // The list is long and cut: when the row is not there, the chips of the levels narrow it until it is.
+        const chips = page.locator('.mv-alert-chip[data-severity]');
+        for (let index = 0; index < (await chips.count()) && (await page.getByText(focus).count()) === 0; index += 1) await chips.nth(index).click();
+        const row = page.getByText(focus).first();
+        await row.scrollIntoViewIfNeeded();
+        await page.evaluate(() => window.scrollBy(0, 0));
+        const box = await row.boundingBox();
+        const top = Math.max(0, Math.round((box?.y ?? 0) + (await page.evaluate(() => window.scrollY)) - 260));
+        await page.screenshot({ path: resolve(values.out, `${file}.png`), fullPage: true, clip: { x: 0, y: top, width: 1440, height: 760 } });
+        process.stdout.write(`${file}.png  ${title}  shown=${shown}  errors=${errors.length}  api5xx=${failed.length}
+`);
+        continue;
+      }
       // A tall viewport keeps the bar of actions of a task (it sticks to the bottom of the window) under the content; a long list is cut at 2600 px.
       const height = await page.evaluate(() => document.documentElement.scrollHeight);
       await page.screenshot({ path: resolve(values.out, `${file}.png`), ...(height > 2600 ? { clip: { x: 0, y: 0, width: 1440, height: 2600 } } : { fullPage: true }) });
