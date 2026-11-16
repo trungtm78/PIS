@@ -13,6 +13,8 @@ export interface ConfirmDialogProps {
   onConfirm: (reason?: string) => void;
   onCancel: () => void;
   pending?: boolean;
+  /** Keeps the confirm button off while what the dialog asks for is not there yet (a paste with no row to add). */
+  confirmDisabled?: boolean;
   /** `minLength` (of the trimmed text) keeps the button off until the reason is long enough; `hint` says how long. */
   reason?: { label: string; required?: boolean; minLength?: number; hint?: string };
   /** A refusal of the action, said inside the dialog (an alert) so that it is not behind the backdrop. */
@@ -24,7 +26,7 @@ export interface ConfirmDialogProps {
 const FOCUSABLE = 'button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
 
 /** A modal that names the record and the effect before a serious action; Escape cancels, Tab stays inside, a pending action locks it against a double send. */
-export function ConfirmDialog({ open, title, context, confirmLabel, cancelLabel, onConfirm, onCancel, pending = false, reason, error, children }: ConfirmDialogProps) {
+export function ConfirmDialog({ open, title, context, confirmLabel, cancelLabel, onConfirm, onCancel, pending = false, confirmDisabled = false, reason, error, children }: ConfirmDialogProps) {
   const { t } = useTranslation();
   const titleId = useId();
   const reasonId = useId();
@@ -102,7 +104,7 @@ export function ConfirmDialog({ open, title, context, confirmLabel, cancelLabel,
           <button type="button" className="ui-button ui-button--outline" ref={cancelButton} disabled={pending} onClick={onCancel}>
             {cancelLabel}
           </button>
-          <button type="button" className="ui-button ui-button--primary" disabled={pending || missingReason} onClick={() => onConfirm(reason === undefined ? undefined : text.trim())}>
+          <button type="button" className="ui-button ui-button--primary" disabled={pending || missingReason || confirmDisabled} onClick={() => onConfirm(reason === undefined ? undefined : text.trim())}>
             {pending ? t('ui.confirmDialog.pending') : confirmLabel}
           </button>
         </div>

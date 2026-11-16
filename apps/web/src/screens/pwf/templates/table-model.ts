@@ -611,3 +611,35 @@ export function lineOfProblem(template: Template, path: string): TableLine | und
   if (task !== null) return lines.find((line) => line.kind === 'task' && line.taskIndex === Number(task[1])) ?? lines.find((line) => line.taskIndexes.includes(Number(task[1])));
   return step === null ? undefined : lines.find((line) => line.kind === 'step' && line.stepIndex === Number(step[1]));
 }
+
+// ---- the checklist: codes made from names (R63) ---------------------------------------------------------------------------------------------------------------------
+
+/** A checklist item that has a name and no code yet gets its code made from the name, once; an item that has its code keeps it whatever it is renamed to. */
+export function settleChecklistCodes(template: Template): Template {
+  let changed = false;
+  const tasks = template.tasks.map((task) => {
+    if (!task.checklist.some((item) => item.code === '' && item.name.trim() !== '')) return task;
+    const taken = task.checklist.map((item) => item.code).filter((code) => code !== '');
+    const checklist = task.checklist.map((item) => {
+      if (item.code !== '' || item.name.trim() === '') return item;
+      const code = workflowCodeFrom(item.name, taken);
+      taken.push(code);
+      return { ...item, code };
+    });
+    changed = true;
+    return { ...task, checklist };
+  });
+  return changed ? { ...template, tasks } : template;
+}
+
+/** Everything that waits for a name to get its code: rows, phases and checklist items. Called when a name is left and before anything is sent. */
+export const settleAll = (template: Template): Template => settleChecklistCodes(settleCodes(template));
+
+/** Makes a task a milestone (no limit of its own, no extension: the check refuses them together) or a task again (one working day, the limit the person gives next). */
+export function setKind(template: Template, taskIndex: number, kind: EditorTask['kind']): Template {
+  return patchTask(template, taskIndex, (task) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the limit and the extension are what a milestone drops
+    const { duration, extension, ...rest } = task;
+    return kind === 'MILESTONE' ? { ...rest, kind, duration_working_days: 0 } : { ...task, kind, duration_working_days: Math.max(1, task.duration_working_days) };
+  });
+}

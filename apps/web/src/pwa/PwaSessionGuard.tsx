@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useApiClient } from '../api/ApiClientContext';
+import { clearLocalDrafts, browserDraftStore } from '../screens/pwf/templates/draft-store';
 import { SessionContext, useSession } from '../session/SessionContext';
 import { purgeClientState } from './purge';
 import type { PurgeDeps } from './purge';
@@ -39,7 +40,11 @@ export function PwaSessionGuard({ children, purgeDeps }: { children: ReactNode; 
         cacheStorage: typeof caches === 'undefined' ? undefined : caches,
         container: typeof navigator === 'undefined' ? undefined : navigator.serviceWorker,
         storage: browserStorage(),
-        clearMemory: () => queryClient.clear(),
+        // What a person was writing in the editor of a workflow template stays on the device only while they are signed in (R70).
+        clearMemory: () => {
+          queryClient.clear();
+          clearLocalDrafts(browserDraftStore());
+        },
         ...purgeDeps,
       });
     }

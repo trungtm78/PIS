@@ -21,13 +21,15 @@ export interface PreviewInput {
   template: Template;
   plannedStartDate: string;
   facts: { project_group?: string; funding_source?: string; project_type?: string };
+  /** PROVISIONAL: a year with no published calendar is counted on its latest draft and the answer says so (R74); absent: the published calendars only. */
+  calendarMode?: 'PUBLISHED' | 'PROVISIONAL';
 }
 
 /** The schedule of a template on a start day and the facts of a project, tried out on the server (nothing is stored). */
 export function usePreviewTemplate() {
   const client = useApiClient();
   return useMutation<SchedulePreview, Error, PreviewInput>({
-    mutationFn: (input) => client.command('previewProjectWorkflowTemplate', { body: { params: paramsOfTemplate(input.template), planned_start_date: input.plannedStartDate, facts: input.facts } }),
+    mutationFn: (input) => client.command('previewProjectWorkflowTemplate', { body: { params: paramsOfTemplate(input.template), planned_start_date: input.plannedStartDate, facts: input.facts, ...(input.calendarMode === undefined ? {} : { calendar_mode: input.calendarMode }) } }),
   });
 }
 

@@ -2,9 +2,8 @@ import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
-import { roleKnown, roleName } from '../codes';
-import { joinCodes, splitCodes, templateRoleName } from './template-model';
-import type { Template, TemplateProblem, TemplateProblemKind } from './template-model';
+import { joinCodes, splitCodes } from './template-model';
+import type { TemplateProblem, TemplateProblemKind } from './template-model';
 
 /** The problems of the editor by path, for the field that has one. */
 export type ProblemMap = ReadonlyMap<string, TemplateProblemKind>;
@@ -30,18 +29,8 @@ export function problemWord(t: Translator['t'], kind: TemplateProblemKind): stri
     case 'selfLink':
       return t('pwf.templates.problem.selfLink.error');
     default:
-      return kind;
+      return t(`pwfx.problem.${kind}`);
   }
-}
-
-/**
- * What a role code is called, as the hint under the field that holds the code (PWF-02): the name this template gives it, else the name of the shipped catalogue; a code nobody named says where to name it. A person
- * reads the Vietnamese name of the role under the box, never the code alone (lane fix11: the role of a step said nothing of its name).
- */
-export function roleHintOf(t: Translator['t'], template: Template, code: string): string | undefined {
-  if (code.trim() === '') return undefined;
-  const name = templateRoleName(template, code) ?? (roleKnown(code) ? roleName(t, code) : undefined);
-  return name === undefined ? t('fix8.editor.role.unnamed.hint') : t('fix8.editor.role.named.hint', { name });
 }
 
 export interface FieldFrameProps {
