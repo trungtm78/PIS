@@ -48,6 +48,8 @@ import type { DurationUnit, EditorTask, LegalBasisInput, Template, TemplateProbl
 export interface StepsTableProps {
   template: Template;
   onChange: (next: Template) => void;
+  /** The name of a row or a phase was left: the rows that wait for their code get it from the name. Asked of the screen, which applies it to the table as it is at that moment (a handler never settles a copy that an edit has just replaced). */
+  onSettle: () => void;
   /** A row was taken away: the screen offers to put it back (the template as it was). */
   onRemoved: (before: Template) => void;
   disabled: boolean;
@@ -212,7 +214,7 @@ export function StepsTable(props: StepsTableProps) {
 
 // ---- a phase -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-function PhaseRow({ template, onChange, onRemoved, disabled, group, word, number }: StepsTableProps & { group: TableGroup; word: string; number: number }) {
+function PhaseRow({ template, onChange, onSettle, onRemoved, disabled, group, word, number }: StepsTableProps & { group: TableGroup; word: string; number: number }) {
   const { t } = useTranslation();
   const phase = group.phase;
   const index = group.phaseIndex;
@@ -242,7 +244,7 @@ function PhaseRow({ template, onChange, onRemoved, disabled, group, word, number
             disabled={disabled}
             data-testid={`phase-name-${index}`}
             onChange={(event) => onChange(updatePhase(template, index, { name: event.target.value }))}
-            onBlur={() => onChange(settleCodes(template))}
+            onBlur={onSettle}
           />
           {disabled ? null : (
             <span className="pwfx-phase__actions">
@@ -292,7 +294,7 @@ function PhaseRow({ template, onChange, onRemoved, disabled, group, word, number
 // ---- a step ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function StepRow(props: StepsTableProps & { line: TableLine }) {
-  const { template, onChange, onRemoved, disabled, line, problems, showAll, touched, onTouch, tenantUnits, ladders, focusKey, onFocused, onOpenDetails } = props;
+  const { template, onChange, onSettle, onRemoved, disabled, line, problems, showAll, touched, onTouch, tenantUnits, ladders, focusKey, onFocused, onOpenDetails } = props;
   const { t } = useTranslation();
   const [adding, setAdding] = useState<'unit' | 'role' | { support: number; part: 'unit' | 'role' } | undefined>(undefined);
   const [basisOpen, setBasisOpen] = useState(false);
@@ -427,7 +429,7 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
               data-cell={`${at}.name`}
               data-testid={`name-${line.key}`}
               onChange={(event) => onChange(nameLine(template, line, event.target.value))}
-              onBlur={() => onChange(settleCodes(template))}
+              onBlur={onSettle}
               onKeyDown={onNameKey}
             />
             {task === undefined ? null : (

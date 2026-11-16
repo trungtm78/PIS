@@ -33,7 +33,7 @@ import { PasteDialog } from './PasteDialog';
 import { StepDrawer } from './StepDrawer';
 import { StepsTable } from './StepsTable';
 import { storeRefusalText } from './store';
-import { lineOf, lineOfProblem, linesOf, settleAll, settleChecklistCodes, unverifiedRows } from './table-model';
+import { lineOf, lineOfProblem, linesOf, settleAll, settleChecklistCodes, settleCodes, unverifiedRows } from './table-model';
 import { localProblems, paramsOfTemplate, readTemplate, stepsOf } from './template-model';
 import type { Template, TemplateProblem } from './template-model';
 import '../pwf.css';
@@ -117,6 +117,7 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
   const removed = useCallback((before: Template): void => {
     removal.current = before;
   }, []);
+  const settle = useCallback((): void => setEdited((old) => (old === undefined ? old : settleCodes(old))), []);
   const tableChange = useCallback((next: Template): void => {
     setEdited(next);
     const before = removal.current;
@@ -421,7 +422,7 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
           <ul>
             {visibleProblems.slice(0, 12).map((problem) => (
               <li key={`${problem.path}:${problem.problem}`}>
-                <button type="button" className="pwfx-link" data-testid="jump" onClick={() => jump(problem)}>
+                <button type="button" className="pwfx-link" data-testid="jump" data-path={problem.path} onClick={() => jump(problem)}>
                   {rowNumber(problem.path) === undefined ? t('pwfx.summary.template') : t('pwfx.summary.row', { row: rowNumber(problem.path) ?? '' })}: {problemWord(t, problem.problem)}
                 </button>
               </li>
@@ -440,6 +441,7 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
         <StepsTable
           template={template}
           onChange={tableChange}
+          onSettle={settle}
           onRemoved={removed}
           disabled={!canEdit}
           problems={local}
