@@ -116,6 +116,9 @@ export const WORK_KINDS = [
   'PWF_MILESTONE_AT_RISK',
   // The legal grounds of a project workflow (lane PWF-4): a document a running workflow cites has lapsed or was replaced.
   'PWF_LEGAL_BASIS_LAPSED',
+  // The redesign of the project workflow: a task of a receiving unit nobody has taken (opens the task, where "Nhận việc" is), and the deadline of the whole file turning yellow or red (opens the workflow of the project).
+  'PWF_TASK_UNCLAIMED',
+  'PWF_OVERALL_DEADLINE_AT_RISK',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;
