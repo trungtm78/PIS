@@ -493,13 +493,15 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
                 <button
                   type="button"
                   className="ui-button ui-button--outline ui-button--small"
+                  aria-label={label(t('pwfx.cell.support.add'))}
+                  title={t('pwfx.cell.support.add')}
                   onClick={() => {
                     const taken = new Set((task.responsible_units ?? []).map((unit) => `${unit.unit_ref}|${unit.role}`));
                     const free = units.find((choice2) => !taken.has(`${choice2.value}|${task.responsible_role}`));
                     if (free !== undefined) onChange(addSupport(template, taskIndex as number, free.value, task.responsible_role));
                   }}
                 >
-                  + {t('pwfx.cell.support.add')}
+                  <span aria-hidden="true">+</span>
                 </button>
               )}
               {lead === undefined || unitRefKind(lead.unit_ref).kind !== 'unknown' ? null : <span className="pwf-hint">{lead.unit_ref}</span>}

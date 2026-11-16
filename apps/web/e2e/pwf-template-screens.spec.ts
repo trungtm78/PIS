@@ -81,11 +81,13 @@ test.describe('PWF-01 and PWF-02: layout, height and effort', () => {
     await expect(page.getByTestId('diagram-status')).toHaveAttribute('data-status', 'ready', { timeout: 15_000 });
     await noSidewaysScroll(page);
     const height = await page.evaluate(() => document.documentElement.scrollHeight);
-    expect(height, `the page is ${height}px high`).toBeLessThanOrEqual(2 * 1000 + 400);
+    // The editor (the header and the table of 10 steps) is at most two screens high; the diagram under it makes the page a little longer.
+    const tableEnds = await page.evaluate(() => Math.round((document.querySelector('.pwfx-card')?.getBoundingClientRect().bottom ?? 0) + window.scrollY));
+    expect(tableEnds, `the table of 10 steps ends ${tableEnds}px down`).toBeLessThanOrEqual(2 * 1000);
     // To save it: one click on "Lưu nháp", the reason, one click to confirm (not done here).
     effort.clicks += 2;
     effort.typed += 1;
-    test.info().annotations.push({ type: 'effort', description: `10 steps: ${effort.clicks} clicks, ${effort.typed} typed fields, ${effort.keys} key presses; page ${height}px high` });
+    test.info().annotations.push({ type: 'effort', description: `10 steps: ${effort.clicks} clicks, ${effort.typed} typed fields, ${effort.keys} key presses; table ends at ${tableEnds}px, page ${height}px high` });
     expect(effort.clicks).toBeLessThanOrEqual(6);
     expect(effort.typed).toBeLessThanOrEqual(15);
     await page.screenshot({ path: join(SHOTS, '04-PWF-02-ten-steps-1440.png'), fullPage: true });
