@@ -175,7 +175,7 @@ describe('step table: the header', () => {
 
   it('names the phase the project is in', () => {
     expect(openPhaseName(workflowDetail())).toBe('Chuẩn bị đầu tư');
-    expect(openPhaseName(workflowDetail({ open_phase: null }))).toBeNull();
+    expect(openPhaseName(workflowDetail({ open_phase: null, phases: workflowDetail().phases.map((phase) => ({ ...phase, open: false })) }))).toBeNull();
   });
 
   it('reads the slip of the overall deadline from the schedule, and nothing without it', () => {

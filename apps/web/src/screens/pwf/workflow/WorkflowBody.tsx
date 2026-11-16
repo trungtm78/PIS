@@ -6,20 +6,20 @@ import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard, Tabs, useTabParam } from '../../../ui';
 import { PERMISSIONS, holds, stampText, startLink } from '../model';
-import { StepsPanel } from '../process/StepsPanel';
 import type { WorkflowDetail } from '../model';
 import { Board } from './Board';
 import { GatesPanel } from './Gates';
 import { useGates, useSchedule, useTaskPages, useWorkflow } from './hooks';
 import { NO_FILTER, calendarYears, gateRows, isStale } from './model';
 import type { TaskFilter } from './model';
-import { Overview } from './Overview';
-import { WorkflowOutline } from './Outline';
-import { Attention, Gantt, MilestoneTimeline, PhaseStepper } from './Views';
+import { StepTable } from './StepTable';
+import { Gantt, MilestoneTimeline } from './Views';
+import { WorkflowHeader } from './WorkflowHeader';
+import type { Capabilities } from './step-table-model';
 import './workflow.css';
 
-/** The tabs of the workflow of a project, in the address as `?view=`: an overview, the tasks, the schedule, the milestones with the gates, the board. */
-export const FLOW_VIEWS = ['overview', 'tasks', 'schedule', 'gates', 'board'] as const;
+/** The tabs of the workflow of a project, in the address as `?view=`: the step table (the default), the schedule, the milestones with the gates, the board. */
+export const FLOW_VIEWS = ['steps', 'schedule', 'gates', 'board'] as const;
 
 /** The project has no workflow yet: the screen says so and, for a person who may start or adopt one, links to the form that does. */
 function NoWorkflow({ projectId, canStart }: { projectId: string; canStart: boolean }) {
@@ -85,6 +85,9 @@ function Loaded({ detail, projectId, readAt, refetchFailed, frozen, onReload }: 
     for (const gate of gates) if (gate.isError) void gate.refetch();
   };
   const canReschedule = detail.can_propose_reschedule && !frozen;
+  const { permissions } = useSession();
+  // What a row offers follows what the person holds; the server decides again and says why not. A read-only session holds nothing that writes.
+  const can: Capabilities = { work: holds(permissions, PERMISSIONS.taskWork, frozen), approve: holds(permissions, PERMISSIONS.taskApprove, frozen), propose: holds(permissions, PERMISSIONS.schedulePropose, frozen) };
   return (
     <div data-testid="workflow">
       {partial ? (
@@ -103,42 +106,14 @@ function Loaded({ detail, projectId, readAt, refetchFailed, frozen, onReload }: 
           </button>
         </p>
       ) : null}
+      <WorkflowHeader detail={detail} schedule={schedule.data} years={calendarYears(detail, schedule.data)} stale={stale} canReschedule={canReschedule} />
       <Tabs
         label={t('pwf6.flow.tabs.label')}
         testId="flow"
         value={view}
         onChange={setView}
         tabs={[
-          {
-            id: 'overview',
-            label: t('pwf6.flow.tab.overview'),
-            panel: (
-              <>
-                <Overview detail={detail} schedule={schedule.data} years={calendarYears(detail, schedule.data)} stale={stale} canReschedule={canReschedule} />
-                <PhaseStepper detail={detail} version={version} />
-                <Attention detail={detail} projectId={projectId} onAll={() => setView('tasks')} />
-              </>
-            ),
-          },
-          {
-            id: 'tasks',
-            label: t('pwf6.flow.tab.tasks'),
-            count: detail.tasks.filter((task) => !task.excluded).length,
-            panel: (
-              <>
-                <WorkflowOutline
-                  detail={detail}
-                  projectId={projectId}
-                  selectedPhase={filter.phase}
-                  onPhase={(phase) => {
-                    setFilter({ ...filter, phase });
-                    if (phase !== '') setView('board');
-                  }}
-                />
-                <StepsPanel detail={detail} projectId={projectId} />
-              </>
-            ),
-          },
+          { id: 'steps', label: t('pwfp.flow.tab.steps'), panel: <StepTable detail={detail} projectId={projectId} schedule={schedule.data} can={can} /> },
           { id: 'schedule', label: t('pwf6.flow.tab.schedule'), panel: <Gantt detail={detail} version={version} schedule={schedule.data} loading={schedule.isLoading} failed={schedule.isError} onRetry={() => void schedule.refetch()} /> },
           {
             id: 'gates',

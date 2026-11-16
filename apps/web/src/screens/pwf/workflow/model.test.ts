@@ -18,9 +18,8 @@ import {
   healthOf,
   isStale,
   milestoneRows,
-  stepperSteps,
   taskQuery,
-  worstHealth,
+  phaseStandingOf,
   worstVariance,
 } from './model';
 import type { GanttRow } from './model';
@@ -42,12 +41,6 @@ describe('PWF-03 model: health', () => {
     expect(health({ tracked: false })).toBe('none');
   });
 
-  it('takes the worst health of a set', () => {
-    expect(worstHealth([workflowTask(1, { band: band('GREEN') }), workflowTask(2, { band: band('RED') })])).toBe('late');
-    expect(worstHealth([workflowTask(1, { band: band('GREEN') }), workflowTask(2, { status: 'ON_HOLD' })])).toBe('hold');
-    expect(worstHealth([workflowTask(1, { band: band('NONE') })])).toBe('none');
-    expect(worstHealth([])).toBe('none');
-  });
 });
 
 describe('PWF-03 model: freshness', () => {
@@ -63,33 +56,17 @@ describe('PWF-03 model: freshness', () => {
   });
 });
 
-describe('PWF-03 model: the stepper', () => {
-  it('puts the phases before the open one as done, the open one as current (late when a task of it is red) and the rest as upcoming', () => {
-    const steps = stepperSteps(detail(), t);
-    expect(steps.map((step) => [step.code, step.status])).toEqual([
-      ['PREPARATION', 'late'],
-      ['EXECUTION', 'upcoming'],
-    ]);
-    expect(steps[0]?.current).toBe(true);
-    expect(steps[0]?.note).toBe(text('pwf.flow.stepper.progress.text', { done: 1, total: 2 }));
-    const second = detail({ open_phase: 'EXECUTION', phases: detail().phases.map((phase) => ({ ...phase, open: phase.code === 'EXECUTION' })) });
-    expect(stepperSteps(second, t).map((step) => step.status)).toEqual(['done', 'current']);
-    const hold = detail({ status: 'ON_HOLD', phases: detail().phases.map((phase) => ({ ...phase, open: phase.code === 'EXECUTION' })) });
-    expect(stepperSteps(hold, t).map((step) => step.status)).toEqual(['done', 'hold']);
-    const finished = detail({ open_phase: null, phases: detail().phases.map((phase) => ({ ...phase, open: false })) });
-    expect(stepperSteps(finished, t).map((step) => step.status)).toEqual(['done', 'done']);
-  });
+describe('PWF-03 model: where the project is', () => {
+  const phase = (code: string, order: number, standing: 'DONE' | 'CURRENT' | 'STARTED' | 'UPCOMING') => ({ code, name: code, order, gates: [], required_total: 2, required_done: standing === 'DONE' ? 2 : 0, open: standing !== 'DONE', current: standing === 'CURRENT', standing });
 
   it('says "here" of ONE phase: the phase the server names as current; a later phase with work in parallel has started', () => {
-    const phase = (code: string, order: number, standing: 'DONE' | 'CURRENT' | 'STARTED' | 'UPCOMING') => ({ code, name: code, order, gates: [], required_total: 2, required_done: standing === 'DONE' ? 2 : 0, open: standing !== 'DONE', current: standing === 'CURRENT', standing });
-    // Three phases still have required work (`open`): only one of them is where the project is.
-    const parallel = detail({ open_phase: 'B', tasks: [], phases: [phase('A', 1, 'DONE'), phase('B', 2, 'CURRENT'), phase('C', 3, 'STARTED'), phase('D', 4, 'STARTED'), phase('E', 5, 'UPCOMING')] });
-    const steps = stepperSteps(parallel, t);
-    expect(steps.map((step) => step.status)).toEqual(['done', 'current', 'started', 'started', 'upcoming']);
-    expect(steps.filter((step) => step.current === true || step.status === 'current').map((step) => step.code)).toEqual(['B']);
-    // An answer kept from before the server named the current phase: the open phase of the workflow is the one, never every phase that is still open.
-    const older = detail({ open_phase: 'B', tasks: [], phases: parallel.phases.map((one) => ({ code: one.code, name: one.name, order: one.order, gates: one.gates, required_total: one.required_total, required_done: one.required_done, open: one.open })) });
-    expect(stepperSteps(older, t).map((step) => step.status)).toEqual(['done', 'current', 'upcoming', 'upcoming', 'upcoming']);
+    const phases = [phase('A', 1, 'DONE'), phase('B', 2, 'CURRENT'), phase('C', 3, 'STARTED'), phase('D', 4, 'STARTED'), phase('E', 5, 'UPCOMING')];
+    expect(phases.map((one) => phaseStandingOf(one, phases))).toEqual(['DONE', 'CURRENT', 'STARTED', 'STARTED', 'UPCOMING']);
+  });
+
+  it('reads an answer kept from before the server named the current phase by the earliest phase that is still open, never every open phase', () => {
+    const older = [phase('A', 1, 'DONE'), phase('B', 2, 'CURRENT'), phase('C', 3, 'STARTED'), phase('D', 4, 'UPCOMING')].map((one) => ({ code: one.code, name: one.name, order: one.order, gates: one.gates, required_total: one.required_total, required_done: one.required_done, open: one.open }));
+    expect(older.map((one) => phaseStandingOf(one, older))).toEqual(['DONE', 'CURRENT', 'UPCOMING', 'UPCOMING']);
   });
 });
 

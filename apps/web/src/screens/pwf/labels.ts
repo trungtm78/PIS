@@ -213,11 +213,11 @@ export function problemText(t: T, problem: Problem): string {
     case 'alreadyClaimed':
       return t('pwfp.problem.claimed.error');
     case 'unitUnresolved':
-      return t('pwfp.problem.unitUnresolved.error', { refs: problem.unitRefs.join(', ') });
+      return t('pwfp.problem.unitUnresolved.error', { refs: (problem.unitRefs ?? []).join(', ') });
     case 'unitOverrideDenied':
-      return t('pwfp.problem.unitOverride.error', { refs: problem.unitRefs.join(', ') });
+      return t('pwfp.problem.unitOverride.error', { refs: (problem.unitRefs ?? []).join(', ') });
     case 'unitUnknown':
-      return t('pwfp.problem.unitUnknown.error', { refs: problem.unitRefs.join(', ') });
+      return t('pwfp.problem.unitUnknown.error', { refs: (problem.unitRefs ?? []).join(', ') });
     case 'extensionNotAllowed':
       return t('pwfp.problem.extNotAllowed.error', { task: problem.taskCode ?? '' });
     case 'extensionLimit':

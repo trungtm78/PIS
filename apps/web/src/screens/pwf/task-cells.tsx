@@ -119,7 +119,7 @@ export function UnitHolderCell({ task }: { task: Pick<CellTask, 'receiving_unit_
 // ---- deadline and remaining ----------------------------------------------------------------------------------------------------------------------------------------------
 
 /** The committed deadline of a task: the day (or the missing calendar year, never a guessed date), the star of the deadline of the whole file, and the forecast when the schedule now says another day. */
-export function DeadlineCell({ task }: { task: CellTask }) {
+export function DeadlineCell({ task }: { task: Pick<CellTask, 'status' | 'state' | 'missing_year' | 'planned_finish'> & Partial<Pick<CellTask, 'forecast_finish' | 'is_overall_deadline'>> }) {
   const { t } = useTranslation();
   const missing = calendarMissing(task);
   return (

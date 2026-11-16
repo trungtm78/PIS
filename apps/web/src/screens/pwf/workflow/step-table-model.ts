@@ -1,4 +1,5 @@
 import { hasBand } from '../model';
+import { phaseStandingOf } from './model';
 import type { Band, Schedule, WorkflowDetail, WorkflowTask } from '../model';
 import type { WorkflowStep } from '../process/model';
 
@@ -131,7 +132,7 @@ export function phaseRows(detail: WorkflowDetail): PhaseRows[] {
         order: phase.order,
         requiredDone: phase.required_done,
         requiredTotal: phase.required_total,
-        current: phase.current === true || (phase.current === undefined && detail.open_phase === phase.code),
+        current: phaseStandingOf(phase, detail.phases) === 'CURRENT',
         entries,
       };
     });
@@ -175,7 +176,7 @@ export function progressOf(detail: WorkflowDetail): Progress {
 
 /** The phase the project is in, by name; null when every phase is done or the workflow does not say. */
 export function openPhaseName(detail: WorkflowDetail): string | null {
-  const phase = detail.phases.find((one) => one.current === true) ?? detail.phases.find((one) => one.code === detail.open_phase);
+  const phase = detail.phases.find((one) => phaseStandingOf(one, detail.phases) === 'CURRENT');
   return phase?.name ?? null;
 }
 

@@ -245,16 +245,15 @@ export interface Problem {
   blockers: readonly Blocker[];
   missing: readonly GateAssessment['missing'][number][];
   /** What the server named of the refusal of a claim, a unit or an extension (R61, R71, R72): the unit refs, the task, the cap that was hit and how far it was used. */
-  unitRefs: readonly string[];
-  taskCode: string | undefined;
-  limit: 'TIMES' | 'VALUE' | undefined;
-  used: number | undefined;
-  asked: number | undefined;
-  max: number | undefined;
-  reason: string | undefined;
+  unitRefs?: readonly string[];
+  taskCode?: string | undefined;
+  limit?: 'TIMES' | 'VALUE' | undefined;
+  used?: number | undefined;
+  asked?: number | undefined;
+  max?: number | undefined;
+  reason?: string | undefined;
 }
 
-const NO_FACTS = { unitRefs: [] as readonly string[], taskCode: undefined, limit: undefined, used: undefined, asked: undefined, max: undefined, reason: undefined } as const;
 
 const KIND_BY_CODE: Readonly<Record<string, ProblemKind>> = {
   VERSION_CONFLICT: 'versionConflict',
@@ -300,7 +299,7 @@ const word = (value: unknown): string | undefined => (typeof value === 'string' 
 
 /** What a refused command was refused for; anything the screens have no word for is `general`. */
 export function describeProblem(error: unknown): Problem {
-  if (!(error instanceof ApiError)) return { kind: 'general', field: undefined, blockers: [], missing: [], ...NO_FACTS };
+  if (!(error instanceof ApiError)) return { kind: 'general', field: undefined, blockers: [], missing: [], unitRefs: [] };
   const ext = error.extensions;
   const limit = ext.limit === 'TIMES' || ext.limit === 'VALUE' ? ext.limit : undefined;
   // A 409 of a schedule whose reason is a refused extension (R72, at the decision) says what the extension rules said, not "somebody changed it first".

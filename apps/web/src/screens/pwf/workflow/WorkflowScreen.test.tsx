@@ -56,13 +56,11 @@ describe('PWF-03: the workflow of a project', () => {
     await waitFor(() => expect(screen.getByTestId('project-finish').textContent).toContain('12/02/2027'));
     expect(screen.getByTestId('critical-count').textContent).toContain(text('pwf.flow.kpi.tasks.text', { count: 2 }));
     expect(screen.getByTestId('variance').textContent).toContain(text('pwf6.flow.variance.text', { days: 5, task: 'Công việc 3' }));
-    // The three colours as tiles, with words and glyphs, and every figure has its "i".
+    // The three colours with their counts, words and dots, and the "i" of the counts; every figure of the schedule has its "i".
     const group = screen.getByRole('group', { name: text('pwf.flow.kpi.group.label') });
-    for (const word of ['red', 'yellow', 'green', 'none', 'unknown']) expect(group.textContent).toContain(text(`pwf.band.${word}.word`));
-    expect(group.textContent).toContain('⛔');
-    // One "i" for the strip of counts, and one for each figure of the schedule.
-    expect(within(group).getAllByRole('button', { name: /Công thức và nguồn của/ }).length).toBe(1);
-    expect(infoButtons().length).toBeGreaterThan(4);
+    for (const word of ['red', 'yellow', 'green']) expect(group.textContent).toContain(text(`pwf.band.${word}.word`));
+    expect(within(screen.getByTestId('kpi-colours')).getAllByRole('button', { name: /Công thức và nguồn của/ }).length).toBe(1);
+    expect(infoButtons().length).toBeGreaterThanOrEqual(4);
   });
 
   it('labels a template that was not confirmed, and says a workflow on hold is on hold', async () => {
@@ -108,15 +106,6 @@ describe('PWF-03: the workflow of a project', () => {
     expect(card.textContent).toContain(text('pwf.band.unknown.word'));
     expect(card.textContent).not.toContain(text('pwf.band.green.word'));
     expect(card.querySelector('[data-band="GREEN"]')).toBeNull();
-  });
-
-  it('shows the phases as a stepper with the required tasks done', async () => {
-    show();
-    await ready();
-    const list = screen.getByRole('list', { name: text('pwf.flow.stepper.label') });
-    expect(within(list).getByText('Chuẩn bị đầu tư')).toBeTruthy();
-    expect(within(list).getByText(text('pwf.flow.stepper.progress.text', { done: 1, total: 2 }))).toBeTruthy();
-    expect(within(list).getByText(text('ui.stepper.status.late'))).toBeTruthy();
   });
 });
 
@@ -207,41 +196,6 @@ describe('PWF-03: the states', () => {
 });
 
 describe('PWF-03: the tree, the schedule and the milestones', () => {
-  it('reads the workflow as one tree in a table: phase, then task, each with its state, day, person and progress; a phase folds and filters the board', async () => {
-    view = 'tasks';
-    show();
-    await ready();
-    const outline = screen.getByTestId('outline');
-    const phase = outline.querySelector('[data-node-id="phase:PREPARATION"]') as HTMLElement;
-    expect(phase.textContent).toContain('Chuẩn bị đầu tư');
-    expect(phase.textContent).toContain(text('pwf6.outline.late.text', { count: 1 }));
-    expect(phase.textContent).toContain(text('pwf6.meter.value.text', { done: 1, total: 2, percent: 50 }));
-    // A task is its name linked to its screen, with its code as a note.
-    const task = outline.querySelector('[data-task="T2"]') as HTMLElement;
-    expect(within(task).getByRole('link', { name: TASKS[1]?.name ?? '' }).getAttribute('href')).toBe(`/pwf/pwf-04?id=${TASKS[1]?.id ?? ''}&project=${PROJECT_ID}`);
-    expect(task.textContent).toContain('T2');
-    expect(task.textContent).toContain(text('pwf.band.red.word'));
-    expect(task.getAttribute('data-health')).toBe('late');
-    // The button of a phase filters the board to it, and clears the filter when pressed again.
-    fireEvent.click(outline.querySelector('[data-action="filter-phase-EXECUTION"]') as HTMLElement);
-    await waitFor(() => expect(screen.getByTestId('board').querySelectorAll('[data-testid^="card-"]').length).toBe(3));
-    expect((selectOf(text('pwf.flow.filter.phase.label')) as HTMLSelectElement).value).toBe('EXECUTION');
-    fireEvent.click(outline.querySelector('[data-action="filter-phase-EXECUTION"]') as HTMLElement);
-    await waitFor(() => expect((selectOf(text('pwf.flow.filter.phase.label')) as HTMLSelectElement).value).toBe(''));
-    // Filtering to a phase opened the board (the tab is kept in the address); back on the tab of the tasks:
-    expect(screen.getByTestId('where').textContent).toContain('view=board');
-    expect(screen.getByTestId('flow-tab-board').getAttribute('aria-selected')).toBe('true');
-    fireEvent.click(screen.getByTestId('flow-tab-tasks'));
-    // A phase folds: its tasks leave the table, and "collapse all" folds every phase.
-    fireEvent.click(within(phase).getByRole('button', { expanded: true }));
-    expect(outline.querySelector('[data-task="T2"]')).toBeNull();
-    expect(outline.querySelector('[data-task="T3"]')).not.toBeNull();
-    fireEvent.click(document.querySelector('[data-action="outline-toggle-all"]') as HTMLElement);
-    expect(outline.querySelectorAll('[data-task]').length).toBe(0);
-    fireEvent.click(document.querySelector('[data-action="outline-toggle-all"]') as HTMLElement);
-    expect(outline.querySelectorAll('[data-task]').length).toBe(5);
-  });
-
   it('draws the schedule on a time axis with a legend, names the tasks, says the critical path by name, and gives the same facts as a table', async () => {
     view = 'schedule';
     show();
@@ -404,25 +358,24 @@ describe('PWF-03: the gates of the project commands', () => {
 });
 
 describe('PWF-03: one purpose a tab', () => {
-  it('opens on the overview: the figures, the phases and what needs a person now; the other parts are one tab away and kept in the address', async () => {
+  it('opens on the step table; the schedule, the milestones with the gates and the board are one tab away and kept in the address', async () => {
     show();
     await ready();
-    expect(screen.getAllByRole('tab').map((tab) => tab.textContent?.replace(/\d+$/, ''))).toEqual(['overview', 'tasks', 'schedule', 'gates', 'board'].map((id) => text(`pwf6.flow.tab.${id}`)));
-    expect(screen.getByTestId('flow-tab-overview').getAttribute('aria-selected')).toBe('true');
-    // The tasks that are red, yellow or cannot be counted, the red one first, each by name.
-    expect([...screen.getByTestId('attention').querySelectorAll('[data-task]')].map((row) => row.getAttribute('data-task'))).toEqual(['T2', 'T3', 'T5']);
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([text('pwfp.flow.tab.steps'), text('pwf6.flow.tab.schedule'), text('pwf6.flow.tab.gates'), text('pwf6.flow.tab.board')]);
+    expect(screen.getByTestId('flow-tab-steps').getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByTestId('flow-panel-steps').hasAttribute('hidden')).toBe(false);
     expect(screen.getByTestId('flow-panel-schedule').hasAttribute('hidden')).toBe(true);
-    fireEvent.click(document.querySelector('[data-action="all-tasks"]') as HTMLElement);
-    expect(screen.getByTestId('where').textContent).toBe(`${PATH}&view=tasks`);
-    expect(screen.getByTestId('flow-panel-tasks').hasAttribute('hidden')).toBe(false);
-    fireEvent.click(screen.getByTestId('flow-tab-overview'));
+    fireEvent.click(screen.getByTestId('flow-tab-board'));
+    expect(screen.getByTestId('where').textContent).toBe(`${PATH}&view=board`);
+    expect(screen.getByTestId('flow-panel-board').hasAttribute('hidden')).toBe(false);
+    fireEvent.click(screen.getByTestId('flow-tab-steps'));
     expect(screen.getByTestId('where').textContent).toBe(PATH);
   });
 
-  it('says so on the overview when no task is red or yellow', async () => {
-    show({ workflow: () => detail({ tasks: [TASKS[0] as never, TASKS[3] as never] }) });
+  it('has no overview, tree or outline left: the old layouts are gone', async () => {
+    show();
     await ready();
-    expect(screen.getByTestId('attention-none').textContent).toBe(text('pwf6.flow.attention.none'));
+    for (const id of ['flow-tab-overview', 'flow-tab-tasks', 'outline', 'steps-panel', 'attention']) expect(screen.queryByTestId(id)).toBeNull();
   });
 });
 
