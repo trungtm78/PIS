@@ -29,6 +29,8 @@ export function problemWord(t: Translator['t'], kind: TemplateProblemKind): stri
       return t('pwf.templates.problem.unknownRef.error');
     case 'selfLink':
       return t('pwf.templates.problem.selfLink.error');
+    default:
+      return kind;
   }
 }
 
