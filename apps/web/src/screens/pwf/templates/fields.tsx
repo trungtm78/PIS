@@ -12,8 +12,11 @@ import type { TemplateProblem, TemplateProblemKind } from './template-model';
 export function FitSelect(props: SelectHTMLAttributes<HTMLSelectElement>) {
   const ref = useRef<HTMLSelectElement>(null);
   const [text, setText] = useState('');
-  // The text follows whatever option is selected after each render (a state that does not change draws nothing again).
-  useLayoutEffect(() => setText(ref.current?.selectedOptions[0]?.textContent ?? ''));
+  // The text follows the selected option whenever the value or the options change.
+  const { value, children } = props;
+  useLayoutEffect(() => {
+    setText(ref.current?.selectedOptions[0]?.textContent ?? '');
+  }, [value, children]);
   return (
     <span className="pwfx-fit" data-disabled={props.disabled === true ? 'true' : undefined}>
       <span className="pwfx-fit__text" aria-hidden="true" title={text}>

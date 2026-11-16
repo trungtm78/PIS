@@ -13,7 +13,7 @@ import { useCatalogue, useEffective } from '../../adm/governance/hooks';
 import { moveText, receiptText } from '../../adm/governance/labels';
 import { movesOf } from '../../adm/governance/model';
 import { ProjectTypeName } from '../codes';
-import { UnverifiedLabel } from '../components';
+
 import { useProjectTypeNames } from '../hooks';
 import { PATHS, PERMISSIONS, RULE_PERMISSIONS, TEMPLATE_RULE_TYPE, dayText, editorLink, holds, todayInVietnam } from '../model';
 import { ASSIGNMENT_RULE_CODE, ASSIGNMENT_RULE_TYPE, linesFor } from './assignment-model';
@@ -208,7 +208,18 @@ function StateCell({ row }: { row: LibraryRow }) {
       {row.effectiveFrom === null ? null : <span className="pwf-hint">{t('pwfx.lib.from', { day: dayText(row.effectiveFrom) })}</span>}
       {drafts === 0 ? null : <StatusPill tone="neutral" icon="✎">{t('pwfx.lib.drafts', { count: drafts })}</StatusPill>}
       {waiting === 0 ? null : <StatusPill tone="info" icon="⏳">{t('pwfx.lib.waiting', { count: waiting })}</StatusPill>}
-      {row.unverified ? <UnverifiedLabel /> : null}
+    </span>
+  );
+}
+
+/** The mark of a template nobody has confirmed: a glyph in the template cell, its words (the same as everywhere else) for the screen reader and as the tooltip. */
+function UnverifiedFlag() {
+  const { t } = useTranslation();
+  const words = t('pwf.common.unverified.label');
+  return (
+    <span className="pwf-lib-flag" title={words}>
+      <span aria-hidden="true">⚠</span>
+      <span className="ui-sr-only">{words}</span>
     </span>
   );
 }
@@ -232,7 +243,10 @@ function LibraryTable({ rows, canEdit, usage, retireAllowed, onRetire }: TablePr
       render: (row) => (
         <span className="pwf-tpl-name">
           <strong title={row.summary?.name === '' || row.summary === null ? undefined : row.summary.name}>{row.summary?.name === '' || row.summary === null ? t('pwf.templates.lib.noName.text') : row.summary.name}</strong>
-          <span className="pwf-code pwf-lib-code">{row.code}</span>
+          <span className="pwf-lib-sub">
+            <span className="pwf-code pwf-lib-code">{row.code}</span>
+            {row.unverified ? <UnverifiedFlag /> : null}
+          </span>
         </span>
       ),
     },
@@ -243,10 +257,18 @@ function LibraryTable({ rows, canEdit, usage, retireAllowed, onRetire }: TablePr
         row.types.length === 0 ? (
           <span className="pwf-hint">{t('fix9.pwf01.type.any')}</span>
         ) : (
-          <span data-testid={`type-${row.code}`} className="pwf-pills">
-            {row.types.map((type) => (
-              <ProjectTypeName key={type} code={type} names={typeNames} />
-            ))}
+          <span data-testid={`type-${row.code}`} className="pwf-lib-types">
+            <ProjectTypeName code={row.types[0] as string} names={typeNames} />
+            {row.types.length < 2 ? null : (
+              <span className="pwf-lib-more" title={row.types.slice(1).join(', ')}>
+                +{row.types.length - 1}
+                <span className="ui-sr-only">
+                  {row.types.slice(1).map((type) => (
+                    <ProjectTypeName key={type} code={type} names={typeNames} />
+                  ))}
+                </span>
+              </span>
+            )}
           </span>
         ),
     },
