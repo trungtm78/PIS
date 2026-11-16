@@ -216,11 +216,27 @@
 .pwfx-table td > button {
   min-width: 0;
 }
-.pwfx-phase th {
+/* A phase band is a row of the body, not a header: the brand sheet makes every th white and sticky, which hid its text and laid a blank strip over the column heads. */
+.ui-table.pwfx-table .pwfx-phase th {
   background: var(--mv-color-neutral-soft);
+  color: var(--mv-color-ink);
   position: static;
+  top: auto;
+  z-index: auto;
   font-weight: 700;
   white-space: normal;
+}
+.ui-table.pwfx-table .pwfx-phase summary,
+.ui-table.pwfx-table .pwfx-phase label,
+.ui-table.pwfx-table .pwfx-phase .pwf-hint {
+  color: var(--mv-color-ink);
+}
+/* A scrollbar above the table as well as below it, so a wide table can be moved sideways without going to its foot. */
+.pwfx-scroll-top {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  height: 14px;
 }
 .pwfx-phase__bar {
   display: flex;

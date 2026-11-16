@@ -213,6 +213,8 @@ code {
 .ui-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; color: var(--mv-color-ink); }
 /* The kit rules are written as .ui-table .x (0,2,0) so the global `.workspace-app th, th` of the brand sheet (0,1,1: sticky, top 0, z-index 1) cannot flatten the header layers: a pinned body cell (z-index 1) must always sit under the header, and a pinned header cell above both. */
 .ui-table .ui-table__head { position: sticky; top: 0; z-index: 2; padding: var(--mv-space-12); background: var(--mv-color-table-head); color: var(--mv-color-menu-text); font-size: 12px; font-weight: 700; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--mv-color-table-head-group); }
+/* A band row inside the body (th scope=rowgroup: a phase, a month) is not a column head: the brand sheet makes every th white and sticky, which hid its text and laid a strip over the column heads. */
+.ui-table th[scope="rowgroup"] { position: static; top: auto; z-index: auto; color: var(--mv-color-ink); }
 .ui-table .ui-table__head--group { background: var(--mv-color-table-head-group); text-align: center; height: 40px; }
 .ui-table .ui-table__head--sub { top: 40px; }
 .ui-table .ui-table__head--right { text-align: right; }
