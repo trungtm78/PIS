@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { dayMonthYear, decimalText, formatPercent } from './format';
+import { dayMonthYear, decimalText, formatPercent, percentsInText } from './format';
 import { translator } from './index';
 
 afterEach(() => translator.setLocale('vi'));
@@ -51,5 +51,11 @@ describe('the shared formatters', () => {
     translator.setLocale('en');
     expect(formatPercent('96.5414')).toBe('96.54%');
     expect(formatPercent('1234.5')).toBe('1,234.5%');
+  });
+
+  it('rewrites the percents of a sentence of the server and leaves its words', () => {
+    expect(percentsInText('Tỷ lệ giải ngân 37.62%, ngưỡng 45.0000%')).toBe('Tỷ lệ giải ngân 37,62%, ngưỡng 45%');
+    expect(percentsInText('Đã dùng 91.51% của 2.591.000.000 đồng')).toBe('Đã dùng 91,51% của 2.591.000.000 đồng');
+    expect(percentsInText('Không có số nào')).toBe('Không có số nào');
   });
 });

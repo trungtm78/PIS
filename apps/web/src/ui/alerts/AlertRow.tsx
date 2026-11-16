@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { hasMessage, useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
+import { percentsInText } from '../../i18n/format';
 import { pathOf } from '../../screens/home/work-model';
 import { WEB_ROUTES } from '../../routes/web-routes';
 import { DeadlineCountdown } from './DeadlineCountdown';
@@ -60,14 +61,14 @@ export function AlertRow({ item, today, actions, note, detailed = false, now }: 
       </div>
       <div className="mv-alert-row__title">
         {path === undefined ? (
-          <strong>{item.title}</strong>
+          <strong>{percentsInText(item.title)}</strong>
         ) : (
           <Link to={path} aria-label={`${t('alerts.item.open')}: ${item.title}`}>
             {item.title}
           </Link>
         )}
       </div>
-      {item.subtitle === null ? null : <div className="mv-alert-row__subtitle">{item.subtitle}</div>}
+      {item.subtitle === null ? null : <div className="mv-alert-row__subtitle">{percentsInText(item.subtitle)}</div>}
       {(item.on_behalf_of ?? null) === null ? null : (
         <div className="mv-alert-row__subtitle" data-testid="on-behalf">
           {t('alerts.item.onBehalf', { name: item.on_behalf_of?.name ?? '' })}

@@ -234,7 +234,7 @@ describe('HOME-01 the leader home: work first, then the numbers (decision 2A)', 
       const hero = await screen.findByRole('region', { name: fill(tr('home.ov.hero.label'), { year: '2026' }) });
       // The figure is the server's `display_value` read in the short form, with the exact amount of the server in the caption.
       expect(hero.textContent).toContain(`214,71${tr('money.unit.billion')}`);
-      expect(within(hero).getByTestId('hero-exact').textContent).toContain(fill(tr('home.ov.hero.exact'), { amount: `214.710.000.000 ${tr('govc.home.unit.vnd')}` }));
+      expect(hero.querySelector('.ui-hero__value')?.getAttribute('title')).toBe(`214.710.000.000 ${tr('govc.home.unit.vnd')}`);
       expect(hero.textContent).toContain('21,47%');
       expect(hero.textContent).toContain('17,18%');
       expect(hero.textContent).toContain(tr('home.ov.hero.chip.pm'));

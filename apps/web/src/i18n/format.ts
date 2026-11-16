@@ -52,3 +52,13 @@ export function formatPercent(value: string | number | null | undefined, digits 
 export function percentOfText(text: string, digits = 2, locale: Locale = translator.getLocale()): string {
   return PERCENT.test(text.trim()) ? formatPercent(text, digits, locale) : `${text}%`;
 }
+
+const PERCENT_IN_TEXT = /(-?\d+(?:\.\d+)?)%/g;
+
+/**
+ * A sentence that the server wrote ("Tỷ lệ giải ngân 37.62%, ngưỡng 45.0000%") with every percent in it rewritten by `formatPercent` ("37,62%", "45%"). The words are left as they came: only a
+ * number that is immediately followed by the sign is touched.
+ */
+export function percentsInText(text: string, digits = 2, locale: Locale = translator.getLocale()): string {
+  return text.replace(PERCENT_IN_TEXT, (_whole, figure: string) => formatPercent(figure, digits, locale));
+}
