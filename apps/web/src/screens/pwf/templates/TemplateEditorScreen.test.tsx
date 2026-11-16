@@ -361,7 +361,7 @@ describe('PWF-02: "Áp cho" travels with the submit', () => {
       rule_id: uuid(300),
       params: { lines: [{ code: 'INV_CONSTRUCTION', priority: 10, template_code: 'PUBLIC_INVESTMENT', when: [{ field: 'project_type', in: ['CONSTRUCTION'] }] }] },
     });
-    const h = open({ assignment, projectTypes: [{ business_key: 'CONSTRUCTION', label: 'Xây dựng mới', status: 'EFFECTIVE' }], commands: { createGovernanceRuleDraft: (input) => ({ resource_id: (input.body as { rule_type: string }).rule_type === TEMPLATE ? uuid(200) : uuid(201), status: 'DRAFT', resource_version: 1 }) } });
+    const h = open({ assignment, projectTypes: [{ business_key: 'CONSTRUCTION', label: 'Xây dựng mới', status: 'EFFECTIVE' }], commands: { createGovernanceRuleDraft: (input: Record<string, unknown>) => ({ resource_id: (input.body as { rule_type: string }).rule_type === TEMPLATE ? uuid(200) : uuid(201), status: 'DRAFT', resource_version: 1 }) } });
     await fork();
     const bar = screen.getByTestId('apply-line');
     await waitFor(() => expect(within(bar.querySelector('.pwfx-apply__chips') as HTMLElement).getByText(/Xây dựng mới/)).toBeTruthy());
