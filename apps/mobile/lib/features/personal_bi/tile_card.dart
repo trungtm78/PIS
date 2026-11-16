@@ -403,7 +403,7 @@ class _CheckLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final DrillCheck check = drillCheck(cell: step.cell, from: step.from, drill: step.result);
     final String unit = step.from.shownUnit;
-    final String text = drillCheckText(context, check, cell: figureLabel(context, step.cell.figure, unit), total: figureLabel(context, step.result.total, unit));
+    final String text = drillCheckText(context, check, cell: figureLabel(context, step.cell.figure, unit, exact: true), total: figureLabel(context, step.result.total, unit, exact: true));
     return Semantics(
       liveRegion: true,
       container: true,

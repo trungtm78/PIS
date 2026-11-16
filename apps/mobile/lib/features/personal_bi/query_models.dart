@@ -1,4 +1,3 @@
-import '../../core/format/format.dart';
 import '../../core/offline/drafts/decimal.dart';
 import '../read_support/wire.dart';
 
@@ -182,9 +181,9 @@ BigInt _roundedHundredths(Decimal value) {
   return negative ? -hundredths : hundredths;
 }
 
-/// A figure as it is written: money in dong, a ratio in percent, a count as a number. A figure with no value is [noData] (or
+/// A figure as it is written: money by [money] (the one formatter of the phone, with its unit), a ratio in percent, a count as a number. A figure with no value is [noData] (or
 /// the other words for why), never 0.
-String figureText(Figure figure, {required String unit, required String language, required String noData, required String notApplicable, required String restricted, required String notYetReported}) {
+String figureText(Figure figure, {required String unit, required String language, required String Function(String dong) money, required String noData, required String notApplicable, required String restricted, required String notYetReported}) {
   final String? value = figure.value;
   if (value == null) {
     switch (figure.nullReason) {
@@ -200,7 +199,7 @@ String figureText(Figure figure, {required String unit, required String language
     }
   }
   if (unit == 'percent') return percentText(value, language);
-  if (unit == 'VND' && dong(value) != null) return '${formatDong(value, language)} ₫';
+  if (unit == 'VND' && dong(value) != null) return money(value);
   final Decimal? parsed = Decimal.tryParse(value);
   if (parsed == null) return value;
   return parsed.format(separator: language == 'en' ? ',' : '.', decimalMark: language == 'en' ? '.' : ',');

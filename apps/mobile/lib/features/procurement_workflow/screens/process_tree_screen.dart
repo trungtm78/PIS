@@ -238,7 +238,7 @@ class _NodeHeader extends StatelessWidget {
               children: <Widget>[
                 HealthPill(health: health),
                 if (node.lateCount > 0 && node.kind != PrcNodeKind.substate) Text(context.t('mob.prc.tree.late', <String, Object>{'n': node.lateCount}), style: text.caption),
-                Text(moneyLabel(context, node.valueVnd), style: text.caption),
+                Text(moneyShortLabel(context, node.valueVnd), style: text.caption),
                 if (medianText != null) Text(medianText, style: text.caption),
               ],
             ),

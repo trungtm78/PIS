@@ -7,6 +7,8 @@ export interface KpiTileProps {
   icon?: ReactNode;
   label: string;
   value: string;
+  /** What the figure is in full (the exact amount of a short figure): the tooltip of the value. */
+  valueTitle?: string;
   unit?: string;
   sub?: ReactNode;
   tone?: Tone;
@@ -16,7 +18,7 @@ export interface KpiTileProps {
 }
 
 /** A KPI card: coloured round icon tile, uppercase label, big number with its unit and a sub line. */
-export function KpiTile({ icon, label, value, unit, sub, tone, href, state = 'ready', onRetry }: KpiTileProps) {
+export function KpiTile({ icon, label, value, valueTitle, unit, sub, tone, href, state = 'ready', onRetry }: KpiTileProps) {
   const { t } = useTranslation();
   const root = `ui-kpi ${toneClass(tone)}`;
   if (state === 'loading') {
@@ -57,7 +59,7 @@ export function KpiTile({ icon, label, value, unit, sub, tone, href, state = 're
       <div className="ui-kpi__body">
         <span className="ui-kpi__label">{labelNode}</span>
         <span className="ui-kpi__figure">
-          <span className="ui-kpi__value">{value}</span>
+          <span className="ui-kpi__value" title={valueTitle}>{value}</span>
           {unit !== undefined && <span className="ui-kpi__unit">{unit}</span>}
         </span>
         {sub !== undefined && <span className="ui-kpi__sub">{sub}</span>}

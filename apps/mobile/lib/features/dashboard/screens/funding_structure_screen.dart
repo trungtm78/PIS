@@ -133,7 +133,7 @@ class _Amount extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(moneyLabel(context, vnd), style: (large ? theme.textTheme.headlineSmall : theme.textTheme.titleMedium)?.copyWith(fontWeight: FontWeight.w700)),
+          Text(moneyShortLabel(context, vnd), style: (large ? theme.textTheme.headlineSmall : theme.textTheme.titleMedium)?.copyWith(fontWeight: FontWeight.w700)),
           if (vnd != null) Text(moneyExactLabel(context, vnd), style: theme.textTheme.bodySmall),
         ],
       ),

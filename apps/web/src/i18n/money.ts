@@ -144,8 +144,8 @@ export function dongText(value: MoneyValue, locale: string = translator.getLocal
 }
 
 /** The exact amount with its unit ("1.234.567.890 đồng"): the text of a tooltip and of a screen reader. */
-export function fullMoney(value: MoneyValue, locale: string = translator.getLocale()): string {
-  const parts = moneyParts(value, { locale, unit: 'dong' });
+export function fullMoney(value: MoneyValue, locale: string = translator.getLocale(), signed = false): string {
+  const parts = moneyParts(value, { locale, unit: 'dong', signed });
   return parts === null ? fallback(value) : translator.t('money.value.amount', { number: parts.number, unit: translator.t('money.unit.dong') });
 }
 

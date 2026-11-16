@@ -115,7 +115,7 @@ class _DraftsScreenState extends ConsumerState<DraftsScreen> {
         'time': formatMoment(DateTime.fromMillisecondsSinceEpoch(snapshot.draft.updatedAt, isUtc: true).toIso8601String()),
         'id': snapshot.shortId,
       }),
-      total: moneyLabel(context, sumTyped(<String>[for (final CellKey key in kCells) snapshot.form.cell(key).cumulative])),
+      total: moneyShortLabel(context, sumTyped(<String>[for (final CellKey key in kCells) snapshot.form.cell(key).cumulative])),
       pending: pending,
       onOpen: () => pending ? openScreen(context, 'MOB-20', pathSuffix: '/${snapshot.id}', stacked: true) : openScreen(context, 'MOB-14', pathSuffix: '/${snapshot.id}', stacked: true),
       onDiscard: pending ? null : () => _discard(drafts, snapshot),

@@ -210,7 +210,7 @@ describe('DIS-21 close and freeze the figures of a period', () => {
     expect(cells(rows[0] as Element)).toEqual(['DA-2027-001', 'Kế hoạch năm · Trung ương', '500 triệu đồng (500.000.000 đồng)', '300 triệu đồng (300.000.000 đồng)', '250 triệu đồng (250.000.000 đồng)', '100 triệu đồng (100.000.000 đồng)', '-20 triệu đồng (-20.000.000 đồng)', '50%', '31,25%', 'Một phần']);
     expect(cells(rows[1] as Element)).toEqual(['DA-2027-002', 'Kế hoạch năm · Địa phương', '500 triệu đồng (500.000.000 đồng)', '300 triệu đồng (300.000.000 đồng)', '—', '—', '—', '—', '—', 'Chưa có']);
     expect((rows[1] as Element).querySelector('[data-rate="pm"]')?.getAttribute('title')).toBe(vi_['dis.snapshot.reason.noTreasury']);
-    expect(cells(rows[2] as Element)[6]).toBe('+50 triệu đồng (50.000.000 đồng)');
+    expect(cells(rows[2] as Element)[6]).toBe('+50 triệu đồng (+50.000.000 đồng)');
     expect((rows[2] as Element).querySelector('[data-rate="pm"]')?.textContent).toBe('—');
     expect((rows[2] as Element).querySelector('[data-rate="total"]')?.textContent).toBe('10%');
     // The two rates have a header each: never a single rate.

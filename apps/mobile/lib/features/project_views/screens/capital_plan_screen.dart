@@ -88,7 +88,7 @@ class _PlanBody extends StatelessWidget {
         SectionCard(
           title: context.t('mob.prj.capital.totals.title'),
           children: <Widget>[
-            KpiTile(label: context.t('mob.prj.capital.allocated'), value: moneyLabel(context, plan.allocatedVnd)),
+            KpiTile(label: context.t('mob.prj.capital.allocated'), value: moneyShortLabel(context, plan.allocatedVnd)),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
               child: Text(context.t('mob.prj.capital.ctmtqg', <String, Object>{'value': moneyLabel(context, plan.ctmtqgVnd)}), style: theme.textTheme.bodyMedium),
@@ -96,7 +96,7 @@ class _PlanBody extends StatelessWidget {
             if (disbursed == null)
               FactLine(label: context.t('mob.prj.capital.disbursed'), value: context.t('mob.prj.capital.disbursed.none'))
             else
-              KpiTile(label: context.t('mob.prj.capital.disbursed'), value: moneyLabel(context, disbursed)),
+              KpiTile(label: context.t('mob.prj.capital.disbursed'), value: moneyShortLabel(context, disbursed)),
             if (plan.truncated) Text(context.t('mob.prj.capital.truncated'), style: theme.textTheme.bodySmall),
           ],
         ),
@@ -122,7 +122,7 @@ class _SourceCard extends StatelessWidget {
     return SectionCard(
       title: context.t('mob.prj.capital.source.title', <String, Object>{'source': source.label}),
       children: <Widget>[
-        KpiTile(label: context.t('mob.prj.capital.allocated'), value: moneyLabel(context, source.allocatedVnd)),
+        KpiTile(label: context.t('mob.prj.capital.allocated'), value: moneyShortLabel(context, source.allocatedVnd)),
         if (source.ctmtqgVnd != '0')
           Padding(
             padding: const EdgeInsets.only(top: MachvonSpace.space8),
@@ -132,7 +132,7 @@ class _SourceCard extends StatelessWidget {
         if (disbursed == null)
           FactLine(label: context.t('mob.prj.capital.disbursed'), value: context.t('mob.prj.capital.disbursed.none'))
         else
-          KpiTile(label: context.t('mob.prj.capital.disbursed'), value: moneyLabel(context, disbursed)),
+          KpiTile(label: context.t('mob.prj.capital.disbursed'), value: moneyShortLabel(context, disbursed)),
         const Divider(),
         for (final CapitalLine line in source.lines)
           Padding(
@@ -143,8 +143,8 @@ class _SourceCard extends StatelessWidget {
                 children: <Widget>[
                   Text(context.t('mob.prj.capital.line', <String, Object>{'code': line.projectCode, 'name': line.projectName}), style: theme.textTheme.bodyLarge),
                   Text(
-                    '${context.t('mob.prj.capital.allocated')}: ${moneyLabel(context, line.allocatedVnd)} · '
-                    '${context.t('mob.prj.capital.disbursed')}: ${line.disbursedVnd == null ? context.t('mob.prj.capital.disbursed.none') : moneyLabel(context, line.disbursedVnd)}',
+                    '${context.t('mob.prj.capital.allocated')}: ${moneyShortLabel(context, line.allocatedVnd)} · '
+                    '${context.t('mob.prj.capital.disbursed')}: ${line.disbursedVnd == null ? context.t('mob.prj.capital.disbursed.none') : moneyShortLabel(context, line.disbursedVnd)}',
                     style: theme.textTheme.bodySmall,
                   ),
                 ],

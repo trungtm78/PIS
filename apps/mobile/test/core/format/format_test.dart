@@ -181,6 +181,12 @@ void main() {
         expect(signedMoneyLabel(c, '-30000000'), '-30 triệu đồng');
         expect(signedMoneyLabel(c, '0'), '0 đồng');
         expect(signedMoneyLabel(c, null), 'Chưa có số liệu');
+        expect(moneyShortLabel(c, '1049123456'), '1 tỷ đồng', reason: 'a row or a tile reads at a glance; the detail has every dong');
+        expect(moneyShortLabel(c, '1250000000'), '1,3 tỷ đồng');
+        expect(moneyShortLabel(c, '420500000'), '420,5 triệu đồng');
+        expect(moneyShortLabel(c, '999960000'), '1 tỷ đồng');
+        expect(moneyShortLabel(c, '999'), '999 đồng');
+        expect(moneyShortLabel(c, null), 'Chưa có số liệu');
         expect(moneyExactLabel(c, '420000000'), '420.000.000 đồng');
         expect(moneyExactLabel(c, null), 'Chưa có số liệu');
         expect(moneyFullLabel(c, '2350000000'), '2.350.000.000 đồng (2,35 tỷ đồng)');

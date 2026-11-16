@@ -27,7 +27,7 @@ export function Money({ value, bare = false, none = NO_MONEY, 'data-testid': tes
       </span>
     );
   }
-  const full = fullMoney(value, locale);
+  const full = fullMoney(value, locale, options.signed === true);
   const shown = bare && options.unit !== undefined ? moneyInUnit(value, options.unit, { ...options, locale }) : compactMoney(value, { ...options, locale });
   const saysItAll = parts.unit === 'dong' && !bare;
   return (
