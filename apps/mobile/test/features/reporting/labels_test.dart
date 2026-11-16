@@ -138,16 +138,16 @@ void main() {
         });
       }
       await inLanguage(tester, 'vi', (BuildContext context) {
-        expect(findingMessage(context, findings[3]), 'CTMTQG 2.000 đồng lớn hơn 1.000 đồng của ô Vốn năm NSTW.');
-        expect(findingMessage(context, findings[4]), contains('đăng ký tháng sau 2.000 đồng'));
-        expect(findingMessage(context, findings[17]), 'Khối lượng thi công 2.000 đồng bằng 200.0% vốn đã giao (1.000 đồng).');
-        expect(findingMessage(context, findings[18]), 'Khối lượng thi công 2.000 đồng trong khi chưa có vốn giao.');
-        expect(findingMessage(context, findings[19]), 'Lũy kế báo cáo 2.000 đồng lệch 100.0% so với 1.000 đồng Kho bạc đã thanh toán.');
+        expect(findingMessage(context, findings[3]), 'CTMTQG 2 nghìn đồng lớn hơn 1 nghìn đồng của ô Vốn năm NSTW.');
+        expect(findingMessage(context, findings[4]), contains('đăng ký tháng sau 2 nghìn đồng'));
+        expect(findingMessage(context, findings[17]), 'Khối lượng thi công 2 nghìn đồng bằng 200.0% vốn đã giao (1 nghìn đồng).');
+        expect(findingMessage(context, findings[18]), 'Khối lượng thi công 2 nghìn đồng trong khi chưa có vốn giao.');
+        expect(findingMessage(context, findings[19]), 'Lũy kế báo cáo 2 nghìn đồng lệch 100.0% so với 1 nghìn đồng Kho bạc đã thanh toán.');
         expect(findingMessage(context, findings[20]), contains('Kho bạc chưa thanh toán khoản nào'));
         expect(findingMessage(context, findings[22]), 'Mã SOMETHING_NEW.');
       });
       await inLanguage(tester, 'en', (BuildContext context) {
-        expect(findingMessage(context, findings[3]), 'CTMTQG 2,000 dong is larger than the 1,000 dong of the cell Year plan, central budget.');
+        expect(findingMessage(context, findings[3]), 'CTMTQG 2 thousand dong is larger than the 1 thousand dong of the cell Year plan, central budget.');
       });
     });
 

@@ -193,7 +193,7 @@ class ApprovalRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final String type = businessTypeLabel(context, task.businessType);
     final String due = formatMoment(task.dueAt);
-    final String? amount = task.amountVnd == null ? null : moneyLabel(context, task.amountVnd, decimals: 1);
+    final String? amount = task.amountVnd == null ? null : moneyShortLabel(context, task.amountVnd);
     final DeadlineBand band = approvalBandOf(task);
     final MachvonV2Text text = context.v2text;
     final String subtitle = <String>[

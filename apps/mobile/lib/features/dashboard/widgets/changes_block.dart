@@ -49,10 +49,7 @@ String changeSentence(BuildContext context, ChangeLine line) {
           ? context.t('mob.home.changes.noData.up', numbers)
           : context.t('mob.home.changes.noData.down', numbers);
     case ChangeKind.disbursedWeek:
-      final String amount = formatDong(
-        changeMagnitude(p['amount_vnd']),
-        AppStrings.of(context).language,
-      );
+      final String amount = moneyShortLabel(context, changeMagnitude(p['amount_vnd']));
       return line.up
           ? context.t('mob.home.changes.disbursed.up', <String, Object>{
               'amount': amount,

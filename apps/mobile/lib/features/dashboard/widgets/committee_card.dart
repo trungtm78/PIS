@@ -302,7 +302,7 @@ String committeeFigureText(BuildContext context, CommitteeFigure? figure, {bool 
           ? context.t('mob.home.committee.value.points', <String, Object>{'points': _withSign(digits, raw)})
           : context.t('mob.home.tile.value.percent', <String, Object>{'value': digits});
     case CommitteeFigureUnit.vnd:
-      return moneyLabel(context, figure.value);
+      return moneyShortLabel(context, figure.value);
     case CommitteeFigureUnit.count:
       return figure.displayValue ?? figure.value!;
   }
@@ -430,7 +430,7 @@ class CommitteeOutlookRow extends StatelessWidget {
     final CommitteeOutlook outlook = workspace.province.outlook;
     final String band;
     if (low != null && high != null && low.hasValue && high.hasValue) {
-      final String range = context.t('mob.home.committee.outlook.range', <String, Object>{'low': moneyLabel(context, low.value), 'high': moneyLabel(context, high.value)});
+      final String range = context.t('mob.home.committee.outlook.range', <String, Object>{'low': moneyShortLabel(context, low.value), 'high': moneyShortLabel(context, high.value)});
       final String? lowPct = outlook.lowPct;
       final String? highPct = outlook.highPct;
       band = lowPct != null && highPct != null

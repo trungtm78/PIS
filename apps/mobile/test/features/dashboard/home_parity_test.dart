@@ -268,7 +268,7 @@ void main() {
       expect(find.text('2 đơn vị chuyển sang màu đỏ so với tuần trước.'), findsOneWidget);
       expect(find.text('Cảnh báo sớm đang mở giảm 2, từ 5 xuống 3.'), findsOneWidget);
       expect(find.text('Giải trình quá hạn tăng 1, từ 0 lên 1.'), findsOneWidget);
-      expect(find.text('Tuần này giải ngân thêm 140.000.000 đồng.'), findsOneWidget);
+      expect(find.text('Tuần này giải ngân thêm 140 triệu đồng.'), findsOneWidget);
       expect(find.text('Kiểm tra: xem nguồn của con số trên máy tính'), findsOneWidget);
       expect(find.text('Kiểm tra: thẻ màu xanh vàng đỏ trên trang này'), findsOneWidget);
       expect(find.text('Mở việc của tôi'), findsOneWidget);

@@ -157,8 +157,8 @@ String problemMessage(BuildContext context, ReportProblem problem) {
   }
 }
 
-/// A sentence for an amount of whole dong, with the thousands grouped in the language of the interface.
-String _dong(BuildContext context, String? value) => formatDong(value ?? '0', AppStrings.of(context).language);
+/// An amount of a finding with its unit, exact (no digit is rounded away): `1,5 ty dong`, or whole dong when the unit would hide a digit.
+String _dong(BuildContext context, String? value) => moneyLabel(context, value ?? '0');
 
 /// The sentence of one finding of the review, with its figures written the way a person reads them. The server's findings and
 /// the phone's are the same codes, so they read the same.

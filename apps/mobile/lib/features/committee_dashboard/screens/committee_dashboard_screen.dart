@@ -211,10 +211,10 @@ class _RowTile extends StatelessWidget {
             Padding(padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s4), child: Wrap(children: <Widget>[_RagPill(rag: row.hasRate ? row.rag : CommitteeRag.noData)])),
             if (row.ratePct != null && double.tryParse(row.ratePct!) != null) Padding(padding: const EdgeInsets.only(bottom: MachvonV2Space.s4), child: ProgressMeter(value: double.parse(row.ratePct!) / 100)),
             Text(context.t('mob.ban.row.projects', <String, Object>{'count': row.projects, 'attention': row.attentionProjects}), style: text.caption),
-            Text(context.t('mob.ban.row.plan', <String, Object>{'amount': moneyLabel(context, row.planVnd)}), style: text.body),
+            Text(context.t('mob.ban.row.plan', <String, Object>{'amount': moneyShortLabel(context, row.planVnd)}), style: text.body),
             if (row.planSharePct != null) Text(context.t('mob.ban.row.share', <String, Object>{'share': '${formatPercent(row.planSharePct!, language)}%'}), style: text.caption),
             Text(
-              row.disbursedVnd == null ? context.t('mob.home.committee.value.none') : context.t('mob.ban.row.disbursed', <String, Object>{'amount': moneyLabel(context, row.disbursedVnd)}),
+              row.disbursedVnd == null ? context.t('mob.home.committee.value.none') : context.t('mob.ban.row.disbursed', <String, Object>{'amount': moneyShortLabel(context, row.disbursedVnd)}),
               style: text.body,
             ),
             Text(
@@ -290,7 +290,7 @@ class _Attention extends StatelessWidget {
                     ),
                   Text(
                     context.t('mob.ban.attention.progress', <String, Object>{
-                      'plan': moneyLabel(context, project.planVnd),
+                      'plan': moneyShortLabel(context, project.planVnd),
                       'rate': project.ratePct == null ? context.t('mob.home.committee.value.none') : '${formatPercent(project.ratePct!, language)}%',
                       'expected': '${formatPercent(project.expectedPct, language)}%',
                     }),

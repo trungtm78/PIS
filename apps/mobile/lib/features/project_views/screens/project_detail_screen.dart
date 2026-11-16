@@ -350,7 +350,7 @@ class _MilestoneRow extends StatelessWidget {
 
 List<Widget> _capital(BuildContext context, ProjectDetail detail) {
   return <Widget>[
-    StatStrip(cells: <StatCell>[StatCell(value: moneyLabel(context, detail.totalInvestmentVnd), label: context.t('mob.prj.detail.capital.total'))]),
+    StatStrip(cells: <StatCell>[StatCell(value: moneyShortLabel(context, detail.totalInvestmentVnd), label: context.t('mob.prj.detail.capital.total'))]),
     InfoRow(label: context.t('mob.prj.detail.capital.exact'), value: moneyExactLabel(context, detail.totalInvestmentVnd), divider: false),
     const SizedBox(height: MachvonV2Space.s12),
     GroupHeader(title: context.t('mob.prj.detail.capital.more')),

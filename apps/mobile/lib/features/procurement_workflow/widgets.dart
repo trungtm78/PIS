@@ -146,7 +146,7 @@ class PackageRowTile extends StatelessWidget {
               if (row.running && row.progressPercent != null) fact(context.t('mob.prc.row.progress', <String, Object>{'percent': row.progressPercent!})),
               if (row.projectCode.isNotEmpty)
                 fact(context.t('mob.prc.row.project', <String, Object>{'project': row.projectName == null ? row.projectCode : '${row.projectCode} · ${row.projectName}'})),
-              fact(context.t('mob.prc.row.value', <String, Object>{'value': moneyLabel(context, row.valueVnd)})),
+              fact(context.t('mob.prc.row.value', <String, Object>{'value': moneyShortLabel(context, row.valueVnd)})),
               if (row.running) fact(row.hasOwner && row.ownerName != null ? context.t('mob.prc.row.owner', <String, Object>{'name': row.ownerName!}) : context.t('mob.prc.row.ownerNone')),
             ],
           ),

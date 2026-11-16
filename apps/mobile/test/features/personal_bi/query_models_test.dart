@@ -6,7 +6,7 @@ import 'package:machvon_mobile/features/personal_bi/query_models.dart';
 import 'bi_fixtures.dart';
 
 String _text(Figure figure, {String unit = 'VND', String language = 'vi'}) =>
-    figureText(figure, unit: unit, language: language, noData: 'NO_DATA', notApplicable: 'NOT_APPLICABLE', restricted: 'RESTRICTED', notYetReported: 'NOT_YET_REPORTED');
+    figureText(figure, unit: unit, language: language, money: (String dong) => 'MONEY($dong)', noData: 'NO_DATA', notApplicable: 'NOT_APPLICABLE', restricted: 'RESTRICTED', notYetReported: 'NOT_YET_REPORTED');
 
 Group _cell(String? value, {String? numerator, String? denominator}) => Group(figure: Figure(value: value, numerator: numerator, denominator: denominator), label: 'Sở Giao thông', unclassified: false, key: 'u-1', drillToken: tokenAUnit);
 
@@ -42,10 +42,10 @@ void main() {
   });
 
   group('AC-ST-MOB-027-1 a figure is written exactly, and a figure that is missing is never 0', () {
-    test('money is whole dong with the digits of the language, never through a float', () {
-      expect(_text(const Figure(value: '480000000')), '480.000.000 ₫');
-      expect(_text(const Figure(value: '480000000'), language: 'en'), '480,000,000 ₫');
-      expect(_text(const Figure(value: '9007199254740993')), '9.007.199.254.740.993 ₫', reason: 'more digits than a float holds');
+    test('money goes to the one formatter of the phone as whole dong in text, never through a float', () {
+      expect(_text(const Figure(value: '480000000')), 'MONEY(480000000)');
+      expect(_text(const Figure(value: '-480000000'), language: 'en'), 'MONEY(-480000000)');
+      expect(_text(const Figure(value: '9007199254740993')), 'MONEY(9007199254740993)', reason: 'more digits than a float holds');
     });
 
     test('a ratio is a percentage with two decimals, rounded half up on the exact decimal', () {

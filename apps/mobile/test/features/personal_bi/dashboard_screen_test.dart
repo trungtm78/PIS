@@ -71,7 +71,7 @@ void main() {
       expect(find.text('Ban QLDA huyện'), findsOneWidget);
       expect(find.text('Chưa có dữ liệu'), findsOneWidget);
       expect(find.byType(ProportionBar), findsNWidgets(2), reason: 'a bar for each of the two groups that have a figure');
-      expect(find.text('300.000.000 ₫'), findsOneWidget);
+      expect(find.text('300 triệu đồng'), findsOneWidget);
     });
 
     testWidgets('the drill from a cell totals the cell: the check says so, from the same snapshot', (WidgetTester tester) async {
@@ -89,7 +89,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(server.callsTo('GET', '/bi/drill').single.url.queryParameters, <String, String>{'drill_token': tokenAUnit, 'child_dimension': 'project'});
-      expect(find.text('Tổng của bước này bằng ô đã chọn (300.000.000 ₫), cùng ảnh chụp.'), findsOneWidget);
+      expect(find.text('Tổng của bước này bằng ô đã chọn (300.000.000 đồng), cùng ảnh chụp.'), findsOneWidget);
       expect(find.text('Cầu Bình An'), findsOneWidget);
       expect(find.text('Tổng › Sở Giao thông (Dự án)'), findsOneWidget);
       await tester.tap(find.text('Quay lại'));
@@ -111,7 +111,7 @@ void main() {
       await tester.tap(find.widgetWithText(ActionChip, 'Dự án'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Tổng của bước này không bằng ô đã chọn: ô là 300.000.000 ₫, tổng là 250.000.000 ₫.'), findsOneWidget);
+      expect(find.text('Tổng của bước này không bằng ô đã chọn: ô là 300.000.000 đồng, tổng là 250.000.000 đồng.'), findsOneWidget);
       semantics.dispose();
     });
 
@@ -447,7 +447,7 @@ void main() {
 
       expect(find.byType(LineSketch), findsNWidgets(2));
       expect(find.byType(ProportionBar), findsNWidgets(2), reason: 'the pie draws bars; the line, the area and the table do not');
-      expect(find.text('300.000.000 ₫'), findsNWidgets(4));
+      expect(find.text('300 triệu đồng'), findsNWidgets(4));
     });
 
     testWidgets('a list of more than eight groups shows eight and offers the rest', (WidgetTester tester) async {
@@ -518,7 +518,7 @@ void main() {
       final SemanticsHandle semantics = tester.ensureSemantics();
       final ScriptedServer server = biServer();
       final ProviderContainer container = await _open(tester, server, _dashboard(snapshot: snapA));
-      expect(find.text('300.000.000 ₫'), findsOneWidget);
+      expect(find.text('300 triệu đồng'), findsOneWidget);
 
       container.read(routerProvider).go('/home/mob-52');
       await tester.pumpAndSettle();
@@ -528,7 +528,7 @@ void main() {
 
       expect(find.textContaining('Bản lưu trên máy, số liệu kỳ 2026-10'), findsNWidgets(2));
       expect(find.text('Số tiền chỉ để tham khảo, không sửa được.'), findsWidgets);
-      expect(find.text('300.000.000 ₫'), findsOneWidget);
+      expect(find.text('300 triệu đồng'), findsOneWidget);
       expect(find.bySemanticsLabel('Đi sâu vào Sở Giao thông'), findsNothing, reason: 'a drill is a question to the server');
       semantics.dispose();
     });

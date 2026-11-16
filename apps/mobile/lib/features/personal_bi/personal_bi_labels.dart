@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
 import 'bi_query_service.dart';
 import 'query_models.dart';
@@ -40,11 +41,13 @@ String dimensionLabel(BuildContext context, String dimension) {
   }
 }
 
-/// A figure as it is written in the language of the interface; a figure that is missing says why and is never 0.
-String figureLabel(BuildContext context, Figure figure, String unit) => figureText(
+/// A figure as it is written in the language of the interface; a figure that is missing says why and is never 0. Money is short (the unit
+/// of its size) on a tile and a row; [exact] keeps every dong, for the check that a drill adds up to its cell.
+String figureLabel(BuildContext context, Figure figure, String unit, {bool exact = false}) => figureText(
       figure,
       unit: unit,
       language: AppStrings.of(context).language,
+      money: (String dong) => exact ? moneyExactLabel(context, dong) : moneyShortLabel(context, dong),
       noData: context.t('mob.pbi.figure.noData'),
       notApplicable: context.t('mob.pbi.figure.notApplicable'),
       restricted: context.t('mob.pbi.figure.restricted'),

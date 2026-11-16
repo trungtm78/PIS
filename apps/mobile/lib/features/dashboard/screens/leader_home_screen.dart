@@ -150,7 +150,7 @@ class _HomeBody extends StatelessWidget {
 
 /// A figure split from its unit for the band: `1.058,3` and `ty dong`.
 ({String figure, String unit}) _figureOf(BuildContext context, String? vnd) {
-  final String label = moneyLabel(context, vnd, decimals: 1);
+  final String label = moneyShortLabel(context, vnd);
   final int cut = label.indexOf(' ');
   return cut < 0 ? (figure: label, unit: '') : (figure: label.substring(0, cut), unit: label.substring(cut + 1));
 }
@@ -422,7 +422,7 @@ class MetricTileCard extends StatelessWidget {
     if (tile.unit == TileUnit.percent) {
       return context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(tile.displayValue ?? value, AppStrings.of(context).language)});
     }
-    return moneyLabel(context, value);
+    return moneyShortLabel(context, value);
   }
 }
 
