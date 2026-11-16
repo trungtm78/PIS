@@ -40950,5 +40950,6 @@
   "wfxbands.steps.col.step": "Bước",
   "wfxbands.steps.col.open": "Mở quy trình",
   "wfxbands.steps.open.label": "Mở quy trình của bước {step}",
-  "wfxbands.steps.open.action": "Mở quy trình"
+  "wfxbands.steps.open.action": "Mở quy trình",
+  "polish2.mytasks.noDetail.text": "Bạn chưa có quyền xem chi tiết việc này"
 }

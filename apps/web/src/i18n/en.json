@@ -40950,5 +40950,6 @@
   "wfxbands.steps.col.step": "Step",
   "wfxbands.steps.col.open": "Open the process",
   "wfxbands.steps.open.label": "Open the process of the step {step}",
-  "wfxbands.steps.open.action": "Open process"
+  "wfxbands.steps.open.action": "Open process",
+  "polish2.mytasks.noDetail.text": "You do not have permission to view the details of this task"
 }
