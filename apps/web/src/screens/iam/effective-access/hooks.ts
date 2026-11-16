@@ -13,13 +13,13 @@ export const effectiveAccessKey = (tenantId: string | undefined, membershipId: s
  * The caller's own effective access (`getMyEffectiveAccess`). The key holds the session tenant and membership, so a tenant
  * switch never shows the answer of another one; the reading is repeated, because the screen warns when it moves on.
  */
-export function useEffectiveAccess() {
+export function useEffectiveAccess(options: { enabled?: boolean } = {}) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<EffectiveAccessView>({
     queryKey: effectiveAccessKey(tenant?.id, tenant?.membershipId),
     queryFn: async () => toEffectiveAccess(await client.read('getMyEffectiveAccess')),
-    enabled: tenant !== undefined,
+    enabled: tenant !== undefined && options.enabled !== false,
     retry: false,
     refetchInterval: REFRESH_MS,
     refetchOnWindowFocus: true,

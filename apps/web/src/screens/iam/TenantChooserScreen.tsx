@@ -76,10 +76,11 @@ export default function TenantChooserScreen({ route }: ScreenProps) {
   };
 
   // A person who belongs to ONE organisation that can be chosen has nothing to choose: it is chosen for them, once (a failure leaves the card and its message).
+  // Only on the way in: a person who already works in an organisation and opens this screen on purpose sees it, and is not sent away.
   const only = candidates.data?.length === 1 ? candidates.data[0] : undefined;
   const autoChosen = useRef(false);
   useEffect(() => {
-    if (only === undefined || autoChosen.current || selectability(only, Date.now()) !== 'selectable') return;
+    if (only === undefined || autoChosen.current || sessionRef.current.tenant !== undefined || selectability(only, Date.now()) !== 'selectable') return;
     autoChosen.current = true;
     void choose(only);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `choose` reads the session through a ref; the effect follows the candidate alone
