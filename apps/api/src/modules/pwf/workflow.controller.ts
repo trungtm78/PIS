@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { PrjProjectStore, PwfAssignmentReads, PwfWorkflowReads, PwfWorkflowStore, TenantDatabase, approvedFormRevision, knownFormCodes, projectInScope, projectScope } from '@machvon/db';
+import { PrjProjectStore, PwfAssignmentReads, PwfWorkflowReads, PwfWorkflowStore, TenantDatabase, approvedFormRevision, knownFormCodes, projectInScope, projectScope, projectUnitsOf, resolveReceivingUnits, unitsViewOf } from '@machvon/db';
 import type { AdoptOutcome, LegalDocumentView, PwfSelectionRecord, TenantTx } from '@machvon/db';
 import { DomainError, legalDocument, pwfQuality, pwfSchedule, pwfWorkflow, validateRuleParams, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
@@ -197,6 +197,7 @@ export class ProjectWorkflowController {
       plannedStartDate: body.planned_start_date,
       facts: factsOf(body.facts),
       selectionReason: body.selection_reason,
+      units: body.units,
       actor: scope.tenant.membershipId,
       scopes: scopesOf(access, PERMISSIONS.startProjectWorkflow, now),
       now,
@@ -219,6 +220,7 @@ export class ProjectWorkflowController {
       plannedStartDate: body.planned_start_date,
       effectiveDate: body.effective_date,
       dryRun: body.dry_run,
+      units: body.units,
       facts: factsOf(body.facts),
       pastTasks: (body.past_tasks ?? []).map((one) => ({
         taskCode: one.task_code,
@@ -247,6 +249,7 @@ export class ProjectWorkflowController {
           task_count: outcome.tasks.length,
           needs_decision: outcome.tasks.filter((one) => one.needsDecision).length,
           findings: outcome.findings.length,
+          unresolved_units: outcome.units.unresolved.length,
           ...selectionFacts(outcome.selection),
         },
       });
@@ -274,6 +277,8 @@ function adoptView(outcome: AdoptOutcome, now: Date): Schemas['PwfAdoptResult'] 
     schedule: schedulePreviewOf(outcome.schedule, { names, phases: {}, plannedStart: outcome.workflow?.plannedStartDate ?? outcome.effectiveDate, excluded: outcome.excluded, now }),
     findings: outcome.findings,
     selection: outcome.selection,
+    // R61: the references the tasks use and the ones that still ask for a unit (a dry run tells them instead of refusing).
+    units: outcome.units,
     as_of: now.toISOString(),
   };
 }
@@ -370,6 +375,16 @@ export class ProjectWorkflowReadsController {
           preview = { ...base, project_start: null, project_finish: null, total_working_days: null, standard_working_days: null, step_count: steps.length, task_count: template.tasks.length, excluded_tasks: [], missing_facts: missing, findings: [], steps: steps.map((step) => ({ code: step.code, name: step.name, phase_code: step.phase, order: step.order, implicit: step.implicit, start: null, finish: null, duration_working_days: 0, task_count: 0 })) };
         } else {
           const planned = await this.workflows.previewTemplate(tx, template, plannedStart, view.facts);
+          // R61: the units the tasks of this project would ask for: what the project (or, for one being registered, the owner unit of the form) answers, and what the person still has to name. A template that names a unit which
+          // is no longer one is told here (the start would refuse it), the rest of the suggestion stands.
+          const projectUnits = projectId !== undefined ? await projectUnitsOf(tx, projectId) : { ownerUnitId: unitId, investorUnitId: null, decisionAuthorityUnitId: null };
+          let units: Schemas['PwfWorkflowUnits'];
+          try {
+            units = unitsViewOf(await resolveReceivingUnits(tx, { template, facts: view.facts, project: projectUnits, day: today, strict: false }));
+          } catch (error) {
+            if (!(error instanceof DomainError) || error.code !== 'PWF_UNIT_UNKNOWN') throw error;
+            units = { refs: [], unresolved: [], unknown: (error.extensions?.unit_refs as string[] | undefined) ?? [] };
+          }
           const scheduled = planned.result.tasks.map((one) => ({ code: one.code, start: one.start, finish: one.finish, startSlot: one.startSlot, endSlot: one.endSlot, passThrough: one.state === 'PASS_THROUGH' }));
           const live = scheduled.filter((one) => !one.passThrough);
           const spans = new Map(pwfWorkflow.stepSpans(template, scheduled).map((one) => [`${one.phase}/${one.step}`, one] as const));
@@ -385,6 +400,7 @@ export class ProjectWorkflowReadsController {
             excluded_tasks: planned.excluded,
             missing_facts: [],
             findings: planned.result.findings.map((one) => ({ code: one.code, task: one.task, ...(one.year === undefined ? {} : { year: one.year }) })),
+            units,
             steps: steps.map((step) => {
               const span = spans.get(`${step.phase}/${step.code}`);
               return { code: step.code, name: step.name, phase_code: step.phase, order: step.order, implicit: step.implicit, start: span?.start ?? null, finish: span?.finish ?? null, duration_working_days: span?.durationWorkingDays ?? 0, task_count: span?.taskCount ?? 0 };

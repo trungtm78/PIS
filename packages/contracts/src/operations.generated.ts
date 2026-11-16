@@ -126,6 +126,7 @@ export const OPERATIONS = {
   "checkProjectDisbursement": { method: "get", path: "/projects/{id}/disbursement-check", versioned: false, stepUp: null, permission: "payment_request.read" },
   "checkReport": { method: "post", path: "/report-engine/drafts/{id}/check", versioned: true, stepUp: null, permission: "rpt.check" },
   "checkVendorGate": { method: "get", path: "/vendor/gate-check", versioned: false, stepUp: null, permission: "vnd.read" },
+  "claimProjectTask": { method: "post", path: "/project-tasks/{task_id}/claim", versioned: false, stepUp: null, permission: "pwf.task.work" },
   "claimWork": { method: "post", path: "/home/work-actions/claim", versioned: false, stepUp: null, permission: "home.read" },
   "clearChangeAdjustmentCheck": { method: "post", path: "/change-requests/{id}/adjustment-check", versioned: true, stepUp: null, permission: "change.adjustment.clear" },
   "clearLookAheadConstraint": { method: "post", path: "/look-ahead-constraints/{id}/clear", versioned: true, stepUp: null, permission: "look_ahead.write" },

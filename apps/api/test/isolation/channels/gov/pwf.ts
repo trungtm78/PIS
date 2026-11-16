@@ -33,6 +33,7 @@ export const PWF_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'returnProjectTask', method: 'POST', id: FOREIGN_FIXTURE.taskId, versioned: true, body: { reason: 'Isolation foreign attempt to send the task back' } },
   { operation: 'requestProjectTaskException', method: 'POST', id: FOREIGN_FIXTURE.taskId, body: { kind: 'PAUSE', reason: 'Isolation foreign attempt to pause the task' } },
   { operation: 'resumeProjectTask', method: 'POST', id: FOREIGN_FIXTURE.taskId, versioned: true, body: {} },
+  { operation: 'claimProjectTask', method: 'POST', id: FOREIGN_FIXTURE.taskId, body: {} },
   {
     operation: 'assignProjectTask',
     method: 'POST',
@@ -81,6 +82,7 @@ export const PWF_OPERATIONS: readonly string[] = [
   'requestProjectTaskException',
   'decideProjectTaskException',
   'resumeProjectTask',
+  'claimProjectTask',
   'assignProjectTask',
   'listProjectTaskAssignments',
   'proposeProjectReschedule',

@@ -129,6 +129,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'checkProjectDisbursement': PayDisbursementCheckResponse.fromJson,
   'checkReport': CommandResultResponse.fromJson,
   'checkVendorGate': VendorGateCheckResponse.fromJson,
+  'claimProjectTask': CommandResultResponse.fromJson,
   'claimWork': asObject,
   'clearChangeAdjustmentCheck': CommandResultResponse.fromJson,
   'clearLookAheadConstraint': CommandResultResponse.fromJson,
@@ -58870,6 +58871,7 @@ final class PwfAdoptResultResponse implements ResponseModel {
     required this.findings,
     required this.asOf,
     this.selection,
+    this.units,
     this.extra = const <String, Object?>{},
   });
 
@@ -58887,7 +58889,8 @@ final class PwfAdoptResultResponse implements ResponseModel {
       findings: requiredField(map, path, 'findings', asList(PwfAdoptResultResponseFindingsItem.fromJson)),
       asOf: requiredField(map, path, 'as_of', asString),
       selection: optionalField(map, path, 'selection', PwfWorkflowSelectionResponse.fromJson),
-      extra: unknownFields(map, path, const <String>{'dry_run', 'applied', 'workflow_id', 'template_code', 'template_hash', 'effective_date', 'tasks', 'schedule', 'findings', 'as_of', 'selection'}, strict: true),
+      units: optionalField(map, path, 'units', PwfWorkflowUnitsResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'dry_run', 'applied', 'workflow_id', 'template_code', 'template_hash', 'effective_date', 'tasks', 'schedule', 'findings', 'as_of', 'selection', 'units'}, strict: true),
     );
   }
 
@@ -58902,6 +58905,7 @@ final class PwfAdoptResultResponse implements ResponseModel {
   final List<PwfAdoptResultResponseFindingsItem> findings;
   final String asOf;
   final PwfWorkflowSelectionResponse? selection;
+  final PwfWorkflowUnitsResponse? units;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -58919,6 +58923,7 @@ final class PwfAdoptResultResponse implements ResponseModel {
         'findings': findings.map((e0) => e0.toJson()).toList(),
         'as_of': asOf,
         if (selection != null) 'selection': selection!.toJson(),
+        if (units != null) 'units': units!.toJson(),
         ...extra,
       };
 }
@@ -59325,6 +59330,10 @@ final class PwfDeadlineBoardResponseItemsItem implements ResponseModel {
     this.bandThresholds,
     this.duration,
     this.effectiveWorkingDays,
+    this.receivingUnitId,
+    this.receivingUnitName,
+    this.receivingUnits,
+    this.unclaimed,
     this.extra = const <String, Object?>{},
   });
 
@@ -59349,7 +59358,11 @@ final class PwfDeadlineBoardResponseItemsItem implements ResponseModel {
       bandThresholds: optionalField(map, path, 'band_thresholds', PwfDeadlineBoardResponseItemsItemBandThresholds.fromJson),
       duration: optionalField(map, path, 'duration', nullable(PwfDeadlineBoardResponseItemsItemDuration.fromJson)),
       effectiveWorkingDays: optionalField(map, path, 'effective_working_days', nullable(asInt)),
-      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'project_id', 'project_code', 'project_name', 'phase_code', 'kind', 'status', 'due_date', 'band', 'critical', 'assignee', 'forecast_finish', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days'}, strict: true),
+      receivingUnitId: optionalField(map, path, 'receiving_unit_id', asString),
+      receivingUnitName: optionalField(map, path, 'receiving_unit_name', nullable(asString)),
+      receivingUnits: optionalField(map, path, 'receiving_units', asList(PwfDeadlineBoardResponseItemsItemReceivingUnitsItem.fromJson)),
+      unclaimed: optionalField(map, path, 'unclaimed', asBool),
+      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'project_id', 'project_code', 'project_name', 'phase_code', 'kind', 'status', 'due_date', 'band', 'critical', 'assignee', 'forecast_finish', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days', 'receiving_unit_id', 'receiving_unit_name', 'receiving_units', 'unclaimed'}, strict: true),
     );
   }
 
@@ -59371,6 +59384,10 @@ final class PwfDeadlineBoardResponseItemsItem implements ResponseModel {
   final PwfDeadlineBoardResponseItemsItemBandThresholds? bandThresholds;
   final PwfDeadlineBoardResponseItemsItemDuration? duration;
   final int? effectiveWorkingDays;
+  final String? receivingUnitId;
+  final String? receivingUnitName;
+  final List<PwfDeadlineBoardResponseItemsItemReceivingUnitsItem>? receivingUnits;
+  final bool? unclaimed;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59395,6 +59412,10 @@ final class PwfDeadlineBoardResponseItemsItem implements ResponseModel {
         if (bandThresholds != null) 'band_thresholds': bandThresholds!.toJson(),
         if (duration != null) 'duration': duration!.toJson(),
         if (effectiveWorkingDays != null) 'effective_working_days': effectiveWorkingDays,
+        if (receivingUnitId != null) 'receiving_unit_id': receivingUnitId,
+        if (receivingUnitName != null) 'receiving_unit_name': receivingUnitName,
+        if (receivingUnits != null) 'receiving_units': receivingUnits!.map((e0) => e0.toJson()).toList(),
+        if (unclaimed != null) 'unclaimed': unclaimed,
         ...extra,
       };
 }
@@ -59539,6 +59560,48 @@ final class PwfDeadlineBoardResponseItemsItemDuration implements ResponseModel {
         'value': value,
         'unit': unit,
         'roll_to_working_day': rollToWorkingDay,
+        ...extra,
+      };
+}
+
+final class PwfDeadlineBoardResponseItemsItemReceivingUnitsItem implements ResponseModel {
+  const PwfDeadlineBoardResponseItemsItemReceivingUnitsItem({
+    required this.unitRef,
+    required this.unitId,
+    required this.unitName,
+    required this.role,
+    required this.part_,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfDeadlineBoardResponseItemsItemReceivingUnitsItem.fromJson(Object? json, [String path = 'PwfDeadlineBoardResponseItemsItemReceivingUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfDeadlineBoardResponseItemsItemReceivingUnitsItem(
+      unitRef: requiredField(map, path, 'unit_ref', asString),
+      unitId: requiredField(map, path, 'unit_id', asString),
+      unitName: requiredField(map, path, 'unit_name', nullable(asString)),
+      role: requiredField(map, path, 'role', asString),
+      part_: requiredField(map, path, 'part', asString),
+      extra: unknownFields(map, path, const <String>{'unit_ref', 'unit_id', 'unit_name', 'role', 'part'}, strict: true),
+    );
+  }
+
+  final String unitRef;
+  final String unitId;
+  final String? unitName;
+  final String role;
+  final String part_;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_ref': unitRef,
+        'unit_id': unitId,
+        'unit_name': unitName,
+        'role': role,
+        'part': part_,
         ...extra,
       };
 }
@@ -60510,6 +60573,10 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
     this.bandThresholds,
     this.duration,
     this.effectiveWorkingDays,
+    this.receivingUnitId,
+    this.receivingUnitName,
+    this.receivingUnits,
+    this.unclaimed,
     this.extra = const <String, Object?>{},
   });
 
@@ -60533,7 +60600,11 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
       bandThresholds: optionalField(map, path, 'band_thresholds', PwfMyTaskPageResponseItemsItemBandThresholds.fromJson),
       duration: optionalField(map, path, 'duration', nullable(PwfMyTaskPageResponseItemsItemDuration.fromJson)),
       effectiveWorkingDays: optionalField(map, path, 'effective_working_days', nullable(asInt)),
-      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'project_id', 'project_code', 'status', 'due_date', 'official_band', 'personal_band', 'critical', 'version', 'forecast_finish', 'finished_on', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days'}, strict: true),
+      receivingUnitId: optionalField(map, path, 'receiving_unit_id', asString),
+      receivingUnitName: optionalField(map, path, 'receiving_unit_name', nullable(asString)),
+      receivingUnits: optionalField(map, path, 'receiving_units', asList(PwfMyTaskPageResponseItemsItemReceivingUnitsItem.fromJson)),
+      unclaimed: optionalField(map, path, 'unclaimed', asBool),
+      extra: unknownFields(map, path, const <String>{'task_id', 'task_code', 'name', 'project_id', 'project_code', 'status', 'due_date', 'official_band', 'personal_band', 'critical', 'version', 'forecast_finish', 'finished_on', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days', 'receiving_unit_id', 'receiving_unit_name', 'receiving_units', 'unclaimed'}, strict: true),
     );
   }
 
@@ -60554,6 +60625,10 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
   final PwfMyTaskPageResponseItemsItemBandThresholds? bandThresholds;
   final PwfMyTaskPageResponseItemsItemDuration? duration;
   final int? effectiveWorkingDays;
+  final String? receivingUnitId;
+  final String? receivingUnitName;
+  final List<PwfMyTaskPageResponseItemsItemReceivingUnitsItem>? receivingUnits;
+  final bool? unclaimed;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -60577,6 +60652,10 @@ final class PwfMyTaskPageResponseItemsItem implements ResponseModel {
         if (bandThresholds != null) 'band_thresholds': bandThresholds!.toJson(),
         if (duration != null) 'duration': duration!.toJson(),
         if (effectiveWorkingDays != null) 'effective_working_days': effectiveWorkingDays,
+        if (receivingUnitId != null) 'receiving_unit_id': receivingUnitId,
+        if (receivingUnitName != null) 'receiving_unit_name': receivingUnitName,
+        if (receivingUnits != null) 'receiving_units': receivingUnits!.map((e0) => e0.toJson()).toList(),
+        if (unclaimed != null) 'unclaimed': unclaimed,
         ...extra,
       };
 }
@@ -60737,6 +60816,48 @@ final class PwfMyTaskPageResponseItemsItemPersonalBand implements ResponseModel 
         'overdue': overdue,
         if (reason != null) 'reason': reason,
         if (dueToday != null) 'due_today': dueToday,
+        ...extra,
+      };
+}
+
+final class PwfMyTaskPageResponseItemsItemReceivingUnitsItem implements ResponseModel {
+  const PwfMyTaskPageResponseItemsItemReceivingUnitsItem({
+    required this.unitRef,
+    required this.unitId,
+    required this.unitName,
+    required this.role,
+    required this.part_,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfMyTaskPageResponseItemsItemReceivingUnitsItem.fromJson(Object? json, [String path = 'PwfMyTaskPageResponseItemsItemReceivingUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfMyTaskPageResponseItemsItemReceivingUnitsItem(
+      unitRef: requiredField(map, path, 'unit_ref', asString),
+      unitId: requiredField(map, path, 'unit_id', asString),
+      unitName: requiredField(map, path, 'unit_name', nullable(asString)),
+      role: requiredField(map, path, 'role', asString),
+      part_: requiredField(map, path, 'part', asString),
+      extra: unknownFields(map, path, const <String>{'unit_ref', 'unit_id', 'unit_name', 'role', 'part'}, strict: true),
+    );
+  }
+
+  final String unitRef;
+  final String unitId;
+  final String? unitName;
+  final String role;
+  final String part_;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_ref': unitRef,
+        'unit_id': unitId,
+        'unit_name': unitName,
+        'role': role,
+        'part': part_,
         ...extra,
       };
 }
@@ -61465,6 +61586,11 @@ final class PwfTaskDetailResponse implements ResponseModel {
     this.bandThresholds,
     this.duration,
     this.effectiveWorkingDays,
+    this.receivingUnitId,
+    this.receivingUnitName,
+    this.receivingUnits,
+    this.unclaimed,
+    this.canClaim,
     this.extra = const <String, Object?>{},
   });
 
@@ -61537,7 +61663,12 @@ final class PwfTaskDetailResponse implements ResponseModel {
       bandThresholds: optionalField(map, path, 'band_thresholds', PwfTaskDetailResponseBandThresholds.fromJson),
       duration: optionalField(map, path, 'duration', nullable(PwfTaskDetailResponseDuration.fromJson)),
       effectiveWorkingDays: optionalField(map, path, 'effective_working_days', nullable(asInt)),
-      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'responsible_role', 'approver_role', 'duration_working_days', 'baseline_start', 'finish_variance_days', 'late_start', 'late_finish', 'free_float', 'actual_start', 'actual_finish', 'remaining_working_days', 'percent_complete', 'reschedule_count', 'estimate_vnd', 'actual_vnd', 'milestone_id', 'predecessors', 'checklist', 'legal_doc_types', 'form_templates', 'evidence', 'completion', 'exceptions', 'assignments', 'history', 'kpi_results', 'can_start', 'can_complete', 'can_approve', 'can_return', 'can_request_exception', 'can_resume', 'can_assign', 'as_of', 'step', 'legal_basis', 'step_legal_basis', 'forecast_start', 'forecast_finish', 'responsible_role_name', 'approver_role_name', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days'}, strict: true),
+      receivingUnitId: optionalField(map, path, 'receiving_unit_id', asString),
+      receivingUnitName: optionalField(map, path, 'receiving_unit_name', nullable(asString)),
+      receivingUnits: optionalField(map, path, 'receiving_units', asList(PwfTaskDetailResponseReceivingUnitsItem.fromJson)),
+      unclaimed: optionalField(map, path, 'unclaimed', asBool),
+      canClaim: optionalField(map, path, 'can_claim', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'responsible_role', 'approver_role', 'duration_working_days', 'baseline_start', 'finish_variance_days', 'late_start', 'late_finish', 'free_float', 'actual_start', 'actual_finish', 'remaining_working_days', 'percent_complete', 'reschedule_count', 'estimate_vnd', 'actual_vnd', 'milestone_id', 'predecessors', 'checklist', 'legal_doc_types', 'form_templates', 'evidence', 'completion', 'exceptions', 'assignments', 'history', 'kpi_results', 'can_start', 'can_complete', 'can_approve', 'can_return', 'can_request_exception', 'can_resume', 'can_assign', 'as_of', 'step', 'legal_basis', 'step_legal_basis', 'forecast_start', 'forecast_finish', 'responsible_role_name', 'approver_role_name', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days', 'receiving_unit_id', 'receiving_unit_name', 'receiving_units', 'unclaimed', 'can_claim'}, strict: true),
     );
   }
 
@@ -61607,6 +61738,11 @@ final class PwfTaskDetailResponse implements ResponseModel {
   final PwfTaskDetailResponseBandThresholds? bandThresholds;
   final PwfTaskDetailResponseDuration? duration;
   final int? effectiveWorkingDays;
+  final String? receivingUnitId;
+  final String? receivingUnitName;
+  final List<PwfTaskDetailResponseReceivingUnitsItem>? receivingUnits;
+  final bool? unclaimed;
+  final bool? canClaim;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61679,6 +61815,11 @@ final class PwfTaskDetailResponse implements ResponseModel {
         if (bandThresholds != null) 'band_thresholds': bandThresholds!.toJson(),
         if (duration != null) 'duration': duration!.toJson(),
         if (effectiveWorkingDays != null) 'effective_working_days': effectiveWorkingDays,
+        if (receivingUnitId != null) 'receiving_unit_id': receivingUnitId,
+        if (receivingUnitName != null) 'receiving_unit_name': receivingUnitName,
+        if (receivingUnits != null) 'receiving_units': receivingUnits!.map((e0) => e0.toJson()).toList(),
+        if (unclaimed != null) 'unclaimed': unclaimed,
+        if (canClaim != null) 'can_claim': canClaim,
         ...extra,
       };
 }
@@ -62471,6 +62612,48 @@ final class PwfTaskDetailResponsePredecessorsItem implements ResponseModel {
       };
 }
 
+final class PwfTaskDetailResponseReceivingUnitsItem implements ResponseModel {
+  const PwfTaskDetailResponseReceivingUnitsItem({
+    required this.unitRef,
+    required this.unitId,
+    required this.unitName,
+    required this.role,
+    required this.part_,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfTaskDetailResponseReceivingUnitsItem.fromJson(Object? json, [String path = 'PwfTaskDetailResponseReceivingUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfTaskDetailResponseReceivingUnitsItem(
+      unitRef: requiredField(map, path, 'unit_ref', asString),
+      unitId: requiredField(map, path, 'unit_id', asString),
+      unitName: requiredField(map, path, 'unit_name', nullable(asString)),
+      role: requiredField(map, path, 'role', asString),
+      part_: requiredField(map, path, 'part', asString),
+      extra: unknownFields(map, path, const <String>{'unit_ref', 'unit_id', 'unit_name', 'role', 'part'}, strict: true),
+    );
+  }
+
+  final String unitRef;
+  final String unitId;
+  final String? unitName;
+  final String role;
+  final String part_;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_ref': unitRef,
+        'unit_id': unitId,
+        'unit_name': unitName,
+        'role': role,
+        'part': part_,
+        ...extra,
+      };
+}
+
 final class PwfTaskDetailResponseStep implements ResponseModel {
   const PwfTaskDetailResponseStep({
     required this.code,
@@ -62588,6 +62771,10 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
     this.bandThresholds,
     this.duration,
     this.effectiveWorkingDays,
+    this.receivingUnitId,
+    this.receivingUnitName,
+    this.receivingUnits,
+    this.unclaimed,
     this.extra = const <String, Object?>{},
   });
 
@@ -62621,7 +62808,11 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
       bandThresholds: optionalField(map, path, 'band_thresholds', PwfTaskPageResponseItemsItemBandThresholds.fromJson),
       duration: optionalField(map, path, 'duration', nullable(PwfTaskPageResponseItemsItemDuration.fromJson)),
       effectiveWorkingDays: optionalField(map, path, 'effective_working_days', nullable(asInt)),
-      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'forecast_start', 'forecast_finish', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days'}, strict: true),
+      receivingUnitId: optionalField(map, path, 'receiving_unit_id', asString),
+      receivingUnitName: optionalField(map, path, 'receiving_unit_name', nullable(asString)),
+      receivingUnits: optionalField(map, path, 'receiving_units', asList(PwfTaskPageResponseItemsItemReceivingUnitsItem.fromJson)),
+      unclaimed: optionalField(map, path, 'unclaimed', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'forecast_start', 'forecast_finish', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days', 'receiving_unit_id', 'receiving_unit_name', 'receiving_units', 'unclaimed'}, strict: true),
     );
   }
 
@@ -62652,6 +62843,10 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
   final PwfTaskPageResponseItemsItemBandThresholds? bandThresholds;
   final PwfTaskPageResponseItemsItemDuration? duration;
   final int? effectiveWorkingDays;
+  final String? receivingUnitId;
+  final String? receivingUnitName;
+  final List<PwfTaskPageResponseItemsItemReceivingUnitsItem>? receivingUnits;
+  final bool? unclaimed;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -62685,6 +62880,10 @@ final class PwfTaskPageResponseItemsItem implements ResponseModel {
         if (bandThresholds != null) 'band_thresholds': bandThresholds!.toJson(),
         if (duration != null) 'duration': duration!.toJson(),
         if (effectiveWorkingDays != null) 'effective_working_days': effectiveWorkingDays,
+        if (receivingUnitId != null) 'receiving_unit_id': receivingUnitId,
+        if (receivingUnitName != null) 'receiving_unit_name': receivingUnitName,
+        if (receivingUnits != null) 'receiving_units': receivingUnits!.map((e0) => e0.toJson()).toList(),
+        if (unclaimed != null) 'unclaimed': unclaimed,
         ...extra,
       };
 }
@@ -62829,6 +63028,48 @@ final class PwfTaskPageResponseItemsItemDuration implements ResponseModel {
         'value': value,
         'unit': unit,
         'roll_to_working_day': rollToWorkingDay,
+        ...extra,
+      };
+}
+
+final class PwfTaskPageResponseItemsItemReceivingUnitsItem implements ResponseModel {
+  const PwfTaskPageResponseItemsItemReceivingUnitsItem({
+    required this.unitRef,
+    required this.unitId,
+    required this.unitName,
+    required this.role,
+    required this.part_,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfTaskPageResponseItemsItemReceivingUnitsItem.fromJson(Object? json, [String path = 'PwfTaskPageResponseItemsItemReceivingUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfTaskPageResponseItemsItemReceivingUnitsItem(
+      unitRef: requiredField(map, path, 'unit_ref', asString),
+      unitId: requiredField(map, path, 'unit_id', asString),
+      unitName: requiredField(map, path, 'unit_name', nullable(asString)),
+      role: requiredField(map, path, 'role', asString),
+      part_: requiredField(map, path, 'part', asString),
+      extra: unknownFields(map, path, const <String>{'unit_ref', 'unit_id', 'unit_name', 'role', 'part'}, strict: true),
+    );
+  }
+
+  final String unitRef;
+  final String unitId;
+  final String? unitName;
+  final String role;
+  final String part_;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_ref': unitRef,
+        'unit_id': unitId,
+        'unit_name': unitName,
+        'role': role,
+        'part': part_,
         ...extra,
       };
 }
@@ -63417,6 +63658,10 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
     this.bandThresholds,
     this.duration,
     this.effectiveWorkingDays,
+    this.receivingUnitId,
+    this.receivingUnitName,
+    this.receivingUnits,
+    this.unclaimed,
     this.extra = const <String, Object?>{},
   });
 
@@ -63453,7 +63698,11 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
       bandThresholds: optionalField(map, path, 'band_thresholds', PwfWorkflowDetailResponseTasksItemBandThresholds.fromJson),
       duration: optionalField(map, path, 'duration', nullable(PwfWorkflowDetailResponseTasksItemDuration.fromJson)),
       effectiveWorkingDays: optionalField(map, path, 'effective_working_days', nullable(asInt)),
-      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'step_code', 'checklist_total', 'checklist_done', 'forecast_start', 'forecast_finish', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days'}, strict: true),
+      receivingUnitId: optionalField(map, path, 'receiving_unit_id', asString),
+      receivingUnitName: optionalField(map, path, 'receiving_unit_name', nullable(asString)),
+      receivingUnits: optionalField(map, path, 'receiving_units', asList(PwfWorkflowDetailResponseTasksItemReceivingUnitsItem.fromJson)),
+      unclaimed: optionalField(map, path, 'unclaimed', asBool),
+      extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'step_code', 'checklist_total', 'checklist_done', 'forecast_start', 'forecast_finish', 'band_tier', 'band_thresholds', 'duration', 'effective_working_days', 'receiving_unit_id', 'receiving_unit_name', 'receiving_units', 'unclaimed'}, strict: true),
     );
   }
 
@@ -63487,6 +63736,10 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
   final PwfWorkflowDetailResponseTasksItemBandThresholds? bandThresholds;
   final PwfWorkflowDetailResponseTasksItemDuration? duration;
   final int? effectiveWorkingDays;
+  final String? receivingUnitId;
+  final String? receivingUnitName;
+  final List<PwfWorkflowDetailResponseTasksItemReceivingUnitsItem>? receivingUnits;
+  final bool? unclaimed;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -63523,6 +63776,10 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
         if (bandThresholds != null) 'band_thresholds': bandThresholds!.toJson(),
         if (duration != null) 'duration': duration!.toJson(),
         if (effectiveWorkingDays != null) 'effective_working_days': effectiveWorkingDays,
+        if (receivingUnitId != null) 'receiving_unit_id': receivingUnitId,
+        if (receivingUnitName != null) 'receiving_unit_name': receivingUnitName,
+        if (receivingUnits != null) 'receiving_units': receivingUnits!.map((e0) => e0.toJson()).toList(),
+        if (unclaimed != null) 'unclaimed': unclaimed,
         ...extra,
       };
 }
@@ -63671,6 +63928,48 @@ final class PwfWorkflowDetailResponseTasksItemDuration implements ResponseModel 
       };
 }
 
+final class PwfWorkflowDetailResponseTasksItemReceivingUnitsItem implements ResponseModel {
+  const PwfWorkflowDetailResponseTasksItemReceivingUnitsItem({
+    required this.unitRef,
+    required this.unitId,
+    required this.unitName,
+    required this.role,
+    required this.part_,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfWorkflowDetailResponseTasksItemReceivingUnitsItem.fromJson(Object? json, [String path = 'PwfWorkflowDetailResponseTasksItemReceivingUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfWorkflowDetailResponseTasksItemReceivingUnitsItem(
+      unitRef: requiredField(map, path, 'unit_ref', asString),
+      unitId: requiredField(map, path, 'unit_id', asString),
+      unitName: requiredField(map, path, 'unit_name', nullable(asString)),
+      role: requiredField(map, path, 'role', asString),
+      part_: requiredField(map, path, 'part', asString),
+      extra: unknownFields(map, path, const <String>{'unit_ref', 'unit_id', 'unit_name', 'role', 'part'}, strict: true),
+    );
+  }
+
+  final String unitRef;
+  final String unitId;
+  final String? unitName;
+  final String role;
+  final String part_;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_ref': unitRef,
+        'unit_id': unitId,
+        'unit_name': unitName,
+        'role': role,
+        'part': part_,
+        ...extra,
+      };
+}
+
 final class PwfWorkflowSelectionResponse implements ResponseModel {
   const PwfWorkflowSelectionResponse({
     required this.mode,
@@ -63682,6 +63981,7 @@ final class PwfWorkflowSelectionResponse implements ResponseModel {
     required this.ruleVersion,
     required this.ruleUnitId,
     required this.reason,
+    this.units,
     this.extra = const <String, Object?>{},
   });
 
@@ -63697,7 +63997,8 @@ final class PwfWorkflowSelectionResponse implements ResponseModel {
       ruleVersion: requiredField(map, path, 'rule_version', asInt),
       ruleUnitId: requiredField(map, path, 'rule_unit_id', nullable(asString)),
       reason: requiredField(map, path, 'reason', nullable(asString)),
-      extra: unknownFields(map, path, const <String>{'mode', 'chosen_template_code', 'suggested_template_code', 'basis', 'line', 'rule_id', 'rule_version', 'rule_unit_id', 'reason'}, strict: true),
+      units: optionalField(map, path, 'units', asList(PwfWorkflowSelectionResponseUnitsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'mode', 'chosen_template_code', 'suggested_template_code', 'basis', 'line', 'rule_id', 'rule_version', 'rule_unit_id', 'reason', 'units'}, strict: true),
     );
   }
 
@@ -63710,6 +64011,7 @@ final class PwfWorkflowSelectionResponse implements ResponseModel {
   final int ruleVersion;
   final String? ruleUnitId;
   final String? reason;
+  final List<PwfWorkflowSelectionResponseUnitsItem>? units;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -63725,6 +64027,41 @@ final class PwfWorkflowSelectionResponse implements ResponseModel {
         'rule_version': ruleVersion,
         'rule_unit_id': ruleUnitId,
         'reason': reason,
+        if (units != null) 'units': units!.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class PwfWorkflowSelectionResponseUnitsItem implements ResponseModel {
+  const PwfWorkflowSelectionResponseUnitsItem({
+    required this.unitRef,
+    required this.unitId,
+    required this.source,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfWorkflowSelectionResponseUnitsItem.fromJson(Object? json, [String path = 'PwfWorkflowSelectionResponseUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfWorkflowSelectionResponseUnitsItem(
+      unitRef: requiredField(map, path, 'unit_ref', asString),
+      unitId: requiredField(map, path, 'unit_id', asString),
+      source: requiredField(map, path, 'source', asString),
+      extra: unknownFields(map, path, const <String>{'unit_ref', 'unit_id', 'source'}, strict: true),
+    );
+  }
+
+  final String unitRef;
+  final String unitId;
+  final String source;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_ref': unitRef,
+        'unit_id': unitId,
+        'source': source,
         ...extra,
       };
 }
@@ -63880,6 +64217,7 @@ final class PwfWorkflowSuggestionResponsePreview implements ResponseModel {
     required this.missingFacts,
     required this.findings,
     required this.steps,
+    this.units,
     this.extra = const <String, Object?>{},
   });
 
@@ -63901,7 +64239,8 @@ final class PwfWorkflowSuggestionResponsePreview implements ResponseModel {
       missingFacts: requiredField(map, path, 'missing_facts', asList(asString)),
       findings: requiredField(map, path, 'findings', asList(PwfWorkflowSuggestionResponsePreviewFindingsItem.fromJson)),
       steps: requiredField(map, path, 'steps', asList(PwfWorkflowSuggestionResponsePreviewStepsItem.fromJson)),
-      extra: unknownFields(map, path, const <String>{'template_code', 'template_version', 'template_hash', 'planned_start_date', 'project_start', 'project_finish', 'total_working_days', 'standard_working_days', 'phase_count', 'step_count', 'task_count', 'excluded_tasks', 'missing_facts', 'findings', 'steps'}, strict: true),
+      units: optionalField(map, path, 'units', PwfWorkflowUnitsResponse.fromJson),
+      extra: unknownFields(map, path, const <String>{'template_code', 'template_version', 'template_hash', 'planned_start_date', 'project_start', 'project_finish', 'total_working_days', 'standard_working_days', 'phase_count', 'step_count', 'task_count', 'excluded_tasks', 'missing_facts', 'findings', 'steps', 'units'}, strict: true),
     );
   }
 
@@ -63920,6 +64259,7 @@ final class PwfWorkflowSuggestionResponsePreview implements ResponseModel {
   final List<String> missingFacts;
   final List<PwfWorkflowSuggestionResponsePreviewFindingsItem> findings;
   final List<PwfWorkflowSuggestionResponsePreviewStepsItem> steps;
+  final PwfWorkflowUnitsResponse? units;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -63941,6 +64281,7 @@ final class PwfWorkflowSuggestionResponsePreview implements ResponseModel {
         'missing_facts': missingFacts,
         'findings': findings.map((e0) => e0.toJson()).toList(),
         'steps': steps.map((e0) => e0.toJson()).toList(),
+        if (units != null) 'units': units!.toJson(),
         ...extra,
       };
 }
@@ -64129,6 +64470,82 @@ final class PwfWorkflowSuggestionResponseTemplatesItem implements ResponseModel 
         'step_count': stepCount,
         'task_count': taskCount,
         'fact_fields': factFields,
+        ...extra,
+      };
+}
+
+final class PwfWorkflowUnitsResponse implements ResponseModel {
+  const PwfWorkflowUnitsResponse({
+    required this.refs,
+    required this.unresolved,
+    this.unknown,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfWorkflowUnitsResponse.fromJson(Object? json, [String path = 'PwfWorkflowUnitsResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfWorkflowUnitsResponse(
+      refs: requiredField(map, path, 'refs', asList(PwfWorkflowUnitsResponseRefsItem.fromJson)),
+      unresolved: requiredField(map, path, 'unresolved', asList(asString)),
+      unknown: optionalField(map, path, 'unknown', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'refs', 'unresolved', 'unknown'}, strict: true),
+    );
+  }
+
+  final List<PwfWorkflowUnitsResponseRefsItem> refs;
+  final List<String> unresolved;
+  final List<String>? unknown;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'refs': refs.map((e0) => e0.toJson()).toList(),
+        'unresolved': unresolved,
+        if (unknown != null) 'unknown': unknown,
+        ...extra,
+      };
+}
+
+final class PwfWorkflowUnitsResponseRefsItem implements ResponseModel {
+  const PwfWorkflowUnitsResponseRefsItem({
+    required this.unitRef,
+    required this.unitId,
+    required this.unitName,
+    required this.source,
+    required this.partyName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfWorkflowUnitsResponseRefsItem.fromJson(Object? json, [String path = 'PwfWorkflowUnitsResponseRefsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfWorkflowUnitsResponseRefsItem(
+      unitRef: requiredField(map, path, 'unit_ref', asString),
+      unitId: requiredField(map, path, 'unit_id', nullable(asString)),
+      unitName: requiredField(map, path, 'unit_name', nullable(asString)),
+      source: requiredField(map, path, 'source', asString),
+      partyName: requiredField(map, path, 'party_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'unit_ref', 'unit_id', 'unit_name', 'source', 'party_name'}, strict: true),
+    );
+  }
+
+  final String unitRef;
+  final String? unitId;
+  final String? unitName;
+  final String source;
+  final String? partyName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_ref': unitRef,
+        'unit_id': unitId,
+        'unit_name': unitName,
+        'source': source,
+        'party_name': partyName,
         ...extra,
       };
 }

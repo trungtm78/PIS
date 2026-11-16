@@ -7747,6 +7747,46 @@
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
+    },
+    "PWF_UNIT_UNRESOLVED": {
+      "status": 422,
+      "title": "A party of the workflow template has no unit for this project",
+      "meaning": "Còn bên của quy trình chưa có đơn vị cho dự án này; người khởi tạo phải chọn đơn vị",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_UNIT_OVERRIDE_DENIED": {
+      "status": 422,
+      "title": "A unit the project or the template already names cannot be replaced when the workflow starts",
+      "meaning": "Không được chọn lại đơn vị mà dự án hoặc mẫu quy trình đã xác định; sửa dự án, không sửa workflow",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_UNIT_UNKNOWN": {
+      "status": 422,
+      "title": "The unit is not a unit of the tenant that is valid today",
+      "meaning": "Đơn vị không tồn tại hoặc không còn hiệu lực ở ngày khởi tạo",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_TASK_ALREADY_CLAIMED": {
+      "status": 409,
+      "title": "The task already has a person for this line",
+      "meaning": "Công việc đã có người nhận; đổi người là việc của quản trị qua sổ phân công",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_CLAIM_NOT_ELIGIBLE": {
+      "status": 403,
+      "title": "The caller is not of a receiving unit of the task or does not hold the role its line names",
+      "meaning": "Người gọi không thuộc đơn vị nhận việc hoặc không giữ vai mà dòng đơn vị đó khai",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
     }
   }
 }

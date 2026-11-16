@@ -133,6 +133,8 @@ export class ProjectController {
         plannedStartDate: body.workflow.planned_start_date,
         facts: Object.fromEntries(Object.entries(body.workflow.facts ?? {}).filter((entry): entry is [string, string] => typeof entry[1] === 'string')),
         selectionReason: body.workflow.selection_reason,
+        // R61: the units of the parties the project does not name itself.
+        units: body.workflow.units,
         // Choosing against the rule at registration is said in a sentence.
         reasonRequired: true,
         // The group the register suggests is what the project is known by until a decision names its group.

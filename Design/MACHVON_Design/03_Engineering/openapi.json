@@ -27679,7 +27679,10 @@
           "PWF_TEMPLATE_NOT_ASSIGNED",
           "PWF_SELECTION_REASON_REQUIRED",
           "PWF_TEMPLATE_NOT_FOUND",
-          "PWF_FACTS_REQUIRED"
+          "PWF_FACTS_REQUIRED",
+          "PWF_UNIT_UNRESOLVED",
+          "PWF_UNIT_OVERRIDE_DENIED",
+          "PWF_UNIT_UNKNOWN"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -234150,7 +234153,10 @@
           "PWF_FACTS_REQUIRED",
           "SCOPE_DENIED",
           "VALIDATION_FAILED",
-          "PWF_TEMPLATE_NOT_ASSIGNED"
+          "PWF_TEMPLATE_NOT_ASSIGNED",
+          "PWF_UNIT_UNRESOLVED",
+          "PWF_UNIT_OVERRIDE_DENIED",
+          "PWF_UNIT_UNKNOWN"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -234414,7 +234420,10 @@
           "VALIDATION_FAILED",
           "PWF_TEMPLATE_NOT_ASSIGNED",
           "PWF_TEMPLATE_NOT_FOUND",
-          "PWF_FACTS_REQUIRED"
+          "PWF_FACTS_REQUIRED",
+          "PWF_UNIT_UNRESOLVED",
+          "PWF_UNIT_OVERRIDE_DENIED",
+          "PWF_UNIT_UNKNOWN"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -241064,6 +241073,148 @@
           "VALIDATION_FAILED"
         ]
       }
+    },
+    "/project-tasks/{task_id}/claim": {
+      "post": {
+        "operationId": "claimProjectTask",
+        "summary": "Nhận việc: người của đơn vị nhận việc nhận công việc về mình trong một giao dịch (PWF-04; R71)",
+        "tags": [
+          "PWF"
+        ],
+        "x-permission": "pwf.task.work",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PwfTaskClaim"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "PWF_CLAIM_NOT_ELIGIBLE",
+          "PWF_TASK_ALREADY_CLAIMED",
+          "PWF_TASK_STATE_INVALID",
+          "VALIDATION_FAILED"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
+        "x-domain-events": [
+          "pwf.task.claimed.v1"
+        ]
+      }
     }
   },
   "components": {
@@ -243303,6 +243454,14 @@
                 "minLength": 10,
                 "maxLength": 500,
                 "description": "Bắt buộc khi chọn khác đề xuất (PWF_SELECTION_REASON_REQUIRED)"
+              },
+              "units": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "description": "Đơn vị cho từng bên mà dự án chưa xác định (R61): khóa là unit_ref của mẫu (PROJECT_PARTY:<MÃ>), giá trị là id đơn vị. Thiếu: 422 PWF_UNIT_UNRESOLVED; ghi đè đơn vị của dự án hoặc của mẫu: 422 PWF_UNIT_OVERRIDE_DENIED; đơn vị không hợp lệ: 422 PWF_UNIT_UNKNOWN"
               }
             }
           }
@@ -326440,6 +326599,14 @@
             "minLength": 10,
             "maxLength": 500,
             "description": "Lý do chọn loại quy trình khác đề xuất"
+          },
+          "units": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Đơn vị cho từng bên mà dự án chưa xác định (R61): khóa là unit_ref của mẫu (PROJECT_PARTY:<MÃ>), giá trị là id đơn vị. Thiếu: 422 PWF_UNIT_UNRESOLVED; ghi đè đơn vị của dự án hoặc của mẫu: 422 PWF_UNIT_OVERRIDE_DENIED; đơn vị không hợp lệ: 422 PWF_UNIT_UNKNOWN"
           }
         }
       },
@@ -326570,6 +326737,14 @@
             "minLength": 10,
             "maxLength": 500,
             "description": "Lý do chọn loại quy trình khác đề xuất"
+          },
+          "units": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Đơn vị cho từng bên mà dự án chưa xác định (R61): khóa là unit_ref của mẫu (PROJECT_PARTY:<MÃ>), giá trị là id đơn vị. Thiếu: 422 PWF_UNIT_UNRESOLVED; ghi đè đơn vị của dự án hoặc của mẫu: 422 PWF_UNIT_OVERRIDE_DENIED; đơn vị không hợp lệ: 422 PWF_UNIT_UNKNOWN"
           }
         }
       },
@@ -326693,6 +326868,9 @@
           },
           "selection": {
             "$ref": "#/components/schemas/PwfWorkflowSelection"
+          },
+          "units": {
+            "$ref": "#/components/schemas/PwfWorkflowUnits"
           }
         }
       },
@@ -327148,6 +327326,61 @@
                   ],
                   "minimum": 0,
                   "description": "The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown."
+                },
+                "receiving_unit_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận"
+                },
+                "receiving_unit_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "receiving_units": {
+                  "type": "array",
+                  "maxItems": 8,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "unit_ref",
+                      "unit_id",
+                      "unit_name",
+                      "role",
+                      "part"
+                    ],
+                    "properties": {
+                      "unit_ref": {
+                        "type": "string"
+                      },
+                      "unit_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "unit_name": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "role": {
+                        "type": "string"
+                      },
+                      "part": {
+                        "type": "string",
+                        "enum": [
+                          "LEAD",
+                          "SUPPORT"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "unclaimed": {
+                  "type": "boolean",
+                  "description": "Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay"
                 }
               }
             }
@@ -327744,6 +327977,61 @@
                   ],
                   "minimum": 0,
                   "description": "The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown."
+                },
+                "receiving_unit_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận"
+                },
+                "receiving_unit_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "receiving_units": {
+                  "type": "array",
+                  "maxItems": 8,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "unit_ref",
+                      "unit_id",
+                      "unit_name",
+                      "role",
+                      "part"
+                    ],
+                    "properties": {
+                      "unit_ref": {
+                        "type": "string"
+                      },
+                      "unit_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "unit_name": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "role": {
+                        "type": "string"
+                      },
+                      "part": {
+                        "type": "string",
+                        "enum": [
+                          "LEAD",
+                          "SUPPORT"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "unclaimed": {
+                  "type": "boolean",
+                  "description": "Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay"
                 }
               }
             }
@@ -329415,6 +329703,65 @@
             ],
             "minimum": 0,
             "description": "The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown."
+          },
+          "receiving_unit_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận"
+          },
+          "receiving_unit_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "receiving_units": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "unit_ref",
+                "unit_id",
+                "unit_name",
+                "role",
+                "part"
+              ],
+              "properties": {
+                "unit_ref": {
+                  "type": "string"
+                },
+                "unit_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "unit_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "role": {
+                  "type": "string"
+                },
+                "part": {
+                  "type": "string",
+                  "enum": [
+                    "LEAD",
+                    "SUPPORT"
+                  ]
+                }
+              }
+            }
+          },
+          "unclaimed": {
+            "type": "boolean",
+            "description": "Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay"
+          },
+          "can_claim": {
+            "type": "boolean",
+            "description": "Người đọc bấm được \"Nhận việc\" (cùng luật với claimProjectTask); chỉ có khi công việc có đơn vị nhận"
           }
         }
       },
@@ -330317,6 +330664,61 @@
                   ],
                   "minimum": 0,
                   "description": "The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown."
+                },
+                "receiving_unit_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận"
+                },
+                "receiving_unit_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "receiving_units": {
+                  "type": "array",
+                  "maxItems": 8,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "unit_ref",
+                      "unit_id",
+                      "unit_name",
+                      "role",
+                      "part"
+                    ],
+                    "properties": {
+                      "unit_ref": {
+                        "type": "string"
+                      },
+                      "unit_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "unit_name": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "role": {
+                        "type": "string"
+                      },
+                      "part": {
+                        "type": "string",
+                        "enum": [
+                          "LEAD",
+                          "SUPPORT"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "unclaimed": {
+                  "type": "boolean",
+                  "description": "Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay"
                 }
               }
             }
@@ -331013,6 +331415,61 @@
                   ],
                   "minimum": 0,
                   "description": "The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown."
+                },
+                "receiving_unit_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận"
+                },
+                "receiving_unit_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "receiving_units": {
+                  "type": "array",
+                  "maxItems": 8,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "unit_ref",
+                      "unit_id",
+                      "unit_name",
+                      "role",
+                      "part"
+                    ],
+                    "properties": {
+                      "unit_ref": {
+                        "type": "string"
+                      },
+                      "unit_id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "unit_name": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "role": {
+                        "type": "string"
+                      },
+                      "part": {
+                        "type": "string",
+                        "enum": [
+                          "LEAD",
+                          "SUPPORT"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "unclaimed": {
+                  "type": "boolean",
+                  "description": "Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay"
                 }
               }
             }
@@ -332972,6 +333429,36 @@
               "string",
               "null"
             ]
+          },
+          "units": {
+            "type": "array",
+            "description": "Đơn vị của từng unit_ref mà công việc của dự án dùng (R61); vắng khi mẫu không khai đơn vị",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "unit_ref",
+                "unit_id",
+                "source"
+              ],
+              "properties": {
+                "unit_ref": {
+                  "type": "string"
+                },
+                "unit_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "PROJECT",
+                    "TEMPLATE",
+                    "CHOSEN"
+                  ]
+                }
+              }
+            }
           }
         },
         "description": "Loại quy trình được chọn thế nào: đề xuất của quy tắc PROJECT_WORKFLOW_ASSIGNMENT, lựa chọn, cách chọn và lý do (R47)"
@@ -333342,6 +333829,9 @@
                     }
                   }
                 }
+              },
+              "units": {
+                "$ref": "#/components/schemas/PwfWorkflowUnits"
               }
             }
           },
@@ -333722,6 +334212,95 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "PwfWorkflowUnits": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "refs",
+          "unresolved"
+        ],
+        "description": "Các unit_ref mà công việc của dự án dùng (R61) và đơn vị đã phân giải; unresolved: các unit_ref người khởi tạo còn phải chọn đơn vị",
+        "properties": {
+          "refs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "unit_ref",
+                "unit_id",
+                "unit_name",
+                "source",
+                "party_name"
+              ],
+              "properties": {
+                "unit_ref": {
+                  "type": "string",
+                  "pattern": "^(PROJECT_OWNER|PROJECT_PARTY:[A-Z][A-Z0-9_]{1,39}|UNIT:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$"
+                },
+                "unit_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "unit_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "PROJECT",
+                    "TEMPLATE",
+                    "CHOSEN",
+                    "NONE"
+                  ],
+                  "description": "PROJECT: cột đơn vị của dự án; TEMPLATE: UNIT:<uuid> của mẫu; CHOSEN: người khởi tạo chọn; NONE: chưa có"
+                },
+                "party_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên bên do mẫu khai (parties); null với PROJECT_OWNER, bên dựng sẵn và UNIT"
+                }
+              }
+            }
+          },
+          "unresolved": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "unknown": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Chỉ ở bản xem trước: unit_ref của mẫu trỏ tới đơn vị không còn hợp lệ (khởi tạo sẽ bị từ chối PWF_UNIT_UNKNOWN)"
+          }
+        }
+      },
+      "PwfTaskClaim": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "part": {
+            "type": "string",
+            "enum": [
+              "LEAD",
+              "SUPPORT"
+            ],
+            "description": "Phần muốn nhận; bỏ trống: dòng đầu tiên người gọi đủ điều kiện (LEAD trước)"
           }
         }
       }

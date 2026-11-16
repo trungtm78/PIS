@@ -13232,6 +13232,7 @@ final class PrjProjectCreateWorkflow implements RequestModel {
     this.templateVersion,
     this.facts,
     this.selectionReason,
+    this.units,
   });
 
   final String? templateCode;
@@ -13239,6 +13240,7 @@ final class PrjProjectCreateWorkflow implements RequestModel {
   final String plannedStartDate;
   final PrjProjectCreateWorkflowFacts? facts;
   final String? selectionReason;
+  final Map<String, String>? units;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -13247,6 +13249,7 @@ final class PrjProjectCreateWorkflow implements RequestModel {
         'planned_start_date': plannedStartDate,
         if (facts != null) 'facts': facts,
         if (selectionReason != null) 'selection_reason': selectionReason,
+        if (units != null) 'units': units,
       };
 }
 
@@ -14216,6 +14219,19 @@ final class PwfReturnInput implements RequestModel {
       };
 }
 
+final class PwfTaskClaim implements RequestModel {
+  const PwfTaskClaim({
+    this.part_,
+  });
+
+  final String? part_;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (part_ != null) 'part': part_,
+      };
+}
+
 final class PwfTaskComplete implements RequestModel {
   const PwfTaskComplete({
     this.actualFinish,
@@ -14537,6 +14553,7 @@ final class PwfWorkflowAdopt implements RequestModel {
     this.pastTasks,
     this.inProgressTasks,
     this.selectionReason,
+    this.units,
   });
 
   final String? templateCode;
@@ -14548,6 +14565,7 @@ final class PwfWorkflowAdopt implements RequestModel {
   final List<PwfWorkflowAdoptPastTasksItem>? pastTasks;
   final List<PwfWorkflowAdoptInProgressTasksItem>? inProgressTasks;
   final String? selectionReason;
+  final Map<String, String>? units;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -14560,6 +14578,7 @@ final class PwfWorkflowAdopt implements RequestModel {
         if (pastTasks != null) 'past_tasks': pastTasks,
         if (inProgressTasks != null) 'in_progress_tasks': inProgressTasks,
         if (selectionReason != null) 'selection_reason': selectionReason,
+        if (units != null) 'units': units,
       };
 }
 
@@ -14636,6 +14655,7 @@ final class PwfWorkflowStart implements RequestModel {
     this.templateVersion,
     this.facts,
     this.selectionReason,
+    this.units,
   });
 
   final String? templateCode;
@@ -14643,6 +14663,7 @@ final class PwfWorkflowStart implements RequestModel {
   final String plannedStartDate;
   final PwfWorkflowStartFacts? facts;
   final String? selectionReason;
+  final Map<String, String>? units;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -14651,6 +14672,7 @@ final class PwfWorkflowStart implements RequestModel {
         'planned_start_date': plannedStartDate,
         if (facts != null) 'facts': facts,
         if (selectionReason != null) 'selection_reason': selectionReason,
+        if (units != null) 'units': units,
       };
 }
 

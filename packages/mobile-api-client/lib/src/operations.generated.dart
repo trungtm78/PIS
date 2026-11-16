@@ -128,6 +128,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'checkProjectDisbursement': OperationDescriptor(method: 'GET', path: '/projects/{id}/disbursement-check', versioned: false, stepUp: null, permission: 'payment_request.read'),
   'checkReport': OperationDescriptor(method: 'POST', path: '/report-engine/drafts/{id}/check', versioned: true, stepUp: null, permission: 'rpt.check'),
   'checkVendorGate': OperationDescriptor(method: 'GET', path: '/vendor/gate-check', versioned: false, stepUp: null, permission: 'vnd.read'),
+  'claimProjectTask': OperationDescriptor(method: 'POST', path: '/project-tasks/{task_id}/claim', versioned: false, stepUp: null, permission: 'pwf.task.work'),
   'claimWork': OperationDescriptor(method: 'POST', path: '/home/work-actions/claim', versioned: false, stepUp: null, permission: 'home.read'),
   'clearChangeAdjustmentCheck': OperationDescriptor(method: 'POST', path: '/change-requests/{id}/adjustment-check', versioned: true, stepUp: null, permission: 'change.adjustment.clear'),
   'clearLookAheadConstraint': OperationDescriptor(method: 'POST', path: '/look-ahead-constraints/{id}/clear', versioned: true, stepUp: null, permission: 'look_ahead.write'),

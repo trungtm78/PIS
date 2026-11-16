@@ -27421,6 +27421,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/project-tasks/{task_id}/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Nhận việc: người của đơn vị nhận việc nhận công việc về mình trong một giao dịch (PWF-04; R71) */
+        post: operations["claimProjectTask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -27973,6 +27990,10 @@ export interface components {
                 };
                 /** @description Bắt buộc khi chọn khác đề xuất (PWF_SELECTION_REASON_REQUIRED) */
                 selection_reason?: string;
+                /** @description Đơn vị cho từng bên mà dự án chưa xác định (R61): khóa là unit_ref của mẫu (PROJECT_PARTY:<MÃ>), giá trị là id đơn vị. Thiếu: 422 PWF_UNIT_UNRESOLVED; ghi đè đơn vị của dự án hoặc của mẫu: 422 PWF_UNIT_OVERRIDE_DENIED; đơn vị không hợp lệ: 422 PWF_UNIT_UNKNOWN */
+                units?: {
+                    [key: string]: string;
+                };
             };
         };
         PrjProfileChange: {
@@ -49122,6 +49143,10 @@ export interface components {
             };
             /** @description Lý do chọn loại quy trình khác đề xuất */
             selection_reason?: string;
+            /** @description Đơn vị cho từng bên mà dự án chưa xác định (R61): khóa là unit_ref của mẫu (PROJECT_PARTY:<MÃ>), giá trị là id đơn vị. Thiếu: 422 PWF_UNIT_UNRESOLVED; ghi đè đơn vị của dự án hoặc của mẫu: 422 PWF_UNIT_OVERRIDE_DENIED; đơn vị không hợp lệ: 422 PWF_UNIT_UNKNOWN */
+            units?: {
+                [key: string]: string;
+            };
         };
         PwfWorkflowAdopt: {
             /** @description Bỏ trống: hệ thống chọn theo quy tắc PROJECT_WORKFLOW_ASSIGNMENT (R47); không có đề xuất: PWF_TEMPLATE_NOT_ASSIGNED */
@@ -49158,6 +49183,10 @@ export interface components {
             }[];
             /** @description Lý do chọn loại quy trình khác đề xuất */
             selection_reason?: string;
+            /** @description Đơn vị cho từng bên mà dự án chưa xác định (R61): khóa là unit_ref của mẫu (PROJECT_PARTY:<MÃ>), giá trị là id đơn vị. Thiếu: 422 PWF_UNIT_UNRESOLVED; ghi đè đơn vị của dự án hoặc của mẫu: 422 PWF_UNIT_OVERRIDE_DENIED; đơn vị không hợp lệ: 422 PWF_UNIT_UNKNOWN */
+            units?: {
+                [key: string]: string;
+            };
         };
         PwfAdoptResult: {
             dry_run: boolean;
@@ -49187,6 +49216,7 @@ export interface components {
             /** Format: date-time */
             as_of: string;
             selection?: components["schemas"]["PwfWorkflowSelection"];
+            units?: components["schemas"]["PwfWorkflowUnits"];
         };
         PwfWorkflowDetail: {
             /** Format: uuid */
@@ -49305,6 +49335,23 @@ export interface components {
                 } | null;
                 /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
                 effective_working_days?: number | null;
+                /**
+                 * Format: uuid
+                 * @description Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận
+                 */
+                receiving_unit_id?: string;
+                receiving_unit_name?: string | null;
+                receiving_units?: {
+                    unit_ref: string;
+                    /** Format: uuid */
+                    unit_id: string;
+                    unit_name: string | null;
+                    role: string;
+                    /** @enum {string} */
+                    part: "LEAD" | "SUPPORT";
+                }[];
+                /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
+                unclaimed?: boolean;
             }[];
             gates: {
                 /** @enum {string} */
@@ -49458,6 +49505,23 @@ export interface components {
                 } | null;
                 /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
                 effective_working_days?: number | null;
+                /**
+                 * Format: uuid
+                 * @description Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận
+                 */
+                receiving_unit_id?: string;
+                receiving_unit_name?: string | null;
+                receiving_units?: {
+                    unit_ref: string;
+                    /** Format: uuid */
+                    unit_id: string;
+                    unit_name: string | null;
+                    role: string;
+                    /** @enum {string} */
+                    part: "LEAD" | "SUPPORT";
+                }[];
+                /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
+                unclaimed?: boolean;
             }[];
             next_cursor: string | null;
             total: number;
@@ -49858,6 +49922,25 @@ export interface components {
             } | null;
             /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
             effective_working_days?: number | null;
+            /**
+             * Format: uuid
+             * @description Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận
+             */
+            receiving_unit_id?: string;
+            receiving_unit_name?: string | null;
+            receiving_units?: {
+                unit_ref: string;
+                /** Format: uuid */
+                unit_id: string;
+                unit_name: string | null;
+                role: string;
+                /** @enum {string} */
+                part: "LEAD" | "SUPPORT";
+            }[];
+            /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
+            unclaimed?: boolean;
+            /** @description Người đọc bấm được "Nhận việc" (cùng luật với claimProjectTask); chỉ có khi công việc có đơn vị nhận */
+            can_claim?: boolean;
         };
         PwfTaskStart: {
             /** @description Bắt buộc khi bắt đầu trước khi tiền nhiệm đủ điều kiện theo loại liên kết (quản lý cho phép bắt đầu sớm) */
@@ -50093,6 +50176,23 @@ export interface components {
                 } | null;
                 /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
                 effective_working_days?: number | null;
+                /**
+                 * Format: uuid
+                 * @description Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận
+                 */
+                receiving_unit_id?: string;
+                receiving_unit_name?: string | null;
+                receiving_units?: {
+                    unit_ref: string;
+                    /** Format: uuid */
+                    unit_id: string;
+                    unit_name: string | null;
+                    role: string;
+                    /** @enum {string} */
+                    part: "LEAD" | "SUPPORT";
+                }[];
+                /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
+                unclaimed?: boolean;
             }[];
             next_cursor: string | null;
             shown: number;
@@ -50281,6 +50381,23 @@ export interface components {
                 } | null;
                 /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
                 effective_working_days?: number | null;
+                /**
+                 * Format: uuid
+                 * @description Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận
+                 */
+                receiving_unit_id?: string;
+                receiving_unit_name?: string | null;
+                receiving_units?: {
+                    unit_ref: string;
+                    /** Format: uuid */
+                    unit_id: string;
+                    unit_name: string | null;
+                    role: string;
+                    /** @enum {string} */
+                    part: "LEAD" | "SUPPORT";
+                }[];
+                /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
+                unclaimed?: boolean;
             }[];
             next_cursor: string | null;
             total: number;
@@ -50760,6 +50877,14 @@ export interface components {
             /** Format: uuid */
             rule_unit_id: string | null;
             reason: string | null;
+            /** @description Đơn vị của từng unit_ref mà công việc của dự án dùng (R61); vắng khi mẫu không khai đơn vị */
+            units?: {
+                unit_ref: string;
+                /** Format: uuid */
+                unit_id: string;
+                /** @enum {string} */
+                source: "PROJECT" | "TEMPLATE" | "CHOSEN";
+            }[];
         };
         /** @description Đề xuất loại quy trình cho một dự án theo quy tắc ánh xạ, danh sách loại quy trình và bản xem trước lịch (R47) */
         PwfWorkflowSuggestion: {
@@ -50836,6 +50961,7 @@ export interface components {
                     duration_working_days: number;
                     task_count: number;
                 }[];
+                units?: components["schemas"]["PwfWorkflowUnits"];
             } | null;
             /** @description Người gọi có quyền khởi tạo workflow (pwf.workflow.manage) hay không */
             can_start: boolean;
@@ -50937,6 +51063,32 @@ export interface components {
             truncated: boolean;
             /** Format: date-time */
             as_of: string;
+        };
+        /** @description Các unit_ref mà công việc của dự án dùng (R61) và đơn vị đã phân giải; unresolved: các unit_ref người khởi tạo còn phải chọn đơn vị */
+        PwfWorkflowUnits: {
+            refs: {
+                unit_ref: string;
+                /** Format: uuid */
+                unit_id: string | null;
+                unit_name: string | null;
+                /**
+                 * @description PROJECT: cột đơn vị của dự án; TEMPLATE: UNIT:<uuid> của mẫu; CHOSEN: người khởi tạo chọn; NONE: chưa có
+                 * @enum {string}
+                 */
+                source: "PROJECT" | "TEMPLATE" | "CHOSEN" | "NONE";
+                /** @description Tên bên do mẫu khai (parties); null với PROJECT_OWNER, bên dựng sẵn và UNIT */
+                party_name: string | null;
+            }[];
+            unresolved: string[];
+            /** @description Chỉ ở bản xem trước: unit_ref của mẫu trỏ tới đơn vị không còn hợp lệ (khởi tạo sẽ bị từ chối PWF_UNIT_UNKNOWN) */
+            unknown?: string[];
+        };
+        PwfTaskClaim: {
+            /**
+             * @description Phần muốn nhận; bỏ trống: dòng đầu tiên người gọi đủ điều kiện (LEAD trước)
+             * @enum {string}
+             */
+            part?: "LEAD" | "SUPPORT";
         };
     };
     responses: never;
@@ -219756,6 +219908,106 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PendingDecisionList"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    claimProjectTask: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfTaskClaim"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
