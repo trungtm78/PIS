@@ -122,7 +122,6 @@ function PaymentListContent({ route }: ScreenProps) {
         ) : null}
       </div>
       <ScopeBar
-        money
         extra={[
           {
             label: t('w2pay.pay.ctx.contract'),

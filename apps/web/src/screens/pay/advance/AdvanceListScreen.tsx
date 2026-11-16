@@ -15,6 +15,7 @@ import { useAdvances } from './hooks';
 import { kindLabel, statusLabel } from './labels';
 import { STATUSES, isOverdue, scheduleLink } from './model';
 import type { Advance } from './model';
+import { percentText } from '../payment/model';
 
 type AdvanceStatus = (typeof STATUSES)[number];
 import '../pay.css';
@@ -101,7 +102,7 @@ function AdvanceListContent({ route }: ScreenProps) {
       key: 'threshold',
       header: t('pay.advance.column.threshold'),
       align: 'right',
-      render: (advance) => <span data-testid="threshold">{t('pay.advance.threshold', { pct: advance.thresholdPct })}</span>,
+      render: (advance) => <span data-testid="threshold">{t('pay.advance.threshold', { pct: percentText(advance.thresholdPct) })}</span>,
     },
     { key: 'overdue', header: t('pay.advance.column.overdue'), align: 'right', render: (advance) => <span data-testid="overdue">{advance.overdueDays ?? ''}</span> },
     {
@@ -133,7 +134,6 @@ function AdvanceListContent({ route }: ScreenProps) {
         </div>
       </div>
       <ScopeBar
-        money
         extra={[
           { label: t('w2pay.pay.ctx.contract'), value: (contracts.data ?? []).find((contract) => contract.id === contractId)?.code ?? (contractId === null ? t('w2pay.pay.ctx.all') : contractId) },
           { label: t('w2pay.pay.ctx.status'), value: STATUSES.find((candidate) => candidate === status) === undefined ? t('w2pay.pay.ctx.all') : statusLabel(t, status as AdvanceStatus) },

@@ -1,5 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { MAX_TEXT, isUuid, signedAmountText } from '../../ctr/change/model';
+import { formatPercent } from '../../../i18n/format';
 
 export { signedAmountText };
 
@@ -283,11 +284,9 @@ export const canCreate = (permissions: readonly string[] | undefined, mode: stri
 /** A request that is still a draft, or has been returned, can be revised, given documents and cancelled. */
 export const isEditable = (status: PaymentStatus): boolean => status === 'DRAFT' || status === 'RETURNED';
 
-/** The retention percentage as the person reads it, without the zeros the server keeps. */
+/** The figure of a percentage as the person reads it, WITHOUT the sign (the sentence it goes in carries it): the shared `formatPercent`, so two decimals at most, no trailing zeros, the mark of the language. */
 export function percentText(value: string): string {
-  const [whole = '0', fraction = ''] = value.split('.');
-  const trimmed = fraction.replace(/0+$/, '');
-  return trimmed === '' ? whole : `${whole}.${trimmed}`;
+  return formatPercent(value).replace('%', '');
 }
 
 // ---- the forms ---------------------------------------------------------------------------------------------------------------

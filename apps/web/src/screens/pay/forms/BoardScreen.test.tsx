@@ -55,11 +55,11 @@ describe('BoardScreen (PAY-04): the requests on their way to the Treasury', () =
     open(world({ failing: new Set(['get_resources_payment_request']) }));
     expect(await screen.findByText(vi_['states.error.title'])).toBeTruthy();
   });
-  it('names the scope and how many requests are on their way, and shows the money in dong', async () => {
+  it('names the scope and how many requests are on their way, and declares no unit over amounts that carry their own', async () => {
     open(world({ payments: [checked(1), checked(2)] }));
     await screen.findByTestId('board');
     const bar = screen.getByRole('group', { name: vi_['ui.contextBar.label'] });
     expect(bar.textContent).toContain(message('w2pay.pay.board.ctx.count', { count: 2 }));
-    expect(bar.textContent).toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));
+    expect(bar.textContent).not.toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));
   });
 });
