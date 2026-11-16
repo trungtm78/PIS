@@ -6,7 +6,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { AuditLine, KpiStrip, KpiTile, SectionCard, StatusPill, StickyActions } from '../../ui';
+import { AuditLine, KpiStrip, KpiTile, Money, SectionCard, StatusPill, StickyActions } from '../../ui';
 import { DECISION_PATH, PROPOSAL_PATH, SCORE_PATH, appraisalLink } from './appraisal-model';
 import { BackLink, NationalCode, ProjectFormFields, SuggestionPanel, optionsWith } from './components';
 import { useMasterOptions, useProject, useUnits, useUpdateProfile } from './hooks';
@@ -18,7 +18,6 @@ import {
   PROJECT_TYPE_TYPES,
   SECTOR_TYPES,
   UPDATE_PERMISSION,
-  amountText,
   describeProblem,
   formOf,
   isDossierLocked,
@@ -30,7 +29,7 @@ import {
 import type { ProjectField, ProjectForm, ProjectView } from './model';
 import { PERMISSIONS, holds } from '../pwf/model';
 import WorkflowTab from '../pwf/workflow/WorkflowTab';
-import { TabBoundary, TabFallback } from './workspace/common';
+import { TabBoundary, TabFallback, tileMoney } from './workspace/common';
 import DisbursementTab from './workspace/DisbursementTab';
 import IssuesTab from './workspace/IssuesTab';
 import ObjectivesTab from './workspace/ObjectivesTab';
@@ -185,7 +184,7 @@ function Overview({ project, onReload }: { project: ProjectView; onReload: () =>
   return (
     <>
       <KpiStrip label={t('prj.workspace.kpi.label')}>
-        <KpiTile label={t('prj.workspace.field.total')} value={amountText(project.totalInvestmentVnd, locale)} unit={t('prj.workspace.kpi.unit')} tone="info" />
+        <KpiTile label={t('prj.workspace.field.total')} {...tileMoney(t, project.totalInvestmentVnd, locale)} tone="info" />
         <KpiTile label={t('prj.workspace.field.years')} value={years} />
         <KpiTile label={t('prj.workspace.field.score')} value={project.appraisalScore ?? t('prj.workspace.kpi.noScore')} />
       </KpiStrip>
@@ -204,9 +203,7 @@ function Overview({ project, onReload }: { project: ProjectView; onReload: () =>
             <Fact label={t('prj.workspace.field.projectType')}>{project.projectType?.label ?? none}</Fact>
             <Fact label={t('prj.workspace.field.program')}>{project.program?.label ?? none}</Fact>
             <Fact label={t('prj.workspace.field.total')}>
-              {t('prj.workspace.value.amount', {
-                amount: amountText(project.totalInvestmentVnd, locale),
-              })}
+              <Money value={project.totalInvestmentVnd} />
             </Fact>
             <Fact label={t('prj.workspace.field.years')}>{years}</Fact>
             <Fact label={t('prj.workspace.field.classification')}>{classificationLabel(t, project.classification)}</Fact>

@@ -16,7 +16,7 @@ import { kindLabel, standingLabel } from './labels';
 import { decisionLink, timelineOf } from './model';
 import type { TimelineEntry } from './model';
 import '../ctr.css';
-import { SectionCard } from '../../../ui';
+import { Money, SectionCard } from '../../../ui';
 
 /**
  * CTR-26: the revisions of a contract in time (ST-CTR-007, CTR 3.3, BR-CTR-03). Each revision shows when it is in force, what it adds to the one it follows, the change order that made it
@@ -95,7 +95,9 @@ function Timeline({ contract, locale }: { contract: ContractView; locale: string
           <dt>{t('ctr.revision.fact.project')}</dt>
           <dd>{`${contract.projectCode} · ${contract.projectName}`}</dd>
           <dt>{t('ctr.revision.fact.value')}</dt>
-          <dd data-testid="value">{t('ctr.value.amount', { amount: amountText(contract.contractValueVnd, locale) })}</dd>
+          <dd data-testid="value">
+              <Money value={contract.contractValueVnd} />
+            </dd>
         </dl>
         <p>
           <Link to={`/ctr/ctr-03?id=${contract.id}`} data-testid="workspace-link">

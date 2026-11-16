@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { compactMoney } from '../../../i18n/money';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../../ui';
+import { DataTable, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { AnalyticsFilters, ExportBar, Info, ReportContext } from './components';
 import { useConcentration } from './hooks';
 import { dimensionLabel, figureText, levelLabel, reportLead, reportTitle } from './labels';
-import { DEFAULT_QUERY, EMPTY_ANALYTICS_FILTER, REPORT_PERMISSION, bytesOfBase64, filterCount, levelTone, moneyText, percentText } from './model';
+import { DEFAULT_QUERY, EMPTY_ANALYTICS_FILTER, REPORT_PERMISSION, bytesOfBase64, filterCount, levelTone, percentText } from './model';
 import type { AnalyticsFilter, ContractorLoadView, Definition, DimensionView } from './model';
 import './analytics.css';
 
@@ -53,7 +54,7 @@ function ConcentrationContent({ route }: ScreenProps) {
             sub={<Info definition={definitionOf(view?.definitions ?? [], 'TOP_N_SHARE')} asOf={asOf} />}
           />
           <KpiTile label={t('ca1.concentration.hhi')} value={figureText(t, dimension.hhi, 'index', locale)} sub={<Info definition={definitionOf(view?.definitions ?? [], 'HHI')} asOf={asOf} />} />
-          <KpiTile label={t('ca1.concentration.total')} value={moneyText(dimension.totalVnd, locale)} unit={t('w2pay.ctx.unit')} />
+          <KpiTile label={t('ca1.concentration.total')} value={compactMoney(dimension.totalVnd, { locale })} />
         </KpiStrip>
         {dimension.shareAnomalies.length > 0 ? (
           <p className="callout warning ca1-notice" role="status" data-testid="share-anomalies">
@@ -68,7 +69,7 @@ function ConcentrationContent({ route }: ScreenProps) {
                 <span className="ca1-bars__bar" style={{ width: `${Math.min(100, Math.round(Number(group.sharePct)))}%` }} />
               </span>
               <span className="ca1-bars__value">
-                {percentText(group.sharePct, locale)} · {moneyText(group.valueVnd, locale)}
+                {percentText(group.sharePct, locale)} · <Money value={group.valueVnd} />
               </span>
             </li>
           ))}
@@ -80,9 +81,9 @@ function ConcentrationContent({ route }: ScreenProps) {
   const columns: DataTableColumn<ContractorLoadView>[] = [
     { key: 'name', header: t('ca1.load.contractor'), pinned: true, render: (load) => load.name ?? load.contractorId },
     { key: 'count', header: t('ca1.load.contracts'), align: 'right', render: (load) => String(load.activeContracts) },
-    { key: 'value', header: t('ca1.load.value'), align: 'right', render: (load) => moneyText(load.activeValueVnd, locale) },
+    { key: 'value', header: t('ca1.load.activeValue.label'), align: 'right', render: (load) => <Money value={load.activeValueVnd} /> },
     { key: 'share', header: t('ca1.load.share'), align: 'right', render: (load) => percentText(load.sharePct, locale) },
-    { key: 'pending', header: t('ca1.load.pending'), align: 'right', render: (load) => moneyText(load.pendingAwardVnd, locale) },
+    { key: 'pending', header: t('ca1.load.pendingAward.label'), align: 'right', render: (load) => <Money value={load.pendingAwardVnd} /> },
   ];
 
   return (
@@ -123,7 +124,7 @@ function ConcentrationContent({ route }: ScreenProps) {
             </p>
             <KpiStrip label={t('ca1.kpi.label')}>
               <KpiTile label={t('ca1.concentration.active')} value={String(view.activeContracts)} />
-              <KpiTile label={t('ca1.concentration.activeValue')} value={moneyText(view.activeValueVnd, locale)} unit={t('w2pay.ctx.unit')} />
+              <KpiTile label={t('ca1.concentration.activeValue')} value={compactMoney(view.activeValueVnd, { locale })} />
               <KpiTile
                 label={t('ca1.concentration.single')}
                 value={figureText(t, view.singleBidder, 'percent', locale)}

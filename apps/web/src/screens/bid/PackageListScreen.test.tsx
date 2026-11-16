@@ -21,7 +21,7 @@ describe('PackageListScreen (BID-03): the packages of the procurement plans', ()
     expect(first.getByText('IMPLEMENTATION')).toBeTruthy();
     expect(first.getByText('2026-Q4')).toBeTruthy();
     expect(first.getByText('Ngân sách trung ương')).toBeTruthy();
-    expect(first.getByText('18.000.000.000')).toBeTruthy();
+    expect(first.getByText('18 tỷ đồng').getAttribute('title')).toBe('18.000.000.000 đồng');
     expect(first.getByTestId('plan-status').textContent).toBe(vi_['bid.planStatus.approved.label']);
     expect(first.getByRole('link').getAttribute('href')).toBe(`/bid/bid-15?plan=${plan(1).id}`);
     expect(within(rows[1] as HTMLElement).getByTestId('no-plan').textContent).toBe(vi_['bid.packages.noPlan.text']);

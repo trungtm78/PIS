@@ -146,14 +146,16 @@ describe('every number of the center is the text of the server, with the "i" of 
   it('shows display_value for the hero, the two rates, the plan and the counts, and not a text made from value', async () => {
     mount(<OverviewScreen route={OV} />, client({ center: () => center({ tiles: [figure('DISBURSEMENT_RATE_PM', { value: '60.0000', display_value: '59.99' }), figure('DISBURSEMENT_RATE_TOTAL', { value: '48.0000', display_value: '47.50' }), figure('DISBURSED_TREASURY', { unit: 'VND', value: '600000000001', display_value: '600000000000', numerator: null, denominator: null }), figure('PLAN_PM_ASSIGNED', { unit: 'VND', value: '1000000000000', display_value: '1000000000000', numerator: null, denominator: null }), figure('PLAN_TOTAL', { unit: 'VND', value: '1250000000000', display_value: '1250000000000', numerator: null, denominator: null })] }) }), { permissions: READER });
     const block = await hero();
-    expect(block.textContent).toContain('600000000000');
+    expect(block.textContent).toContain(`600${tr('money.unit.billion')}`);
+    expect(within(block).getByTestId('hero-exact').textContent).toContain(fill(tr('home.ov.hero.exact'), { amount: '600.000.000.000 đồng' }));
     expect(block.textContent).not.toContain('600000000001');
+    expect(block.textContent).not.toContain('600.000.000.001');
     expect(block.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '59.99' }));
     expect(block.textContent).toContain(fill(tr('home.tile.value.percent'), { value: '47.50' }));
     expect(block.textContent).not.toContain('60.0000');
     const kpis = screen.getByTestId('home-kpis');
-    expect(kpis.textContent).toContain('1250000000000');
-    expect(kpis.textContent).toContain(fill(tr('govc.home.kpi.plan.sub'), { pm: '1000000000000' }));
+    expect(kpis.textContent).toContain(`1.250${tr('money.unit.billion')}`);
+    expect(kpis.textContent).toContain(fill(tr('home.ov.plan.subPm'), { pm: '1.000 tỷ đồng' }));
     // The three waiting counts are the figures of the register too.
     expect(within(kpis).getByText('4')).toBeTruthy();
     expect(within(kpis).getByText('3')).toBeTruthy();
@@ -237,7 +239,8 @@ describe('every number of the center is the text of the server, with the "i" of 
   it('shows the "i" of an amount in the details tiles with the exact text of the server', async () => {
     mount(<OverviewScreen route={OV} />, client(), { permissions: READER });
     await hero();
-    expect(screen.getByTestId('tile-figure-PLAN_TOTAL').textContent).toBe('1250000000000');
+    expect(screen.getByTestId('tile-figure-PLAN_TOTAL').textContent).toBe('1.250 tỷ đồng (1.250.000.000.000 đồng)');
+    expect(screen.getByTestId('tile-figure-PLAN_TOTAL').getAttribute('title')).toBe('1.250.000.000.000 đồng');
     expect(screen.getByTestId('tile-figure-DISBURSEMENT_RATE_PM').textContent).toBe('60.00');
   });
 });

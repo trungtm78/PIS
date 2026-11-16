@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
-import { FlowChart, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../../ui';
+import { compactMoney } from '../../../i18n/money';
+import { FlowChart, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../../ui';
 import type { FlowSeries } from '../../../ui';
 import { Info, definitionOf, indicatorText } from './components';
 import type { useScheduleCurve } from './hooks';
 import { groupLabel, levelLabel, reasonText, ruleLabel } from './labels';
-import { billionsOf, dateText, healthTone, moneyText, percentText } from './model';
+import { billionsOf, dateText, healthTone, percentText } from './model';
 import type { EvmView, IndicatorValue, LadderStep, ReportView, RuleUsed, TierSplitView } from './model';
 import './analytics.css';
 
@@ -75,7 +76,7 @@ export function EvmFigures({ view, evm }: { view: ReportView; evm: EvmView }) {
   }
   const figures = evm.figures;
   const money = (label: string, value: string | null): ReactNode => (
-    <KpiTile label={label} value={value === null ? '—' : moneyText(value, locale)} {...(value === null ? {} : { unit: t('w2pay.ctx.unit') })} />
+    <KpiTile label={label} value={value === null ? '—' : compactMoney(value, { locale })} />
   );
   const missing = Object.entries(evm.coverage.missing);
   return (
@@ -162,12 +163,12 @@ export function TierSplitPanel({ view }: { view: ReportView }) {
   return (
     <SectionCard title={t('ca2.tier.title')}>
       <table className="ui-table ca2-tier" data-testid="tier-split">
-        <caption className="ui-sr-only">{t('ca2.tier.caption', { original: moneyText(split.originalValueVnd, locale) })}</caption>
+        <caption className="ui-sr-only">{t('ca2.tier.base.caption', { original: compactMoney(split.originalValueVnd, { locale }) })}</caption>
         <thead>
           <tr>
             <th scope="col">{t('ca2.tier.col.tier')}</th>
             <th scope="col">{t('ca2.tier.col.count')}</th>
-            <th scope="col">{t('ca2.tier.col.delta')}</th>
+            <th scope="col">{t('ca2.tier.col.change')}</th>
             <th scope="col">
               {t('ca2.tier.col.growth')} <Info definition={definition} asOf={view.context.asOf} />
             </th>
@@ -180,7 +181,7 @@ export function TierSplitPanel({ view }: { view: ReportView }) {
             <tr key={group.key} data-tier={group.key}>
               <th scope="row">{groupLabel(t, 'change_tier', group.key)}</th>
               <td>{group.count}</td>
-              <td>{group.deltaVnd === null ? <span className="ca1-na">{reasonText(t, group.growth?.reason ?? 'NO_CHANGE')}</span> : moneyText(group.deltaVnd, locale)}</td>
+              <td>{group.deltaVnd === null ? <span className="ca1-na">{reasonText(t, group.growth?.reason ?? 'NO_CHANGE')}</span> : <Money value={group.deltaVnd} />}</td>
               <td>{group.growth === null || group.growth.value === null ? '—' : percentText(group.growth.value, locale)}</td>
               <td>{group.shareOfGrowthPct === null ? '—' : percentText(group.shareOfGrowthPct, locale)}</td>
               <td>{group.maxCumulativePct === null ? '—' : percentText(group.maxCumulativePct, locale)}</td>
@@ -191,7 +192,9 @@ export function TierSplitPanel({ view }: { view: ReportView }) {
           <tr>
             <th scope="row">{t('ca1.table.totals')}</th>
             <td>{split.totalCount}</td>
-            <td>{moneyText(split.totalDeltaVnd, locale)}</td>
+            <td>
+              <Money value={split.totalDeltaVnd} />
+            </td>
             <td>{view.totals.cells.change_growth_pct === undefined || view.totals.cells.change_growth_pct === null ? '—' : percentText(String(view.totals.cells.change_growth_pct), locale)}</td>
             <td />
             <td />
@@ -205,7 +208,7 @@ export function TierSplitPanel({ view }: { view: ReportView }) {
 // ---- what falls due (R6) ------------------------------------------------------------------------------------------------------------------------------------------
 
 function Ladder({ title, steps, testId }: { title: string; steps: readonly LadderStep[]; testId: string }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div data-testid={testId}>
       <h3>{title}</h3>
@@ -214,7 +217,7 @@ function Ladder({ title, steps, testId }: { title: string; steps: readonly Ladde
           <tr>
             <th scope="col">{t('ca2.ladder.col.step')}</th>
             <th scope="col">{t('ca2.ladder.col.count')}</th>
-            <th scope="col">{t('ca2.ladder.col.amount')}</th>
+            <th scope="col">{t('ca2.ladder.col.money')}</th>
           </tr>
         </thead>
         <tbody>
@@ -222,7 +225,9 @@ function Ladder({ title, steps, testId }: { title: string; steps: readonly Ladde
             <tr key={step.key} data-step={step.key}>
               <th scope="row">{groupLabel(t, 'ladder', step.key)}</th>
               <td>{step.count}</td>
-              <td>{moneyText(step.amountVnd, locale)}</td>
+              <td>
+                <Money value={step.amountVnd} />
+              </td>
             </tr>
           ))}
         </tbody>

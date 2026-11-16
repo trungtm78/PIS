@@ -24,7 +24,7 @@ describe('ProcurementPlanScreen (BID-15): the procurement plans and the decision
     expect(rows).toHaveLength(2);
     expect(within(rows[0] as HTMLElement).getByTestId('plan-status').textContent).toBe(vi_['bid.planStatus.approved.label']);
     expect(within(rows[0] as HTMLElement).getByText('45/QD-UBND')).toBeTruthy();
-    expect(within(rows[0] as HTMLElement).getByText('28.000.000.000')).toBeTruthy();
+    expect(within(rows[0] as HTMLElement).getByText('28 tỷ đồng').getAttribute('title')).toBe('28.000.000.000 đồng');
     expect(within(rows[1] as HTMLElement).getByTestId('plan-status').textContent).toBe(vi_['bid.planStatus.superseded.label']);
     expect(within(rows[1] as HTMLElement).getByText(vi_['bid.plans.noDecision.text'])).toBeTruthy();
     expect(screen.getByTestId('no-selection').textContent).toBe(vi_['bid.plans.noSelection.notice']);
@@ -39,7 +39,7 @@ describe('ProcurementPlanScreen (BID-15): the procurement plans and the decision
     expect(within(detail).getByText('Gói thầu xây lắp 1')).toBeTruthy();
     expect(within(detail).getAllByText(vi_['bid.method.open.label']).length).toBe(2);
     expect(screen.getByTestId('last-decision').textContent).toBe(`${vi_['bid.lastDecision.returned.label']}: Chia gói 2`);
-    expect(detail.textContent).toContain('Tổng giá gói: 28.000.000.000 đồng');
+    expect(detail.textContent).toContain('Tổng giá gói: 28 tỷ đồng');
     cleanup();
     mount(<ProcurementPlanScreen route={ROUTE} />, client(world()), { permissions: PLANNER, path: open(9) });
     expect((await screen.findByTestId('plan-missing')).textContent).toBe(vi_['bid.plans.missing.notice']);

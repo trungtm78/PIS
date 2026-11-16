@@ -2,6 +2,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { Money } from '../../../ui';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { useTrace } from '../../ast/handover/hooks';
@@ -11,7 +12,7 @@ import type { HandoverLine } from '../../ast/handover/model';
 import { useProjects } from '../hooks';
 import { READ_PERMISSION as PROJECT_READ_PERMISSION } from '../model';
 import '../prj.css';
-import { NONE, ProjectChooser, useMoney, useProjectParam } from '../revision/shared';
+import { NONE, ProjectChooser, useProjectParam } from '../revision/shared';
 import { useProjectHandovers } from './hooks';
 import { assetStateLabel } from './labels';
 import { handoverCounts, handoverTone, mayRead } from './model';
@@ -112,7 +113,6 @@ function HandoverContent({ route }: ScreenProps) {
 
 function AssetsPanel({ line, onClose }: { line: HandoverLine; onClose(): void }) {
   const { t } = useTranslation();
-  const money = useMoney();
   const trace = useTrace(line.id);
   const state = useScreenState({ isLoading: trace.isLoading, error: trace.error, data: trace.data, isEmpty: () => false });
   const found = trace.data ?? undefined;
@@ -149,7 +149,9 @@ function AssetsPanel({ line, onClose }: { line: HandoverLine; onClose(): void })
                           <code>{asset.assetCode}</code>
                         </th>
                         <td>{asset.name ?? NONE}</td>
-                        <td>{money(asset.valueVnd)}</td>
+                        <td>
+                          <Money value={asset.valueVnd} />
+                        </td>
                         <td>{assetStateLabel(t, asset.status)}</td>
                       </tr>
                     ))}

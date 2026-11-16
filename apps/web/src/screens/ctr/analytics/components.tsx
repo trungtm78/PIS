@@ -2,8 +2,9 @@ import { ApiError } from '@machvon/api-client';
 import { useId } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
+import { compactMoney } from '../../../i18n/money';
 import { useSession } from '../../../session/SessionContext';
-import { ContextBar, DataTable, FilterPanel, InfoFormula, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../../ui';
+import { ContextBar, DataTable, FilterPanel, InfoFormula, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { useUnits } from '../../adm/members/hooks';
 import { useContractorOptions, useProjectOptions } from '../hooks';
@@ -14,7 +15,7 @@ import type { ContractStatus, ContractType } from '../model';
 import { useExportReport, useFactSnapshots } from './hooks';
 import type { ExportFormat } from './hooks';
 import { columnLabel, definitionText, groupLabel, indicatorName, infoLabels, levelLabel, reasonText } from './labels';
-import { ROWS, barLength, breakdownPoints, camel, chartColumn, dateText, decimalText, filterCount, healthTone, isRegisterReport, moneyText, percentText } from './model';
+import { ROWS, barLength, breakdownPoints, camel, chartColumn, dateText, decimalText, filterCount, healthTone, isRegisterReport, percentText } from './model';
 import type { AnalyticsContext, AnalyticsFilter, AnalyticsQuery, Cell, ColumnView, Definition, IndicatorValue, ReportCode, ReportFile, ReportView, RowView } from './model';
 import './analytics.css';
 
@@ -104,7 +105,7 @@ export function indicatorText(t: Translate, locale: string, definition: Definiti
     case 'PERCENT':
       return percentText(value.value, locale);
     case 'VND':
-      return moneyText(value.value, locale);
+      return compactMoney(value.value, { locale });
     case 'DAYS':
       return t('ca1.unit.days', { count: value.value });
     default:
@@ -132,7 +133,7 @@ export function cellNode(t: Translate, locale: string, column: ColumnView, value
   if (value === null) return lockOr(t, reason);
   switch (column.kind) {
     case 'MONEY':
-      return moneyText(String(value), locale);
+      return <Money value={String(value)} />;
     case 'PERCENT':
       return percentText(String(value), locale);
     case 'DAYS':
@@ -212,8 +213,7 @@ export function ReportKpis({ view }: { view: ReportView }) {
       {money === undefined ? null : (
         <KpiTile
           label={columnLabel(t, money.key)}
-          value={moneyValue === null ? '—' : moneyText(String(moneyValue), locale)}
-          unit={moneyValue === null ? undefined : t('w2pay.ctx.unit')}
+          value={moneyValue === null ? '—' : compactMoney(String(moneyValue), { locale })}
           sub={moneyValue === null ? lockOr(t, view.totals.na[money.key]) : undefined}
         />
       )}
@@ -269,7 +269,7 @@ function BreakdownChart({ view, dimension, testId }: { view: ReportView; dimensi
             <span className="ca1-bars__track" aria-hidden="true">
               <span className="ca1-bars__bar" style={{ width: `${Math.round((Math.abs(point.value) / largest) * 100)}%` }} />
             </span>
-            <span className="ca1-bars__value">{column.kind === 'MONEY' ? moneyText(String(point.text), locale) : String(point.text)}</span>
+            <span className="ca1-bars__value">{column.kind === 'MONEY' ? compactMoney(String(point.text), { locale }) : String(point.text)}</span>
           </li>
         ))}
       </ul>

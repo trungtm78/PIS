@@ -5,7 +5,7 @@ import type { Translator } from '../../i18n';
 import type { WebRoute } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
-import { InfoFormula, KpiTile, SectionCard, StatusPill } from '../../ui';
+import { InfoFormula, KpiTile, Money, SectionCard, StatusPill } from '../../ui';
 import type { InfoFormulaLabels } from '../../ui';
 import { FigureInfo, FlagPills, figureShown } from '../home/figure-components';
 import { changeSentence } from '../home/gov-components';
@@ -26,7 +26,6 @@ import {
   pointsText,
   refusalOf,
   toChangeLines,
-  vndText,
 } from './model';
 import type { Alert, Feed, Outlook, Policy, Rag, Row, Signal, Workspace } from './model';
 import './ban.css';
@@ -126,7 +125,8 @@ export function useWords() {
   const none = t('ban.common.noData.text');
   return {
     none,
-    vnd: (value: string | null | undefined): string => vndText(value, locale) ?? none,
+    /** An amount in the short form, the exact dong in its tooltip. */
+    vnd: (value: string | null | undefined): ReactNode => <Money value={value} none={none} />,
     num: (value: string | null | undefined): string => (value === null || value === undefined ? none : decimalText(value, locale)),
     pct: (value: string | null | undefined): string => pctText(value, locale) ?? none,
     points: (value: string | null | undefined): string => pointsText(value, locale) ?? none,
@@ -175,7 +175,7 @@ export function OutlookText({ outlook }: { outlook: Outlook }) {
   if (view.kind === 'none') return <span data-outlook="none">{view.reason === 'noPlan' ? t('ban.outlook.noPlan.text') : t('ban.outlook.noData.text')}</span>;
   return (
     <span data-outlook="range">
-      {t('ban.outlook.range.text', { low: view.low, high: view.high })}
+      {t('ban.outlook.range.short', { low: view.low, high: view.high })}
       {view.lowPct === null || view.highPct === null ? null : <span className="ban-muted"> {t('ban.outlook.percent.text', { low: view.lowPct, high: view.highPct })}</span>}
       {view.thin ? <span className="ban-muted"> {t('ban.outlook.thin.text')}</span> : null}
     </span>

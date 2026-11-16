@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useApiClient } from '../../api/ApiClientContext';
 import { useTranslation } from '../../i18n';
+import { compactMoney, fullMoney } from '../../i18n/money';
 import type { Translator } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { ApiError } from '@machvon/api-client';
@@ -10,7 +11,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { formatVnd } from '../dis/report/money';
-import { ContextBar, DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../ui';
+import { ContextBar, DataTable, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../ui';
 import type { DataTableColumn } from '../../ui';
 import '../dis/dis.css';
 import './home.css';
@@ -58,10 +59,10 @@ function reasonLabel(t: T, reason: string | null): string {
   }
 }
 
-/** A figure of the drill as it is read: the percent with its decimals, whole dong, or why there is none (never 0). */
+/** A figure of the drill as it is read: the percent with its decimals, an amount of dong in the short form (tỷ, triệu), or why there is none (never 0). */
 function figure(t: T, unit: 'PERCENT' | 'VND', value: string | null, reason: string | null): string {
   if (value === null) return reasonLabel(t, reason);
-  return unit === 'PERCENT' ? t('home.tile.value.percent', { value }) : t('home.tile.value.vnd', { value: formatVnd(value) });
+  return unit === 'PERCENT' ? t('home.tile.value.percent', { value }) : compactMoney(value);
 }
 
 function dimensionLabel(t: T, dimension: DrillDimension): string {
@@ -359,16 +360,15 @@ function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension
   const hasSums = drill.numerator !== null && drill.denominator !== null;
   // Where there can be many children (a scope, a unit) the next page is more children; below, where the way goes on to the sources, it is more transactions.
   const pagesChildren = drill.level === 'SCOPE' || drill.level === 'UNIT';
-  const money = drill.unit === 'VND';
   const percentColumns = drill.unit === 'PERCENT';
   const columns: DataTableColumn<DrillChild>[] = [
     { key: 'code', header: t('home.drill.column.code'), pinned: true, render: (child) => <span data-child-id={child.id}>{child.code}</span> },
     { key: 'name', header: t('home.drill.column.name'), render: (child) => child.name },
-    { key: 'value', header: t('home.drill.fact.value'), align: 'right', render: (child) => <span data-testid={`child-value-${child.id}`}>{figure(t, drill.unit, child.value, child.nullReason)}</span> },
+    { key: 'value', header: t('home.drill.fact.value'), align: 'right', render: (child) => <span data-testid={`child-value-${child.id}`} {...(drill.unit === 'VND' && child.value !== null ? { title: fullMoney(child.value, locale) } : {})}>{figure(t, drill.unit, child.value, child.nullReason)}</span> },
     ...(percentColumns
       ? [
-          { key: 'numerator', header: t('home.drill.fact.numerator'), align: 'right' as const, render: (child: DrillChild) => (child.numerator === null ? NONE : formatVnd(child.numerator)) },
-          { key: 'denominator', header: t('home.drill.fact.denominator'), align: 'right' as const, render: (child: DrillChild) => (child.denominator === null ? NONE : formatVnd(child.denominator)) },
+          { key: 'numerator', header: t('home.drill.fact.numerator'), align: 'right' as const, render: (child: DrillChild) => <Money value={child.numerator} none={NONE} /> },
+          { key: 'denominator', header: t('home.drill.fact.denominator'), align: 'right' as const, render: (child: DrillChild) => <Money value={child.denominator} none={NONE} /> },
           { key: 'drag', header: t('govc.home.drill.column.drag'), align: 'right' as const, render: (child: DrillChild) => <span data-testid={`child-drag-${child.id}`}>{dragText(t, locale, child.dragPoints)}</span> },
         ]
       : []),
@@ -389,7 +389,6 @@ function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension
           { label: t('home.drill.fact.place'), value: place ?? t('dis.wr.ctx.scope.all') },
           { label: t('home.drill.fact.asOf'), value: dayText(drill.asOfDate) },
         ]}
-        {...(money ? { unit: t('dis.wr.unit') } : {})}
       />
       <StepTrail step={drill.step} total={drill.stepsTotal} />
       <nav aria-label={t('home.drill.breadcrumb')} className="home-trail" data-testid="drill-breadcrumb">
@@ -427,7 +426,7 @@ function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension
               label={t('home.drill.fact.value')}
               value={drill.value === null ? t('w2dis.home.na') : figure(t, drill.unit, drill.value, drill.nullReason)}
               tone={drill.value === null ? 'neutral' : 'info'}
-              sub={drill.value === null ? reasonLabel(t, drill.nullReason) : hasSums ? `${t('home.tile.numerator', { value: formatVnd(drill.numerator ?? '0') })} · ${t('home.tile.denominator', { value: formatVnd(drill.denominator ?? '0') })}` : undefined}
+              sub={drill.value === null ? reasonLabel(t, drill.nullReason) : hasSums ? `${t('home.tile.numerator', { value: compactMoney(drill.numerator ?? '0') })} · ${t('home.tile.denominator', { value: compactMoney(drill.denominator ?? '0') })}` : undefined}
             />
           </KpiStrip>
           <dl className="aud-facts">
@@ -467,7 +466,6 @@ function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension
         <div data-testid="drill-children">
           <SectionCard
             title={t('home.drill.children.title')}
-            {...(money ? { unit: t('dis.wr.unit') } : {})}
             actions={
               <span className="home-badges">
                 {percentColumns ? (

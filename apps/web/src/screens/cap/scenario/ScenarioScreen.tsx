@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { dongText } from '../../../i18n/money';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
@@ -90,8 +91,8 @@ function fieldMessage(t: T, problem: FormProblem | undefined): string | undefine
 }
 
 /** Whole dong with the thousands told apart by the locale. */
-const dong = (value: string): string => (/^-?[0-9]+$/.test(value) ? BigInt(value).toLocaleString('vi-VN') : value);
-const signed = (value: bigint): string => `${value > 0n ? '+' : ''}${value.toLocaleString('vi-VN')}`;
+const dong = (value: string): string => (/^-?[0-9]+$/.test(value) ? dongText(value) : value);
+const signed = (value: bigint): string => dongText(value, undefined, true);
 
 /**
  * CAP-09: the simulation of an allocation (ST-CAP-013, CAP 3.1 F8, UAT-AC233, UAT-PLAN-65). A planner states moves of capital between the projects of a published plan and the limits they must keep, runs the scenario and

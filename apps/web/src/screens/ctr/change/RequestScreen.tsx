@@ -16,7 +16,7 @@ import { eventKindLabel, formProblemMessage, problemMessage, stageLabel } from '
 import { CHANGEABLE_CONTRACT_STATUSES, EVENT_KINDS, MAX_TEXT, chainLink, describeProblem, emptyOpen, openBody, tiersLink, validateOpen } from './model';
 import type { Chain, EventKind, OpenForm, Stage } from './model';
 import '../ctr.css';
-import { SectionCard } from '../../../ui';
+import { Money, SectionCard } from '../../../ui';
 
 /**
  * CTR-07: raise a change on a contract that is being performed (ST-CTR-006, CTR 3.3). The request starts at the first tier of the chain of the project (the event with three tiers, the
@@ -107,7 +107,9 @@ function Request({ contract, chain, locale, readOnly }: RequestProps) {
             <dt>{t('ctr.change.request.fact.project')}</dt>
             <dd>{`${contract.projectCode} · ${contract.projectName}`}</dd>
             <dt>{t('ctr.change.request.fact.value')}</dt>
-            <dd data-testid="value">{t('ctr.value.amount', { amount: amountText(contract.contractValueVnd, locale) })}</dd>
+            <dd data-testid="value">
+              <Money value={contract.contractValueVnd} />
+            </dd>
           </dl>
         </SectionCard>
         <SectionCard title={t('ctr.change.request.list.title')}>

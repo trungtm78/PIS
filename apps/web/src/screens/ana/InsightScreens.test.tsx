@@ -92,7 +92,9 @@ describe('BI-29 the heat-map (G3-10)', () => {
     expect(first[0]?.textContent).toContain(tr('ana.heat.band.green'));
     expect(first[0]?.getAttribute('data-band')).toBe('GREEN');
     expect(first[0]?.textContent).toContain(fill(tr('ana.heat.count.projects'), { count: 5 }));
-    expect(first[0]?.textContent).toContain('600.000.000 / 1.000.000.000');
+    expect(first[0]?.textContent).toContain('600 triệu đồng (600.000.000 đồng) / 1 tỷ đồng (1.000.000.000 đồng)');
+    expect(within(first[0] as HTMLElement).getByText('600 triệu đồng').getAttribute('title')).toBe('600.000.000 đồng');
+    expect(within(first[0] as HTMLElement).getByText('1 tỷ đồng').getAttribute('title')).toBe('1.000.000.000 đồng');
     expect(first[1]?.textContent).toContain(tr('ana.heat.band.red'));
     expect(within(rows[0] as HTMLElement).getByTestId('heat-row-total').textContent).toContain('50,0%');
     expect(within(rows[1] as HTMLElement).getByTestId('heat-row-total').textContent).toContain(fill(tr('ana.heat.total.hidden'), { count: 1 }));

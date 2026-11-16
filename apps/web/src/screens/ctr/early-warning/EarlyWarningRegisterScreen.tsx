@@ -2,14 +2,15 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { compactMoney } from '../../../i18n/money';
 import type { Translator } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { ContextBar, DataTable, FilterPanel, KpiTile, SectionCard, StatusPill } from '../../../ui';
+import { ContextBar, DataTable, FilterPanel, KpiTile, Money, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
-import { can, dayText, stampText, vnd } from '../claims/common';
+import { can, dayText, stampText } from '../claims/common';
 import { CalendarNotice, FigureInfo, StatePill, TruncatedNotice, WithInfo } from '../claims/components';
 import { useContractChoices } from '../claims/hooks';
 import { basisLabel } from '../claims/labels';
@@ -168,14 +169,14 @@ function Summary({ page }: { page: WarningPage }) {
       {tile('unassessed', t('ctrWarn.summary.unassessed.label'), String(summary.unassessed), t('ctrWarn.figure.count.formula'))}
       {tile('withoutOwner', t('ctrWarn.summary.withoutOwner.label'), String(summary.without_owner), t('ctrWarn.figure.count.formula'))}
       {tile('overdue', t('ctrWarn.summary.overdueActions.label'), String(summary.overdue_actions), t('ctrWarn.figure.overdue.formula'))}
-      {tile('exposureCost', t('ctrWarn.summary.exposureCost.label'), vnd(summary.exposure_cost_vnd, locale), t('ctrWarn.figure.exposure.formula'), t('ctrWarn.unit.vnd.text'))}
+      {tile('exposureCost', t('ctrWarn.summary.exposureCost.label'), compactMoney(summary.exposure_cost_vnd, { locale }), t('ctrWarn.figure.exposure.formula'))}
       {tile('exposureDays', t('ctrWarn.summary.exposureDays.label'), String(summary.exposure_time_days), t('ctrWarn.figure.exposure.formula'), t('ctrWarn.unit.days.text'))}
       {tile('impactUnknown', t('ctrWarn.summary.impactUnknown.label'), String(summary.impact_unknown), t('ctrWarn.figure.unknown.formula'))}
     </div>
   );
 }
 
-function columnsOf(t: T, locale: string): DataTableColumn<WarningLine>[] {
+function columnsOf(t: T): DataTableColumn<WarningLine>[] {
   return [
     {
       key: 'code',
@@ -202,7 +203,7 @@ function columnsOf(t: T, locale: string): DataTableColumn<WarningLine>[] {
       key: 'cost',
       header: t('ctrWarn.column.cost.label'),
       align: 'right',
-      render: (line) => (line.expected_cost_vnd !== null ? vnd(line.expected_cost_vnd, locale) : line.no_impact_expected ? t('ctrWarn.cell.noImpact.text') : NONE),
+      render: (line) => (line.expected_cost_vnd !== null ? <Money value={line.expected_cost_vnd} /> : line.no_impact_expected ? t('ctrWarn.cell.noImpact.text') : NONE),
     },
     { key: 'owner', header: t('ctrWarn.column.owner.label'), render: (line) => line.owner_name ?? t('ctrWarn.cell.noOwner.text') },
     { key: 'status', header: t('ctrWarn.column.status.label'), render: (line) => statusLabel(t, line.status) },
@@ -278,7 +279,7 @@ function Filters({ filter, onChange, onClear }: { filter: WarningFilter; onChang
 }
 
 function RegisterContent({ route }: ScreenProps) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const [params] = useSearchParams();
   const [filter, setFilter] = useState<WarningFilter>({ ...EMPTY_FILTER, contractId: params.get('contract') ?? '' });
@@ -344,7 +345,7 @@ function RegisterContent({ route }: ScreenProps) {
             <Summary page={first} />
             <DataTable
               caption={t('ctrWarn.register.table.caption')}
-              columns={columnsOf(t, locale)}
+              columns={columnsOf(t)}
               rows={rows}
               rowKey={(line) => line.id}
               rowAttrs={(line) => ({ 'data-warning': line.id, 'data-status': line.status })}

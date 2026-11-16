@@ -5,14 +5,15 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { DataTable, SectionCard } from '../../ui';
+import { compactMoney } from '../../i18n/money';
+import { DataTable, Money, SectionCard } from '../../ui';
 import type { DataTableColumn } from '../../ui';
 import { ScopeBar } from '../ctr/kit';
 import PlanDecisionPanel from './PlanDecisionPanel';
 import { PlanRefusal, PlanStatusBadge } from './plan-components';
 import { useDecidePlan, usePackages, usePlans, useSubmitPlan } from './plan-hooks';
 import { biddingFormLabel, contractTypeLabel, lastDecisionLabel, methodLabel } from './plan-labels';
-import { APPROVE_PLAN_PERMISSION, EDITOR_PATH, MANAGE_PLAN_PERMISSION, describeProblem, formatVnd, planLink, reviseLink } from './plan-model';
+import { APPROVE_PLAN_PERMISSION, EDITOR_PATH, MANAGE_PLAN_PERMISSION, describeProblem, planLink, reviseLink } from './plan-model';
 import type { PackageLine, PlanLine } from './plan-model';
 import './bid.css';
 
@@ -56,7 +57,7 @@ function ProcurementPlanContent({ route }: ScreenProps) {
     { key: 'revision', header: t('bid.plans.column.revision'), align: 'right', render: (plan) => plan.revision },
     { key: 'title', header: t('bid.plans.column.title'), render: (plan) => plan.title },
     { key: 'packages', header: t('bid.plans.column.packages'), align: 'right', render: (plan) => plan.packageCount },
-    { key: 'total', header: t('bid.plans.column.total'), align: 'right', render: (plan) => formatVnd(plan.totalVnd) },
+    { key: 'total', header: t('bid.plans.column.total'), align: 'right', render: (plan) => <Money value={plan.totalVnd} /> },
     { key: 'status', header: t('bid.plans.column.status'), render: (plan) => <PlanStatusBadge status={plan.status} /> },
     { key: 'decision', header: t('bid.plans.column.decision'), render: (plan) => plan.decisionSymbol ?? t('bid.plans.noDecision.text') },
   ];
@@ -119,7 +120,7 @@ function Detail({ plan, packages, mayManage, mayApprove }: { plan: PlanLine; pac
     { key: 'contractType', header: t('bid.plans.package.contractType'), render: (item) => (item.contractType === null ? '' : contractTypeLabel(t, item.contractType)) },
     { key: 'form', header: t('bid.plans.package.form'), render: (item) => (item.biddingForm === null ? '' : biddingFormLabel(t, item.biddingForm)) },
     { key: 'period', header: t('bid.plans.package.period'), render: (item) => item.plannedStartPeriod ?? '' },
-    { key: 'budget', header: t('bid.plans.package.budget'), align: 'right', render: (item) => formatVnd(item.budgetVnd) },
+    { key: 'budget', header: t('bid.plans.package.budget'), align: 'right', render: (item) => <Money value={item.budgetVnd} /> },
   ];
   return (
     <div data-testid="plan-detail">
@@ -134,7 +135,7 @@ function Detail({ plan, packages, mayManage, mayApprove }: { plan: PlanLine; pac
         <div data-testid="plan-packages">
           <DataTable caption={t('bid.plans.detail.title', { title: plan.title, revision: plan.revision })} columns={columns} rows={[...packages]} rowKey={(item) => item.id} />
         </div>
-        <p className="sub">{t('bid.plans.detail.total', { total: formatVnd(plan.totalVnd) })}</p>
+        <p className="sub">{t('bid.plans.total.short', { total: compactMoney(plan.totalVnd) })}</p>
         {refused === undefined ? null : <PlanRefusal problem={refused} testId="submit-refusal" />}
         {submit.isSuccess ? (
           <p className="callout" role="status" data-testid="submit-done">

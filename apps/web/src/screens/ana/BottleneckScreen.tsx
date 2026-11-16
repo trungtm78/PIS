@@ -6,11 +6,11 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ContextBar, SectionCard } from '../../ui';
+import { ContextBar, Money, SectionCard } from '../../ui';
 import { useBottlenecks } from './bottleneck-hooks';
 import { HALTED_PATH, sourceLink } from './bottleneck-model';
 import type { Analysis, Holder, Item, Source } from './bottleneck-model';
-import { codeKey, dayText, vndText } from './common';
+import { codeKey, dayText } from './common';
 import { AnaFigureInfo, NaNote, UnverifiedNote } from './components';
 
 type T = Translator['t'];
@@ -48,7 +48,7 @@ export function amountReason(t: T, reason: string): string {
   return reason === 'NO_AMOUNT' ? t('ana.bn.na.noAmount') : t('ana.bn.na.other');
 }
 
-function Tile({ id, label, value, note, info }: { id: string; label: string; value: string; note?: string | undefined; info?: React.ReactNode }) {
+function Tile({ id, label, value, note, info }: { id: string; label: string; value: React.ReactNode; note?: string | undefined; info?: React.ReactNode }) {
   return (
     <li className="ana-tile">
       <span className="ana-tile__label">
@@ -101,7 +101,7 @@ function ItemsTable({ items }: { items: readonly Item[] }) {
                     {t('ana.common.na')} <span className="ana-caveat">{amountReason(t, item.amountNullReason ?? '')}</span>
                   </>
                 ) : (
-                  vndText(item.amountVnd)
+                  <Money value={item.amountVnd} />
                 )}
               </td>
               <td className="num">
@@ -152,7 +152,7 @@ function BottleneckContent({ route }: ScreenProps) {
           <p>{t('ana.bn.page.subtitle')}</p>
         </div>
       </div>
-      <ContextBar items={contextItems} unit={t('ana.bn.context.unit')} />
+      <ContextBar items={contextItems} />
       <StateBoundary state={state} onRetry={() => void query.refetch()}>
         {analysis === undefined ? null : (
           <div className="ana-stack">
@@ -168,7 +168,7 @@ function BottleneckContent({ route }: ScreenProps) {
               </p>
             )}
             <ul className="ana-tiles" data-testid="bn-tiles">
-              <Tile id="held" label={t('ana.bn.tile.held')} value={`${vndText(analysis.heldVnd)} ${t('ana.bn.unit.vnd')}`} note={analysis.noAmount > 0 ? t('ana.bn.tile.lowerBound', { count: analysis.noAmount }) : undefined} info={<AnaFigureInfo name={t('ana.bn.tile.held')} info={analysis.info} />} />
+              <Tile id="held" label={t('ana.bn.tile.held')} value={<Money value={analysis.heldVnd} />} note={analysis.noAmount > 0 ? t('ana.bn.tile.lowerBound', { count: analysis.noAmount }) : undefined} info={<AnaFigureInfo name={t('ana.bn.tile.held')} info={analysis.info} />} />
               <Tile id="items" label={t('ana.bn.tile.items')} value={String(analysis.itemsTotal)} />
               <Tile id="noAmount" label={t('ana.bn.tile.noAmount')} value={String(analysis.noAmount)} note={t('ana.bn.na.noAmount')} />
               <Tile id="merged" label={t('ana.bn.tile.merged')} value={String(analysis.merged)} note={t('ana.bn.tile.mergedNote')} />
@@ -197,7 +197,7 @@ function BottleneckContent({ route }: ScreenProps) {
                 </select>
               </label>
             </div>
-            <SectionCard title={t('ana.bn.cause.title')} unit={t('ana.bn.unit.vnd')}>
+            <SectionCard title={t('ana.bn.cause.title')}>
               <div className="tablewrap">
                 <table className="ana-table" aria-label={t('ana.bn.cause.aria')} data-testid="bn-causes">
                   <caption className="sr-only">{t('ana.bn.cause.caption')}</caption>
@@ -222,7 +222,7 @@ function BottleneckContent({ route }: ScreenProps) {
                         <td>{causeAction(t, row.key)}</td>
                         <td className="num">{row.count}</td>
                         <td className="num">
-                          {vndText(row.amountVnd)}
+                          <Money value={row.amountVnd} />
                           {row.noAmount > 0 ? <span className="ana-caveat"> {t('ana.bn.noAmountOf', { count: row.noAmount })}</span> : null}
                         </td>
                       </tr>
@@ -237,21 +237,23 @@ function BottleneckContent({ route }: ScreenProps) {
                   <li key={row.key} data-bucket={row.key}>
                     <span>{bucketLabel(t, row.key)}</span>{' '}
                     <meter min={0} max={Math.max(total, 1)} value={row.count} aria-label={bucketLabel(t, row.key)} />{' '}
-                    <strong>{row.count}</strong> <span className="ana-caveat">{vndText(row.amountVnd)}</span>
+                    <strong>{row.count}</strong> <span className="ana-caveat">
+                      <Money value={row.amountVnd} />
+                    </span>
                   </li>
                 ))}
               </ul>
             </SectionCard>
-            <SectionCard title={t('ana.bn.holder.title')} unit={t('ana.bn.unit.vnd')}>
+            <SectionCard title={t('ana.bn.holder.title')}>
               <ul data-testid="bn-holders">
                 {analysis.byHolder.slice(0, 10).map((row) => (
                   <li key={row.key}>
-                    {holderLabel(t, row.holder)}: {row.count} ({vndText(row.amountVnd)})
+                    {holderLabel(t, row.holder)}: {row.count} (<Money value={row.amountVnd} />)
                   </li>
                 ))}
               </ul>
             </SectionCard>
-            <SectionCard title={t('ana.bn.items.title')} unit={t('ana.bn.unit.vnd')}>
+            <SectionCard title={t('ana.bn.items.title')}>
               {analysis.items.length === 0 ? <NaNote reason="NO_MATCH" label={() => t('ana.bn.items.none')} /> : <ItemsTable items={analysis.items} />}
             </SectionCard>
             <p className="ana-links">

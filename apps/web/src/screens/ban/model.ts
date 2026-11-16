@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import type { components } from '@machvon/contracts';
 import type { Locale } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { Tone } from '../../ui';
 import { CHANGE_KINDS, CHANGE_LINKS, CHANGE_PARAMS, MAX_CHANGE_LINES } from '../home/gov-model';
 import type { ChangeLine } from '../home/gov-model';
@@ -84,8 +85,8 @@ export function decimalText(value: string, locale: Locale): string {
   return `${sign}${whole}${fraction === undefined ? '' : `${locale === 'vi' ? ',' : '.'}${fraction}`}`;
 }
 
-/** Whole dong; null stays null (the caller says "no data": an unknown amount is never 0). */
-export const vndText = (value: string | null | undefined, locale: Locale): string | null => (value === null || value === undefined ? null : decimalText(value, locale));
+/** An amount of dong in the short form of the shared formatter, with its unit; null stays null (the caller says "no data": an unknown amount is never 0). */
+export const vndText = (value: string | null | undefined, locale: Locale): string | null => (value === null || value === undefined ? null : compactMoney(value, { locale }));
 export const pctText = (value: string | null | undefined, locale: Locale): string | null => (value === null || value === undefined ? null : `${decimalText(value, locale)}%`);
 
 /** A difference in percentage points with its sign ("+3,20", "-4,10", "0,00"). */

@@ -1,3 +1,4 @@
+import { dongText } from '../../../i18n/money';
 /**
  * The analytics of the contract portfolio (CA-1, part 2; CTR-28 to CTR-31 and the register CTR-01): the shapes the server answers with, read defensively (a body that is not what the contract says is an error of the
  * read, never an empty table), and the words and figures a screen shows. Money is whole dong kept as text: nothing here turns it into a float, and no total is made in the browser (the server's totals row is shown).
@@ -695,7 +696,7 @@ export const filterCount = (filter: AnalyticsFilter): number => Object.values(fi
 
 /** Whole dong grouped by the language of the screen, from the text (a sign is allowed: a variance can be below zero); anything that is not whole dong is shown as it came. */
 export function moneyText(value: string, locale: string): string {
-  return /^-?\d+$/.test(value) ? new Intl.NumberFormat(locale).format(BigInt(value)) : value;
+  return /^-?\d+$/.test(value) ? dongText(value, locale) : value;
 }
 
 /** Whole dong as billions for the picture only (never shown as a figure); null for what is not whole dong. */

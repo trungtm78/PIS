@@ -2,15 +2,16 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import { compactMoney } from '../../../i18n/money';
 import type { Translator } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { ContextBar, DataTable, FilterPanel, KpiTile } from '../../../ui';
+import { ContextBar, DataTable, FilterPanel, KpiTile, Money } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { CalendarNotice, FigureInfo, StatePill, TruncatedNotice, WithInfo } from './components';
-import { camel, can, dayText, stampText, vnd } from './common';
+import { camel, can, dayText, stampText } from './common';
 import { useClaims, useContractChoices } from './hooks';
 import { kindLabel, sideLabel, statusLabel } from './labels';
 import { EMPTY_FILTER, LIMITATIONS, MANAGE_PERMISSION, PATHS, SIDES, STATUSES, isFiltered } from './model';
@@ -55,9 +56,9 @@ function Summary({ page }: { page: ClaimPage }) {
       {tile('count', t('ctrClaim.summary.count.label'), String(totals.count), 'count')}
       {tile('open', t('ctrClaim.summary.open.label'), String(totals.open), 'count')}
       {tile('withoutTerm', t('ctrClaim.summary.withoutTerm.label'), String(totals.without_term), 'withoutTerm')}
-      {tile('claimed', t('ctrClaim.summary.claimed.label'), vnd(totals.claimed_vnd, locale), 'money', t('ctrClaim.unit.vnd.text'))}
-      {tile('openClaimed', t('ctrClaim.summary.openClaimed.label'), vnd(totals.open_claimed_vnd, locale), 'money', t('ctrClaim.unit.vnd.text'))}
-      {tile('settled', t('ctrClaim.summary.settled.label'), vnd(totals.settled_vnd, locale), 'money', t('ctrClaim.unit.vnd.text'))}
+      {tile('claimed', t('ctrClaim.summary.claimed.label'), compactMoney(totals.claimed_vnd, { locale }), 'money')}
+      {tile('openClaimed', t('ctrClaim.summary.openClaimed.label'), compactMoney(totals.open_claimed_vnd, { locale }), 'money')}
+      {tile('settled', t('ctrClaim.summary.settled.label'), compactMoney(totals.settled_vnd, { locale }), 'money')}
     </div>
   );
 }
@@ -106,9 +107,9 @@ function columnsOf(t: T, locale: string, page: ClaimPage): DataTableColumn<Claim
     { key: 'status', header: t('ctrClaim.column.status.label'), render: (line) => statusLabel(t, line.status) },
     { key: 'awareness', header: t('ctrClaim.column.awareness.label'), render: (line) => dayText(line.awareness_on) },
     { key: 'limitation', header: t('ctrClaim.column.limitation.label'), render: (line) => <LimitationCell line={line} page={page} /> },
-    { key: 'claimed', header: t('ctrClaim.column.claimed.label'), align: 'right', render: (line) => (line.claimed_amount_vnd === null ? NONE : vnd(line.claimed_amount_vnd, locale)) },
+    { key: 'claimed', header: t('ctrClaim.column.claimed.label'), align: 'right', render: (line) => (line.claimed_amount_vnd === null ? NONE : <Money value={line.claimed_amount_vnd} />) },
     { key: 'days', header: t('ctrClaim.column.days.label'), align: 'right', render: (line) => (line.claimed_days === null ? NONE : String(line.claimed_days)) },
-    { key: 'settled', header: t('ctrClaim.column.settled.label'), align: 'right', render: (line) => (line.settled_amount_vnd === null ? NONE : vnd(line.settled_amount_vnd, locale)) },
+    { key: 'settled', header: t('ctrClaim.column.settled.label'), align: 'right', render: (line) => (line.settled_amount_vnd === null ? NONE : <Money value={line.settled_amount_vnd} />) },
   ];
 }
 
@@ -238,9 +239,9 @@ function ClaimRegisterContent({ route }: ScreenProps) {
               onClearFilters={() => setFilter(EMPTY_FILTER)}
               totalsLabel={t('ctrClaim.register.totals.label')}
               totals={{
-                claimed: vnd(first.totals.claimed_vnd, locale),
+                claimed: <Money value={first.totals.claimed_vnd} />,
                 days: String(first.totals.claimed_days),
-                settled: vnd(first.totals.settled_vnd, locale),
+                settled: <Money value={first.totals.settled_vnd} />,
               }}
             />
             {query.hasNextPage && (

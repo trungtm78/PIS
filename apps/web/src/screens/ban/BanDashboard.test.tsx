@@ -38,12 +38,12 @@ describe('BAN-01, the workspace of the head of the committee', () => {
     expect(panel.textContent).toContain(word('govc.home.info.unverified'));
     expect(panel.querySelector('[data-field="version"]')?.textContent).toContain(word('govc.home.info.version.default', { version: 0 }));
     const province = screen.getByTestId('province');
-    expect(within(province).getByTestId('province-plan').textContent).toBe('1.000.000.000.000');
-    expect(within(province).getByTestId('province-disbursed').textContent).toBe('600.000.000.000');
+    expect(within(province).getByTestId('province-plan').textContent).toBe('1.000 tỷ đồng (1.000.000.000.000 đồng)');
+    expect(within(province).getByTestId('province-disbursed').textContent).toBe('600 tỷ đồng (600.000.000.000 đồng)');
     expect(within(province).getByTestId('province-rate').textContent).toBe('60,00%');
     expect(within(province).getByTestId('province-expected').textContent).toBe('64,00%');
     expect(within(province).getByTestId('province-gap').textContent).toBe(word('ban.dash.fact.gapPoints', { points: '-4,00' }));
-    expect(within(province).getByTestId('province-outlook').textContent).toContain(word('ban.outlook.range.text', { low: '800.000.000.000', high: '950.000.000.000' }));
+    expect(within(province).getByTestId('province-outlook').textContent).toContain(word('ban.outlook.range.short', { low: '800 tỷ đồng', high: '950 tỷ đồng' }));
   });
 
   it('says that last year is known for only some lines, and that an unknown amount is no data and never 0', async () => {
@@ -201,11 +201,11 @@ describe('BAN-01, the workspace of the head of the committee', () => {
   it('writes the money in the locale and keeps every digit of an amount no float can hold', async () => {
     const big = workspace({ province: { ...workspace().province, plan_vnd: '9223372036854775809' } });
     open({ getCommitteeWorkspace: big });
-    expect((await screen.findByTestId('province-plan')).textContent).toBe('9.223.372.036.854.775.809');
+    expect((await screen.findByTestId('province-plan')).textContent).toBe('9.223.372.036,85 tỷ đồng (9.223.372.036.854.775.809 đồng)');
     cleanup();
     translator.setLocale('en');
     open({ getCommitteeWorkspace: big });
-    expect((await screen.findByTestId('province-plan')).textContent).toBe('9,223,372,036,854,775,809');
+    expect((await screen.findByTestId('province-plan')).textContent).toBe('9,223,372,036.85 billion VND (9,223,372,036,854,775,809 VND)');
   });
 
   it('shows the live alerts of the workspace as cards with their ids', async () => {

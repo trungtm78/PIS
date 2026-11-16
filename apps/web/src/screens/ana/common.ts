@@ -1,3 +1,5 @@
+import { dongText } from '../../i18n/money';
+
 /** Shared readers and formatters of the executive analytics screens (GOV-11b): every read model is parsed from `unknown`, a field that is not what is expected is absent, never a made-up value. */
 
 export const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -9,12 +11,9 @@ export const flag = (value: unknown): boolean | null => (typeof value === 'boole
 export const codeKey = (code: string): string => code.toLowerCase().replace(/_([a-z0-9])/g, (_match, letter: string) => letter.toUpperCase());
 export const list = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
 
-/** Whole dong written with dots between the thousands ("1.234.567"); a value that is not a whole number gives the placeholder. */
+/** Whole dong, exact, with the thousands grouped ("1.234.567") by the shared formatter; a value that is not a whole number gives the placeholder. The screens show the short form (`<Money>`). */
 export function vndText(value: string | null | undefined): string {
-  if (value === null || value === undefined || !/^-?\d+$/.test(value)) return '—';
-  const negative = value.startsWith('-');
-  const digits = negative ? value.slice(1) : value;
-  return `${negative ? '-' : ''}${digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+  return value === null || value === undefined || !/^-?\d+$/.test(value) ? '—' : dongText(value);
 }
 
 /** The thousand million (billion) dong of a whole dong amount, for a chart axis only: the tables say the exact dong. */

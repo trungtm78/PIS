@@ -1,5 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { isUuid } from '../../ctr/change/model';
+import { dongText } from '../../../i18n/money';
 
 export const READ_PERMISSION = 'settlement_revision.read';
 export const OPEN_PERMISSION = 'settlement.open';
@@ -207,7 +208,7 @@ export function vietnamDay(now: Date): string {
   return new Date(now.getTime() + 7 * 3_600_000).toISOString().slice(0, 10);
 }
 
-export const vndText = (value: string, locale: string): string => (AMOUNT.test(value) ? new Intl.NumberFormat(locale).format(BigInt(value)) : value);
+export const vndText = (value: string, locale: string): string => (AMOUNT.test(value) ? dongText(value, locale) : value);
 
 // ---- the commands -------------------------------------------------------------------------------------------------------------
 

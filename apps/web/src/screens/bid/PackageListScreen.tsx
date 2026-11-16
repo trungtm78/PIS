@@ -6,13 +6,13 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { DataTable, FilterPanel } from '../../ui';
+import { DataTable, FilterPanel, Money } from '../../ui';
 import type { DataTableColumn } from '../../ui';
 import { ScopeBar } from '../ctr/kit';
 import { PlanStatusBadge } from './plan-components';
 import { usePackages } from './plan-hooks';
 import { methodLabel, planStatusLabel } from './plan-labels';
-import { EMPTY_PACKAGE_FILTER, PLAN_STATUSES, filterPackages, formatVnd, planLink } from './plan-model';
+import { EMPTY_PACKAGE_FILTER, PLAN_STATUSES, filterPackages, planLink } from './plan-model';
 import type { PackageFilter, PackageLine, PlanStatus } from './plan-model';
 import './bid.css';
 
@@ -84,7 +84,7 @@ function PackageListContent({ route }: ScreenProps) {
         ),
     },
     { key: 'fund', header: t('bid.packages.column.fund'), render: (item) => (item.fundSourceLabel === null ? '' : fundName(item.fundSourceKey, item.fundSourceLabel)) },
-    { key: 'budget', header: t('bid.packages.column.budget'), align: 'right', render: (item) => formatVnd(item.budgetVnd) },
+    { key: 'budget', header: t('bid.packages.column.budget'), align: 'right', render: (item) => <Money value={item.budgetVnd} /> },
   ];
 
   return (

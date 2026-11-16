@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText } from '../../i18n/money';
 
 /** The permissions that gate the buttons of the plan screens; the server decides again on every request. */
 export const MANAGE_PLAN_PERMISSION = 'bid.plan.manage';
@@ -183,9 +184,9 @@ export function toLineOption(raw: unknown): LineOption | undefined {
   return { id, projectId: project.id, label: `${text(fund?.label) ?? ''} ${whole(record.source_year) ?? ''} ${formatVnd(amount)}`.replace(/\s+/g, ' ').trim() };
 }
 
-/** Whole VND with thousands separators for the eye; the value that travels is always the exact digit string. */
+/** Whole VND written exactly by the shared formatter (thousands grouped, no unit), for a figure whose purpose is the exact amount; the value that travels is always the exact digit string. */
 export function formatVnd(value: string): string {
-  return value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return dongText(value);
 }
 
 export function planLink(id: string): string {

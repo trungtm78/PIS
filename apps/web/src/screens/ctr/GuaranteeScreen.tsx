@@ -6,6 +6,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { Money } from '../../ui';
 import { boqLink } from './boq-model';
 import { BackLink, Field } from './components';
 import { useExpiringGuarantees, useExtendGuarantee, useGuarantees, useRegisterGuarantee, useReleaseGuarantee, useVerifyGuarantee } from './guarantee-hooks';
@@ -205,7 +206,7 @@ function ProblemNotice({ problem }: { problem: ReturnType<typeof describeProblem
 // ---- the list ------------------------------------------------------------------------------------------------------------------
 
 function GuaranteeList({ guarantees, contractId }: { guarantees: readonly Guarantee[]; contractId: string | undefined }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { tenant, permissions, mode } = useSession();
   const [filter, setFilter] = useState<GuaranteeFilter>(EMPTY_FILTER);
   const [action, setAction] = useState<Action | undefined>(undefined);
@@ -266,7 +267,7 @@ function GuaranteeList({ guarantees, contractId }: { guarantees: readonly Guaran
                 <th scope="col">{t('ctr.guarantee.column.kind')}</th>
                 <th scope="col">{t('ctr.guarantee.column.issuer')}</th>
                 <th scope="col">{t('ctr.guarantee.column.number')}</th>
-                <th scope="col">{t('ctr.guarantee.column.amount')}</th>
+                <th scope="col">{t('ctr.guarantee.column.value.label')}</th>
                 <th scope="col">{t('ctr.guarantee.column.expires')}</th>
                 <th scope="col">{t('ctr.guarantee.column.alert')}</th>
                 <th scope="col">{t('ctr.guarantee.column.member')}</th>
@@ -289,7 +290,9 @@ function GuaranteeList({ guarantees, contractId }: { guarantees: readonly Guaran
                   </td>
                   <td>{guarantee.issuer}</td>
                   <td>{guarantee.guaranteeNo ?? ''}</td>
-                  <td className="ctr-amount">{amountText(guarantee.amountVnd, locale)}</td>
+                  <td className="ctr-amount">
+                    <Money value={guarantee.amountVnd} />
+                  </td>
                   <td>
                     {guarantee.expiresOn}
                     {guarantee.status === 'ACTIVE' ? (
@@ -552,7 +555,7 @@ function ReleasePanel({ guarantee, onCancel, onDone }: PanelProps) {
 // ---- the guarantees about to expire --------------------------------------------------------------------------------------
 
 function Expiring({ contractId }: { contractId: string | undefined }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const [days, setDays] = useState<number>(EXPIRING_WINDOWS[0]);
   const expiring = useExpiringGuarantees(days);
   const state = useScreenState({ isLoading: expiring.isLoading, error: expiring.error, data: expiring.data, isEmpty: NEVER_EMPTY });
@@ -581,10 +584,10 @@ function Expiring({ contractId }: { contractId: string | undefined }) {
                 <th scope="col">{t('ctr.guarantee.column.kind')}</th>
                 <th scope="col">{t('ctr.guarantee.column.contract')}</th>
                 <th scope="col">{t('ctr.guarantee.column.issuer')}</th>
-                <th scope="col">{t('ctr.guarantee.column.amount')}</th>
+                <th scope="col">{t('ctr.guarantee.column.value.label')}</th>
                 <th scope="col">{t('ctr.guarantee.column.expires')}</th>
                 <th scope="col">{t('ctr.guarantee.column.daysLeft')}</th>
-                <th scope="col">{t('ctr.guarantee.column.advanceOwed')}</th>
+                <th scope="col">{t('ctr.guarantee.column.advanceLeft.label')}</th>
               </tr>
             </thead>
             <tbody>
@@ -593,10 +596,12 @@ function Expiring({ contractId }: { contractId: string | undefined }) {
                   <td>{kindLabel(t, guarantee.kind)}</td>
                   <td>{guarantee.contractCode}</td>
                   <td>{guarantee.issuer}</td>
-                  <td className="ctr-amount">{amountText(guarantee.amountVnd, locale)}</td>
+                  <td className="ctr-amount">
+                    <Money value={guarantee.amountVnd} />
+                  </td>
                   <td>{guarantee.expiresOn}</td>
                   <td>{guarantee.daysLeft ?? ''}</td>
-                  <td className="ctr-amount">{guarantee.advanceOutstandingVnd === undefined ? '' : amountText(guarantee.advanceOutstandingVnd, locale)}</td>
+                  <td className="ctr-amount">{guarantee.advanceOutstandingVnd === undefined ? '' : <Money value={guarantee.advanceOutstandingVnd} />}</td>
                 </tr>
               ))}
             </tbody>

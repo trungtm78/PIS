@@ -186,7 +186,8 @@ describe('ContractDraftScreen (CTR-02), a draft that exists', () => {
     expect(facts.getByText('Công ty Xây dựng An Phát')).toBeTruthy();
     expect(facts.getByText(vi_['ctr.type.lumpSum.label'])).toBeTruthy();
     expect(facts.getByText(vi_['ctr.advance.construction.label'])).toBeTruthy();
-    expect(facts.getAllByText('10.200.000.000 VND')).toHaveLength(2);
+    expect(facts.getAllByText('10,2 tỷ đồng')).toHaveLength(2);
+    expect(facts.getAllByTitle('10.200.000.000 đồng').map((amount) => amount.textContent)).toEqual(['10,2 tỷ đồng (10.200.000.000 đồng)', '10,2 tỷ đồng (10.200.000.000 đồng)']);
     expect((screen.getByLabelText(vi_['ctr.form.title.label']) as HTMLInputElement).value).toBe('Hợp đồng số 1');
     expect((screen.getByLabelText(vi_['ctr.form.value.label']) as HTMLInputElement).value).toBe('10200000000');
     expect(screen.queryByLabelText(vi_['ctr.form.code.label'])).toBeNull();

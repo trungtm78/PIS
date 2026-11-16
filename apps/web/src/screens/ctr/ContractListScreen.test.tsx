@@ -25,7 +25,7 @@ describe('ContractListScreen (CTR-01): the register of contracts, read from the 
     expect(first.getByRole('link', { name: 'HD-A-001' }).getAttribute('href')).toBe(`/ctr/ctr-02?id=${CONTRACT_A}`);
     expect(first.getByText('Hợp đồng HD-A-001')).toBeTruthy();
     expect(first.getByText('DA-2026-001')).toBeTruthy();
-    expect(first.getByText('10.200.000.000')).toBeTruthy();
+    expect(first.getByText('10,2 tỷ đồng').getAttribute('title')).toBe('10.200.000.000 đồng');
     expect(first.getByText(vi_['ctr.status.active.label'])).toBeTruthy();
     // A figure the row has no value for says why, it is not a blank or a zero.
     const second = within(rows()[1] as HTMLElement);
@@ -38,8 +38,9 @@ describe('ContractListScreen (CTR-01): the register of contracts, read from the 
     await waitFor(() => expect(rows()).toHaveLength(2));
     const totals = within(document.querySelector('tfoot') as HTMLElement);
     // 77.777.777.777 is the server's figure; the two rows of the page add up to 35.200.000.000 and nothing here adds them.
-    expect(totals.getByText('77.777.777.777')).toBeTruthy();
-    expect(totals.queryByText('35.200.000.000')).toBeNull();
+    expect(totals.getByText('77,78 tỷ đồng').getAttribute('title')).toBe('77.777.777.777 đồng');
+    expect(totals.queryByText('35,2 tỷ đồng')).toBeNull();
+    expect(totals.queryByTitle('35.200.000.000 đồng')).toBeNull();
     expect(totals.getByText(message('ca1.table.totals'))).toBeTruthy();
     expect(screen.getByTestId('totals-note').textContent).toBe(message('ca1.register.totals.note', { total: 40 }));
     expect(screen.getByRole('group', { name: vi_['ui.contextBar.label'] }).textContent).toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));

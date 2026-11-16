@@ -31,7 +31,8 @@ describe('the early-warning record (CTR-36)', () => {
     const assessment = screen.getByTestId('assessment');
     expect(assessment.textContent).toContain('Pham Van D');
     expect(within(assessment).getByTestId('time').textContent).toBe(text('ctrWarn.record.days.text', { days: 14 }));
-    expect(within(assessment).getByTestId('cost').textContent).toBe('250.000.000');
+    expect(within(assessment).getByTestId('cost').textContent).toBe('250 triệu đồng (250.000.000 đồng)');
+    expect(within(within(assessment).getByTestId('cost')).getByTitle('250.000.000 đồng')).toBeTruthy();
     expect(screen.getByText('Order the crane from the second supplier.')).toBeTruthy();
     expect(screen.getByTestId('action-status').getAttribute('data-status')).toBe('OPEN');
     expect(screen.getByTestId('no-reviews')).toBeTruthy();

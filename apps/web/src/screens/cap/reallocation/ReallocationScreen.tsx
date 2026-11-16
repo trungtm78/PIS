@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import { dongText } from '../../../i18n/money';
 import type { FormEvent, ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
@@ -107,7 +108,7 @@ function fieldMessage(t: T, problem: FormProblem | undefined): string | undefine
 }
 
 /** Whole dong with the thousands told apart by the locale. */
-const dong = (value: string): string => (/^-?[0-9]+$/.test(value) ? BigInt(value).toLocaleString('vi-VN') : value);
+const dong = (value: string): string => (/^-?[0-9]+$/.test(value) ? dongText(value) : value);
 
 /**
  * CAP-19: the reallocation of capital from slow to fast projects (ST-CAP-010, CAP 3.1 F5). A planner draws a proposal on a frozen snapshot of the disbursement: lines that take whole amounts from a line of the plan in

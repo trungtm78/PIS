@@ -1,3 +1,4 @@
+import { moneyInUnit } from '../../i18n/money';
 import type { CommandCenter, Tile } from './model';
 import type { RankingRow, Rankings, WarningItem } from './warning-model';
 
@@ -9,11 +10,7 @@ const BILLION = 1_000_000_000n;
 /** A whole amount of dong as billions of dong with two decimals ("214,71"), or null when the amount is missing or is not whole dong. Rounded half up, never through a float of the whole amount. */
 export function billionsOf(vnd: string | null, locale = 'vi'): string | null {
   if (vnd === null || !/^-?\d+$/.test(vnd)) return null;
-  const negative = vnd.startsWith('-');
-  const abs = BigInt(negative ? vnd.slice(1) : vnd);
-  const hundredths = (abs * 100n + BILLION / 2n) / BILLION;
-  const formatted = new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(hundredths) / 100);
-  return negative && hundredths !== 0n ? `-${formatted}` : formatted;
+  return moneyInUnit(vnd, 'billion', { locale, fixed: true });
 }
 
 /** A percent as the screen reads it ("60,00"): two decimals, the decimal sign of the language. Null when there is no figure. */

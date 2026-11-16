@@ -22,7 +22,7 @@ describe('the early-warning register (CTR-35)', () => {
     expect(links[0]?.getAttribute('href')).toBe(`/ctr/ctr-36?warning=${WARNING}`);
     const rows = document.querySelectorAll('[data-warning]');
     expect(rows[0]?.textContent).toContain(text('ctrWarn.party.contractor.label'));
-    expect(rows[0]?.textContent).toContain('250.000.000');
+    expect(rows[0]?.textContent).toContain('250 triệu đồng (250.000.000 đồng)');
     expect(rows[0]?.textContent).toContain('Pham Van D');
     // A warning nobody assessed has no owner and no impact: the register says so and does not write zero.
     expect(rows[1]?.textContent).toContain(text('ctrWarn.cell.noOwner.text'));
@@ -35,7 +35,7 @@ describe('the early-warning register (CTR-35)', () => {
     for (const key of ['ctrWarn.summary.total.label', 'ctrWarn.summary.open.label', 'ctrWarn.summary.unassessed.label', 'ctrWarn.summary.withoutOwner.label', 'ctrWarn.summary.overdueActions.label', 'ctrWarn.summary.exposureCost.label', 'ctrWarn.summary.exposureDays.label', 'ctrWarn.summary.impactUnknown.label']) {
       expect(screen.getByRole('button', { name: text('ctrReg.info.open.label', { name: text(key) }) })).toBeTruthy();
     }
-    expect(within(screen.getByTestId('tile-exposureCost')).getByText('250.000.000')).toBeTruthy();
+    expect(within(screen.getByTestId('tile-exposureCost')).getByText('250 triệu đồng')).toBeTruthy();
     expect(screen.getByText(text('ctrWarn.context.separate.value'))).toBeTruthy();
   });
 

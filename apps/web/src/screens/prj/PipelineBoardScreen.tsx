@@ -5,9 +5,10 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { Money } from '../../ui';
 import { NationalCode } from './components';
 import { stageLabel } from './labels';
-import { amountText, workspaceLink } from './model';
+import { workspaceLink } from './model';
 import type { ProjectStatus } from './model';
 import { useBoardColumn } from './pipeline-hooks';
 import { ENDED_STAGES, OPEN_STAGES, PROJECT_GROUPS, canOpenMoves, cardsOf } from './pipeline-model';
@@ -133,7 +134,7 @@ function Column({ stage, group, canMove, onMove, onDenied }: ColumnProps) {
 
 /** A card, collapsed to the figures that decide the next step; the button opens the confirmation of a move (dragging is not offered). */
 function Card({ card, canMove, onMove }: { card: BoardCard; canMove: boolean; onMove(card: BoardCard): void }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const ended = ENDED_STAGES.includes(card.status);
   return (
     <li className="prj-card" data-project-id={card.id}>
@@ -141,7 +142,9 @@ function Card({ card, canMove, onMove }: { card: BoardCard; canMove: boolean; on
       <span className="prj-card-name">{card.name}</span>
       <dl className="prj-facts">
         <dt>{t('prj.board.card.investment.label')}</dt>
-        <dd>{t('prj.workspace.value.amount', { amount: amountText(card.totalInvestmentVnd, locale) })}</dd>
+        <dd>
+          <Money value={card.totalInvestmentVnd} />
+        </dd>
         <dt>{t('prj.board.card.group.label')}</dt>
         <dd>{card.projectGroup ?? t('prj.list.group.none')}</dd>
         <dt>{t('prj.board.card.score.label')}</dt>

@@ -5,9 +5,8 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { formatVnd } from '../dis/report/money';
 import { Field } from '../mne/components';
-import { ContextBar, DataTable, FilterPanel, SectionCard, StatusPill } from '../../ui';
+import { ContextBar, DataTable, FilterPanel, Money, SectionCard, StatusPill } from '../../ui';
 import type { DataTableColumn } from '../../ui';
 import '../dis/dis.css';
 import './home.css';
@@ -37,7 +36,8 @@ function reasonLabel(t: T, reason: string | null): string {
   }
 }
 
-const money = (value: string | null): string => (value === null ? '—' : formatVnd(value));
+/** An amount of the ranking in billions of dong (the unit the screen declares), with the exact amount one hover away; no amount is a dash. */
+const money = (value: string | null) => <Money value={value} bare unit="billion" fixed />;
 
 /**
  * HOME-04: the ranking of the units (ST-HOME-003, HOME 3 F3, BR-HOME-06): the ranking DIS computed when the close snapshot was frozen, a table for each comparison group over the denominator the reader chooses (the plan the
@@ -75,11 +75,11 @@ function RankingContent({ route }: ScreenProps) {
               { label: t('home.drill.fact.asOf'), value: dayText(rankings.asOfDate) },
               { label: t('home.ranking.denominator.label'), value: denominatorLabel(t, denominator) },
             ]}
-            unit={t('dis.wr.unit')}
+            unit={t('w2dis.home.unit.billion')}
           />
         )}
         <FilterPanel
-          unitLabel={t('dis.wr.unit')}
+          unitLabel={t('w2dis.home.unit.billion')}
           applied={group === '' ? 0 : 1}
           actions={
             group === '' ? undefined : (
@@ -130,7 +130,7 @@ function RankingContent({ route }: ScreenProps) {
               {tables.length === 0 ? <p data-testid="ranking-no-table">{t('home.ranking.noTable')}</p> : null}
               {tables.map((table) => (
                 <div key={`${table.comparisonGroup}|${table.denominator}`} data-table={`${table.comparisonGroup}|${table.denominator}`} data-testid="ranking-table">
-                  <SectionCard title={t('home.ranking.table.title', { group: table.comparisonGroup, denominator: denominatorLabel(t, table.denominator) })} unit={t('dis.wr.unit')}>
+                  <SectionCard title={t('home.ranking.table.title', { group: table.comparisonGroup, denominator: denominatorLabel(t, table.denominator) })} unit={t('w2dis.home.unit.billion')}>
                     <RankedTable rows={table.ranked} caption={t('home.ranking.table.title', { group: table.comparisonGroup, denominator: denominatorLabel(t, table.denominator) })} />
                     {table.excluded.length === 0 ? null : (
                       <div data-testid="ranking-excluded" className="home-excluded">

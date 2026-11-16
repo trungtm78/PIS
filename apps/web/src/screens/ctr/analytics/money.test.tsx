@@ -52,7 +52,7 @@ describe('schedule delay with the earned value and the S-curve (R3)', () => {
     open('schedule-delay', { report: () => schedule() });
     await waitFor(() => expect(screen.getByTestId('evm-coverage')).toBeTruthy());
     const strip = screen.getByRole('group', { name: message('ca2.evm.label') });
-    expect(within(strip).getByText('4.000.000.000')).toBeTruthy();
+    expect(within(strip).getByText('4 tỷ đồng')).toBeTruthy();
     expect(within(strip).getByText('0,8000')).toBeTruthy();
     expect(within(strip).getByText('0,9091')).toBeTruthy();
     expect(within(strip).getByRole('button', { name: message('ca1.info.open', { name: message('ca1.indicator.spi.name') }) })).toBeTruthy();
@@ -173,11 +173,11 @@ describe('advance ageing and recovery (R5)', () => {
         }),
     });
     await waitFor(() => expect(screen.getByTestId('breakdown')).toBeTruthy());
-    expect(screen.getByText(message('ca1.chart.title', { column: message('ca1.col.advanceOutstandingVnd') }))).toBeTruthy();
+    expect(screen.getByText(message('ca1.chart.title', { column: message('ca1.money.advanceOutstandingVnd') }))).toBeTruthy();
     const second = within(screen.getByTestId('breakdown-recovery_status'));
     expect(second.getByText(message('ca1.group.behind'))).toBeTruthy();
     expect(second.getByText(message('ca1.group.recovered'))).toBeTruthy();
-    expect(screen.getByText(message('ca1.chart.title', { column: message('ca1.col.advanceRecoveryShortfallVnd') }))).toBeTruthy();
+    expect(screen.getByText(message('ca1.chart.title', { column: message('ca1.money.advanceRecoveryShortfallVnd') }))).toBeTruthy();
     expect(within(screen.getByTestId('report-table')).getByText(message('ca1.group.behind'))).toBeTruthy();
   });
 });
@@ -196,7 +196,7 @@ describe('retention and guarantee falling due (R6)', () => {
     const guarantee = within(screen.getByTestId('ladder-guarantee'));
     expect(guarantee.getAllByRole('row').slice(1).map((row) => row.getAttribute('data-step'))).toEqual(['LAPSED', 'WITHIN_30', 'WITHIN_90', 'LATER']);
     expect(guarantee.getByText(message('ca1.group.lapsed'))).toBeTruthy();
-    expect(guarantee.getByText('100.000.000')).toBeTruthy();
+    expect(guarantee.getByText('100 triệu đồng').getAttribute('title')).toBe('100.000.000 đồng');
     expect(within(screen.getByTestId('ladder-retention')).getByText(message('ca1.group.dueNow'))).toBeTruthy();
     expect(within(screen.getByTestId('ladder-retention')).getByText(message('ca1.group.noDate'))).toBeTruthy();
   });
@@ -237,7 +237,7 @@ describe('growth through changes by tier (R7)', () => {
     expect(tier3.getByText(message('ca1.na.noChange'))).toBeTruthy();
     expect(tier3.queryByText('0,00%')).toBeNull();
     const total = within(document.querySelector('[data-testid="tier-split"] tfoot') as HTMLElement);
-    expect(total.getByText('60.000.000')).toBeTruthy();
+    expect(total.getByText('60 triệu đồng').getAttribute('title')).toBe('60.000.000 đồng');
     expect(total.getByText('0,60%')).toBeTruthy();
     expect(table.getByRole('button', { name: message('ca1.info.open', { name: message('ca1.indicator.changeTierGrowth.name') }) })).toBeTruthy();
   });

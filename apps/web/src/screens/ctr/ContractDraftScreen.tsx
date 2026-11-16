@@ -30,7 +30,7 @@ import {
 } from './model';
 import type { ContractField, ContractForm, ContractView, FieldProblem, Option, ProblemView } from './model';
 import './ctr.css';
-import { SectionCard, StickyActions } from '../../ui';
+import { Money, SectionCard, StickyActions } from '../../ui';
 
 const NEVER_EMPTY = (): boolean => false;
 const DRAFT_STATES: readonly string[] = ['DRAFT', 'IN_REVIEW'];
@@ -305,7 +305,7 @@ function CreateDraft() {
 
 /** A draft that exists: its terms to revise while it is a draft, what cannot change, its revisions and its history. */
 function DraftView({ contract }: { contract: ContractView }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const { canUpdate, frozen } = useAccess();
   const revise = useReviseContract();
   const cancel = useCancelContract();
@@ -452,8 +452,14 @@ function DraftView({ contract }: { contract: ContractView }) {
               <Fact label={t('ctr.draft.fact.type')}>{typeLabel(t, contract.type)}</Fact>
               <Fact label={t('ctr.draft.fact.advance')}>{advanceLabel(t, contract.advanceCategory)}</Fact>
               <Fact label={t('ctr.draft.fact.venture')}>{contract.isJointVenture ? t('ctr.draft.fact.yes') : t('ctr.draft.fact.no')}</Fact>
-              <Fact label={t('ctr.draft.fact.value')}>{t('ctr.value.amount', { amount: amountText(contract.contractValueVnd, locale) })}</Fact>
-              {ceiling === undefined ? null : <Fact label={t('ctr.draft.fact.ceiling')}>{t('ctr.value.amount', { amount: amountText(ceiling, locale) })}</Fact>}
+              <Fact label={t('ctr.draft.fact.value')}>
+                <Money value={contract.contractValueVnd} />
+              </Fact>
+              {ceiling === undefined ? null : (
+                <Fact label={t('ctr.draft.fact.ceiling')}>
+                  <Money value={ceiling} />
+                </Fact>
+              )}
               {contract.statusReason === null ? null : <Fact label={t('ctr.draft.fact.reason')}>{contract.statusReason}</Fact>}
             </dl>
           </SectionCard>
@@ -471,7 +477,9 @@ function DraftView({ contract }: { contract: ContractView }) {
                   <tr key={revision.id}>
                     <th scope="row">{revision.revision}</th>
                     <td>{revisionStatusLabel(t, revision.status)}</td>
-                    <td className="ctr-amount">{t('ctr.value.amount', { amount: amountText(revision.amountVnd, locale) })}</td>
+                    <td className="ctr-amount">
+                      <Money value={revision.amountVnd} />
+                    </td>
                   </tr>
                 ))}
               </tbody>

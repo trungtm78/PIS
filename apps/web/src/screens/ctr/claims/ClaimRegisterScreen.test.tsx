@@ -48,7 +48,7 @@ describe('the claim register (CTR-32)', () => {
     open();
     await screen.findAllByTestId('claim-link');
     expect(screen.getByText(text('ctrClaim.register.totals.label'))).toBeTruthy();
-    expect(within(screen.getByTestId('tile-claimed')).getByText('1.200.000.000')).toBeTruthy();
+    expect(within(screen.getByTestId('tile-claimed')).getByText('1,2 tỷ đồng')).toBeTruthy();
     expect(within(screen.getByTestId('tile-withoutTerm')).getByText('1')).toBeTruthy();
     expect(within(screen.getByTestId('tile-count')).getByText('2')).toBeTruthy();
   });

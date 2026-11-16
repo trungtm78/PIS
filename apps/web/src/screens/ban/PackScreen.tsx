@@ -254,7 +254,6 @@ function PackContent() {
           { label: t('ban.dash.context.asOf'), value: data === undefined ? '–' : dayText(data.as_of) },
           { label: t('ban.pack.context.form'), value: data === undefined ? PACK_LAYOUT : `${data.layout_code} ${data.layout_version}` },
         ]}
-        unit={t('ban.dash.unit.vnd')}
         {...(query.dataUpdatedAt > 0 ? { asOf: clockText(query.dataUpdatedAt) } : {})}
         stale={query.isError && data !== undefined}
       />

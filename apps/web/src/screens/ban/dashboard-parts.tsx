@@ -13,7 +13,7 @@ export function ProvinceCard({ row }: { row: Row }) {
   const { t } = useTranslation();
   const words = useWords();
   return (
-    <SectionCard title={t('ban.dash.province.title')} unit={t('ban.dash.unit.vnd')} status={<RagPill rag={row.rag} />}>
+    <SectionCard title={t('ban.dash.province.title')} status={<RagPill rag={row.rag} />}>
       <dl className="ban-facts" data-testid="province">
         <div>
           <dt>{t('ban.dash.fact.plan')}</dt>
@@ -97,7 +97,7 @@ export function DimensionTabs({ workspace, dimension, filtered, onChoose }: { wo
     if (target !== undefined) onChoose(target);
   };
   return (
-    <SectionCard title={t('ban.dash.cuts.title')} unit={t('ban.dash.unit.vnd')}>
+    <SectionCard title={t('ban.dash.cuts.title')}>
       <div className="ban-tabs" role="tablist" aria-label={t('ban.dash.cuts.aria')}>
         {TAB_ORDER.map((one, index) => (
           <button

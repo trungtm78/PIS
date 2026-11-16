@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText } from '../../../i18n/money';
 
 /** The permissions of CAP-20 (x-permission of the operations in openapi.json). */
 export const READ_PERMISSION = 'capital.read';
@@ -100,7 +101,7 @@ export function openRequestsOf(entries: readonly ExtensionEntry[], lineId: strin
 
 /** Whole VND with the thousands separators of the language, exact for any size; anything that is not digits is shown as it came. */
 export function formatVnd(amount: string, locale: string): string {
-  return /^-?[0-9]{1,24}$/.test(amount) ? BigInt(amount).toLocaleString(locale) : amount;
+  return /^-?[0-9]{1,24}$/.test(amount) ? dongText(amount, locale) : amount;
 }
 
 // ---- the form of a request ---------------------------------------------------------------------------------------------------------

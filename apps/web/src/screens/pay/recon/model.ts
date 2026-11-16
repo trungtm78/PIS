@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { isUuid } from '../../ctr/change/model';
 import { signedAmountText } from '../model';
+import { dongText } from '../../../i18n/money';
 
 export const MATCH_PERMISSION = 'treasury.match';
 export const ASSIGN_PERMISSION = 'reconciliation.assign';
@@ -287,7 +288,7 @@ export function toMember(raw: unknown): MemberOption | undefined {
 }
 
 /** An amount of dong in groups of three digits, as the locale writes them. */
-export const vndText = (value: string, locale: string): string => (SIGNED.test(value) ? new Intl.NumberFormat(locale).format(BigInt(value)) : value);
+export const vndText = (value: string, locale: string): string => (SIGNED.test(value) ? dongText(value, locale) : value);
 
 /** A difference with its sign shown: a shortfall is negative. */
 export const differenceText = (value: string, locale: string): string => (SIGNED.test(value) ? signedAmountText(value, locale) : value);

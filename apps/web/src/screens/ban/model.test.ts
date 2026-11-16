@@ -45,7 +45,8 @@ describe('numbers are written from the text of the API', () => {
     expect(decimalText('n/a', 'vi')).toBe('n/a');
     expect(vndText(null, 'vi')).toBeNull();
     expect(vndText(undefined, 'vi')).toBeNull();
-    expect(vndText('0', 'vi')).toBe('0');
+    expect(vndText('0', 'vi')).toBe('0 đồng');
+    expect(vndText('9223372036854775809', 'vi')).toBe('9.223.372.036,85 tỷ đồng');
     expect(pctText(null, 'vi')).toBeNull();
     expect(pctText('61.25', 'vi')).toBe('61,25%');
   });
@@ -115,13 +116,13 @@ describe('the year-end band and last year', () => {
   const outlook = (over: Record<string, unknown> = {}) => ({ low_vnd: '800000000', high_vnd: '950000000', low_pct: '80.00', high_pct: '95.00', methods: [], thin: false, reason: null, ...over }) as never;
 
   it('says the band when both ends are known and why when one is not', () => {
-    expect(outlookView(outlook(), 'vi')).toEqual({ kind: 'range', low: '800.000.000', high: '950.000.000', lowPct: '80,00%', highPct: '95,00%', thin: false });
+    expect(outlookView(outlook(), 'vi')).toEqual({ kind: 'range', low: '800 triệu đồng', high: '950 triệu đồng', lowPct: '80,00%', highPct: '95,00%', thin: false });
     expect(outlookView(outlook({ low_vnd: null, high_vnd: null, reason: 'NO_PLAN' }), 'vi')).toEqual({ kind: 'none', reason: 'noPlan' });
     expect(outlookView(outlook({ high_vnd: null, reason: null }), 'vi')).toEqual({ kind: 'none', reason: 'noData' });
   });
 
   it('gives last year as an amount, as a coverage when only some lines have it, or as none', () => {
-    expect(lastYearView({ last_year_vnd: '5', last_year_coverage: { known: 3, total: 3 } }, 'vi')).toEqual({ kind: 'amount', amount: '5' });
+    expect(lastYearView({ last_year_vnd: '5', last_year_coverage: { known: 3, total: 3 } }, 'vi')).toEqual({ kind: 'amount', amount: '5 đồng' });
     expect(lastYearView({ last_year_vnd: null, last_year_coverage: { known: 2, total: 5 } }, 'vi')).toEqual({ kind: 'partial', known: 2, total: 5 });
     expect(lastYearView({ last_year_vnd: null, last_year_coverage: { known: 0, total: 5 } }, 'vi')).toEqual({ kind: 'none' });
     expect(lastYearView({ last_year_vnd: null, last_year_coverage: { known: 0, total: 0 } }, 'vi')).toEqual({ kind: 'none' });

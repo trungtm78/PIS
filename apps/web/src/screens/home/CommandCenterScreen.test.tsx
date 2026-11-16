@@ -95,8 +95,10 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
     expect(within(pm).getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.00%');
     expect(within(total).getByTestId('tile-value-DISBURSEMENT_RATE_TOTAL').textContent).toBe('48.00%');
     // The same numerator over the two plans, with the words DIS-19 uses.
-    expect(within(pm).getByTestId('tile-sums-DISBURSEMENT_RATE_PM').textContent).toContain('600.000.000.000');
-    expect(within(total).getByTestId('tile-sums-DISBURSEMENT_RATE_TOTAL').textContent).toContain('600.000.000.000');
+    expect(within(pm).getByTestId('tile-sums-DISBURSEMENT_RATE_PM').textContent).toContain(fill(vi_['home.tile.numerator'], { value: '600 tỷ đồng' }));
+    expect(within(total).getByTestId('tile-sums-DISBURSEMENT_RATE_TOTAL').textContent).toContain(fill(vi_['home.tile.numerator'], { value: '600 tỷ đồng' }));
+    expect(within(pm).getByTestId('tile-sums-DISBURSEMENT_RATE_PM').getAttribute('title')).toContain('600.000.000.000 đồng');
+    expect(within(total).getByTestId('tile-sums-DISBURSEMENT_RATE_TOTAL').getAttribute('title')).toContain('600.000.000.000 đồng');
     expect(pm.textContent).toContain(vi_['dis.rates.col.ratePm']);
     expect(total.textContent).toContain(vi_['dis.rates.col.rateTotal']);
     // The CXN-03 tooltip: the formula is a proposal.
@@ -105,7 +107,8 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
     expect(within(pm).getByTestId('tile-formula-DISBURSEMENT_RATE_PM').textContent).toContain('plan_pm_assigned_vnd');
     expect(within(pm).getByTestId('tile-measure-DISBURSEMENT_RATE_PM').textContent).toBe(vi_['home.tile.measure.percent']);
     // The amounts, each with its unit of measure.
-    expect(screen.getByTestId('tile-value-PLAN_TOTAL').textContent).toBe(fill(vi_['home.tile.value.vnd'], { value: '1250000000000' }));
+    expect(screen.getByTestId('tile-value-PLAN_TOTAL').textContent).toBe('1.250 tỷ đồng (1.250.000.000.000 đồng)');
+    expect(screen.getByTestId('tile-figure-PLAN_TOTAL').getAttribute('title')).toBe('1.250.000.000.000 đồng');
     expect(screen.getByTestId('tile-measure-PLAN_TOTAL').textContent).toBe(vi_['home.tile.measure.vnd']);
     // The context of all of them, above them.
     const context = screen.getByTestId('home-context');

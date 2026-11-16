@@ -2,13 +2,14 @@ import { ApiError } from '@machvon/api-client';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { translator, useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { Translator } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { ConfirmDialog, ContextBar, SectionCard, StatusPill } from '../../ui';
-import { codeKey, commaText, dayText, vndText } from './common';
+import { codeKey, commaText, dayText } from './common';
 import { AnaFigureInfo, NaNote, UnverifiedNote } from './components';
 import { useMultiRanking, useRankingCommands } from './ranking-hooks';
 import { ANNOTATE_PERMISSION, COMPLAIN_PERMISSION, NOTES_PATH, RANKING_PATH } from './ranking-model';
@@ -149,7 +150,7 @@ function MultiRankingContent({ route }: ScreenProps) {
               const units = reading.units.filter((unit) => unit.band === band.code);
               if (units.length === 0) return null;
               return (
-                <SectionCard key={band.code} title={t('ana.rank.band.title', { band: band.code, plan: vndText(band.minPlanVnd) })} status={band.thin ? <StatusPill tone="warning">{t('ana.rank.band.thin', { count: band.units })}</StatusPill> : undefined}>
+                <SectionCard key={band.code} title={t('ana.rank.band.titleShort', { band: band.code, plan: compactMoney(band.minPlanVnd) })} status={band.thin ? <StatusPill tone="warning">{t('ana.rank.band.thin', { count: band.units })}</StatusPill> : undefined}>
                   <div className="tablewrap">
                     <table className="ana-table" aria-label={t('ana.rank.table.aria', { band: band.code })} data-testid={`rank-band-${band.code}`}>
                       <caption className="sr-only">{t('ana.rank.table.caption')}</caption>

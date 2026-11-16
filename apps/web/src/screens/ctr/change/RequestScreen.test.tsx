@@ -51,7 +51,8 @@ describe('RequestScreen (CTR-07): raise a change on a contract', () => {
     await screen.findByTestId('facts');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['ctr.change.request.title']);
     expect(screen.getByTestId('contract-code').textContent).toBe('HD-A-001');
-    expect(screen.getByTestId('value').textContent).toBe(text('ctr.value.amount', { amount: '10.200.000.000' }));
+    expect(screen.getByTestId('value').textContent).toBe('10,2 tỷ đồng (10.200.000.000 đồng)');
+    expect(within(screen.getByTestId('value')).getByTitle('10.200.000.000 đồng').textContent).toBe('10,2 tỷ đồng (10.200.000.000 đồng)');
     const rows = within(screen.getByTestId('requests')).getAllByRole('row');
     expect(rows).toHaveLength(3);
     expect(within(rows[1] as HTMLElement).getByRole('link', { name: 'CE-001' }).getAttribute('href')).toBe(`/ctr/ctr-19?project=${PROJECT}&contract=${contractId(1)}`);

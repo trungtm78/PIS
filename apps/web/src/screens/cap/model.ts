@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { dongText, moneyInUnit } from '../../i18n/money';
 
 /** The permissions that gate the buttons of these screens; the server decides again on every request. */
 export const READ_PERMISSION = 'capital.read';
@@ -204,11 +205,7 @@ function separatorOf(locale: string): string {
  * dong is lost (six decimals hold every dong). The digits are grouped and the decimal mark is the one of the language.
  */
 export function millionsText(vnd: string, locale: string): string {
-  if (!VND.test(vnd)) return vnd;
-  const value = BigInt(vnd);
-  const fraction = (value % MILLION).toString().padStart(MILLION_DIGITS, '0').replace(/0+$/, '');
-  const grouped = new Intl.NumberFormat(locale).format(value / MILLION);
-  return fraction === '' ? grouped : `${grouped}${separatorOf(locale)}${fraction}`;
+  return VND.test(vnd) ? moneyInUnit(vnd, 'million', { locale, decimals: MILLION_DIGITS }) : vnd;
 }
 
 /** An amount of whole VND as it is typed in millions: digits and the decimal mark of the language, no grouping. */
@@ -222,7 +219,7 @@ export function millionsInput(vnd: string, locale: string): string {
 
 /** The whole VND in an amount grouped by the language, for the line that confirms what will be sent. */
 export function vndText(vnd: string, locale: string): string {
-  return VND.test(vnd) ? new Intl.NumberFormat(locale).format(BigInt(vnd)) : vnd;
+  return VND.test(vnd) ? dongText(vnd, locale) : vnd;
 }
 
 /**

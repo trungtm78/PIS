@@ -5,6 +5,7 @@ import { workspaceLink as projectLink } from '../../prj/model';
 import { paymentLink } from '../payment/model';
 import { boardLink } from '../recon/model';
 import { settlementLink } from '../settlement/model';
+import { dongText } from '../../../i18n/money';
 
 export const READ_PERMISSION = 'payment.chain.read';
 export const PROJECT_READ_PERMISSION = 'project.read';
@@ -146,4 +147,4 @@ export function nodeLink(node: ChainNode): string | undefined {
   }
 }
 
-export const vndText = (value: string, locale: string): string => (AMOUNT.test(value) ? new Intl.NumberFormat(locale).format(BigInt(value)) : value);
+export const vndText = (value: string, locale: string): string => (AMOUNT.test(value) ? dongText(value, locale) : value);

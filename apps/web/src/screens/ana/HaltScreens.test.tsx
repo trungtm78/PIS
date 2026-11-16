@@ -123,7 +123,8 @@ describe('BI-27 the bottlenecks (G3-9)', () => {
     mount(<BottleneckScreen route={ROUTE} />, client(), { permissions: READER });
     const rows = within(await screen.findByTestId('bn-items')).getAllByTestId('bn-item');
     expect(rows).toHaveLength(3);
-    expect(within(rows[0] as HTMLElement).getByTestId('bn-amount').textContent).toBe('500.000.000');
+    expect(within(rows[0] as HTMLElement).getByTestId('bn-amount').textContent).toBe('500 triệu đồng (500.000.000 đồng)');
+    expect(within(rows[0] as HTMLElement).getByText('500 triệu đồng').getAttribute('title')).toBe('500.000.000 đồng');
     expect(rows[0]?.textContent).toContain(fill(tr('ana.bn.merged'), { count: 1 }));
     const noAmount = within(rows[2] as HTMLElement).getByTestId('bn-amount');
     expect(noAmount.textContent).toContain(tr('ana.common.na'));

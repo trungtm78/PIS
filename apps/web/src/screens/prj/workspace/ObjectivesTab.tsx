@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
-import { SectionCard, StatusPill } from '../../../ui';
+import { Money, SectionCard, StatusPill } from '../../../ui';
 import { useEffectiveness } from '../../mne/effect/hooks';
 import { bandText, bandTone, directionText } from '../../mne/effect/labels';
 import type { TargetSet } from '../../mne/effect/model';
@@ -9,7 +9,6 @@ import { recommendationLabel } from '../appraisal-labels';
 import { DECISION_PATH, PROPOSAL_PATH, SCORE_PATH, appraisalLink } from '../appraisal-model';
 import type { AppraisalView, Criterion } from '../appraisal-model';
 import { classificationLabel, stageLabel } from '../labels';
-import { amountText } from '../model';
 import type { ProjectView } from '../model';
 import { useRevisions } from '../revision/hooks';
 import { dossierOf } from '../revision/model';
@@ -49,7 +48,7 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
 
 /** The scope the project record holds: kind, sector, programme, area, size, period and the group the rules suggest. The record carries no free-text purpose, so none is shown. */
 function ScopeCard({ project }: { project: ProjectView }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const none = t('prj.workspace.value.none');
   const period = project.startYear === null && project.endYear === null ? none : `${project.startYear ?? ''} – ${project.endYear ?? ''}`;
   return (
@@ -60,7 +59,9 @@ function ScopeCard({ project }: { project: ProjectView }) {
           <Fact label={t('prj.workspace.field.sector')}>{project.sector?.label ?? none}</Fact>
           <Fact label={t('prj.workspace.field.program')}>{project.program?.label ?? none}</Fact>
           <Fact label={t('prj.workspace.field.area')}>{project.area.label}</Fact>
-          <Fact label={t('prj.workspace.field.total')}>{t('prj.workspace.value.amount', { amount: amountText(project.totalInvestmentVnd, locale) })}</Fact>
+          <Fact label={t('prj.workspace.field.total')}>
+            <Money value={project.totalInvestmentVnd} />
+          </Fact>
           <Fact label={t('prj.workspace.field.years')}>{period}</Fact>
           <Fact label={t('prj.workspace.field.classification')}>{classificationLabel(t, project.classification)}</Fact>
           <Fact label={t('prj.workspace.field.group')}>{project.projectGroup ?? none}</Fact>

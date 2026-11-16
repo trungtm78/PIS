@@ -48,7 +48,8 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
     expect(screen.getByTestId('contract-code').textContent).toBe('HD-A-001');
     expect(screen.getByTestId('status').textContent).toBe(vi_['ctr.status.draft.label']);
     expect(commandButtons()).toEqual(['submit', 'cancel']);
-    expect(screen.getByTestId('value').textContent).toBe(text('ctr.value.amount', { amount: '10.200.000.000' }));
+    expect(screen.getByTestId('value').textContent).toBe('10,2 tỷ đồng (10.200.000.000 đồng)');
+    expect(within(screen.getByTestId('value')).getByTitle('10.200.000.000 đồng').textContent).toBe('10,2 tỷ đồng (10.200.000.000 đồng)');
     const checks = Array.from(document.querySelectorAll('[data-check]')).map((item) => [item.getAttribute('data-check'), item.getAttribute('data-ok')]);
     expect(checks).toEqual([
       ['boq', 'true'],
@@ -603,8 +604,10 @@ describe('WorkspaceScreen (CTR-03): the closure of a contract', () => {
       ['retention', 'false'],
     ]);
     expect(document.querySelector('[data-closure="settlement"]')?.textContent).not.toContain('{amount}');
-    expect(document.querySelector('[data-closure="advance"]')?.textContent).toContain(new Intl.NumberFormat('vi').format(1250000000));
-    expect(document.querySelector('[data-closure="retention"]')?.textContent).toContain(new Intl.NumberFormat('vi').format(150000000));
+    expect(document.querySelector('[data-closure="advance"]')?.textContent).toContain(text('ctr.workspace.closure.amount', { amount: '1,25 tỷ đồng' }));
+    expect(document.querySelector('[data-closure="advance"] .sub')?.getAttribute('title')).toBe('1.250.000.000 đồng');
+    expect(document.querySelector('[data-closure="retention"]')?.textContent).toContain(text('ctr.workspace.closure.amount', { amount: '150 triệu đồng' }));
+    expect(document.querySelector('[data-closure="retention"] .sub')?.getAttribute('title')).toBe('150.000.000 đồng');
   });
 
   it('shows the closure of a contract that was terminated, and none for another status, for whoever sees the contract alone, or with no button in a read-only session', async () => {

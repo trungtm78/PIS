@@ -8,10 +8,9 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { formatVnd } from '../dis/report/money';
 import { Field } from '../mne/components';
 import { vietnamToday } from '../mne/model';
-import { ContextBar, DataTable, SectionCard, StatusPill } from '../../ui';
+import { ContextBar, DataTable, Money, SectionCard, StatusPill } from '../../ui';
 import type { DataTableColumn, Tone } from '../../ui';
 import '../dis/dis.css';
 import './home.css';
@@ -204,9 +203,9 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
 
   const evidenceColumns: DataTableColumn<EvidenceCell>[] = [
     { key: 'cell', header: t('home.profile.evidence.cell'), pinned: true, render: (cell) => (ownPlan ? t(BUCKET_WORD[cell.bucket] ?? 'cap.bucket.other.label') : `${cell.bucket} · ${cell.budgetLevel}`) },
-    { key: 'planPm', header: t('home.profile.evidence.planPm'), align: 'right', render: (cell) => formatVnd(cell.planPmVnd) },
-    ...(ownPlan ? [] : [{ key: 'planLocal', header: t('home.profile.evidence.planLocal'), align: 'right' as const, render: (cell: EvidenceCell) => formatVnd(cell.planLocalVnd) }]),
-    { key: 'disbursed', header: t('home.profile.evidence.disbursed'), align: 'right', render: (cell) => (cell.disbursedVnd === null ? t('home.tile.nullReason.noData') : formatVnd(cell.disbursedVnd)) },
+    { key: 'planPm', header: t('home.profile.evidence.planPm'), align: 'right', render: (cell) => <Money value={cell.planPmVnd} /> },
+    ...(ownPlan ? [] : [{ key: 'planLocal', header: t('home.profile.evidence.planLocal'), align: 'right' as const, render: (cell: EvidenceCell) => <Money value={cell.planLocalVnd} /> }]),
+    { key: 'disbursed', header: t('home.profile.evidence.disbursed'), align: 'right', render: (cell) => (cell.disbursedVnd === null ? t('home.tile.nullReason.noData') : <Money value={cell.disbursedVnd} />) },
     { key: 'ratePm', header: t('home.profile.evidence.ratePm'), align: 'right', render: (cell) => (cell.ratePmPct === null ? t('home.tile.nullReason.noData') : t('home.tile.value.percent', { value: cell.ratePmPct })) },
   ];
   const actionTitle = action === 'explain' ? t('home.profile.action.explain') : action === 'acknowledge' ? t('home.profile.action.acknowledge') : t('home.profile.action.dismiss');
@@ -261,7 +260,7 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
         </SectionCard>
       </div>
       <div data-testid="profile-evidence">
-        <SectionCard title={t('home.profile.evidence.title')} {...(warning.evidence === null || warning.evidence.cells.length === 0 ? {} : { unit: t('dis.wr.unit') })}>
+        <SectionCard title={t('home.profile.evidence.title')}>
           {warning.evidence === null || warning.evidence.cells.length === 0 ? (
             <p>{t('home.profile.evidence.none')}</p>
           ) : (
