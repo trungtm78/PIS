@@ -85,10 +85,10 @@ test.describe('ADM-07 yearly work calendar', () => {
 
     // Confirming the year needs a reason, and makes the draft the version in force.
     await editor.getByRole('button', { name: vi['wfxcal.confirm.action'] }).click();
-    await page.getByRole('button', { name: vi['wfxcal.confirm.submit.action'] }).click();
+    await page.getByTestId('confirm-panel').getByRole('button', { name: vi['wfxcal.confirm.submit.action'], exact: true }).click();
     await expect(page.getByText(vi['adm.calendar.field.required'])).toBeVisible();
     await page.getByLabel(vi['wfxcal.confirm.reason.label']).fill('The notice of the year is signed');
-    await page.getByRole('button', { name: vi['wfxcal.confirm.submit.action'] }).click();
+    await page.getByTestId('confirm-panel').getByRole('button', { name: vi['wfxcal.confirm.submit.action'], exact: true }).click();
     await expect(page.getByTestId('confirmed-notice')).toBeVisible();
     await expect(page.getByTestId('provisional-note')).toHaveCount(0);
     const [published] = await calendarRows(code);
@@ -101,7 +101,7 @@ test.describe('ADM-07 yearly work calendar', () => {
     await expect.poll(async () => (await calendarRows(code)).length).toBe(2);
     await editor.getByRole('button', { name: vi['wfxcal.confirm.action'] }).click();
     await page.getByLabel(vi['wfxcal.confirm.reason.label']).fill('The make-up day was withdrawn');
-    await page.getByRole('button', { name: vi['wfxcal.confirm.submit.action'] }).click();
+    await page.getByTestId('confirm-panel').getByRole('button', { name: vi['wfxcal.confirm.submit.action'], exact: true }).click();
     await expect.poll(async () => (await calendarRows(code)).map((entry) => [entry.revision, entry.status])).toEqual([
       [1, 'Superseded'],
       [2, 'Published'],

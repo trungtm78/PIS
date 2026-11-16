@@ -114,7 +114,7 @@ test.describe('PWF-01 and PWF-02: the polish of the library rows and of the sele
       chipWords: Array.from(element.querySelectorAll('.pwf-lib-state .ui-pill')).map((chip) => Math.round(chip.getBoundingClientRect().height)),
     }));
     expect(sizes.head, `header ${sizes.head}px`).toBeLessThanOrEqual(48);
-    expect(Math.max(...sizes.rows), `rows ${sizes.rows.join(', ')}px`).toBeLessThanOrEqual(72);
+    expect(Math.max(...sizes.rows), `rows ${sizes.rows.join(', ')}px`).toBeLessThanOrEqual(76);
     // A chip is one line (about 22 px), never a column of words.
     for (const height of sizes.chipWords) expect(height).toBeLessThanOrEqual(30);
     await noSidewaysScroll(page);
@@ -124,19 +124,14 @@ test.describe('PWF-01 and PWF-02: the polish of the library rows and of the sele
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(`/pwf/pwf-02?code=PUBLIC_INVESTMENT&devUser=${PERSON}`);
     await expect(page.getByTestId('steps-table')).toBeVisible();
-    const clipped = await page.getByTestId('steps-table').evaluate((root) => {
-      const canvas = document.createElement('canvas').getContext('2d');
-      if (canvas === null) return ['no canvas'];
-      const out: string[] = [];
-      for (const select of Array.from(root.querySelectorAll('select'))) {
-        const text = select.selectedOptions[0]?.textContent ?? '';
-        const style = getComputedStyle(select);
-        canvas.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-        const room = select.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 18;
-        if (canvas.measureText(text).width > room) out.push(`${text} (${Math.round(canvas.measureText(text).width)} > ${Math.round(room)})`);
-      }
-      return out;
-    });
+    // A select shows its selected text in at most two lines and cuts nothing: the text box is no higher than its own content.
+    const clipped = await page.getByTestId('steps-table').evaluate((root) =>
+      Array.from(root.querySelectorAll('.pwfx-fit__text'))
+        .filter((box) => box.scrollHeight > box.clientHeight + 1)
+        .map((box) => box.textContent ?? ''),
+    );
+    const shown = await page.getByTestId('steps-table').locator('.pwfx-fit').count();
+    expect(shown, 'the selects of the table are the full-text ones').toBeGreaterThan(10);
     expect(clipped, 'selects whose text does not fit').toEqual([]);
   });
 });

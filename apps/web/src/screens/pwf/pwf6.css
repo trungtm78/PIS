@@ -653,10 +653,36 @@ span.pwf-suggestion__why {
   align-items: flex-start;
   gap: 2px;
 }
-.pwf-lib .pwf-lib-sub {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.pwf-lib .pwf-tpl-name strong,
+.pwf-lib .pwf-taskname__name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+.pwf-lib .pwf-lib-code {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* The kinds of project of a template are one run of words, two lines at most, not a column of pills. */
+.pwf-lib [data-testid^='type-'] {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.pwf-lib [data-testid^='type-'] > * {
+  display: inline;
+}
+.pwf-lib [data-testid^='type-'] > *:not(:last-child)::after {
+  content: ', ';
+}
+/* The code of a kind of project is the tooltip of its name here: the library shows one line of meaning for each cell. */
+.pwf-lib .pwf-taskname__code {
+  display: none;
 }
 .pwf-lib .pwf-lib-state {
   display: flex;
@@ -784,13 +810,13 @@ section[data-screen-id^='PWF-'] label:has(> input[type='radio']) {
 }
 /* Template, type, steps, total time, version and state, projects, unchecked grounds, last change, actions. */
 .pwf-lib .ui-table .ui-table__head:nth-child(1) {
-  width: 17%;
+  width: 18%;
 }
 .pwf-lib .ui-table .ui-table__head:nth-child(2) {
-  width: 10%;
+  width: 11%;
 }
 .pwf-lib .ui-table .ui-table__head:nth-child(3) {
-  width: 6%;
+  width: 5%;
 }
 .pwf-lib .ui-table .ui-table__head:nth-child(4) {
   width: 8%;
@@ -799,16 +825,16 @@ section[data-screen-id^='PWF-'] label:has(> input[type='radio']) {
   width: 22%;
 }
 .pwf-lib .ui-table .ui-table__head:nth-child(6) {
-  width: 7%;
+  width: 6%;
 }
 .pwf-lib .ui-table .ui-table__head:nth-child(7) {
   width: 9%;
 }
 .pwf-lib .ui-table .ui-table__head:nth-child(8) {
-  width: 8%;
+  width: 7%;
 }
 .pwf-lib .ui-table .ui-table__head:nth-child(9) {
-  width: 13%;
+  width: 14%;
 }
 .pwf-lib td:last-child .pwf-pills {
   display: flex;
@@ -824,7 +850,7 @@ section[data-screen-id^='PWF-'] label:has(> input[type='radio']) {
   text-align: center;
 }
 .pwf-lib .ui-pill {
-  white-space: normal;
+  white-space: nowrap;
   text-align: left;
   border-radius: 12px;
 }

@@ -208,6 +208,7 @@ function StateCell({ row }: { row: LibraryRow }) {
       {row.effectiveFrom === null ? null : <span className="pwf-hint">{t('pwfx.lib.from', { day: dayText(row.effectiveFrom) })}</span>}
       {drafts === 0 ? null : <StatusPill tone="neutral" icon="✎">{t('pwfx.lib.drafts', { count: drafts })}</StatusPill>}
       {waiting === 0 ? null : <StatusPill tone="info" icon="⏳">{t('pwfx.lib.waiting', { count: waiting })}</StatusPill>}
+      {row.unverified ? <UnverifiedLabel /> : null}
     </span>
   );
 }
@@ -230,11 +231,8 @@ function LibraryTable({ rows, canEdit, usage, retireAllowed, onRetire }: TablePr
       pinned: true,
       render: (row) => (
         <span className="pwf-tpl-name">
-          <strong>{row.summary?.name === '' || row.summary === null ? t('pwf.templates.lib.noName.text') : row.summary.name}</strong>
-          <span className="pwf-lib-sub">
-            <span className="pwf-code">{row.code}</span>
-            {row.unverified ? <UnverifiedLabel /> : null}
-          </span>
+          <strong title={row.summary?.name === '' || row.summary === null ? undefined : row.summary.name}>{row.summary?.name === '' || row.summary === null ? t('pwf.templates.lib.noName.text') : row.summary.name}</strong>
+          <span className="pwf-code pwf-lib-code">{row.code}</span>
         </span>
       ),
     },

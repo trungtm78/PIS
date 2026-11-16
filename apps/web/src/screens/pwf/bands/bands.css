@@ -78,3 +78,10 @@
 .pwf-band-reading dd {
   margin: 0;
 }
+
+/* The label of a row is a cell of the table, not a dark head. */
+.ui-table .pwf-band-scope {
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  position: static;
+}

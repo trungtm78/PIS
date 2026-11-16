@@ -240,3 +240,46 @@ button.cal-day {
   width: 18px;
   height: 18px;
 }
+
+/* The weekday names and the days of a month are plain cells, not the dark head and the tall rows of the shared table. */
+.cal-month th,
+.cal-month td {
+  height: auto;
+  min-height: 0;
+  padding: 1px;
+  border: 0;
+  background: transparent;
+  color: var(--mv-color-text-secondary);
+  white-space: nowrap;
+}
+
+.cal-month td {
+  color: inherit;
+}
+
+.cal-group th {
+  background: var(--mv-color-surface2);
+  color: var(--mv-color-ink);
+}
+
+.cal-rest {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+}
+
+.cal-rest .check {
+  white-space: nowrap;
+}
+
+.cal-special .ui-table th:nth-child(3) {
+  width: 30%;
+}
+
+.cal-special .ui-table th:nth-child(4) {
+  width: 26%;
+}
+
+.cal-special .ui-table td input {
+  width: 100%;
+  min-width: 120px;
+}

@@ -10,7 +10,7 @@ const WEEKDAY_COUNT = 7;
 
 // A formatter is expensive to build and a year shows twelve months: one per locale and style is kept.
 const formatters = new Map<string, Intl.DateTimeFormat>();
-function formatterFor(locale: string, field: 'weekday' | 'month', style: 'short' | 'long'): Intl.DateTimeFormat {
+function formatterFor(locale: string, field: 'weekday' | 'month', style: 'narrow' | 'short' | 'long'): Intl.DateTimeFormat {
   const key = `${locale}/${field}/${style}`;
   let format = formatters.get(key);
   if (format === undefined) {
@@ -21,7 +21,7 @@ function formatterFor(locale: string, field: 'weekday' | 'month', style: 'short'
 }
 
 /** The weekday names in the language of the screen, Monday first. */
-export function weekdayNames(locale: string, style: 'short' | 'long'): string[] {
+export function weekdayNames(locale: string, style: 'narrow' | 'short' | 'long'): string[] {
   const format = formatterFor(locale, 'weekday', style);
   return Array.from({ length: WEEKDAY_COUNT }, (_, index) => format.format(new Date(REFERENCE_MONDAY + index * DAY_MS)));
 }
@@ -43,7 +43,7 @@ export interface MonthGridProps {
 export const MonthGrid = memo(function MonthGrid({ rules, year, month, workingDays }: MonthGridProps) {
   const { t, locale } = useTranslation();
   const monthName = formatterFor(locale, 'month', 'long').format(new Date(Date.UTC(year, month, 1)));
-  const heads = weekdayNames(locale, 'short');
+  const heads = weekdayNames(locale, 'narrow');
   return (
     <table className="cal-month" data-month={month + 1}>
       <caption>
