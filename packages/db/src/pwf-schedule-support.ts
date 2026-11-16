@@ -144,6 +144,9 @@ export interface TaskRow {
   /** The unit that receives the task (the LEAD line, R61) and every unit the frozen template names for it; null: no unit receives it. */
   receivingUnitId: string | null;
   receivingUnits: pwfTable.ReceivingUnit[] | null;
+  /** What the approved extensions of the task have used of its caps (R72): how many lines, and how much they added in the unit of its limit. */
+  extensionTimesUsed: number;
+  extensionValueUsed: number;
 }
 
 export interface TaskSql {
@@ -205,6 +208,8 @@ export interface TaskSql {
   effective_working_days: number | null;
   receiving_unit_id: string | null;
   receiving_units: pwfTable.ReceivingUnit[] | null;
+  extension_times_used?: number | null;
+  extension_value_used?: number | null;
 }
 
 /** The columns of a task as `toTaskRow` reads them, for the alias `t`. */
@@ -214,7 +219,7 @@ export const TASK_COLUMNS = `t.id, t.workflow_id, t.project_id, t.task_code, t.n
   t.late_start::text as late_start, t.late_finish::text as late_finish, t.total_float, t.free_float, t.critical, t.driving_predecessor, t.missing_year, t.constraint_kind, t.constraint_offset, t.schedule_version,
   t.actual_start::text as actual_start, t.actual_finish::text as actual_finish, t.remaining_working_days, t.percent_complete, t.return_count, t.reschedule_count, t.early_start_reason,
   t.estimate_vnd::text as estimate_vnd, t.actual_vnd::text as actual_vnd, t.completion_requested_by, t.approved_by, t.cancelled_by, t.milestone_id, t.version,
-  ${bandColumnsOf('t')}, ${durationColumnsOf('t')}, t.receiving_unit_id, t.receiving_units`;
+  ${bandColumnsOf('t')}, ${durationColumnsOf('t')}, t.receiving_unit_id, t.receiving_units, t.extension_times_used, t.extension_value_used`;
 
 export const toTaskRow = (row: TaskSql): TaskRow => ({
   id: row.id,
@@ -270,6 +275,8 @@ export const toTaskRow = (row: TaskSql): TaskRow => ({
   effectiveWorkingDays: row.effective_working_days === null ? null : Number(row.effective_working_days),
   receivingUnitId: row.receiving_unit_id ?? null,
   receivingUnits: row.receiving_units ?? null,
+  extensionTimesUsed: Number(row.extension_times_used ?? 0),
+  extensionValueUsed: Number(row.extension_value_used ?? 0),
 });
 
 export async function loadTasks(tx: TenantTx, workflowId: string): Promise<TaskRow[]> {

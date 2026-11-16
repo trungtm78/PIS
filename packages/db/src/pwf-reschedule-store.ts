@@ -5,6 +5,8 @@ import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import { dateOf, lockProject } from './prj-stage-support.ts';
 import type { StageScopes } from './prj-stage-support.ts';
+import { MAX_LIMIT_VALUE, checkedExtensions, extensionRefusal, extensionRequired, extensionRulesOf, extensionSums, judgeExtensions, raisedLimit, refusalDetails } from './pwf-extension.ts';
+import type { ExtensionLine, ExtensionRules } from './pwf-extension.ts';
 import { logWorkflow, publishSchedule, resultHashOf } from './pwf-publish.ts';
 import { baselineOfRows, dueOf, earliestYear, inputHashOf, loadLinks, loadTasks, pinPublishedCalendars, resultOfRows, scheduleTasksOf } from './pwf-schedule-support.ts';
 import type { PinnedCalendar, TaskLink, TaskRow } from './pwf-schedule-support.ts';
@@ -14,6 +16,9 @@ import type { TenantTx } from './tenant-database.ts';
  * Moving the schedule (PWF-2, docs PWF 3 F6, BR-PWF-08, 28, R32): a manager proposes a change (the planned start, progress, tasks of the project's own, links, durations, a newer working calendar); the preview is computed on
  * what is not done, the baseline untouched, and kept with the hashes of its input and result. Another person decides it: approval publishes the new version of the schedule in one transaction under the lock of the project, and
  * only when the workflow is still at the version the preview was made on; two people who move the schedule at once cannot both win (409 `PWF_SCHEDULE_VERSION_CONFLICT`).
+ *
+ * R72 (docs PWF 22.4): a proposal may EXTEND the limit of tasks (`extensions`), in the unit of each task. The caps of the frozen template are judged on the whole proposal when it is made and again when it is approved; only
+ * the approval spends them, in the transaction of the publication. Raising the limit of a task that has an extension rule through `overrides.change` is refused (`PWF_EXTENSION_REQUIRED`): there is no way around the count.
  */
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -34,10 +39,22 @@ export interface RescheduleInput {
   progress?: ReadonlyArray<{ taskCode: string; actualStart?: string | null | undefined; remainingWorkingDays?: number | null | undefined; percentComplete?: number | null | undefined }> | undefined;
   overrides?: {
     add?: ReadonlyArray<{ code: string; name: string; phase: string; kind: 'TASK' | 'MILESTONE'; durationWorkingDays: number; predecessors?: readonly LinkInput[] | undefined }> | undefined;
-    change?: ReadonlyArray<{ taskCode: string; durationWorkingDays?: number | undefined; predecessors?: readonly LinkInput[] | undefined }> | undefined;
+    /** `durationValue` is the limit of a task that has a `duration`, in its own unit; `durationWorkingDays` is the limit of a task that has none (or whose unit is the working day). */
+    change?: ReadonlyArray<{ taskCode: string; durationWorkingDays?: number | undefined; durationValue?: number | undefined; predecessors?: readonly LinkInput[] | undefined }> | undefined;
     remove?: readonly string[] | undefined;
   } | undefined;
+  /** R72: the limit of each named task is raised by `addValue`, in the unit of its extension rule; several lines may name one task. */
+  extensions?: readonly ExtensionLine[] | undefined;
   reason: string;
+}
+
+/** Why the days of a task move in a proposal (R72): its own limit is extended by the proposal, or it follows something else (a predecessor, the calendar, the start day). A task the proposal changes itself in another way has none. */
+export type ChangeCause = 'EXTENDED' | 'CASCADED';
+export type ProposalChange = pwfSchedule.ScheduleChange & { cause?: ChangeCause };
+export interface ProposalExtension {
+  taskCode: string;
+  addValue: number;
+  unit: pwfWorkflow.DurationUnit;
 }
 
 export interface ProposalView {
@@ -52,7 +69,9 @@ export interface ProposalView {
   reason: string;
   proposedBy: string;
   version: number;
-  preview: { schedule: pwfSchedule.ScheduleResult; changes: pwfSchedule.ScheduleChange[]; projectFinishShiftDays: number | null; excluded: string[]; names: Record<string, string>; phases: Record<string, string> };
+  preview: { schedule: pwfSchedule.ScheduleResult; changes: ProposalChange[]; projectFinishShiftDays: number | null; excluded: string[]; names: Record<string, string>; phases: Record<string, string>; extensions?: ProposalExtension[] };
+  /** The extensions the proposal asks for, line by line (empty when it asks for none). */
+  extensions: ProposalExtension[];
 }
 
 interface WorkflowSql {
@@ -94,6 +113,7 @@ const toView = (row: ProposalSql, projectId: string): ProposalView => ({
   proposedBy: row.proposed_by,
   version: row.version,
   preview: row.preview,
+  extensions: row.preview.extensions ?? [],
 });
 
 const PROPOSAL_COLUMNS = 'pr.id, pr.workflow_id, pr.status, pr.base_version, pr.base_schedule_version, pr.input, pr.preview, pr.input_hash, pr.result_hash, pr.reason, pr.proposed_by, pr.version';
@@ -112,8 +132,45 @@ const checkedLinks = (links: readonly LinkInput[] | undefined, field: string): p
     return { task: link.task, kind: link.kind, lagWorkingDays: link.lagWorkingDays };
   });
 
-/** The tasks as the preview takes them: the progress given (only what the person can say about an open task), then the overrides of the project. The same function judges a proposal when it is made and when it is approved. */
-export function proposedTasks(rows: readonly TaskRow[], links: readonly TaskLink[], input: RescheduleInput, phases: readonly string[]): pwfSchedule.ScheduleTask[] {
+/**
+ * What a line of `overrides.change` does to the limit of its task. A task that has a `duration` follows it, so its limit is changed in its own unit (`durationValue`; `durationWorkingDays` is the same number only when the unit is
+ * the working day, and is refused for a limit in calendar days or months, where it would change nothing of the schedule). A raise of a task whose frozen template declares an extension rule is an extension, refused here.
+ */
+function limitChange(row: TaskRow | undefined, one: { durationWorkingDays?: number | undefined; durationValue?: number | undefined }, index: number, rules: ExtensionRules): Partial<pwfSchedule.ScheduleTask> {
+  const at = `overrides.change[${index}]`;
+  if (one.durationValue === undefined && one.durationWorkingDays === undefined) return {};
+  if (row === undefined) {
+    // A task the same proposal adds: it has no limit in a unit of its own yet.
+    if (one.durationValue !== undefined) throw invalid(`${at}.duration_value`);
+    return { durationWorkingDays: one.durationWorkingDays as number };
+  }
+  let next: Partial<pwfSchedule.ScheduleTask>;
+  let raised: boolean;
+  if (one.durationValue !== undefined) {
+    const value = one.durationValue;
+    if (one.durationWorkingDays !== undefined) throw invalid(`${at}.duration_working_days`);
+    if (row.duration === null || !Number.isInteger(value) || value < 1 || value > MAX_LIMIT_VALUE) throw invalid(`${at}.duration_value`);
+    next = { durationWorkingDays: pwfWorkflow.nominalWorkingDays({ value, unit: row.duration.unit }), duration: { ...row.duration, value } };
+    raised = value > row.duration.value;
+  } else if (row.duration !== null) {
+    const days = one.durationWorkingDays as number;
+    if (row.duration.unit !== 'WORKING_DAY' || !Number.isInteger(days) || days < 1 || days > MAX_LIMIT_VALUE) throw invalid(`${at}.duration_working_days`);
+    next = { durationWorkingDays: days, duration: { ...row.duration, value: days } };
+    raised = days > row.duration.value;
+  } else {
+    next = { durationWorkingDays: one.durationWorkingDays as number };
+    raised = (one.durationWorkingDays as number) > row.durationWorkingDays;
+  }
+  const rule = rules.get(row.code);
+  if (raised && rule !== undefined && rule !== null) throw extensionRequired(row.code, rule);
+  return next;
+}
+
+/**
+ * The tasks as the preview takes them: the progress given (only what the person can say about an open task), then the overrides of the project, then the extensions (R72: each named task with its limit raised in its own unit).
+ * The same function judges a proposal when it is made and when it is approved. `rules` is what the frozen template says of extensions; whether the extensions fit the caps is judged by the caller (`judgeExtensions`).
+ */
+export function proposedTasks(rows: readonly TaskRow[], links: readonly TaskLink[], input: RescheduleInput, phases: readonly string[], rules: ExtensionRules = new Map()): pwfSchedule.ScheduleTask[] {
   const progress = new Map((input.progress ?? []).map((one) => [one.taskCode, one] as const));
   const known = new Set(rows.map((row) => row.code));
   for (const code of progress.keys()) if (!known.has(code)) throw invalid('progress');
@@ -129,12 +186,30 @@ export function proposedTasks(rows: readonly TaskRow[], links: readonly TaskLink
       ...(given.percentComplete !== undefined ? { percentComplete: given.percentComplete } : {}),
     };
   });
+  const lines = checkedExtensions(input.extensions);
+  const overridden = overriddenTasks(base, rows, input, phases, rules);
+  if (lines.length === 0) return overridden;
+  // An extension is the one change of the limit of its task in a proposal: a line of `change` for the same limit, or the removal of the task, would make two answers to "what is the limit now".
+  const touched = new Set([...(input.overrides?.change ?? []).filter((one) => one.durationWorkingDays !== undefined || one.durationValue !== undefined).map((one) => one.taskCode), ...(input.overrides?.remove ?? [])]);
+  const sums = extensionSums(lines);
+  return overridden.map((one) => {
+    const sum = sums.get(one.code);
+    if (sum === undefined) return one;
+    const index = lines.findIndex((line) => line.taskCode === one.code);
+    if (touched.has(one.code)) throw invalid(`extensions[${index}].task_code`);
+    const raised = raisedLimit(one, sum.value);
+    if (raised === null) throw invalid(`extensions[${index}].add_value`);
+    return { ...one, ...raised };
+  });
+}
+
+function overriddenTasks(base: pwfSchedule.ScheduleTask[], rows: readonly TaskRow[], input: RescheduleInput, phases: readonly string[], rules: ExtensionRules): pwfSchedule.ScheduleTask[] {
   const overrides = input.overrides;
   if (overrides === undefined) return base;
   for (const added of overrides.add ?? []) if (!CODE.test(added.code) || !phases.includes(added.phase)) throw invalid('overrides.add');
   const change: Record<string, Partial<pwfSchedule.ScheduleTask>> = {};
-  for (const one of overrides.change ?? []) {
-    change[one.taskCode] = { ...(one.durationWorkingDays === undefined ? {} : { durationWorkingDays: one.durationWorkingDays }), ...(one.predecessors === undefined ? {} : { predecessors: checkedLinks(one.predecessors, 'overrides.change') }) };
+  for (const [index, one] of (overrides.change ?? []).entries()) {
+    change[one.taskCode] = { ...limitChange(rows.find((row) => row.code === one.taskCode), one, index, rules), ...(one.predecessors === undefined ? {} : { predecessors: checkedLinks(one.predecessors, 'overrides.change') }) };
   }
   for (const code of overrides.remove ?? []) {
     const row = rows.find((one) => one.code === code);
@@ -144,6 +219,24 @@ export function proposedTasks(rows: readonly TaskRow[], links: readonly TaskLink
     add: (overrides.add ?? []).map((one) => ({ code: one.code, kind: one.kind, durationWorkingDays: one.durationWorkingDays, predecessors: checkedLinks(one.predecessors, 'overrides.add') })),
     change,
     remove: [...(overrides.remove ?? [])],
+  });
+}
+
+/**
+ * The changes of a preview with the cause of each task whose days move (R72): `EXTENDED` when the proposal extends the limit of that very task, `CASCADED` when the task only follows (a predecessor, the calendar, the start
+ * day). A task the proposal changes itself in another way (its progress, a line of `change`, its removal) has no cause, and neither has a row whose days stay (only its float or its place on the critical path changed).
+ */
+export function causedChanges(diff: readonly pwfSchedule.ScheduleChange[], before: pwfSchedule.ScheduleResult, after: pwfSchedule.ScheduleResult, input: RescheduleInput): ProposalChange[] {
+  const extended = new Set((input.extensions ?? []).map((one) => one.taskCode));
+  const direct = new Set([...(input.progress ?? []).map((one) => one.taskCode), ...(input.overrides?.change ?? []).map((one) => one.taskCode), ...(input.overrides?.remove ?? [])]);
+  const was = new Map(before.tasks.map((one) => [one.code, one] as const));
+  const now = new Map(after.tasks.map((one) => [one.code, one] as const));
+  return diff.map((change): ProposalChange => {
+    const [left, right] = [was.get(change.code), now.get(change.code)];
+    const moved = left !== undefined && right !== undefined && (left.start !== right.start || left.finish !== right.finish);
+    if (!moved) return change;
+    if (extended.has(change.code)) return { ...change, cause: 'EXTENDED' };
+    return direct.has(change.code) ? change : { ...change, cause: 'CASCADED' };
   });
 }
 
@@ -174,18 +267,33 @@ export class PwfRescheduleStore {
     const plannedStart = request.input.plannedStartDate === undefined ? workflow.planned_start_date : dateOf(request.input.plannedStartDate, 'planned_start_date');
     const statusDate = request.input.statusDate === undefined ? today : dateOf(request.input.statusDate, 'status_date');
     const calendars = await pinPublishedCalendars(tx, earliestYear([plannedStart, statusDate, ...rows.flatMap((row) => [row.baselineStart, row.actualStart, row.actualFinish])]));
-    const tasks = proposedTasks(rows, links, request.input, template.phases.map((phase) => phase.code));
+    // R72: the extensions are judged on the whole proposal against what approved extensions used so far; a proposal that does not fit is not kept at all.
+    const rules = extensionRulesOf(template);
+    const lines = checkedExtensions(request.input.extensions);
+    const verdict = judgeExtensions(rows, rules, lines);
+    if (!verdict.ok) throw extensionRefusal(verdict, lines);
+    const tasks = proposedTasks(rows, links, request.input, template.phases.map((phase) => phase.code), rules);
     const first = request.input.plannedStartDate === undefined ? undefined : plannedStart;
     const input = { tasks, plannedStart, calendars, statusDate };
     // R49: a proposal asks to move the days that were RELEASED (the official deadlines), so what moves is measured against them, never against the forecast a recomputation left behind.
-    const rescheduled = pwfSchedule.rescheduleProject({ before: resultOfRows(rows, 'COMMITTED'), input, baseline: baselineOfRows(rows) });
+    const released = resultOfRows(rows, 'COMMITTED');
+    const rescheduled = pwfSchedule.rescheduleProject({ before: released, input, baseline: baselineOfRows(rows) });
     const before = rows.filter((row) => !row.excluded).map((row) => dueOf(row)).filter((day): day is string => day !== null).sort().pop() ?? null;
     const projectFinishShiftDays = before === null || rescheduled.schedule.projectFinish === null ? null : (processCore.workingDaysBetween(sourceOf(calendars), before, rescheduled.schedule.projectFinish) ?? null);
     const names = Object.fromEntries([...rows.map((row) => [row.code, row.name] as const), ...(request.input.overrides?.add ?? []).map((one) => [one.code, one.name] as const)]);
     const phases = Object.fromEntries([...rows.map((row) => [row.code, row.phaseCode] as const), ...(request.input.overrides?.add ?? []).map((one) => [one.code, one.phase] as const)]);
     const id = randomUUID();
     const stored = { planned_start_date: first ?? null, status_date: statusDate, input: request.input };
-    const preview = { schedule: rescheduled.schedule, changes: rescheduled.diff, projectFinishShiftDays, excluded: tasks.filter((one) => one.excluded === true).map((one) => one.code), names, phases };
+    const preview: ProposalView['preview'] = {
+      schedule: rescheduled.schedule,
+      changes: causedChanges(rescheduled.diff, released, rescheduled.schedule, request.input),
+      projectFinishShiftDays,
+      excluded: tasks.filter((one) => one.excluded === true).map((one) => one.code),
+      names,
+      phases,
+      // A proposal without extensions keeps the preview it always had.
+      ...(lines.length === 0 ? {} : { extensions: lines.map((line) => ({ taskCode: line.taskCode, addValue: line.addValue, unit: (rules.get(line.taskCode) as pwfWorkflow.TemplateExtension).unit })) }),
+    };
     await tx.query(
       `insert into machvon.project_reschedule_proposal (tenant_id, id, workflow_id, base_version, base_schedule_version, input, preview, input_hash, result_hash, reason, proposed_by)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::int, $4::int, $5::jsonb, $6::jsonb, $7, $8, $9, $10::uuid)`,
@@ -199,6 +307,10 @@ export class PwfRescheduleStore {
   /**
    * Decides a proposal. The one who proposed does not decide (403 `SELF_APPROVAL_DENIED`); `expectedVersion` is the version of the workflow the preview was made on; a preview the schedule has outrun, or one whose input is not what is
    * now stored, is 409 `PWF_SCHEDULE_VERSION_CONFLICT`. Approval writes the overrides, publishes the version and counts the moves; rejection only closes the proposal.
+   *
+   * R72: the extensions are judged again on the counters as they are NOW. A proposal that no longer fits (a cap spent since, a task closed since) is not applied, not even in part: 409 `PWF_SCHEDULE_VERSION_CONFLICT` with
+   * the reason `EXTENSION_REFUSED`, the code of the kernel (`extension_code`) and its details. The proposal stays PROPOSED, as one whose preview went stale does: it can never be approved (a cap is never given back), and
+   * closing it is the decision of a person (REJECT, with their name and note), not something the refusal of a command does on its own. Only an approval spends the caps, in this transaction, with the publication.
    */
   async decide(tx: TenantTx, request: { proposalId: string; expectedVersion: number; decision: string; note?: string | undefined; actor: string; scopes: StageScopes; now: Date }): Promise<{ proposal: ProposalView; scheduleVersion: number; workflowVersion: number; resultHash: string | null }> {
     if (!UUID.test(request.proposalId)) throw invalid('id');
@@ -231,10 +343,18 @@ export class PwfRescheduleStore {
     const template = pwfWorkflow.parseProjectWorkflowTemplate(workflow.template);
     const plannedStart = stored.planned_start_date ?? workflow.planned_start_date;
     const calendars = await pinPublishedCalendars(tx, earliestYear([plannedStart, stored.status_date, ...rowsBefore.flatMap((row) => [row.baselineStart, row.actualStart, row.actualFinish])]));
-    const wanted = proposedTasks(rowsBefore, linksBefore, stored.input, template.phases.map((phase) => phase.code));
+    const rules = extensionRulesOf(template);
+    const lines = checkedExtensions(stored.input.extensions);
+    const verdict = judgeExtensions(rowsBefore, rules, lines);
+    if (!verdict.ok) {
+      const first = verdict.refusals[0] as (typeof verdict.refusals)[number];
+      throw conflict('EXTENSION_REFUSED', { extension_code: first.code, ...refusalDetails(first), refusals: verdict.refusals.map((one) => ({ code: one.code, ...refusalDetails(one) })) });
+    }
+    const wanted = proposedTasks(rowsBefore, linksBefore, stored.input, template.phases.map((phase) => phase.code), rules);
     const check = pwfSchedule.scheduleProject({ tasks: wanted, plannedStart, calendars, statusDate: stored.status_date, baseline: baselineOfRows(rowsBefore) });
     if (inputHashOf({ tasks: wanted, plannedStart, calendars, statusDate: stored.status_date }) !== held.input_hash || resultHashOf(check) !== held.result_hash) throw conflict('INPUT_CHANGED');
-    await this.applyOverrides(tx, workflow.id, project.id, stored.input, request.actor);
+    await this.applyOverrides(tx, workflow.id, project.id, stored.input, request.actor, wanted);
+    await this.applyExtensions(tx, workflow.id, rowsBefore, lines, wanted, { actor: request.actor, proposalId: held.id, reason: held.reason });
     if (stored.planned_start_date !== null) {
       await tx.query('update machvon.project_workflow set planned_start_date = $2::date where id = $1::uuid', [workflow.id, stored.planned_start_date]);
       await tx.query('update machvon.project set planned_start_date = $2::date, updated_at = now(), updated_by = $3::uuid where id = $1::uuid', [project.id, stored.planned_start_date, request.actor]);
@@ -289,7 +409,7 @@ export class PwfRescheduleStore {
   }
 
   /** The changes of the project's own tasks and links, written when the proposal is approved; links are changed only under the override flag the database asks for. */
-  private async applyOverrides(tx: TenantTx, workflowId: string, projectId: string, input: RescheduleInput, actor: string): Promise<void> {
+  private async applyOverrides(tx: TenantTx, workflowId: string, projectId: string, input: RescheduleInput, actor: string, wanted: readonly pwfSchedule.ScheduleTask[]): Promise<void> {
     const overrides = input.overrides;
     if (overrides === undefined) return;
     await tx.query("select set_config('pwf.override', 'on', true)");
@@ -305,7 +425,14 @@ export class PwfRescheduleStore {
       }
       for (const added of overrides.add ?? []) await this.writeLinks(tx, workflowId, added.code, added.predecessors ?? []);
       for (const change of overrides.change ?? []) {
-        if (change.durationWorkingDays !== undefined) await tx.query('update machvon.project_task set duration_working_days = $3::int, updated_at = now(), updated_by = $4::uuid, version = version + 1 where workflow_id = $1::uuid and task_code = $2', [workflowId, change.taskCode, change.durationWorkingDays, actor]);
+        // The limit as the preview took it: the working days, and for a task with a limit in its own unit that limit too (the scheduler follows it).
+        const limit = change.durationWorkingDays === undefined && change.durationValue === undefined ? undefined : wanted.find((one) => one.code === change.taskCode);
+        if (limit !== undefined) {
+          await tx.query(
+            'update machvon.project_task set duration_working_days = $3::int, duration_value = case when duration_value is null then null else $4::int end, updated_at = now(), updated_by = $5::uuid, version = version + 1 where workflow_id = $1::uuid and task_code = $2',
+            [workflowId, change.taskCode, limit.durationWorkingDays, limit.duration?.value ?? null, actor],
+          );
+        }
         if (change.predecessors !== undefined) {
           await tx.query('delete from machvon.project_task_dependency d using machvon.project_task t where t.workflow_id = $1::uuid and t.task_code = $2 and d.task_id = t.id and d.tenant_id = t.tenant_id', [workflowId, change.taskCode]);
           await this.writeLinks(tx, workflowId, change.taskCode, change.predecessors);
@@ -316,6 +443,48 @@ export class PwfRescheduleStore {
       await tx.query("select set_config('pwf.override', 'off', true)");
     }
     await logWorkflow(tx, { workflowId, kind: 'OVERRIDDEN', actor, subject: { added: (overrides.add ?? []).map((one) => one.code), changed: (overrides.change ?? []).map((one) => one.taskCode), removed: [...(overrides.remove ?? [])] } });
+  }
+
+  /**
+   * R72: what an approved proposal does to the tasks it extends, in the transaction of the publication: the limit of the task in its own unit (and the nominal working days beside it), and the two counters of its caps: one
+   * time per line, the values added up. Only the tasks the proposal names are touched: a task that merely follows keeps its counters. The log of each task keeps the extension (`TASK_EXTENDED`).
+   */
+  private async applyExtensions(tx: TenantTx, workflowId: string, rows: readonly TaskRow[], lines: readonly ExtensionLine[], wanted: readonly pwfSchedule.ScheduleTask[], by: { actor: string; proposalId: string; reason: string }): Promise<void> {
+    if (lines.length === 0) return;
+    await tx.query("select set_config('pwf.extension', 'on', true)");
+    try {
+      for (const [code, sum] of extensionSums(lines)) {
+        const row = rows.find((one) => one.code === code) as TaskRow;
+        const limit = wanted.find((one) => one.code === code) as pwfSchedule.ScheduleTask;
+        await tx.query(
+          `update machvon.project_task
+              set duration_working_days = $3::int, duration_value = case when duration_value is null then null else $4::int end,
+                  extension_times_used = extension_times_used + $5::int, extension_value_used = extension_value_used + $6::int, updated_at = now(), updated_by = $7::uuid, version = version + 1
+            where workflow_id = $1::uuid and task_code = $2`,
+          [workflowId, code, limit.durationWorkingDays, limit.duration?.value ?? null, sum.times, sum.value, by.actor],
+        );
+        await logWorkflow(tx, {
+          workflowId,
+          taskId: row.id,
+          kind: 'TASK_EXTENDED',
+          actor: by.actor,
+          reason: by.reason,
+          subject: {
+            proposal_id: by.proposalId,
+            task_code: code,
+            lines: sum.times,
+            add_value: sum.value,
+            unit: row.duration?.unit ?? 'WORKING_DAY',
+            limit_before: row.duration?.value ?? row.durationWorkingDays,
+            limit_after: limit.duration?.value ?? limit.durationWorkingDays,
+            times_used: row.extensionTimesUsed + sum.times,
+            value_used: row.extensionValueUsed + sum.value,
+          },
+        });
+      }
+    } finally {
+      await tx.query("select set_config('pwf.extension', 'off', true)");
+    }
   }
 
   private async writeLinks(tx: TenantTx, workflowId: string, taskCode: string, links: readonly LinkInput[]): Promise<void> {

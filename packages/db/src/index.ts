@@ -1943,7 +1943,8 @@ export type { ClaimLine as PwfClaimLine, ClaimOffer as PwfClaimOffer, ReceivingU
 export { PwfTaskStore, peakShare, refreshSchedule } from './pwf-task-store.ts';
 export type { AssignInput as PwfAssignInput, AssignmentRole, EvidenceInput as PwfEvidenceInput, ExceptionKind as PwfExceptionKind, TaskCommand, TaskResult as PwfTaskResult } from './pwf-task-store.ts';
 export { PwfRescheduleStore, proposedTasks } from './pwf-reschedule-store.ts';
-export type { LinkInput, ProposalView, RescheduleInput } from './pwf-reschedule-store.ts';
+export type { ChangeCause as PwfChangeCause, LinkInput, ProposalChange, ProposalExtension, ProposalView, RescheduleInput } from './pwf-reschedule-store.ts';
+export type { ExtensionLine as PwfExtensionLine, ExtensionView as PwfExtensionView } from './pwf-extension.ts';
 export { PwfWorkflowReads, bandResolver, taskItemOf } from './pwf-workflow-reads.ts';
 export type { BandResolver, BandView, Can as PwfCan, TaskFilter, TaskListItem } from './pwf-workflow-reads.ts';
 export { PwfTaskReads } from './pwf-task-reads.ts';

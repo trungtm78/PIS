@@ -2,6 +2,7 @@ import { DomainError, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
 import { HomeWorkCalendars } from './home-work-clock-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { PwfAssignmentReads, legalBasisView } from './pwf-assignment.ts';
+import { extensionViewOf } from './pwf-extension.ts';
 import { currentFormRevisions } from './pwf-form-revision.ts';
 import { TASK_COLUMNS, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow, TaskSql } from './pwf-schedule-support.ts';
@@ -162,7 +163,7 @@ export class PwfTaskReads {
     // R71: the button "Nhận việc" by the rule of the command itself (`claimOffer`): the viewer may take a line of the units of the task and the line is still free. Asked only of a task a unit receives.
     const offer = task.receivingUnitId !== null && can.work && live ? await claimOffer(tx, { taskId: task.id, membershipId: viewer, today, at: now }) : null;
     return {
-      ...taskItemOf(task, resolver.explain(bandSubjectOf(task), unit), assignee, await receivingNamesOf(tx, [task])),
+      ...taskItemOf(task, resolver.explain(bandSubjectOf(task), unit), assignee, await receivingNamesOf(tx, [task]), extensionViewOf(task, definition?.extension)),
       ...(task.receivingUnitId === null ? {} : { can_claim: offer !== null && offer.line !== null && !offer.taken }),
       responsible_role: task.responsibleRole,
       responsible_role_name: pwfWorkflow.roleNameOf(template, task.responsibleRole),

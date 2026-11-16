@@ -2,6 +2,8 @@ import { DomainError, legalDocument, pwfSchedule, pwfWorkflow, vietnamDateOf } f
 import type { WorkCalendarSource, pwfDeadlineBand } from '@machvon/kernel';
 import { PwfAssignmentReads, legalBasisView } from './pwf-assignment.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
+import { extensionRulesOf, extensionViewOf } from './pwf-extension.ts';
+import type { ExtensionView } from './pwf-extension.ts';
 import { bandExplanationOf, officialTaskBand, officialTaskLadder } from './pwf-task-band.ts';
 import type { BandExplanation, DurationView } from './pwf-task-band.ts';
 import { receivingUnitIdsOf, receivingViewOf, unitNamesOf } from './pwf-task-claim.ts';
@@ -78,6 +80,8 @@ export interface TaskListItem extends ReceivingView {
   duration: DurationView | null;
   /** The working days the task covers on the line of the schedule as last published; null while unknown. */
   effective_working_days: number | null;
+  /** R72: the extension rule the frozen template gives the task and what approved extensions used of it; absent for a task whose template declares none. */
+  extension?: ExtensionView;
   assignee: { membership_id: string; display_name: string } | null;
   return_count: number;
   version: number;
@@ -150,7 +154,7 @@ async function assigneesOf(tx: TenantTx, taskIds: readonly string[], today: stri
 /** The names of the units that receive the tasks (R61), for `taskItemOf`. */
 export const receivingNamesOf = (tx: TenantTx, tasks: readonly TaskRow[]): Promise<Map<string, string>> => unitNamesOf(tx, receivingUnitIdsOf(tasks.map((one) => ({ receiving_unit_id: one.receivingUnitId, receiving_units: one.receivingUnits }))));
 
-export const taskItemOf = (row: TaskRow, judged: JudgedBand, assignee: { membership_id: string; display_name: string } | undefined, unitNames: ReadonlyMap<string, string> = new Map()): TaskListItem => ({
+export const taskItemOf = (row: TaskRow, judged: JudgedBand, assignee: { membership_id: string; display_name: string } | undefined, unitNames: ReadonlyMap<string, string> = new Map(), extension?: ExtensionView): TaskListItem => ({
   id: row.id,
   task_code: row.code,
   name: row.name,
@@ -175,6 +179,7 @@ export const taskItemOf = (row: TaskRow, judged: JudgedBand, assignee: { members
   band_thresholds: judged.band_thresholds,
   duration: row.duration === null ? null : { value: row.duration.value, unit: row.duration.unit, roll_to_working_day: row.duration.rollToWorkingDay },
   effective_working_days: row.effectiveWorkingDays,
+  ...(extension === undefined ? {} : { extension }),
   assignee: assignee ?? null,
   // R71: the unit that receives the task and whether nobody has taken it (`assignee` is the person responsible today); a task no unit receives says none of it.
   ...receivingViewOf({ receiving_unit_id: row.receivingUnitId, receiving_units: row.receivingUnits, status: row.status, excluded: row.excluded }, unitNames, assignee !== undefined),
@@ -226,7 +231,8 @@ export class PwfWorkflowReads {
     const unit = await unitPathOfProject(tx, projectId);
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
     const unitNames = await receivingNamesOf(tx, tasks);
-    const items = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id), unitNames));
+    const extensions = extensionRulesOf(template);
+    const items = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id), unitNames, extensionViewOf(one, extensions.get(one.code))));
     const gated = new Set(template.phases.flatMap((phase) => phase.gates));
     const gates = [];
     for (const target of pwfWorkflow.WORKFLOW_GATE_TARGETS) {
@@ -337,7 +343,8 @@ export class PwfWorkflowReads {
     const tasks = await this.tasksOf(tx, row.id as string);
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
     const unitNames = await receivingNamesOf(tx, tasks);
-    const all = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id), unitNames));
+    const extensions = extensionRulesOf(pwfWorkflow.parseProjectWorkflowTemplate(row.template));
+    const all = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id), unitNames, extensionViewOf(one, extensions.get(one.code))));
     const matching = all.filter(
       (item) =>
         (filter.phase === undefined || item.phase_code === filter.phase) &&
