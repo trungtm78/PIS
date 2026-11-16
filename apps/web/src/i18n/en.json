@@ -31872,7 +31872,6 @@
   "gov11.clocks.col.left": "Left or late",
   "gov11.clocks.col.state": "State",
   "gov11.clocks.col.reason": "Return reason",
-  "gov11.clocks.col.net": "Amount (VND)",
   "gov11.clocks.noCalendar": "No working calendar",
   "gov11.clocks.left": "{hours} working hours left",
   "gov11.clocks.late": "{hours} working hours late",
@@ -40601,7 +40600,6 @@
   "ca2.ladder.col.money": "Amount",
   "home.changes.disbursed.up": "This week {amount} more was disbursed.",
   "home.changes.disbursed.down": "Cumulative disbursement fell by {amount} since last week.",
-  "home.ov.hero.exact": "Exactly {amount}.",
   "home.ov.plan.subPm": "Of which given by the Prime Minister: {pm}",
   "mne.weekly.plan.amount": "Total capital plan: {value}",
   "mne.weekly.disbursed.amount": "Cumulative disbursement by the Treasury: {value}",
@@ -40678,5 +40676,6 @@
   "cap.avc.zones.warn": "From {warn} to {block}: warning, needs acknowledgement",
   "cap.avc.zones.block": "Above {block}: blocked",
   "cap.reservation.refusal.warn": "This reservation takes the line to {consumption} (warning at {warn}, block at {block}). Accept the warning and send it again.",
-  "cap.reservation.refusal.blocked": "It cannot be held: the line would be at {consumption}, above the block threshold of {block}."
+  "cap.reservation.refusal.blocked": "It cannot be held: the line would be at {consumption}, above the block threshold of {block}.",
+  "gov11.clocks.col.netShort": "Amount"
 }
