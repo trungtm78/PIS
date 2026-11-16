@@ -232,3 +232,36 @@ Chỉ hai kiểm tra này được phép bỏ qua bằng `--tolerate`, và phả
 
 Sau 1.0.6 đoạn cuối của mục 8.1 ("tệp PDF không tải lại được sau khi API khởi động lại") không còn đúng: tệp còn trên đĩa. Đường tải về của DOC trong câu trả lời API vẫn là `mock://`
 (sản phẩm chưa nối kho đối tượng cho DOC), nên nút tải tệp trên màn hình chưa mở được tệp.
+
+## 9. Quy trình đang chạy trên các dự án có tên của tỉnh (nhóm `clip-public-pwf-running`, 2026-11-16)
+
+Nhóm `clip-public-pwf-review` chỉ làm tám dự án minh họa (`DA-PWF-01` đến `08`). Nhóm này (sau nó trong cùng pha, `apps/web/e2e/hdsd/seed/clip/pwf-running.ts`) cho **chín dự án có tên của bộ Cà Mau**
+chạy quy trình, để tab "Quy trình" của dự án (PWF-03), chi tiết việc (PWF-04), bảng deadline (PWF-07), việc và cảnh báo ở trang chủ có việc thật trên những dự án người xem biết tên. Chỉ dùng lệnh của sản phẩm,
+thêm vào chứ không xóa, chạy lại được (việc nào đã có thì bỏ qua).
+
+| Dự án | Mẫu | Ngày bắt đầu kế hoạch | Có gì |
+|---|---|---|---|
+| `DA-MT101` kè bờ biển Tây | `PUBLIC_INVESTMENT` | khoảng 84 ngày làm việc trước | nhiều bước đã xong và được duyệt (người duyệt khác người làm), một việc quá hạn còn mở (đỏ) |
+| `DA-GD110` trường THPT chuyên | `PUBLIC_INVESTMENT` | 46 | một bước đã nộp, chờ duyệt hoàn thành |
+| `DA-TT112`, `DA-ICT03` chuyển đổi số | `PUBLIC_PROCUREMENT` | 58, 22 | một bước bị trả lại, một việc trễ còn mở |
+| `DA-NN031`, `DA-NN114` thủy lợi | `PUBLIC_REPAIR` | 70, 9 | một dự án đã chạy lâu, một dự án vừa bắt đầu (vàng, đỏ) |
+| `DA-GT107` đường trục Đông - Tây | `CB_ROAD_REPAIR` | 38 | mẫu của tỉnh, có việc quá hạn |
+| `DA-DT205` đường ven biển phía Đông | `CB_ROAD_REPAIR_UNITS` | 14 | **hạn chung của hồ sơ còn 2 ngày (vàng)**, một đề nghị gia hạn `extensions[]` đang chờ quyết định (PWF-06) |
+| `DA-GT105` đường ven biển Tân Tiến | `CB_ROAD_REPAIR_UNITS` | 3 | việc "Chưa có người nhận"; `canbo.qlda` đã nhận việc `RR_SURVEY` bằng "Nhận việc" và bắt đầu nó, các việc còn lại để nhận |
+
+- Mẫu `CB_ROAD_REPAIR_UNITS` (mẫu của tenant, người soạn `demo`, người duyệt `lanhdao`) nêu đơn vị nhận từng việc (`PROJECT_OWNER` = Ban Quản lý dự án xây dựng tỉnh Cà Mau, vai `CAN_BO_BAN_QLDA` hoặc `STAFF_MEMBER`),
+  trần gia hạn từng việc và hạn chung (`overall_deadline_task` = `RR_DECISION`). Các mẫu dựng sẵn và `CB_ROAD_REPAIR` không nêu đơn vị nào.
+- "Nhận việc" chỉ chạy với người là thành viên của đơn vị theo `UNIT_ONLY` hoặc `UNIT_SUBTREE` (PWF 22.3): nhóm cấp cho `canbo.qlda` hai vai và cho `nhanvien` vai `STAFF_MEMBER` tại Ban Quản lý dự án xây dựng
+  (`grantRole`). Dự án có người phụ trách (`LEADER_IN_CHARGE` là `lanhdao`, đầu mối là `canbo.qlda`) thì cảnh báo hạn chung mới có người nhận; 45 dự án của bộ chưa có người phụ trách nào, nhóm đặt cho chín dự án này.
+- `nhanvien` **không** nhận việc được và không mở được việc của mình: vai `STAFF_MEMBER` không có quyền đọc dự án (PWF 22.8: 403 `SCOPE_DENIED`). Dùng `canbo.qlda`.
+- Làm việc ở đây là người làm là `demo` và `canbo.qlda`, người duyệt là `lanhdao`; mốc thời gian lấy theo ngày thật nên hạn vàng, đỏ trôi theo ngày: **chạy lại nhóm vào ngày demo không làm lại việc đã có**, các màu tự đổi theo lịch.
+
+Chạy lại (từ máy phát triển; chỉ nhóm này, không động tới dữ liệu khác):
+
+```
+ssh <khóa> Administrator@<máy chủ> "type C:\ProgramData\MACHVON\secrets\admin\demo-credentials.json" | node scripts/clip-seed.mjs apply  --dataset camau --api https://<PUBLIC_HOST>/api --credentials - --groups clip-public-pwf-running
+ssh ...                                                                                                 | node scripts/clip-seed.mjs verify --dataset camau --api https://<PUBLIC_HOST>/api --credentials - --tolerate "workflows late"
+ssh ...                                                                                                 | node docs/demo-camau/capture-quy-trinh.mjs      # chụp lại docs/demo-camau/production/quy-trinh
+```
+
+`verify` có thêm hai kiểm: việc của đơn vị chưa có người nhận (cho `canbo.qlda`) và hạn chung có nguy cơ (cho `lanhdao`). Ảnh chụp trên bản cài 1.0.18 nằm ở `docs/demo-camau/production/quy-trinh/`.

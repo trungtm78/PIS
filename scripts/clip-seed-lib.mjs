@@ -18,7 +18,7 @@ export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
-  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-payments', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras', 'clip-public-contractor-portal', 'clip-public-pwf-review', 'clip-public-approvals', 'clip-public-phone-work'],
+  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-payments', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras', 'clip-public-contractor-portal', 'clip-public-pwf-review', 'clip-public-pwf-running', 'clip-public-approvals', 'clip-public-phone-work'],
   enterprise: ENTERPRISE_GROUPS,
 };
 
@@ -45,6 +45,8 @@ export const DATASET_PHASES = {
     { clockDays: 0, groups: ['clip-public-contractor-portal'] },
     // The screens of the project workflow have something to judge on (PWF-01 to PWF-16): a template of the tenant, eight workflows with tasks in every state and colour, a locked scoring period.
     { clockDays: 0, groups: ['clip-public-pwf-review'] },
+    // The named projects of the dataset run a workflow too: the three built-in templates, the template of the tenant and one that names the units that receive the tasks (claim, extension, overall deadline).
+    { clockDays: 0, groups: ['clip-public-pwf-running'] },
     // The approval inbox of the phone has a record waiting (MOB-23, MOB-24): the workflow of a business type no other scenario uses, and a response to a score of the period the group above locked.
     { clockDays: 0, groups: ['clip-public-approvals'] },
     // The person who signs in on the phone holds tasks in progress of a project workflow (MOB-80, MOB-81; Maestro flow 40): the last group, it reads the projects the groups above made.

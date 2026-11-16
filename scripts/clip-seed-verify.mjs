@@ -274,9 +274,23 @@ export async function pwfInboxChecks(plan, reader) {
   ];
 }
 
+/**
+ * The named projects run a "quy trình" (group clip-public-pwf-running): a task a unit receives that nobody has taken is in the work of the officer of the unit ("Chưa có người nhận", PWF_TASK_UNCLAIMED), and the
+ * overall deadline of a file that is near is in the work of the leader in charge (PWF_OVERALL_DEADLINE_AT_RISK). Both are read the way the home reads them, as the person they are for.
+ */
+export async function pwfRunningChecks(plan, reader) {
+  const officer = await safe(() => reader.list('projectManager', '/home/my-work'));
+  const leader = await safe(() => reader.list('capApprover', '/home/my-work'));
+  const count = (rows, kind) => (rows === undefined ? undefined : rows.filter((row) => row.kind === kind).length);
+  return [
+    { name: 'work: tasks of a unit that nobody has taken wait for its officer', value: count(officer, 'PWF_TASK_UNCLAIMED'), min: 1 },
+    { name: 'work: the overall deadline of a file is at risk for the leader in charge', value: count(leader, 'PWF_OVERALL_DEADLINE_AT_RISK'), min: 1 },
+  ];
+}
+
 /** The checks of a dataset, in the order they are printed. */
 export async function verifyChecks(plan, reader) {
-  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await biChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader)), ...(await pwfInboxChecks(plan, reader))];
+  if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await biChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader)), ...(await pwfInboxChecks(plan, reader)), ...(await pwfRunningChecks(plan, reader))];
   if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
   if (plan.dataset === 'enterprise') return [...(await enterpriseChecks(plan, reader)), ...(await enterpriseSharedChecks(plan, reader)), ...(await enterpriseLifecycleChecks(plan, reader))];
   return [];

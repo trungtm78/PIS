@@ -158,6 +158,8 @@ function seededPublic(plan) {
     '/me/pending-decisions': ['pwf.task.completion', 'pwf.task.exception', 'pwf.reschedule', 'pwf.score.adjustment'].map((kind) => ({ kind })),
     '/resources/approval_task': [{ business_type: 'score.response' }],
     '/me/project-tasks': [{ id: 1 }, { id: 2 }],
+    // The work of the officer of a unit and of the leader in charge on the projects that run a quy trinh.
+    '/home/my-work': [{ kind: 'PWF_TASK_UNCLAIMED' }, { kind: 'PWF_OVERALL_DEADLINE_AT_RISK' }],
   };
   const gets = {
     '/egp/connection': { record_counts: { KHLCNT: 12, TBMT: 7 } },
