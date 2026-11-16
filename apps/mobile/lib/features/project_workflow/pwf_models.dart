@@ -330,13 +330,6 @@ final class PwfWorkflow {
   }
 
   PwfPhase? get currentPhase => currentIndex == 0 ? null : phases[currentIndex - 1];
-
-  /// The milestones still ahead, the nearest first.
-  List<PwfTaskRow> upcomingMilestones({int limit = 3}) {
-    final List<PwfTaskRow> ahead = <PwfTaskRow>[for (final PwfTaskRow task in visibleTasks) if (task.isMilestone && !task.status.isFinal && task.plannedFinish != null) task]
-      ..sort((PwfTaskRow a, PwfTaskRow b) => a.plannedFinish!.compareTo(b.plannedFinish!));
-    return ahead.take(limit).toList();
-  }
 }
 
 /// What the tab and MOB-78 show: the workflow, or the fact that the project has none.
@@ -651,7 +644,6 @@ final class PwfTaskDetail {
     this.formRevisions = const <PwfFormRevision>[],
     this.canClaim = false,
     this.facts = PwfStepFacts.none,
-    this.projectId,
   });
 
   /// The person may take the task (the server decides: the unit, the role, nobody holds it yet).
@@ -659,7 +651,6 @@ final class PwfTaskDetail {
 
   /// The members of the step table (PWF-5) of the task; empty in an older answer.
   final PwfStepFacts facts;
-  final String? projectId;
 
   final String id;
   final String code;
@@ -846,7 +837,6 @@ PwfTaskDetail? parsePwfTaskDetail(Object? raw) {
     percentComplete: whole(record['percent_complete']),
     canClaim: record['can_claim'] == true,
     facts: parsePwfStepFacts(record),
-    projectId: filled(record['project_id']),
   );
 }
 

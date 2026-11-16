@@ -66,11 +66,6 @@ void main() {
       expect(older.phases.map((PwfPhase p) => p.standing), <PwfPhaseStanding>[PwfPhaseStanding.done, PwfPhaseStanding.current, PwfPhaseStanding.upcoming]);
     });
 
-    test('the milestones ahead come nearest first and never include a task that is over', () {
-      final PwfWorkflow workflow = (parsePwfWorkflowView(workflowJson())! as PwfWorkflowPresent).workflow;
-      expect(workflow.upcomingMilestones().map((PwfTaskRow t) => t.name), <String>['Ký hợp đồng thi công']);
-    });
-
     test('a project with no workflow is a result, not a failure; an answer that lacks what makes it citable is refused as a whole', () {
       expect(parsePwfWorkflowView(<String, Object?>{'absent': true}), isA<PwfWorkflowAbsent>());
       expect(parsePwfWorkflowView(<String, Object?>{'status': 'ACTIVE'}), isNull);

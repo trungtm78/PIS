@@ -1,8 +1,6 @@
 /// The members of the step table (PWF-5) that every answer of the workflow may now carry, all optional (R67), as a server of 1.0.15 answers them.
 library;
 
-import 'pwf_fixtures.dart';
-
 /// The new members of a task of the workflow: the tier of the colour with its thresholds, the time limit with its unit, the unit that receives the task, whether
 /// anybody has taken it, the extension it may be given and the star of the whole file.
 Map<String, Object?> stepFields({

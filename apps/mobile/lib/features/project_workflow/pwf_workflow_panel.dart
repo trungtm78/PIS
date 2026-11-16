@@ -5,31 +5,30 @@ import '../../core/l10n/app_strings.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/typography.dart';
 import '../../core/widgets/filter_chips.dart';
-import '../../core/widgets/stage_strip.dart';
-import '../../core/widgets/stat_strip.dart';
 import '../../core/widgets/state_view.dart';
 import '../../core/widgets/work_row.dart';
 import 'pwf_models.dart';
 import 'pwf_process_widgets.dart';
-import 'pwf_tabs.dart';
-import 'pwf_widgets.dart';
+import 'pwf_step_logic.dart';
+import 'pwf_step_row.dart';
+import 'pwf_workflow_header.dart';
 
 /// The official colour a list can be narrowed to. Only the official bands are here: a shared screen never shows a personal one (R40).
 enum PwfBandFilter { all, red, yellow, green }
 
-/// The workflow of a project, one purpose a part: the overview (where it stands on the strip of its stages, the count of its tasks by official
-/// colour, the stages with what is done of each and the tasks that need attention), the work (stage, then step, then task, each task with its
-/// deadline band) and the milestones. MOB-78 shows the three parts as tabs; the Progress tab of the project, which is already a tab, shows the
-/// figures of the overview and the work under one another ([tabbed] false) and lists the milestones of the project itself.
-/// It reads nothing itself: it draws the [workflow] it is given and calls [onOpenTask] when a row is tapped.
+/// The workflow of a project as the phone's form of the step table (PWF-5): a compact head (the stage that is open and how far the steps are, the deadline of the
+/// whole file with its slip, the steps by official colour), then the phases as sections of a list of steps, each step with its unit and holder (or "Chưa có người nhận"),
+/// its deadline with the dot in the official colour and a sentence of where the colour comes from, its state and what blocks it. A colour filter narrows the list to one
+/// official band. It reads nothing itself: it draws the [workflow] it is given and calls [onOpenTask] when a row is tapped (MOB-78 opens the actions of the step; the Progress
+/// tab of a project opens the task). It replaces the three tabs (overview, work, milestones) of the earlier design: a milestone is a step with a flag, the overview is the head.
 class PwfWorkflowPanel extends StatefulWidget {
-  const PwfWorkflowPanel({required this.workflow, required this.onOpenTask, this.tabbed = true, super.key});
+  const PwfWorkflowPanel({required this.workflow, required this.onOpenTask, this.hints, super.key});
 
   final PwfWorkflow workflow;
   final ValueChanged<PwfTaskRow> onOpenTask;
 
-  /// Three tabs (MOB-78), or the figures and the work in one column for a host that is a tab itself.
-  final bool tabbed;
+  /// The second read of the schedule (the slip of the whole file, the step that drives another); null when it was not read.
+  final PwfScheduleHints? hints;
 
   @override
   State<PwfWorkflowPanel> createState() => _PwfWorkflowPanelState();
@@ -69,224 +68,83 @@ class _PwfWorkflowPanelState extends State<PwfWorkflowPanel> {
   Widget build(BuildContext context) {
     final PwfWorkflow workflow = widget.workflow;
     final Map<PwfBandKind, int> counts = workflow.countsByBand;
-    final List<Widget> banners = <Widget>[
-      if (workflow.status != 'ACTIVE') StatusBanner(text: _statusText(context, workflow.status), tone: workflow.status == 'CANCELLED' ? BannerTone.warning : BannerTone.info, icon: Icons.info_outline),
-      if (workflow.unverified) StatusBanner(text: context.t('mob.pwf.panel.unverified'), icon: Icons.info_outline),
-      if (workflow.lapsedLegalDocuments.isNotEmpty) StatusBanner(text: context.t('mob.pwf.process.lapsed', <String, Object>{'count': workflow.lapsedLegalDocuments.length}), tone: BannerTone.warning, icon: Icons.gavel_outlined),
-    ];
-    if (!widget.tabbed) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          ...banners,
-          ..._figures(context, workflow, counts),
-          GroupHeader(title: context.t('mob.pwf7.work.title'), count: workflow.visibleTasks.length),
-          ..._work(context, workflow, counts),
-        ],
-      );
-    }
-    final List<PwfTaskRow> milestones = <PwfTaskRow>[for (final PwfTaskRow task in workflow.visibleTasks) if (task.isMilestone) task];
+    final MachvonV2Text text = context.v2text;
+    final PwfBandKind? kind = _kind;
+    final Map<String, PwfTaskRow> byCode = <String, PwfTaskRow>{for (final PwfTaskRow task in workflow.tasks) task.code: task};
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        ...banners,
-        PwfTabs(
-          tabs: <PwfTab>[
-            PwfTab(label: context.t('mob.pwf7.tab.overview'), children: _overview(context, workflow, counts)),
-            PwfTab(label: context.t('mob.pwf7.tab.work'), count: workflow.visibleTasks.where((PwfTaskRow task) => !task.status.isFinal).length, children: _work(context, workflow, counts)),
-            PwfTab(label: context.t('mob.pwf7.tab.milestones'), count: milestones.where((PwfTaskRow task) => !task.status.isFinal).length, children: _milestones(context, milestones)),
+        if (workflow.status != 'ACTIVE') StatusBanner(text: _statusText(context, workflow.status), tone: workflow.status == 'CANCELLED' ? BannerTone.warning : BannerTone.info, icon: Icons.info_outline),
+        if (workflow.unverified) StatusBanner(text: context.t('mob.pwf.panel.unverified'), icon: Icons.info_outline),
+        if (workflow.lapsedLegalDocuments.isNotEmpty) StatusBanner(text: context.t('mob.pwf.process.lapsed', <String, Object>{'count': workflow.lapsedLegalDocuments.length}), tone: BannerTone.warning, icon: Icons.gavel_outlined),
+        PwfWorkflowHeader(workflow: workflow, hints: widget.hints),
+        FilterChips<PwfBandFilter>(
+          options: <ChipOption<PwfBandFilter>>[
+            ChipOption<PwfBandFilter>(value: PwfBandFilter.all, label: context.t('mob.pwf.panel.filter.all')),
+            ChipOption<PwfBandFilter>(value: PwfBandFilter.red, label: context.t('mob.pwf.panel.filter.late'), count: counts[PwfBandKind.red] ?? 0),
+            ChipOption<PwfBandFilter>(value: PwfBandFilter.yellow, label: context.t('mob.pwf.panel.filter.soon'), count: counts[PwfBandKind.yellow] ?? 0),
+            ChipOption<PwfBandFilter>(value: PwfBandFilter.green, label: context.t('mob.pwf.panel.filter.ok'), count: counts[PwfBandKind.green] ?? 0),
           ],
+          selected: _filter,
+          onChanged: (PwfBandFilter next) => setState(() => _filter = next),
         ),
+        for (final PwfPhaseRows phase in pwfPhaseRows(workflow)) ..._phase(context, phase, byCode),
+        if (workflow.phases.isEmpty && workflow.visibleTasks.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf.panel.noTasks'), style: text.body)),
+        if (kind != null && !workflow.visibleTasks.any((PwfTaskRow task) => !task.status.isFinal && task.band.kind == kind)) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf.panel.filter.none'), style: text.body)),
+        const SizedBox(height: MachvonV2Space.s24),
       ],
     );
   }
 
-  /// The main figures first: the place on the strip of the stages, then the three official bands as three figures.
-  List<Widget> _figures(BuildContext context, PwfWorkflow workflow, Map<PwfBandKind, int> counts) {
-    final MachvonV2Text text = context.v2text;
-    final PwfPhase? current = workflow.currentPhase;
-    final int total = workflow.phases.length;
-    final bool finished = workflow.currentIndex > 0 && current != null && !current.open && workflow.openPhase == null;
-    final double fraction = current == null || current.requiredTotal == 0 ? (finished ? 1 : 0) : current.requiredDone / current.requiredTotal;
-    return <Widget>[
-      const SizedBox(height: MachvonV2Space.s12),
-      if (total > 0)
-        StageStrip(
-          total: total,
-          current: workflow.currentIndex,
-          currentFraction: fraction,
-          label: finished ? context.t('mob.pwf.panel.stageAll', <String, Object>{'total': total}) : context.t('mob.pwf.panel.stage', <String, Object>{'current': workflow.currentIndex, 'total': total, 'name': current?.name ?? ''}),
-          trailing: context.t('mob.pwf.panel.progress', <String, Object>{'done': workflow.requiredDone, 'total': workflow.requiredTotal}),
-        ),
-      const SizedBox(height: MachvonV2Space.s12),
-      StatStrip(
-        cells: <StatCell>[
-          StatCell(value: '${counts[PwfBandKind.red] ?? 0}', label: context.t('mob.pwf.panel.filter.late'), band: DeadlineBand.late, bandInline: true),
-          StatCell(value: '${counts[PwfBandKind.yellow] ?? 0}', label: context.t('mob.pwf.panel.filter.soon'), band: DeadlineBand.soon, bandInline: true),
-          StatCell(value: '${counts[PwfBandKind.green] ?? 0}', label: context.t('mob.pwf.panel.filter.ok'), band: DeadlineBand.ok, bandInline: true),
-        ],
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s8, MachvonV2Space.s16, MachvonV2Space.s12),
-        child: Text(
-          <String>[
-            context.t('mob.pwf.panel.official'),
-            if ((counts[PwfBandKind.unknown] ?? 0) > 0) context.t('mob.pwf.panel.count.unknown', <String, Object>{'count': counts[PwfBandKind.unknown]!}),
-          ].join(' '),
-          style: text.caption,
-        ),
-      ),
-    ];
-  }
-
-  /// The overview: the figures, the stages each with what is done of it, and the few tasks that need a person now.
-  List<Widget> _overview(BuildContext context, PwfWorkflow workflow, Map<PwfBandKind, int> counts) {
-    final MachvonV2 v2 = context.v2;
-    final List<PwfTaskRow> urgent = <PwfTaskRow>[for (final PwfTaskRow task in workflow.visibleTasks) if (!task.status.isFinal && task.band.kind == PwfBandKind.red) task]..sort(_byUrgency);
-    final List<PwfTaskRow> shown = urgent.take(3).toList();
-    return <Widget>[
-      ..._figures(context, workflow, counts),
-      if (shown.isNotEmpty) ...<Widget>[
-        GroupHeader(title: context.t('mob.pwf7.overview.urgent'), count: urgent.length),
-        for (int index = 0; index < shown.length; index += 1) pwfTaskRow(context, shown[index], onTap: () => widget.onOpenTask(shown[index]), dividerAbove: index > 0),
-      ],
-      if (workflow.phases.isNotEmpty) ...<Widget>[
-        GroupHeader(title: context.t('mob.pwf7.overview.phases'), count: workflow.phases.length),
-        for (int index = 0; index < workflow.phases.length; index += 1)
-          (() {
-            final PwfPhase phase = workflow.phases[index];
-            // One stage is where the project is (the server names it); a later stage with work in parallel has started, and is never a second "here".
-            final bool done = phase.standing == PwfPhaseStanding.done;
-            final bool current = phase.standing == PwfPhaseStanding.current;
-            final bool started = phase.standing == PwfPhaseStanding.started;
-            final String state = switch (phase.standing) {
-              PwfPhaseStanding.done => context.t('mob.pwf7.stage.done'),
-              PwfPhaseStanding.current => context.t('mob.pwf7.stage.current'),
-              PwfPhaseStanding.started => context.t('mob.pwf8.stage.started'),
-              PwfPhaseStanding.upcoming => context.t('mob.pwf7.stage.ahead'),
-            };
-            final String progress = context.t('mob.pwf.panel.phaseDone', <String, Object>{'done': phase.requiredDone, 'total': phase.requiredTotal});
-            return WorkRow(
-              title: phase.name,
-              titleMaxLines: 3,
-              subtitle: '$state · $progress',
-              leading: Icon(done ? Icons.check_circle : (current ? Icons.timelapse : (started ? Icons.pending_outlined : Icons.radio_button_unchecked)), color: current ? v2.palette.primary : v2.palette.ink2),
-              semanticLabel: '${phase.name}, $state, $progress',
-              dividerAbove: index > 0,
-              quiet: !current && !done && !started,
-            );
-          })(),
-      ],
-      if (workflow.phases.isEmpty && workflow.visibleTasks.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf.panel.noTasks'), style: context.v2text.body)),
-      const SizedBox(height: MachvonV2Space.s24),
-    ];
-  }
-
-  /// The work: stage, then step, then task. A colour filter narrows it to one official band.
-  List<Widget> _work(BuildContext context, PwfWorkflow workflow, Map<PwfBandKind, int> counts) {
-    final MachvonV2Text text = context.v2text;
-    return <Widget>[
-      FilterChips<PwfBandFilter>(
-        options: <ChipOption<PwfBandFilter>>[
-          ChipOption<PwfBandFilter>(value: PwfBandFilter.all, label: context.t('mob.pwf.panel.filter.all')),
-          ChipOption<PwfBandFilter>(value: PwfBandFilter.red, label: context.t('mob.pwf.panel.filter.late'), count: counts[PwfBandKind.red] ?? 0),
-          ChipOption<PwfBandFilter>(value: PwfBandFilter.yellow, label: context.t('mob.pwf.panel.filter.soon'), count: counts[PwfBandKind.yellow] ?? 0),
-          ChipOption<PwfBandFilter>(value: PwfBandFilter.green, label: context.t('mob.pwf.panel.filter.ok'), count: counts[PwfBandKind.green] ?? 0),
-        ],
-        selected: _filter,
-        onChanged: (PwfBandFilter next) => setState(() => _filter = next),
-      ),
-      for (final PwfPhase phase in workflow.phases) ..._phase(context, workflow, phase),
-      if (workflow.phases.isEmpty && workflow.visibleTasks.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf.panel.noTasks'), style: text.body)),
-      if (_filter != PwfBandFilter.all && !workflow.visibleTasks.any((PwfTaskRow task) => !task.status.isFinal && task.band.kind == _kind))
-        Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf.panel.filter.none'), style: text.body)),
-      const SizedBox(height: MachvonV2Space.s24),
-    ];
-  }
-
-  /// The milestones: the ones still ahead, the nearest first, then the ones that are over.
-  List<Widget> _milestones(BuildContext context, List<PwfTaskRow> milestones) {
-    final List<PwfTaskRow> ahead = <PwfTaskRow>[for (final PwfTaskRow task in milestones) if (!task.status.isFinal) task]
-      ..sort((PwfTaskRow a, PwfTaskRow b) => (a.plannedFinish ?? '9999-99-99').compareTo(b.plannedFinish ?? '9999-99-99'));
-    final List<PwfTaskRow> over = <PwfTaskRow>[for (final PwfTaskRow task in milestones) if (task.status.isFinal) task];
-    return <Widget>[
-      if (ahead.isNotEmpty) ...<Widget>[
-        GroupHeader(title: context.t('mob.pwf7.milestones.ahead'), count: ahead.length),
-        for (int index = 0; index < ahead.length; index += 1) pwfTaskRow(context, ahead[index], onTap: () => widget.onOpenTask(ahead[index]), dividerAbove: index > 0),
-      ],
-      if (over.isNotEmpty) ...<Widget>[
-        GroupHeader(title: context.t('mob.pwf7.milestones.over'), count: over.length),
-        for (int index = 0; index < over.length; index += 1) pwfTaskRow(context, over[index], onTap: () => widget.onOpenTask(over[index]), dividerAbove: index > 0),
-      ],
-      if (milestones.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf7.milestones.none'), style: context.v2text.body)),
-      const SizedBox(height: MachvonV2Space.s24),
-    ];
-  }
-
-  List<Widget> _phase(BuildContext context, PwfWorkflow workflow, PwfPhase phase) {
-    final List<PwfTaskRow> all = workflow.tasksOf(phase.code);
+  List<Widget> _phase(BuildContext context, PwfPhaseRows rows, Map<String, PwfTaskRow> byCode) {
+    final PwfPhase phase = rows.phase;
     final PwfBandKind? kind = _kind;
-    final List<PwfTaskRow> shown = kind == null ? all : <PwfTaskRow>[for (final PwfTaskRow task in all) if (!task.status.isFinal && task.band.kind == kind) task];
+    final List<PwfTaskRow> shown = kind == null ? rows.tasks : <PwfTaskRow>[for (final PwfTaskRow task in rows.tasks) if (!task.status.isFinal && task.band.kind == kind) task];
     if (kind != null && shown.isEmpty) return const <Widget>[];
     final bool open = _isOpen(phase, shown.isNotEmpty);
-    final PwfBandKind? active = kind;
-    final List<PwfTaskRow> ordered = <PwfTaskRow>[...shown]..sort(_byUrgency);
+    Widget row(PwfTaskRow task, {required bool divider, bool indent = false}) => PwfStepRow(
+          task: task,
+          waiting: pwfWaitingFor(task, hints: widget.hints, byCode: byCode),
+          dividerAbove: divider,
+          indent: indent,
+          onTap: () => widget.onOpenTask(task),
+        );
+    final List<Widget> body = <Widget>[];
+    if (open && rows.entries.isEmpty) {
+      body.add(Padding(padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12), child: Text(context.t('mob.pwf.panel.phaseEmpty'), style: context.v2text.caption)));
+    } else if (open && kind != null) {
+      // A colour filter keeps the flat list of what matches: the step headers would stand over rows that are not shown.
+      for (int index = 0; index < shown.length; index += 1) {
+        body.add(row(shown[index], divider: index > 0));
+      }
+    } else if (open) {
+      int index = 0;
+      for (final PwfStepEntry entry in rows.entries) {
+        if (entry.hasHeader) {
+          body.add(PwfStepHeader(step: entry.step!, onLegal: entry.step!.legalBasis.isEmpty ? null : () => showPwfLegalBasisSheet(context, title: entry.step!.name, basis: entry.step!.legalBasis)));
+        }
+        for (final PwfTaskRow task in entry.tasks) {
+          body.add(row(task, divider: index > 0 && !entry.hasHeader, indent: entry.hasHeader));
+          index += 1;
+        }
+      }
+    }
     return <Widget>[
       WorkRow(
         title: phase.name,
         titleMaxLines: 3,
         subtitle: context.t('mob.pwf.panel.phaseDone', <String, Object>{'done': phase.requiredDone, 'total': phase.requiredTotal}),
         leading: Icon(open ? Icons.expand_less : Icons.expand_more, size: 24, color: context.v2.palette.ink2),
-        trailing: active == null ? null : Text('${shown.length}', style: context.v2text.label),
+        trailing: kind == null ? null : Text('${shown.length}', style: context.v2text.label),
         semanticLabel: open
             ? context.t('mob.pwf.panel.phaseOpen', <String, Object>{'name': phase.name, 'done': phase.requiredDone, 'total': phase.requiredTotal})
             : context.t('mob.pwf.panel.phaseClosed', <String, Object>{'name': phase.name, 'done': phase.requiredDone, 'total': phase.requiredTotal}),
         onTap: () => _toggle(phase, open),
         dividerAbove: true,
       ),
-      if (open && ordered.isEmpty) Padding(padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12), child: Text(context.t('mob.pwf.panel.phaseEmpty'), style: context.v2text.caption)),
-      // PWF-4: a phase that has steps shows its tasks under them, each step with its progress and its legal grounds; a colour filter and an answer from before steps existed keep the flat list.
-      if (open && active == null && workflow.stepsOf(phase.code).isNotEmpty)
-        ..._steps(context, workflow, phase)
-      else if (open)
-        for (int index = 0; index < ordered.length; index += 1) pwfTaskRow(context, ordered[index], onTap: () => widget.onOpenTask(ordered[index]), dividerAbove: index > 0),
+      ...body,
     ];
   }
-
-  List<Widget> _steps(BuildContext context, PwfWorkflow workflow, PwfPhase phase) {
-    final List<Widget> out = <Widget>[];
-    for (final PwfStep step in workflow.stepsOf(phase.code)) {
-      final List<PwfTaskRow> tasks = <PwfTaskRow>[...workflow.tasksOfStep(phase.code, step.code)]..sort(_byUrgency);
-      out.add(PwfStepHeader(step: step, onLegal: step.legalBasis.isEmpty ? null : () => showPwfLegalBasisSheet(context, title: step.name, basis: step.legalBasis)));
-      for (int index = 0; index < tasks.length; index += 1) {
-        out.add(pwfTaskRow(context, tasks[index], onTap: () => widget.onOpenTask(tasks[index]), dividerAbove: index > 0));
-      }
-    }
-    final List<PwfTaskRow> loose = <PwfTaskRow>[...workflow.tasksOfStep(phase.code, null)]..sort(_byUrgency);
-    if (loose.isNotEmpty) {
-      out.add(GroupHeader(title: context.t('mob.pwf.process.loose'), count: loose.length));
-      for (int index = 0; index < loose.length; index += 1) {
-        out.add(pwfTaskRow(context, loose[index], onTap: () => widget.onOpenTask(loose[index]), dividerAbove: index > 0));
-      }
-    }
-    return out;
-  }
-
-  /// A task that is not over comes before one that is; among the open ones the redder and the nearer first, and the server's own order of the rest.
-  static int _byUrgency(PwfTaskRow a, PwfTaskRow b) {
-    if (a.status.isFinal != b.status.isFinal) return a.status.isFinal ? 1 : -1;
-    final int rank = _rank(a.band.kind).compareTo(_rank(b.band.kind));
-    if (rank != 0) return rank;
-    return (a.plannedFinish ?? '9999-99-99').compareTo(b.plannedFinish ?? '9999-99-99');
-  }
-
-  static int _rank(PwfBandKind kind) => switch (kind) {
-        PwfBandKind.red => 0,
-        PwfBandKind.yellow => 1,
-        PwfBandKind.green => 2,
-        PwfBandKind.unknown => 3,
-        PwfBandKind.none => 4,
-      };
 
   String _statusText(BuildContext context, String status) => switch (status) {
         'ON_HOLD' => context.t('mob.pwf.panel.status.onHold'),

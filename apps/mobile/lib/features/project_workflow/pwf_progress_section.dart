@@ -60,8 +60,8 @@ final pwfWorkflowProvider = FutureProvider.autoDispose.family<Loaded<PwfWorkflow
   }
 });
 
-/// The workflow in the Progress tab of a project: the strip of the stages of its workflow, the tasks by official colour and the tasks of each stage
-/// (stage, then step, then task), and the way to the whole workflow (MOB-78). It is a column that sits inside the scroll of the screen that hosts it. A project that has no workflow, or a person who
+/// The workflow in the Progress tab of a project: the head of the workflow (stage, steps done, the deadline of the whole file, the steps by official colour), the steps of
+/// each stage, and the way to the whole workflow (MOB-78). It is a column that sits inside the scroll of the screen that hosts it. A project that has no workflow, or a person who
 /// may not read it, draws nothing here: the milestones of the project are the content of the tab and a task list that is not there is not an empty state.
 class PwfProgressSection extends ConsumerWidget {
   const PwfProgressSection({required this.projectId, super.key});
@@ -103,8 +103,8 @@ class PwfProgressSection extends ConsumerWidget {
                   style: text.caption,
                 ),
               ),
-            PwfWorkflowPanel(workflow: view.workflow, tabbed: false, onOpenTask: (PwfTaskRow task) => openScreen(context, 'MOB-79', pathSuffix: '/${Uri.encodeComponent(task.id)}', stacked: true)),
-            // The whole workflow in its own screen: the overview, the work and the milestones as three tabs.
+            PwfWorkflowPanel(workflow: view.workflow, onOpenTask: (PwfTaskRow task) => openScreen(context, 'MOB-79', pathSuffix: '/${Uri.encodeComponent(task.id)}', stacked: true)),
+            // The whole workflow in its own screen, where a step opens its actions.
             NavRow(label: context.t('mob.pwf7.open.workflow'), icon: Icons.account_tree_outlined, dividerAbove: true, onTap: () => openScreen(context, 'MOB-78', pathSuffix: '/${Uri.encodeComponent(projectId)}', stacked: true)),
           ],
         );

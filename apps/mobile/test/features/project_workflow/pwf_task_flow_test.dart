@@ -110,9 +110,10 @@ void main() {
       expect(find.text('Chứng từ pháp lý'), findsWidgets);
       expect(find.text('Quyết định đầu tư'), findsOneWidget, reason: 'a legal document type is said by its name');
       expect(find.text('QD-12/2026'), findsOneWidget);
-      // The history is on its own tab.
-      await tester.scrollUntilVisible(find.textContaining('Diễn biến'), -200, scrollable: find.byType(Scrollable).first);
-      await tester.tap(find.textContaining('Diễn biến').first);
+      // The history is a fold of its own, shut until it is asked for.
+      expect(find.text('Trả lại công việc'), findsNothing);
+      await tester.scrollUntilVisible(find.text('Lịch sử'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.text('Lịch sử'));
       await tester.pump();
       expect(find.text('Trả lại công việc'), findsOneWidget, reason: 'the history says it was returned');
       expect(find.textContaining('Thiếu phụ lục kỹ thuật'), findsOneWidget);
@@ -227,10 +228,9 @@ void main() {
       await phone.goOnline();
       await phone.flush();
       expect(phone.server.state.exceptions, hasLength(1));
-      // The requests of the task are on the tab "Diễn biến" (the screen opens on "Cần làm"): the row there reads "Xin dời hạn · Chờ quyết định".
+      // The requests of the task are in the fold "Ngoại lệ", which opens by itself when a request waits for a decision: the row there reads "Xin dời hạn · Chờ quyết định".
       // Not run on the machine this was written on (Smart App Control blocks sqlite3mc.dll, which this file needs): CI confirms it.
-      await tester.scrollUntilVisible(find.textContaining('Diễn biến'), -200, scrollable: find.byType(Scrollable).first);
-      await tester.tap(find.textContaining('Diễn biến').first);
+      await tester.scrollUntilVisible(find.textContaining('Chờ quyết định'), 200, scrollable: find.byType(Scrollable).first);
       await settleReal(tester, rounds: 6);
       expect(find.textContaining('Chờ quyết định'), findsOneWidget);
     });

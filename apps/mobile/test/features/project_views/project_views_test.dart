@@ -433,7 +433,7 @@ void main() {
       expect(find.descendant(of: find.byType(PwfProgressSection), matching: find.byType(GroupHeader)), findsNothing);
     });
 
-    testWidgets('the workflow of the project gives the stages and the tasks with the official deadline bands, late first; the milestones stay the ones of the project', (WidgetTester tester) async {
+    testWidgets('the workflow of the project gives the stages and the steps with the official deadline bands, in the order of the process; the milestones stay the ones of the project', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer withTasks = ScriptedServer();
       healthy(withTasks);
@@ -446,7 +446,8 @@ void main() {
       expect(find.text('Trễ 2 ngày làm việc'), findsOneWidget);
       expect(find.text('Nộp báo cáo khả thi'), findsOneWidget);
       expect(find.text('Còn 8 ngày làm việc'), findsOneWidget);
-      expect(tester.getTopLeft(find.text('Hoàn thiện hồ sơ thiết kế')).dy, lessThan(tester.getTopLeft(find.text('Nộp báo cáo khả thi')).dy), reason: 'late first');
+      // The steps are in the order of the process, not ranked by colour (the colour filter narrows the list to what is late).
+      expect(tester.getTopLeft(find.text('Nộp báo cáo khả thi')).dy, lessThan(tester.getTopLeft(find.text('Hoàn thiện hồ sơ thiết kế')).dy), reason: 'the order of the process');
       expect(find.text('Mốc chưa xong'), findsNothing, reason: 'the project lists its own milestones; the panel does not list those of the workflow in this tab');
     });
 

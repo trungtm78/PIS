@@ -5,8 +5,10 @@ import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/navigation/mobile_routes.generated.dart';
 import 'package:machvon_mobile/core/navigation/route_table.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
+import 'package:machvon_mobile/core/widgets/filter_chips.dart';
 import 'package:machvon_mobile/features/project_workflow/project_workflow_feature.dart' as pwf;
 import 'package:machvon_mobile/features/project_workflow/pwf_models.dart';
+import 'package:machvon_mobile/features/project_workflow/pwf_workflow_panel.dart' show PwfBandFilter;
 
 import '../../support/harness.dart';
 import '../../support/offline_support.dart';
@@ -149,32 +151,28 @@ void main() {
     ScriptedServer server() => ScriptedServer()..on('GET', '/projects/:id/workflow', (_) => steppedWorkflow());
     Future<void> open(WidgetTester tester, {Locale locale = const Locale('vi')}) => pumpWithServer(tester, features: <MobileFeature>[pwf.feature], server: server(), location: _at('MOB-78', '/$kProjectId'), locale: locale);
 
-    testWidgets('the tasks of the open phase are under their steps, each step with where it stands, its tasks, its checklist and its standard time', (WidgetTester tester) async {
+    testWidgets('a step with several tasks has a header with where it stands, its tasks, its checklist and its standard time; a step with one task is one row; a task of no step is a row of its phase', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await open(tester);
-      // A document the procedure cites that lapsed is said above the tabs, on every one of them.
+      // A document the procedure cites that lapsed is said above the list.
       expect(find.textContaining('1 văn bản pháp lý mà quy trình viện dẫn đã hết hiệu lực'), findsOneWidget);
-      await tester.tap(find.textContaining('Công việc').first);
-      await tester.pumpAndSettle();
       expect(find.text('Bước 1. Lựa chọn nhà thầu'), findsOneWidget);
       // The legal grounds of a step are a fact on its line (the row opens them), not an end column that squeezed the line.
       expect(find.text('Đang thực hiện · Việc 0/2 · Mục kiểm 1/2 · Chuẩn 45 ngày làm việc · 2 căn cứ pháp lý, 1 cần xem lại'), findsOneWidget);
-      expect(find.text('Bước 2. Ký hợp đồng'), findsOneWidget);
-      expect(find.text('Chưa bắt đầu · Việc 0/1 · Chuẩn 5 ngày làm việc'), findsOneWidget);
-      // The checklist of the task itself is on its row.
-      expect(find.textContaining('Mục kiểm 1/2'), findsNWidgets(2));
-      expect(find.text('Việc riêng của dự án'), findsOneWidget);
+      // The step of ONE task is one row of the list, the row of that task.
+      expect(find.text('Bước 2. Ký hợp đồng'), findsNothing);
+      expect(find.text('Ký hợp đồng thi công'), findsOneWidget);
       expect(find.text('Nghiệm thu giai đoạn 1'), findsOneWidget);
-      // The step comes before the tasks of the next one.
+      // What the checklist of the task still lacks stands in the way of it, on its row.
+      expect(find.text('Đang chặn bởi: còn 1 mục hồ sơ chưa nộp'), findsOneWidget);
+      // The step comes before its tasks and its tasks before the next step (the order is the process, not a ranking by colour).
       expect(tester.getTopLeft(find.text('Bước 1. Lựa chọn nhà thầu')).dy, lessThan(tester.getTopLeft(find.text('Lập hồ sơ mời thầu gói thầu xây lắp')).dy));
-      expect(tester.getTopLeft(find.text('Lập hồ sơ mời thầu gói thầu xây lắp')).dy, lessThan(tester.getTopLeft(find.text('Bước 2. Ký hợp đồng')).dy));
+      expect(tester.getTopLeft(find.text('Lập hồ sơ mời thầu gói thầu xây lắp')).dy, lessThan(tester.getTopLeft(find.text('Ký hợp đồng thi công')).dy));
     });
 
     testWidgets('tapping a step opens its legal grounds: the document, the article or that none is cited yet, the state in words and what replaced it', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await open(tester);
-      await tester.tap(find.textContaining('Công việc').first);
-      await tester.pumpAndSettle();
       await tester.tap(find.text('Bước 1. Lựa chọn nhà thầu'));
       await tester.pumpAndSettle();
       expect(find.text('Căn cứ pháp lý: Lựa chọn nhà thầu'), findsOneWidget);
@@ -192,9 +190,7 @@ void main() {
     testWidgets('a colour filter keeps the flat list of the tasks that match', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await open(tester);
-      await tester.tap(find.textContaining('Công việc').first);
-      await tester.pumpAndSettle();
-      await tester.tap(find.textContaining('Quá hạn').last);
+      await tester.tap(find.descendant(of: find.byType(FilterChips<PwfBandFilter>), matching: find.textContaining('Quá hạn')));
       await tester.pumpAndSettle();
       expect(find.text('Lập hồ sơ mời thầu gói thầu xây lắp'), findsOneWidget);
       expect(find.text('Bước 1. Lựa chọn nhà thầu'), findsNothing);
@@ -203,10 +199,9 @@ void main() {
     testWidgets('in English the steps read in English', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await open(tester, locale: const Locale('en'));
-      await tester.tap(find.textContaining('Tasks').first);
-      await tester.pumpAndSettle();
       expect(find.text('Step 1. Lựa chọn nhà thầu'), findsOneWidget);
       expect(find.textContaining('In progress · Tasks 0/2 · Checklist 1/2 · Standard 45 working days'), findsOneWidget);
+      expect(find.text('Blocked by: 1 items of evidence not handed in'), findsOneWidget);
     });
 
     testWidgets('the three devices and 200 percent text, with the steps on the screen', (WidgetTester tester) async {
@@ -227,27 +222,29 @@ void main() {
           overrides: <Override>[offlineStorageProvider.overrideWithValue(TestStorage.create().storage)],
         );
 
-    testWidgets('the step of the task, its checklist, the legal grounds of the task and of its step, and a form that was revised since', (WidgetTester tester) async {
+    Future<void> unfold(WidgetTester tester, String title) async {
+      await tester.scrollUntilVisible(find.text(title), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.text(title));
+      await tester.pump();
+    }
+
+    testWidgets('the checklist and the revision of the forms are in the main section; the step with its role and the legal grounds of the task and of its step are in folds', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await open(tester);
-      // The screen is in tabs. "Thông tin": the step of the task and the role that answers for it, by name.
-      await tester.tap(find.textContaining('Thông tin'));
-      await tester.pump();
-      expect(find.text('Bước 1. Lựa chọn nhà thầu'), findsOneWidget);
-      expect(find.text('Cán bộ đấu thầu'), findsOneWidget);
-      // "Cần làm": the checklist of the task, item by item, and the revision of its forms.
-      await tester.tap(find.textContaining('Cần làm'));
-      await tester.pump();
+      // The main section: the checklist of the task, item by item, and the revision of its forms.
+      expect(find.text('Cần làm gì để xong'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('Dự thảo hồ sơ mời thầu'), 200, scrollable: find.byType(Scrollable).first);
       expect(find.text('Biên bản họp tổ chuyên gia'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('Phiên bản biểu mẫu'), 200, scrollable: find.byType(Scrollable).first);
       expect(find.text('Hồ sơ mời thầu'), findsOneWidget);
       // A form revised since is said first on the line of the form.
       expect(find.text('Có bản mới · Dùng bản đã duyệt mới nhất · Đang hiệu lực: bản 3 · Đã dùng: bản 2'), findsOneWidget);
-      // "Căn cứ": the legal grounds of the task and of its step.
-      await tester.scrollUntilVisible(find.textContaining('Căn cứ'), -200, scrollable: find.byType(Scrollable).first);
-      await tester.tap(find.textContaining('Căn cứ').first);
-      await tester.pump();
+      // The folds are shut: their content is not on the screen until they are asked for.
+      expect(find.text('Cán bộ đấu thầu'), findsNothing);
+      expect(find.text('Nghị định 214/2025/NĐ-CP'), findsNothing);
+      await unfold(tester, 'Người làm và đơn vị');
+      expect(find.text('Cán bộ đấu thầu'), findsOneWidget);
+      await unfold(tester, 'Căn cứ pháp lý');
       await tester.scrollUntilVisible(find.text('Căn cứ pháp lý của công việc'), 200, scrollable: find.byType(Scrollable).first);
       expect(find.text('Nghị định 214/2025/NĐ-CP'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('Căn cứ pháp lý của bước'), 200, scrollable: find.byType(Scrollable).first);
@@ -258,7 +255,7 @@ void main() {
       await tester.pump(Duration.zero);
     });
 
-    testWidgets('people and documents are named, the forecast stands beside the deadline, the log is in words, and the facts are in groups with a heading each', (WidgetTester tester) async {
+    testWidgets('people and documents are named, the forecast stands beside the deadline, the log is in words, and the time limit and the history are folds', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final Map<String, Object?> task = steppedTask()
         ..['forecast_finish'] = '2026-11-20'
@@ -283,20 +280,15 @@ void main() {
       await tester.scrollUntilVisible(find.text('Tờ trình chủ trương đầu tư'), 200, scrollable: find.byType(Scrollable).first);
       expect(find.textContaining('12/TTr-BQL · Nguyễn Văn An'), findsOneWidget);
       expect(find.textContaining('5f0c1c5e'), findsNothing);
-      // The facts are three groups with a heading each; the code of the task is one of them.
-      await tester.scrollUntilVisible(find.textContaining('Thông tin'), -200, scrollable: find.byType(Scrollable).first);
-      await tester.tap(find.textContaining('Thông tin').first);
-      await tester.pump();
-      expect(find.text('Phân công'), findsOneWidget);
-      expect(find.text('Thời hạn'), findsOneWidget);
-      expect(find.text('Vị trí trong quy trình'), findsOneWidget);
+      // The time limit is a fold: the forecast is one of its rows, and the code of the task is a fact of the fold of who does it.
+      expect(find.text('Dự báo xong'), findsNothing);
+      await unfold(tester, 'Thời hạn');
       expect(find.text('Dự báo xong'), findsOneWidget);
-      // The log says what happened in words and who did it; a kind it has no word for is "Cập nhật", never the code.
-      await tester.scrollUntilVisible(find.textContaining('Diễn biến'), -200, scrollable: find.byType(Scrollable).first);
-      await tester.tap(find.textContaining('Diễn biến').first);
-      await tester.pump();
-      expect(find.text('Nộp chứng từ'), findsOneWidget);
-      expect(find.text('Nguyễn Văn An'), findsOneWidget);
+      // The history says what happened in words and who did it; a kind it has no word for is "Cập nhật", never the code.
+      await unfold(tester, 'Lịch sử');
+      await tester.scrollUntilVisible(find.text('Cập nhật'), 200, scrollable: find.byType(Scrollable).first);
+      // "Nộp chứng từ" is both the action of the main section and the word of the history for the evidence that was handed in.
+      expect(find.text('Nộp chứng từ'), findsNWidgets(2));
       expect(find.text('Cập nhật'), findsOneWidget);
       expect(find.textContaining('SOMETHING_NEW'), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());

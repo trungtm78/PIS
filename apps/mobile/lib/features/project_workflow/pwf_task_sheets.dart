@@ -34,6 +34,21 @@ Future<String?> showPwfNoteSheet(
   );
 }
 
+/// The confirmation of "Hoàn thành" with its optional note, the same on MOB-79 and on the sheet of a row of MOB-78: it says whether an approver follows and that the checklist is checked
+/// again by the server. Returns the note ("" when none), or null when the person left.
+Future<String?> showPwfCompleteSheet(BuildContext context, PwfTaskDetail task) {
+  return showPwfNoteSheet(
+    context,
+    title: context.t('mob.pwf.complete.title'),
+    facts: <String>[
+      task.approverRole == null ? context.t('mob.pwf.complete.fact.done') : context.t('mob.pwf.complete.fact.approval', <String, Object>{'role': pwfRoleName(context, task.approverRole!)}),
+      context.t('mob.pwf.complete.fact.check'),
+    ],
+    confirmLabel: context.t('mob.pwf.complete.confirm'),
+    noteLabel: context.t('mob.pwf.sheet.note.label'),
+  );
+}
+
 class _NoteSheet extends StatefulWidget {
   const _NoteSheet({required this.facts, required this.confirmLabel, required this.noteLabel, required this.noteRequired, required this.minLength, required this.destructive});
 

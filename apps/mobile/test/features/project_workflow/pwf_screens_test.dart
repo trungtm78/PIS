@@ -13,9 +13,11 @@ import 'package:machvon_mobile/core/navigation/route_table.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/core/theme/colors.dart' show DeadlineBand;
+import 'package:machvon_mobile/core/widgets/filter_chips.dart';
 import 'package:machvon_mobile/features/account/deadline_thresholds.dart';
 import 'package:machvon_mobile/features/project_workflow/project_workflow_feature.dart' as pwf;
 import 'package:machvon_mobile/features/project_workflow/pwf_models.dart';
+import 'package:machvon_mobile/features/project_workflow/pwf_workflow_panel.dart' show PwfBandFilter;
 import 'package:machvon_mobile/features/read_support/read_cache.dart';
 
 import '../../support/harness.dart';
@@ -34,30 +36,32 @@ ScriptedServer _workflowServer({Map<String, Object?>? workflow}) => ScriptedServ
 
 void main() {
   group('MOB-78 the workflow of a project', () {
-    testWidgets('the strip of the stages, the progress, the count by official colour and the open stage with its tasks, each with its deadline in words and its day', (WidgetTester tester) async {
+    testWidgets('the head: the stage that is open, how far it is, the count by official colour; then the phases as sections of steps, the open one open and each step with its deadline in words and its day', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await _open(tester, _workflowServer(), 'MOB-78', suffix: '/$kProjectId');
       expect(find.text('Giai đoạn 2/3 · Thực hiện đầu tư'), findsOneWidget);
       expect(find.text('Việc bắt buộc xong 4/9'), findsOneWidget);
-      // The overview: the three official bands as three figures, each named by its band, the tasks that need a person now and the stages with what is done of each.
-      expect(find.text('Quá hạn'), findsOneWidget);
-      expect(find.text('Sắp đến hạn'), findsOneWidget);
-      expect(find.text('Còn thời gian'), findsOneWidget);
+      // The three official bands as three figures, each named by its band (and again as the filter of the list).
+      expect(find.text('Quá hạn'), findsWidgets);
+      expect(find.text('Sắp đến hạn'), findsWidgets);
+      expect(find.text('Còn thời gian'), findsWidgets);
       expect(find.textContaining('Màu hạn chính thức của đơn vị, giống nhau với mọi người xem.'), findsOneWidget);
-      expect(find.text('Cần xử lý ngay'), findsOneWidget);
-      expect(find.text('Các giai đoạn'), findsOneWidget);
-      expect(find.textContaining('Đang thực hiện · Việc bắt buộc xong '), findsOneWidget, reason: 'one stage is the current one');
-      // The work is a tab of its own: the open stage is open; the others are closed.
-      await tester.tap(find.textContaining('Công việc').first);
-      await tester.pumpAndSettle();
-      expect(find.text('Các giai đoạn'), findsNothing);
+      // One page, no tabs: the three tabs of the earlier design are gone.
+      expect(find.text('Tổng quan'), findsNothing);
+      expect(find.text('Cần xử lý ngay'), findsNothing);
+      // The phases are sections; the open one is open and the others are closed.
+      expect(find.text('Thực hiện đầu tư'), findsOneWidget);
       expect(find.text('Lập hồ sơ mời thầu gói thầu xây lắp'), findsOneWidget);
       expect(find.text('Quyết toán dự án'), findsNothing);
       expect(find.text('Quyết định chủ trương đầu tư'), findsNothing);
-      // A deadline is told in words with the unit the server counted in, and its day.
+      // A deadline is told in words with the unit the server counted in, and its day (dd/MM/yyyy).
       expect(find.text('Trễ 2 ngày làm việc'), findsOneWidget);
       expect(find.text('Còn 2 ngày làm việc'), findsOneWidget);
-      expect(find.text('hạn 10/11'), findsOneWidget);
+      expect(find.text('hạn 10/11/2026'), findsOneWidget);
+      // The holder, the state in words, and the milestone as a flag.
+      expect(find.text('Người làm: Trần Văn B'), findsWidgets);
+      expect(find.text('Đang làm'), findsWidgets);
+      expect(find.text('Mốc'), findsOneWidget);
       // A deadline that cannot be counted says why, never a colour, and never a guess.
       expect(find.text('Chưa tính được hạn, thiếu lịch năm 2027'), findsOneWidget);
       // A branch the project does not have is not shown.
@@ -71,34 +75,29 @@ void main() {
       expect(find.textContaining('Theo cài đặt của bạn'), findsNothing);
     });
 
-    testWidgets('the milestones ahead are listed first; a colour filter narrows the list and opens the stages that match; a stage can be opened and closed', (WidgetTester tester) async {
+    testWidgets('a colour filter narrows the list and opens the stages that match; a stage can be opened and closed', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await _open(tester, _workflowServer(), 'MOB-78', suffix: '/$kProjectId');
-      // The milestones are a tab of their own: the ones not done yet, the nearest first.
-      await tester.tap(find.textContaining('Mốc').first);
-      await tester.pumpAndSettle();
-      expect(find.text('Mốc chưa xong'), findsOneWidget);
-      expect(find.text('Ký hợp đồng thi công'), findsOneWidget);
-      await tester.tap(find.textContaining('Công việc').first);
-      await tester.pumpAndSettle();
-      expect(find.text('Mốc chưa xong'), findsNothing);
       await tester.tap(find.text('Kết thúc đầu tư'));
       await tester.pumpAndSettle();
       expect(find.text('Quyết toán dự án'), findsOneWidget);
       await tester.tap(find.text('Kết thúc đầu tư'));
       await tester.pumpAndSettle();
       expect(find.text('Quyết toán dự án'), findsNothing);
-      await tester.tap(find.textContaining('Quá hạn').last);
+      await tester.tap(find.descendant(of: find.byType(FilterChips<PwfBandFilter>), matching: find.textContaining('Quá hạn')));
       await tester.pumpAndSettle();
       expect(find.text('Lập hồ sơ mời thầu gói thầu xây lắp'), findsOneWidget);
       expect(find.text('Thẩm định kế hoạch lựa chọn nhà thầu'), findsNothing);
     });
 
-    testWidgets('a task opens its screen', (WidgetTester tester) async {
+    testWidgets('a step opens its actions, and the actions open the task on its own screen', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = _workflowServer()..on('GET', '/project-tasks/:id', (_) => taskDetailJson(TaskState()));
       final ProviderContainer container = await _open(tester, server, 'MOB-78', suffix: '/$kProjectId');
       await tester.tap(find.text('Lập hồ sơ mời thầu gói thầu xây lắp'));
+      await tester.pumpAndSettle();
+      expect(find.text('Mở chi tiết việc'), findsOneWidget);
+      await tester.tap(find.text('Mở chi tiết việc'));
       await tester.pumpAndSettle();
       expect(currentLocation(container), contains('/mob-79/$kTaskId'));
     });
@@ -142,6 +141,9 @@ void main() {
         },
         healthy: (ScriptedServer server) => server.on('GET', '/projects/:id/workflow', (_) => workflowJson()),
       );
+      // The schedule is read after the workflow for two sentences; a screen that is let go with that read in flight leaves no timer behind.
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(Duration.zero);
     });
   });
 

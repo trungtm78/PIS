@@ -14,12 +14,14 @@ import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/filter_chips.dart';
 import '../../../core/widgets/nav_row.dart';
 import '../../../core/widgets/stat_strip.dart';
+import '../../../core/widgets/tint_chip.dart';
 import '../../../core/widgets/underline_tabs.dart';
 import '../../../core/widgets/work_row.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
 import '../pwf_models.dart';
+import '../pwf_step_words.dart';
 import '../pwf_widgets.dart';
 
 /// MOB-80: "Việc của tôi": the tasks of the person by deadline. The colours are the ones of the person's own settings, each row says so ("theo cài đặt
@@ -351,11 +353,18 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
     // The deadline is a line of its own under the name, across the width of the row, and the note of a personal colour a line under it: in a narrow end column they
     // broke into five lines and squeezed the name of the task. The code of the task is not on the row (it is among the facts of the task).
     final String? forecast = pwfForecastWords(context, status: task.status, dueDay: task.dueDate, forecastDay: task.forecastFinish);
-    final List<String> facts = <String>[task.projectCode, if (task.critical) context.t('mob.pwf.mine.row.critical')].where((String part) => part.isNotEmpty).toList();
+    // PWF-5: the unit that receives the task, and the official colour said with where it comes from (the personal one is said to be the person's own, above). A task nobody has taken
+    // says so, with the way to take it: the row opens the task, where "Nhận việc" is.
+    final PwfStepFacts steps = task.facts;
+    final bool unclaimed = steps.unclaimed && !task.status.isFinal;
+    final String? tier = personal || task.status.isFinal || steps.bandTier == null ? null : pwfTierSentence(context, steps.bandTier);
+    final List<String> facts = <String>[task.projectCode, if (steps.unitName != null) context.t('mob.pwfs.mine.unit', <String, Object>{'unit': steps.unitName!}), if (task.critical) context.t('mob.pwf.mine.row.critical')].where((String part) => part.isNotEmpty).toList();
+    final String? claim = unclaimed ? '${context.t('mob.pwfs.mine.unclaimed')}. ${context.t('mob.pwfs.mine.claim')}' : null;
     return WorkRow(
       title: task.name,
       titleMaxLines: 3,
       subtitle: facts.isEmpty ? null : facts.join(' · '),
+      subtitleMaxLines: 2,
       leading: PwfGlyph(band: band, status: task.status),
       footer: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,11 +372,25 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
         children: <Widget>[
           PwfDeadlineLine(band: band, status: task.status, dueDay: task.dueDate, forecastDay: task.forecastFinish),
           if (note != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(note, style: context.v2text.caption)),
+          if (tier != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(tier, style: context.v2text.caption)),
+          if (unclaimed)
+            Padding(
+              padding: const EdgeInsets.only(top: MachvonV2Space.s4),
+              child: Wrap(
+                spacing: MachvonV2Space.s8,
+                runSpacing: MachvonV2Space.s4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: <Widget>[
+                  TintChip(label: context.t('mob.pwfs.mine.unclaimed'), icon: Icons.person_off_outlined, ink: context.v2.palette.infoFg, fill: context.v2.palette.infoBg),
+                  Text(context.t('mob.pwfs.mine.claim'), style: context.v2text.caption),
+                ],
+              ),
+            ),
         ],
       ),
       trailing: Icon(Icons.chevron_right, color: context.v2.palette.ink3),
       onTap: () => widget.onOpenTask(task),
-      semanticLabel: pwfSpokenRow(context, title: task.name, facts: facts, band: band, status: task.status, dueDay: task.dueDate, note: <String>[?forecast, ?note].isEmpty ? null : <String>[?forecast, ?note].join(', ')),
+      semanticLabel: pwfSpokenRow(context, title: task.name, facts: facts, band: band, status: task.status, dueDay: task.dueDate, note: <String>[?forecast, ?note, ?tier, ?claim].isEmpty ? null : <String>[?forecast, ?note, ?tier, ?claim].join(', ')),
       dividerAbove: divider,
     );
   }

@@ -14,10 +14,12 @@ import '../../../core/theme/typography.dart';
 import '../../../core/widgets/action_bar.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/nav_row.dart';
 import '../../../core/widgets/section_panel.dart';
 import '../../../core/widgets/sheets.dart';
 import '../../../core/widgets/state_view.dart';
 import '../../../core/widgets/timeline.dart';
+import '../../../core/widgets/tint_chip.dart';
 import '../../../core/widgets/work_row.dart';
 import '../../command_support/command_outcome.dart';
 import '../../read_support/clock.dart';
@@ -26,9 +28,12 @@ import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
 import '../pwf_codes.dart';
 import '../pwf_commands.dart';
+import '../pwf_fold.dart';
 import '../pwf_models.dart';
 import '../pwf_process_widgets.dart';
-import '../pwf_tabs.dart';
+import '../pwf_step_commands.dart';
+import '../pwf_step_row.dart';
+import '../pwf_step_words.dart';
 import '../pwf_task_service.dart';
 import '../pwf_task_sheets.dart';
 import '../pwf_widgets.dart';
@@ -153,9 +158,11 @@ class _PwfTaskDetailScreenState extends ConsumerState<PwfTaskDetailScreen> {
           onApprove: _approve,
           onReturn: _return,
           onResume: _resume,
+          onClaim: _claim,
           onResend: _resend,
           onDrop: _drop,
           onFiles: _files,
+          onScore: _score,
         ),
       ),
     );
@@ -176,16 +183,7 @@ class _PwfTaskDetailScreenState extends ConsumerState<PwfTaskDetailScreen> {
   }
 
   Future<void> _complete(PwfTaskDetail task) async {
-    final String? note = await showPwfNoteSheet(
-      context,
-      title: context.t('mob.pwf.complete.title'),
-      facts: <String>[
-        task.approverRole == null ? context.t('mob.pwf.complete.fact.done') : context.t('mob.pwf.complete.fact.approval', <String, Object>{'role': pwfRoleName(context, task.approverRole!)}),
-        context.t('mob.pwf.complete.fact.check'),
-      ],
-      confirmLabel: context.t('mob.pwf.complete.confirm'),
-      noteLabel: context.t('mob.pwf.sheet.note.label'),
-    );
+    final String? note = await showPwfCompleteSheet(context, task);
     if (note == null || !mounted) return;
     await _queue((PwfTaskService service, String intention) => service.complete(task, intention: intention, note: note));
   }
@@ -266,6 +264,30 @@ class _PwfTaskDetailScreenState extends ConsumerState<PwfTaskDetailScreen> {
     await _decide((PwfDecisionCommands commands) => commands.returnTask(task.id, task.version, reason), done: context.t('mob.pwf.notice.returned'));
   }
 
+  /// "Nhận việc": made online only, on a task the server has just read for the person (a copy kept on the device is never the base of a claim), and judged again by the server.
+  Future<void> _claim(PwfTaskDetail task) async {
+    if (_busy) return;
+    final String done = context.t('mob.pwfs.notice.claimed');
+    setState(() => _busy = true);
+    final CommandOutcome outcome = await ref.read(pwfStepCommandsProvider).claim(task.id);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    switch (outcome) {
+      case CommandDone():
+        _say(_Notice(done));
+        _reloadNow();
+      case CommandOffline():
+        _say(_Notice(context.t('mob.pwf.notice.needsNetwork'), problem: true));
+      case CommandUnknown():
+        _say(_Notice(context.t('mob.pwf.notice.unknown'), problem: true));
+      case CommandRefused(:final String code, :final Map<String, Object?> extensions, :final String? detail):
+        _say(_Notice(pwfStepRefusalText(context, code, extensions: extensions, detail: detail), code: code, problem: true));
+        if (pwfRefusalNeedsReload(code)) _reloadNow();
+    }
+  }
+
+  void _score() => openScreen(context, 'MOB-81', stacked: true);
+
   Future<void> _resume(PwfTaskDetail task) async {
     final bool yes = await showConfirmSheet(
       context,
@@ -312,6 +334,7 @@ String _refusalText(BuildContext context, String code) => switch (code) {
       'PWF_TASK_STATE_INVALID' => context.t('mob.pwf.refusal.state'),
       'PWF_TASK_COMPLETION_BLOCKED' => context.t('mob.pwf.refusal.blocked'),
       'SCOPE_DENIED' => context.t('mob.pwf.refusal.scope'),
+      'PWF_CLAIM_NOT_ELIGIBLE' || 'PWF_TASK_ALREADY_CLAIMED' || 'RESOURCE_NOT_FOUND' => pwfStepRefusalText(context, code),
       _ => context.t('mob.pwf.refusal.other'),
     };
 
@@ -331,9 +354,11 @@ class _TaskBody extends StatelessWidget {
     required this.onApprove,
     required this.onReturn,
     required this.onResume,
+    required this.onClaim,
     required this.onResend,
     required this.onDrop,
     required this.onFiles,
+    required this.onScore,
   });
 
   final PwfTaskDetail detail;
@@ -352,9 +377,11 @@ class _TaskBody extends StatelessWidget {
   final Future<void> Function(PwfTaskDetail) onApprove;
   final Future<void> Function(PwfTaskDetail) onReturn;
   final Future<void> Function(PwfTaskDetail) onResume;
+  final Future<void> Function(PwfTaskDetail) onClaim;
   final Future<void> Function(PwfTaskDetail) onResend;
   final Future<void> Function(PwfTaskDetail) onDrop;
   final VoidCallback onFiles;
+  final VoidCallback onScore;
 
   /// The person has started the task on the device and the server does not know yet: what follows (evidence, items, completion) is queued behind it.
   bool get _startPending => queue.has(kPwfStartCommand);
@@ -371,8 +398,11 @@ class _TaskBody extends StatelessWidget {
     final bool problem = queue.hasProblem;
     final bool locked = busy || _waitingForOwnCommand || problem;
     final ActionBar? bar = _bar(context, locked, problem);
-    // One purpose a tab (the long list of facts is no longer one page): what there is to do, the facts of the task, its legal grounds, and what happened to it.
+    String? dayOf(String? value) => value == null ? null : formatDay(value, language: language);
+    final PwfStepFacts steps = detail.facts;
+    // One main section, what is needed to finish (the checklist, the documents, the forms, the evidence), and the rest in folds that are shut until they are asked for.
     final List<Widget> todo = <Widget>[
+      if (detail.status.isFinal) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwfs.task.todo.done'), style: text.body)),
       if (detail.blockers.isNotEmpty && !detail.status.isFinal) ...<Widget>[
         GroupHeader(title: context.t('mob.pwf.blockers.title'), count: detail.blockers.length),
         for (int index = 0; index < detail.blockers.length; index += 1) _blocker(context, detail.blockers[index], index > 0),
@@ -396,16 +426,11 @@ class _TaskBody extends StatelessWidget {
       if (_canWork) WorkRow(title: context.t('mob.pwf.evidence.add'), leading: const Icon(Icons.add_circle_outline), onTap: locked ? null : () => onEvidence(detail), dividerAbove: detail.evidence.isNotEmpty),
       WorkRow(title: context.t('mob.pwf.evidence.files.open'), subtitle: context.t('mob.pwf.evidence.files.hint'), leading: const Icon(Icons.attach_file), trailing: const Icon(Icons.chevron_right), onTap: onFiles, dividerAbove: true),
     ];
-    String? dayOf(String? value) => value == null ? null : formatDay(value, language: language);
-    // The facts in three short groups, each with its heading: who, when, and where the task sits in the procedure. A fact that is not known is left out, and a group with none is left out with its heading.
+    // The time limit: the dates of the schedule, the time limit of the step with its unit, where its colour comes from and what is left of its extension.
     final String? forecast = detail.status.isFinal || detail.forecastFinish == detail.plannedFinish ? null : dayOf(detail.forecastFinish);
-    final List<Widget> facts = <Widget>[
-      ..._group(context.t('mob.pwf7.group.people'), <(String, String?)>[
-        for (final PwfTaskPerson person in detail.people) if (!(person.role == 'RESPONSIBLE' && person.name == detail.assignee)) (pwfPartName(context, person.role), person.name),
-        (context.t('mob.pwf.fact.role'), detail.responsibleRole == null ? null : (detail.responsibleRoleName ?? pwfRoleName(context, detail.responsibleRole!))),
-        (context.t('mob.pwf.fact.approver'), detail.approverRole == null ? null : (detail.approverRoleName ?? pwfRoleName(context, detail.approverRole!))),
-      ]),
-      ..._group(context.t('mob.pwf7.group.schedule'), <(String, String?)>[
+    final PwfExtension? extension = steps.extension;
+    final List<Widget> deadline = <Widget>[
+      ..._rows(<(String, String?)>[
         (context.t('mob.pwf.fact.plannedStart'), dayOf(detail.plannedStart)),
         (context.t('mob.pwf.fact.plannedFinish'), dayOf(detail.plannedFinish)),
         (context.t('mob.pwf7.fact.forecast'), forecast),
@@ -413,16 +438,25 @@ class _TaskBody extends StatelessWidget {
         (context.t('mob.pwf.fact.variance'), detail.finishVarianceDays == null || detail.finishVarianceDays == 0 ? null : context.t('mob.pwf.fact.variance.days', <String, Object>{'days': detail.finishVarianceDays!})),
         (context.t('mob.pwf.fact.actualStart'), dayOf(detail.actualStart)),
         (context.t('mob.pwf.fact.actualFinish'), dayOf(detail.actualFinish)),
+        (context.t('mob.pwfs.fact.duration'), steps.duration == null ? null : pwfDurationWords(context, steps.duration!)),
+        (context.t('mob.pwfs.fact.tier'), detail.status.isFinal ? null : <String>[pwfTierSentence(context, steps.bandTier), if (steps.bandThresholds != null && steps.bandTier != null) pwfThresholdsSentence(context, steps.bandThresholds!, working: detail.band.isWorking)].join('. ')),
+        (context.t('mob.pwfs.fact.extension'), extension == null || !extension.allowed ? null : pwfExtensionUsed(context, extension)),
       ]),
-      ..._group(context.t('mob.pwf7.group.place'), <(String, String?)>[
-        (context.t('mob.pwf7.fact.phase'), pwfPhaseName(context, detail.phaseCode)),
-        (context.t('mob.pwf.process.fact.step'), detail.step == null ? null : context.t('mob.pwf.process.fact.stepValue', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name})),
-        (context.t('mob.pwf.process.fact.stepRole'), detail.step?.responsibleRole == null ? null : (detail.step!.responsibleRoleName ?? pwfRoleName(context, detail.step!.responsibleRole!))),
-        (context.t('mob.pwf.fact.critical'), detail.critical ? context.t('mob.pwf.fact.critical.value') : null),
-        (context.t('mob.pwf.fact.returns'), detail.returnCount > 0 ? '${detail.returnCount}' : null),
-        (context.t('mob.pwf7.fact.code'), detail.code),
-      ]),
+      if (extension != null && extension.allowed && extension.capped && !detail.status.isFinal) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwfs.ext.capped', <String, Object>{'unit': pwfDurationUnitWord(context, extension.unit)}), style: text.caption)),
     ];
+    // Who does it and where it sits: the people of the task and the unit that receives it, then its place in the procedure.
+    final String? unit = steps.receivingUnits.isEmpty ? steps.unitName : steps.receivingUnits.map((PwfReceivingUnit one) => one.role == null ? one.name : '${one.name} (${one.role})').join(', ');
+    final List<Widget> who = _rows(<(String, String?)>[
+      (context.t('mob.pwfs.fact.unit'), unit),
+      for (final PwfTaskPerson person in detail.people) if (!(person.role == 'RESPONSIBLE' && person.name == detail.assignee)) (pwfPartName(context, person.role), person.name),
+      (context.t('mob.pwf.fact.role'), detail.responsibleRole == null ? null : (detail.responsibleRoleName ?? pwfRoleName(context, detail.responsibleRole!))),
+      (context.t('mob.pwf.fact.approver'), detail.approverRole == null ? null : (detail.approverRoleName ?? pwfRoleName(context, detail.approverRole!))),
+      (context.t('mob.pwf7.fact.phase'), pwfPhaseName(context, detail.phaseCode)),
+      (context.t('mob.pwf.process.fact.step'), detail.step == null ? null : context.t('mob.pwf.process.fact.stepValue', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name})),
+      (context.t('mob.pwf.process.fact.stepRole'), detail.step?.responsibleRole == null ? null : (detail.step!.responsibleRoleName ?? pwfRoleName(context, detail.step!.responsibleRole!))),
+      (context.t('mob.pwf.fact.critical'), detail.critical ? context.t('mob.pwf.fact.critical.value') : null),
+      (context.t('mob.pwf7.fact.code'), detail.code),
+    ]);
     final List<Widget> grounds = <Widget>[
       // PWF-4: the legal grounds of the task and of its step (read only), and the revision of each form with a warning when the form was revised since.
       if (detail.legalBasis.isNotEmpty) ...<Widget>[
@@ -435,23 +469,13 @@ class _TaskBody extends StatelessWidget {
       ],
       if (detail.legalBasis.isEmpty && detail.stepLegalBasis.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.tab.legal.none'), style: text.body)),
     ];
-    final List<Widget> log = <Widget>[
-      if (detail.exceptions.isNotEmpty) ...<Widget>[
-        GroupHeader(title: context.t('mob.pwf.exceptions.title'), count: detail.exceptions.length),
-        for (int index = 0; index < detail.exceptions.length; index += 1) _exceptionRow(context, detail.exceptions[index], index > 0, language),
-      ],
-      if (detail.history.isNotEmpty) ...<Widget>[
-        GroupHeader(title: context.t('mob.pwf.history.title'), count: detail.history.length),
-        Padding(
-          padding: const EdgeInsets.all(MachvonV2Space.s16),
-          child: TimelineList(
-            entries: <TimelineEntry>[
-              for (final PwfHistoryEntry entry in detail.history) TimelineEntry(title: pwfHistoryName(context, entry.kind), when: formatMoment(entry.at, language: language), detail: <String>[?entry.actorName, ?entry.reason].isEmpty ? null : <String>[?entry.actorName, ?entry.reason].join(' · ')),
-            ],
-          ),
-        ),
-      ],
-      if (detail.exceptions.isEmpty && detail.history.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.tab.log.none'), style: text.body)),
+    final List<Widget> kpi = <Widget>[
+      ..._rows(<(String, String?)>[
+        (context.t('mob.pwfs.task.kpi.variance'), detail.finishVarianceDays == null ? null : context.t('mob.pwfs.task.kpi.varianceDays', <String, Object>{'days': detail.finishVarianceDays!})),
+        (context.t('mob.pwfs.task.kpi.returned'), '${detail.returnCount}'),
+        (context.t('mob.pwfs.task.kpi.percent'), detail.percentComplete == null ? null : context.t('mob.pwfs.task.kpi.percentValue', <String, Object>{'percent': detail.percentComplete!})),
+      ]),
+      NavRow(label: context.t('mob.pwfs.task.kpi.score'), icon: Icons.insights_outlined, dividerAbove: true, onTap: onScore),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -465,16 +489,38 @@ class _TaskBody extends StatelessWidget {
               if (queue.conflicts.isNotEmpty) _ConflictCard(detail: detail, queue: queue, fresh: fresh, onResend: onResend, onDrop: onDrop),
               if (queue.refused.isNotEmpty) _RefusedCard(detail: detail, queue: queue, onDrop: onDrop),
               if (queue.inFlight.isNotEmpty) StatusBanner(text: _pendingText(context, queue.inFlight, online), icon: Icons.schedule),
-              // The two facts every reader wants first stay above the tabs: where the task stands and who has it.
+              // The two facts every reader wants first stay above the main section: where the task stands and who has it.
               // The head already says the state in words when the state replaces the deadline (waiting for approval, on hold, over): it is not said a second time here.
               if (!pwfDeadlineLineSaysStatus(detail.status)) InfoRow(label: context.t('mob.pwf.fact.status'), value: pwfStatusLabel(context, detail.status), divider: false),
               if (detail.assignee != null) InfoRow(label: context.t('mob.pwf.fact.assignee'), value: detail.assignee, divider: !pwfDeadlineLineSaysStatus(detail.status)),
-              PwfTabs(
-                tabs: <PwfTab>[
-                  PwfTab(label: context.t('mob.pwf6.tab.todo'), count: detail.checklist.where((PwfChecklistItem item) => !item.done).length, children: todo),
-                  PwfTab(label: context.t('mob.pwf6.tab.facts'), children: facts),
-                  PwfTab(label: context.t('mob.pwf6.tab.legal'), count: detail.legalBasis.length + detail.stepLegalBasis.length, children: grounds),
-                  PwfTab(label: context.t('mob.pwf6.tab.log'), count: detail.history.length, children: log),
+              SectionPanel(title: context.t('mob.pwfs.task.todo'), padded: false, children: todo),
+              PwfFold(title: context.t('mob.pwfs.task.fold.deadline'), children: deadline),
+              PwfFold(title: context.t('mob.pwfs.task.fold.who'), children: who),
+              PwfFold(title: context.t('mob.pwfs.task.fold.legal'), count: detail.legalBasis.length + detail.stepLegalBasis.length, children: grounds),
+              PwfFold(
+                title: context.t('mob.pwfs.task.fold.exceptions'),
+                count: detail.exceptions.length,
+                initiallyOpen: detail.hasPendingException,
+                children: <Widget>[
+                  for (int index = 0; index < detail.exceptions.length; index += 1) _exceptionRow(context, detail.exceptions[index], index > 0, language),
+                  if (detail.exceptions.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.tab.log.none'), style: text.body)),
+                ],
+              ),
+              PwfFold(title: context.t('mob.pwfs.task.fold.kpi'), children: kpi),
+              PwfFold(
+                title: context.t('mob.pwfs.task.fold.history'),
+                count: detail.history.length,
+                children: <Widget>[
+                  if (detail.history.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.tab.log.none'), style: text.body)),
+                  if (detail.history.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(MachvonV2Space.s16),
+                      child: TimelineList(
+                        entries: <TimelineEntry>[
+                          for (final PwfHistoryEntry entry in detail.history) TimelineEntry(title: pwfHistoryName(context, entry.kind), when: formatMoment(entry.at, language: language), detail: <String>[?entry.actorName, ?entry.reason].isEmpty ? null : <String>[?entry.actorName, ?entry.reason].join(' · ')),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ],
@@ -505,6 +551,14 @@ class _TaskBody extends StatelessWidget {
     }
     final bool canAsk = detail.canRequestException && !detail.hasPendingException && !status.isFinal && !queue.has(kPwfExceptionCommand);
     final ActionBarButton? ask = canAsk ? ActionBarButton(label: context.t('mob.pwf.bar.exception'), onPressed: locked ? null : () => onException(detail)) : null;
+    // A task nobody holds is taken first: a claim is made online and from a task just read (never from a copy), then the work on it follows.
+    if (detail.canClaim && !status.isFinal) {
+      return ActionBar(
+        primary: ActionBarButton(label: context.t('mob.pwfs.action.claim'), icon: Icons.how_to_reg_outlined, onPressed: busy || !online || !fresh ? null : () => onClaim(detail)),
+        secondary: detail.canStart && !_startPending ? ActionBarButton(label: context.t('mob.pwf.bar.start'), icon: Icons.play_arrow, onPressed: locked ? null : () => onStart(detail)) : ask,
+        why: online ? (fresh ? null : context.t('mob.pwfs.action.online')) : context.t('mob.pwf.bar.why.online'),
+      );
+    }
     if (detail.canStart && !_startPending) {
       return ActionBar(primary: ActionBarButton(label: context.t('mob.pwf.bar.start'), icon: Icons.play_arrow, onPressed: locked ? null : () => onStart(detail)), secondary: ask, why: why());
     }
@@ -612,13 +666,10 @@ class _TaskBody extends StatelessWidget {
         _ => context.t('mob.pwf.blocker.other', <String, Object>{'code': blocker.code}),
       };
 
-  /// A group of facts with its heading; nothing at all when none of its facts is known.
-  List<Widget> _group(String title, List<(String, String?)> facts) {
+  /// The facts that are known, one row each; a fact that is not known is left out.
+  List<Widget> _rows(List<(String, String?)> facts) {
     final List<(String, String?)> known = <(String, String?)>[for (final (String, String?) fact in facts) if (fact.$2 != null && fact.$2!.isNotEmpty) fact];
-    if (known.isEmpty) return const <Widget>[];
-    return <Widget>[
-      SectionPanel(title: title, padded: false, children: <Widget>[for (int index = 0; index < known.length; index += 1) InfoRow(label: known[index].$1, value: known[index].$2, divider: index > 0)]),
-    ];
+    return <Widget>[for (int index = 0; index < known.length; index += 1) InfoRow(label: known[index].$1, value: known[index].$2, divider: index > 0)];
   }
 }
 
@@ -677,8 +728,23 @@ class _Header extends StatelessWidget {
                   ],
                 ),
               ),
+              if (!detail.status.isFinal) PwfTierButton(band: detail.band, facts: detail.facts, missingYear: detail.missingYear),
             ],
           ),
+          if (detail.facts.isOverallDeadline) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Row(children: <Widget>[Icon(Icons.star, size: 18, color: context.v2.palette.soonFg), const SizedBox(width: MachvonV2Space.s8), Expanded(child: Text(context.t('mob.pwfs.task.overall'), style: text.caption))])),
+          if (detail.facts.unclaimed && !detail.status.isFinal)
+            Padding(
+              padding: const EdgeInsets.only(top: MachvonV2Space.s8),
+              child: Wrap(
+                spacing: MachvonV2Space.s8,
+                runSpacing: MachvonV2Space.s4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: <Widget>[
+                  TintChip(label: context.t('mob.pwfs.row.unclaimed'), icon: Icons.person_off_outlined, ink: context.v2.palette.infoFg, fill: context.v2.palette.infoBg),
+                  if (detail.facts.unitName != null) Text(context.t('mob.pwfs.task.unclaimed.unit', <String, Object>{'unit': detail.facts.unitName!}), style: text.caption),
+                ],
+              ),
+            ),
         ],
       ),
     );

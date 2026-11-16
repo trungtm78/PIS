@@ -6,7 +6,6 @@ import '../../core/l10n/app_strings.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/typography.dart';
 import '../../core/widgets/deadline.dart';
-import '../../core/widgets/work_row.dart';
 import 'pwf_models.dart';
 
 /// The words of the status of a task.
@@ -131,32 +130,6 @@ String? pwfForecastWords(BuildContext context, {required PwfTaskStatus status, S
   // The forecast of a task that runs late may fall in the year after its deadline: the year is then written.
   final bool sameYear = dueDay != null && dueDay.length >= 4 && forecastDay.startsWith(dueDay.substring(0, 4));
   return context.t('mob.pwf7.forecast.short', <String, Object>{'date': sameYear ? formatDayShort(forecastDay) : formatDay(forecastDay, language: AppStrings.of(context).language)});
-}
-
-/// One row of a task of the workflow: the glyph of its official band, its name (never cut short of three lines), who does it and where it stands, and
-/// the deadline on a line of its own. The official band is the only colour a shared screen shows (R40). The code of the task is not a thing a person
-/// reads: it is in the facts of the task (MOB-79), not on the row.
-WorkRow pwfTaskRow(BuildContext context, PwfTaskRow task, {VoidCallback? onTap, bool dividerAbove = false}) {
-  final List<String> facts = <String>[
-    if (task.assignee != null) task.assignee!,
-    // A task that waits for an approval says so on its deadline line; only "in progress" is a fact of its own here.
-    if (task.status == PwfTaskStatus.inProgress) pwfStatusLabel(context, task.status),
-    if (task.returnCount > 0) context.t('mob.pwf.row.returned', <String, Object>{'count': task.returnCount}),
-    // PWF-4: the checklist of the task itself, counted by the server.
-    if (task.checklistTotal > 0) context.t('mob.pwf.process.row.checklist', <String, Object>{'done': task.checklistDone, 'total': task.checklistTotal}),
-  ];
-  return WorkRow(
-    title: task.name,
-    subtitle: facts.isEmpty ? null : facts.join(' · '),
-    subtitleMaxLines: 2,
-    titleMaxLines: 3,
-    leading: PwfGlyph(band: task.band, status: task.status),
-    footer: PwfDeadlineLine(band: task.band, status: task.status, dueDay: task.plannedFinish, forecastDay: task.forecastFinish, missingYear: task.missingYear),
-    trailing: onTap == null ? null : Icon(Icons.chevron_right, color: context.v2.palette.ink3),
-    onTap: onTap,
-    semanticLabel: pwfSpokenRow(context, title: task.name, facts: facts, band: task.band, status: task.status, dueDay: task.plannedFinish, missingYear: task.missingYear, note: pwfForecastWords(context, status: task.status, dueDay: task.plannedFinish, forecastDay: task.forecastFinish)),
-    dividerAbove: dividerAbove,
-  );
 }
 
 /// What a screen reader says of a row that opens a task: the name, who and what, then the deadline in words with its day (the band is never told by colour alone).
