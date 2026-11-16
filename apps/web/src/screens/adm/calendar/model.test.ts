@@ -10,12 +10,9 @@ import {
   monthWeeks,
   rulesOf,
   rulesOfCalendar,
-  setHolidayField,
   toCalendar,
-  toggleDay,
   validateCalendar,
   valuesOfCalendar,
-  withYear,
 } from './model';
 import type { CalendarValues } from './model';
 
@@ -171,36 +168,19 @@ describe('the month grid', () => {
   });
 });
 
-describe('marking days on the grid', () => {
-  it('makes a worked day a holiday, a day off a compensated day, and clears a marked day', () => {
-    let values = filled();
-    values = toggleDay(values, '2026-05-01');
-    expect(values.holidays).toEqual([{ date: '2026-05-01', name: '', basis: '' }]);
-    values = toggleDay(values, '2026-05-09');
-    expect(values.compensated).toEqual(['2026-05-09']);
-    values = toggleDay(values, '2026-05-01');
-    values = toggleDay(values, '2026-05-09');
-    expect(values.holidays).toEqual([]);
-    expect(values.compensated).toEqual([]);
+describe('a compensated day the server would refuse', () => {
+  it('is found before anything is sent: on a holiday, and on an ordinary working weekday', () => {
+    expect(validateCalendar(filled({ compensated: ['2026-05-09'] })).compensated).toBeUndefined();
+    expect(validateCalendar(filled({ compensated: ['2026-05-08'] })).compensated).toBe('compensatedConflict');
+    expect(validateCalendar(filled({ holidays: [{ date: '2026-05-09', name: 'x', basis: '' }], compensated: ['2026-05-09'] })).compensated).toBe('compensatedConflict');
   });
 
-  it('marks nothing outside the year of the form', () => {
-    const values = filled();
-    expect(toggleDay(values, '2027-05-01')).toBe(values);
+  it('follows the weekly rest days: a Friday make-up day is fine once Friday is a rest day', () => {
+    expect(validateCalendar(filled({ workingDays: [1, 2, 3, 4], compensated: ['2026-05-08'] })).compensated).toBeUndefined();
   });
 
-  it('keeps the marks of the year only when the year changes', () => {
-    const values = filled({ holidays: [{ date: '2026-05-01', name: 'Labour Day', basis: '' }], compensated: ['2026-05-09'] });
-    expect(withYear(values, '2027')).toMatchObject({ year: '2027', holidays: [], compensated: [] });
-    expect(withYear(values, '2026').holidays).toHaveLength(1);
-    expect(withYear(values, '20')).toMatchObject({ year: '20', holidays: [], compensated: [] });
-  });
-
-  it('names and bases a holiday by its date', () => {
-    const values = filled({ holidays: [{ date: '2026-05-01', name: '', basis: '' }, { date: '2026-09-02', name: 'x', basis: '' }] });
-    const named = setHolidayField(setHolidayField(values, '2026-05-01', 'name', 'Labour Day'), '2026-05-01', 'basis', 'Labour Code');
-    expect(named.holidays).toEqual([{ date: '2026-05-01', name: 'Labour Day', basis: 'Labour Code' }, { date: '2026-09-02', name: 'x', basis: '' }]);
-    expect(rulesOf(named).holidays).toEqual(['2026-05-01', '2026-09-02']);
+  it('reads the rules of the form for the grid', () => {
+    expect(rulesOf(filled({ holidays: [{ date: '2026-05-01', name: 'x', basis: '' }, { date: '2026-09-02', name: 'x', basis: '' }] })).holidays).toEqual(['2026-05-01', '2026-09-02']);
   });
 });
 

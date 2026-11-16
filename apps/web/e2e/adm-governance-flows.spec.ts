@@ -4,7 +4,7 @@ import vi from '../src/i18n/vi.json' with { type: 'json' };
 import { membershipOf, sql, stackInfo } from './support/stack.ts';
 
 /**
- * ADM-07 (working calendar) and ADM-15 (delegation-of-authority matrix) in a real browser against the real API and database
+ * ADM-07 (yearly work calendar) and ADM-15 (delegation-of-authority matrix) in a real browser against the real API and database
  * (apps/api/test/e2e-stack): the fixture users are picked with `?devUser=`, every request is authorised by the policy guard,
  * and what the screens changed is looked up in the database.
  */
@@ -35,77 +35,109 @@ interface CalendarRow {
 const calendarRows = (code: string): Promise<CalendarRow[]> =>
   sql('select id, status, revision, published_by, holidays, compensated_workdays from machvon.work_calendar_version where calendar_code = $1 order by revision', [code]);
 
-test.describe('ADM-07 working calendar', () => {
-  test('the owner marks a holiday and a compensated working day on the month grids, saves the draft, publishes it, and a second revision supersedes it', async ({ page }) => {
-    const code = `E2E-CAL-${unique()}`;
-    await openScreen(page, 'adm-07', 'owner');
-    await expect(page.getByRole('heading', { level: 1, name: vi['adm.calendar.page.title'] })).toBeVisible();
-    await expect(page.getByTestId('placeholder-note')).toBeVisible();
+/** The first Saturday of a month, ISO date: a weekly rest day, so a make-up working day can be put on it. */
+function firstSaturday(year: number, month: number): string {
+  const day = new Date(Date.UTC(year, month - 1, 1));
+  while (day.getUTCDay() !== 6) day.setUTCDate(day.getUTCDate() + 1);
+  return day.toISOString().slice(0, 10);
+}
 
-    const editor = page.getByTestId('editor');
+test.describe('ADM-07 yearly work calendar', () => {
+  test('the owner adds a range of days off and a make-up day, saves the draft, confirms the year, and a second revision supersedes it', async ({ page }) => {
+    const code = `E2E-CAL-${unique()}`;
+    const year = 2099;
+    const saturday = firstSaturday(year, 3);
+    await openScreen(page, 'adm-07', 'owner');
+    await expect(page.getByRole('heading', { level: 1, name: vi['wfxcal.page.title'] })).toBeVisible();
+
+    // A year of its own, under a code of its own, so that no other flow counts its deadlines on this calendar.
+    await page.getByLabel(vi['wfxcal.years.other.label'], { exact: true }).fill(String(year));
+    await page.getByRole('button', { name: vi['wfxcal.years.other.action'] }).click();
+    const editor = page.getByTestId('year-editor');
+    await expect(editor).toHaveAttribute('data-year', String(year));
+    await expect(page.getByTestId('provisional-note')).toHaveText('Năm chưa xác nhận: sơ đồ của mẫu tạm tính theo lịch nháp; hạn thật của dự án chỉ tính từ năm đã xác nhận.');
     await editor.getByLabel(vi['adm.calendar.code.label'], { exact: true }).fill(code);
-    await editor.getByLabel(vi['adm.calendar.year.label'], { exact: true }).fill('2026');
     await editor.getByLabel(vi['adm.calendar.basis.label'], { exact: true }).fill('Labour Code 2019 art. 112; notice of the e2e flow');
     await expect(editor.locator('table.cal-month')).toHaveCount(12);
-    // 1 May 2026 is a Friday (worked): it becomes a holiday. 9 May is a Saturday (off): it becomes a compensated working day.
-    await editor.locator('[data-date="2026-05-01"]').click();
-    await editor.locator('[data-date="2026-05-09"]').click();
-    await expect(editor.locator('[data-date="2026-05-01"]')).toHaveAttribute('data-kind', 'holiday');
-    await expect(editor.locator('[data-date="2026-05-09"]')).toHaveAttribute('data-kind', 'compensated');
-    // A holiday has a name before the draft is saved.
-    await editor.getByRole('button', { name: vi['adm.calendar.draft.submit.action'] }).click();
-    await expect(editor.getByText(vi['adm.calendar.field.nameRequired'])).toBeVisible();
-    expect(await calendarRows(code)).toHaveLength(0);
-    await editor.locator('#holiday-name-2026-05-01').fill('Quốc tế Lao động');
-    await editor.getByRole('button', { name: vi['adm.calendar.draft.submit.action'] }).click();
-    await expect(page.getByText(vi['adm.calendar.draft.accepted.notice'])).toBeVisible();
 
-    const row = page.locator('tr[data-calendar-id]').filter({ hasText: code });
-    await expect(row).toHaveAttribute('data-status', 'Draft');
+    // A day off needs a note before it is added; then a run of five days, and a make-up Saturday.
+    await editor.getByLabel(vi['wfxcal.add.from.label'], { exact: true }).fill(`${year}-02-02`);
+    await editor.getByLabel(vi['wfxcal.add.to.label'], { exact: true }).fill(`${year}-02-06`);
+    await editor.getByRole('button', { name: vi['wfxcal.add.action'] }).click();
+    await expect(editor.getByTestId('add-problem')).toHaveText(vi['wfxcal.add.nameRequired.error']);
+    await editor.getByLabel(vi['wfxcal.add.note.label'], { exact: true }).fill('Tết e2e');
+    await editor.getByRole('button', { name: vi['wfxcal.add.action'] }).click();
+    await expect(editor.locator('tr[data-special][data-kind="off"]')).toHaveCount(1);
+    await editor.getByLabel(vi['wfxcal.add.kind.label'], { exact: true }).selectOption('work');
+    await editor.getByLabel(vi['wfxcal.add.from.label'], { exact: true }).fill(saturday);
+    await editor.getByRole('button', { name: vi['wfxcal.add.action'] }).click();
+    await expect(editor.locator('tr[data-special][data-kind="work"]')).toHaveCount(1);
+    await expect(editor.locator(`[data-date="${year}-02-04"]`)).toHaveAttribute('data-kind', 'holiday');
+    await expect(editor.locator(`[data-date="${saturday}"]`)).toHaveAttribute('data-kind', 'compensated');
+
+    await editor.getByRole('button', { name: vi['wfxcal.save.action'] }).click();
+    await expect(page.getByText(vi['wfxcal.save.accepted.notice'])).toBeVisible();
     const [draft] = await calendarRows(code);
     expect(draft?.status).toBe('Draft');
-    expect(draft?.holidays).toEqual([{ date: '2026-05-01', name: 'Quốc tế Lao động' }]);
-    expect(draft?.compensated_workdays).toEqual(['2026-05-09']);
+    expect(draft?.holidays.map((holiday) => holiday.date)).toEqual([2, 3, 4, 5, 6].map((day) => `${year}-02-0${day}`));
+    expect(draft?.holidays.every((holiday) => holiday.name === 'Tết e2e')).toBe(true);
+    expect(draft?.compensated_workdays).toEqual([saturday]);
 
-    await row.getByRole('button', { name: vi['adm.calendar.publish.action'] }).click();
-    await page.getByRole('button', { name: vi['adm.calendar.publish.confirm.action'] }).click();
+    // Confirming the year needs a reason, and makes the draft the version in force.
+    await editor.getByRole('button', { name: vi['wfxcal.confirm.action'] }).click();
+    await page.getByRole('button', { name: vi['wfxcal.confirm.submit.action'] }).click();
     await expect(page.getByText(vi['adm.calendar.field.required'])).toBeVisible();
-    await page.getByLabel(vi['adm.calendar.publish.reason.label']).fill('The notice of the year is signed');
-    await page.getByRole('button', { name: vi['adm.calendar.publish.confirm.action'] }).click();
-    await expect(page.getByText(vi['adm.calendar.publish.accepted.notice'])).toBeVisible();
-    await expect(row).toHaveAttribute('data-status', 'Published');
+    await page.getByLabel(vi['wfxcal.confirm.reason.label']).fill('The notice of the year is signed');
+    await page.getByRole('button', { name: vi['wfxcal.confirm.submit.action'] }).click();
+    await expect(page.getByTestId('confirmed-notice')).toBeVisible();
+    await expect(page.getByTestId('provisional-note')).toHaveCount(0);
     const [published] = await calendarRows(code);
     expect(published?.status).toBe('Published');
     expect(published?.published_by).toBe(membershipOf('owner'));
 
-    // The version in force is drawn with its compensated working day.
-    await row.getByRole('button', { name: vi['adm.calendar.view.action'] }).click();
-    const inView = page.getByTestId('version-in-view');
-    await expect(inView.locator('[data-date="2026-05-09"]')).toHaveAttribute('data-kind', 'compensated');
-    await expect(inView.locator('[data-date="2026-05-01"]')).toHaveAttribute('data-kind', 'holiday');
-
-    // The next revision starts from the published one, drops the compensated day and supersedes it when published.
-    await row.getByRole('button', { name: vi['adm.calendar.copy.action'] }).click();
-    await editor.locator('[data-date="2026-05-09"]').click();
-    await editor.getByRole('button', { name: vi['adm.calendar.draft.submit.action'] }).click();
-    await expect(page.locator('tr[data-calendar-id]').filter({ hasText: code })).toHaveCount(2);
-    const second = page.locator('tr[data-calendar-id][data-status="Draft"]').filter({ hasText: code });
-    await second.getByRole('button', { name: vi['adm.calendar.publish.action'] }).click();
-    await page.getByLabel(vi['adm.calendar.publish.reason.label']).fill('The compensated day was withdrawn');
-    await page.getByRole('button', { name: vi['adm.calendar.publish.confirm.action'] }).click();
-    await expect(page.locator('tr[data-calendar-id][data-status="Superseded"]').filter({ hasText: code })).toHaveCount(1);
-    const rows = await calendarRows(code);
-    expect(rows.map((entry) => [entry.revision, entry.status])).toEqual([
+    // The next revision starts from the confirmed one, drops the make-up day and supersedes it when confirmed.
+    await editor.locator('tr[data-special][data-kind="work"]').getByRole('button', { name: /^Bỏ / }).click();
+    await editor.getByRole('button', { name: vi['wfxcal.save.action'] }).click();
+    await expect.poll(async () => (await calendarRows(code)).length).toBe(2);
+    await editor.getByRole('button', { name: vi['wfxcal.confirm.action'] }).click();
+    await page.getByLabel(vi['wfxcal.confirm.reason.label']).fill('The make-up day was withdrawn');
+    await page.getByRole('button', { name: vi['wfxcal.confirm.submit.action'] }).click();
+    await expect.poll(async () => (await calendarRows(code)).map((entry) => [entry.revision, entry.status])).toEqual([
       [1, 'Superseded'],
       [2, 'Published'],
     ]);
-    expect(rows[1]?.compensated_workdays).toEqual([]);
+    expect((await calendarRows(code))[1]?.compensated_workdays).toEqual([]);
+  });
+
+  test('the owner loads the public holidays of a year as a draft that says it is not verified, and nothing is saved until Lưu lịch', async ({ page }) => {
+    await openScreen(page, 'adm-07', 'owner');
+    await page.getByLabel(vi['wfxcal.years.other.label'], { exact: true }).fill('2098');
+    await page.getByRole('button', { name: vi['wfxcal.years.other.action'] }).click();
+    const editor = page.getByTestId('year-editor');
+    await editor.getByRole('button', { name: vi['wfxcal.preset.action'] }).click();
+    const note = editor.getByTestId('preset-note');
+    await expect(note).toContainText(vi['wfxcal.preset.unverified.label']);
+    // A year the catalogue has no lunar days for names what it could not fill.
+    await expect(note).toContainText('Tết Nguyên đán');
+    await expect(editor.locator('tr[data-special][data-kind="off"]').first()).toBeVisible();
+    await expect(editor.getByLabel(vi['adm.calendar.basis.label'], { exact: true })).toHaveValue(/chưa kiểm chứng/);
+    await expect(editor.getByRole('button', { name: vi['wfxcal.save.action'] })).toBeEnabled();
+  });
+
+  test('the calendar does not scroll the page sideways at 1440 and at 390 pixels', async ({ page }) => {
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/adm/adm-07?devUser=owner');
+      await page.waitForSelector('[data-testid="year-editor"]');
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow, `${width}px`).toBeLessThanOrEqual(0);
+    }
   });
 
   test('someone without the calendar permissions is refused the screen', async ({ page }) => {
     await openScreen(page, 'adm-07', 'auditor');
     await expect(page.getByText(vi['states.denied.title'])).toBeVisible();
-    await expect(page.getByTestId('editor')).toHaveCount(0);
+    await expect(page.getByTestId('year-editor')).toHaveCount(0);
   });
 });
 

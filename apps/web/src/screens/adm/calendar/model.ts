@@ -106,8 +106,8 @@ export function valuesOfCalendar(view: CalendarView): CalendarValues {
   };
 }
 
-export type CalendarField = 'calendarCode' | 'year' | 'workingDays' | 'legalBasis' | 'holidays';
-export type FieldProblem = 'required' | 'tooLong' | 'range' | 'pattern' | 'nameRequired';
+export type CalendarField = 'calendarCode' | 'year' | 'workingDays' | 'legalBasis' | 'holidays' | 'compensated';
+export type FieldProblem = 'required' | 'tooLong' | 'range' | 'pattern' | 'nameRequired' | 'compensatedConflict';
 export type CalendarErrors = Partial<Record<CalendarField, FieldProblem>>;
 
 /** The rules the server also states in `validateWorkCalendar` that the form can check before anything is sent. */
@@ -123,6 +123,9 @@ export function validateCalendar(values: CalendarValues): CalendarErrors {
   if (values.workingDays.length === 0) errors.workingDays = 'required';
   if (values.legalBasis.trim() === '') errors.legalBasis = 'required';
   if (values.holidays.some((holiday) => holiday.name.trim() === '')) errors.holidays = 'nameRequired';
+  // The server refuses a compensated day that is a holiday or an ordinary working day (COMPENSATED_*): the form says so first.
+  const conflicts = values.compensated.some((date) => values.holidays.some((holiday) => holiday.date === date) || values.workingDays.includes(isoWeekdayOfDate(date)));
+  if (conflicts) errors.compensated = 'compensatedConflict';
   return errors;
 }
 
@@ -140,6 +143,12 @@ export function calendarBody(values: CalendarValues) {
   };
 }
 
+/** The ISO weekday (1 = Monday to 7 = Sunday) of a date written YYYY-MM-DD. */
+export function isoWeekdayOfDate(date: string): number {
+  const [year = 0, month = 1, day = 1] = date.split('-').map(Number);
+  return isoWeekdayOf(year, month - 1, day);
+}
+
 export type DayKind = 'working' | 'off' | 'holiday' | 'compensated';
 
 export interface DayRules {
@@ -154,11 +163,11 @@ export interface DayCell {
   kind: DayKind;
 }
 
-const pad = (value: number): string => String(value).padStart(2, '0');
-const dateOf = (year: number, month: number, day: number): string => `${String(year).padStart(4, '0')}-${pad(month + 1)}-${pad(day)}`;
+export const pad = (value: number): string => String(value).padStart(2, '0');
+export const dateOf = (year: number, month: number, day: number): string => `${String(year).padStart(4, '0')}-${pad(month + 1)}-${pad(day)}`;
 /** The ISO weekday (1 = Monday to 7 = Sunday) of a month position. */
-const isoWeekdayOf = (year: number, month: number, day: number): number => ((new Date(Date.UTC(year, month, day)).getUTCDay() + 6) % WEEK_LENGTH) + 1;
-const daysInMonth = (year: number, month: number): number => new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+export const isoWeekdayOf = (year: number, month: number, day: number): number => ((new Date(Date.UTC(year, month, day)).getUTCDay() + 6) % WEEK_LENGTH) + 1;
+export const daysInMonth = (year: number, month: number): number => new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 
 /** The kind of a day: a holiday never works, a compensated day always does, any other day follows the weekdays. */
 export function dayKindOf(rules: DayRules, year: number, month: number, day: number): DayKind {
@@ -200,34 +209,6 @@ export const rulesOfCalendar = (view: CalendarView): DayRules => ({
   holidays: view.holidays.map((holiday) => holiday.date),
   compensated: view.compensatedWorkdays,
 });
-
-/**
- * What a click on a day does: a worked day becomes a holiday, a day off becomes a compensated working day, and a marked day is
- * cleared. Only a day of the year of the form can be marked.
- */
-export function toggleDay(values: CalendarValues, date: string): CalendarValues {
-  if (!date.startsWith(`${values.year.trim()}-`)) return values;
-  if (values.holidays.some((holiday) => holiday.date === date)) return { ...values, holidays: values.holidays.filter((holiday) => holiday.date !== date) };
-  if (values.compensated.includes(date)) return { ...values, compensated: values.compensated.filter((entry) => entry !== date) };
-  const [year = 0, month = 1, day = 1] = date.split('-').map(Number);
-  const worked = values.workingDays.includes(isoWeekdayOf(year, month - 1, day));
-  return worked ? { ...values, holidays: [...values.holidays, { date, name: '', basis: '' }] } : { ...values, compensated: [...values.compensated, date] };
-}
-
-/** A new year starts without the marks of the old one: a holiday of 2026 is not one of 2027. */
-export function withYear(values: CalendarValues, year: string): CalendarValues {
-  const prefix = `${year.trim()}-`;
-  return {
-    ...values,
-    year,
-    holidays: values.holidays.filter((holiday) => holiday.date.startsWith(prefix)),
-    compensated: values.compensated.filter((date) => date.startsWith(prefix)),
-  };
-}
-
-export function setHolidayField(values: CalendarValues, date: string, field: 'name' | 'basis', value: string): CalendarValues {
-  return { ...values, holidays: values.holidays.map((holiday) => (holiday.date === date ? { ...holiday, [field]: value } : holiday)) };
-}
 
 export type ProblemReason = 'calendarInvalid' | 'conflict' | 'stage' | 'invalid' | 'notFound' | 'denied' | 'session' | 'general';
 

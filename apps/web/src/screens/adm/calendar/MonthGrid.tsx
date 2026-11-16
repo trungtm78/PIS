@@ -31,22 +31,25 @@ export interface MonthGridProps {
   year: number;
   /** Zero-based month. */
   month: number;
-  /** When given, a day is a button that marks or clears the day; otherwise the month is only shown. */
-  onToggle?: (date: string) => void;
+  /** The working days of the month, shown under its name. */
+  workingDays?: number;
 }
 
 /**
  * One month of a working calendar, Monday first: a worked day, a day off, a holiday and a compensated working day each look
- * different and each says what it is to a screen reader, so the colour is never the only sign (ADM-07). It is memoised: typing
+ * different and each says what it is to a screen reader, so the colour is never the only sign (ADM-07). It is only shown: days are added in the table of special days. It is memoised: typing
  * in the form does not draw the twelve months again.
  */
-export const MonthGrid = memo(function MonthGrid({ rules, year, month, onToggle }: MonthGridProps) {
+export const MonthGrid = memo(function MonthGrid({ rules, year, month, workingDays }: MonthGridProps) {
   const { t, locale } = useTranslation();
   const monthName = formatterFor(locale, 'month', 'long').format(new Date(Date.UTC(year, month, 1)));
   const heads = weekdayNames(locale, 'short');
   return (
     <table className="cal-month" data-month={month + 1}>
-      <caption>{monthName}</caption>
+      <caption>
+        {monthName}
+        {workingDays === undefined ? null : <span className="cal-month__count">{t('wfxcal.month.count.label', { count: workingDays })}</span>}
+      </caption>
       <thead>
         <tr>
           {heads.map((head, index) => (
@@ -61,23 +64,11 @@ export const MonthGrid = memo(function MonthGrid({ rules, year, month, onToggle 
           <tr key={row}>
             {week.map((cell, column) => (
               <td key={column}>
-                {cell === null ? null : onToggle === undefined ? (
+                {cell === null ? null : (
                   <span className={`cal-day ${cell.kind}`} data-date={cell.date} data-kind={cell.kind}>
                     {cell.day}
                     <span className="sr-only">{`, ${dayKindLabel(t, cell.kind)}`}</span>
                   </span>
-                ) : (
-                  <button
-                    type="button"
-                    className={`cal-day ${cell.kind}`}
-                    data-date={cell.date}
-                    data-kind={cell.kind}
-                    aria-pressed={cell.kind === 'holiday' || cell.kind === 'compensated'}
-                    aria-label={`${cell.date}, ${dayKindLabel(t, cell.kind)}`}
-                    onClick={() => onToggle(cell.date)}
-                  >
-                    {cell.day}
-                  </button>
                 )}
               </td>
             ))}

@@ -1,6 +1,7 @@
 import type { Translator } from '../../../i18n';
 import type { Tone } from '../../../ui';
 import type { CalendarStatus, DayKind, FieldProblem, Finding, ProblemView } from './model';
+import type { SpecialProblem } from './year-model';
 
 type T = Translator['t'];
 
@@ -8,11 +9,11 @@ type T = Translator['t'];
 export function statusLabel(t: T, status: CalendarStatus): string {
   switch (status) {
     case 'Draft':
-      return t('adm.calendar.status.draft');
+      return t('wfxcal.state.draft.label');
     case 'Published':
-      return t('adm.calendar.status.published');
+      return t('wfxcal.state.confirmed.label');
     case 'Superseded':
-      return t('adm.calendar.status.superseded');
+      return t('wfxcal.state.superseded.label');
   }
 }
 
@@ -41,6 +42,26 @@ export function fieldMessage(t: T, problem: FieldProblem): string {
       return t('adm.calendar.field.pattern');
     case 'nameRequired':
       return t('adm.calendar.field.nameRequired');
+    case 'compensatedConflict':
+      return t('wfxcal.field.compensatedConflict.error');
+  }
+}
+
+/** The sentence for the days a person asked to add and the form refused. */
+export function specialMessage(t: T, problem: SpecialProblem): string {
+  switch (problem) {
+    case 'dateRequired':
+      return t('wfxcal.add.dateRequired.error');
+    case 'dateInvalid':
+      return t('wfxcal.add.dateInvalid.error');
+    case 'rangeOrder':
+      return t('wfxcal.add.rangeOrder.error');
+    case 'outOfYear':
+      return t('wfxcal.add.outOfYear.error');
+    case 'tooLong':
+      return t('wfxcal.add.tooLong.error');
+    case 'nameRequired':
+      return t('wfxcal.add.nameRequired.error');
   }
 }
 

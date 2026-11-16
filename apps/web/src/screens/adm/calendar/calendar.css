@@ -12,32 +12,150 @@
   color: var(--mv-color-danger);
 }
 
-.adm-calendar .row-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
+.adm-calendar .sub {
+  display: block;
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
 }
 
-.adm-calendar .scope-types {
+.cal-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.cal-toolbar {
+  margin: 0 0 12px;
+}
+
+.cal-grid2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .cal-grid2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.cal-rest,
+.cal-add fieldset {
   border: 1px solid var(--mv-color-border);
   border-radius: 9px;
   padding: 10px 14px;
   margin: 12px 0;
+  min-width: 0;
+}
+
+.cal-rest {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 18px;
 }
 
-.adm-calendar .scope-types .check {
+.cal-rest .check {
   display: inline-flex;
   gap: 6px;
   align-items: center;
 }
 
+.cal-add {
+  margin: 0;
+}
+
+.cal-add fieldset {
+  margin-top: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.cal-add__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cal-add__grow {
+  flex: 1 1 160px;
+}
+
+.cal-special h3 {
+  margin: 4px 0 8px;
+}
+
+.cal-group th {
+  text-align: left;
+  text-transform: capitalize;
+  background: var(--mv-color-surface2);
+  font-weight: 600;
+}
+
+.cal-nowrap {
+  white-space: nowrap;
+}
+
+.cal-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-code {
+  color: var(--mv-color-text-secondary);
+  font-size: 12px;
+}
+
+.cal-confirm {
+  border: 1px solid var(--mv-color-border);
+  border-radius: 9px;
+  padding: 12px 14px;
+  margin: 0 0 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.cal-confirm dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px 14px;
+  margin: 0;
+}
+
+.cal-confirm dd {
+  margin: 0;
+}
+
+.cal-other {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+  margin-top: 12px;
+}
+
+.cal-versions {
+  margin-top: 16px;
+}
+
+.cal-versions summary {
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.cal-month__count {
+  display: block;
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--mv-color-text-secondary);
+  text-transform: none;
+}
+
 .cal-months {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 14px;
   margin: 12px 0;
 }
