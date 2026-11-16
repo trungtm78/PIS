@@ -45,6 +45,7 @@ interface Options {
   requestStepUp?: SessionValue['requestStepUp'];
   oidc?: boolean;
   url?: string;
+  tenant?: SessionValue['tenant'];
 }
 
 function mount(options: Options = {}) {
@@ -53,7 +54,7 @@ function mount(options: Options = {}) {
   const selectTenant = options.selectTenant ?? vi.fn(() => Promise.resolve());
   const switchTenant = vi.fn();
   const session: SessionValue = {
-    tenant: undefined,
+    tenant: options.tenant,
     tenants: oidc ? [] : [TENANT_A, TENANT_B],
     user: { displayName: 'Nguyễn An', initials: 'NA' },
     access: ALL_MODULES_VISIBLE,
@@ -128,6 +129,14 @@ describe('IAM-04 tenant chooser', () => {
     expect(await screen.findByText('home')).toBeTruthy();
     expect(selectTenant).toHaveBeenCalledTimes(1);
     expect(selectTenant).toHaveBeenCalledWith(ACTIVE);
+  });
+
+  it('chooses nothing by itself for a person who already works in an organisation and opened the screen on purpose: the card stays', async () => {
+    const { selectTenant } = mount({ candidates: [ACTIVE], tenant: TENANT_A });
+    expect(await screen.findByRole('button', { name: /Chọn/ })).toBeTruthy();
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(selectTenant).not.toHaveBeenCalled();
+    expect(screen.queryByText('home')).toBeNull();
   });
 
   it('chooses nothing by itself when the only organisation cannot be worked in, or when the choice fails: the card and the message stay', async () => {
