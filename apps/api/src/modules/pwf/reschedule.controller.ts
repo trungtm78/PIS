@@ -30,9 +30,11 @@ function inputOf(body: Request): RescheduleInput {
         ? undefined
         : {
             add: overrides.add?.map((one) => ({ code: one.code, name: one.name, phase: one.phase, kind: one.kind, durationWorkingDays: one.duration_working_days, predecessors: linksOf(one.predecessors) })),
-            change: overrides.change?.map((one) => ({ taskCode: one.task_code, durationWorkingDays: one.duration_working_days, predecessors: linksOf(one.predecessors) })),
+            change: overrides.change?.map((one) => ({ taskCode: one.task_code, durationWorkingDays: one.duration_working_days, durationValue: one.duration_value, predecessors: linksOf(one.predecessors) })),
             remove: overrides.remove,
           },
+    // R72: a request without extensions is stored exactly as it always was.
+    ...(body.extensions === undefined ? {} : { extensions: body.extensions.map((one) => ({ taskCode: one.task_code, addValue: one.add_value })) }),
     reason: body.reason,
   };
 }
@@ -44,7 +46,8 @@ function previewOf(proposal: ProposalView, now: Date): Schemas['PwfReschedulePre
     status: proposal.status,
     base_version: proposal.baseVersion,
     schedule: schedulePreviewOf(preview.schedule, { names: preview.names, phases: preview.phases, plannedStart: preview.schedule.tasks[0]?.start ?? '', excluded: preview.excluded, now }),
-    changes: preview.changes.map((one) => ({ task_code: one.code, start_shift_days: one.startShiftDays, finish_shift_days: one.finishShiftDays, float_change: one.floatChange, became_critical: one.becameCritical, became_non_critical: one.becameNonCritical, state_changed: one.stateChanged })),
+    changes: preview.changes.map((one) => ({ task_code: one.code, start_shift_days: one.startShiftDays, finish_shift_days: one.finishShiftDays, float_change: one.floatChange, became_critical: one.becameCritical, became_non_critical: one.becameNonCritical, state_changed: one.stateChanged, ...(one.cause === undefined ? {} : { cause: one.cause }) })),
+    ...(proposal.extensions.length === 0 ? {} : { extensions: proposal.extensions.map((one) => ({ task_code: one.taskCode, add_value: one.addValue, unit: one.unit })) }),
     project_finish_shift_days: preview.projectFinishShiftDays,
     input_hash: proposal.inputHash,
     result_hash: proposal.resultHash,

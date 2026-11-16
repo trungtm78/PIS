@@ -58,7 +58,8 @@ import { ent4aCrosscheckType } from './ent4a-rule-types.ts';
 import { registerDeadlineBandRules } from './deadline-band.ts';
 import { registerLegalDocumentRules } from './legal-document.ts';
 import { registerWorkflowAssignmentRules } from './project-workflow-assignment.ts';
-import { registerProjectWorkflowRules } from './project-workflow.ts';
+import { PROJECT_WORKFLOW_RULE_TYPE, registerProjectWorkflowRules } from './project-workflow.ts';
+import { prepareTemplateDraft } from './project-workflow-table.ts';
 import { registerWorkflowKpiRules } from './workflow-kpi.ts';
 import { ENT4C_TEXT } from './messages/ent4c-texts.ts';
 import { VND3_TEXT } from './messages/vnd3-texts.ts';
@@ -255,6 +256,27 @@ export interface DefaultInput extends Partial<Provenance> {
   params: RuleParams;
 }
 
+/** What a type is told about the draft it prepares: what the draft follows and who writes it when. */
+export interface RuleDraftContext {
+  /** The params of the version the draft follows: the latest approved version of the same code, else the built-in default of the code, else null. */
+  basis: RuleParams | null;
+  /** The params of the versions of the same code written after the basis and never approved (earlier saves of the work in progress), newest first. */
+  drafts: readonly RuleParams[];
+  /** The membership that writes the draft. */
+  actor: string;
+  /** The time of the transaction that writes it, ISO UTC with milliseconds. */
+  at: string;
+}
+
+export interface PreparedRuleDraft {
+  params: RuleParams;
+  /** What the preparation did, for the answer of the command (plain data); absent when there is nothing to tell. */
+  report?: Readonly<Record<string, unknown>>;
+}
+
+/** What a type does to the params of a draft before the store writes them (a mark only the server may set, for one). It is pure, and what it returns is judged by the schema of the type again. */
+export type RuleDraftPreparation = (params: RuleParams, context: RuleDraftContext) => PreparedRuleDraft;
+
 export interface RuleTypeDefinition extends Provenance {
   type: string;
   /** The module code that owns the type (the lane that answers for its numbers). */
@@ -266,6 +288,8 @@ export interface RuleTypeDefinition extends Provenance {
   refine?: (params: Record<string, unknown>) => string | undefined;
   /** The shape every code of the type must have (a regular expression source): a type whose codes name something the code owns (a configured report layout) keeps the codes of the code-owned things out. */
   codePattern?: string | undefined;
+  /** What the type does to the params of a draft before they are stored (`registerRuleDraftPreparation`); absent for a type whose drafts are stored as they are sent. */
+  prepare?: RuleDraftPreparation | undefined;
   /** What applies when the tenant approved no rule of this code. A code that is not here has no default: a caller that needs it must handle `undefined`. */
   defaults: Readonly<Record<string, BuiltInDefault>>;
 }
@@ -340,6 +364,14 @@ export function registerRuleDefaults(type: string, defaults: Readonly<Record<str
     if (entry.defaults[code] !== undefined) throw flawOf(`${type}/${code} already has a default`);
     entry.defaults[code] = completeDefault(type, code, one, entry.definition);
   }
+}
+
+/** Gives a registered type the preparation of its drafts; a type has at most one (a second one is a defect of the lane, not a way to chain them). */
+export function registerRuleDraftPreparation(type: string, prepare: RuleDraftPreparation): void {
+  const entry = REGISTRY.get(type);
+  if (entry === undefined) throw flawOf(`${type} is not registered (register the type before the preparation of its drafts)`);
+  if (entry.definition.prepare !== undefined) throw flawOf(`${type} already prepares its drafts`);
+  entry.definition.prepare = prepare;
 }
 
 /** What a lane's own file needs to register its types without importing the registry's values (a module that the registry itself imports cannot import it back): the kernel passes these two functions in. */
@@ -2554,6 +2586,7 @@ export const registerProjectWorkflowModuleRules = (): void =>
     registerCoreRules();
     const registry: RuleRegistry = { registerRuleType, registerRuleDefaults };
     registerProjectWorkflowRules(registry);
+    registerRuleDraftPreparation(PROJECT_WORKFLOW_RULE_TYPE, prepareTemplateDraft);
     registerDeadlineBandRules(registry);
     registerWorkflowKpiRules(registry);
     registerLegalDocumentRules(registry);
@@ -2612,6 +2645,21 @@ registerAllGovernanceRules();
 export function validateRuleParams(type: string, params: unknown): RuleParams {
   const definition = ruleTypeOf(type);
   return judge(definition.schema, definition.refine, params);
+}
+
+/** Whether the drafts of a type are prepared before they are stored: the store reads what the draft follows only then. */
+export const preparesRuleDrafts = (type: string): boolean => ruleTypeOf(type).prepare !== undefined;
+
+/**
+ * The params of a draft as the store writes them: judged by the schema of the type, passed through the preparation of the type when it has one, and judged again (a preparation cannot store what the schema refuses). `context` is
+ * read only by a type that prepares its drafts.
+ */
+export function prepareRuleDraft(type: string, params: unknown, context: RuleDraftContext): PreparedRuleDraft {
+  const definition = ruleTypeOf(type);
+  const checked = judge(definition.schema, definition.refine, params);
+  if (definition.prepare === undefined) return { params: checked };
+  const prepared = definition.prepare(checked, context);
+  return { params: judge(definition.schema, definition.refine, prepared.params), ...(prepared.report === undefined ? {} : { report: prepared.report }) };
 }
 
 /** The built-in default of a code, or undefined when the type has none for it. */

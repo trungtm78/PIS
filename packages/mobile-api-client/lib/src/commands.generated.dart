@@ -382,6 +382,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> checkVendorGate({Map<String, Object?>? query}) =>
       execute('checkVendorGate', query: query);
 
+  Future<Object?> claimProjectTask(PwfTaskClaim body, {required String taskId, CommandAttempt? attempt}) =>
+      execute('claimProjectTask', path: <String, Object?>{'task_id': taskId}, body: body, attempt: attempt);
+
   Future<Object?> claimWork(WorkActionTarget body, {CommandAttempt? attempt}) =>
       execute('claimWork', body: body, attempt: attempt);
 

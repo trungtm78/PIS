@@ -3,7 +3,11 @@ import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.t
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
 import { PwfDeadlinePreferenceStore, hasPersonalLadder, personalThresholdsOf } from './pwf-deadline-preference.ts';
+import { bandColumnsOf, bandExplanationOf, bandKeyOf, bandKeyValues, durationColumnsOf, durationViewOf, officialTaskBand, officialTaskLadder, stepLadderOf } from './pwf-task-band.ts';
+import type { TaskBandColumns, TaskDurationColumns } from './pwf-task-band.ts';
 import { bandViewOf } from './pwf-workflow-reads.ts';
+import { receivingColumnsOf, receivingUnitIdsOf, receivingViewOf, responsibleHeldSql, unitNamesOf } from './pwf-task-claim.ts';
+import type { TaskReceivingColumns } from './pwf-task-claim.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -32,7 +36,9 @@ export interface MyTaskFilter {
   dueBefore?: string | undefined;
 }
 
-interface MyTaskSql {
+interface MyTaskSql extends TaskBandColumns, TaskDurationColumns, TaskReceivingColumns {
+  /** Somebody is responsible for the task today (the person reads the tasks they answer for too). */
+  responsible_held: boolean;
   id: string;
   task_code: string;
   name: string;
@@ -89,15 +95,13 @@ export class PwfMyTaskReads {
     if (filter.dueBefore !== undefined) where.push(`t.committed_finish <= ${bind(filter.dueBefore)}::date`);
     const set = await this.policies.load(tx, today);
     const calendars = await this.calendars.load(tx, WORK_CALENDAR_CODE, now);
-    const officialOf = (kind: MyTaskSql['kind'], priority: MyTaskSql['priority'], phase: string, unitPath: string | null, dueOn: string | null): pwfDeadlineBand.DeadlineBandResult => {
-      const policy = set.forUnitPath(unitPath);
-      return pwfDeadlineBand.deadlineBand({ dueOn, today, unit: policy.unit, calendars, thresholds: pwfDeadlineBand.thresholdsFor(policy, { taskKind: kind, priority, phase }) });
-    };
+    // R73: the official colour is the one resolution of `pwf-task-band.ts` (the ladder of the task itself, then the policy in force), for the counts, the colour filter and each row alike.
+    const subjectOf = (row: Pick<MyTaskSql, 'kind' | 'priority' | 'phase_code' | 'unit_path'> & TaskBandColumns): Parameters<typeof officialTaskLadder>[1] => ({ kind: row.kind, priority: row.priority, phaseCode: row.phase_code, unitPath: row.unit_path, step: stepLadderOf(row) });
     // The exact total (and the groups the colour filter keeps) come from one grouped count of their own, so a page never changes the number it says there are; the page is cut by the database, nothing is read past it.
-    const groups = await tx.query<{ d: string | null; kind: MyTaskSql['kind']; priority: MyTaskSql['priority']; phase_code: string; unit_path: string | null; n: string }>(
-      `select t.committed_finish::text as d, t.kind, t.priority, t.phase_code, ou.path as unit_path, count(*)::text as n
+    const groups = await tx.query<{ d: string | null; kind: MyTaskSql['kind']; priority: MyTaskSql['priority']; phase_code: string; unit_path: string | null; n: string } & TaskBandColumns>(
+      `select t.committed_finish::text as d, t.kind, t.priority, t.phase_code, ou.path as unit_path, ${bandColumnsOf('t')}, count(*)::text as n
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
-        where ${where.join(' and ')} group by t.committed_finish, t.kind, t.priority, t.phase_code, ou.path`,
+        where ${where.join(' and ')} group by t.committed_finish, t.kind, t.priority, t.phase_code, ou.path, ${bandColumnsOf('t')}`,
       params,
     );
     let total = 0;
@@ -106,7 +110,7 @@ export class PwfMyTaskReads {
     let overdueCount = 0;
     const kept: typeof groups = [];
     for (const group of groups) {
-      const judged = officialOf(group.kind, group.priority, group.phase_code, group.unit_path, group.d);
+      const judged = officialTaskBand(set, subjectOf(group), group.d, { today, calendars }).result;
       counts[judged.band] += Number(group.n);
       if (judged.overdue) overdueCount += Number(group.n);
       if (filter.band === undefined || judged.band === filter.band) kept.push(group);
@@ -121,13 +125,14 @@ export class PwfMyTaskReads {
     if (filter.band !== undefined) {
       if (kept.length === 0) conditions.push('false');
       else {
-        const keys = `(coalesce(t.committed_finish::text, ''), t.kind, t.priority, t.phase_code, coalesce(ou.path, '')) in (select * from unnest(${pageBind(kept.map((one) => one.d ?? ''))}::text[], ${pageBind(kept.map((one) => one.kind))}::text[], ${pageBind(kept.map((one) => one.priority))}::text[], ${pageBind(kept.map((one) => one.phase_code))}::text[], ${pageBind(kept.map((one) => one.unit_path ?? ''))}::text[]))`;
+        const ladders = kept.map(bandKeyValues);
+        const keys = `(coalesce(t.committed_finish::text, ''), t.kind, t.priority, t.phase_code, coalesce(ou.path, ''), ${bandKeyOf('t')}) in (select * from unnest(${pageBind(kept.map((one) => one.d ?? ''))}::text[], ${pageBind(kept.map((one) => one.kind))}::text[], ${pageBind(kept.map((one) => one.priority))}::text[], ${pageBind(kept.map((one) => one.phase_code))}::text[], ${pageBind(kept.map((one) => one.unit_path ?? ''))}::text[], ${pageBind(ladders.map((one) => one[0]))}::int[], ${pageBind(ladders.map((one) => one[1]))}::int[], ${pageBind(ladders.map((one) => one[2]))}::int[]))`;
         conditions.push(keys);
       }
     }
     if (page.after !== undefined) conditions.push(`(coalesce(t.committed_finish, date '${FAR_DAY}'), t.id) > (${pageBind(page.after.code)}::date, ${pageBind(page.after.id)}::uuid)`);
     const rows = await tx.query<MyTaskSql>(
-      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.status, t.committed_finish::text as due_date, case when t.planned_finish is distinct from t.committed_finish then t.planned_finish::text end as forecast_finish, t.kind, t.priority, t.phase_code, t.critical, t.version, ou.path as unit_path,
+      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.status, t.committed_finish::text as due_date, case when t.planned_finish is distinct from t.committed_finish then t.planned_finish::text end as forecast_finish, t.kind, t.priority, t.phase_code, t.critical, t.version, ou.path as unit_path, ${bandColumnsOf('t')}, ${durationColumnsOf('t')}, ${receivingColumnsOf('t')}, ${responsibleHeldSql('t', day)} as responsible_held,
               coalesce(t.committed_finish, date '${FAR_DAY}')::text as sort_day
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
         where ${conditions.join(' and ')} order by coalesce(t.committed_finish, date '${FAR_DAY}'), t.id limit ${pageBind(page.limit + 1)}`,
@@ -136,23 +141,26 @@ export class PwfMyTaskReads {
     const stored = await this.preferences.stored(tx, membershipId);
     const personal = hasPersonalLadder(stored) ? personalThresholdsOf(stored) : null;
     const listed = rows.slice(0, page.limit).map((row) => {
-      const policy = set.forUnitPath(row.unit_path);
+      const ladder = officialTaskLadder(set, subjectOf(row));
       const context = { taskKind: row.kind, priority: row.priority, phase: row.phase_code };
-      const due = { dueOn: row.due_date, today, unit: policy.unit, calendars };
+      const due = { dueOn: row.due_date, today, unit: ladder.policy.unit, calendars };
+      // The official ladder is handed to the kernel as the tier it cannot be overruled from; the person's own ladder is merged into it and can only warn earlier (R40), whichever tier gave it.
+      const official = { system: ladder.thresholds };
       let resolved: pwfDeadlineBand.ResolvedBand;
       try {
-        resolved = pwfDeadlineBand.resolveBand({ system: pwfDeadlineBand.thresholdsFor(policy, context), policy, personal }, context, due);
+        resolved = pwfDeadlineBand.resolveBand({ ...official, personal }, context, due);
       } catch (error) {
         // A personal ladder that cannot be merged into a valid one with the official ladder of this task is not shown; the official colour still is.
         if (!(error instanceof DomainError) || error.code !== 'DEADLINE_BAND_THRESHOLDS_INVALID') throw error;
-        resolved = pwfDeadlineBand.resolveBand({ system: pwfDeadlineBand.thresholdsFor(policy, context), policy }, context, due);
+        resolved = pwfDeadlineBand.resolveBand(official, context, due);
       }
-      return { row, official: viewOf(resolved.official), personal: resolved.personal !== null && resolved.personalApplied ? viewOf(resolved.personal) : null };
+      return { row, ladder, official: viewOf(resolved.official), personal: resolved.personal !== null && resolved.personalApplied ? viewOf(resolved.personal) : null };
     });
     const shown = listed;
+    const unitNames = await unitNamesOf(tx, receivingUnitIdsOf(shown.map((one) => one.row)));
     const last = shown[shown.length - 1];
     return {
-      items: shown.map(({ row, official, personal: own }) => ({
+      items: shown.map(({ row, ladder, official, personal: own }) => ({
         task_id: row.id,
         task_code: row.task_code,
         name: row.name,
@@ -163,6 +171,9 @@ export class PwfMyTaskReads {
         forecast_finish: row.forecast_finish,
         official_band: official,
         personal_band: own,
+        ...bandExplanationOf(ladder),
+        ...durationViewOf(row),
+        ...receivingViewOf({ ...row, excluded: false }, unitNames, row.responsible_held),
         critical: row.critical,
         version: row.version,
         finished_on: null,
@@ -197,7 +208,7 @@ export class PwfMyTaskReads {
     const conditions = [...where];
     if (page.after !== undefined) conditions.push(`(t.actual_finish, t.id) < (${bind(page.after.code)}::date, ${bind(page.after.id)}::uuid)`);
     const rows = await tx.query<MyTaskSql & { finished_on: string }>(
-      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.status, t.committed_finish::text as due_date, null::text as forecast_finish, t.kind, t.priority, t.phase_code, t.critical, t.version, ou.path as unit_path,
+      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.status, t.committed_finish::text as due_date, null::text as forecast_finish, t.kind, t.priority, t.phase_code, t.critical, t.version, ou.path as unit_path, ${bandColumnsOf('t')}, ${durationColumnsOf('t')}, ${receivingColumnsOf('t')}, true as responsible_held,
               t.actual_finish::text as sort_day, t.actual_finish::text as finished_on
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
         where ${conditions.join(' and ')} order by t.actual_finish desc, t.id desc limit ${bind(page.limit + 1)}`,
@@ -205,6 +216,7 @@ export class PwfMyTaskReads {
     );
     const set = await this.policies.load(tx, today);
     const shown = rows.slice(0, page.limit);
+    const unitNames = await unitNamesOf(tx, receivingUnitIdsOf(shown));
     const last = shown[shown.length - 1];
     return {
       items: shown.map((row) => ({
@@ -218,6 +230,10 @@ export class PwfMyTaskReads {
         forecast_finish: null,
         official_band: { band: 'NONE', remaining_days: null, unit: set.forUnitPath(row.unit_path).unit, overdue: false, reason: null, due_today: false },
         personal_band: null,
+        ...bandExplanationOf(officialTaskLadder(set, { kind: row.kind, priority: row.priority, phaseCode: row.phase_code, unitPath: row.unit_path, step: stepLadderOf(row) })),
+        ...durationViewOf(row),
+        // A finished task is never "unclaimed"; the unit that received it is still told.
+        ...receivingViewOf({ ...row, excluded: false }, unitNames, true),
         critical: row.critical,
         version: row.version,
         finished_on: row.finished_on,

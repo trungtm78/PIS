@@ -27421,6 +27421,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/project-tasks/{task_id}/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Nhận việc: người của đơn vị nhận việc nhận công việc về mình trong một giao dịch (PWF-04; R71) */
+        post: operations["claimProjectTask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -27973,6 +27990,10 @@ export interface components {
                 };
                 /** @description Bắt buộc khi chọn khác đề xuất (PWF_SELECTION_REASON_REQUIRED) */
                 selection_reason?: string;
+                /** @description Đơn vị cho từng bên mà dự án chưa xác định (R61): khóa là unit_ref của mẫu (PROJECT_PARTY:<MÃ>), giá trị là id đơn vị. Thiếu: 422 PWF_UNIT_UNRESOLVED; ghi đè đơn vị của dự án hoặc của mẫu: 422 PWF_UNIT_OVERRIDE_DENIED; đơn vị không hợp lệ: 422 PWF_UNIT_UNKNOWN */
+                units?: {
+                    [key: string]: string;
+                };
             };
         };
         PrjProfileChange: {
@@ -49018,7 +49039,42 @@ export interface components {
                     policy: "LATEST_APPROVED" | "PINNED";
                     revision?: number | null;
                 }[];
+                /** @description The time limit in its own unit (R58); duration_working_days must then be its nominal value. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                };
+                /** @description The ladder of the three colours of this task, in working days left (R59): green > yellow > red >= -1; without green_days every day above yellow is green. */
+                bands?: {
+                    green_days?: number;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The units that receive the task (R61): exactly one LEAD, whose role is the responsible_role of the task. */
+                responsible_units?: {
+                    unit_ref: string;
+                    role: string;
+                    /** @enum {string} */
+                    part: "LEAD" | "SUPPORT";
+                }[];
+                /** @description Whether the limit of the task may be extended and the caps (R72); the unit is the unit of the limit. */
+                extension?: {
+                    allowed: boolean;
+                    max_times?: number;
+                    max_value?: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                };
             }[];
+            /** @description The parties of the project the template names beside INVESTOR and DECISION_AUTHORITY (R61). */
+            parties?: {
+                code: string;
+                name: string;
+            }[];
+            /** @description The code of the task whose finish is the deadline of the whole file (PWF 22.2). */
+            overall_deadline_task?: string | null;
         };
         PwfTemplateValidation: {
             valid: boolean;
@@ -49051,6 +49107,11 @@ export interface components {
                 funding_source?: string;
                 project_type?: string;
             };
+            /**
+             * @description PUBLISHED (default): the published work calendars only, what a real start would be laid on. PROVISIONAL: a year without a published calendar is counted on its latest draft, and the answer says so (R74). Only this preview takes it.
+             * @enum {string}
+             */
+            calendar_mode?: "PUBLISHED" | "PROVISIONAL";
         };
         PwfSchedulePreview: {
             /** Format: date */
@@ -49096,6 +49157,44 @@ export interface components {
                     task: string | null;
                     year?: number | null;
                 }[];
+                /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                } | null;
+                /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+                effective_working_days?: number | null;
+                /** @description The dates (or the colour zones) of the task were counted on or across a draft calendar year. */
+                provisional?: boolean;
+                /**
+                 * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+                 * @enum {string}
+                 */
+                band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+                /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+                band_thresholds?: {
+                    green_days: number | null;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The first day the deadline is each colour (working days counted back from the finish on the calendars used); green_from is null for a ladder without a green line; null when the task has no date or a year the count needs has no calendar. */
+                band_zones?: {
+                    /** Format: date */
+                    green_from: string | null;
+                    /** Format: date */
+                    yellow_from: string;
+                    /** Format: date */
+                    red_from: string;
+                } | null;
+                /** @description Why there is no date: CALENDAR_MISSING with the first year that has no calendar, or NOT_IN_PROJECT for a branch the sample facts leave out; null when dated. */
+                undated_reason?: {
+                    /** @enum {string} */
+                    code: "CALENDAR_MISSING" | "NOT_IN_PROJECT";
+                    year?: number;
+                } | null;
+                is_overall_deadline?: boolean;
             }[];
             excluded_tasks: string[];
             findings: {
@@ -49107,6 +49206,55 @@ export interface components {
             result_hash: string;
             /** Format: date-time */
             as_of: string;
+            /** @enum {string} */
+            calendar_mode?: "PUBLISHED" | "PROVISIONAL";
+            /** @description At least one year the dates rely on was taken from a draft calendar. */
+            provisional?: boolean;
+            /** @description Every year the dates and the colour zones rely on, with the version used and whether it is published or a draft. */
+            calendars?: {
+                year: number;
+                version: number;
+                /** @enum {string} */
+                status: "PUBLISHED" | "DRAFT";
+            }[];
+            /** @description The span of each step, read from the schedule of its tasks (R44). */
+            steps?: {
+                step_code: string;
+                phase_code: string;
+                name: string;
+                /** Format: date */
+                start: string | null;
+                /** Format: date */
+                finish: string | null;
+                /** @description The working days from the first slot one of its tasks starts in to the slot the last one ends in; null when a task of the step has no calendar or the step has no task in the project. */
+                working_days: number | null;
+                task_count: number;
+                provisional: boolean;
+                /** @description Why there is no date: CALENDAR_MISSING with the first year that has no calendar, or NOT_IN_PROJECT for a branch the sample facts leave out; null when dated. */
+                undated_reason: {
+                    /** @enum {string} */
+                    code: "CALENDAR_MISSING" | "NOT_IN_PROJECT";
+                    year?: number;
+                } | null;
+            }[];
+            /** @description The deadline of the whole file: the finish of the task the template marks (overall_deadline_task); null when the template marks none or the sample facts leave that task out. */
+            overall_deadline?: {
+                task_code: string;
+                /** Format: date */
+                finish: string | null;
+                /** @enum {string} */
+                state: "SCHEDULED" | "COMPLETED" | "PASS_THROUGH" | "CALENDAR_UNAVAILABLE";
+                provisional: boolean;
+                /** @description The first day the deadline is each colour (working days counted back from the finish on the calendars used); green_from is null for a ladder without a green line; null when the task has no date or a year the count needs has no calendar. */
+                band_zones: {
+                    /** Format: date */
+                    green_from: string | null;
+                    /** Format: date */
+                    yellow_from: string;
+                    /** Format: date */
+                    red_from: string;
+                } | null;
+            } | null;
         };
         PwfWorkflowStart: {
             /** @description Bỏ trống: hệ thống chọn theo quy tắc PROJECT_WORKFLOW_ASSIGNMENT (R47); không có đề xuất: PWF_TEMPLATE_NOT_ASSIGNED */
@@ -49122,6 +49270,10 @@ export interface components {
             };
             /** @description Lý do chọn loại quy trình khác đề xuất */
             selection_reason?: string;
+            /** @description Đơn vị cho từng bên mà dự án chưa xác định (R61): khóa là unit_ref của mẫu (PROJECT_PARTY:<MÃ>), giá trị là id đơn vị. Thiếu: 422 PWF_UNIT_UNRESOLVED; ghi đè đơn vị của dự án hoặc của mẫu: 422 PWF_UNIT_OVERRIDE_DENIED; đơn vị không hợp lệ: 422 PWF_UNIT_UNKNOWN */
+            units?: {
+                [key: string]: string;
+            };
         };
         PwfWorkflowAdopt: {
             /** @description Bỏ trống: hệ thống chọn theo quy tắc PROJECT_WORKFLOW_ASSIGNMENT (R47); không có đề xuất: PWF_TEMPLATE_NOT_ASSIGNED */
@@ -49158,6 +49310,10 @@ export interface components {
             }[];
             /** @description Lý do chọn loại quy trình khác đề xuất */
             selection_reason?: string;
+            /** @description Đơn vị cho từng bên mà dự án chưa xác định (R61): khóa là unit_ref của mẫu (PROJECT_PARTY:<MÃ>), giá trị là id đơn vị. Thiếu: 422 PWF_UNIT_UNRESOLVED; ghi đè đơn vị của dự án hoặc của mẫu: 422 PWF_UNIT_OVERRIDE_DENIED; đơn vị không hợp lệ: 422 PWF_UNIT_UNKNOWN */
+            units?: {
+                [key: string]: string;
+            };
         };
         PwfAdoptResult: {
             dry_run: boolean;
@@ -49187,6 +49343,7 @@ export interface components {
             /** Format: date-time */
             as_of: string;
             selection?: components["schemas"]["PwfWorkflowSelection"];
+            units?: components["schemas"]["PwfWorkflowUnits"];
         };
         PwfWorkflowDetail: {
             /** Format: uuid */
@@ -49285,6 +49442,55 @@ export interface components {
                  * @description Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)
                  */
                 forecast_finish?: string | null;
+                /**
+                 * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+                 * @enum {string}
+                 */
+                band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+                /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+                band_thresholds?: {
+                    green_days: number | null;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                } | null;
+                /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+                effective_working_days?: number | null;
+                /**
+                 * Format: uuid
+                 * @description Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận
+                 */
+                receiving_unit_id?: string;
+                receiving_unit_name?: string | null;
+                receiving_units?: {
+                    unit_ref: string;
+                    /** Format: uuid */
+                    unit_id: string;
+                    unit_name: string | null;
+                    role: string;
+                    /** @enum {string} */
+                    part: "LEAD" | "SUPPORT";
+                }[];
+                /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
+                unclaimed?: boolean;
+                /** @description Quy tắc gia hạn của công việc theo mẫu đã đóng băng và phần đã dùng bởi các gia hạn ĐÃ DUYỆT (R72). Vắng: mẫu không khai `extension` cho công việc này. Trần `null` = không giới hạn. */
+                extension?: {
+                    allowed: boolean;
+                    max_times: number | null;
+                    max_value: number | null;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    times_used: number;
+                    value_used: number;
+                };
+                /** @description The task whose official finish is the deadline of the whole file: the frozen template of the workflow marks it (PWF 22.2). */
+                is_overall_deadline?: boolean;
             }[];
             gates: {
                 /** @enum {string} */
@@ -49355,6 +49561,20 @@ export interface components {
                 code: string;
                 name: string;
             }[];
+            /** @description The deadline of the whole file (PWF 22.2): the official finish of the task the frozen template marks, with the official colour of that very task (the same resolution as tasks[].band). Null when the template marks no task or the project does not have it (a branch that was cut). */
+            overall_deadline?: {
+                /** Format: uuid */
+                task_id: string;
+                task_code: string;
+                task_name: string;
+                /** Format: date */
+                due_on: string | null;
+                /** @enum {string} */
+                band: "NONE" | "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+                /** @enum {string|null} */
+                band_tier: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM" | null;
+                remaining_days: number | null;
+            } | null;
         };
         PwfTaskPage: {
             items: {
@@ -49418,6 +49638,55 @@ export interface components {
                  * @description Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)
                  */
                 forecast_finish?: string | null;
+                /**
+                 * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+                 * @enum {string}
+                 */
+                band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+                /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+                band_thresholds?: {
+                    green_days: number | null;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                } | null;
+                /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+                effective_working_days?: number | null;
+                /**
+                 * Format: uuid
+                 * @description Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận
+                 */
+                receiving_unit_id?: string;
+                receiving_unit_name?: string | null;
+                receiving_units?: {
+                    unit_ref: string;
+                    /** Format: uuid */
+                    unit_id: string;
+                    unit_name: string | null;
+                    role: string;
+                    /** @enum {string} */
+                    part: "LEAD" | "SUPPORT";
+                }[];
+                /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
+                unclaimed?: boolean;
+                /** @description Quy tắc gia hạn của công việc theo mẫu đã đóng băng và phần đã dùng bởi các gia hạn ĐÃ DUYỆT (R72). Vắng: mẫu không khai `extension` cho công việc này. Trần `null` = không giới hạn. */
+                extension?: {
+                    allowed: boolean;
+                    max_times: number | null;
+                    max_value: number | null;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    times_used: number;
+                    value_used: number;
+                };
+                /** @description The task whose official finish is the deadline of the whole file: the frozen template of the workflow marks it (PWF 22.2). */
+                is_overall_deadline?: boolean;
             }[];
             next_cursor: string | null;
             total: number;
@@ -49798,6 +50067,55 @@ export interface components {
             responsible_role_name?: string | null;
             /** @description Tên vai trò duyệt theo danh mục vai trò của mẫu; null khi không có vai trò duyệt hoặc mẫu không khai tên */
             approver_role_name?: string | null;
+            /**
+             * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+             * @enum {string}
+             */
+            band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+            /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+            band_thresholds?: {
+                green_days: number | null;
+                yellow_days: number;
+                red_days: number;
+            };
+            /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+            duration?: {
+                value: number;
+                /** @enum {string} */
+                unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                roll_to_working_day: boolean;
+            } | null;
+            /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+            effective_working_days?: number | null;
+            /**
+             * Format: uuid
+             * @description Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận
+             */
+            receiving_unit_id?: string;
+            receiving_unit_name?: string | null;
+            receiving_units?: {
+                unit_ref: string;
+                /** Format: uuid */
+                unit_id: string;
+                unit_name: string | null;
+                role: string;
+                /** @enum {string} */
+                part: "LEAD" | "SUPPORT";
+            }[];
+            /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
+            unclaimed?: boolean;
+            /** @description Người đọc bấm được "Nhận việc" (cùng luật với claimProjectTask); chỉ có khi công việc có đơn vị nhận */
+            can_claim?: boolean;
+            /** @description Quy tắc gia hạn của công việc theo mẫu đã đóng băng và phần đã dùng bởi các gia hạn ĐÃ DUYỆT (R72). Vắng: mẫu không khai `extension` cho công việc này. Trần `null` = không giới hạn. */
+            extension?: {
+                allowed: boolean;
+                max_times: number | null;
+                max_value: number | null;
+                /** @enum {string} */
+                unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                times_used: number;
+                value_used: number;
+            };
         };
         PwfTaskStart: {
             /** @description Bắt buộc khi bắt đầu trước khi tiền nhiệm đủ điều kiện theo loại liên kết (quản lý cho phép bắt đầu sớm) */
@@ -49939,10 +50257,17 @@ export interface components {
                         kind: "FS" | "SS" | "FF" | "SF";
                         lag_working_days: number;
                     }[];
+                    /** @description Thời hạn mới của công việc CÓ `duration`, theo đơn vị của chính nó (R58). Không gửi cùng `duration_working_days`. Tăng thời hạn của công việc có khai `extension` phải đi qua `extensions[]` (422 PWF_EXTENSION_REQUIRED). */
+                    duration_value?: number;
                 }[];
                 remove?: string[];
             };
             reason: string;
+            /** @description Gia hạn (R72): mỗi dòng tăng thời hạn của CHÍNH công việc đó thêm `add_value`, theo đơn vị `extension.unit` của công việc trong mẫu đã đóng băng. Nhiều dòng cho một công việc được cộng lại, mỗi dòng tính một lần. Chỉ đề nghị được duyệt mới tiêu trần. */
+            extensions?: {
+                task_code: string;
+                add_value: number;
+            }[];
         };
         PwfReschedulePreview: {
             /** Format: uuid */
@@ -49959,6 +50284,11 @@ export interface components {
                 became_critical: boolean;
                 became_non_critical: boolean;
                 state_changed: boolean;
+                /**
+                 * @description Vì sao ngày của công việc đổi (R72): `EXTENDED` = gia hạn của chính nó trong đề nghị này; `CASCADED` = lùi theo dây chuyền (việc đứng trước, lịch làm việc, ngày bắt đầu). Vắng: ngày không đổi, hoặc đề nghị đổi trực tiếp công việc đó bằng cách khác (tiến độ, `change`, `remove`).
+                 * @enum {string}
+                 */
+                cause?: "EXTENDED" | "CASCADED";
             }[];
             project_finish_shift_days: number | null;
             input_hash: string;
@@ -49969,6 +50299,13 @@ export interface components {
             version: number;
             /** Format: date-time */
             as_of: string;
+            /** @description Các dòng gia hạn của đề nghị (R72); vắng hoặc rỗng khi đề nghị không gia hạn. */
+            extensions?: {
+                task_code: string;
+                add_value: number;
+                /** @enum {string} */
+                unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+            }[];
         };
         PwfDeadlineBoard: {
             items: {
@@ -50013,6 +50350,43 @@ export interface components {
                  * @description Ngày kết thúc dự báo, chỉ có khi khác hạn chính thức (R49)
                  */
                 forecast_finish?: string | null;
+                /**
+                 * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+                 * @enum {string}
+                 */
+                band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+                /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+                band_thresholds?: {
+                    green_days: number | null;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                } | null;
+                /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+                effective_working_days?: number | null;
+                /**
+                 * Format: uuid
+                 * @description Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận
+                 */
+                receiving_unit_id?: string;
+                receiving_unit_name?: string | null;
+                receiving_units?: {
+                    unit_ref: string;
+                    /** Format: uuid */
+                    unit_id: string;
+                    unit_name: string | null;
+                    role: string;
+                    /** @enum {string} */
+                    part: "LEAD" | "SUPPORT";
+                }[];
+                /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
+                unclaimed?: boolean;
             }[];
             next_cursor: string | null;
             shown: number;
@@ -50181,6 +50555,43 @@ export interface components {
                  * @description Ngày hoàn thành thực tế; chỉ có với việc đã xong (status=DONE)
                  */
                 finished_on?: string | null;
+                /**
+                 * @description Where the ladder of the official colour came from (PWF R59, R73): the task of the frozen template, an override of the policy in force, the policy itself, or the built-in default of the source.
+                 * @enum {string}
+                 */
+                band_tier?: "STEP" | "POLICY_OVERRIDE" | "POLICY" | "SYSTEM";
+                /** @description The ladder the official colour was judged on, in working days left (PWF R73). */
+                band_thresholds?: {
+                    green_days: number | null;
+                    yellow_days: number;
+                    red_days: number;
+                };
+                /** @description The time limit of the task in its own unit (PWF R58); null when the limit is duration_working_days alone. */
+                duration?: {
+                    value: number;
+                    /** @enum {string} */
+                    unit: "WORKING_DAY" | "CALENDAR_DAY" | "MONTH";
+                    roll_to_working_day: boolean;
+                } | null;
+                /** @description The working days the task covers on the line of the schedule as last published (PWF R58); null while unknown. */
+                effective_working_days?: number | null;
+                /**
+                 * Format: uuid
+                 * @description Đơn vị nhận việc (dòng LEAD, R61); vắng khi công việc không có đơn vị nhận
+                 */
+                receiving_unit_id?: string;
+                receiving_unit_name?: string | null;
+                receiving_units?: {
+                    unit_ref: string;
+                    /** Format: uuid */
+                    unit_id: string;
+                    unit_name: string | null;
+                    role: string;
+                    /** @enum {string} */
+                    part: "LEAD" | "SUPPORT";
+                }[];
+                /** @description Chưa có người nhận (R71): có đơn vị nhận, chưa xong, chưa hủy, không bị cắt nhánh và không có dòng RESPONSIBLE còn hiệu lực hôm nay */
+                unclaimed?: boolean;
             }[];
             next_cursor: string | null;
             total: number;
@@ -50614,6 +51025,10 @@ export interface components {
             note?: string;
             /** @enum {string} */
             verification: "VERIFIED" | "UNVERIFIED";
+            /** @description The membership that verified the ground against the source text; set by the server when a draft is saved, never taken from the client (R75). */
+            verified_by?: string;
+            /** @description When it was verified (UTC), set by the server (R75). */
+            verified_at?: string;
         };
         /** @description Căn cứ pháp lý kèm văn bản của danh mục mà nó viện dẫn và tình trạng hiệu lực hôm nay (R45) */
         PwfLegalBasisView: {
@@ -50660,6 +51075,14 @@ export interface components {
             /** Format: uuid */
             rule_unit_id: string | null;
             reason: string | null;
+            /** @description Đơn vị của từng unit_ref mà công việc của dự án dùng (R61); vắng khi mẫu không khai đơn vị */
+            units?: {
+                unit_ref: string;
+                /** Format: uuid */
+                unit_id: string;
+                /** @enum {string} */
+                source: "PROJECT" | "TEMPLATE" | "CHOSEN";
+            }[];
         };
         /** @description Đề xuất loại quy trình cho một dự án theo quy tắc ánh xạ, danh sách loại quy trình và bản xem trước lịch (R47) */
         PwfWorkflowSuggestion: {
@@ -50736,6 +51159,7 @@ export interface components {
                     duration_working_days: number;
                     task_count: number;
                 }[];
+                units?: components["schemas"]["PwfWorkflowUnits"];
             } | null;
             /** @description Người gọi có quyền khởi tạo workflow (pwf.workflow.manage) hay không */
             can_start: boolean;
@@ -50837,6 +51261,46 @@ export interface components {
             truncated: boolean;
             /** Format: date-time */
             as_of: string;
+        };
+        /** @description Các unit_ref mà công việc của dự án dùng (R61) và đơn vị đã phân giải; unresolved: các unit_ref người khởi tạo còn phải chọn đơn vị */
+        PwfWorkflowUnits: {
+            refs: {
+                unit_ref: string;
+                /** Format: uuid */
+                unit_id: string | null;
+                unit_name: string | null;
+                /**
+                 * @description PROJECT: cột đơn vị của dự án; TEMPLATE: UNIT:<uuid> của mẫu; CHOSEN: người khởi tạo chọn; NONE: chưa có
+                 * @enum {string}
+                 */
+                source: "PROJECT" | "TEMPLATE" | "CHOSEN" | "NONE";
+                /** @description Tên bên do mẫu khai (parties); null với PROJECT_OWNER, bên dựng sẵn và UNIT */
+                party_name: string | null;
+            }[];
+            unresolved: string[];
+            /** @description Chỉ ở bản xem trước: unit_ref của mẫu trỏ tới đơn vị không còn hợp lệ (khởi tạo sẽ bị từ chối PWF_UNIT_UNKNOWN) */
+            unknown?: string[];
+        };
+        PwfTaskClaim: {
+            /**
+             * @description Phần muốn nhận; bỏ trống: dòng đầu tiên người gọi đủ điều kiện (LEAD trước)
+             * @enum {string}
+             */
+            part?: "LEAD" | "SUPPORT";
+        };
+        /** @description The result of writing a rule draft: the command result, and for a rule type whose drafts the server prepares before storing them what that preparation did (PROJECT_WORKFLOW_TEMPLATE: the stamps of the verified legal grounds, PWF R75). */
+        GovernanceRuleDraftResult: {
+            /** Format: uuid */
+            operation_id: string;
+            status: string;
+            resource_version: number;
+            /** Format: uuid */
+            resource_id?: string;
+            /** @description Only for PROJECT_WORKFLOW_TEMPLATE: how many legal grounds the server stamped with the caller and its own time in this save, and how many came in as verified and were put back to unverified (R75). */
+            legal_verification?: {
+                stamped: number;
+                reset: number;
+            };
         };
     };
     responses: never;
@@ -151489,7 +151953,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommandResult"];
+                    "application/json": components["schemas"]["GovernanceRuleDraftResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
@@ -219656,6 +220120,106 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PendingDecisionList"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    claimProjectTask: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfTaskClaim"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

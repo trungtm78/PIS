@@ -8,12 +8,14 @@ import {
   isRuleDay,
   isRuleTypeName,
   nextRuleStatus,
+  prepareRuleDraft,
+  preparesRuleDrafts,
   registeredRuleTypes,
   ruleTypeOf,
   validateRuleParams,
   versionConflict,
 } from '@machvon/kernel';
-import type { GovernanceRuleStatus, Provenance, ResolvedGovernanceRule, RuleParams, RuleTypeDescription } from '@machvon/kernel';
+import type { GovernanceRuleStatus, Provenance, ResolvedGovernanceRule, RuleDraftContext, RuleParams, RuleTypeDescription } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -121,6 +123,8 @@ const COLUMNS = `id, rule_type, code, version, unit_id, status, params, effectiv
   submitted_by, submitted_at::text as submitted_at, approved_by, approved_at::text as approved_at, retired_by, retired_at::text as retired_at, retire_reason, row_version`;
 
 const NO_UNIT = '00000000-0000-0000-0000-000000000000';
+/** How many earlier saves of a work in progress a type that prepares its drafts is shown. */
+const DRAFT_SAVES = 20;
 const TODAY_SQL = `(now() at time zone 'Asia/Ho_Chi_Minh')::date::text`;
 
 const toRow = (row: RuleSql): GovernanceRuleRow => ({
@@ -197,7 +201,7 @@ export class GovernanceRuleStore {
   }
 
   /** Writes a draft: the type is registered, the code well formed, the params pass the schema of the type, the period is ordered, the unit (when given) exists. Version numbers run 1, 2, 3 for one code and one unit. */
-  async create(tx: TenantTx, input: GovernanceRuleDraft, actor: string): Promise<GovernanceRuleRow> {
+  async create(tx: TenantTx, input: GovernanceRuleDraft, actor: string): Promise<GovernanceRuleRow & { report?: Readonly<Record<string, unknown>> }> {
     if (!isRuleTypeName(input.type)) throw invalid('rule_type');
     ruleTypeOf(input.type);
     if (!isRuleCode(input.code)) throw invalid('code');
@@ -212,6 +216,8 @@ export class GovernanceRuleStore {
       if (units[0] === undefined) throw invalid('unit_id');
     }
     await lock(tx, `governance_rule:${input.type}:${input.code}:${input.unitId ?? NO_UNIT}`);
+    // A type that prepares its drafts (a mark only the server may set) is told what the draft follows; every other type is stored as it was judged above, and nothing more is read.
+    const prepared = preparesRuleDrafts(input.type) ? prepareRuleDraft(input.type, params, await this.draftContext(tx, input, actor)) : { params };
     const next = await tx.query<{ next: number }>(
       `select coalesce(max(version), 0) + 1 as next from machvon.governance_rule where rule_type = $1 and code = $2 and coalesce(unit_id, $3::uuid) = coalesce($4::uuid, $3::uuid)`,
       [input.type, input.code, NO_UNIT, input.unitId],
@@ -220,9 +226,36 @@ export class GovernanceRuleStore {
       `insert into machvon.governance_rule (tenant_id, rule_type, code, version, unit_id, status, params, effective_from, effective_to, reason, created_by)
        values (current_setting('app.tenant_id', true)::uuid, $1, $2, $3, $4::uuid, 'DRAFT', $5::jsonb, $6::date, $7::date, $8, $9::uuid)
        returning ${COLUMNS}`,
-      [input.type, input.code, (next[0] as { next: number }).next, input.unitId, JSON.stringify(params), input.effectiveFrom, input.effectiveTo, reason, actor],
+      [input.type, input.code, (next[0] as { next: number }).next, input.unitId, JSON.stringify(prepared.params), input.effectiveFrom, input.effectiveTo, reason, actor],
     );
-    return toRow(rows[0] as RuleSql);
+    return { ...toRow(rows[0] as RuleSql), ...(prepared.report === undefined ? {} : { report: prepared.report }) };
+  }
+
+  /**
+   * What a draft follows, for a type that prepares its drafts: the basis is the latest approved version of the same code for the same unit, else (for a draft of a unit) the latest approved one of the whole tenant, else the built-in
+   * default of the code, else nothing (a new code: a clone starts from nothing); the drafts are the versions of the same code and unit written after that basis and never approved, newest first (the last `DRAFT_SAVES` of them). The
+   * time is the one of the transaction, so every mark of one save carries the same instant.
+   */
+  private async draftContext(tx: TenantTx, input: GovernanceRuleDraft, actor: string): Promise<RuleDraftContext> {
+    const approved = async (unitId: string | null): Promise<{ version: number; params: RuleParams } | undefined> =>
+      (
+        await tx.query<{ version: number; params: RuleParams }>(
+          `select version, params from machvon.governance_rule
+            where rule_type = $1 and code = $2 and coalesce(unit_id, $3::uuid) = coalesce($4::uuid, $3::uuid) and approved_at is not null
+            order by version desc limit 1`,
+          [input.type, input.code, NO_UNIT, unitId],
+        )
+      )[0];
+    const own = await approved(input.unitId);
+    const basis = own ?? (input.unitId === null ? undefined : await approved(null));
+    const drafts = await tx.query<{ params: RuleParams }>(
+      `select params from machvon.governance_rule
+        where rule_type = $1 and code = $2 and coalesce(unit_id, $3::uuid) = coalesce($4::uuid, $3::uuid) and approved_at is null and version > $5
+        order by version desc limit $6`,
+      [input.type, input.code, NO_UNIT, input.unitId, own?.version ?? 0, DRAFT_SAVES],
+    );
+    const clock = await tx.query<{ at: string }>(`select to_char(now() at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as at`);
+    return { basis: basis?.params ?? builtInDefault(input.type, input.code)?.params ?? null, drafts: drafts.map((row) => row.params), actor, at: (clock[0] as { at: string }).at };
   }
 
   /** The versions that match, newest written first. */

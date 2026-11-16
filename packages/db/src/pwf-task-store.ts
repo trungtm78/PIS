@@ -8,6 +8,7 @@ import { logWorkflow, publishSchedule, resultHashOf, syncMilestones } from './pw
 import { TASK_COLUMNS, baselineOfRows, earliestYear, ownTaskDefinition, inputHashOf, loadLinks, loadTasks, pinnedThenPublished, pinsFromJson, resultOfRows, scheduleTasksOf, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow } from './pwf-schedule-support.ts';
 import { resolveFormRevision } from './pwf-form-revision.ts';
+import { CLAIM_LEAD_REASON, CLAIM_SUPPORT_REASON, claimOffer, isOfReceivingUnits } from './pwf-task-claim.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 /**
@@ -325,8 +326,49 @@ export class PwfTaskStore {
     return this.result(locked, 'ON_HOLD', 'IN_PROGRESS', task.version + 1, {});
   }
 
+  /**
+   * "Nhận việc" (R71): a person of a unit that receives the task takes it, in one transaction under the lock of the task. The task is one a unit receives, in a workflow that is running, tracked, in the project and still open
+   * (409 `PWF_TASK_STATE_INVALID` otherwise); the caller is of one of its units and holds, at that unit, the role its line names (403 `PWF_CLAIM_NOT_ELIGIBLE` otherwise; `claimOffer` is the one rule); the line is still free
+   * (409 `PWF_TASK_ALREADY_CLAIMED`: nothing is ever taken from someone, changing the person is the ledger's work). The leading line writes RESPONSIBLE, a supporting line CONSULTED, from today, with a reason of the system,
+   * and the log keeps `TASK_CLAIMED`. A project the caller cannot read does not exist for them (404), whatever their units are: being named on a task opens no project.
+   */
+  async claim(tx: TenantTx, request: { taskId: string; actor: string; scopes: StageScopes; today: string; now: Date; part?: string | undefined }): Promise<TaskResult & { assignmentId: string; role: AssignmentRole }> {
+    if (request.part !== undefined && request.part !== 'LEAD' && request.part !== 'SUPPORT') throw invalid('part');
+    const id = idOf(request.taskId, 'task_id');
+    // The right to work on tasks reaches the whole tenant for every person of the staff: what tells a task that exists from one that does not is the right to READ its project, judged before anything else is said.
+    const read = request.scopes.read(2);
+    const seen = await tx.query<{ id: string }>(`select t.id from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id where t.id = $1::uuid and ${read.sql}`, [id, ...read.params]);
+    if (seen[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const locked = await this.lock(tx, id, request.scopes, 'task_id');
+    const { task } = locked;
+    this.assertOpenFor(locked, ['NOT_STARTED', 'IN_PROGRESS', 'AWAITING_APPROVAL', 'ON_HOLD']);
+    if (task.receivingUnitId === null || (task.receivingUnits ?? []).length === 0) throw stateInvalid('NO_RECEIVING_UNIT');
+    const offer = await claimOffer(tx, { taskId: task.id, membershipId: request.actor, today: request.today, at: request.now, part: request.part });
+    if (offer.line === null || offer.role === null) throw new DomainError('PWF_CLAIM_NOT_ELIGIBLE', 403, undefined, { extensions: { reason: offer.refusal } });
+    if (offer.taken) throw new DomainError('PWF_TASK_ALREADY_CLAIMED', 409, undefined, { extensions: { part: offer.line.part } });
+    const reason = offer.line.part === 'LEAD' ? CLAIM_LEAD_REASON : CLAIM_SUPPORT_REASON;
+    const assignmentId = randomUUID();
+    try {
+      await tx.query('savepoint pwf_claim');
+      await tx.query(
+        `insert into machvon.project_task_assignment (tenant_id, id, task_id, membership_id, role, valid_from, share_pct, reason, assigned_by)
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, $4, $5::date, $6::int, $7, $3::uuid)`,
+        [assignmentId, task.id, request.actor, offer.role, request.today, offer.sharePct, reason],
+      );
+      await tx.query('release savepoint pwf_claim');
+    } catch (error) {
+      if ((error as { code?: string }).code !== EXCLUSION_VIOLATION) throw error;
+      // The person holds the role on a later day already (a line of the ledger that starts in the future): the periods of one person in one role never overlap.
+      await tx.query('rollback to savepoint pwf_claim');
+      throw new DomainError('PWF_TASK_ALREADY_CLAIMED', 409, undefined, { extensions: { part: offer.line.part } });
+    }
+    const facts = { assignment_id: assignmentId, role: offer.role, part: offer.line.part, unit_ref: offer.line.unit_ref, unit_id: offer.line.unit_id };
+    await logWorkflow(tx, { workflowId: task.workflowId, taskId: task.id, kind: 'TASK_CLAIMED', actor: request.actor, reason, subject: { task_code: task.code, membership_id: request.actor, valid_from: request.today, share_pct: offer.sharePct, ...facts } });
+    return { ...this.result(locked, task.status, task.status, task.version, facts), assignmentId, role: offer.role };
+  }
+
   /** Adds a line to the ledger of assignments (only added to): the periods of one person in one role never overlap, and the shares of those who hold one role on the same day add up to 100 at most (BR-PWF-34). */
-  async assign(tx: TenantTx, request: { taskId: string; actor: string; scopes: StageScopes; today: string; input: AssignInput }): Promise<TaskResult & { assignmentId: string }> {
+  async assign(tx: TenantTx, request: { taskId: string; actor: string; scopes: StageScopes; today: string; now?: Date | undefined; input: AssignInput }): Promise<TaskResult & { assignmentId: string }> {
     const locked = await this.lock(tx, request.taskId, request.scopes, 'task_id');
     const { task } = locked;
     this.assertOpenFor(locked, ['NOT_STARTED', 'IN_PROGRESS', 'AWAITING_APPROVAL', 'ON_HOLD']);
@@ -367,7 +409,9 @@ export class PwfTaskStore {
       await tx.query('rollback to savepoint pwf_assignment');
       throw new DomainError('PWF_ASSIGNMENT_INVALID', 422, 'valid_from', { extensions: { reason: 'PERIOD_OVERLAP' } });
     }
-    await logWorkflow(tx, { workflowId: task.workflowId, taskId: task.id, kind: 'ASSIGNED', actor: request.actor, reason, subject: { task_code: task.code, assignment_id: id, membership_id: membershipId, role: input.role, valid_from: from, share_pct: input.sharePct } });
+    // R71: an administrator may give a task a unit receives to anybody; the log says when the person is of none of its units (the administrator answers for it).
+    const outside = task.receivingUnitId === null ? {} : { outside_receiving_units: !(await isOfReceivingUnits(tx, task.id, membershipId, request.now ?? new Date())) };
+    await logWorkflow(tx, { workflowId: task.workflowId, taskId: task.id, kind: 'ASSIGNED', actor: request.actor, reason, subject: { task_code: task.code, assignment_id: id, membership_id: membershipId, role: input.role, valid_from: from, share_pct: input.sharePct, ...outside } });
     return { ...this.result(locked, task.status, task.status, task.version, { assignment_id: id, role: input.role }), assignmentId: id };
   }
 

@@ -7747,6 +7747,78 @@
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
+    },
+    "PWF_UNIT_UNRESOLVED": {
+      "status": 422,
+      "title": "A party of the workflow template has no unit for this project",
+      "meaning": "Còn bên của quy trình chưa có đơn vị cho dự án này; người khởi tạo phải chọn đơn vị",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_UNIT_OVERRIDE_DENIED": {
+      "status": 422,
+      "title": "A unit the project or the template already names cannot be replaced when the workflow starts",
+      "meaning": "Không được chọn lại đơn vị mà dự án hoặc mẫu quy trình đã xác định; sửa dự án, không sửa workflow",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_UNIT_UNKNOWN": {
+      "status": 422,
+      "title": "The unit is not a unit of the tenant that is valid today",
+      "meaning": "Đơn vị không tồn tại hoặc không còn hiệu lực ở ngày khởi tạo",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_TASK_ALREADY_CLAIMED": {
+      "status": 409,
+      "title": "The task already has a person for this line",
+      "meaning": "Công việc đã có người nhận; đổi người là việc của quản trị qua sổ phân công",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_CLAIM_NOT_ELIGIBLE": {
+      "status": 403,
+      "title": "The caller is not of a receiving unit of the task or does not hold the role its line names",
+      "meaning": "Người gọi không thuộc đơn vị nhận việc hoặc không giữ vai mà dòng đơn vị đó khai",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_EXTENSION_NOT_ALLOWED": {
+      "status": 422,
+      "title": "The time limit of this task cannot be extended",
+      "meaning": "Công việc này không được gia hạn (mẫu quy trình không cho phép hoặc không khai quy tắc gia hạn)",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_EXTENSION_LIMIT_EXCEEDED": {
+      "status": 422,
+      "title": "The extension exceeds the cap of times or of value of the task",
+      "meaning": "Gia hạn vượt trần số lần hoặc trần tổng thời gian gia hạn của công việc",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_EXTENSION_TASK_CLOSED": {
+      "status": 422,
+      "title": "A task that is done, cancelled or left out cannot be extended",
+      "meaning": "Công việc đã xong, đã hủy hoặc bị cắt nhánh thì không gia hạn được",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_EXTENSION_REQUIRED": {
+      "status": 422,
+      "title": "Raising the time limit of this task is an extension and must be asked through extensions",
+      "meaning": "Tăng thời hạn của công việc có quy tắc gia hạn phải đi qua mục gia hạn (extensions) của đề nghị dời lịch",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
     }
   }
 }

@@ -2,10 +2,12 @@ import { DomainError, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
 import { HomeWorkCalendars } from './home-work-clock-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { PwfAssignmentReads, legalBasisView } from './pwf-assignment.ts';
+import { extensionViewOf } from './pwf-extension.ts';
 import { currentFormRevisions } from './pwf-form-revision.ts';
 import { TASK_COLUMNS, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow, TaskSql } from './pwf-schedule-support.ts';
-import { bandResolver, bandSubjectOf, taskItemOf, unitPathOfProject } from './pwf-workflow-reads.ts';
+import { claimOffer } from './pwf-task-claim.ts';
+import { bandResolver, bandSubjectOf, receivingNamesOf, taskItemOf, unitPathOfProject } from './pwf-workflow-reads.ts';
 import type { Can } from './pwf-workflow-reads.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -158,8 +160,11 @@ export class PwfTaskReads {
         newer_available: policy.policy === 'LATEST_APPROVED' && usedRevision !== null && now !== undefined && now.revision > usedRevision,
       };
     });
+    // R71: the button "Nhận việc" by the rule of the command itself (`claimOffer`): the viewer may take a line of the units of the task and the line is still free. Asked only of a task a unit receives.
+    const offer = task.receivingUnitId !== null && can.work && live ? await claimOffer(tx, { taskId: task.id, membershipId: viewer, today, at: now }) : null;
     return {
-      ...taskItemOf(task, resolver.of(bandSubjectOf(task), unit), assignee),
+      ...taskItemOf(task, resolver.explain(bandSubjectOf(task), unit), assignee, await receivingNamesOf(tx, [task]), extensionViewOf(task, definition?.extension)),
+      ...(task.receivingUnitId === null ? {} : { can_claim: offer !== null && offer.line !== null && !offer.taken }),
       responsible_role: task.responsibleRole,
       responsible_role_name: pwfWorkflow.roleNameOf(template, task.responsibleRole),
       approver_role: task.approverRole,

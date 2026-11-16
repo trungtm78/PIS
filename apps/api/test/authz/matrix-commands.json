@@ -647,6 +647,7 @@
     "returnProjectTask",
     "requestProjectTaskException",
     "resumeProjectTask",
+    "claimProjectTask",
     "assignProjectTask",
     "decideProjectTaskException",
     "decideProjectReschedule",

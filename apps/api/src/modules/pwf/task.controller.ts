@@ -160,6 +160,21 @@ export class ProjectTaskController {
     return this.done(scope, result, 'task.resumed', 'pwf.task.resumed.v1', now);
   }
 
+  /**
+   * "Nhận việc" (R71): a person of a unit that receives the task takes it. The store judges everything in one transaction under the lock of the task (the unit, the role, that the line is free); the task keeps its version, so
+   * the command asks for no If-Match, and the event is told apart by the line of the ledger it wrote.
+   */
+  @Post('project-tasks/:task_id/claim')
+  @HttpCode(200)
+  @OperationId('claimProjectTask')
+  @Command({ operation: 'claimProjectTask' })
+  async claim(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('task_id', ParseUUIDPipe) taskId: string, @Body() body: Schemas['PwfTaskClaim']): Promise<CommandResult> {
+    const now = new Date();
+    const result = await this.tasks.claim(scope.tx, { taskId, actor: scope.tenant.membershipId, scopes: scopesOf(access, PERMISSIONS.claimProjectTask, now), today: vietnamToday(now), now, part: body.part });
+    await announce(scope, { resource: TASK_RESOURCE, id: result.id, version: result.version, action: 'task.claimed', type: 'pwf.task.claimed.v1', fromStatus: result.fromStatus, status: result.status, facts: { workflow_id: result.workflowId, project_id: result.projectId, ...result.facts }, eventRef: result.assignmentId }, now);
+    return commandResult(scope, 'CLAIMED', result.version, result.assignmentId);
+  }
+
   @Post('project-tasks/:task_id/assignments')
   @HttpCode(200)
   @OperationId('assignProjectTask')
@@ -171,6 +186,7 @@ export class ProjectTaskController {
       actor: scope.tenant.membershipId,
       scopes: scopesOf(access, PERMISSIONS.assignProjectTask, now),
       today: vietnamToday(now),
+      now,
       input: { membershipId: body.membership_id, role: body.role, validFrom: body.valid_from, validTo: body.valid_to, sharePct: body.share_pct, reason: body.reason },
     });
     await announce(scope, { resource: TASK_RESOURCE, id: result.id, version: result.version, action: 'task.assigned', type: 'pwf.task.assigned.v1', fromStatus: result.fromStatus, status: result.status, facts: { workflow_id: result.workflowId, project_id: result.projectId, assignment_id: result.assignmentId, ...result.facts } }, now);

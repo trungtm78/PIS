@@ -46,7 +46,7 @@ export function queryText(value: unknown, field: string): string | undefined {
 /** Writes the audit row and the event of one command on the workflow: ids, codes, days and statuses only, never words of people. */
 export async function announce(
   scope: CommandScope,
-  entry: { resource: string; id: string; version: number; action: string; type: string; facts: Record<string, unknown>; fromStatus: string | null; status: string; reason?: string },
+  entry: { resource: string; id: string; version: number; action: string; type: string; facts: Record<string, unknown>; fromStatus: string | null; status: string; reason?: string; /** What tells this event from another of the same type on the same version of the record (a command that leaves the version as it was). */ eventRef?: string },
   now: Date,
 ): Promise<void> {
   await scope.audit({
@@ -64,6 +64,6 @@ export async function announce(
     type: entry.type,
     schemaVersion: 1,
     payload: { tenant_id: scope.tenant.tenantId, id: entry.id, ...entry.facts, status: entry.status, from_status: entry.fromStatus, version: entry.version, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
-    eventKey: `${entry.resource}:${entry.id}:${entry.version}:${entry.type}`,
+    eventKey: `${entry.resource}:${entry.id}:${entry.version}:${entry.type}${entry.eventRef === undefined ? '' : `:${entry.eventRef}`}`,
   });
 }

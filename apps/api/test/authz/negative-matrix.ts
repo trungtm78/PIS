@@ -2333,6 +2333,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: () => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/resume`, ifMatch: '"1"', body: {} }),
   },
+  claimProjectTask: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/claim`, body: {} }),
+  },
   assignProjectTask: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/assignments`, body: { membership_id: t.recipientMembershipId, role: 'RESPONSIBLE', valid_from: '2026-01-01', share_pct: 100, reason: 'Assigned by the matrix' } }),

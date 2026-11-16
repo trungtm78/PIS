@@ -2,7 +2,8 @@ import { canonicalJson, sha256Hex } from './canonical-json.ts';
 import { DomainError } from './errors.ts';
 import { dayNumber, dayText, isWorkflowDay } from './process-core.ts';
 import { activeTasks, stepSpans, topologicalOrder } from './project-workflow.ts';
-import type { ConstraintKind, DependencyKind, ProjectFacts, ProjectWorkflowTemplate } from './project-workflow.ts';
+import type { ConstraintKind, DependencyKind, DurationUnit, ProjectFacts, ProjectWorkflowTemplate } from './project-workflow.ts';
+import type { BandThresholds } from './deadline-band.ts';
 import { isWorkingDay } from './working-time.ts';
 import type { WorkCalendarContent } from './working-time.ts';
 
@@ -13,6 +14,10 @@ import type { WorkCalendarContent } from './working-time.ts';
  * than the three years that a day-by-day scan stops at is planned all the same. A task of duration d that starts in slot s occupies slots s .. s+d-1 (it ends, exclusive, at e = s+d); a milestone sits at one point and is dated by the working day
  * on which its predecessors end. The four kinds of link tie the ends of two tasks (FS: end to start, SS: start to start, FF: end to end, SF: start to end) with a lag or a lead in working days; a constraint holds a start or a finish to a date.
  * A task that is cancelled or left out of the project is a node of zero length that keeps the order of the tasks around it. A calendar year that is not given is never guessed: every task that would fall in it says CALENDAR_UNAVAILABLE.
+ *
+ * A time limit in its own unit (R58): a task may say its limit in calendar days or in months instead of working days. It still STARTS on a working day (a slot of the line); its last day is counted on the calendar from that day
+ * (calendar days: the start is day one; months: the same day of the month that many months on, the last day of a shorter month), moved to the next working day when the task asks for it. The slots it then covers on the line are its
+ * EFFECTIVE length, fixed when the task is placed, and that is the one length the backward pass, the float, the critical path and the roll-up of the steps use. A task without such a limit is scheduled exactly as before.
  */
 
 export type TaskStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED';
@@ -29,8 +34,10 @@ export type ScheduleConstraint = { kind: ConstraintKind } & ({ date: string; off
 export interface ScheduleTask {
   code: string;
   kind: 'TASK' | 'MILESTONE';
-  /** The planned duration in working days (0 for a milestone). */
+  /** The planned duration in working days (0 for a milestone). With a `duration` in another unit it is only the length used where the calendar cannot say (a start beyond the calendars given). */
   durationWorkingDays: number;
+  /** The time limit in its own unit (R58); absent: `durationWorkingDays`. */
+  duration?: ScheduleDuration | null;
   predecessors: readonly ScheduleLink[];
   constraint?: ScheduleConstraint | null;
   status?: TaskStatus;
@@ -40,6 +47,12 @@ export interface ScheduleTask {
   actualFinish?: string | null;
   remainingWorkingDays?: number | null;
   percentComplete?: number | null;
+}
+
+export interface ScheduleDuration {
+  value: number;
+  unit: DurationUnit;
+  rollToWorkingDay: boolean;
 }
 
 /** One version of the working calendar of one year, as the project pinned it. */
@@ -100,6 +113,10 @@ export interface ScheduledTask {
   /** Working days between the baseline and this schedule (positive: later); null when there is no baseline for the task. */
   startVarianceDays: number | null;
   finishVarianceDays: number | null;
+  /** Only on a task that has a `duration` (R58): the limit as it was written, and the working days the task covers on the line as it was placed (null when it could not be placed). */
+  durationValue?: number;
+  durationUnit?: DurationUnit;
+  effectiveWorkingDays?: number | null;
 }
 
 export interface ScheduleResult {
@@ -196,6 +213,10 @@ function checkInput(input: ScheduleInput): void {
   for (const [index, one] of input.tasks.entries()) {
     const at = `tasks[${index}]`;
     if (!Number.isInteger(one.durationWorkingDays) || one.durationWorkingDays < 0 || (one.kind === 'MILESTONE' && one.durationWorkingDays !== 0)) throw invalid(`${at}.duration_working_days`);
+    if (one.duration !== undefined && one.duration !== null) {
+      const { value, unit } = one.duration;
+      if (one.kind === 'MILESTONE' || !Number.isInteger(value) || value < 1 || value > MAX_LAG || !(unit === 'WORKING_DAY' || unit === 'CALENDAR_DAY' || unit === 'MONTH')) throw invalid(`${at}.duration`);
+    }
     for (const [position, link] of one.predecessors.entries()) {
       if (!codes.has(link.task) || link.task === one.code || !Number.isInteger(link.lagWorkingDays) || Math.abs(link.lagWorkingDays) > MAX_LAG) throw invalid(`${at}.predecessors[${position}]`);
     }
@@ -228,7 +249,24 @@ interface Node {
   totalFloat: number | null;
   freeFloat: number | null;
   successors: Array<{ node: Node; link: ScheduleLink }>;
+  /** A limit in calendar days or months: the last day the calendar gives (which may be a day nobody works), and whether the calendars given could not say where the task ends. */
+  unitFinish?: string | null;
+  unplaced?: boolean;
 }
+
+/** The same day of the month `months` months after `day`; the last day of that month when it has no such day (31 January and one month: 28 or 29 February). */
+export function addMonths(day: string, months: number): string {
+  const year = Number(day.slice(0, 4));
+  const month = Number(day.slice(5, 7)) - 1 + months;
+  const targetYear = year + Math.floor(month / 12);
+  const targetMonth = ((month % 12) + 12) % 12;
+  const lastOfMonth = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+  const date = Math.min(Number(day.slice(8, 10)), lastOfMonth);
+  return `${String(targetYear).padStart(4, '0')}-${String(targetMonth + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+}
+
+/** The limit of a task when it is not counted in working days (those are plain slots of the line). */
+const calendarLimit = (task: ScheduleTask): ScheduleDuration | null => (task.duration !== undefined && task.duration !== null && task.duration.unit !== 'WORKING_DAY' ? task.duration : null);
 
 const isMilestone = (task: ScheduleTask): boolean => task.kind === 'MILESTONE';
 
@@ -264,13 +302,28 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
     return { kind, at };
   };
   const minEnd = (task: ScheduleTask, at: number): number => (isMilestone(task) && at <= startIdx ? startIdx : at + 1);
+  // Where a task with a limit in calendar days or months ends when it starts in slot `s`: the slot after its last day (exclusive), that last day, and whether the calendars reach it. Where they do not, the nominal working days keep
+  // the arithmetic going and the task is reported as unplaced, never dated.
+  const spanOf = (task: ScheduleTask, limit: ScheduleDuration, s: number): { e: number; finish: string | null; ok: boolean } => {
+    const beyond = { e: s + Math.max(1, task.durationWorkingDays), finish: null, ok: false };
+    const first = line.dateAt(s);
+    if (first === null) return beyond;
+    const last = limit.unit === 'CALENDAR_DAY' ? dayText(dayNumber(first) + limit.value - 1) : addMonths(first, limit.value);
+    if (Number(last.slice(0, 4)) >= line.missingYear) return beyond;
+    if (limit.rollToWorkingDay) {
+      const at = line.ceil(last);
+      return at >= line.days.length ? beyond : { e: at + 1, finish: line.days[at] as string, ok: true };
+    }
+    return { e: Math.max(line.floor(last) + 1, s + 1), finish: last, ok: true };
+  };
 
   // Forward pass.
   for (const code of order) {
     const task = byCode.get(code) as ScheduleTask;
     const node: Node = { task, mode: 'ACTIVE', s: 0, e: 0, driving: null, findings: [], ls: 0, le: 0, totalFloat: null, freeFloat: null, successors: [] };
     nodes.set(code, node);
-    const d = task.durationWorkingDays;
+    const limit = calendarLimit(task);
+    let d = task.duration !== undefined && task.duration !== null && task.duration.unit === 'WORKING_DAY' ? task.duration.value : task.durationWorkingDays;
     const links = task.predecessors.map((link) => ({ link, node: nodes.get(link.task) as Node }));
     for (const { link, node: before } of links) before.successors.push({ node, link });
     const status = task.status ?? 'NOT_STARTED';
@@ -323,6 +376,9 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
 
     if (started) {
       const s = line.ceil(task.actualStart as string);
+      // The effective length of a limit in calendar days or months is fixed from the day the work really began; what is left of it is then counted in working days like any task.
+      const span = limit === null ? null : spanOf(task, limit, s);
+      if (span !== null) d = span.e - s;
       let remaining = d;
       if (typeof task.remainingWorkingDays === 'number') remaining = task.remainingWorkingDays;
       else if (typeof task.percentComplete === 'number') remaining = Math.ceil(Number(((d * (100 - task.percentComplete)) / 100).toFixed(6)));
@@ -330,6 +386,66 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
       const from = Math.max(s, statusIdx ?? s, startBoundFs);
       node.s = s;
       node.e = Math.max(statusIdx === null && typeof task.remainingWorkingDays !== 'number' && typeof task.percentComplete !== 'number' ? s + d : from + remaining, finishBound, s);
+      if (span !== null) {
+        node.unplaced = !span.ok;
+        node.unitFinish = span.ok && node.e === span.e ? span.finish : null;
+      }
+      continue;
+    }
+
+    if (limit !== null) {
+      // The start comes from the links that tie a start (FS, SS) and the planned start; the links that tie the END (FF, SF) and a finish-no-earlier-than push the start until the end the calendar gives is late enough.
+      let from = floorOf;
+      let fromDriver: string | null = null;
+      let endBound = Number.NEGATIVE_INFINITY;
+      let endDriver: string | null = null;
+      for (const { link, node: before } of links) {
+        const bound = link.kind === 'FS' || link.kind === 'FF' ? before.e + link.lagWorkingDays : before.s + link.lagWorkingDays;
+        if (link.kind === 'FS' || link.kind === 'SS') {
+          if (bound > from) {
+            from = bound;
+            fromDriver = link.task;
+          }
+        } else if (bound > endBound) {
+          endBound = bound;
+          endDriver = link.task;
+        }
+      }
+      let s = from;
+      let at = fromDriver;
+      let forced = false;
+      if (constraint !== null) {
+        const { kind } = constraint;
+        if (kind === 'SNET' && constraint.at > s) {
+          s = constraint.at;
+          at = null;
+        } else if (kind === 'FNET' && constraint.at + 1 > endBound) {
+          endBound = constraint.at + 1;
+          endDriver = null;
+        } else if (kind === 'MSO' || kind === 'MFO') {
+          let pinned = constraint.at;
+          if (kind === 'MFO') {
+            // The latest start whose end is no later than the day the task must finish on.
+            pinned = Math.max(0, constraint.at);
+            while (pinned > 0 && spanOf(task, limit, pinned).e > constraint.at + 1) pinned -= 1;
+          }
+          if (from > pinned || spanOf(task, limit, pinned).e < endBound) node.findings.push({ code: 'CONSTRAINT_CONFLICT', task: task.code });
+          s = pinned;
+          at = null;
+          forced = true;
+        }
+      }
+      if (!forced && spanOf(task, limit, s).e < endBound) {
+        // The end of a task is at least one slot after its start, so the search stops before the bound.
+        while (spanOf(task, limit, s).e < endBound) s += 1;
+        at = endDriver;
+      }
+      const span = spanOf(task, limit, s);
+      node.s = s;
+      node.e = span.e;
+      node.driving = at;
+      node.unplaced = !span.ok;
+      node.unitFinish = span.finish;
       continue;
     }
 
@@ -412,7 +528,7 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
     const last = lastDay(node);
     // A task that is done is dated by its actual days, which may fall on a day nobody works; it can be placed only when the calendars reach its actual finish.
     const reached = (day: string | null | undefined): boolean => typeof day !== 'string' || (length > 0 && day <= (line.days[length - 1] as string));
-    const placed = node.mode === 'PASS' ? false : node.mode === 'DONE' ? reached(task.actualFinish) && reached(task.actualStart) : node.s >= 0 && node.s < length && last < length && last >= 0;
+    const placed = node.mode === 'PASS' ? false : node.mode === 'DONE' ? reached(task.actualFinish) && reached(task.actualStart) : node.unplaced !== true && node.s >= 0 && node.s < length && last < length && last >= 0;
     const state: ScheduledState = node.mode === 'PASS' ? 'PASS_THROUGH' : !placed ? 'CALENDAR_UNAVAILABLE' : node.mode === 'DONE' ? 'COMPLETED' : 'SCHEDULED';
     const taskFindings = [...node.findings];
     if (state === 'CALENDAR_UNAVAILABLE') {
@@ -420,7 +536,7 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
       if (!findings.some((one) => one.code === 'CALENDAR_UNAVAILABLE')) findings.push({ code: 'CALENDAR_UNAVAILABLE', task: null, year: line.missingYear });
     }
     const done = node.mode === 'DONE' && placed;
-    const finish = done ? (task.actualFinish as string) : placed ? line.dateAt(last) : null;
+    const finish = done ? (task.actualFinish as string) : placed ? (node.mode === 'ACTIVE' && typeof node.unitFinish === 'string' ? node.unitFinish : line.dateAt(last)) : null;
     const first = done ? (isMilestone(task) ? finish : (task.actualStart ?? line.dateAt(node.s))) : placed ? line.dateAt(isMilestone(task) ? last : node.s) : null;
     const base = baseline?.[code];
     const variance = (date: string | null, reference: string | null | undefined, pick: (value: string) => number): number | null => {
@@ -448,6 +564,8 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
       missingYear: state === 'CALENDAR_UNAVAILABLE' ? line.missingYear : null,
       startVarianceDays: variance(first, base?.start, (value) => line.ceil(value)),
       finishVarianceDays: variance(finish, base?.finish, (value) => line.floor(value)),
+      // Named only on a task that has a limit of its own, so that the result (and its hash) of every schedule made before is what it always was.
+      ...(task.duration === undefined || task.duration === null ? {} : { durationValue: task.duration.value, durationUnit: task.duration.unit, effectiveWorkingDays: node.mode === 'PASS' || !placed ? null : node.e - node.s }),
     });
   }
 
@@ -573,6 +691,7 @@ export function tasksFromTemplate(template: ProjectWorkflowTemplate, facts: Proj
     code: one.code,
     kind: one.kind,
     durationWorkingDays: one.durationWorkingDays,
+    ...(one.duration === undefined || one.duration === null ? {} : { duration: { value: one.duration.value, unit: one.duration.unit, rollToWorkingDay: one.duration.rollToWorkingDay } }),
     predecessors: one.predecessors.map((link) => ({ task: link.task, kind: link.kind, lagWorkingDays: link.lagWorkingDays })),
     ...(one.constraint === null ? {} : { constraint: { kind: one.constraint.kind, offsetWorkingDays: one.constraint.offsetWorkingDays } as ScheduleConstraint }),
     ...(left.has(one.code) ? { excluded: true } : {}),
@@ -628,4 +747,53 @@ export function standardTimes(template: ProjectWorkflowTemplate, facts: ProjectF
   const live = scheduled.filter((one) => !one.passThrough);
   const total = live.length === 0 ? 0 : Math.max(...live.map((one) => one.endSlot)) - Math.min(...live.map((one) => one.startSlot));
   return { totalWorkingDays: Math.max(0, total), steps: stepSpans(template, scheduled).map((one) => ({ step: one.step, phase: one.phase, durationWorkingDays: one.durationWorkingDays, taskCount: one.taskCount })) };
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// The zones of the three colours of one task, and the deadline of the whole file (R56, R59).
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+export interface BandZones {
+  /** The first day the deadline is green, yellow and red: the earliest day on which the working days left are at most the line. Null for a green line that is open (every day above yellow is green). */
+  greenFrom: string | null;
+  yellowFrom: string;
+  redFrom: string;
+}
+
+/**
+ * The days on which a deadline counted in working days turns each colour, for the chart that draws them: a line of N days starts on the earliest day from which at most N working days remain up to and including the deadline;
+ * a red line of -1 ("red only once overdue") starts the day after the deadline. Null when a year the count needs has no calendar: a zone is never guessed.
+ */
+export function bandZonesOf(dueOn: string, thresholds: BandThresholds, calendars: readonly PinnedCalendar[]): BandZones | null {
+  const byYear = new Map(calendars.map((one) => [one.year, one.content] as const));
+  const due = dayNumber(dueOn);
+  let unknown = false;
+  const from = (line: number): string => {
+    if (line < 0) return dayText(due + 1);
+    // Walking back from the deadline, the working days left grow by one each time the day just left behind is a working day.
+    let day = due;
+    let left = 0;
+    for (;;) {
+      const content = byYear.get(Number(dayText(day).slice(0, 4)));
+      if (content === undefined) {
+        unknown = true;
+        return dayText(day);
+      }
+      const next = left + (isWorkingDay(content, dayText(day)) ? 1 : 0);
+      if (next > line) return dayText(day);
+      left = next;
+      day -= 1;
+    }
+  };
+  const zones: BandZones = { greenFrom: thresholds.green_days === null ? null : from(thresholds.green_days), yellowFrom: from(thresholds.yellow_days), redFrom: from(thresholds.red_days) };
+  return unknown ? null : zones;
+}
+
+/** The deadline of the whole file: the finish of the task the template marks, when that task is part of the project and has a date; null otherwise (no other task stands in for it). */
+export function overallDeadlineOf(template: Pick<ProjectWorkflowTemplate, 'overallDeadlineTask'>, tasks: ReadonlyArray<Pick<ScheduledTask, 'code' | 'state' | 'finish'>>): { task: string; finish: string | null; state: ScheduledState } | null {
+  const code = template.overallDeadlineTask;
+  if (code === undefined || code === null) return null;
+  const found = tasks.find((one) => one.code === code);
+  if (found === undefined || found.state === 'PASS_THROUGH') return null;
+  return { task: code, finish: found.finish, state: found.state };
 }
