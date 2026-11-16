@@ -4,10 +4,10 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ContextBar, DataTable, FilterPanel, SectionCard, StatusPill } from '../../ui';
+import { ContextBar, DataTable, FilterPanel, Money, SectionCard, StatusPill } from '../../ui';
 import type { DataTableColumn } from '../../ui';
 import { categoryLabel, originLabel } from '../cap/labels';
-import { vndText } from '../cap/model';
+import { fullMoney, moneyInUnit } from '../../i18n/money';
 import '../dis/dis.css';
 import './home.css';
 import { YearField } from './funding-components';
@@ -35,7 +35,7 @@ function DetailContent({ route }: ScreenProps) {
     { key: 'source', header: t('home.funding.detail.column.source'), pinned: true, render: (row) => row.label },
     { key: 'category', header: t('home.funding.detail.column.category'), render: (row) => categoryLabel(t, row.category) },
     { key: 'origin', header: t('home.funding.detail.column.origin'), render: (row) => (row.origin === null ? '' : originLabel(t, row.origin)) },
-    { key: 'amount', header: t('home.funding.detail.column.amount'), align: 'right', render: (row) => vndText(row.vnd, locale) },
+    { key: 'amount', header: t('home.funding.detail.column.amountBare'), align: 'right', render: (row) => <Money bare unit="billion" value={row.vnd} /> },
     {
       key: 'relation',
       header: t('home.funding.detail.column.relation'),
@@ -59,11 +59,11 @@ function DetailContent({ route }: ScreenProps) {
       <StateBoundary state={state} onRetry={() => void register.refetch()}>
         {funding === undefined ? null : (
           <div className="home-stack">
-            <ContextBar items={[{ label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') }, { label: t('home.funding.year.label'), value: String(funding.year) }]} unit={t('dis.wr.unit')} />
-            <FilterPanel unitLabel={t('dis.wr.unit')}>
+            <ContextBar items={[{ label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') }, { label: t('home.funding.year.label'), value: String(funding.year) }]} unit={t('w2dis.home.unit.billion')} />
+            <FilterPanel>
               <YearField years={years} year={year} onChange={setYear} />
             </FilterPanel>
-            <SectionCard title={t('home.funding.detail.table', { year: funding.year })} unit={t('dis.wr.unit')}>
+            <SectionCard title={t('home.funding.detail.table', { year: funding.year })}>
               <div data-testid="funding-table">
                 <DataTable
                   caption={t('home.funding.detail.table', { year: funding.year })}
@@ -71,7 +71,7 @@ function DetailContent({ route }: ScreenProps) {
                   rows={funding.rows}
                   rowKey={(row) => row.key}
                   totalsLabel={t('home.funding.detail.total')}
-                  totals={{ amount: funding.totalVnd === null ? t('home.funding.card.none') : vndText(funding.totalVnd, locale) }}
+                  totals={{ amount: funding.totalVnd === null ? t('home.funding.card.none') : <span title={fullMoney(funding.totalVnd, locale)}>{moneyInUnit(funding.totalVnd, 'billion', { locale })}</span> }}
                 />
               </div>
             </SectionCard>

@@ -90,7 +90,7 @@ const center = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-const line = (overrides: Record<string, unknown> = {}) => ({ kind: 'RATE_CHANGE', direction: 'UP', params: { from: '10.00', to: '12.50', delta: '2.50' }, link: 'DRILL', metric_code: 'DISBURSEMENT_RATE_PM', context_token: 'tok-rate.sig', ...overrides });
+const line = (overrides: Record<string, unknown> = {}) => ({ kind: 'RATE_CHANGE', direction: 'UP', params: { from: '10', to: '12,5', delta: '2,5' }, link: 'DRILL', metric_code: 'DISBURSEMENT_RATE_PM', context_token: 'tok-rate.sig', ...overrides });
 const CHANGES = {
   snapshot_id: S40,
   as_of_date: '2027-10-12',
@@ -241,7 +241,7 @@ describe('every number of the center is the text of the server, with the "i" of 
     await hero();
     expect(screen.getByTestId('tile-figure-PLAN_TOTAL').textContent).toBe('1.250 tỷ đồng (1.250.000.000.000 đồng)');
     expect(screen.getByTestId('tile-figure-PLAN_TOTAL').getAttribute('title')).toBe('1.250.000.000.000 đồng');
-    expect(screen.getByTestId('tile-figure-DISBURSEMENT_RATE_PM').textContent).toBe('60.00');
+    expect(screen.getByTestId('tile-figure-DISBURSEMENT_RATE_PM').textContent).toBe('60');
   });
 });
 
@@ -251,7 +251,7 @@ describe('"Thay đổi từ tuần trước" on the center (G3-4)', () => {
     const block = await screen.findByTestId('changes-lines');
     const items = within(block).getAllByRole('listitem');
     expect(items).toHaveLength(5);
-    expect(items[0]?.textContent).toContain(fill(tr('govc.home.changes.rate.up'), { from: '10.00', to: '12.50', delta: '2.50' }));
+    expect(items[0]?.textContent).toContain(fill(tr('govc.home.changes.rate.up'), { from: '10', to: '12,5', delta: '2,5' }));
     expect(items[1]?.textContent).toContain(fill(tr('govc.home.changes.unitsToRed'), { count: 2 }));
     expect(items[2]?.textContent).toContain(fill(tr('govc.home.changes.warnings.up'), { from: 3, to: 4, delta: 1 }));
     expect(items[3]?.textContent).toContain(fill(tr('govc.home.changes.overdue.down'), { from: 3, to: 1, delta: 2 }));

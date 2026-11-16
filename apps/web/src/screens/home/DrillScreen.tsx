@@ -426,6 +426,7 @@ function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension
             <KpiTile
               label={t('home.drill.fact.value')}
               value={drill.value === null ? t('w2dis.home.na') : figure(t, drill.unit, drill.value, drill.nullReason)}
+              valueTitle={drill.value !== null && drill.unit === 'VND' ? fullMoney(drill.value) : undefined}
               tone={drill.value === null ? 'neutral' : 'info'}
               sub={drill.value === null ? reasonLabel(t, drill.nullReason) : hasSums ? `${t('home.tile.numerator', { value: compactMoney(drill.numerator ?? '0') })} · ${t('home.tile.denominator', { value: compactMoney(drill.denominator ?? '0') })}` : undefined}
             />

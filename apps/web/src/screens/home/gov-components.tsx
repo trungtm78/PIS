@@ -10,6 +10,7 @@ import { RAG_PATH, changePathOf, describeChanges, describeRag, downloadFile, isR
 import type { ChangeLine, RagBand } from './gov-model';
 import { SNAPSHOT_SCREEN_PATH } from './model';
 import { dayText } from './overview-model';
+import { formatPercent } from '../../i18n/format';
 
 type T = Translator['t'];
 
@@ -51,7 +52,7 @@ export function changeSentence(t: T, line: ChangeLine): string {
     case 'UNITS_RECOVERED':
       return t('govc.home.changes.unitsRecovered', { count: p.count ?? '' });
     case 'RATE_CHANGE':
-      return t(up ? 'govc.home.changes.rate.up' : 'govc.home.changes.rate.down', { from: p.from ?? '', to: p.to ?? '', delta });
+      return t(up ? 'govc.home.changes.rate.up' : 'govc.home.changes.rate.down', { from: p.from === undefined ? '' : formatPercent(p.from).replace('%', ''), to: p.to === undefined ? '' : formatPercent(p.to).replace('%', ''), delta: formatPercent(delta).replace('%', '') });
     case 'WARNINGS_DELTA':
       return t(up ? 'govc.home.changes.warnings.up' : 'govc.home.changes.warnings.down', { from: p.from ?? '', to: p.to ?? '', delta });
     case 'OVERDUE_DELTA':

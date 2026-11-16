@@ -4,7 +4,7 @@ import type { Translator } from '../../i18n';
 import { KpiTile } from '../../ui';
 import type { Tone } from '../../ui';
 import { Field } from '../mne/components';
-import { vndText } from '../cap/model';
+import { fullMoney } from '../../i18n/money';
 import { billionsText } from './funding-model';
 
 type T = Translator['t'];
@@ -27,7 +27,7 @@ export function YearField({ years, year, onChange }: { years: readonly number[];
 }
 
 /**
- * A figure of capital as a tile: the amount in billions with the exact dong under it and what else the caller says of it. No amount is "no data" on a neutral tile and is never written as zero.
+ * A figure of capital as a tile: the amount in billions with the exact dong one hover away (the tooltip of the figure) and what else the caller says of it. No amount is "no data" on a neutral tile and is never written as zero.
  * The wrapper carries the key of the card and the test id, so the tile stays one element for whoever looks for it.
  */
 export function FundTile({ label, vnd, card, testId, tone, children }: { label: string; vnd: string | null; card?: string; testId?: string; tone?: Tone; children?: ReactNode }) {
@@ -38,14 +38,8 @@ export function FundTile({ label, vnd, card, testId, tone, children }: { label: 
         label={label}
         value={vnd === null ? t('home.funding.card.none') : t('home.funding.card.amount', { value: billionsText(vnd, locale) })}
         tone={vnd === null ? 'neutral' : (tone ?? 'info')}
-        sub={
-          vnd === null && children === undefined ? undefined : (
-            <>
-              {vnd === null ? null : <span className="home-fund-line">{t('home.funding.card.exact', { value: vndText(vnd, locale) })}</span>}
-              {children}
-            </>
-          )
-        }
+        valueTitle={vnd === null ? undefined : fullMoney(vnd, locale)}
+        sub={children === undefined ? undefined : <>{children}</>}
       />
     </div>
   );
