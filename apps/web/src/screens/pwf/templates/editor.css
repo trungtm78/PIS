@@ -150,31 +150,28 @@
   font-size: 12.5px;
 }
 .pwfx-w-num {
-  width: 46px;
-}
-.pwfx-w-name {
-  width: 17%;
+  width: 58px;
 }
 .pwfx-w-unit {
-  width: 138px;
+  width: 130px;
 }
 .pwfx-w-anchor {
-  width: 142px;
+  width: 138px;
 }
 .pwfx-w-limit {
-  width: 168px;
+  width: 160px;
 }
 .pwfx-w-bands {
   width: 150px;
 }
 .pwfx-w-basis {
-  width: 138px;
+  width: 128px;
 }
 .pwfx-w-dossier {
-  width: 74px;
+  width: 86px;
 }
 .pwfx-w-actions {
-  width: 84px;
+  width: 98px;
 }
 .pwfx-table th,
 .pwfx-table td {
@@ -186,9 +183,10 @@
 .pwfx-table th {
   white-space: nowrap;
 }
-.pwfx-table select,
-.pwfx-table input[type='text'],
-.pwfx-table input[type='number'] {
+.ui-table.pwfx-table select,
+.ui-table.pwfx-table input[type='text'],
+.ui-table.pwfx-table input[type='number'] {
+  min-height: 0;
   height: 28px;
   box-sizing: border-box;
   font: inherit;
@@ -253,11 +251,11 @@
 }
 .pwfx-move {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1px;
 }
 .pwfx-mini {
-  width: 24px;
+  width: 25px;
   height: 22px;
   padding: 0;
   border: 1px solid var(--mv-color-border);
@@ -367,7 +365,7 @@
   color: var(--mv-color-text-secondary);
 }
 .pwfx-band {
-  width: 44px;
+  width: 42px;
   text-align: center;
   font-weight: 600;
 }
@@ -587,4 +585,21 @@
   color: var(--mv-color-text-secondary);
   text-decoration: underline;
   cursor: pointer;
+}
+.pwfx-unit__role {
+  height: 28px;
+}
+.pwfx-check input[type='checkbox'] {
+  width: 14px;
+  height: 14px;
+  min-height: 0;
+  margin: 0;
+}
+.pwfx-check {
+  min-height: 0;
+}
+.pwfx-limit label.pwfx-check {
+  height: 16px;
+  padding: 0;
+  margin: 0;
 }
