@@ -54,6 +54,13 @@ describe('DeadlineCountdown', () => {
 });
 
 describe('EscalationTrail', () => {
+  it('writes the words of a system role in place of its code, and leaves a code the catalogue does not hold', () => {
+    render(<EscalationTrail level={1} of={2} chain={['Đơn vị chuyên môn, vai trò AUDITOR', 'UBND tỉnh, vai trò KE_TOAN_TRUONG']} nextAt={null} />);
+    const trail = screen.getByRole('group').textContent ?? '';
+    expect(trail).toContain('Đơn vị chuyên môn, vai trò Kiểm toán viên → UBND tỉnh, vai trò KE_TOAN_TRUONG');
+    expect(trail).not.toContain('AUDITOR');
+  });
+
   it('names the level, the chain and when the next level comes', () => {
     render(<EscalationTrail level={2} of={3} chain={['Tổ trưởng', 'Trưởng phòng', 'Giám đốc']} nextAt="2026-11-07T02:00:00Z" />);
     const group = screen.getByRole('group', { name: 'Tiến trình leo thang' });

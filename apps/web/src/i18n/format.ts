@@ -62,3 +62,12 @@ const PERCENT_IN_TEXT = /(-?\d+(?:\.\d+)?)%/g;
 export function percentsInText(text: string, digits = 2, locale: Locale = translator.getLocale()): string {
   return text.replace(PERCENT_IN_TEXT, (_whole, figure: string) => formatPercent(figure, digits, locale));
 }
+
+/**
+ * The figure of a percent for a catalogue sentence that already writes the sign ("từ {pct}% trở lên"): the text of `formatPercent` (the same rounding, the same marks) without its "%". No figure is
+ * the dash of `formatPercent` and a text that is not a number comes back as it came.
+ */
+export function percentFigure(value: string | number | null | undefined, digits = 2, locale: Locale = translator.getLocale()): string {
+  const text = formatPercent(value, digits, locale);
+  return text.endsWith('%') ? text.slice(0, -1) : text;
+}

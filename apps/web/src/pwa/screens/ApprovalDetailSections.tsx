@@ -1,4 +1,4 @@
-import { percentFigure } from '../../screens/percent-figure';
+import { percentFigure } from '../../i18n/format';
 import { useTranslation } from '../../i18n';
 import { dongText } from '../../i18n/money';
 import { cellTitle } from './approval-labels';
