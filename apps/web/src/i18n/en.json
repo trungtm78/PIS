@@ -40901,7 +40901,7 @@
   "wfxcal.confirm.preview.off": "Public holidays",
   "wfxcal.confirm.preview.work": "Make-up days",
   "wfxcal.confirm.preview.days": "Working days in the year",
-  "wfxcal.confirm.impact.note": "Once confirmed, the deadlines of tasks and projects created from then on are counted on the calendar of {year}; a deadline already counted does not move. A project with a task reporting a missing calendar for {year} is counted again and the change is logged.",
+  "wfxcal.confirm.impact.note": "Confirming takes effect at once and needs no second person; who confirmed and the reason are written to the audit log. From then on the deadlines of tasks and projects created are counted on the calendar of {year}; a deadline already counted does not move. A project with a task reporting a missing calendar for {year} is counted again and the change is logged.",
   "wfxcal.confirm.reason.label": "Reason for confirming (at least 10 characters)",
   "wfxcal.confirm.submit.action": "Confirm",
   "wfxcal.confirm.cancel.action": "Cancel",
