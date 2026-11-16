@@ -34,4 +34,10 @@ describe('Money', () => {
     expect(screen.getByTestId('a')).not.toHaveAttribute('title');
     expect(screen.getByTestId('b').textContent).toBe('Chưa có số liệu');
   });
+
+  it('keeps the plus of a rise in the tooltip and in what a screen reader hears', () => {
+    render(<Money value="50000000" signed data-testid="m" />);
+    expect(screen.getByTestId('m')).toHaveAttribute('title', '+50.000.000 đồng');
+    expect(screen.getByTestId('m').textContent).toBe('+50 triệu đồng (+50.000.000 đồng)');
+  });
 });

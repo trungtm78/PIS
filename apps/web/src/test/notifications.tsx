@@ -55,6 +55,9 @@ export function harness(pages: Page[] | Error = [{ items: inbox(), next_cursor: 
     // The alert bell of the shell reads its own counts; they are not a page of the inbox and must not use one up.
     if (operation === 'getMyWorkCounts') return Promise.resolve({ view: 'mine', counts: { urgent: 0, action: 0, watch: 0, total: 0 }, unavailable_sources: [], as_of: '2026-10-22T03:00:00Z' });
     if (operation === 'getMyWork') return Promise.reject(new Error('not part of the inbox'));
+    // The shell reads the access of the member for the role under the name: it is not a page of the inbox either. Only the reads above and the inbox itself are answered here, so that
+    // a new read of the shell can never use up a page and shift what the inbox shows.
+    if (operation === 'getMyEffectiveAccess') return Promise.reject(new Error('not part of the inbox'));
     if (pages instanceof Error) return Promise.reject(pages);
     const page = pages[Math.min(call, pages.length - 1)];
     call += 1;
