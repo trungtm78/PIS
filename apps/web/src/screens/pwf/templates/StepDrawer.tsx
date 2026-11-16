@@ -6,7 +6,7 @@ import { CheckField, CodeListField, FieldFrame, NumberField, SelectField, TextFi
 import { FormPicker } from './FormPicker';
 import { KpiCodePicker } from './KpiCodePicker';
 import { SideDrawer } from './SideDrawer';
-import { lineOf, setExtension, setKind } from './table-model';
+import { extensionChoice, lineOf, setExtension, setKind } from './table-model';
 import type { TableLine } from './table-model';
 import {
   CONDITION_FIELDS,
@@ -32,6 +32,8 @@ import type { ConditionField, ConstraintKind, EditorTask, FormPolicyKind, Templa
 export interface StepDrawerProps {
   template: Template;
   /** The row the details are of (`step:<code>` or `task:<code>`). */
+  /** The code of the procedure (made once from its name): shown here and nowhere else. */
+  templateCode: string;
   lineKey: string;
   onChange: (next: Template) => void;
   onClose: () => void;
@@ -49,7 +51,7 @@ const KINDS_OF_EVIDENCE = ['DOCUMENT', 'DECISION_DOCUMENT', 'MILESTONE', 'ATTEST
  * The details of a step, in four groups that say what each is for in plain words (the old screen had six tabs of a task): the papers a step asks for, who approves it and how urgent it is, the advanced links and
  * conditions of the schedule, and the KPI and the codes. Nothing a template can hold is left without a field here (R62). The caret goes in on opening and back to the row on closing; Escape closes.
  */
-export function StepDrawer({ template, lineKey, onChange, onClose, disabled, lockedCodes, mayReadRegister }: StepDrawerProps) {
+export function StepDrawer({ template, templateCode, lineKey, onChange, onClose, disabled, lockedCodes, mayReadRegister }: StepDrawerProps) {
   const { t } = useTranslation();
   const line = lineOf(template, lineKey);
   if (line === undefined) return null;
@@ -61,6 +63,11 @@ export function StepDrawer({ template, lineKey, onChange, onClose, disabled, loc
   return (
     <SideDrawer title={t('pwfx.drawer.title', { n: line.number, name: line.name.trim() === '' ? t('pwfx.phase.unnamed') : line.name })} onClose={onClose} testId="step-drawer">
       {disabled ? <p className="callout" role="status">{t('pwfx.drawer.readOnly')}</p> : null}
+      {templateCode === '' ? null : (
+        <p className="pwf-hint" data-testid="template-code">
+          {t('pwfx.drawer.code.template', { code: templateCode })}
+        </p>
+      )}
       {task === undefined || taskIndex === null ? (
         <StepOnly template={template} line={line} step={step} onChange={onChange} disabled={disabled} lockedCodes={lockedCodes} />
       ) : (
@@ -279,6 +286,18 @@ function TaskGroups({ template, line, index, task, onChange, disabled, lockedCod
             {t('pwf.templates.branch.add.action')}
           </button>
         </fieldset>
+        <SelectField
+          label={t('pwfx.drawer.extension.choice')}
+          path={`${at}.extension`}
+          value={extensionChoice(task)}
+          options={[
+            { value: 'unset', label: t('pwfx.extension.unset') },
+            { value: 'allowed', label: t('pwfx.extension.allowed') },
+            { value: 'denied', label: t('pwfx.extension.denied') },
+          ]}
+          onChange={(value) => onChange(setExtension(template, index, value))}
+          {...common}
+        />
         {ext === undefined || !ext.allowed ? null : (
           <fieldset className="pwf-tpl-sub">
             <legend>{t('pwfx.drawer.extension.title')}</legend>

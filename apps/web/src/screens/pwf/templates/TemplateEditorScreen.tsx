@@ -33,8 +33,8 @@ import { PasteDialog } from './PasteDialog';
 import { StepDrawer } from './StepDrawer';
 import { StepsTable } from './StepsTable';
 import { storeRefusalText } from './store';
-import { lineOf, lineOfProblem, linesOf, settleAll, settleChecklistCodes, settleCodes, unverifiedRows } from './table-model';
-import { localProblems, paramsOfTemplate, readTemplate, stepsOf } from './template-model';
+import { lineOf, lineOfProblem, linesOf, settleAll, settleChecklistCodes, settleCodes, tableOf, unverifiedRows } from './table-model';
+import { localProblems, paramsOfTemplate, readTemplate, stepsOf, uidOf } from './template-model';
 import type { Template, TemplateProblem } from './template-model';
 import '../pwf.css';
 import './templates.css';
@@ -107,6 +107,18 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
   const [openLine, setOpenLine] = useState<string | undefined>(undefined);
   const [panel, setPanel] = useState<'history' | undefined>(undefined);
   const [renaming, setRenaming] = useState(false);
+  // A long procedure opens with its first phase and keeps the others folded until the person opens them (a template of 34 steps was 11,000 px high).
+  const [foldsLater] = useState(() => linesOf(source.template).filter((line) => !line.child).length > 12);
+  const [phaseOpened, setPhaseOpened] = useState<Readonly<Record<string, boolean>>>({});
+  const phaseOpen = useCallback((uid: string, index: number): boolean => phaseOpened[uid] ?? (!foldsLater || index === 0), [phaseOpened, foldsLater]);
+  const foldedPhases = useMemo(() => {
+    const folded = new Set<string>();
+    tableOf(template).forEach((group, index) => {
+      if (group.phase !== null && !phaseOpen(uidOf(group.phase) ?? group.phase.code, index)) folded.add(group.phase.code);
+    });
+    return folded;
+  }, [template, phaseOpen]);
+  const togglePhase = useCallback((uid: string, index: number): void => setPhaseOpened((old) => ({ ...old, [uid]: !(old[uid] ?? (!foldsLater || index === 0)) })), [foldsLater]);
   const [pasting, setPasting] = useState(source.base.kind === 'new' && source.base.start === 'paste' && canEdit);
   const [sampleStart, setSampleStart] = useState(() => todayInVietnam());
   const [undo, setUndo] = useState<{ before: Template; after: Template } | undefined>(undefined);
@@ -248,9 +260,15 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
       setOpenLine(row.key);
       return;
     }
-    const target = document.querySelector<HTMLElement>(`[data-line="${CSS.escape(row.key)}"] [data-field="${cell}"]`);
-    target?.scrollIntoView?.({ block: 'center' });
-    target?.focus();
+    // A folded phase is opened first, then the cell takes the caret.
+    const group = tableOf(template).find((one) => one.lines.some((line) => line.key === row.key));
+    const phase = group?.phase ?? null;
+    if (phase !== null) setPhaseOpened((old) => ({ ...old, [uidOf(phase) ?? phase.code]: true }));
+    window.setTimeout(() => {
+      const target = document.querySelector<HTMLElement>(`[data-line="${CSS.escape(row.key)}"] [data-field="${cell}"]`);
+      target?.scrollIntoView?.({ block: 'center' });
+      target?.focus();
+    }, 0);
   };
   const unverified = unverifiedRows(template);
   const stateWord = source.base.kind === 'new' ? t('pwfx.state.new') : source.base.kind === 'default' ? t('pwfx.state.default') : forking ? t('pwfx.state.draft.new') : source.base.version.phase === 'IN_FORCE' ? t('pwfx.state.inForce') : statusText(t, source.base.version.status);
@@ -270,7 +288,6 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
           </h1>
           <p className="pwfx-sub" data-testid="template-sub">
             {t('pwfx.sub.type', { type: typeText })} · {versionWord} · <StatusPill tone={canEdit ? 'info' : 'neutral'}>{stateWord}</StatusPill>
-            {code === '' ? null : <span className="pwf-code"> {code}</span>}
           </p>
         </div>
         <div className="pwfx-buttons">
@@ -374,7 +391,7 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
       ) : null}
 
       {renaming && canEdit ? (
-        <div className="pwfx-rename" data-testid="rename-form">
+        <ConfirmDialog open title={t('pwfx.rename.title')} context={[]} confirmLabel={t('pwfx.rename.done')} cancelLabel={t('pwfx.drawer.close')} onConfirm={() => setRenaming(false)} onCancel={() => setRenaming(false)}>
           <div className="pwf-field">
             <label htmlFor="pwfx-name">{t('pwfx.rename.name')}</label>
             <input id="pwfx-name" type="text" autoComplete="off" maxLength={200} value={template.name} aria-invalid={attempted && name === ''} data-testid="field-name" onChange={(event) => change({ ...template, name: event.target.value })} />
@@ -391,7 +408,7 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
               ))}
             </select>
           </div>
-        </div>
+        </ConfirmDialog>
       ) : null}
       {isNew && !renaming && name === '' && canEdit ? (
         <p className="callout" role="status">
@@ -453,6 +470,8 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
           focusKey={focusKey}
           onFocused={() => setFocusKey(undefined)}
           onFocusRequest={setFocusKey}
+          phaseOpen={phaseOpen}
+          onTogglePhase={togglePhase}
           onOpenDetails={setOpenLine}
         />
         <p className="pwfx-tools">
@@ -477,11 +496,11 @@ function Editor({ source, notice, onNotice, reason }: EditorProps) {
         </p>
       </section>
 
-      <Diagram template={checked} live={live} start={sampleStart} onStart={setSampleStart} blockedBy={local.length} />
+      <Diagram template={checked} live={live} start={sampleStart} onStart={setSampleStart} blockedBy={local.length} foldedPhases={foldedPhases} />
       <ServerChecks result={validation.result?.value} current={validation.current} pending={validation.pending} error={validation.error} rowOf={(path) => (path.startsWith('tasks:') ? lines.find((line) => template.tasks.some((task) => task.code === path.slice(6) && line.taskIndexes.includes(template.tasks.indexOf(task))))?.number : rowNumber(path))} />
 
       {openLine === undefined || lineOf(template, openLine) === undefined ? null : (
-        <StepDrawer template={template} lineKey={openLine} onChange={(next) => setEdited(next)} onClose={() => setOpenLine(undefined)} disabled={!canEdit} lockedCodes={lockedCodes} mayReadRegister={mayReadRegister} />
+        <StepDrawer template={template} templateCode={code} lineKey={openLine} onChange={(next) => setEdited(next)} onClose={() => setOpenLine(undefined)} disabled={!canEdit} lockedCodes={lockedCodes} mayReadRegister={mayReadRegister} />
       )}
       {panel === 'history' && source.code !== '' ? <HistoryDrawer code={source.code} canManage={canStore} canApprove={canApprove} writable={writable} onClose={() => setPanel(undefined)} /> : null}
       {pasting ? (

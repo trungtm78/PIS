@@ -170,7 +170,7 @@ describe('PWF-02: one table of steps', () => {
     expect(await within(rowOf('task:T1')).findByTestId('cell-problem')).toBeTruthy();
     expect(first.getAttribute('aria-invalid')).toBe('true');
     fireEvent.click(await screen.findByTestId('jump'));
-    expect(document.activeElement).toBe(first);
+    await waitFor(() => expect(document.activeElement).toBe(first));
     // A limit that is not a whole number is said at the limit cell.
     fireEvent.change(screen.getByTestId('limit-task:T1'), { target: { value: '' } });
     fireEvent.blur(screen.getByTestId('limit-task:T1'));
@@ -188,6 +188,54 @@ describe('PWF-02: one table of steps', () => {
     await saveWith('Giữ nguyên liên kết nâng cao');
     await waitFor(() => expect(callsOf(h, 'createGovernanceRuleDraft')).toHaveLength(1));
     expect((lastBody(h, 'createGovernanceRuleDraft').params as { tasks: { predecessors: unknown[] }[] }).tasks[1]?.predecessors).toEqual([{ task: 'T1', kind: 'SS', lag_working_days: 2 }]);
+  });
+});
+
+describe('PWF-02: a long procedure and the header', () => {
+  const long = builtIn.PUBLIC_INVESTMENT as never;
+  it('folds the phases after the first when the procedure has more than 12 rows, and opens one on request', async () => {
+    open({ effective: templateEffective({ params: long }), versions: [templateVersion(2, { params: long })] });
+    await ready();
+    const first = document.querySelectorAll('tbody[data-phase]')[0] as HTMLElement;
+    const second = document.querySelectorAll('tbody[data-phase]')[1] as HTMLElement;
+    expect(first.querySelectorAll('tr.pwfx-row').length).toBeGreaterThan(0);
+    expect(second.querySelectorAll('tr.pwfx-row')).toHaveLength(0);
+    fireEvent.click(screen.getByTestId('phase-toggle-1'));
+    expect(second.querySelectorAll('tr.pwfx-row').length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByTestId('phase-toggle-1'));
+    expect(second.querySelectorAll('tr.pwfx-row')).toHaveLength(0);
+  });
+
+  it('keeps a short procedure fully open', async () => {
+    open();
+    await ready();
+    expect(screen.getByTestId('phase-toggle-0').getAttribute('aria-expanded')).toBe('true');
+    expect(document.querySelectorAll('tr.pwfx-row')).toHaveLength(2);
+  });
+
+  it('opens a folded phase for a problem the summary jumps to', async () => {
+    const params = JSON.parse(JSON.stringify(long));
+    const last = params.tasks[params.tasks.length - 1];
+    last.name = '';
+    open({ effective: templateEffective({ params }), versions: [templateVersion(2, { params })] });
+    await fork();
+    fireEvent.click(screen.getByTestId('save-draft'));
+    fireEvent.click((await screen.findAllByTestId('jump'))[0] as HTMLElement);
+    await waitFor(() => expect((document.activeElement as HTMLElement).getAttribute('data-field')).toBe('name'));
+  });
+
+  it('keeps the name and the kind of project out of the page body (they are in the "Sửa tên, mô tả" dialog) and the code of the procedure out of the header', async () => {
+    open();
+    await fork();
+    expect(screen.queryByTestId('field-name')).toBeNull();
+    expect(screen.getByTestId('template-sub').textContent).not.toContain('PUBLIC_INVESTMENT');
+    fireEvent.click(screen.getByTestId('rename'));
+    expect(within(screen.getByRole('dialog')).getByTestId('field-name')).toBeTruthy();
+    expect(within(screen.getByRole('dialog')).getByTestId('field-project-type')).toBeTruthy();
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: text('pwfx.rename.done') }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    fireEvent.click(screen.getByTestId('details-task:T1'));
+    expect((await screen.findByTestId('template-code')).textContent).toBe(text('pwfx.drawer.code.template', { code: 'PUBLIC_INVESTMENT' }));
   });
 });
 
@@ -624,6 +672,7 @@ describe('PWF-02: a new procedure, by keyboard alone', () => {
     fireEvent.click(screen.getByTestId('rename'));
     fireEvent.change(screen.getByTestId('field-name'), { target: { value: 'Sửa chữa, bảo trì đường' } });
     fireEvent.change(document.querySelector('[data-testid="field-project-type"]') as HTMLElement, { target: { value: '' } });
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: text('pwfx.rename.done') }));
     fireEvent.change(document.querySelector('[data-field="name"]') as HTMLElement, { target: { value: 'Khảo sát hiện trạng' } });
     fireEvent.change(document.querySelector('[data-testid^="phase-name-"]') as HTMLElement, { target: { value: 'Chuẩn bị' } });
     // A row needs a unit role before it is complete: the lead unit and the role are chosen from the lists.

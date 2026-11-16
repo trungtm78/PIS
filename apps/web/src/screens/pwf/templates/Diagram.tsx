@@ -24,6 +24,8 @@ export interface DiagramProps {
   onStart: (day: string) => void;
   /** The table has cells to put right: the diagram says it is the one before. */
   blockedBy: number;
+  /** The codes of the phases the table has folded: the diagram leaves their rows out as well, so that a long procedure stays one page of a usable height. */
+  foldedPhases: ReadonlySet<string>;
 }
 
 /**
@@ -31,14 +33,15 @@ export interface DiagramProps {
  * server's answer. It never counts a date itself, and it says how far the dates can be trusted: counted on a draft calendar ("tạm tính"), a year with no calendar ("chưa tính được"), or not up to date because the table has cells
  * to put right or the server cannot be reached. The table stays editable in every one of those cases.
  */
-export function Diagram({ template, live, start, onStart, blockedBy }: DiagramProps) {
+export function Diagram({ template, live, start, onStart, blockedBy, foldedPhases }: DiagramProps) {
   const { t } = useTranslation();
   const words = useMemo(
     () => ({ provisional: t('pwfx.diagram.provisional.short'), missingYear: (year: number) => t('pwfx.diagram.missingYear.row', { year }), notInProject: t('pwfx.diagram.notInProject') }),
     [t],
   );
   const diagram = useMemo(() => (live.result === undefined ? undefined : diagramOf(live.result.preview, template, words)), [live.result, template, words]);
-  const hasBars = diagram !== undefined && ganttScale(diagram.rows) !== null;
+  const shown = useMemo(() => (diagram === undefined ? [] : diagram.rows.filter((row) => !foldedPhases.has(row.phase))), [diagram, foldedPhases]);
+  const hasBars = diagram !== undefined && ganttScale(shown) !== null;
   return (
     <SectionCard
       title={t('pwfx.diagram.title')}
@@ -87,8 +90,13 @@ export function Diagram({ template, live, start, onStart, blockedBy }: DiagramPr
               </Link>
             </p>
           )}
+          {foldedPhases.size === 0 ? null : (
+            <p className="pwf-hint" data-testid="diagram-folded">
+              {t('pwfx.diagram.folded', { count: foldedPhases.size })}
+            </p>
+          )}
           {hasBars ? (
-            <GanttChart rows={diagram.rows} phases={diagram.phases} today={null} variant="template" overall={diagram.overall === undefined ? undefined : { day: diagram.overall.day, label: t('pwfx.diagram.overall.label', { day: dayText(diagram.overall.day) }) }} />
+            <GanttChart rows={shown} phases={diagram.phases.filter((phase) => !foldedPhases.has(phase.code))} today={null} variant="template" overall={diagram.overall === undefined ? undefined : { day: diagram.overall.day, label: t('pwfx.diagram.overall.label', { day: dayText(diagram.overall.day) }) }} />
           ) : (
             <p className="adm-kit-empty" data-testid="diagram-empty">
               {t('pwfx.diagram.empty')}

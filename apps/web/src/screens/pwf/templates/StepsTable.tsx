@@ -16,6 +16,7 @@ import {
   anchorOf,
   anchorTargets,
   basisOfLine,
+  basisState,
   dossierCount,
   duplicateLine,
   extensionChoice,
@@ -67,6 +68,9 @@ export interface StepsTableProps {
   onFocused: () => void;
   /** Asks the screen to put the caret in the name of a row (one just added or copied). */
   onFocusRequest: (key: string) => void;
+  /** Whether the rows of a phase are shown (a long procedure keeps the phases after the first folded until the person opens them). */
+  phaseOpen: (uid: string, index: number) => boolean;
+  onTogglePhase: (uid: string, index: number) => void;
   onOpenDetails: (key: string) => void;
 }
 
@@ -134,6 +138,17 @@ export function StepsTable(props: StepsTableProps) {
     <div className="ui-table-scroll pwfx-scroll" role="region" aria-label={t('pwfx.table.region')} tabIndex={0} data-testid="steps-table">
       <table className="ui-table pwfx-table">
         <caption className="pwfx-sr">{t('pwfx.table.caption', { count: total })}</caption>
+        <colgroup>
+          <col className="pwfx-w-num" />
+          <col className="pwfx-w-name" />
+          <col className="pwfx-w-unit" />
+          <col className="pwfx-w-anchor" />
+          <col className="pwfx-w-limit" />
+          <col className="pwfx-w-bands" />
+          <col className="pwfx-w-basis" />
+          <col className="pwfx-w-dossier" />
+          <col className="pwfx-w-actions" />
+        </colgroup>
         <thead>
           <tr>
             <th scope="col" className="ui-table__head pwfx-col-num">
@@ -168,13 +183,13 @@ export function StepsTable(props: StepsTableProps) {
         {groups.map((group, groupIndex) => {
           const word = phaseWord(group);
           if (group.phase !== null) phaseNumber += 1;
+          const uid = group.phase === null ? 'orphans' : (uidOf(group.phase) ?? group.phase.code);
+          const open = group.phase === null || props.phaseOpen(uid, groupIndex);
           return (
             <tbody key={group.phase === null ? `orphans-${groupIndex}` : (uidOf(group.phase) ?? group.phase.code)} data-phase={group.phase?.code ?? ''}>
-              <PhaseRow {...props} group={group} word={word} number={group.phase === null ? 0 : phaseNumber} />
-              {group.lines.map((line) => (
-                <StepRow key={line.uid} {...props} line={line} />
-              ))}
-              {group.phase === null || disabled ? null : (
+              <PhaseRow {...props} group={group} word={word} number={group.phase === null ? 0 : phaseNumber} open={open} uid={uid} />
+              {open ? group.lines.map((line) => <StepRow key={line.uid} {...props} line={line} />) : null}
+              {group.phase === null || disabled || !open ? null : (
                 <tr className="pwfx-add">
                   <td colSpan={9}>
                     <button
@@ -214,7 +229,7 @@ export function StepsTable(props: StepsTableProps) {
 
 // ---- a phase -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-function PhaseRow({ template, onChange, onSettle, onRemoved, disabled, group, word, number }: StepsTableProps & { group: TableGroup; word: string; number: number }) {
+function PhaseRow({ template, onChange, onSettle, onRemoved, disabled, group, word, number, open, uid, onTogglePhase }: StepsTableProps & { group: TableGroup; word: string; number: number; open: boolean; uid: string }) {
   const { t } = useTranslation();
   const phase = group.phase;
   const index = group.phaseIndex;
@@ -246,6 +261,10 @@ function PhaseRow({ template, onChange, onSettle, onRemoved, disabled, group, wo
             onChange={(event) => onChange(updatePhase(template, index, { name: event.target.value }))}
             onBlur={onSettle}
           />
+          <span className="pwf-hint">{t('pwfx.phase.count', { count: group.lines.filter((line) => !line.child).length })}</span>
+          <button type="button" className="ui-button ui-button--outline ui-button--small" aria-expanded={open} data-testid={`phase-toggle-${index}`} onClick={() => onTogglePhase(uid, index)}>
+            {open ? t('pwfx.phase.fold') : t('pwfx.phase.unfold')}
+          </button>
           {disabled ? null : (
             <span className="pwfx-phase__actions">
               <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('pwfx.phase.up', { n: number })} disabled={index === 0} onClick={() => onChange(movePhase(template, index, -1))}>
@@ -409,10 +428,82 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
     </select>
   );
 
+  const unitRow = (): ReactNode => (
+    <div className="pwfx-unit">
+      {unitSelect(lead?.unit_ref ?? '', (ref) => onChange(setLeadUnit(template, taskIndex as number, ref)), label(t('pwfx.cell.unit')))}
+      <span className="pwfx-unit__role">
+        {roleSelect((task as EditorTask).responsible_role, (code) => onChange(setRole(template, taskIndex as number, code)), label(t('pwfx.cell.role')))}
+        {readOnlyLine || ((task as EditorTask).responsible_units ?? []).length >= MAX_UNITS ? null : (
+          <button
+            type="button"
+            className="pwfx-mini"
+            aria-label={label(t('pwfx.cell.support.add'))}
+            title={t('pwfx.cell.support.add')}
+            onClick={() => {
+              const t0 = task as EditorTask;
+              const taken = new Set((t0.responsible_units ?? []).map((unit) => `${unit.unit_ref}|${unit.role}`));
+              const free = units.find((choice2) => !taken.has(`${choice2.value}|${t0.responsible_role}`));
+              if (free !== undefined) onChange(addSupport(template, taskIndex as number, free.value, t0.responsible_role));
+            }}
+          >
+            <span aria-hidden="true">+</span>
+          </button>
+        )}
+      </span>
+      {adding === 'unit' ? (
+        <NewName
+          label={label(t('pwfx.new.unit'))}
+          onCancel={() => setAdding(undefined)}
+          onAdd={(name) => {
+            const made = addParty(template, name);
+            onChange(setLeadUnit(made.template, taskIndex as number, `PROJECT_PARTY:${made.code}`));
+            setAdding(undefined);
+          }}
+        />
+      ) : null}
+      {adding === 'role' ? (
+        <NewName
+          label={label(t('pwfx.new.role'))}
+          onCancel={() => setAdding(undefined)}
+          onAdd={(name) => {
+            const made = addRole(template, name, (task as EditorTask).responsible_role === '' ? [] : [(task as EditorTask).responsible_role]);
+            onChange(setRole(made.template, taskIndex as number, made.code));
+            setAdding(undefined);
+          }}
+        />
+      ) : null}
+      {supports.map((support, position) => (
+        <span key={position} className="pwfx-support">
+          {unitSelect(support.unit_ref, (ref) => onChange(updateSupport(template, taskIndex as number, position, { unit_ref: ref })), label(t('pwfx.cell.support.unit', { k: position + 1 })))}
+          <span className="pwfx-unit__role">
+            {roleSelect(support.role, (code) => onChange(updateSupport(template, taskIndex as number, position, { role: code })), label(t('pwfx.cell.support.role', { k: position + 1 })), position)}
+            <button type="button" className="pwfx-mini" disabled={readOnlyLine} aria-label={label(t('pwfx.cell.support.remove', { k: position + 1 }))} onClick={() => onChange(updateSupport(template, taskIndex as number, position, null))}>
+              <span aria-hidden="true">✕</span>
+            </button>
+          </span>
+        </span>
+      ))}
+      {lead === undefined || unitRefKind(lead.unit_ref).kind !== 'unknown' ? null : <span className="pwf-hint">{lead.unit_ref}</span>}
+      <CellProblem id={`${line.key}-unit-error`} list={unitProblems} t={t} />
+    </div>
+  );
+
   return (
     <>
       <tr className="pwfx-row" data-line={line.key} data-child={line.child ? 'true' : undefined} onBlur={() => onTouch(line.key)} data-testid={`row-${line.key}`}>
-        <td className="pwfx-col-num">{line.number}</td>
+        <td className="pwfx-col-num">
+          <span className="pwfx-num">{line.number}</span>
+          {readOnlyLine ? null : (
+            <span className="pwfx-move">
+              <button type="button" className="pwfx-mini" aria-label={label(t('pwfx.row.up'))} title={t('pwfx.row.up')} onClick={() => onChange(moveLine(template, line.key, -1))}>
+                <span aria-hidden="true">↑</span>
+              </button>
+              <button type="button" className="pwfx-mini" aria-label={label(t('pwfx.row.down'))} title={t('pwfx.row.down')} onClick={() => onChange(moveLine(template, line.key, 1))}>
+                <span aria-hidden="true">↓</span>
+              </button>
+            </span>
+          )}
+        </td>
         <td className="pwfx-col-name">
           <div className="pwfx-name">
             <input
@@ -438,7 +529,7 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
                 className="pwfx-star"
                 aria-pressed={overall}
                 aria-label={label(t('pwfx.cell.overall'))}
-                title={t('pwfx.cell.overall.hint')}
+                title={overall ? t('pwfx.cell.overall.text') : t('pwfx.cell.overall.hint')}
                 disabled={readOnlyLine || (!overall && /^NEW_\d+$/.test(task.code))}
                 data-testid={`overall-${line.key}`}
                 onClick={() => onChange(toggleOverall(template, task.code))}
@@ -447,68 +538,10 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
               </button>
             )}
           </div>
-          {overall ? <span className="pwfx-overall">{t('pwfx.cell.overall.text')}</span> : null}
           <CellProblem id={`${line.key}-name-error`} list={nameProblems} t={t} />
           {line.kind === 'step' && taskIndex === null ? <span className="pwf-hint">{line.taskIndexes.length === 0 ? t('pwfx.step.empty') : t('pwfx.step.several', { count: line.taskIndexes.length })}</span> : null}
         </td>
-        <td>
-          {task === undefined ? (
-            <span className="pwf-hint">–</span>
-          ) : (
-            <div className="pwfx-unit">
-              {unitSelect(lead?.unit_ref ?? '', (ref) => onChange(setLeadUnit(template, taskIndex as number, ref)), label(t('pwfx.cell.unit')))}
-              {roleSelect(task.responsible_role, (code) => onChange(setRole(template, taskIndex as number, code)), label(t('pwfx.cell.role')))}
-              {adding === 'unit' ? (
-                <NewName
-                  label={label(t('pwfx.new.unit'))}
-                  onCancel={() => setAdding(undefined)}
-                  onAdd={(name) => {
-                    const made = addParty(template, name);
-                    onChange(setLeadUnit(made.template, taskIndex as number, `PROJECT_PARTY:${made.code}`));
-                    setAdding(undefined);
-                  }}
-                />
-              ) : null}
-              {adding === 'role' ? (
-                <NewName
-                  label={label(t('pwfx.new.role'))}
-                  onCancel={() => setAdding(undefined)}
-                  onAdd={(name) => {
-                    const made = addRole(template, name, task.responsible_role === '' ? [] : [task.responsible_role]);
-                    onChange(setRole(made.template, taskIndex as number, made.code));
-                    setAdding(undefined);
-                  }}
-                />
-              ) : null}
-              {supports.map((support, position) => (
-                <span key={position} className="pwfx-support">
-                  {unitSelect(support.unit_ref, (ref) => onChange(updateSupport(template, taskIndex as number, position, { unit_ref: ref })), label(t('pwfx.cell.support.unit', { k: position + 1 })))}
-                  {roleSelect(support.role, (code) => onChange(updateSupport(template, taskIndex as number, position, { role: code })), label(t('pwfx.cell.support.role', { k: position + 1 })), position)}
-                  <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={readOnlyLine} aria-label={label(t('pwfx.cell.support.remove', { k: position + 1 }))} onClick={() => onChange(updateSupport(template, taskIndex as number, position, null))}>
-                    <span aria-hidden="true">✕</span>
-                  </button>
-                </span>
-              ))}
-              {readOnlyLine || (task.responsible_units ?? []).length >= MAX_UNITS ? null : (
-                <button
-                  type="button"
-                  className="ui-button ui-button--outline ui-button--small"
-                  aria-label={label(t('pwfx.cell.support.add'))}
-                  title={t('pwfx.cell.support.add')}
-                  onClick={() => {
-                    const taken = new Set((task.responsible_units ?? []).map((unit) => `${unit.unit_ref}|${unit.role}`));
-                    const free = units.find((choice2) => !taken.has(`${choice2.value}|${task.responsible_role}`));
-                    if (free !== undefined) onChange(addSupport(template, taskIndex as number, free.value, task.responsible_role));
-                  }}
-                >
-                  <span aria-hidden="true">+</span>
-                </button>
-              )}
-              {lead === undefined || unitRefKind(lead.unit_ref).kind !== 'unknown' ? null : <span className="pwf-hint">{lead.unit_ref}</span>}
-              <CellProblem id={`${line.key}-unit-error`} list={unitProblems} t={t} />
-            </div>
-          )}
-        </td>
+        <td>{task === undefined ? <span className="pwf-hint">–</span> : unitRow()}</td>
         <td>
           {task === undefined || taskIndex === null || anchor === undefined ? (
             <span className="pwf-hint">–</span>
@@ -534,13 +567,19 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
               </select>
               <CellProblem id={`${line.key}-anchor-error`} list={anchorProblems} t={t} />
               {notes.length === 0 ? null : (
-                <ul className="pwfx-notes" aria-label={label(t('pwfx.cell.notes'))}>
-                  {notes.map((note, position) => (
-                    <li key={position} data-note={note.kind}>
-                      {noteText(t, note)}
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <button type="button" className="pwfx-adv" title={notes.map((note) => noteText(t, note)).join('; ')} data-testid={`advanced-${line.key}`} onClick={() => onOpenDetails(line.key)}>
+                    <span aria-hidden="true">⚙ </span>
+                    {t('pwfx.cell.advanced', { count: notes.length })}
+                  </button>
+                  <ul className="pwfx-sr" aria-label={label(t('pwfx.cell.notes'))}>
+                    {notes.map((note, position) => (
+                      <li key={position} data-note={note.kind}>
+                        {noteText(t, note)}
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
             </div>
           )}
@@ -579,11 +618,16 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
                   <input type="checkbox" checked={limit.roll_to_working_day} disabled={readOnlyLine} onChange={(event) => onChange(setLimit(template, taskIndex, { roll_to_working_day: event.target.checked }))} /> {t('pwfx.limit.roll')}
                 </label>
               )}
-              <select aria-label={label(t('pwfx.cell.extension'))} value={choice} disabled={readOnlyLine} onChange={(event) => onChange(setExtension(template, taskIndex, event.target.value as ExtensionChoice))}>
-                <option value="unset">{t('pwfx.extension.unset')}</option>
-                <option value="allowed">{t('pwfx.extension.allowed')}</option>
-                <option value="denied">{t('pwfx.extension.denied')}</option>
-              </select>
+              <label className="pwfx-check" title={choice === 'denied' ? t('pwfx.extension.denied') : undefined}>
+                <input
+                  type="checkbox"
+                  checked={choice === 'allowed'}
+                  disabled={readOnlyLine}
+                  aria-label={label(t('pwfx.cell.extension'))}
+                  onChange={(event) => onChange(setExtension(template, taskIndex, event.target.checked ? 'allowed' : 'unset'))}
+                />{' '}
+                {t('pwfx.extension.short')}
+              </label>
               <CellProblem id={`${line.key}-limit-error`} list={limitProblems} t={t} />
             </div>
           )}
@@ -592,52 +636,46 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
           {task === undefined || taskIndex === null ? (
             <span className="pwf-hint">–</span>
           ) : (
-            <div className="pwfx-bands">
-              <span className="pwfx-bands__inputs">
-                {(['red_days', 'yellow_days', 'green_days'] as const).map((field) => {
-                  const word = field === 'red_days' ? t('pwfx.band.red') : field === 'yellow_days' ? t('pwfx.band.yellow') : t('pwfx.band.green');
-                  const own2 = task.bands?.[field];
-                  const hint = ladder === undefined ? undefined : field === 'red_days' ? ladder.red : field === 'yellow_days' ? ladder.yellow : (ladder.green ?? undefined);
-                  return (
+            <div className="pwfx-bands" title={task.bands === undefined ? t('pwfx.band.followsPolicy') : t('pwfx.band.own')}>
+              {(['red_days', 'yellow_days', 'green_days'] as const).map((field) => {
+                const word = field === 'red_days' ? t('pwfx.band.red') : field === 'yellow_days' ? t('pwfx.band.yellow') : t('pwfx.band.green');
+                const own2 = task.bands?.[field];
+                const hint = ladder === undefined ? undefined : field === 'red_days' ? ladder.red : field === 'yellow_days' ? ladder.yellow : (ladder.green ?? undefined);
+                return (
+                  <label key={field} className={`pwfx-band-label pwfx-band-label--${field.slice(0, field.indexOf('_'))}`}>
+                    <span aria-hidden="true">{word}</span>
                     <input
-                      key={field}
                       type="number"
                       inputMode="numeric"
-                      className={`pwfx-band pwfx-band--${field.slice(0, field.indexOf('_'))}`}
+                      className="pwfx-band"
                       aria-label={label(t('pwfx.cell.band', { color: word }))}
                       aria-invalid={bandProblems.length > 0}
                       placeholder={hint === undefined ? t('pwfx.band.policy') : String(hint)}
+                      title={task.bands === undefined ? t('pwfx.band.followsPolicy') : t('pwfx.band.own')}
                       value={own2 === undefined ? '' : Number.isNaN(own2) ? '' : own2}
                       disabled={readOnlyLine}
                       data-field={field === 'red_days' ? 'bands' : undefined}
                       data-cell={field === 'red_days' ? `${at}.bands` : undefined}
                       onChange={(event) => onChange(setBand(template, taskIndex, field, event.target.value.trim() === '' ? undefined : Number(event.target.value)))}
                     />
-                  );
-                })}
-              </span>
-              <span className="pwf-hint">{task.bands === undefined ? t('pwfx.band.followsPolicy') : t('pwfx.band.own')}</span>
+                  </label>
+                );
+              })}
               <CellProblem id={`${line.key}-bands-error`} list={bandProblems} t={t} />
             </div>
           )}
         </td>
         <td>
           <div className="pwfx-basis-cell">
-            {basis.length === 0 ? <span className="pwf-hint">{t('pwfx.basis.none.short')}</span> : <BasisSummary basis={basis} />}
-            <button type="button" className="ui-button ui-button--outline ui-button--small" aria-expanded={basisOpen} aria-label={label(t('pwfx.basis.edit'))} data-field="basis" data-cell={`${at}.legal_basis`} onClick={() => setBasisOpen(!basisOpen)}>
-              {basisOpen ? t('pwfx.basis.close') : readOnlyLine ? t('pwfx.basis.view') : t('pwfx.basis.edit')}
+            <button type="button" className="pwfx-basis-open" aria-expanded={basisOpen} aria-label={label(t('pwfx.basis.edit'))} title={basis.map((one) => `${one.document}${one.article === undefined || one.article === '' ? '' : ` · ${one.article}`}`).join('; ')} data-field="basis" data-cell={`${at}.legal_basis`} onClick={() => setBasisOpen(!basisOpen)}>
+              {basis.length === 0 ? (readOnlyLine ? t('pwfx.basis.none.short') : `+ ${t('pwfx.basis.edit')}`) : `${basis[0]?.document ?? ''}${basis[0]?.article === undefined || basis[0]?.article === '' ? '' : ` · ${basis[0]?.article}`}${basis.length > 1 ? ` +${basis.length - 1}` : ''}`}
             </button>
+            {basis.length === 0 ? null : <BasisSummary basis={basis} />}
             <CellProblem id={`${line.key}-basis-error`} list={basisProblems} t={t} />
           </div>
         </td>
         <td>
-          <button
-            type="button"
-            className="ui-button ui-button--outline ui-button--small pwfx-dossier"
-            aria-label={label(t('pwfx.dossier.open'))}
-            data-testid={`details-${line.key}`}
-            onClick={() => onOpenDetails(line.key)}
-          >
+          <button type="button" className="ui-button ui-button--outline ui-button--small pwfx-dossier" aria-label={label(t('pwfx.dossier.open'))} data-testid={`details-${line.key}`} onClick={() => onOpenDetails(line.key)}>
             {t('pwfx.dossier.count', { count: dossier })} ▸
           </button>
           {detailProblems.length === 0 ? null : (
@@ -650,19 +688,13 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
         <td className="pwfx-col-actions">
           {readOnlyLine ? null : (
             <span className="pwfx-actions">
-              <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={label(t('pwfx.row.up'))} onClick={() => onChange(moveLine(template, line.key, -1))}>
-                <span aria-hidden="true">↑</span>
-              </button>
-              <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={label(t('pwfx.row.down'))} onClick={() => onChange(moveLine(template, line.key, 1))}>
-                <span aria-hidden="true">↓</span>
-              </button>
-              <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={label(t('pwfx.row.duplicate'))} disabled={template.tasks.length >= MAX_TASKS} onClick={duplicate}>
+              <button type="button" className="pwfx-mini" aria-label={label(t('pwfx.row.duplicate'))} title={t('pwfx.row.duplicate')} disabled={template.tasks.length >= MAX_TASKS} onClick={duplicate}>
                 <span aria-hidden="true">⧉</span>
               </button>
               {line.kind === 'step' && line.stepIndex !== null ? (
                 <button
                   type="button"
-                  className="ui-button ui-button--outline ui-button--small"
+                  className="pwfx-mini"
                   aria-label={label(t('pwfx.row.split'))}
                   title={t('pwfx.row.split.hint')}
                   onClick={() => {
@@ -673,7 +705,7 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
                   <span aria-hidden="true">⑂</span>
                 </button>
               ) : null}
-              <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={label(t('pwfx.row.remove'))} data-testid={`remove-${line.key}`} onClick={remove}>
+              <button type="button" className="pwfx-mini" aria-label={label(t('pwfx.row.remove'))} title={t('pwfx.row.remove')} data-testid={`remove-${line.key}`} onClick={remove}>
                 <span aria-hidden="true">✕</span>
               </button>
             </span>
@@ -715,22 +747,10 @@ function StepRow(props: StepsTableProps & { line: TableLine }) {
   );
 }
 
-/** The citations of a row in a line each: the document, the article and how it stands (checked and by whom, waiting for the stamp, or not checked). */
+/** How the grounds of a row stand, in one line: the worst state of any of them (not checked, waiting for the stamp, checked and by whom). */
 function BasisSummary({ basis }: { basis: readonly LegalBasisInput[] }) {
-  return (
-    <ul className="pwfx-basis-summary">
-      {basis.slice(0, 3).map((one, index) => (
-        <li key={index}>
-          <span>
-            {one.document}
-            {one.article === undefined || one.article === '' ? '' : ` · ${one.article}`}
-          </span>{' '}
-          <BasisStamp basis={one} />
-        </li>
-      ))}
-      {basis.length > 3 ? <li className="pwf-hint">+{basis.length - 3}</li> : null}
-    </ul>
-  );
+  const worst = basis.find((one) => basisState(one) === 'unverified') ?? basis.find((one) => basisState(one) === 'claimed') ?? basis[0];
+  return worst === undefined ? null : <BasisStamp basis={worst} />;
 }
 
 function noteText(t: ReturnType<typeof useTranslation>['t'], note: ReturnType<typeof advancedNotes>[number]): string {

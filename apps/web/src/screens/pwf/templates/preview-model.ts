@@ -33,7 +33,8 @@ export interface Diagram {
 
 export function diagramOf(preview: SchedulePreview, template: Template, words: DiagramWords): Diagram {
   const byCode = new Map(preview.tasks.map((task) => [task.task_code, task]));
-  const lines = linesOf(template).flatMap((line) => line.taskIndexes.map((index) => ({ line, task: template.tasks[index] })));
+  // A step that has several tasks is read-only: its tasks are the rows under it, and each is drawn once, as its own row.
+  const lines = linesOf(template).flatMap((line) => (line.taskIndex === null ? [] : [{ line, task: template.tasks[line.taskIndex] }]));
   const rows: GanttRow[] = [];
   const years = new Set<number>();
   let overall: Diagram['overall'];
