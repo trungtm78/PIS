@@ -26,9 +26,9 @@ import { ensureWorkCalendar, masterRecord, paper, publishMaster, tolerate } from
  * rules of the product is written as a warning and the group goes on; a server error (5xx) stops it.
  */
 
-const OWNER = 'owner';
-const MAKER = 'projectManager';
-const CHECKER = 'capApprover';
+export const OWNER = 'owner';
+export const MAKER = 'projectManager';
+export const CHECKER = 'capApprover';
 /** The people who hold tasks: the person of the phone, the officer of the project board and the leader who also works on some. */
 const WORKERS = [OWNER, MAKER] as const;
 
@@ -46,13 +46,13 @@ const DRAFT_PERIOD_UNIT = 'CB-SKHDT';
 /** The smallest sample the province rates a person on: three tasks of the quarter (the built-in policy says five, which a quarter of eight workflows gives to the two people who do the work only). */
 const MIN_RATED_TASKS = 3;
 
-const TEMPLATE_TYPE = 'PROJECT_WORKFLOW_TEMPLATE';
+export const TEMPLATE_TYPE = 'PROJECT_WORKFLOW_TEMPLATE';
 const ASSIGNMENT_TYPE = 'PROJECT_WORKFLOW_ASSIGNMENT';
 const BAND_TYPE = 'DEADLINE_BAND_POLICY';
 const KPI_SET_TYPE = 'WORKFLOW_KPI_SET';
 const KPI_SET_CODE = 'DEFAULT_PROJECT_WORKFLOW';
 const SCORING_TYPE = 'STAFF_SCORING_POLICY';
-const TENANT_TEMPLATE = 'CB_ROAD_REPAIR';
+export const TENANT_TEMPLATE = 'CB_ROAD_REPAIR';
 const DRAFT_TEMPLATE = 'CB_SCHOOL_EQUIPMENT';
 /** The kinds of project the two templates of the tenant name: each an extension of a kind the platform holds, with the nature the catalogue asks for. */
 const PROJECT_KINDS = [
@@ -60,10 +60,10 @@ const PROJECT_KINDS = [
   { key: 'SCHOOL_EQUIPMENT', parent: 'PROCUREMENT', kind: 'PROCUREMENT', label: 'Mua sắm thiết bị trường học', reason: 'Bổ sung loại dự án mua sắm thiết bị trường học để gắn mẫu quy trình đang soạn của tỉnh' },
 ] as const;
 
-const str = (value: unknown): string => (typeof value === 'string' ? value : String(value ?? ''));
+export const str = (value: unknown): string => (typeof value === 'string' ? value : String(value ?? ''));
 /** The words a paper is named with on the screens: the name the product gives (of a form, of a checklist item), the code only when there is none. A reference a person reads never carries a code when a name exists. */
 const wordsOf = (name: string | null | undefined, code: string): string => (typeof name === 'string' && name.trim() !== '' ? name.trim() : code);
-const arr = <T = Obj>(value: unknown): T[] => (Array.isArray(value) ? (value as T[]) : []);
+export const arr = <T = Obj>(value: unknown): T[] => (Array.isArray(value) ? (value as T[]) : []);
 
 // ---- the rules (library, mapping, three colours) -----------------------------------------------------------------------------------------
 
@@ -74,11 +74,11 @@ interface RuleRow extends Obj {
   version: number;
 }
 
-const rulesOf = async (ctx: SeedContext, type: string, code: string): Promise<RuleRow[]> => (await ctx.list<RuleRow>(OWNER, '/governance-rules', { rule_type: type, code })).filter((row) => row.code === code);
-const effectiveParams = async (ctx: SeedContext, type: string, code: string): Promise<Obj> => (await ctx.get<{ params: Obj }>(OWNER, '/governance-rules/effective', { rule_type: type, code })).params;
+export const rulesOf = async (ctx: SeedContext, type: string, code: string): Promise<RuleRow[]> => (await ctx.list<RuleRow>(OWNER, '/governance-rules', { rule_type: type, code })).filter((row) => row.code === code);
+export const effectiveParams = async (ctx: SeedContext, type: string, code: string): Promise<Obj> => (await ctx.get<{ params: Obj }>(OWNER, '/governance-rules/effective', { rule_type: type, code })).params;
 
 /** A rule drafted by one person, sent for approval and (when `approve`) approved by another: it goes as far as it is, so a half-made rule of an earlier run is finished. Returns the id of the rule. */
-async function rule(ctx: SeedContext, spec: { type: string; code: string; params: Obj; reason: string; upTo: 'DRAFT' | 'SUBMITTED' | 'APPROVED'; maker?: string; checker?: string; ordinal?: number }): Promise<string | undefined> {
+export async function rule(ctx: SeedContext, spec: { type: string; code: string; params: Obj; reason: string; upTo: 'DRAFT' | 'SUBMITTED' | 'APPROVED'; maker?: string; checker?: string; ordinal?: number }): Promise<string | undefined> {
   const maker = spec.maker ?? OWNER;
   const checker = spec.checker ?? CHECKER;
   // The list names the version of the rule (1, 2, ...): the rows are the versions of this code, oldest first.
@@ -107,7 +107,7 @@ async function rule(ctx: SeedContext, spec: { type: string; code: string; params
   return row.id;
 }
 
-const UNVERIFIED_NOTE = 'Do đơn vị soạn; điều khoản cụ thể chờ phòng pháp chế đối chiếu.';
+export const UNVERIFIED_NOTE = 'Do đơn vị soạn; điều khoản cụ thể chờ phòng pháp chế đối chiếu.';
 
 /** The template the tenant wrote: repair and maintenance of local roads. Three phases, five steps, eleven tasks; the legal documents and the forms are the ones the tenant holds (unknown ones are left out). */
 function tenantTemplate(known: { documents: Set<string>; forms: Set<string> }, second: boolean): Obj {
@@ -323,7 +323,7 @@ async function scoringRules(ctx: SeedContext): Promise<void> {
 
 // ---- the projects and their workflows -----------------------------------------------------------------------------------------------------
 
-interface ProjectSpec {
+export interface ProjectSpec {
   code: string;
   name: string;
   template: string;
@@ -372,7 +372,7 @@ const PROJECTS: ProjectSpec[] = [
 ];
 
 /** The day a workflow started so that today is its `elapsed`-th working day (Monday to Friday; the public holidays in between move the schedule by their number, which the colours tolerate). */
-function startDay(today: string, elapsed: number): string {
+export function startDay(today: string, elapsed: number): string {
   const day = new Date(`${today}T00:00:00Z`);
   const weekday = (): boolean => day.getUTCDay() !== 0 && day.getUTCDay() !== 6;
   while (!weekday()) day.setUTCDate(day.getUTCDate() - 1);
@@ -384,7 +384,7 @@ function startDay(today: string, elapsed: number): string {
 }
 
 /** The day `days` calendar days after `day` (before it when negative). */
-const shiftDay = (day: string, days: number): string => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+export const shiftDay = (day: string, days: number): string => new Date(Date.parse(`${day}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 
 /** The day `late` working days (Monday to Friday) after `day`, never after `limit`: the day a task planned for `day` was really finished. */
 function workdaysAfter(day: string, late: number, limit: string): string {
@@ -397,7 +397,7 @@ function workdaysAfter(day: string, late: number, limit: string): string {
   return reached > limit ? limit : reached;
 }
 
-interface TaskRow extends Obj {
+export interface TaskRow extends Obj {
   id: string;
   task_code: string;
   name: string;
@@ -409,7 +409,7 @@ interface TaskRow extends Obj {
   version: number;
 }
 
-interface TaskDetail extends TaskRow {
+export interface TaskDetail extends TaskRow {
   approver_role: string | null;
   checklist: Array<{ item_code: string; name?: string; required: boolean; done: boolean; evidence_kinds: string[] }>;
   legal_doc_types: Array<{ code: string; name?: string; satisfied: boolean }>;
@@ -450,18 +450,18 @@ async function ensureProject(ctx: SeedContext, spec: ProjectSpec): Promise<strin
   return created.json.resource_id;
 }
 
-const tasksOf = async (ctx: SeedContext, projectId: string): Promise<TaskRow[]> =>
+export const tasksOf = async (ctx: SeedContext, projectId: string): Promise<TaskRow[]> =>
   (await ctx.list<TaskRow>(OWNER, `/projects/${projectId}/workflow/tasks`, { limit: 100 }))
     .filter((task) => task.kind !== 'MILESTONE' && task.excluded !== true && task.tracked !== false && task.planned_start !== null)
     .sort((left, right) => str(left.planned_start).localeCompare(str(right.planned_start)));
-const detailOf = (ctx: SeedContext, person: string, taskId: string): Promise<TaskDetail> => ctx.get<TaskDetail>(person, `/project-tasks/${taskId}`);
+export const detailOf = (ctx: SeedContext, person: string, taskId: string): Promise<TaskDetail> => ctx.get<TaskDetail>(person, `/project-tasks/${taskId}`);
 
 /**
  * The working group of the task, from the day the person who does it holds it: the leader ACCOUNTABLE and one officer CONSULTED (the officer of the project; without one, which officer follows
  * from the task, so a rerun asks the same person). A line the ledger already holds is not given twice; a task that is closed takes no new line (the ledger refuses it), so the group is named while
  * the task is open.
  */
-async function team(ctx: SeedContext, taskId: string, consulted?: string): Promise<void> {
+export async function team(ctx: SeedContext, taskId: string, consulted?: string): Promise<void> {
   const held = await ctx.list<Obj>(OWNER, `/project-tasks/${taskId}/assignments`);
   const from = str(held.find((line) => line.role === 'RESPONSIBLE')?.valid_from ?? ctx.today);
   const asked = consulted ?? (CONSULTED[[...taskId].reduce((sum, letter) => sum + letter.charCodeAt(0), 0) % CONSULTED.length] as string);
@@ -523,7 +523,7 @@ async function handover(ctx: SeedContext, ids: Record<string, string>): Promise<
  * Gives the task to the person and starts it. `on` is the day the work really began (its planned start: the workflow was started in the past and its first tasks were done then); a task whose
  * predecessors are not done is started early, with the reason the command asks for.
  */
-async function begin(ctx: SeedContext, task: TaskRow, person: string, on?: string, consulted?: string): Promise<boolean> {
+export async function begin(ctx: SeedContext, task: TaskRow, person: string, on?: string, consulted?: string): Promise<boolean> {
   if (task.status !== 'NOT_STARTED') return task.status === 'IN_PROGRESS';
   const give = (from: string): Promise<{ ok: boolean }> => ctx.call(OWNER, 'POST', `/project-tasks/${task.id}/assignments`, { membership_id: ctx.person(person).membershipId, role: 'RESPONSIBLE', valid_from: from, share_pct: 100, reason: 'Giao việc cho người phụ trách trực tiếp theo phân công của dự án' });
   if (on === undefined || !(await give(on)).ok) await give(ctx.today);
@@ -540,7 +540,7 @@ async function begin(ctx: SeedContext, task: TaskRow, person: string, on?: strin
 }
 
 /** Evidence for what the task asks: every legal document it needs, every form (the revision in force is kept with it), one paper of the document store, and the checklist ticked (all of it, or only its first item). */
-async function work(ctx: SeedContext, taskId: string, person: string, how: 'ALL' | 'PART'): Promise<void> {
+export async function work(ctx: SeedContext, taskId: string, person: string, how: 'ALL' | 'PART'): Promise<void> {
   let task = await detailOf(ctx, person, taskId);
   const give = (body: Obj): Promise<unknown> => ctx.attempt(person, 'POST', `/project-tasks/${taskId}/evidence`, body);
   if (task.evidence.length === 0) {
@@ -568,7 +568,7 @@ async function work(ctx: SeedContext, taskId: string, person: string, how: 'ALL'
 }
 
 /** Finishes the task: everything it asks for is given first. `on` is the day it was really finished (its planned finish, for a task done on time in the past). */
-async function complete(ctx: SeedContext, taskId: string, person: string, on?: string): Promise<boolean> {
+export async function complete(ctx: SeedContext, taskId: string, person: string, on?: string): Promise<boolean> {
   await work(ctx, taskId, person, 'ALL');
   const note = { note: 'Đã hoàn thành theo yêu cầu của bước' };
   for (const body of on === undefined ? [note] : [{ ...note, actual_finish: on }, note]) {
@@ -620,7 +620,7 @@ async function milestones(ctx: SeedContext, spec: ProjectSpec, projectId: string
  * may have been handed in today (it waits for the approval of its completion) or handed in and sent back by the leader. Nothing is done twice: a workflow one task of which is no longer
  * `NOT_STARTED` is left as it is.
  */
-async function play(ctx: SeedContext, spec: ProjectSpec, projectId: string, turn: number): Promise<void> {
+export async function play(ctx: SeedContext, spec: ProjectSpec, projectId: string, turn: number): Promise<void> {
   const tasks = (await tasksOf(ctx, projectId)).filter((task) => task.planned_finish !== null);
   if (tasks.some((task) => task.status !== 'NOT_STARTED')) return;
   const past = tasks.filter((task) => str(task.planned_finish) < ctx.today);
@@ -685,7 +685,7 @@ async function play(ctx: SeedContext, spec: ProjectSpec, projectId: string, turn
  * The first of the people whose command the product accepts (a second person decides: who that may be is the product's rule, not the seed's). A version conflict names the version in force, and the
  * command is sent once more with it.
  */
-async function decideBy(ctx: SeedContext, people: readonly string[], path: string, body: Obj, version: number): Promise<boolean> {
+export async function decideBy(ctx: SeedContext, people: readonly string[], path: string, body: Obj, version: number): Promise<boolean> {
   let last = '';
   for (const person of people) {
     let reply = await ctx.call(person, 'POST', path, body, { version });
