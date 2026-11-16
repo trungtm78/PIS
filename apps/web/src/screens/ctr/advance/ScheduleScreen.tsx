@@ -11,6 +11,7 @@ import { BackLink, DefaultContractBar } from '../components';
 import { useContractChoice } from '../hooks';
 import '../ctr.css';
 import { SectionCard } from '../../../ui';
+import { formatPercent } from '../../../i18n/format';
 
 /**
  * CTR-06: the advances of a contract and the schedule of their recovery (ST-PAY-004, PAY 3.2, BR-PAY-04, BR-PAY-10). For each advance: its value, what has come back and what is still owed, the
@@ -37,6 +38,8 @@ function ScheduleContent({ route }: ScreenProps) {
   const plan = useRecoveryPlan(inView?.id);
   const state = useScreenState({ isLoading: advances.isLoading, error: advances.error, data: contractId === null ? null : advances.data, isEmpty: (data) => data === null });
   const money = (value: string): string => signedAmountText(value, locale) ?? value;
+  // The figure of a percent for a sentence of the catalogue that already carries the sign.
+  const percentFigure = (value: string | number): string => formatPercent(value).replace('%', '');
   const awaiting = list.find((advance) => advance.capRuleAwaitingConfirmation);
 
   return (
@@ -112,7 +115,7 @@ function ScheduleContent({ route }: ScreenProps) {
                         </td>
                         <td data-testid="deadline">{advance.recoveryDeadline ?? ''}</td>
                         <td className="ctr-amount" data-testid="cap">
-                          {advance.capPct === null ? money(advance.capVnd) : t('ctr.advance.cap', { pct: advance.capPct, amount: money(advance.capVnd) })}
+                          {advance.capPct === null ? money(advance.capVnd) : t('ctr.advance.cap', { pct: percentFigure(advance.capPct), amount: money(advance.capVnd) })}
                         </td>
                         <td data-testid="status">{statusLabel(t, advance.status)}</td>
                       </tr>
@@ -132,7 +135,7 @@ function ScheduleContent({ route }: ScreenProps) {
                 <>
                   <dl className="ctr-facts">
                     <dt>{t('ctr.advance.fact.threshold')}</dt>
-                    <dd data-testid="threshold">{t('ctr.advance.fact.thresholdValue', { pct: plan.data.advance.thresholdPct, amount: money(plan.data.thresholdValueVnd) })}</dd>
+                    <dd data-testid="threshold">{t('ctr.advance.fact.thresholdValue', { pct: percentFigure(plan.data.advance.thresholdPct), amount: money(plan.data.thresholdValueVnd) })}</dd>
                     <dt>{t('ctr.advance.fact.work')}</dt>
                     <dd data-testid="work">{money(plan.data.advance.party.workValueVnd)}</dd>
                     <dt>{t('ctr.advance.fact.gross')}</dt>
@@ -163,7 +166,7 @@ function ScheduleContent({ route }: ScreenProps) {
                       <tbody>
                         {plan.data.milestones.map((milestone) => (
                           <tr key={milestone.atPct} data-milestone={milestone.atPct}>
-                            <td className="ctr-amount">{milestone.atPct}%</td>
+                            <td className="ctr-amount">{formatPercent(milestone.atPct)}</td>
                             <td className="ctr-amount" data-testid="milestone-gross">
                               {money(milestone.atGrossVnd)}
                             </td>

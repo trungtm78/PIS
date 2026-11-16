@@ -1,3 +1,4 @@
+import { percentFigure } from '../percent-figure';
 import { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
@@ -323,10 +324,10 @@ export function HealthSection({ connection }: { connection: Connection }) {
           {health.figuresBlocked ? t('feed.connection.health.figures.blocked') : t('feed.connection.health.figures.open')}
         </Row>
         <Row label={t('feed.connection.policy.tolerance.label')} testId="policy-tolerance">
-          {policy.tolerancePct === null ? DASH : t('feed.connection.policy.percent.value', { value: numberText(policy.tolerancePct, locale) })} {policyFigure(t('feed.connection.policy.tolerance.label'))}
+          {policy.tolerancePct === null ? DASH : t('feed.connection.policy.percent.value', { value: percentFigure(policy.tolerancePct) })} {policyFigure(t('feed.connection.policy.tolerance.label'))}
         </Row>
         <Row label={t('feed.connection.policy.large.label')} testId="policy-large">
-          {policy.largeDiscrepancyPct === null ? DASH : t('feed.connection.policy.percent.value', { value: numberText(policy.largeDiscrepancyPct, locale) })} {policyFigure(t('feed.connection.policy.large.label'))}
+          {policy.largeDiscrepancyPct === null ? DASH : t('feed.connection.policy.percent.value', { value: percentFigure(policy.largeDiscrepancyPct) })} {policyFigure(t('feed.connection.policy.large.label'))}
         </Row>
         <Row label={t('feed.connection.policy.reportDue.label')} testId="policy-report-due">
           {t('feed.connection.policy.days.value', { count: days(policy.reportDueDays) })} {policyFigure(t('feed.connection.policy.reportDue.label'))}

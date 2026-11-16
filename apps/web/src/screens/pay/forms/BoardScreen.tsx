@@ -77,7 +77,6 @@ function BoardContent({ route }: ScreenProps) {
         </div>
       </div>
       <ScopeBar
-        money
         updatedAt={payments.dataUpdatedAt}
         stale={payments.isRefetchError}
         extra={[{ label: t('w2pay.pay.board.ctx.on'), value: t('w2pay.pay.board.ctx.count', { count: onTheWay.length }) }]}

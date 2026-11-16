@@ -1,6 +1,7 @@
 import { moneyInUnit } from '../../i18n/money';
 import type { CommandCenter, Tile } from './model';
 import type { RankingRow, Rankings, WarningItem } from './warning-model';
+import { formatPercent } from '../../i18n/format';
 
 type Raw = Record<string, unknown>;
 const isRecord = (value: unknown): value is Raw => typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -13,12 +14,10 @@ export function billionsOf(vnd: string | null, locale = 'vi'): string | null {
   return moneyInUnit(vnd, 'billion', { locale, fixed: true });
 }
 
-/** A percent as the screen reads it ("60,00"): two decimals, the decimal sign of the language. Null when there is no figure. */
+/** The figure of a percent as the screen reads it ("60", "96,54"), WITHOUT the sign: the shared `formatPercent` (two decimals at most, the decimal sign of the language). Null when there is no figure. */
 export function percentOf(value: string | null, locale = 'vi'): string | null {
-  if (value === null) return null;
-  const number = Number(value);
-  if (!Number.isFinite(number)) return null;
-  return new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
+  if (value === null || !/^-?\d+(?:\.\d+)?$/.test(value.trim())) return null;
+  return formatPercent(value, 2, locale === 'en' ? 'en' : 'vi').replace('%', '');
 }
 
 /** The tile of a metric, when the snapshot has it. */

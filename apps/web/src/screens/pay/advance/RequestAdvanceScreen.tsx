@@ -17,6 +17,7 @@ import { EMPTY_REQUEST, describeRequestRefusal, requestBody, toRequested, valida
 import type { GuaranteeReason, RequestForm, RequestRefusal, Requested } from './request-model';
 import '../pay.css';
 import { StickyActions } from '../../../ui';
+import { percentText } from '../payment/model';
 
 type T = Translator['t'];
 
@@ -110,11 +111,11 @@ function RequestAdvanceContent({ route }: ScreenProps) {
   const capText = (): string => {
     const refusal = request.isError ? describeRequestRefusal(request.error) : undefined;
     if (refusal?.capVnd !== undefined && refusal.capVnd !== null) return money(refusal.capVnd);
-    if (done !== undefined) return done.capPct === null ? money(done.capVnd) : t('scr2.pay.request.cap.value', { cap: money(done.capVnd), pct: done.capPct });
+    if (done !== undefined) return done.capPct === null ? money(done.capVnd) : t('scr2.pay.request.cap.value', { cap: money(done.capVnd), pct: percentText(done.capPct) });
     if (form.contractId === '') return t('scr2.pay.request.chooseContract');
     const earlier = (advances.data ?? []).find((advance) => advance.status !== 'CANCELLED' && (form.partyId === '' || advance.party.id === form.partyId));
     if (earlier === undefined) return t('scr2.pay.request.cap.byServer');
-    return earlier.capPct === null ? money(earlier.capVnd) : t('scr2.pay.request.cap.value', { cap: money(earlier.capVnd), pct: earlier.capPct });
+    return earlier.capPct === null ? money(earlier.capVnd) : t('scr2.pay.request.cap.value', { cap: money(earlier.capVnd), pct: percentText(earlier.capPct) });
   };
   /** The advance guarantees of the chosen contract that are in force (CTR-05): number, issuer, amount and expiry. */
   const guaranteeText = (): string => {
@@ -153,7 +154,7 @@ function RequestAdvanceContent({ route }: ScreenProps) {
       </div>
       {done === undefined ? null : (
         <article className="card" role="status" data-testid="requested">
-          <p>{t('pay.request.done', { amount: money(done.amountVnd), cap: money(done.capVnd), pct: done.capPct ?? '' })}</p>
+          <p>{t('pay.request.done', { amount: money(done.amountVnd), cap: money(done.capVnd), pct: done.capPct === null ? '' : percentText(done.capPct) })}</p>
           {done.ruleAwaitingConfirmation ? (
             <p className="callout warning" data-testid="rule-waits">
               {t('pay.request.ruleWaits')}

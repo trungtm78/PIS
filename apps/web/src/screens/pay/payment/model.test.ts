@@ -127,7 +127,7 @@ describe('the model of the payment request (PAY-01, PAY-02, PAY-03, CTR-13)', ()
     expect(canCreate(undefined, 'FULL')).toBe(false);
     expect(STATUSES.filter(isEditable)).toEqual(['DRAFT', 'RETURNED']);
     expect(percentText('5.0000')).toBe('5');
-    expect(percentText('7.5000')).toBe('7.5');
+    expect(percentText('7.5000')).toBe('7,5');
     expect(percentText('12')).toBe('12');
   });
 

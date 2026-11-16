@@ -1,3 +1,4 @@
+import { formatPercent } from '../../../i18n/format';
 import type { components } from '@machvon/contracts';
 import type { Tone } from '../../../ui';
 import { dongText } from '../../../i18n/money';
@@ -57,7 +58,7 @@ export const expiryTone = (facet: NonNullable<SecurityRow['expiry_facet']>): Ton
 export const money = (value: number): string => (Number.isFinite(value) ? dongText(BigInt(Math.round(value))) : String(value));
 
 /** A share of a contract as the server gives it (a number with up to four decimals), said without a trailing zero. */
-export const shareText = (value: number): string => `${Number(value.toFixed(4))}%`;
+export const shareText = (value: number): string => formatPercent(value, 4);
 
 /** The gap between the required amount and the lodged one; zero when the security meets it or none is required. */
 export const shortfallOf = (row: Pick<SecurityRow, 'amount' | 'required_amount'>): number => (row.required_amount === null ? 0 : Math.max(0, row.required_amount - row.amount));

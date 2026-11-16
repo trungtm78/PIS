@@ -84,8 +84,8 @@ describe('LeaderDashboardScreen (PWA-03): the command center on the phone', () =
     const pm = rates.querySelector('[data-rate="pm"]') as HTMLElement;
     const total = rates.querySelector('[data-rate="total"]') as HTMLElement;
     expect(pm.parentElement).toBe(total.parentElement);
-    expect(within(pm).getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.0000%');
-    expect(within(total).getByTestId('tile-value-DISBURSEMENT_RATE_TOTAL').textContent).toBe('48.0000%');
+    expect(within(pm).getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60%');
+    expect(within(total).getByTestId('tile-value-DISBURSEMENT_RATE_TOTAL').textContent).toBe('48%');
     // The unit of measure of the figures of money, and the waiting counts of the snapshot.
     expect(screen.getByTestId('home-kpis').textContent).toContain('3');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(word('pwa.dashboard.page.title'));

@@ -288,7 +288,7 @@ export function CashFlowCard({ snapshotId, unitId, year }: { snapshotId: string;
 
 const rate = (t: T, locale: string, row: RankingRow): string => {
   const percent = percentOf(row.ratePct, locale);
-  return percent === null ? t('home.tile.nullReason.noData') : t('home.tile.value.percent', { value: percent });
+  return percent === null ? t('home.tile.nullReason.noData') : `${percent}%`;
 };
 
 /** The first rows of the ranking of the units over the plan the Prime Minister gave; the full table is HOME-04. */

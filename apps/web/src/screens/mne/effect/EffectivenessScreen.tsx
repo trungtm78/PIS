@@ -15,6 +15,7 @@ import { STATE_GLYPH, anchorText, assessmentStatusText, assessmentStatusTone, co
 import { calendarByDue, measurementsNewestFirst, naReason, personName } from './model';
 import type { Assessment, CalendarEntry, CalendarResult, EffectView, FrozenLine, Indicator, Measurement, TargetSet } from './model';
 import './effect.css';
+import { formatPercent, percentOfText } from '../../../i18n/format';
 
 type Modal =
   | { kind: 'draft' }
@@ -253,7 +254,7 @@ function IndicatorTable({ view, set, withActual }: { view: EffectView; set: Targ
                     ) : (
                       <span>
                         {valueText(row.variance.varianceValue, row.unit)}
-                        <span className="eff-block">{row.variance.variancePct === null ? t('mr1.effect.na.known', { reason: naText(t, naReason(row.variance, 'variance')) }) : t('mr1.effect.pct', { value: row.variance.variancePct })}</span>
+                        <span className="eff-block">{row.variance.variancePct === null ? t('mr1.effect.na.known', { reason: naText(t, naReason(row.variance, 'variance')) }) : percentOfText(row.variance.variancePct)}</span>
                       </span>
                     )}{' '}
                     <RuleInfo policy={policy} asOf={view.asOf} name={t('mr1.effect.info.variance', { code: row.code })} />
@@ -266,7 +267,7 @@ function IndicatorTable({ view, set, withActual }: { view: EffectView; set: Targ
                 align: 'right' as const,
                 render: (row: Indicator) => (
                   <span>
-                    {row.variance.achievementPct === null ? <span className="muted">{t('mr1.effect.na.known', { reason: naText(t, naReason(row.variance, 'achievement')) })}</span> : <strong>{t('mr1.effect.pct', { value: row.variance.achievementPct })}</strong>}{' '}
+                    {row.variance.achievementPct === null ? <span className="muted">{t('mr1.effect.na.known', { reason: naText(t, naReason(row.variance, 'achievement')) })}</span> : <strong>{percentOfText(row.variance.achievementPct)}</strong>}{' '}
                     <RuleInfo policy={policy} asOf={view.asOf} name={t('mr1.effect.info.achievement', { code: row.code })} />
                   </span>
                 ),
@@ -324,7 +325,7 @@ function FixedSection({ view }: { view: EffectView }) {
             <SetAudit set={fixed} />
           </div>
           <p className="muted" data-testid="band-rule">
-            {view.policy.metAtPct === null || view.policy.partlyAtPct === null ? t('mr1.effect.band.rule.unknown') : t('mr1.effect.band.rule', { met: view.policy.metAtPct, partly: view.policy.partlyAtPct })}
+            {view.policy.metAtPct === null || view.policy.partlyAtPct === null ? t('mr1.effect.band.rule.unknown') : t('mr1.effect.band.rule', { met: formatPercent(view.policy.metAtPct).replace('%', ''), partly: formatPercent(view.policy.partlyAtPct).replace('%', '') })}
           </p>
           <IndicatorTable view={view} set={fixed} withActual />
         </>
@@ -480,14 +481,14 @@ function FrozenLines({ view, lines }: { view: EffectView; lines: readonly Frozen
           { key: 'code', header: t('mr1.effect.col.indicator'), render: (row) => <code>{row.code}</code> },
           { key: 'target', header: t('mr1.effect.col.target'), align: 'right', render: (row) => t('mr1.effect.valueUnit', { value: row.targetValue, unit: row.unit }) },
           { key: 'actual', header: t('mr1.effect.col.actual'), align: 'right', render: (row) => (row.actualValue === null ? t('mr1.effect.actual.none') : t('mr1.effect.valueUnit', { value: row.actualValue, unit: row.unit })) },
-          { key: 'variance', header: t('mr1.effect.col.variance'), align: 'right', render: (row) => (row.variancePct === null ? t('mr1.effect.na.short') : t('mr1.effect.pct', { value: row.variancePct })) },
+          { key: 'variance', header: t('mr1.effect.col.variance'), align: 'right', render: (row) => (row.variancePct === null ? t('mr1.effect.na.short') : percentOfText(row.variancePct)) },
           {
             key: 'achievement',
             header: t('mr1.effect.col.achievement'),
             align: 'right',
             render: (row) => (
               <span>
-                {row.achievementPct === null ? t('mr1.effect.na.short') : t('mr1.effect.pct', { value: row.achievementPct })} <RuleInfo policy={view.policy} asOf={view.asOf} name={t('mr1.effect.info.achievement', { code: row.code })} />
+                {row.achievementPct === null ? t('mr1.effect.na.short') : percentOfText(row.achievementPct)} <RuleInfo policy={view.policy} asOf={view.asOf} name={t('mr1.effect.info.achievement', { code: row.code })} />
               </span>
             ),
           },

@@ -52,7 +52,7 @@ describe('QualityRulesScreen (DGV-06): quality rules (UI-DGV-06)', () => {
       vi_['dgv.quality.dimension.completeness.text'],
       'project_id',
       'not_null project_id',
-      `99.500000%${vi_['dgv.rules.threshold.warn'].replace('{value}', '98.000000')}`,
+      `99,5%${vi_['dgv.rules.threshold.warn'].replace('{value}', '98')}`,
       `${vi_['dgv.quality.action.quarantine.text']}${vi_['dgv.quality.severity.medium.text']}`,
       '3',
       vi_['dgv.quality.ruleStatus.approved.text'],

@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import { formatPercent } from '../../i18n/format';
 import { isVnd, vndOfMillions } from './model';
 import { BUCKETS } from './plan-model';
 import type { ScheduleBucket } from './plan-model';
@@ -97,9 +98,17 @@ export function yearTotal(rows: readonly MonthRow[]): { registeredVnd: string; d
   return { registeredVnd: registered, disbursedVnd: disbursed, rate: rateOf(disbursed, registered) };
 }
 
-/** The rate as a percentage in the language of the person ("0.3750" is 37,50 %); only for display, the rate itself stays the exact text. */
+/**
+ * The rate as a percentage in the language of the person ("0.3750" is 37,5%), written by the shared formatter; only for display, the rate itself stays the exact text. The decimal point
+ * is moved two places on the digits of the text, so no float is made of the rate.
+ */
 export function ratePercent(rate: string, locale: string): string {
-  return new Intl.NumberFormat(locale, { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(rate));
+  const match = /^(-?)(\d+)(?:\.(\d+))?$/.exec(rate.trim());
+  if (match === null) return rate;
+  const [, sign = '', whole = '', fraction = ''] = match;
+  const rest = fraction.slice(2);
+  const percent = `${sign}${whole}${fraction.slice(0, 2).padEnd(2, '0')}${rest === '' ? '' : `.${rest}`}`;
+  return formatPercent(percent, 2, locale.toLowerCase().startsWith('en') ? 'en' : 'vi');
 }
 
 /** The current registration of a key, when there is one: the form shows what the next save replaces. */

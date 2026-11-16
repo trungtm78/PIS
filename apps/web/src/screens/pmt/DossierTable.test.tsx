@@ -23,7 +23,7 @@ describe('DossierTable (PMT-01): the legal dossier of each project', () => {
     expect(first.getByText('DA-2026-001')).toBeTruthy();
     expect(first.getByText('Dự án số 1')).toBeTruthy();
     expect(first.getByText(vi_['pmt.dossier.required.text'].replace('{satisfied}', '1').replace('{required}', '2'))).toBeTruthy();
-    expect(first.getByText(vi_['pmt.dossier.readiness.text'].replace('{pct}', '50.00'))).toBeTruthy();
+    expect(first.getByText('50%')).toBeTruthy();
     expect((first.getByRole('progressbar') as HTMLProgressElement).value).toBe(50);
     expect(first.getByText('2').closest('.ui-pill')?.className).toContain('ui-tone-warning');
     expect(first.getByText(vi_['pmt.dossier.status.open.text'])).toBeTruthy();

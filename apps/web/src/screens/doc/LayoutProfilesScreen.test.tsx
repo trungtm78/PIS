@@ -66,7 +66,7 @@ describe('LayoutProfilesScreen (DOC-16)', () => {
     expect(within(ranges).getAllByText(vi_['doc.layout.ranges.mm'].replace('{range}', '20–25'))).toHaveLength(2);
     expect(within(ranges).getAllByText(vi_['doc.layout.ranges.pt'].replace('{range}', '12–13'))).toHaveLength(2);
     expect(within(ranges).getByText(vi_['doc.layout.ranges.pt'].replace('{range}', '11'))).toBeTruthy();
-    expect(within(ranges).getByText(vi_['doc.layout.ranges.seal.allowed'].replace('{target}', '33.3').replace('{tolerance}', '3'))).toBeTruthy();
+    expect(within(ranges).getByText(vi_['doc.layout.ranges.seal.allowed'].replace('{target}', '33,3').replace('{tolerance}', '3'))).toBeTruthy();
     const rows = within(await screen.findByTestId('profiles')).getAllByRole('row').slice(1);
     expect(rows).toHaveLength(2);
     expect(rows[0]?.textContent).toContain('ND30_A4_STANDARD');
@@ -104,7 +104,7 @@ describe('LayoutProfilesScreen (DOC-16)', () => {
       await user.selectOptions(within(form).getByLabelText(vi_['doc.layout.field.base.label']), profile(1).id);
       expect((within(form).getByLabelText(vi_['doc.layout.field.code.label']) as HTMLInputElement).value).toBe('ND30_A4_STANDARD');
       expect((within(form).getByLabelText(vi_['doc.layout.field.margin.label'].replace('{margin}', vi_['doc.layout.margin.left'])) as HTMLInputElement).value).toBe('30');
-      expect(within(form).getByTestId('seal-overlap').textContent).toBe(vi_['doc.layout.seal.overlap'].replace('{share}', '35.7'));
+      expect(within(form).getByTestId('seal-overlap').textContent).toBe(vi_['doc.layout.seal.overlap'].replace('{share}', '35,7'));
 
       const top = within(form).getByLabelText(vi_['doc.layout.field.margin.label'].replace('{margin}', vi_['doc.layout.margin.top']));
       await user.clear(top);
@@ -147,7 +147,7 @@ describe('LayoutProfilesScreen (DOC-16)', () => {
       const sealX = within(form).getByLabelText(vi_['doc.layout.field.box.label'].replace('{box}', vi_['doc.layout.box.seal']).replace('{side}', vi_['doc.layout.box.x']));
       await user.clear(sealX);
       await user.type(sealX, '10');
-      expect(within(form).getByTestId('seal-overlap').textContent).toBe(vi_['doc.layout.seal.overlap'].replace('{share}', '0.0'));
+      expect(within(form).getByTestId('seal-overlap').textContent).toBe(vi_['doc.layout.seal.overlap'].replace('{share}', '0'));
       await user.click(within(form).getByRole('button', { name: vi_['doc.layout.form.submit.action'] }));
       expect(await within(form).findByText(vi_['doc.layout.field.seal.error'])).toBeTruthy();
       await user.clear(sealX);

@@ -203,8 +203,8 @@ describe('EffectivenessScreen (MNE-11): reading', () => {
     expect(served.textContent).toContain(text('mr1.effect.actual.on', { day: '01/03/2027' }));
     expect(served.textContent).toContain('Household survey');
     expect(served.textContent).toContain(text('mr1.effect.valueUnit', { value: '-20', unit: '%' }));
-    expect(served.textContent).toContain(text('mr1.effect.pct', { value: '-25.00' }));
-    expect(served.textContent).toContain(text('mr1.effect.pct', { value: '50.00' }));
+    expect(served.textContent).toContain('-25%');
+    expect(served.textContent).toContain('50%');
     expect(served.textContent).toContain(text('mr1.effect.band.missed'));
     expect(served.getAttribute('data-band')).toBe('MISSED');
     expect((await rowOf('tr[data-indicator="WATER"]')).textContent).toContain(text('mr1.effect.band.met'));
@@ -238,7 +238,7 @@ describe('EffectivenessScreen (MNE-11): reading', () => {
     expect(power.textContent).toContain(text('mr1.effect.actual.none'));
     expect(power.textContent).toContain(text('mr1.effect.band.notMeasured'));
     expect(power.textContent).toContain(text('mr1.effect.na.known', { reason: text('mr1.effect.na.noMeasurement') }));
-    expect(power.textContent).not.toContain(text('mr1.effect.pct', { value: '0' }));
+    expect(power.textContent).not.toContain('0%');
     expect(power.textContent).not.toMatch(/(^|\D)0(\D|$)/);
   });
 

@@ -36,7 +36,7 @@ describe('ContractPartiesScreen (CTR-25): the members of a joint venture', () =>
     expect(rows()).toHaveLength(1);
     expect((screen.getByLabelText(label('ctr.parties.contractor.label', 1)) as HTMLSelectElement).value).toBe(LEAD);
     expect((screen.getByLabelText(label('ctr.parties.share.label', 1)) as HTMLInputElement).value).toBe('100');
-    expect(screen.getByTestId('share-total').textContent).toBe(vi_['ctr.parties.total.shareOk'].replace('{share}', '100.0000'));
+    expect(screen.getByTestId('share-total').textContent).toBe(vi_['ctr.parties.total.shareOk'].replace('{share}', '100'));
     expect(screen.getByTestId('work-total').textContent).toBe(vi_['ctr.parties.total.workOk'].replace('{amount}', '10.000.000.000'));
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(`HD-A-001 · ${vi_['ctr.parties.page.title']}`);
     // A contractor that is not verified is not offered; the one the contract has stays.
@@ -50,9 +50,9 @@ describe('ContractPartiesScreen (CTR-25): the members of a joint venture', () =>
     open(h);
     await ready();
     expect(rows()).toHaveLength(2);
-    expect(screen.getByTestId('share-total').textContent).toBe(vi_['ctr.parties.total.shareOk'].replace('{share}', '100.0000'));
+    expect(screen.getByTestId('share-total').textContent).toBe(vi_['ctr.parties.total.shareOk'].replace('{share}', '100'));
     set(label('ctr.parties.share.label', 2), '30');
-    expect(screen.getByTestId('share-total').textContent).toBe(vi_['ctr.parties.total.shareBad'].replace('{share}', '90.0000'));
+    expect(screen.getByTestId('share-total').textContent).toBe(vi_['ctr.parties.total.shareBad'].replace('{share}', '90'));
     save();
     expect(h.command).not.toHaveBeenCalled();
     set(label('ctr.parties.share.label', 2), '40');

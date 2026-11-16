@@ -1,3 +1,4 @@
+import { formatPercent } from '../../i18n/format';
 import { useState } from 'react';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
@@ -30,8 +31,8 @@ function Figure({ kpi, value, t }: { kpi: Pick<Kpi, 'unit'>; value: number | nul
 
 function targetText(t: T, kpi: Kpi): string | null {
   if (kpi.target === null) return t('alertgov.health.target.none');
-  const value = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(kpi.target);
-  const unit = kpi.unit === 'HOURS' ? ` ${t('alertgov.unit.hours.text')}` : kpi.unit === 'PERCENT' ? '%' : '';
+  const value = kpi.unit === 'PERCENT' ? formatPercent(kpi.target) : new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 }).format(kpi.target);
+  const unit = kpi.unit === 'HOURS' ? ` ${t('alertgov.unit.hours.text')}` : '';
   return kpi.direction === 'MIN' ? t('alertgov.health.target.min', { value: `${value}${unit}` }) : t('alertgov.health.target.max', { value: `${value}${unit}` });
 }
 
@@ -76,7 +77,7 @@ function KpiCard({ kpi, health }: { kpi: Kpi; health: Health }) {
   );
 }
 
-const percent = (value: number | null): string => (value === null ? '—' : `${new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 }).format(value)}%`);
+const percent = (value: number | null): string => (value === null ? '—' : formatPercent(value));
 
 function HealthTables({ health }: { health: Health }) {
   const { t } = useTranslation();

@@ -3,14 +3,15 @@ import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { Field, Money, OriginBadge } from './components';
+import { Field, MillionsMoney, OriginBadge } from './components';
 import { useAppropriations } from './hooks';
 import { levelLabel } from './labels';
-import { millionsText, vndOfMillions, vndText } from './model';
+import { vndOfMillions, vndText } from './model';
 import { BackLink, PlanChooser, PlanHeader, SignedMoney, YearLockedBanner, usePlanChoice } from './plan-components';
 import { useDraftAllocation, usePlanLines, usePlans, useProjects } from './plan-hooks';
 import { bucketLabel, planProblemMessage, proposalProblemMessage } from './plan-labels';
@@ -132,7 +133,7 @@ function ProposalContent({ route }: ScreenProps) {
                 <option value="">{t('cap.form.choose.option')}</option>
                 {offered.map((line) => (
                   <option key={line.id} value={line.id}>
-                    {t('cap.proposal.source.option', { fund: line.fundSource.businessKey, year: line.planYear, remaining: millionsText(line.remainingVnd, locale) })}
+                    {t('cap.proposal.source.choice', { fund: line.fundSource.businessKey, year: line.planYear, remaining: compactMoney(line.remainingVnd, { locale }) })}
                   </option>
                 ))}
               </select>
@@ -158,11 +159,11 @@ function ProposalContent({ route }: ScreenProps) {
           </fieldset>
           {appropriation === undefined ? null : (
             <p className="cap-ceiling" role="status" data-testid="ceiling" data-exceeded={after !== undefined && after.startsWith('-') ? 'true' : 'false'}>
-              <OriginBadge origin={appropriation.origin} /> {levelLabel(t, appropriation.budgetLevel)} · {t('cap.proposal.remaining.label')} <Money vnd={appropriation.remainingVnd} />
+              <OriginBadge origin={appropriation.origin} /> {levelLabel(t, appropriation.budgetLevel)} · {t('cap.proposal.remaining.millions')} <MillionsMoney vnd={appropriation.remainingVnd} />
               {after === undefined ? null : (
                 <>
                   {' '}
-                  · {t('cap.proposal.after.label')} <SignedMoney vnd={after} />
+                  · {t('cap.proposal.after.millions')} <SignedMoney vnd={after} millions />
                 </>
               )}
             </p>

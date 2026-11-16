@@ -2,7 +2,7 @@ import { hasMessage } from '../../../i18n';
 import type { useTranslation } from '../../../i18n';
 import type { InfoFormulaLabels } from '../../../ui';
 import { statusText } from '../labels';
-import { camel } from './model';
+import { camel, percentText } from './model';
 import type { Definition, FigureValue } from './model';
 
 type Translate = ReturnType<typeof useTranslation>['t'];
@@ -70,6 +70,5 @@ export function definitionText(t: Translate, definition: Definition, part: 'form
 /** A figure of a concentration (a share, an index) as text: the value, or the reason it has none. */
 export function figureText(t: Translate, figure: FigureValue, kind: 'percent' | 'index', locale: string): string {
   if (figure.value === null) return figure.reason === null ? t('ca1.na.noRows') : reasonText(t, figure.reason);
-  const shown = locale === 'vi' ? figure.value.replace('.', ',') : figure.value;
-  return kind === 'percent' ? `${shown}%` : shown;
+  return kind === 'percent' ? percentText(figure.value, locale) : locale === 'vi' ? figure.value.replace('.', ',') : figure.value;
 }

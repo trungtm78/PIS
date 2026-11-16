@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
+import { compactMoney, fullMoney } from '../../../i18n/money';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
@@ -27,7 +28,7 @@ export default function ComponentsScreen({ route }: ScreenProps) {
 }
 
 function ComponentsContent({ route }: ScreenProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { permissions, mode } = useSession();
   const { projectId, choose } = useProjectParam({ fallbackToFirst: true });
   const projects = useProjects();
@@ -55,8 +56,8 @@ function ComponentsContent({ route }: ScreenProps) {
         <StateBoundary state={state} onRetry={() => void list.refetch()}>
           {list.data === undefined ? null : (
             <>
-              <p data-testid="wbs-total">
-                <strong>{t('prj.wbs.total.label')}</strong> {t('prj.wbs.total.value', { wbs: money(list.data.wbsTotalVnd), total: money(list.data.projectTotalVnd) })}
+              <p data-testid="wbs-total" title={t('prj.wbs.total.value', { wbs: fullMoney(list.data.wbsTotalVnd, locale), total: fullMoney(list.data.projectTotalVnd, locale) })}>
+                <strong>{t('prj.wbs.total.label')}</strong> {t('prj.wbs.total.value', { wbs: compactMoney(list.data.wbsTotalVnd, { locale }), total: compactMoney(list.data.projectTotalVnd, { locale }) })}
               </p>
               {list.data.exceedsTotal ? (
                 <p className="callout warning" role="status" data-testid="exceeds-warning">

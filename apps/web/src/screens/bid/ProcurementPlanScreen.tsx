@@ -75,7 +75,7 @@ function ProcurementPlanContent({ route }: ScreenProps) {
           </Link>
         ) : null}
       </div>
-      <ScopeBar money updatedAt={plans.dataUpdatedAt} stale={plans.isRefetchError} />
+      <ScopeBar updatedAt={plans.dataUpdatedAt} stale={plans.isRefetchError} />
       <StateBoundary state={state} onRetry={() => void plans.refetch()}>
         <div data-testid="plans">
           <DataTable caption={t('bid.plans.page.title')} columns={columns} rows={plans.data ?? []} rowKey={(plan) => plan.id} rowAttrs={(plan) => ({ 'data-plan-id': plan.id })} />

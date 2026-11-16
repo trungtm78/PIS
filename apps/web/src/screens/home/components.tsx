@@ -9,6 +9,7 @@ import '../dis/dis.css';
 import { FigureInfo, FlagPills, figureShown, isWholeDong, noneText } from './figure-components';
 import { FORMULA_REFERENCE, SNAPSHOT_SCREEN_PATH, drillPathOf, figureText } from './model';
 import type { HomeProblem, QualityBadge, Tile } from './model';
+import { percentOfText } from '../../i18n/format';
 
 type T = Translator['t'];
 
@@ -49,7 +50,7 @@ export function MetricTile({ tile, rate }: { tile: Tile; rate?: 'pm' | 'total' }
             <Money value={tile.displayValue} data-testid={`tile-figure-${tile.metricCode}`} />
           ) : (
             <>
-              <span data-testid={`tile-figure-${tile.metricCode}`}>{figureText(tile)}</span>
+              <span data-testid={`tile-figure-${tile.metricCode}`}>{tile.unit === 'PERCENT' ? percentOfText(figureText(tile)).replace('%', '') : figureText(tile)}</span>
               {tile.unit === 'PERCENT' ? <span className="home-fig-unit">%</span> : tile.unit === 'VND' ? <span className="home-fig-unit"> {t('govc.home.unit.vnd')}</span> : null}
             </>
           )}

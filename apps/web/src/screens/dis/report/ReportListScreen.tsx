@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
-import { compactMoney } from '../../../i18n/money';
+import { compactMoney, fullMoney } from '../../../i18n/money';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
@@ -239,10 +239,11 @@ function Tiles({ kpi, scope }: { kpi: Kpi; scope: string }) {
     <KpiStrip label={t('dis.wr.kpi.label')}>
       <KpiTile label={t('dis.wr.kpi.reports')} value={String(kpi.reports)} sub={scope} />
       <KpiTile label={t('dis.wr.kpi.projects')} value={String(kpi.projects)} sub={scope} />
-      <KpiTile label={t('dis.wr.kpi.cumulative')} value={billionsOf(kpi.cumulativeVnd)} unit={t('dis.wr.kpi.unit')} sub={`${t('dis.wr.kpi.exact', { amount: formatVnd(kpi.cumulativeVnd) })} · ${scope}`} tone="info" />
+      <KpiTile label={t('dis.wr.kpi.cumulative')} value={billionsOf(kpi.cumulativeVnd)} valueTitle={fullMoney(kpi.cumulativeVnd)} unit={t('dis.wr.kpi.unit')} sub={`${t('dis.wr.kpi.exact', { amount: formatVnd(kpi.cumulativeVnd) })} · ${scope}`} tone="info" />
       <KpiTile
         label={t('dis.wr.kpi.ctmtqg')}
         value={billionsOf(kpi.ctmtqgVnd)}
+        valueTitle={fullMoney(kpi.ctmtqgVnd)}
         unit={t('dis.wr.kpi.unit')}
         sub={`${t('dis.wr.kpi.exact', { amount: formatVnd(kpi.ctmtqgVnd) })} · ${share === null ? CTMTQG_SHARE_DASH : t('dis.wr.kpi.share', { percent: share })}`}
         tone="success"

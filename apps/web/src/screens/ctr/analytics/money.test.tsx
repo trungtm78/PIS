@@ -231,14 +231,14 @@ describe('growth through changes by tier (R7)', () => {
     await waitFor(() => expect(screen.getByTestId('tier-split')).toBeTruthy());
     const table = within(screen.getByTestId('tier-split'));
     const tier1 = within(table.getByText(message('ca1.group.tier1')).closest('tr') as HTMLElement);
-    expect(tier1.getByText('0,20%')).toBeTruthy();
+    expect(tier1.getByText('0,2%')).toBeTruthy();
     expect(tier1.getByText('33,33%')).toBeTruthy();
     const tier3 = within(table.getByText(message('ca1.group.tier3')).closest('tr') as HTMLElement);
     expect(tier3.getByText(message('ca1.na.noChange'))).toBeTruthy();
-    expect(tier3.queryByText('0,00%')).toBeNull();
+    expect(tier3.queryByText('0%')).toBeNull();
     const total = within(document.querySelector('[data-testid="tier-split"] tfoot') as HTMLElement);
     expect(total.getByText('60 triệu đồng').getAttribute('title')).toBe('60.000.000 đồng');
-    expect(total.getByText('0,60%')).toBeTruthy();
+    expect(total.getByText('0,6%')).toBeTruthy();
     expect(table.getByRole('button', { name: message('ca1.info.open', { name: message('ca1.indicator.changeTierGrowth.name') }) })).toBeTruthy();
   });
 

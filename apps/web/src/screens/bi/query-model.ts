@@ -2,6 +2,7 @@ import { ApiError } from '@machvon/api-client';
 import { compactMoney, dongText } from '../../i18n/money';
 import { badgeOf } from './dataset-model';
 import type { Badge } from './dataset-model';
+import { formatPercent } from '../../i18n/format';
 
 export const QUERY_PERMISSION = 'bi.query';
 export const WORKBENCH_PATH = '/bi/bi-09';
@@ -118,7 +119,7 @@ const grouped = (digits: string, locale: string): string => new Intl.NumberForma
 export function formatFigure(figure: Figure, unit: string, locale: string, words: { noData: string; notApplicable: string }, form: 'short' | 'exact' = 'short'): string {
   if (figure.value === null) return figure.nullReason === 'NOT_APPLICABLE' ? words.notApplicable : words.noData;
   if (unit === 'index') return new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(figure.value));
-  if (unit === 'percent') return `${new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(figure.value))}%`;
+  if (unit === 'percent') return formatPercent(figure.value, 2, locale === 'en' ? 'en' : 'vi');
   return /^-?\d+$/.test(figure.value) ? (unit === 'VND' ? (form === 'exact' ? `${dongText(figure.value, locale)} ₫` : compactMoney(figure.value, { locale })) : grouped(figure.value, locale)) : figure.value;
 }
 

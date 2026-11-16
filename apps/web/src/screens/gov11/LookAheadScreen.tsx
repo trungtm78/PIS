@@ -5,7 +5,7 @@ import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StatusPill } from '../../ui';
-import { Figure, Frame, PickId, UUID_PATTERN, UnverifiedNote, asList, asRecord, dayLabel, num, refusalCode, text, useGovCommand, useGovRead } from './gov11-kit';
+import { Figure, Frame, PickId, UUID_PATTERN, UnverifiedNote, asList, asRecord, dayLabel, num, percent, refusalCode, text, useGovCommand, useGovRead } from './gov11-kit';
 import type { RuleReading } from './gov11-kit';
 import { ConstraintFormBox, PlanCreateForm } from './LookAheadForms';
 import { defaultWeekStart, vietnamDay } from './lookahead-form';
@@ -177,7 +177,7 @@ function PlanBoard({ data, projectId, onOpen, onCreated }: PlanProps) {
         </p>
       )}
       <div className="gov11-row">
-        <Figure label={t('gov11.lookAhead.ppc')} value={ppc.pct === null ? '–' : `${text(ppc.pct)}%`} tone={BAND_TONE[text(ppc.band, 'NO_DATA')] ?? 'neutral'} sub={bandLabel(text(ppc.band, 'NO_DATA'))} rule={rule} fallbackFormula={t('gov11.lookAhead.ppc.formula')} owner={t('gov11.lookAhead.owner')} asOf={asOf} />
+        <Figure label={t('gov11.lookAhead.ppc')} value={percent(ppc.pct)} tone={BAND_TONE[text(ppc.band, 'NO_DATA')] ?? 'neutral'} sub={bandLabel(text(ppc.band, 'NO_DATA'))} rule={rule} fallbackFormula={t('gov11.lookAhead.ppc.formula')} owner={t('gov11.lookAhead.owner')} asOf={asOf} />
         <Figure label={t('gov11.lookAhead.window')} value={t('gov11.lookAhead.weeks', { weeks: text(plan.horizon_weeks) })} sub={`${dayLabel(plan.week_start)} – ${dayLabel(plan.window_end)}`} rule={rule} fallbackFormula={t('gov11.lookAhead.window.formula')} owner={t('gov11.lookAhead.owner')} asOf={asOf} />
         <Figure label={t('gov11.lookAhead.committed')} value={`${text(num(ppc.done))} / ${text(num(ppc.committed))}`} rule={rule} fallbackFormula={t('gov11.lookAhead.committed.formula')} owner={t('gov11.lookAhead.owner')} asOf={asOf} />
       </div>
@@ -324,7 +324,7 @@ function PlanBoard({ data, projectId, onOpen, onCreated }: PlanProps) {
             const weekPpc = asRecord(week.ppc);
             return (
               <li key={text(week.id)}>
-                {t('gov11.lookAhead.historyLine', { week: dayLabel(week.week_start), pct: weekPpc.pct === null ? '–' : `${text(weekPpc.pct)}%`, band: bandLabel(text(weekPpc.band, 'NO_DATA')) })}
+                {t('gov11.lookAhead.historyLine', { week: dayLabel(week.week_start), pct: percent(weekPpc.pct), band: bandLabel(text(weekPpc.band, 'NO_DATA')) })}
                 {text(week.id) !== text(plan.id) && (
                   <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`open-${text(week.id)}`} onClick={() => onOpen(text(week.id))}>
                     {t('gov11.lookAhead.history.open')}

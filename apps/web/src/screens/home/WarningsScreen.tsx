@@ -14,6 +14,7 @@ import './home.css';
 import { useHomeWarnings } from './warning-hooks';
 import { PROFILE_PATH, SEVERITIES, SEVERITY_GLYPH, observedAgainstExpected } from './warning-model';
 import type { Severity, WarningItem } from './warning-model';
+import { formatPercent } from '../../i18n/format';
 
 type T = Translator['t'];
 
@@ -85,7 +86,7 @@ export function SeverityBadge({ severity }: { severity: Severity }) {
 export function ObservedText({ item }: { item: WarningItem }) {
   const { t } = useTranslation();
   const pair = observedAgainstExpected(item.observed);
-  return <span>{pair === null ? t('home.warnings.observed.none') : t('home.warnings.observed.text', { observed: pair.observed, expected: pair.expected })}</span>;
+  return <span>{pair === null ? t('home.warnings.observed.none') : t('home.warnings.observed.text', { observed: formatPercent(pair.observed).replace('%', ''), expected: formatPercent(pair.expected).replace('%', '') })}</span>;
 }
 
 /**

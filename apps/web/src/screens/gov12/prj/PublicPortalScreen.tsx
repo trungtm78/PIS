@@ -5,10 +5,10 @@ import type { Translator } from '../../../i18n';
 import type { WebRoute } from '../../../routes/types';
 import { StateBoundary } from '../../../states/StateBoundary';
 import type { ScreenState } from '../../../states/StateBoundary';
-import { SectionCard } from '../../../ui';
+import { Money, SectionCard } from '../../../ui';
 import { InfoFormula } from '../../../ui';
 import type { InfoFormulaLabels } from '../../../ui';
-import { REPORT_CATEGORIES, dayText, dongText, word } from './prjModel';
+import { REPORT_CATEGORIES, dayText, word } from './prjModel';
 import type { PublicOc4ids, PublicPortalInfo, PublicProject, PublicProjects, ReportStatus, SubmittedReport } from './prjModel';
 import './prj.css';
 
@@ -76,7 +76,7 @@ function Info({ info }: { info: PublicPortalInfo }) {
 function FieldValue({ name, value }: { name: string; value: string | number | null }) {
   const { t } = useTranslation();
   if (value === null) return <>–</>;
-  if (name === 'budget_vnd') return <>{t('prj.public.value.dong', { amount: dongText(value) })}</>;
+  if (name === 'budget_vnd') return <Money value={String(value)} />;
   if (name === 'sector') return <>{t(`prj.portal.sector.${word(String(value))}`)}</>;
   if (name === 'project_type') return <>{t(`prj.portal.type.${word(String(value))}`)}</>;
   if (name === 'purpose') return <>{t(`prj.portal.purpose.${word(String(value))}`)}</>;

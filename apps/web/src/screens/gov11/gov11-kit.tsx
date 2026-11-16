@@ -4,12 +4,14 @@ import type { FormEvent, ReactNode } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useTranslation } from '../../i18n';
-import { dongText } from '../../i18n/money';
+import { formatPercent, percentOfText } from '../../i18n/format';
+import { compactMoney, dongText, fullMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { ContextBar, InfoFormula, KpiTile } from '../../ui';
+import { ContextBar, InfoFormula, KpiTile, Money } from '../../ui';
+import { percentFigure } from '../percent-figure';
 import type { InfoFormulaLabels } from '../../ui';
 import './gov11.css';
 
@@ -33,7 +35,22 @@ export function money(value: unknown): string {
   return dongText(value);
 }
 
-export const percent = (value: unknown): string => (typeof value === 'string' && value !== '' ? `${value}%` : '–');
+/** An amount in the short form of the shared formatter ("1,23 tỷ đồng") for a tile, which takes only a text; no amount is a dash. */
+export const shortMoney = (value: unknown): string => (typeof value === 'string' && value !== '' ? compactMoney(value) : '–');
+
+/** The exact dong of a short amount, for the tooltip of its tile. */
+export const exactMoney = (value: unknown): string | undefined => (typeof value === 'string' && value !== '' ? fullMoney(value) : undefined);
+
+/** An amount of a summary table in the short form, the exact dong one hover away. */
+export function ShortMoney({ value }: { value: unknown }) {
+  return <Money value={typeof value === 'string' ? value : null} none="–" />;
+}
+
+/** A percent by the shared rule (two decimals at most, the mark of the language); no figure is a dash. */
+export const percent = (value: unknown): string => (typeof value === 'string' && value !== '' ? percentOfText(value) : typeof value === 'number' ? formatPercent(value) : '–');
+
+/** A difference in percentage points: the figure of the shared rule without the sign, since the word "points" follows it. */
+export const pointsFigure = (value: unknown): string => ((typeof value === 'string' && value !== '') || typeof value === 'number' ? percentFigure(value) : '–');
 
 /** A Vietnam day and time as the person reads it. */
 export function stamp(iso: unknown): string | undefined {
@@ -106,15 +123,17 @@ export function Info({ name, rule, fallbackFormula, owner, asOf }: InfoProps) {
 export interface FigureProps extends Omit<InfoProps, 'name'> {
   label: string;
   value: string;
+  /** The exact amount of a short figure: the tooltip of the value. */
+  valueTitle?: string | undefined;
   tone?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'neutral';
   sub?: ReactNode;
 }
 
 /** A tile with its number, and the "i" next to the label: no figure without its definition. */
-export function Figure({ label, value, tone, sub, ...info }: FigureProps) {
+export function Figure({ label, value, valueTitle, tone, sub, ...info }: FigureProps) {
   return (
     <div className="gov11-figure">
-      <KpiTile label={label} value={value} {...(tone === undefined ? {} : { tone })} {...(sub === undefined ? {} : { sub })} />
+      <KpiTile label={label} value={value} {...(valueTitle === undefined ? {} : { valueTitle })} {...(tone === undefined ? {} : { tone })} {...(sub === undefined ? {} : { sub })} />
       <span className="gov11-figure__info">
         <Info name={label} {...info} />
       </span>

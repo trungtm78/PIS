@@ -38,10 +38,10 @@ describe('ForecastEntryScreen (CAP-13): the entry of the estimated disbursement'
     expect(rows[0]?.querySelector('[data-testid="assumption"]')?.textContent).toBe('Nghiệm thu khối lượng đợt 3');
     expect(rows[1]?.getAttribute('data-month')).toBe('12');
     expect(rows[1]?.textContent).toContain('2');
-    for (const key of ['cap.estimate.column.month', 'cap.estimate.column.amount', 'cap.estimate.column.assumption'] as const)
+    for (const key of ['cap.estimate.column.month', 'cap.estimate.col.amount', 'cap.estimate.column.assumption'] as const)
       expect(within(table).getByRole('columnheader', { name: word(key) })).toBeTruthy();
     expect(screen.getByRole('form', { name: word('cap.estimate.form.title') })).toBeTruthy();
-    expect((await screen.findByTestId('eac-estimate')).textContent).toBe('650');
+    expect((await screen.findByTestId('eac-estimate')).textContent).toBe('650 triệu đồng (650.000.000 đồng)');
     expect(screen.getByTestId('back-to-plan').getAttribute('href')).toBe(`/cap/cap-12?project=${PROJECT_A}&year=${YEAR}`);
     expect(allReadsOf(h, 'listDisbursementSchedules')[0]?.[1]).toEqual({ query: { project_id: PROJECT_A, plan_year: Number(YEAR), granularity: 'MONTH' } });
   });
@@ -61,7 +61,7 @@ describe('ForecastEntryScreen (CAP-13): the entry of the estimated disbursement'
         },
       },
     );
-    expect((await screen.findByTestId('eac-estimate')).textContent).toBe('650');
+    expect((await screen.findByTestId('eac-estimate')).textContent).toBe('650 triệu đồng (650.000.000 đồng)');
     fireEvent.click(await screen.findByRole('button', { name: word('cap.estimate.change.action').replace('{month}', '11') }));
     expect((screen.getByLabelText(word('cap.estimate.month.label')) as HTMLSelectElement).value).toBe('11');
     expect((screen.getByLabelText(word('cap.estimate.amount.label')) as HTMLInputElement).value).toBe('100');
@@ -89,7 +89,7 @@ describe('ForecastEntryScreen (CAP-13): the entry of the estimated disbursement'
       }),
     ]);
     expect((await screen.findByTestId('saved')).textContent).toBe(word('cap.estimate.save.done').replace('{revision}', '2'));
-    await waitFor(() => expect(screen.getByTestId('eac-estimate').textContent).toBe('700'));
+    await waitFor(() => expect(screen.getByTestId('eac-estimate').textContent).toBe('700 triệu đồng (700.000.000 đồng)'));
     // The form starts over for the next estimate.
     expect((screen.getByLabelText(word('cap.estimate.amount.label')) as HTMLInputElement).value).toBe('');
     expect(readsOf(h, 'getDisbursementForecast').length).toBeGreaterThan(1);

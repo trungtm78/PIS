@@ -46,7 +46,7 @@ describe('ExternalProgressScreen (LND-11): the progress of the stages, tracked f
     expect(external.getByTestId('executor').textContent).toBe(`Trung tâm phát triển quỹ đất (${vi_['lnd.executor.landFundCentre.label']})`);
     expect(external.getByTestId('mode').textContent).toBe(vi_['lnd.mode.trackedExternal.label']);
     expect(external.getByTestId('parcels').textContent).toBe('45 / 120');
-    expect(external.getByTestId('progress').textContent).toBe('37.50%');
+    expect(external.getByTestId('progress').textContent).toBe('37,5%');
     expect(external.getByText('2026-08-31')).toBeTruthy();
     expect(external.getByTestId('status').textContent).toBe(vi_['lnd.stageStatus.late.label']);
     expect(external.getByTestId('evidence').textContent).toBe(vi_['lnd.progress.evidence.text']);

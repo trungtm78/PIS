@@ -1,3 +1,4 @@
+import { percentOfText } from '../../i18n/format';
 import { useTranslation } from '../../i18n';
 import { DataTable } from '../../ui';
 import type { DataTableColumn } from '../../ui';
@@ -66,7 +67,7 @@ export function DossierTable({ dossiers, selectedId, onSelect }: DossierTablePro
       render: (dossier) => (
         <span className="pmt-readiness">
           <progress max={100} value={percentOf(dossier.readinessPct)} aria-label={t('pmt.dossier.readiness.aria', { code: dossier.projectCode })} />
-          <span>{t('pmt.dossier.readiness.text', { pct: dossier.readinessPct })}</span>
+          <span>{percentOfText(dossier.readinessPct)}</span>
         </span>
       ),
     },

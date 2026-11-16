@@ -589,10 +589,10 @@ describe('BI-04 builder of a chart (ST-BI-005, UAT-AC32)', () => {
     expect(within(result).getByTestId('label-snapshot').textContent).toBe(fill(vi_['bi.query.label.snapshot'], { id: SNAP.slice(0, 8) }));
     const table = within(result).getByTestId('group-table');
     const rows = within(table).getAllByRole('row');
-    expect(rows[1]?.textContent).toContain('25,00%');
+    expect(rows[1]?.textContent).toContain('25%');
     expect(rows[1]?.textContent).toContain('1000');
     expect(rows[1]?.textContent).toContain('4000');
-    expect(within(result).getByTestId('group-total').textContent).toContain('37,50%');
+    expect(within(result).getByTestId('group-total').textContent).toContain('37,5%');
     expect(within(result).getByTestId('group-total').textContent).toContain('3000');
     expect(within(result).getByTestId('group-total').textContent).toContain('8000');
     expect(within(result).getByRole('link', { name: vi_['bi.chart.toDashboard'] }).getAttribute('href')).toBe(`/bi/bi-03?metric=${RATE.id}&kind=BAR&dimension=unit`);
@@ -613,7 +613,7 @@ describe('BI-04 builder of a chart (ST-BI-005, UAT-AC32)', () => {
     await user.selectOptions(screen.getByLabelText(vi_['bi.chart.kind']), 'KPI');
     expect((screen.getByLabelText(vi_['bi.chart.dimension']) as HTMLSelectElement).disabled).toBe(true);
     await user.click(screen.getByRole('button', { name: vi_['bi.chart.draw'] }));
-    await waitFor(() => expect(screen.getByTestId('kpi-value').textContent).toBe('37,50%'));
+    await waitFor(() => expect(screen.getByTestId('kpi-value').textContent).toBe('37,5%'));
     expect(h.command.mock.calls.at(-1)?.[1]).toMatchObject({ body: { dimensions: [] } });
     await user.selectOptions(screen.getByLabelText(vi_['bi.chart.kind']), 'TABLE');
     await user.click(screen.getByRole('button', { name: vi_['bi.chart.draw'] }));
@@ -670,7 +670,7 @@ describe('BI-04 builder of a chart (ST-BI-005, UAT-AC32)', () => {
   it('turns the groups of an answer into points: the ones with a figure, in the order of the answer, named and written as the table writes them', () => {
     const result = toQueryResult(ratio({ children: [{ key: null, label: null, unclassified: true, value: '10', numerator: '1', denominator: '10', null_reason: null, drill_token: null }, ...ratio().children] })) as NonNullable<ReturnType<typeof toQueryResult>>;
     const words = { noData: 'n', notApplicable: 'a', unclassified: 'U' };
-    expect(pointsOf(result, 'vi-VN', words).map((point) => [point.label, point.value, point.text])).toEqual([['U', 10, '10,00%'], ['Unit A', 25, '25,00%'], ['Unit B', 50, '50,00%']]);
+    expect(pointsOf(result, 'vi-VN', words).map((point) => [point.label, point.value, point.text])).toEqual([['U', 10, '10%'], ['Unit A', 25, '25%'], ['Unit B', 50, '50%']]);
     const { container } = render1(<ChartView kind="PIE" result={toQueryResult(ratio({ children: [ratio().children[1]] })) as never} />);
     // One slice is a whole circle.
     expect(container.querySelectorAll('path[data-point]')).toHaveLength(1);

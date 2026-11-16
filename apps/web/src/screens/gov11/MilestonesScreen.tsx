@@ -2,7 +2,7 @@ import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StatusPill } from '../../ui';
-import { Figure, Frame, Info, UnverifiedNote, asList, asRecord, dayLabel, money, num, percent, text, useGovRead } from './gov11-kit';
+import { Figure, Frame, Info, ShortMoney, UnverifiedNote, asList, asRecord, dayLabel, exactMoney, num, percent, pointsFigure, shortMoney, text, useGovRead } from './gov11-kit';
 import type { RuleReading } from './gov11-kit';
 
 type Tone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
@@ -80,8 +80,8 @@ export default function MilestonesScreen({ route }: ScreenProps) {
                       owner={t('gov11.milestones.owner')}
                       asOf={asOf}
                     />
-                    <Figure label={t('gov11.milestones.gap')} value={summary.gap_pct === null ? '–' : `${text(summary.gap_pct)} ${t('gov11.common.points')}`} rule={rule} fallbackFormula={t('gov11.milestones.gap.formula')} owner={t('gov11.milestones.owner')} asOf={asOf} />
-                    <Figure label={t('gov11.milestones.plan')} value={money(summary.plan_total_vnd)} sub={t('gov11.common.unit')} rule={undefined} fallbackFormula={t('gov11.milestones.plan.formula')} owner={t('gov11.milestones.owner')} asOf={asOf} />
+                    <Figure label={t('gov11.milestones.gap')} value={summary.gap_pct === null ? '–' : `${pointsFigure(summary.gap_pct)} ${t('gov11.common.points')}`} rule={rule} fallbackFormula={t('gov11.milestones.gap.formula')} owner={t('gov11.milestones.owner')} asOf={asOf} />
+                    <Figure label={t('gov11.milestones.plan')} value={shortMoney(summary.plan_total_vnd)} valueTitle={exactMoney(summary.plan_total_vnd)} rule={undefined} fallbackFormula={t('gov11.milestones.plan.formula')} owner={t('gov11.milestones.owner')} asOf={asOf} />
                   </div>
                   <div className="gov11-scroll">
                     <table className="gov11-table">
@@ -90,14 +90,14 @@ export default function MilestonesScreen({ route }: ScreenProps) {
                         <tr>
                           <th scope="col">{t('gov11.milestones.col.investor')}</th>
                           <th scope="col" className="gov11-num">
-                            {t('gov11.milestones.col.plan')}
+                            {t('gov11.milestones.col.planShort')}
                           </th>
                           <th scope="col" className="gov11-num">
-                            {t('gov11.milestones.col.target')}
+                            {t('gov11.milestones.col.targetShort')}
                           </th>
                           <th scope="col" className="gov11-num">
-                            {t('gov11.milestones.col.projected')}
-                            <Info name={t('gov11.milestones.col.projected')} rule={rule} fallbackFormula={t('gov11.milestones.projected.formula')} owner={t('gov11.milestones.owner')} asOf={asOf} />
+                            {t('gov11.milestones.col.projectedShort')}
+                            <Info name={t('gov11.milestones.col.projectedShort')} rule={rule} fallbackFormula={t('gov11.milestones.projected.formula')} owner={t('gov11.milestones.owner')} asOf={asOf} />
                           </th>
                           <th scope="col" className="gov11-num">
                             {t('gov11.milestones.col.gap')}
@@ -113,10 +113,16 @@ export default function MilestonesScreen({ route }: ScreenProps) {
                           return (
                             <tr key={text(unit.id)} data-testid={`unit-${text(own.code)}`}>
                               <th scope="row">{text(own.name)}</th>
-                              <td className="gov11-num">{money(unit.plan_total_vnd)}</td>
-                              <td className="gov11-num">{money(unit.target_vnd)}</td>
-                              <td className="gov11-num">{unit.projected_vnd === null ? '–' : `${money(unit.projected_vnd)} (${percent(unit.projected_pct)})`}</td>
-                              <td className="gov11-num">{unit.gap_pct === null ? '–' : text(unit.gap_pct)}</td>
+                              <td className="gov11-num"><ShortMoney value={unit.plan_total_vnd} /></td>
+                              <td className="gov11-num"><ShortMoney value={unit.target_vnd} /></td>
+                              <td className="gov11-num">{unit.projected_vnd === null ? (
+                                  '–'
+                                ) : (
+                                  <>
+                                    <ShortMoney value={unit.projected_vnd} /> ({percent(unit.projected_pct)})
+                                  </>
+                                )}</td>
+                              <td className="gov11-num">{unit.gap_pct === null ? '–' : pointsFigure(unit.gap_pct)}</td>
                               <td>{coverageLabel(text(unit.coverage, 'NONE'))}</td>
                               <td>
                                 <StatusPill tone={TONE[status] ?? 'neutral'}>{statusLabel(status)}</StatusPill>

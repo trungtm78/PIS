@@ -15,6 +15,8 @@ import './forecast.css';
 import { useForecast } from './hooks';
 import { CHART, chartGeometry, describeForecast } from './model';
 import type { Coverage, CurvePoint, Estimate, Forecast, ProjectEstimate, Source } from './model';
+import { formatPercent } from '../../../i18n/format';
+import { fullMoney } from '../../../i18n/money';
 
 type T = Translator['t'];
 
@@ -23,9 +25,12 @@ const sourceLabel = (t: T, source: Source): string =>
 const coverageLabel = (t: T, coverage: Coverage): string => (coverage === 'COMPLETE' ? t('dis.forecast.coverage.complete') : coverage === 'PARTIAL' ? t('dis.forecast.coverage.partial') : t('dis.forecast.coverage.none'));
 
 /** What the estimate says about reallocation, in words: a candidate, not a candidate, or not enough to say. */
+/** The exact dong of a short amount, for the tooltip of its tile; nothing when there is no amount. */
+const exact = (value: string | null, signed = false): string | undefined => (value === null ? undefined : fullMoney(value, undefined, signed));
+
 function verdict(t: T, estimate: Estimate, threshold: number): { tone: Tone; text: string } {
-  if (estimate.reallocationCandidate === true) return { tone: 'warning', text: t('dis.forecast.candidate.yes', { pct: String(threshold) }) };
-  if (estimate.reallocationCandidate === false) return { tone: 'success', text: t('dis.forecast.candidate.no', { pct: String(threshold) }) };
+  if (estimate.reallocationCandidate === true) return { tone: 'warning', text: t('dis.forecast.candidate.yes', { pct: formatPercent(threshold).replace('%', '') }) };
+  if (estimate.reallocationCandidate === false) return { tone: 'success', text: t('dis.forecast.candidate.no', { pct: formatPercent(threshold).replace('%', '') }) };
   return { tone: 'neutral', text: estimate.eacVnd === null ? t('dis.forecast.candidate.noData') : t('dis.forecast.candidate.unknown') };
 }
 
@@ -150,10 +155,11 @@ function ForecastContent({ route }: ScreenProps) {
                 </p>
                 <div data-testid="forecast-tiles">
                   <KpiStrip label={t('dis.forecast.total.title', { year: String(first.planYear) })}>
-                    <KpiTile label={t('dis.forecast.tile.disbursedTreasury')} value={shortMoney(first.disbursedVnd)} />
+                    <KpiTile label={t('dis.forecast.tile.disbursedTreasury')} value={shortMoney(first.disbursedVnd)} valueTitle={exact(first.disbursedVnd)} />
                     <KpiTile
                       label={t('dis.forecast.tile.yearEnd')}
                       value={shortMoney(first.eacVnd)}
+                      valueTitle={exact(first.eacVnd)}
                       tone="info"
                       sub={
                         <span data-testid="forecast-coverage">
@@ -161,8 +167,8 @@ function ForecastContent({ route }: ScreenProps) {
                         </span>
                       }
                     />
-                    <KpiTile label={t('dis.forecast.tile.plan')} value={shortMoney(first.planTotalVnd)} />
-                    <KpiTile label={t('dis.forecast.tile.gapPlan')} value={shortMoney(first.gapVnd, true)} sub={first.ratioPct === null ? undefined : t('dis.forecast.ratio.text', { value: first.ratioPct })} />
+                    <KpiTile label={t('dis.forecast.tile.plan')} value={shortMoney(first.planTotalVnd)} valueTitle={exact(first.planTotalVnd)} />
+                    <KpiTile label={t('dis.forecast.tile.gapPlan')} value={shortMoney(first.gapVnd, true)} valueTitle={exact(first.gapVnd, true)} sub={first.ratioPct === null ? undefined : t('dis.forecast.ratio.text', { value: formatPercent(first.ratioPct).replace('%', '') })} />
                   </KpiStrip>
                 </div>
                 <dl className="w2dis-facts" data-testid="forecast-method">

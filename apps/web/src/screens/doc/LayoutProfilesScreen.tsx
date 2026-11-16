@@ -1,3 +1,4 @@
+import { percentFigure } from '../percent-figure';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
@@ -162,7 +163,7 @@ function ProfileDetail({ t, profile }: { t: T; profile: LayoutProfile }) {
         <div>
           <dt>{t('doc.layout.detail.seal')}</dt>
           <dd>
-            {boxText(t, sealBox)} · {t('doc.layout.seal.overlap', { share: (sealOverlapRatio(leaderBox, sealBox) * 100).toFixed(1) })}
+            {boxText(t, sealBox)} · {t('doc.layout.seal.overlap', { share: percentFigure(sealOverlapRatio(leaderBox, sealBox) * 100, 1) })}
           </dd>
         </div>
         <div>
@@ -276,7 +277,7 @@ function LayoutProfilesContent({ route }: ScreenProps) {
                   ))}
                   <tr>
                     <td>{t('doc.layout.ranges.seal.part')}</td>
-                    <td>{t('doc.layout.ranges.seal.allowed', { target: (SEAL_OVERLAP_TARGET * 100).toFixed(1), tolerance: (SEAL_OVERLAP_TOLERANCE * 100).toFixed(0) })}</td>
+                    <td>{t('doc.layout.ranges.seal.allowed', { target: percentFigure(SEAL_OVERLAP_TARGET * 100, 1), tolerance: percentFigure(SEAL_OVERLAP_TOLERANCE * 100, 0) })}</td>
                   </tr>
                 </tbody>
               </table>
@@ -409,7 +410,7 @@ function LayoutProfilesContent({ route }: ScreenProps) {
                       </div>
                     ))}
                     <p className="sub" data-testid="seal-overlap">
-                      {leader === undefined || seal === undefined ? NONE : t('doc.layout.seal.overlap', { share: (sealOverlapRatio(leader, seal) * 100).toFixed(1) })}
+                      {leader === undefined || seal === undefined ? NONE : t('doc.layout.seal.overlap', { share: percentFigure(sealOverlapRatio(leader, seal) * 100, 1) })}
                     </p>
                     {problems.boxes === undefined && problems.seal === undefined ? null : (
                       <p className="field-error" role="alert">

@@ -12,6 +12,7 @@ import { errorText, methodLabel } from './labels';
 import { appliedCount, billions, filtersOf, fullDay, shortDay, vietnamDay, vietnamTime } from './model';
 import type { Filters, StatisticsDto } from './model';
 import './workflow.css';
+import { formatPercent } from '../../../i18n/format';
 
 /**
  * BID-30, "Bottleneck analysis and report" (PRC-1): for the steps that packages left in the period, the median days and the share that finished within the standard; the packages that have been in their step longest; and
@@ -60,7 +61,7 @@ function BottleneckContent({ route }: ScreenProps) {
 
   const rows = data?.steps ?? [];
   const series = [{ label: t('prc1.analysis.chart.median'), style: 'actual' as const, points: rows.filter((row) => row.median_days !== null).map((row) => ({ x: row.step_name ?? row.step_code, y: row.median_days ?? 0 })) }];
-  const percent = (share: number | null): string => (share === null ? t('prc1.column.none.text') : `${(Math.round(share * 10_000) / 100).toLocaleString(locale, { maximumFractionDigits: 2 })}%`);
+  const percent = (share: number | null): string => (share === null ? t('prc1.column.none.text') : formatPercent(Math.round(share * 10_000) / 100));
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">

@@ -1,3 +1,4 @@
+import { formatPercent } from '../../i18n/format';
 import { useState } from 'react';
 import { ApiError } from '@machvon/api-client';
 import { Link } from 'react-router-dom';
@@ -75,7 +76,7 @@ function QueueContent({ route }: ScreenProps) {
     { key: 'type', header: t('gov10.feedback.stats.type'), pinned: true, render: (row) => row.alertType },
     { key: 'reports', header: t('gov10.feedback.stats.reports'), align: 'right', render: (row) => String(row.reports) },
     { key: 'shown', header: t('gov10.feedback.stats.shown'), align: 'right', render: (row) => String(row.shown) },
-    { key: 'share', header: t('gov10.feedback.stats.share'), align: 'right', render: (row) => (row.sharePct === null ? t('gov10.feedback.stats.noShare') : `${row.sharePct}%`) },
+    { key: 'share', header: t('gov10.feedback.stats.share'), align: 'right', render: (row) => (row.sharePct === null ? t('gov10.feedback.stats.noShare') : formatPercent(row.sharePct)) },
     { key: 'review', header: t('gov10.feedback.stats.review'), render: (row) => (row.needsReview ? <StatusPill tone="warning">{t('gov10.feedback.stats.needsReview')}</StatusPill> : '—') },
   ];
 

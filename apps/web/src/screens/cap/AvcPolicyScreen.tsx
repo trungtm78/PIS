@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
+import { percentOfText } from '../../i18n/format';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -51,7 +52,7 @@ export default function AvcPolicyScreen({ route }: ScreenProps) {
 }
 
 function AvcContent({ route }: ScreenProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { tenant, permissions, mode } = useSession();
   const frozen = mode === 'READ_ONLY';
   const holds = (permission: string): boolean => permissions === undefined || permissions.includes(permission);
@@ -114,9 +115,9 @@ function AvcContent({ route }: ScreenProps) {
       render: (row) => (
         <>
           <span>
-            {t('cap.avc.thresholds.text', {
-              warn: row.warnPct,
-              block: row.blockPct,
+            {t('cap.avc.thresholds.value', {
+              warn: percentOfText(row.warnPct, 2, locale),
+              block: percentOfText(row.blockPct, 2, locale),
             })}
           </span>
           <small className="sub">{row.includeReservations ? t('cap.avc.reservations.counted') : t('cap.avc.reservations.apart')}</small>
@@ -362,9 +363,9 @@ function AvcContent({ route }: ScreenProps) {
                 <div
                   className="avc-bar"
                   role="img"
-                  aria-label={t('cap.avc.bars.aria', {
-                    warn: form.warnPct,
-                    block: form.blockPct,
+                  aria-label={t('cap.avc.zones.aria', {
+                    warn: percentOfText(form.warnPct, 2, locale),
+                    block: percentOfText(form.blockPct, 2, locale),
                   })}
                 >
                   <span className="avc-zone avc-ok" style={{ width: `${bars.warn}%` }} />
@@ -372,14 +373,14 @@ function AvcContent({ route }: ScreenProps) {
                   <span className="avc-zone avc-block" style={{ width: `${Math.max(0, 100 - bars.block)}%` }} />
                 </div>
                 <ul className="avc-legend">
-                  <li>{t('cap.avc.bars.ok', { warn: form.warnPct })}</li>
+                  <li>{t('cap.avc.zones.ok', { warn: percentOfText(form.warnPct, 2, locale) })}</li>
                   <li>
-                    {t('cap.avc.bars.warn', {
-                      warn: form.warnPct,
-                      block: form.blockPct,
+                    {t('cap.avc.zones.warn', {
+                      warn: percentOfText(form.warnPct, 2, locale),
+                      block: percentOfText(form.blockPct, 2, locale),
                     })}
                   </li>
-                  <li>{t('cap.avc.bars.block', { block: form.blockPct })}</li>
+                  <li>{t('cap.avc.zones.block', { block: percentOfText(form.blockPct, 2, locale) })}</li>
                 </ul>
               </div>
               <div className="check">

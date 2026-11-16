@@ -33,36 +33,36 @@ describe('ForecastPlanScreen (CAP-12): the plan of estimated disbursement', () =
     await screen.findByTestId('total-forecast');
     const plan = screen.getByTestId('plan');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(word('cap.forecast.page.title'));
-    for (const key of ['cap.forecast.column.month', 'cap.forecast.column.forecast', 'cap.forecast.column.registered', 'cap.forecast.column.actual', 'cap.forecast.column.difference'] as const) {
+    for (const key of ['cap.forecast.column.month', 'cap.forecast.col.forecast', 'cap.forecast.col.registered', 'cap.forecast.col.actual', 'cap.forecast.col.difference'] as const) {
       expect(within(plan).getByRole('columnheader', { name: word(key) })).toBeTruthy();
     }
     expect(screen.getByTestId('promise').textContent).toBe(word('cap.forecast.note.promise.notice'));
     expect(plan.querySelectorAll('tbody tr')).toHaveLength(13);
     // October: 600 estimated, 800 registered, 300 paid; the estimate is 200 below the registration.
-    expect(within(month(10)).getByTestId('forecast').textContent).toBe('600');
-    expect(within(month(10)).getByTestId('registered').textContent).toBe('800');
-    expect(within(month(10)).getByTestId('actual').textContent).toBe('300');
-    expect(within(month(10)).getByTestId('difference').textContent).toBe('-200');
+    expect(within(month(10)).getByTestId('forecast').textContent).toBe('600 triệu đồng (600.000.000 đồng)');
+    expect(within(month(10)).getByTestId('registered').textContent).toBe('800 triệu đồng (800.000.000 đồng)');
+    expect(within(month(10)).getByTestId('actual').textContent).toBe('300 triệu đồng (300.000.000 đồng)');
+    expect(within(month(10)).getByTestId('difference').textContent).toBe('-200 triệu đồng (-200.000.000 đồng)');
     // November: two source groups of estimates are added; 150 over the 90 registered, nothing paid.
-    expect(within(month(11)).getByTestId('forecast').textContent).toBe('150');
-    expect(within(month(11)).getByTestId('difference').textContent).toBe('60');
-    expect(within(month(11)).getByTestId('actual').textContent).toBe('0');
+    expect(within(month(11)).getByTestId('forecast').textContent).toBe('150 triệu đồng (150.000.000 đồng)');
+    expect(within(month(11)).getByTestId('difference').textContent).toBe('60 triệu đồng (60.000.000 đồng)');
+    expect(within(month(11)).getByTestId('actual').textContent).toBe('0 đồng');
     // December has an estimate and no registration: no difference to speak of. A month with nothing says so.
-    expect(within(month(12)).getByTestId('forecast').textContent).toBe('150');
+    expect(within(month(12)).getByTestId('forecast').textContent).toBe('150 triệu đồng (150.000.000 đồng)');
     expect(within(month(12)).getByTestId('registered').textContent).toBe('—');
     expect(within(month(12)).getByTestId('difference').textContent).toBe('—');
     expect(within(month(3)).getByTestId('forecast').textContent).toBe('—');
-    expect(screen.getByTestId('total-forecast').textContent).toBe('900');
-    expect(screen.getByTestId('total-registered').textContent).toBe('890');
-    expect(screen.getByTestId('total-actual').textContent).toBe('300');
-    expect(screen.getByTestId('total-difference').textContent).toBe('10');
+    expect(screen.getByTestId('total-forecast').textContent).toBe('900 triệu đồng (900.000.000 đồng)');
+    expect(screen.getByTestId('total-registered').textContent).toBe('890 triệu đồng (890.000.000 đồng)');
+    expect(screen.getByTestId('total-actual').textContent).toBe('300 triệu đồng (300.000.000 đồng)');
+    expect(screen.getByTestId('total-difference').textContent).toBe('10 triệu đồng (10.000.000 đồng)');
     expect(month(13).querySelector('th')?.textContent).toBe(word('cap.schedule.month.adjustment.label'));
     // The year-end estimate comes from DIS for this project.
     expect(await screen.findByTestId('eac-estimate')).toBeTruthy();
-    expect(screen.getByTestId('eac-estimate').textContent).toBe('650');
-    expect(screen.getByTestId('eac-disbursed').textContent).toBe('400');
-    expect(screen.getByTestId('eac-plan').textContent).toBe('1.000');
-    expect(screen.getByTestId('eac-gap').textContent).toBe('-350');
+    expect(screen.getByTestId('eac-estimate').textContent).toBe('650 triệu đồng (650.000.000 đồng)');
+    expect(screen.getByTestId('eac-disbursed').textContent).toBe('400 triệu đồng (400.000.000 đồng)');
+    expect(screen.getByTestId('eac-plan').textContent).toBe('1 tỷ đồng (1.000.000.000 đồng)');
+    expect(screen.getByTestId('eac-gap').textContent).toBe('-350 triệu đồng (-350.000.000 đồng)');
     expect(screen.getByTestId('eac-coverage').textContent).toBe(word('dis.forecast.coverage.complete'));
     expect(readsOf(h, 'getDisbursementForecast')[0]?.[1]).toEqual({ query: { project_id: PROJECT_A } });
     expect(allReadsOf(h, 'listDisbursementSchedules')[0]?.[1]).toEqual({ query: { project_id: PROJECT_A, plan_year: Number(YEAR), granularity: 'MONTH' } });
@@ -133,7 +133,7 @@ describe('ForecastPlanScreen (CAP-12): the plan of estimated disbursement', () =
     show({ lines: LINES, estimate: problem(500, 'INTERNAL_ERROR') });
     await screen.findByTestId('total-forecast');
     expect(await within(screen.getByTestId('eac')).findByText(word('states.error.title'))).toBeTruthy();
-    expect(screen.getByTestId('total-forecast').textContent).toBe('900');
+    expect(screen.getByTestId('total-forecast').textContent).toBe('900 triệu đồng (900.000.000 đồng)');
   });
 
   it('shows the empty card in the estimate when DIS gives none for the project', async () => {

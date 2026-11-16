@@ -3,7 +3,7 @@ import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StatusPill } from '../../ui';
-import { Figure, Frame, Info, UnverifiedNote, asList, asRecord, dayLabel, money, num, percent, text, useGovRead } from './gov11-kit';
+import { Figure, Frame, Info, ShortMoney, UnverifiedNote, asList, asRecord, dayLabel, num, percent, pointsFigure, text, useGovRead } from './gov11-kit';
 import type { RuleReading } from './gov11-kit';
 
 /** The rule of the candidates and of the simulation as the API writes it (the policy of the day, with its provenance). */
@@ -72,8 +72,8 @@ export default function ReallocationImpactScreen({ route }: ScreenProps) {
                           <Info name={t('gov11.reallocation.col.ratio')} rule={rule} fallbackFormula={t('gov11.reallocation.ratio.formula')} owner={t('gov11.reallocation.owner')} asOf={asOf} />
                         </th>
                         <th scope="col" className="gov11-num">
-                          {t('gov11.reallocation.col.releasable')}
-                          <Info name={t('gov11.reallocation.col.releasable')} rule={rule} fallbackFormula={t('gov11.reallocation.releasable.formula')} owner={t('gov11.reallocation.owner')} asOf={asOf} />
+                          {t('gov11.reallocation.col.releasableShort')}
+                          <Info name={t('gov11.reallocation.col.releasableShort')} rule={rule} fallbackFormula={t('gov11.reallocation.releasable.formula')} owner={t('gov11.reallocation.owner')} asOf={asOf} />
                         </th>
                       </tr>
                     </thead>
@@ -82,7 +82,7 @@ export default function ReallocationImpactScreen({ route }: ScreenProps) {
                         <tr key={text(row.project_id)} data-testid={`donor-${text(row.project_id)}`}>
                           <th scope="row">{names.get(text(row.project_id)) ?? text(row.project_id)}</th>
                           <td className="gov11-num">{percent(row.ratio_pct)}</td>
-                          <td className="gov11-num">{money(row.releasable_vnd)}</td>
+                          <td className="gov11-num"><ShortMoney value={row.releasable_vnd} /></td>
                         </tr>
                       ))}
                     </tbody>
@@ -105,8 +105,8 @@ export default function ReallocationImpactScreen({ route }: ScreenProps) {
                           {t('gov11.reallocation.col.ratio')}
                         </th>
                         <th scope="col" className="gov11-num">
-                          {t('gov11.reallocation.col.demand')}
-                          <Info name={t('gov11.reallocation.col.demand')} rule={rule} fallbackFormula={t('gov11.reallocation.demand.formula')} owner={t('gov11.reallocation.owner')} asOf={asOf} />
+                          {t('gov11.reallocation.col.demandShort')}
+                          <Info name={t('gov11.reallocation.col.demandShort')} rule={rule} fallbackFormula={t('gov11.reallocation.demand.formula')} owner={t('gov11.reallocation.owner')} asOf={asOf} />
                         </th>
                       </tr>
                     </thead>
@@ -115,7 +115,7 @@ export default function ReallocationImpactScreen({ route }: ScreenProps) {
                         <tr key={text(row.project_id)} data-testid={`recipient-${text(row.project_id)}`}>
                           <th scope="row">{names.get(text(row.project_id)) ?? text(row.project_id)}</th>
                           <td className="gov11-num">{percent(row.ratio_pct)}</td>
-                          <td className="gov11-num">{money(row.demand_vnd)}</td>
+                          <td className="gov11-num"><ShortMoney value={row.demand_vnd} /></td>
                         </tr>
                       ))}
                     </tbody>
@@ -173,7 +173,7 @@ function Impact({ query, unitNames, names }: { query: ReturnType<typeof useGovRe
   const warnings = asList(asRecord(data.result).warnings);
   const delegation = asRecord(data.delegation);
   const asOf = dayLabel(data.as_of_date);
-  const delta = (value: unknown): string => (value === null || value === undefined ? '–' : `${text(value)} ${t('gov11.common.points')}`);
+  const delta = (value: unknown): string => (value === null || value === undefined ? '–' : `${pointsFigure(value)} ${t('gov11.common.points')}`);
   return (
     <div className="gov11-grid" data-testid="impact">
       <p data-testid="impact-frozen">{data.frozen === true ? t('gov11.reallocation.impact.frozen', { time: text(asRecord(data.record).recorded_at) }) : t('gov11.reallocation.impact.live')}</p>

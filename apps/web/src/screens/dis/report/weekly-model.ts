@@ -4,6 +4,7 @@ import { cellId } from './model';
 import type { ReportDetail, ReportLine, ReportStatus } from './model';
 import type { DecisionEntry } from './detail-parts';
 import { cellOfFinding } from './step-model';
+import { formatPercent } from '../../../i18n/format';
 
 /** The words of the screens of the weekly report that are neither a request nor a rule of the server: the deadline and the countdown, the progress of the period, the figures of the list, the status strip of the form and the receipt. */
 
@@ -103,12 +104,12 @@ export function totalsOfLines(lines: readonly ReportLine[]): { cumulativeVnd: st
   return { cumulativeVnd: cumulative.toString(), ctmtqgVnd: ctmtqg.toString() };
 }
 
-/** The share of the amount that is disbursed under the plan, in percent with one decimal; none when there is no plan to compare with. */
+/** The share of the amount that is disbursed under the plan: the figure of a percent with one decimal at most, written by the shared `formatPercent` without its sign; none when there is no plan to compare with. */
 export function ratioOf(partVnd: string, wholeVnd: string): string | null {
   const whole = BigInt(wholeVnd);
   if (whole === 0n) return null;
   const tenths = (BigInt(partVnd) * 1000n + whole / 2n) / whole;
-  return `${(tenths / 10n).toString()},${(tenths % 10n).toString()}`;
+  return formatPercent(`${(tenths / 10n).toString()}.${(tenths % 10n).toString()}`).replace('%', '');
 }
 
 export interface ReturnedView {

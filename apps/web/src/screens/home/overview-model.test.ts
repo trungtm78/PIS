@@ -25,7 +25,7 @@ describe('billionsOf', () => {
 
 describe('percentOf', () => {
   it('writes a percent with two decimals, and nothing for no figure', () => {
-    expect(percentOf('60.0000')).toBe('60,00');
+    expect(percentOf('60.0000')).toBe('60');
     expect(percentOf('17.1768')).toBe('17,18');
     expect(percentOf(null)).toBeNull();
     expect(percentOf('x')).toBeNull();

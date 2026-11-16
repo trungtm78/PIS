@@ -73,18 +73,20 @@ describe('PlanTrackingScreen (CAP-15): the tracking of a capital plan', () => {
     expect(h.read).toHaveBeenCalledWith('getCapitalPlanAsOf', { path: { id: ANNUAL_ID }, query: {} });
     // DA-01 was given 5 billion first and reduced by 0.8; DA-02 was added with the 0.8; the total did not move.
     const first = rowOf('DA-01');
-    expect(within(first).getByTestId('initial').textContent).toBe('5.000');
-    expect(within(first).getByTestId('adjustment').textContent).toBe('-800');
-    expect(within(first).getByTestId('current').textContent).toBe('4.200');
-    expect(within(first).getByTestId('disbursed').textContent).toBe('2.000');
+    expect(within(first).getByTestId('initial').textContent).toBe('5 tỷ đồng (5.000.000.000 đồng)');
+    expect(within(first).getByTestId('adjustment').textContent).toBe('-800 triệu đồng (-800.000.000 đồng)');
+    expect(within(first).getByTestId('current').textContent).toBe('4,2 tỷ đồng (4.200.000.000 đồng)');
+    expect(within(first).getByTestId('disbursed').textContent).toBe('2 tỷ đồng (2.000.000.000 đồng)');
     expect(within(first).getByTestId('decision').textContent).toContain('88/QD-UBND');
     const second = rowOf('DA-02');
-    expect(within(second).getByTestId('initial').textContent).toBe('0');
-    expect(within(second).getByTestId('adjustment').textContent).toBe('800');
-    expect(within(second).getByTestId('current').textContent).toBe('800');
-    expect(screen.getByTestId('total-initial').textContent).toBe('5.000');
-    expect(screen.getByTestId('total-adjustment').textContent).toBe('0');
-    expect(screen.getByTestId('total-current').textContent).toBe('5.000');
+    expect(within(second).getByTestId('initial').textContent).toBe('0 đồng');
+    expect(within(second).getByTestId('adjustment').textContent).toBe('800 triệu đồng (800.000.000 đồng)');
+    expect(within(second).getByTestId('current').textContent).toBe('800 triệu đồng (800.000.000 đồng)');
+    expect(screen.getByTestId('total-initial').textContent).toBe('5 tỷ đồng (5.000.000.000 đồng)');
+    expect(screen.getByTestId('total-adjustment').textContent).toBe('0 đồng');
+    expect(screen.getByTestId('total-current').textContent).toBe('5 tỷ đồng (5.000.000.000 đồng)');
+    // Every figure carries its own unit: no unit chip is declared over them.
+    expect(screen.queryByText('ĐVT: Triệu đồng')).toBeNull();
   });
 
   it('reads the plan as of a day: 30/6 gives the first revision with its decision, 2/7 the second (AC-ST-CAP-004-1)', async () => {
@@ -93,12 +95,12 @@ describe('PlanTrackingScreen (CAP-15): the tracking of a capital plan', () => {
     chooseDay('2026-06-30');
     await waitFor(() => expect(screen.getByTestId('tracking').getAttribute('data-revision')).toBe('1'));
     expect(h.read).toHaveBeenCalledWith('getCapitalPlanAsOf', { path: { id: ANNUAL_ID }, query: { at: '2026-06-30' } });
-    expect(within(rowOf('DA-01')).getByTestId('current').textContent).toBe('5.000');
+    expect(within(rowOf('DA-01')).getByTestId('current').textContent).toBe('5 tỷ đồng (5.000.000.000 đồng)');
     expect(within(rowOf('DA-01')).getByTestId('decision').textContent).toContain('12/QD-UBND');
     expect(document.querySelectorAll('tbody tr')).toHaveLength(1);
     chooseDay('2026-07-02');
     await waitFor(() => expect(screen.getByTestId('tracking').getAttribute('data-revision')).toBe('2'));
-    expect(within(rowOf('DA-01')).getByTestId('current').textContent).toBe('4.200');
+    expect(within(rowOf('DA-01')).getByTestId('current').textContent).toBe('4,2 tỷ đồng (4.200.000.000 đồng)');
     expect(within(rowOf('DA-01')).getByTestId('decision').textContent).toContain('88/QD-UBND');
     // Back to an empty day: the plan as it stands now.
     chooseDay('');

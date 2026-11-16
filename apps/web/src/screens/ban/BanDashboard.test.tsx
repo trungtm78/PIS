@@ -40,8 +40,8 @@ describe('BAN-01, the workspace of the head of the committee', () => {
     const province = screen.getByTestId('province');
     expect(within(province).getByTestId('province-plan').textContent).toBe('1.000 tỷ đồng (1.000.000.000.000 đồng)');
     expect(within(province).getByTestId('province-disbursed').textContent).toBe('600 tỷ đồng (600.000.000.000 đồng)');
-    expect(within(province).getByTestId('province-rate').textContent).toBe('60,00%');
-    expect(within(province).getByTestId('province-expected').textContent).toBe('64,00%');
+    expect(within(province).getByTestId('province-rate').textContent).toBe('60%');
+    expect(within(province).getByTestId('province-expected').textContent).toBe('64%');
     expect(within(province).getByTestId('province-gap').textContent).toBe(word('ban.dash.fact.gapPoints', { points: '-4,00' }));
     expect(within(province).getByTestId('province-outlook').textContent).toContain(word('ban.outlook.range.short', { low: '800 tỷ đồng', high: '950 tỷ đồng' }));
   });
@@ -104,7 +104,7 @@ describe('BAN-01, the workspace of the head of the committee', () => {
   it('says what changed since last week, the top attention with the way to BAN-02, the units not reporting, the live alerts and the directives', async () => {
     open();
     const changes = await screen.findByTestId('changes');
-    expect(changes.textContent).toContain(word('govc.home.changes.rate.up', { from: '55.00', to: '60.00', delta: '5.00' }));
+    expect(changes.textContent).toContain(word('govc.home.changes.rate.up', { from: '55', to: '60', delta: '5' }));
     expect(screen.getByTestId('go-attention').getAttribute('href')).toBe('/ban/ban-02');
     expect(screen.getByText('DA-1')).toBeTruthy();
     expect(screen.getByText('Ban quản lý dự án 3').closest('tr')?.textContent).toContain(word('ban.unit.reason.never'));

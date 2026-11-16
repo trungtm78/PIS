@@ -1,3 +1,4 @@
+import { percentFigure } from '../percent-figure';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
@@ -181,7 +182,7 @@ function Inspection({ recordId, date }: { recordId: string; date: string }) {
               <li key={target.recordId} data-key={target.businessKey}>
                 <code>{target.businessKey}</code> {target.version?.label ?? ''}
                 {target.kind === null ? null : <StatusPill tone="success">{target.kind}</StatusPill>}
-                <span className="sub"> {t('mdm.succession.share.text', { share: target.sharePct })}</span>
+                <span className="sub"> {t('mdm.succession.share.text', { share: percentFigure(target.sharePct) })}</span>
               </li>
             ))}
           </ul>

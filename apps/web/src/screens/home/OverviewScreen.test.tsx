@@ -349,7 +349,7 @@ describe('HOME-01 the leader home: work first, then the numbers (decision 2A)', 
       await waitFor(() => expect(within(section).getByText('Sở Giáo dục')).toBeTruthy());
       const rows = within(section).getAllByRole('row').slice(1);
       expect(rows[0]?.textContent).toContain('Sở Giáo dục');
-      expect(rows[0]?.textContent).toContain('50,00%');
+      expect(rows[0]?.textContent).toContain('50%');
       expect(rows[1]?.textContent).toContain('Sở Giao thông');
       expect(within(section).getByRole('link', { name: fill(tr('home.ov.rank.more'), { total: 2 }) }).getAttribute('href')).toBe('/home/home-04');
     });

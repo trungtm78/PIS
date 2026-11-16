@@ -31,10 +31,10 @@ describe('writing the numbers of the funding screens', () => {
   });
 
   it('writes a percent with two decimals from the text the API wrote, rounding half up and never through a float', () => {
-    expect(percent('12.5000')).toBe('12,50%');
+    expect(percent('12.5000')).toBe('12,5%');
     expect(percent('0.7813')).toBe('0,78%');
-    expect(percent('99.9950')).toBe('100,00%');
-    expect(percent('110.0000')).toBe('110,00%');
+    expect(percent('99.9950')).toBe('100%');
+    expect(percent('110.0000')).toBe('110%');
     expect(percent('33.3333')).toBe('33,33%');
     expect(percent('66.6667')).toBe('66,67%');
     expect(percent(null)).toBe('–');

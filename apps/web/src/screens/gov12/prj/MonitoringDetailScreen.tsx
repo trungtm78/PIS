@@ -1,3 +1,4 @@
+import { formatPercent } from '../../../i18n/format';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -479,7 +480,7 @@ function DetailContent({ route }: ScreenProps) {
                     testId="sum-ontime"
                     info={<Provenance name={t('prj.mon.info.response.name')} formula={t('prj.mon.info.response.formula')} source={t('prj.mon.info.notice.source')} asOf={asOf} version={file.rule.version} unverified={file.rule.unverified} owner={owner} />}
                   >
-                    {file.summary.answered_on_time_pct === null ? '–' : `${file.summary.answered_on_time_pct}%`}
+                    {file.summary.answered_on_time_pct === null ? '–' : formatPercent(file.summary.answered_on_time_pct)}
                   </Figure>
                 </div>
                 {file.feedback.length === 0 ? (

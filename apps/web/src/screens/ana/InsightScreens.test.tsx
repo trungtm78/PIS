@@ -88,7 +88,7 @@ describe('BI-29 the heat-map (G3-10)', () => {
     const table = await screen.findByTestId('heat-table');
     const rows = within(table).getAllByTestId('heat-row');
     const first = within(rows[0] as HTMLElement).getAllByTestId('heat-cell');
-    expect(first[0]?.textContent).toContain('60,0%');
+    expect(first[0]?.textContent).toContain('60%');
     expect(first[0]?.textContent).toContain(tr('ana.heat.band.green'));
     expect(first[0]?.getAttribute('data-band')).toBe('GREEN');
     expect(first[0]?.textContent).toContain(fill(tr('ana.heat.count.projects'), { count: 5 }));
@@ -96,9 +96,9 @@ describe('BI-29 the heat-map (G3-10)', () => {
     expect(within(first[0] as HTMLElement).getByText('600 triệu đồng').getAttribute('title')).toBe('600.000.000 đồng');
     expect(within(first[0] as HTMLElement).getByText('1 tỷ đồng').getAttribute('title')).toBe('1.000.000.000 đồng');
     expect(first[1]?.textContent).toContain(tr('ana.heat.band.red'));
-    expect(within(rows[0] as HTMLElement).getByTestId('heat-row-total').textContent).toContain('50,0%');
+    expect(within(rows[0] as HTMLElement).getByTestId('heat-row-total').textContent).toContain('50%');
     expect(within(rows[1] as HTMLElement).getByTestId('heat-row-total').textContent).toContain(fill(tr('ana.heat.total.hidden'), { count: 1 }));
-    expect(screen.getAllByTestId('heat-col-total').map((one) => one.textContent)).toEqual(['52,5%', '40,0%']);
+    expect(screen.getAllByTestId('heat-col-total').map((one) => one.textContent)).toEqual(['52,5%', '40%']);
     expect(within(table).getByText(tr('ana.heat.col.none'))).toBeTruthy();
     expect(screen.getByTestId('ana-unverified')).toBeTruthy();
   });
@@ -157,8 +157,8 @@ describe('BI-30 the back-test and the trend (G3-11)', () => {
     expect(rows).toHaveLength(3);
     expect(rows[0]?.getAttribute('data-current')).toBe('yes');
     expect(rows[0]?.textContent).toContain(tr('ana.back.current'));
-    expect(rows[0]?.textContent).toContain('50,0%');
-    expect(rows[0]?.textContent).toContain('100,0%');
+    expect(rows[0]?.textContent).toContain('50%');
+    expect(rows[0]?.textContent).toContain('100%');
     expect(rows[0]?.textContent).toContain(fill(tr('ana.back.weeks'), { weeks: '2,0' }));
     expect(rows[1]?.textContent).toContain(fill(tr('ana.back.shift'), { shift: '+5' }));
     expect(rows[2]?.textContent).toContain(tr('ana.common.na'));

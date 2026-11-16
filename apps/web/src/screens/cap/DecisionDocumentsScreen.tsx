@@ -53,7 +53,7 @@ function DecisionDocumentsContent({ route }: ScreenProps) {
         <div className="card">
           <div className="cap-scroll">
             <table className="table cap-table" data-testid="decisions" aria-label={t('cap.decisions.table.aria')}>
-              <caption className="sr-only">{t('cap.decisions.table.caption')}</caption>
+              <caption className="sr-only">{t('cap.decisions.list.caption')}</caption>
               <thead>
                 <tr>
                   <th scope="col">{t('cap.decisions.column.symbol')}</th>

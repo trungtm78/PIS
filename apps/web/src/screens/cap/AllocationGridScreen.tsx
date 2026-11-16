@@ -6,7 +6,7 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { ContextBar, DataTable, SectionCard, StickyActions } from '../../ui';
 import type { DataTableColumn } from '../../ui';
-import { Money } from './components';
+import { MillionsMoney, Money } from './components';
 import { millionsInput } from './model';
 import { PlanChooser, PlanHeader, SignedMoney, YearLockedBanner, usePlanChoice } from './plan-components';
 import { useDraftAllocation, usePlanLines, usePlans } from './plan-hooks';
@@ -68,7 +68,7 @@ function GridContent({ route }: ScreenProps) {
     },
     {
       key: 'amount',
-      header: t('cap.grid.column.amount'),
+      header: editable ? t('cap.grid.column.amount') : t('cap.grid.col.amount'),
       align: 'right',
       render: (row) =>
         editable ? (
@@ -95,7 +95,7 @@ function GridContent({ route }: ScreenProps) {
     },
     {
       key: 'ctmtqg',
-      header: t('cap.grid.column.ctmtqg'),
+      header: editable ? t('cap.grid.column.ctmtqg') : t('cap.grid.col.ctmtqg'),
       align: 'right',
       render: (row) =>
         editable ? (
@@ -117,13 +117,13 @@ function GridContent({ route }: ScreenProps) {
     },
     {
       key: 'available',
-      header: t('cap.grid.column.available'),
+      header: editable ? t('cap.grid.column.available') : t('cap.grid.col.available'),
       align: 'right',
       render: (row) => {
         const ceiling = row.line.appropriation === null ? undefined : ceilings.get(row.line.appropriation.id);
         return (
           <span data-testid="available" data-exceeded={ceiling?.exceeded === true ? 'true' : 'false'}>
-            {ceiling === undefined ? t('cap.grid.noSource.notice') : <SignedMoney vnd={ceiling.remainingVnd} />}
+            {ceiling === undefined ? t('cap.grid.noSource.notice') : <SignedMoney vnd={ceiling.remainingVnd} millions={editable} />}
             {ceiling?.exceeded === true ? (
               <small role="alert" className="field-error">
                 {t('cap.grid.exceeded.error')}
@@ -135,13 +135,13 @@ function GridContent({ route }: ScreenProps) {
     },
     {
       key: 'committed',
-      header: t('cap.grid.column.committed'),
+      header: t('cap.grid.col.committed'),
       align: 'right',
       render: (row) => (row.line.committedVnd === null ? t('cap.grid.notPublished.notice') : <Money vnd={row.line.committedVnd} />),
     },
     {
       key: 'reserved',
-      header: t('cap.grid.column.reserved'),
+      header: t('cap.grid.col.reserved'),
       align: 'right',
       render: (row) => (row.line.reservedVnd === null ? t('cap.grid.notPublished.notice') : <Money vnd={row.line.reservedVnd} />),
     },
@@ -222,7 +222,6 @@ function GridContent({ route }: ScreenProps) {
               value: String((plans.data ?? []).length),
             },
           ]}
-          unit={t('cap.ctx.unit')}
         />
         <PlanChooser id="grid-plan" plans={plans.data ?? []} value={planId} onChange={choose} />
         {plan === undefined ? null : <PlanHeader plan={plan} />}
@@ -231,7 +230,7 @@ function GridContent({ route }: ScreenProps) {
             {t('cap.grid.noLines.notice')}
           </p>
         ) : (
-          <SectionCard title={t('cap.grid.table.aria')} unit={t('cap.ctx.unit')}>
+          <SectionCard title={t('cap.grid.table.aria')}>
             <div data-testid="grid">
               <DataTable
                 caption={t('cap.grid.table.caption')}
@@ -243,7 +242,7 @@ function GridContent({ route }: ScreenProps) {
                 totals={{
                   amount: (
                     <span data-testid="total">
-                      <Money vnd={nextTotal(rows)} />
+                      {editable ? <MillionsMoney vnd={nextTotal(rows)} /> : <Money vnd={nextTotal(rows)} />}
                     </span>
                   ),
                 }}

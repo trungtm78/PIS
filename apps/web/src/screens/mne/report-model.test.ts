@@ -13,7 +13,7 @@ describe('the report of MNE-03 (ST-MNE-002)', () => {
     expect(dong('-1500')).toBe('-1.500');
     expect(dong('0')).toBe('0');
     expect(shown(cell({ key: 'a', kind: 'MONEY', value: '600000000000' }))).toBe('600.000.000.000');
-    expect(shown(cell({ key: 'b', kind: 'PERCENT', value: '48.0000' }))).toBe('48.0000%');
+    expect(shown(cell({ key: 'b', kind: 'PERCENT', value: '48.0000' }))).toBe('48%');
     expect(shown(cell({ key: 'c', kind: 'INTEGER', value: 4 }))).toBe('4');
     expect(shown(cell({ key: 'd', value: null }))).toBeNull();
   });

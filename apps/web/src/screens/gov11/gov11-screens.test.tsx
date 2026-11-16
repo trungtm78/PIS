@@ -44,7 +44,8 @@ describe('DIS-30 the milestones (G1-16)', () => {
     expect(within(section).getAllByRole('button', { name: /A|i/ }).length).toBeGreaterThan(2);
     expect(screen.getByTestId('unverified-note')).toBeTruthy();
     expect(screen.getByTestId('snapshot-line').textContent).toContain('31/10/2026');
-    expect(within(section).getByTestId('unit-CDT1').textContent).toContain('450.000.000');
+    expect(within(section).getByTestId('unit-CDT1').textContent).toContain('450 triệu đồng');
+    expect(within(section).getByTitle('450.000.000 đồng')).toBeTruthy();
   });
 
   it('says a snapshot that was not read is not the same as one with no milestones', async () => {
@@ -85,7 +86,8 @@ describe('DIS-31 the accuracy of the forecasts (G1-16)', () => {
   it('lists the investors with their error, bias and band, and a band it cannot give says so', async () => {
     mount(<AccuracyScreen route={route('DIS-31', 'DIS')} />, harness(() => accuracy([row(), row({ investor: { id: 'i2', code: 'CDT2', name: 'Investor two' }, band: 'INSUFFICIENT', months: 1, bias_flag: 'OVER' })])), PERMISSIONS);
     const one = await screen.findByTestId('investor-CDT1');
-    expect(one.textContent).toContain('18.75%');
+    expect(one.textContent).toContain('18,75%');
+    expect(one.textContent).toContain('900 triệu đồng');
     const two = screen.getByTestId('investor-CDT2');
     expect(two.textContent).toMatch(/OVER|cao hơn|above/i);
     expect(screen.getByTestId('unverified-note')).toBeTruthy();
@@ -211,7 +213,7 @@ describe('CTR-39 the linkage and the adjustment versions (G1-18)', () => {
     expect((await screen.findByTestId('chain')).textContent).toContain('GT-1');
     expect(screen.getByTestId('findings').textContent).toContain('PRICE_ABOVE_AWARD');
     const versionRow = await screen.findByTestId('version-2');
-    expect(versionRow.textContent).toContain('10.00%');
+    expect(versionRow.textContent).toContain('10%');
     fireEvent.click(screen.getByTestId('review-2'));
     fireEvent.change(screen.getByTestId('note'), { target: { value: 'The baseline still holds after this change.' } });
     fireEvent.click(screen.getByTestId('review-submit'));
@@ -252,7 +254,7 @@ describe('PRJ-30 the look-ahead plan (G1-19)', () => {
     const first = await screen.findByTestId('item-1');
     expect(first.textContent).toContain('Rebar not confirmed');
     expect(screen.getByTestId('item-2').textContent).toContain('WEATHER');
-    expect(screen.getByTestId('history').textContent).toContain('50.0%');
+    expect(screen.getByTestId('history').textContent).toContain('50%');
     expect(screen.getByTestId('unverified-note')).toBeTruthy();
   });
 
@@ -370,9 +372,10 @@ describe('CAP-23 the reallocation by performance (G1-12)', () => {
   it('ranks the donors and the recipients with the "i" of the ratio, the releasable amount and the demand', async () => {
     mount(<ReallocationImpactScreen route={route('CAP-23', 'CAP')} />, harness(answer()), PERMISSIONS);
     const donor = await screen.findByTestId('donor-pa');
-    expect(donor.textContent).toContain('40.0000%');
-    expect(donor.textContent).toContain('500.000.000');
-    expect(screen.getByTestId('recipient-pb').textContent).toContain('400.000.000');
+    expect(donor.textContent).toContain('40%');
+    expect(donor.textContent).toContain('500 triệu đồng');
+    expect(within(donor).getByTitle('500.000.000 đồng')).toBeTruthy();
+    expect(screen.getByTestId('recipient-pb').textContent).toContain('400 triệu đồng');
     expect(screen.getByTestId('unverified-note')).toBeTruthy();
   });
 
@@ -381,7 +384,7 @@ describe('CAP-23 the reallocation by performance (G1-12)', () => {
     await screen.findByTestId('donor-pa');
     fireEvent.change(screen.getByTestId('proposal-select'), { target: { value: 'rp' } });
     expect((await screen.findByTestId('impact-frozen')).textContent).toContain('2026-11-02');
-    expect(screen.getByTestId('units-table').textContent).toContain('38.4615%');
+    expect(screen.getByTestId('units-table').textContent).toContain('38,46%');
     expect(screen.getByTestId('warnings').textContent).toContain('ZERO_DENOMINATOR');
     expect(screen.getByTestId('delegation-line').textContent).toContain('Department head');
   });

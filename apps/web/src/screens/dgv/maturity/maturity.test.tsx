@@ -485,7 +485,7 @@ describe('DGV-21, the rubric (ST-DGV-008, UAT-AC493)', () => {
   it('shows the pillars, the criteria with the description of each level, the mapping that is no certification, the coverage and the days of evidence', async () => {
     mount(<RubricScreen route={RUBRIC_ROUTE} />, open(), { permissions: [READ] });
     const view = await screen.findByRole('region', { name: fill(vi_['dgv.maturity.rubric.heading'], { code: 'RB-1', revision: 1 }) });
-    expect(within(view).getByTestId('min-coverage').textContent).toBe('70.00%');
+    expect(within(view).getByTestId('min-coverage').textContent).toBe('70%');
     expect(within(view).getByTestId('ttl').textContent).toBe(fill(vi_['dgv.maturity.rubric.days'], { days: 365 }));
     expect(within(view).getByTestId('frameworks-note').textContent).toBe(vi_['dgv.maturity.rubric.frameworks.note']);
     expect(view.textContent).toContain('DM-4');
@@ -577,8 +577,8 @@ describe('DGV-16, the assessment (ST-DGV-008, UAT-AC53, UAT-AC492)', () => {
     mount(<AssessmentScreen route={ASSESS_ROUTE} />, open(), { permissions: [READ] });
     const view = await screen.findByRole('region', { name: fill(vi_['dgv.maturity.assess.heading'], { period: '2026-H2' }) });
     await within(view).findByTestId('score');
-    expect(within(view).getByTestId('coverage').textContent).toContain('33.33%');
-    expect(within(view).getByTestId('coverage').textContent).toContain(fill(vi_['dgv.maturity.score.asked'], { share: '70.00' }));
+    expect(within(view).getByTestId('coverage').textContent).toContain('33,33%');
+    expect(within(view).getByTestId('coverage').textContent).toContain(fill(vi_['dgv.maturity.score.asked'], { share: '70' }));
     const overall = within(view).getByTestId('overall');
     expect(overall.getAttribute('data-state')).toBe('NOT_COMPUTED');
     expect(overall.textContent).toContain(vi_['dgv.maturity.overall.notComputed']);

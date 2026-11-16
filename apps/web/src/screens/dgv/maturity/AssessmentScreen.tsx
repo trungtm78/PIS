@@ -1,3 +1,5 @@
+import { percentFigure } from '../../percent-figure';
+import { percentOfText } from '../../../i18n/format';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { FormEvent } from 'react';
@@ -153,8 +155,8 @@ function AssessmentView({ assessment }: { assessment: Assessment }) {
             <div className="metrics" data-testid="score">
               <div className="metric" data-testid="coverage">
                 <span className="sub">{t('dgv.maturity.score.coverage')}</span>
-                <strong>{score.data.coveragePercent}%</strong>
-                <span className="sub">{t('dgv.maturity.score.asked', { share: score.data.minCoveragePct })}</span>
+                <strong>{percentOfText(score.data.coveragePercent)}</strong>
+                <span className="sub">{t('dgv.maturity.score.asked', { share: percentFigure(score.data.minCoveragePct) })}</span>
               </div>
               <div className="metric" data-testid="overall" data-state={score.data.overallState}>
                 <span className="sub">{t('dgv.maturity.score.overall')}</span>

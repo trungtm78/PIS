@@ -83,9 +83,10 @@ describe('the year by month', () => {
   });
 
   it('shows the rate as a percentage of the language', () => {
-    expect(ratePercent('0.3750', 'en')).toBe('37.50%');
-    expect(ratePercent('2.5000', 'en')).toBe('250.00%');
-    expect(ratePercent('0.3750', 'vi')).toMatch(/^37,50\s?%$/);
+    expect(ratePercent('0.3750', 'en')).toBe('37.5%');
+    expect(ratePercent('2.5000', 'en')).toBe('250%');
+    expect(ratePercent('0.3750', 'vi')).toBe('37,5%');
+    expect(ratePercent('0.9154', 'vi')).toBe('91,54%');
   });
 
   it('finds the current registration of a key', () => {

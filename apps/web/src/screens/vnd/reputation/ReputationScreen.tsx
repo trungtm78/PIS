@@ -1,3 +1,4 @@
+import { percentFigure } from '../../percent-figure';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -266,7 +267,7 @@ function VentureSection({ query, status, onStatus, canEnd, onEnd }: { query: Ret
                   <ul className="vnd-list">
                     {row.members.map((member) => (
                       <li key={member.contractor_id}>
-                        <Link to={PATHS.profile(member.contractor_id)}>{member.contractor_name}</Link> {t('vnd.ventures.share.text', { share: member.share_pct })}
+                        <Link to={PATHS.profile(member.contractor_id)}>{member.contractor_name}</Link> {t('vnd.ventures.share.text', { share: percentFigure(member.share_pct) })}
                         {member.lead && <StatusPill tone="info">{t('vnd.ventures.lead.badge')}</StatusPill>}
                       </li>
                     ))}

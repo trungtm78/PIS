@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
+import { compactMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -9,7 +10,7 @@ import { useScreenState } from '../../states/useScreenState';
 import { mayAct } from './approval-model';
 import { Field, Money } from './components';
 import { levelLabel } from './labels';
-import { millionsInput, millionsText } from './model';
+import { millionsInput } from './model';
 import { useProjects } from './plan-hooks';
 import { BUCKETS } from './plan-model';
 import type { ScheduleBucket } from './plan-model';
@@ -137,7 +138,7 @@ function Grid({ year, rows, total, loading }: GridProps) {
       ) : null}
       <div className="cap-scroll">
         <table className="table cap-table" aria-label={t('cap.schedule.table.aria', { year })}>
-          <caption className="sr-only">{t('cap.schedule.table.caption')}</caption>
+          <caption className="sr-only">{t('cap.schedule.grid.caption')}</caption>
           <thead>
             <tr>
               <th scope="col">{t('cap.schedule.column.month')}</th>
@@ -290,7 +291,7 @@ function RegisterForm({ projectId, year, items, allowed, frozen, locale }: Regis
       </div>
       {current === undefined ? null : (
         <p className="callout" role="status" data-testid="current">
-          {t('cap.schedule.current.notice', { amount: millionsText(current.amountVnd, locale), revision: current.revision })}
+          {t('cap.schedule.current.text', { amount: compactMoney(current.amountVnd, { locale }), revision: current.revision })}
         </p>
       )}
       <div className="cap-filters">

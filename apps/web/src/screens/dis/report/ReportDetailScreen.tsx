@@ -13,6 +13,7 @@ import type { ReportDetail } from './model';
 import { formatVnd } from './money';
 import { StepFrame } from './StepFrame';
 import { WorkflowSteps } from './workflow-parts';
+import { formatPercent } from '../../../i18n/format';
 
 /**
  * DIS-07: the report as it was handed in and what was decided on it (ST-DIS-006, DIS 3 F2): the six cells, the revision it corrects and why, the decisions of the reviewers with what a return asked
@@ -131,7 +132,7 @@ function Content({ detail }: { detail: ReportDetail }) {
             {progress.physicalProgressPct === null ? null : (
               <>
                 <dt>{t('dis.progress.percent.label')}</dt>
-                <dd>{progress.physicalProgressPct}</dd>
+                <dd>{formatPercent(progress.physicalProgressPct).replace('%', '')}</dd>
               </>
             )}
           </dl>

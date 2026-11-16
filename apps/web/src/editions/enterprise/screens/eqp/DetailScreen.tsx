@@ -14,6 +14,7 @@ import { useEquipmentLine, useEquipmentLines, useUpdateLine } from './hooks';
 import { LIST_PATH, MANAGE_PERMISSION, describeProblem, stageTone, validateLink } from './model';
 import type { Line } from './model';
 import '../shared/shared.css';
+import { percentOfText } from '../../../../i18n/format';
 
 /** EQP-02: one line of the equipment procurement: the plan, the package and the result of the choice of contractor, the contract, the payments, and the form that links the package and the contract once each or cancels the line. */
 export default function EquipmentDetailScreen({ route }: ScreenProps) {
@@ -90,7 +91,7 @@ function EquipmentDetailContent({ route }: ScreenProps) {
                 </Fact>
                 <Fact label={t('eqp.col.paidShort')} testId="fact-paid">
                   {money(line.paidVnd, 'PAYMENT')}
-                  {line.disbursementPercent === null || masked('PAYMENT') || masked('CONTRACT') ? '' : ` (${line.disbursementPercent}%)`}
+                  {line.disbursementPercent === null || masked('PAYMENT') || masked('CONTRACT') ? '' : ` (${percentOfText(line.disbursementPercent)})`}
                 </Fact>
               </dl>
             </SectionCard>

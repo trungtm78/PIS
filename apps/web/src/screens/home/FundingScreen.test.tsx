@@ -151,14 +151,15 @@ describe('HOME-08 sources and the scope of the calculation (ST-HOME-005)', () =>
     const subset = rows[1] as HTMLElement;
     expect(within(subset).getByText(vi_['home.funding.detail.relation.subset'])).toBeTruthy();
     expect(within(subset).getByText('2026-01-15')).toBeTruthy();
-    expect(within(subset).getByText('40.000.000.000')).toBeTruthy();
+    // The screen declares tỷ đồng once: a cell is the bare figure in billions, with the exact dong one hover away.
+    expect(within(subset).getByTitle('40.000.000.000 đồng').firstChild?.textContent).toBe('40');
     expect(within(rows[0] as HTMLElement).getByText(vi_['home.funding.detail.relation.independent'])).toBeTruthy();
     // The headers carry the two columns the module asks for.
     expect(within(table).getByRole('columnheader', { name: vi_['home.funding.detail.column.relation'] })).toBeTruthy();
     expect(within(table).getByRole('columnheader', { name: vi_['home.funding.detail.column.cutoff'] })).toBeTruthy();
     // 500 + 100 + 50 = 650; the 40 is not in it.
     const totalRow = within(table).getByRole('rowheader', { name: vi_['home.funding.detail.total'] }).closest('tr') as HTMLElement;
-    expect(totalRow.textContent).toContain('650.000.000.000');
+    expect(within(totalRow).getByTitle('650.000.000.000 đồng').textContent).toBe('650');
     expect(screen.getByTestId('funding-scope').textContent).toContain(fill(vi_['home.funding.scope.published'], { year: 2026 }));
   });
 

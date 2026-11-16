@@ -1,3 +1,4 @@
+import { percentFigure } from '../../percent-figure';
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -98,7 +99,7 @@ function SectionContent({ route }: ScreenProps) {
             </div>
             <div className="card">
               <span className="sub">{t('lnd.sections.totals.ratio')}</span>
-              <strong data-testid="total-ratio">{t('lnd.sections.ratio.value', { ratio: totals.ratio })}</strong>
+              <strong data-testid="total-ratio">{t('lnd.sections.ratio.value', { ratio: percentFigure(totals.ratio) })}</strong>
             </div>
           </div>
           <div className="card">
@@ -135,7 +136,7 @@ function SectionContent({ route }: ScreenProps) {
                       <td>{section.fromKm === null && section.toKm === null ? t('lnd.sections.km.none') : t('lnd.sections.km.range', { from: section.fromKm ?? '—', to: section.toKm ?? '—' })}</td>
                       <td className="lnd-numeric">{area(section.requiredAreaM2)}</td>
                       <td className="lnd-numeric">
-                        <span data-testid="handed">{area(section.handedAreaM2)}</span> <span className="sub">{t('lnd.sections.ratio.value', { ratio: ratioText(section.handedAreaM2, section.requiredAreaM2) })}</span>
+                        <span data-testid="handed">{area(section.handedAreaM2)}</span> <span className="sub">{t('lnd.sections.ratio.value', { ratio: percentFigure(ratioText(section.handedAreaM2, section.requiredAreaM2)) })}</span>
                       </td>
                       <td data-testid="contract">{contractName(section)}</td>
                       <td>{section.targetDate ?? t('lnd.sections.target.none')}</td>

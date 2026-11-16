@@ -41,8 +41,8 @@ describe('PlanListScreen (CAP-01): the capital plans of the province', () => {
       vi_['cap.plans.column.period'],
       vi_['cap.plans.column.plan'],
       vi_['cap.plans.column.funds'],
-      vi_['cap.plans.column.ceiling'],
-      vi_['cap.plans.column.allocated'],
+      'Trần vốn',
+      'Đã đề xuất',
       vi_['cap.plans.column.status'],
       vi_['cap.plans.column.decision'],
       vi_['cap.plans.column.actions'],
@@ -54,8 +54,10 @@ describe('PlanListScreen (CAP-01): the capital plans of the province', () => {
     expect(cell(medium, 1)).toContain('TH-2026-2030');
     expect(cell(medium, 1)).toContain(vi_['cap.planKind.medium.label']);
     expect(cell(medium, 2)).toBe('NSTW-DTPT');
-    expect(cell(medium, 3)).toBe('20.000');
-    expect(cell(medium, 4)).toBe('5.000');
+    expect(cell(medium, 3)).toBe('20 tỷ đồng (20.000.000.000 đồng)');
+    expect(cell(medium, 4)).toBe('5 tỷ đồng (5.000.000.000 đồng)');
+    // Every figure carries its own unit: no unit chip is declared over them.
+    expect(screen.queryByText('ĐVT: Triệu đồng')).toBeNull();
     expect(cell(medium, 5)).toBe(vi_['cap.planStatus.draft.label']);
     expect(cell(medium, 6)).toBe(vi_['cap.planHeader.noDecision.notice']);
     expect(

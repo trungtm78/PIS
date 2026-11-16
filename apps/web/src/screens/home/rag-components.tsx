@@ -7,6 +7,7 @@ import { RagBandBadge, bandLabel } from './gov-components';
 import { OVERRIDE_BANDS, checkOverrideTarget, overrideWindow, scoreDelta } from './gov-model';
 import type { OverrideBand, RagFactor, RagUnit, RagWeek } from './gov-model';
 import { dayText } from './overview-model';
+import { formatPercent } from '../../i18n/format';
 
 type T = Translator['t'];
 
@@ -170,7 +171,7 @@ export function RagUnitCard({ unit, today, minCoverage, canOverride, onOverride,
           {delta === null || delta === 0 ? null : <> · {delta > 0 ? t('govc.home.rag.delta.worse', { delta: numberText(delta, locale) }) : t('govc.home.rag.delta.better', { delta: numberText(Math.abs(delta), locale) })}</>}
         </dd>
         <dt>{t('govc.home.rag.col.coverage')}</dt>
-        <dd data-testid={`rag-coverage-${unit.unitId}`}>{unit.coveragePct === null ? '—' : `${numberText(unit.coveragePct, locale)}%`}</dd>
+        <dd data-testid={`rag-coverage-${unit.unitId}`}>{unit.coveragePct === null ? '—' : formatPercent(unit.coveragePct, 2, locale === 'en' ? 'en' : 'vi')}</dd>
         <dt>{t('govc.home.rag.col.previous')}</dt>
         <dd data-testid={`rag-previous-${unit.unitId}`}>
           {unit.previous === null ? (

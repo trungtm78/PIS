@@ -236,8 +236,8 @@ describe('RiskSignalBoardScreen (PRJ-28): the board', () => {
     expect((await screen.findAllByTestId('unverified-notice')).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByTestId('unverified-notice')[0]?.textContent).toBe(text('mr1.risk.unverified.notice'));
     const spi = within(screen.getByTestId('thresholds')).getByText(text('mr1.risk.indicator.spiShortfall')).closest('tr') as HTMLElement;
-    expect(spi.textContent).toContain(text('mr1.risk.unit.percent', { value: '5' }));
-    expect(spi.textContent).toContain(text('mr1.risk.unit.percent', { value: '30' }));
+    expect(spi.textContent).toContain('5%');
+    expect(spi.textContent).toContain('30%');
     const slip = within(screen.getByTestId('thresholds')).getByText(text('mr1.risk.indicator.milestoneSlip')).closest('tr') as HTMLElement;
     expect(slip.textContent).toContain(text('mr1.risk.unit.days', { value: '60' }));
     const lines = screen.getByTestId('rule-lines').textContent ?? '';

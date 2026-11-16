@@ -6,7 +6,6 @@ import { Field, Money } from '../components';
 import type { ProjectOption } from '../plan-model';
 import { MAX_YEAR, MIN_YEAR, yearOf } from '../schedule-model';
 import { useProjectEstimate } from './hooks';
-import { signedMillions } from './model';
 import '../cap.css';
 import './forecast.css';
 
@@ -62,7 +61,7 @@ export function Picker({ id, offered, selected, typedYear, yearValid, onProject,
  * moves when an estimate is entered. Whoever may not read DIS is told so; a failed read has its own card in the panel and leaves the rest of the screen as it is.
  */
 export function EacPanel({ projectId, allowed }: { projectId: string; allowed: boolean }) {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const estimate = useProjectEstimate(projectId, allowed);
   const state = useScreenState({ isLoading: estimate.isLoading, error: estimate.error, data: estimate.isSuccess ? estimate.data : undefined, isEmpty: (data) => data === null });
   const value = estimate.data ?? undefined;
@@ -79,16 +78,16 @@ export function EacPanel({ projectId, allowed }: { projectId: string; allowed: b
       <StateBoundary state={state} onRetry={() => void estimate.refetch()}>
         {value === undefined ? null : (
           <dl className="cap-facts">
-            <dt>{t('cap.forecast.eac.disbursed')}</dt>
+            <dt>{t('cap.forecast.eacFact.disbursed')}</dt>
             <dd data-testid="eac-disbursed">{value.disbursedVnd === null ? NONE : <Money vnd={value.disbursedVnd} />}</dd>
-            <dt>{t('cap.forecast.eac.estimate')}</dt>
+            <dt>{t('cap.forecast.eacFact.estimate')}</dt>
             <dd data-testid="eac-estimate">{value.eacVnd === null ? NONE : <Money vnd={value.eacVnd} />}</dd>
-            <dt>{t('cap.forecast.eac.plan')}</dt>
+            <dt>{t('cap.forecast.eacFact.plan')}</dt>
             <dd data-testid="eac-plan">
               <Money vnd={value.planTotalVnd} />
             </dd>
-            <dt>{t('cap.forecast.eac.gap')}</dt>
-            <dd data-testid="eac-gap">{value.gapVnd === null ? NONE : signedMillions(value.gapVnd, locale)}</dd>
+            <dt>{t('cap.forecast.eacFact.gap')}</dt>
+            <dd data-testid="eac-gap">{value.gapVnd === null ? NONE : <Money vnd={value.gapVnd} />}</dd>
             <dt>{t('cap.forecast.eac.coverage')}</dt>
             <dd data-testid="eac-coverage">
               {value.coverage === 'COMPLETE' ? t('dis.forecast.coverage.complete') : value.coverage === 'PARTIAL' ? t('dis.forecast.coverage.partial') : t('dis.forecast.coverage.none')}

@@ -84,7 +84,7 @@ function ContractListContent({ route }: ScreenProps) {
     return (
       <section data-screen-id={route.id} aria-labelledby="screen-title">
         {header}
-        <ScopeBar money updatedAt={own.dataUpdatedAt} stale={own.isRefetchError} />
+        <ScopeBar updatedAt={own.dataUpdatedAt} stale={own.isRefetchError} />
         <StateBoundary state={state} onRetry={() => void own.refetch()}>
           <p className="callout ca1-notice" role="status" data-testid="own-register-note">
             {t('ca1.register.own')}
@@ -99,7 +99,7 @@ function ContractListContent({ route }: ScreenProps) {
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       {header}
-      {view === undefined ? <ScopeBar money /> : <ReportContext context={view.context} updatedAt={portfolio.dataUpdatedAt} onUseLatest={(period) => change({ ...filter, period, asOf: '' })} />}
+      {view === undefined ? <ScopeBar /> : <ReportContext context={view.context} updatedAt={portfolio.dataUpdatedAt} onUseLatest={(period) => change({ ...filter, period, asOf: '' })} />}
       <StateBoundary state={state} onRetry={() => void portfolio.refetch()}>
         <AnalyticsFilters
           value={filter}

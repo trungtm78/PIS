@@ -103,7 +103,7 @@ describe('HOME-10 the order "kéo tụt nhiều nhất trước" (G3-3)', () => 
     const [byCode, byDrag] = within(toggle).getAllByRole('button');
     expect(byCode?.getAttribute('aria-pressed')).toBe('true');
     expect(byDrag?.getAttribute('aria-pressed')).toBe('false');
-    expect(screen.getByTestId(`child-drag-${NORTH}`).textContent).toBe(fill(tr('govc.home.drill.drag'), { value: '-10,00' }));
+    expect(screen.getByTestId(`child-drag-${NORTH}`).textContent).toBe(fill(tr('govc.home.drill.drag'), { value: '-10' }));
     expect(screen.getByTestId(`child-drag-${SOUTH}`).textContent).toBe(fill(tr('govc.home.drill.drag'), { value: '4,25' }));
     cleanup();
     mount(screenWith, client(() => ratio({ unit: 'VND', metric_code: 'PLAN_TOTAL', value: dong(100), numerator: null, denominator: null, children: [child('unit', NORTH, 'BQL-N', 'Ban Bắc', { value: dong(100) })] })), { permissions: READER }, OPEN);

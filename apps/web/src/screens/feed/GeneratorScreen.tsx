@@ -1,3 +1,4 @@
+import { formatPercent } from '../../i18n/format';
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
@@ -124,7 +125,7 @@ function StateSection({ connection }: { connection: Connection }) {
   const params = generator.parameters;
   const asOf = vietnamStamp(connection.asOf);
   const figure = (name: string, formula: string) => <Figure name={name} formula={formula} source={t('feed.generator.figure.source')} asOf={asOf} version={t('feed.generator.figure.version', { epoch: generator.epoch })} />;
-  const value = (number: number | null, suffix?: string): string => (number === null ? DASH : suffix === undefined ? numberText(number, locale) : `${numberText(number, locale)}${suffix}`);
+  const value = (number: number | null, suffix?: string): string => (number === null ? DASH : suffix === undefined ? numberText(number, locale) : suffix === '%' ? formatPercent(number) : `${numberText(number, locale)}${suffix}`);
   const never = params === null;
   return (
     <SectionCard title={t('feed.generator.section.state.title')}>

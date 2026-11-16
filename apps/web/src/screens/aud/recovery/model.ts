@@ -1,3 +1,4 @@
+import { formatPercent } from '../../../i18n/format';
 import { ApiError } from '@machvon/api-client';
 import { digitsOf } from '../conclusion/model';
 import type { ConclusionFormProblem } from '../conclusion/model';
@@ -246,7 +247,7 @@ export const canRecordRecovery = (permissions: readonly string[] | undefined, mo
 export const canReverse = (line: Pick<RecoveryLine, 'amountVnd' | 'reversed' | 'reversalOfId'>): boolean => line.reversalOfId === null && !line.reversed && !line.amountVnd.startsWith('-');
 
 /** The percentage in the way the language writes it, or `null` for "not applicable". */
-export const percentText = (rate: Rate, locale: string): string | null => (rate.percent === null ? null : `${locale === 'vi' ? rate.percent.replace('.', ',') : rate.percent}%`);
+export const percentText = (rate: Rate, locale: string): string | null => (rate.percent === null ? null : formatPercent(rate.percent, 2, locale === 'vi' ? 'vi' : 'en'));
 
 /** The recommendations a line can be entered for: financial ones that are not cancelled (they are the ones in the summary). */
 export const recoverable = (items: readonly SummaryItem[]): SummaryItem[] => items.filter((item) => item.status !== 'CANCELLED');

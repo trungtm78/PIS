@@ -5,7 +5,8 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { amountText } from '../../ctr/model';
+import { compactMoney, fullMoney } from '../../../i18n/money';
+import { Money } from '../../../ui';
 import { useHandovers } from '../handover/hooks';
 import { ExpiringWarranties } from './ExpiringWarranties';
 import { useWarranties } from './hooks';
@@ -46,7 +47,6 @@ function WarrantyContent({ route }: ScreenProps) {
   const choose = (id: string): void => setSearch(id === '' ? {} : { handover: id });
   const writable = mode !== 'READ_ONLY';
   const today = vietnamToday();
-  const money = (value: string): string => t('ctr.value.amount', { amount: amountText(value, locale) });
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -131,11 +131,11 @@ function WarrantyContent({ route }: ScreenProps) {
                         ) : (
                           <>
                             {`${line.guarantee.issuer}${line.guarantee.guaranteeNo === null ? '' : ` · ${line.guarantee.guaranteeNo}`}`}
-                            <small className="sub qms-regime">{money(line.guarantee.amountVnd)}</small>
+                            <small className="sub qms-regime" title={fullMoney(line.guarantee.amountVnd, locale)}>{compactMoney(line.guarantee.amountVnd, { locale })}</small>
                           </>
                         )}
                       </td>
-                      <td data-testid="retention">{money(line.retentionAmountVnd)}</td>
+                      <td data-testid="retention"><Money value={line.retentionAmountVnd} /></td>
                       <td data-testid="claims">{t('ast.warranty.claims.count', { open: line.openClaims, total: line.totalClaims })}</td>
                       <td>
                         <span className={line.status === 'CLOSED' ? 'qms-badge ok' : line.status === 'EXPIRED' ? 'qms-badge warning' : 'qms-badge'} data-testid="status">

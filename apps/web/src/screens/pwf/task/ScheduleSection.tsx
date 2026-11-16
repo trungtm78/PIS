@@ -1,3 +1,4 @@
+import { formatPercent } from '../../../i18n/format';
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { CalendarMissingCell, FigureInfo } from '../components';
@@ -27,7 +28,7 @@ export function ScheduleSection({ task, names, open = false }: { task: TaskDetai
   add('actual', t('pwf.task.field.actual.label'), span(task.actual_start, task.actual_finish));
   add('duration', t('pwf.task.field.duration.label'), days(task.duration_working_days), info(t('pwf.task.duration.name'), t('pwf.task.duration.formula'), t('pwf.task.source.template.text')));
   add('remaining', t('pwf.task.field.remaining.label'), task.remaining_working_days === null ? null : days(task.remaining_working_days), info(t('pwf.task.remaining.name'), t('pwf.task.remaining.formula'), t('pwf.task.source.record.text')));
-  add('percent', t('pwf.task.field.percent.label'), task.percent_complete === null ? null : `${task.percent_complete}%`, info(t('pwf.task.percent.name'), t('pwf.task.percent.formula'), t('pwf.task.source.record.text')));
+  add('percent', t('pwf.task.field.percent.label'), task.percent_complete === null ? null : formatPercent(task.percent_complete), info(t('pwf.task.percent.name'), t('pwf.task.percent.formula'), t('pwf.task.source.record.text')));
   add('float', t('pwf.task.field.float.label'), missing || task.total_float === null ? null : days(task.total_float), info(t('pwf.task.float.name'), t('pwf.task.float.formula'), t('pwf.task.source.schedule.text')));
   add('freeFloat', t('pwf.task.field.freeFloat.label'), missing || task.free_float === null ? null : days(task.free_float), info(t('pwf.task.freeFloat.name'), t('pwf.task.freeFloat.formula'), t('pwf.task.source.schedule.text')));
   add(

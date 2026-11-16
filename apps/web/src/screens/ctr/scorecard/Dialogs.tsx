@@ -37,6 +37,7 @@ import {
   violationBody,
 } from './model';
 import type { ConfirmForm, ContractOption, EvaluateForm, EvaluationKind, EvaluationLine, FormProblem, PenaltyKind, RecordForm, Rule, Severity, ViolationKind, ViolationLine } from './model';
+import { formatPercent } from '../../../i18n/format';
 
 function useWords() {
   const { t } = useTranslation();
@@ -103,7 +104,7 @@ export function EvaluateDialog({ contracts, rule, onClose }: { contracts: readon
         <input id="evaluate-period" autoComplete="off" value={form.period} onChange={(event) => set({ period: event.target.value })} />
       </Field>
       {CRITERIA.map((criterion) => (
-        <Field key={criterion} id={`evaluate-${criterion}`} label={t('ctr.scorecard.field.score', { criterion: criterionLabel(t, criterion), weight: rule.weights[criterion] })} error={shown(problems[criterion])}>
+        <Field key={criterion} id={`evaluate-${criterion}`} label={t('ctr.scorecard.field.score', { criterion: criterionLabel(t, criterion), weight: formatPercent(rule.weights[criterion]).replace('%', '') })} error={shown(problems[criterion])}>
           <input id={`evaluate-${criterion}`} inputMode="numeric" autoComplete="off" value={form.scores[criterion]} onChange={(event) => set({ scores: { ...form.scores, [criterion]: event.target.value } })} />
         </Field>
       ))}

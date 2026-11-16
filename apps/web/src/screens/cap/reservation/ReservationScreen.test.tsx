@@ -148,7 +148,7 @@ describe('ReservationScreen (CAP-18): the earmark of capital', () => {
     fillValid();
     submit();
     const refusal = await within(form()).findByTestId('create-refusal');
-    expect(refusal.textContent).toBe(word('cap.reservation.problem.warn', { consumption: '100.00', warn: '90.00', block: '100.00' }));
+    expect(refusal.textContent).toBe('Giữ vốn này đưa dòng lên 100% (ngưỡng cảnh báo 90%, ngưỡng chặn 100%). Hãy xác nhận cảnh báo rồi gửi lại.');
     const ack = within(form()).getByLabelText(word('cap.reservation.field.ack.label')) as HTMLInputElement;
     expect(ack.checked).toBe(false);
     // A change of the request takes the acceptance away: the warning is read again for the new one.
@@ -178,7 +178,7 @@ describe('ReservationScreen (CAP-18): the earmark of capital', () => {
   });
 
   it.each([
-    ['AVC_BLOCKED', 422, { consumption_pct: '110.00', warn_pct: '90.00', block_pct: '100.00' }, word('cap.reservation.problem.blocked', { consumption: '110.00', warn: '90.00', block: '100.00' })],
+    ['AVC_BLOCKED', 422, { consumption_pct: '110.00', warn_pct: '90.00', block_pct: '100.00' }, 'Không giữ được: dòng sẽ lên 110%, vượt ngưỡng chặn 100%.'],
     ['FISCAL_YEAR_LOCKED', 409, {}, word('cap.reservation.problem.yearLocked')],
     ['SCOPE_DENIED', 403, {}, word('cap.reservation.problem.scopeDenied')],
     ['RESOURCE_NOT_FOUND', 404, {}, word('cap.reservation.problem.notFound')],

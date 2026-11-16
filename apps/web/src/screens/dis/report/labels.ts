@@ -4,6 +4,7 @@ import type { Basis, CellKey, CellProblem, FormProblem, ReportProblem, ReportSta
 import { formatVnd } from './money';
 import { cellOfFinding } from './step-model';
 import type { StepKey, VolumeProblem } from './step-model';
+import { formatPercent } from '../../../i18n/format';
 
 type T = Translator['t'];
 
@@ -172,11 +173,11 @@ export function findingMessage(t: T, finding: Finding): string {
     case 'VOLUME_EXCEEDS_ALLOCATION':
       return finding.values.ratio_pct === null || finding.values.ratio_pct === undefined
         ? t('dis.review.finding.volumeNoCapital.text', { construction: value('construction_vnd') })
-        : t('dis.review.finding.volumeExceeds.text', { construction: value('construction_vnd'), ratio: finding.values.ratio_pct, allocated: value('allocated_vnd') });
+        : t('dis.review.finding.volumeExceeds.text', { construction: value('construction_vnd'), ratio: formatPercent(finding.values.ratio_pct).replace('%', ''), allocated: value('allocated_vnd') });
     case 'TREASURY_GAP':
       return finding.values.gap_pct === null || finding.values.gap_pct === undefined
         ? t('dis.review.finding.treasuryNone.text', { reported: value('reported_vnd') })
-        : t('dis.review.finding.treasuryGap.text', { reported: value('reported_vnd'), pct: finding.values.gap_pct, treasury: value('treasury_vnd') });
+        : t('dis.review.finding.treasuryGap.text', { reported: value('reported_vnd'), pct: formatPercent(finding.values.gap_pct).replace('%', ''), treasury: value('treasury_vnd') });
     case 'NEXT_MONTH_EMPTY_WITH_CAPITAL_LEFT':
       return t('dis.review.finding.nextMonth.text', { remaining: value('remaining_vnd') });
     default:

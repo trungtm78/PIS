@@ -112,7 +112,7 @@ describe('AvcPolicyScreen (CAP-17): the availability control policy', () => {
     expect(cellText(draft, 0)).toBe(vi_['cap.avc.row.code'].replace('{code}', 'AVC-3').replace('{revision}', '2'));
     expect(cellText(draft, 1)).toBe(vi_['cap.avc.scope.unit'].replace('{value}', 'Ban quản lý 1'));
     expect(cellText(draft, 2)).toBe(vi_['cap.avc.object.appropriation']);
-    expect(cellText(draft, 3)).toContain(vi_['cap.avc.thresholds.text'].replace('{warn}', '80.00').replace('{block}', '95.00'));
+    expect(cellText(draft, 3)).toContain('Cảnh báo từ 80% · chặn trên 95%');
     expect(cellText(draft, 3)).toContain(vi_['cap.avc.reservations.apart']);
     expect(cellText(draft, 4)).toBe(vi_['cap.avc.period.open'].replace('{from}', '2026-01-01'));
     expect(cellText(draft, 5)).toBe(vi_['cap.avc.status.draft']);
@@ -173,12 +173,12 @@ describe('AvcPolicyScreen (CAP-17): the availability control policy', () => {
       const h = client(state());
       mount(<AvcPolicyScreen route={ROUTE} />, h, { permissions: ADMIN });
       await ready();
-      expect(screen.getByRole('img', { name: vi_['cap.avc.bars.aria'].replace('{warn}', '90').replace('{block}', '100') })).toBeTruthy();
-      expect(screen.getByText(vi_['cap.avc.bars.warn'].replace('{warn}', '90').replace('{block}', '100'))).toBeTruthy();
+      expect(screen.getByRole('img', { name: 'Hai ngưỡng: cảnh báo từ 90%, chặn trên 100%' })).toBeTruthy();
+      expect(screen.getByText('Từ 90% đến 100%: cảnh báo, cần xác nhận')).toBeTruthy();
       fillValid();
       set(vi_['cap.avc.form.warn.label'], '95');
       set(vi_['cap.avc.form.block.label'], '90');
-      expect(screen.getByText(vi_['cap.avc.bars.ok'].replace('{warn}', '95'))).toBeTruthy();
+      expect(screen.getByText('Dưới 95%: được dùng')).toBeTruthy();
       fireEvent.click(form().getByRole('button', { name: vi_['cap.avc.form.submit.action'] }));
       expect(within(screen.getByRole('form', { name: vi_['cap.avc.form.aria'] })).getByText(vi_['cap.avc.field.warnAboveBlock'])).toBeTruthy();
       set(vi_['cap.avc.form.warn.label'], '90');

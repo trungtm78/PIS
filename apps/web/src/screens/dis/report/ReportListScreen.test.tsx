@@ -82,7 +82,7 @@ describe('DIS-01 weekly reports', () => {
     // The status of a report that was handed in late is a chip, and the late mark is another.
     expect(cells[1]?.[0]).toBe(`DA-2027-002Cầu số 2${vi_['dis.reportStatus.submitted']}${vi_['dis.reports.late.text']}`);
     expect(cells[1]?.[2]).toBe('1,25 tỷ đồng (1.250.000.000 đồng)');
-    expect(cells[1]?.[3]).toBe(`0 đồng${t('dis.wr.row.share', { percent: '0,0' })}`);
+    expect(cells[1]?.[3]).toBe(`0 đồng${t('dis.wr.row.share', { percent: '0' })}`);
     expect(screen.getByRole('link', { name: vi_['dis.reports.open.action'].replace('{code}', 'DA-2027-001') }).getAttribute('href')).toBe(`/dis/dis-04?report=${lineRecord(1).id as string}`);
     // A report that was handed in is read on its detail (DIS-07), where the reviewer decides and the maker corrects; only a draft is edited.
     expect(screen.getByRole('link', { name: vi_['dis.reports.open.action'].replace('{code}', 'DA-2027-002') }).getAttribute('href')).toBe(`/dis/dis-07?report=${lineRecord(2).id as string}`);

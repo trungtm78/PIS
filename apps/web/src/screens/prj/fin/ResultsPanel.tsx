@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from '../../../i18n';
+import { formatPercent } from '../../../i18n/format';
 import type { Translator } from '../../../i18n';
 import { DataTable, FlowChart, InfoFormula, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../../ui';
 import type { InfoFormulaLabels } from '../../../ui';
@@ -20,7 +21,7 @@ export const periodUnitText = (t: T, unit: string): string => t(`fin1.unit.${cam
 export function deltaText(t: T, parameter: string, delta: string): string {
   if (parameter === 'benefitDelayPeriods') return t('fin1.delta.periods', { value: delta });
   if (parameter === 'discountRatePp') return t('fin1.delta.points', { value: delta.startsWith('-') ? delta : `+${delta}` });
-  return t('fin1.delta.percent', { value: delta.startsWith('-') || delta === '0' ? delta : `+${delta}` });
+  return delta.startsWith('-') || delta === '0' ? formatPercent(delta) : `+${formatPercent(delta)}`;
 }
 
 function infoLabels(t: T, name: string): InfoFormulaLabels {
@@ -58,7 +59,7 @@ function MeasureTile({ appraisal, measure, label, value, unit, sub, testId }: Ti
     <div data-testid={testId} data-status={measure.status}>
       <KpiTile
         label={label}
-        value={applies ? decimalText(value, locale) : t('fin1.measure.na')}
+        value={applies ? (unit === '%' ? formatPercent(value).replace('%', '') : decimalText(value, locale)) : t('fin1.measure.na')}
         unit={applies ? unit : ''}
         tone={applies ? 'default' : 'neutral'}
         sub={
@@ -87,7 +88,7 @@ const money = (value: string | null | undefined, locale: string): string => deci
 function HeadlineGrid({ headline, t, locale, periodUnit }: { headline: Headline; t: T; locale: string; periodUnit: string }) {
   const rows: Array<[string, string, string | null, string | null]> = [
     ['npv', t('fin1.measure.npv'), headline.npv === null ? null : `${money(headline.npv, locale)} ${t('fin1.unit.vnd')}`, null],
-    ['irr', t('fin1.measure.irr'), headline.irrPct === null ? null : `${money(headline.irrPct, locale)}%`, headline.irrReason],
+    ['irr', t('fin1.measure.irr'), headline.irrPct === null ? null : formatPercent(headline.irrPct), headline.irrReason],
     ['payback', t('fin1.measure.payback'), headline.paybackPeriods === null ? null : `${money(headline.paybackPeriods, locale)} ${periodUnit}`, headline.paybackReason],
     ['discounted', t('fin1.measure.discounted'), headline.discountedPaybackPeriods === null ? null : `${money(headline.discountedPaybackPeriods, locale)} ${periodUnit}`, headline.discountedPaybackReason],
     ['bcr', t('fin1.measure.bcr'), headline.bcr === null ? null : money(headline.bcr, locale), headline.bcrReason],
@@ -219,7 +220,7 @@ export function ResultsPanel({ appraisal, report, editingScenarios }: { appraisa
                   columns={[
                     { key: 'scenario', header: t('fin1.scenario.name'), render: (row) => (row.code === 'BASE' ? t('fin1.scenario.base') : row.label) },
                     { key: 'npv', header: t('fin1.measure.npv'), align: 'right', render: (row) => (row.headline.npv === null ? t('fin1.measure.na') : money(row.headline.npv, locale)) },
-                    { key: 'irr', header: t('fin1.measure.irr'), align: 'right', render: (row) => (row.headline.irrPct === null ? t('fin1.measure.na') : `${money(row.headline.irrPct, locale)}%`) },
+                    { key: 'irr', header: t('fin1.measure.irr'), align: 'right', render: (row) => (row.headline.irrPct === null ? t('fin1.measure.na') : formatPercent(row.headline.irrPct)) },
                     { key: 'payback', header: t('fin1.measure.payback'), align: 'right', render: (row) => (row.headline.paybackPeriods === null ? t('fin1.measure.na') : money(row.headline.paybackPeriods, locale)) },
                     { key: 'bcr', header: t('fin1.measure.bcr'), align: 'right', render: (row) => (row.headline.bcr === null ? t('fin1.measure.na') : money(row.headline.bcr, locale)) },
                   ]}
@@ -247,7 +248,7 @@ export function ResultsPanel({ appraisal, report, editingScenarios }: { appraisa
                   columns={[
                     { key: 'delta', header: t('fin1.sens.change'), render: (row) => deltaText(t, parameter, row.delta) },
                     { key: 'npv', header: t('fin1.measure.npv'), align: 'right', render: (row) => (row.headline.npv === null ? t('fin1.measure.na') : money(row.headline.npv, locale)) },
-                    { key: 'irr', header: t('fin1.measure.irr'), align: 'right', render: (row) => (row.headline.irrPct === null ? t('fin1.measure.na') : `${money(row.headline.irrPct, locale)}%`) },
+                    { key: 'irr', header: t('fin1.measure.irr'), align: 'right', render: (row) => (row.headline.irrPct === null ? t('fin1.measure.na') : formatPercent(row.headline.irrPct)) },
                     { key: 'payback', header: t('fin1.measure.payback'), align: 'right', render: (row) => (row.headline.paybackPeriods === null ? t('fin1.measure.na') : money(row.headline.paybackPeriods, locale)) },
                   ]}
                 />
@@ -285,7 +286,7 @@ export function ResultsPanel({ appraisal, report, editingScenarios }: { appraisa
                   rowKey={(row) => row.parameter}
                   columns={[
                     { key: 'parameter', header: t('fin1.sens.parameter'), render: (row) => parameterText(t, row.parameter) },
-                    { key: 'pct', header: t('fin1.sens.switchingValue'), align: 'right', render: (row) => (row.pct === null ? t('fin1.measure.na') : `${money(row.pct, locale)}%`) },
+                    { key: 'pct', header: t('fin1.sens.switchingValue'), align: 'right', render: (row) => (row.pct === null ? t('fin1.measure.na') : formatPercent(row.pct)) },
                     { key: 'reason', header: t('fin1.sens.why'), render: (row) => (row.reason === null ? t('fin1.sens.switchingMeaning') : reasonText(t, row.reason)) },
                   ]}
                 />
@@ -294,7 +295,7 @@ export function ResultsPanel({ appraisal, report, editingScenarios }: { appraisa
           )}
 
           {results.criteria === null ? null : (
-            <SectionCard title={t('fin1.criteria.result.title')} status={<StatusPill tone="info">{t('fin1.criteria.result.index', { value: decimalText(results.criteria.indexPct, locale) })}</StatusPill>}>
+            <SectionCard title={t('fin1.criteria.result.title')} status={<StatusPill tone="info">{t('fin1.criteria.result.index', { value: formatPercent(results.criteria.indexPct).replace('%', '') })}</StatusPill>}>
               <p data-testid="criteria-score">{t('fin1.criteria.result.score', { value: decimalText(results.criteria.weightedScore, locale) })}</p>
               <DataTable
                 caption={t('fin1.criteria.result.title')}
@@ -302,7 +303,7 @@ export function ResultsPanel({ appraisal, report, editingScenarios }: { appraisa
                 rowKey={(row) => row.key}
                 columns={[
                   { key: 'label', header: t('fin1.criteria.name'), render: (row) => row.label },
-                  { key: 'weight', header: t('fin1.criteria.weight'), align: 'right', render: (row) => `${decimalText(row.weightPct, locale)}%` },
+                  { key: 'weight', header: t('fin1.criteria.weight'), align: 'right', render: (row) => formatPercent(row.weightPct) },
                   { key: 'score', header: t('fin1.criteria.score'), align: 'right', render: (row) => row.score },
                   { key: 'contribution', header: t('fin1.criteria.contribution'), align: 'right', render: (row) => decimalText(row.contribution, locale) },
                   { key: 'evidence', header: t('fin1.criteria.evidence'), render: (row) => row.evidence },

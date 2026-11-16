@@ -92,8 +92,8 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
     const pm = rates.querySelector('[data-rate="pm"]') as HTMLElement;
     const total = rates.querySelector('[data-rate="total"]') as HTMLElement;
     expect(pm.parentElement).toBe(total.parentElement);
-    expect(within(pm).getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.00%');
-    expect(within(total).getByTestId('tile-value-DISBURSEMENT_RATE_TOTAL').textContent).toBe('48.00%');
+    expect(within(pm).getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60%');
+    expect(within(total).getByTestId('tile-value-DISBURSEMENT_RATE_TOTAL').textContent).toBe('48%');
     // The same numerator over the two plans, with the words DIS-19 uses.
     expect(within(pm).getByTestId('tile-sums-DISBURSEMENT_RATE_PM').textContent).toContain(fill(vi_['home.tile.numerator'], { value: '600 tỷ đồng' }));
     expect(within(total).getByTestId('tile-sums-DISBURSEMENT_RATE_TOTAL').textContent).toContain(fill(vi_['home.tile.numerator'], { value: '600 tỷ đồng' }));
@@ -175,7 +175,7 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
     it('shows the figures of a snapshot older than eight days, and says it is old', async () => {
       mount(<CommandCenterScreen route={CC} />, client({ latest: () => body({ freshness: 'STALE' }) }), { permissions: READER });
       await waitFor(() => expect(contextText()).toContain(tr('ui.contextBar.stale')));
-      expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.00%');
+      expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60%');
     });
 
     it('says a snapshot has become stale by its day, although the server called it fresh when it was read', async () => {
@@ -305,14 +305,14 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
       latest = body({ snapshot_id: S41, as_of_date: '2027-10-19', tiles: [tile('DISBURSEMENT_RATE_PM', { value: '70.0000' }), tile('DISBURSEMENT_RATE_TOTAL', { value: '56.0000' })] });
       await view.queries.invalidateQueries({ queryKey: [...homeRoot(TENANT), 'latest'] });
       expect(await screen.findByTestId('new-data-banner')).toBeTruthy();
-      expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.00%');
+      expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60%');
       expect(contextText()).toContain('12/10/2027');
       // Focus and reconnection do not change them either.
       window.dispatchEvent(new Event('focus'));
       await new Promise((resolve) => setTimeout(resolve, 30));
-      expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.00%');
+      expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60%');
       await user.click(screen.getByRole('button', { name: vi_['home.banner.refresh'] }));
-      await waitFor(() => expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('70.00%'));
+      await waitFor(() => expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('70%'));
       expect(contextText()).toContain('19/10/2027');
       await waitFor(() => expect(screen.queryByTestId('new-data-banner')).toBeNull());
     });
@@ -329,7 +329,7 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
     await waitFor(() => expect(tileOf('home.ov.kpi.openWarnings.label').textContent).toContain(fill(tr('home.ov.kpi.warnings.sub'), { count: 0 })));
     expect(tileOf('home.ov.kpi.realloc.label').textContent).toContain('4');
     // The figures belong to the snapshot, and the snapshot did not change.
-    expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.00%');
+    expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60%');
     expect(screen.queryByTestId('new-data-banner')).toBeNull();
   });
 
@@ -389,8 +389,8 @@ describe('HOME-01 executive overview (ST-HOME-001)', () => {
     expect(contextText()).toContain(`${tr('home.ov.context.year')}2027`);
     expect(contextText()).toContain(`${tr('home.ov.context.asOf')}12/10/2027`);
     expect(screen.getByLabelText(vi_['home.filter.unit.label'])).toBeTruthy();
-    expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.00%');
-    expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_TOTAL').textContent).toBe('48.00%');
+    expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60%');
+    expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_TOTAL').textContent).toBe('48%');
   });
 
   it('AC-ST-HOME-001-6: UI-HOME-01 reads the unit the person chooses, and says which unit the figures are of', async () => {
@@ -407,7 +407,7 @@ describe('HOME-01 executive overview (ST-HOME-001)', () => {
     mount(<OverviewScreen route={OV} />, h, { permissions: READER });
     await screen.findByTestId('home-rates');
     await user.selectOptions(await screen.findByLabelText(vi_['home.filter.unit.label']), NORTH);
-    await waitFor(() => expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('55.00%'));
+    await waitFor(() => expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('55%'));
     expect(h.read.mock.calls.some((call) => call[0] === 'getCommandCenter' && (call[1] as { query: Record<string, string> }).query.unit_id === NORTH)).toBe(true);
     expect(contextText()).toContain(fill(tr('home.ov.context.unit'), { unit: 'Bắc', projects: 1 }));
   });

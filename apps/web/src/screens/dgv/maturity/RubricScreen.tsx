@@ -1,3 +1,4 @@
+import { percentOfText } from '../../../i18n/format';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
@@ -86,7 +87,7 @@ function RubricView({ rubric, mayPublish }: { rubric: Rubric; mayPublish: boolea
         </div>
         <div>
           <dt>{t('dgv.maturity.rubric.minCoverage')}</dt>
-          <dd data-testid="min-coverage">{rubric.minCoveragePct}%</dd>
+          <dd data-testid="min-coverage">{percentOfText(rubric.minCoveragePct)}</dd>
         </div>
         <div>
           <dt>{t('dgv.maturity.rubric.ttl')}</dt>

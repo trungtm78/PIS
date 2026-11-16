@@ -49,12 +49,13 @@ describe('AUD-17, the follow-up order of the audit recommendations of the invest
     expect(await screen.findByTestId(`rank-${uuid(1)}`)).toBeTruthy();
     expect(screen.getByTestId(`rank-${uuid(1)}`).textContent).toBe('1');
     expect(screen.getByTestId(`rank-${uuid(3)}`).textContent).toBe(word('gov12da.aud17.rank.none'));
-    expect(screen.getByTestId(`disbursement-${uuid(1)}`).textContent).toBe(fill('gov12da.aud17.disbursement.text', { rank: 3, rate: '75.0000' }));
+    expect(screen.getByTestId(`disbursement-${uuid(1)}`).textContent).toBe(fill('gov12da.aud17.disbursement.text', { rank: 3, rate: '75' }));
     expect(screen.getByTestId(`disbursement-${uuid(2)}`).textContent).toBe(word('gov12da.aud17.disbursement.none'));
     expect(screen.getByTestId('standing-note').textContent).toBe(word('gov12da.aud17.note.text'));
     expect(screen.getByTestId('figure-ranked').textContent).toBe('2');
     expect(screen.getByTestId('figure-weights').textContent).toBe('3 / 2 / 1');
-    expect(screen.getAllByText('4.000.000.000').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('4 tỷ đồng').length).toBeGreaterThan(0);
+    expect(screen.getAllByTitle('4.000.000.000 đồng').length).toBeGreaterThan(0);
   });
 
   it('puts an "i" on the score and the money and says the weights are a default that is not confirmed', async () => {

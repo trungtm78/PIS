@@ -87,9 +87,9 @@ describe('LedgerScreen (CAP-21): the capital ledger', () => {
     expect(within(rows[2] as HTMLElement).getAllByRole('cell')[3]?.textContent).toBe('—');
     const balance = screen.getByTestId('balance');
     expect(within(balance).getByRole('heading', { level: 2 }).textContent).toBe(vi_['cap.ledger.balance.title'].replace('{count}', '3'));
-    expect(balance.querySelector('[data-column="allocated"]')?.textContent).toContain('40.000.000.000 đồng');
+    expect(balance.querySelector('[data-column="allocated"]')?.textContent).toContain('40 tỷ đồng (40.000.000.000 đồng)');
     expect(balance.querySelector('[data-column="reserved"]')?.textContent).toContain('0 đồng');
-    expect(balance.querySelector('[data-column="disbursed"]')?.textContent).toContain('10.000.000.000 đồng');
+    expect(balance.querySelector('[data-column="disbursed"]')?.textContent).toContain('10 tỷ đồng (10.000.000.000 đồng)');
     expect(screen.getByTestId('as-of').textContent).toBe(vi_['cap.ledger.balance.now']);
     expect(asked(h)[0]).toEqual({ limit: 25 });
     // The only controls are the filter and the paging: nothing writes.
@@ -110,7 +110,7 @@ describe('LedgerScreen (CAP-21): the capital ledger', () => {
     fireEvent.click(screen.getByRole('button', { name: vi_['cap.ledger.filter.apply.action'] }));
     await waitFor(() => expect(asked(h).at(-1)).toEqual({ project_id: line(1).id, appropriation_id: APPROPRIATION, allocation_line_id: LINE, at: '2026-06-01', limit: 25 }));
     await waitFor(() => expect(screen.getByTestId('as-of').textContent).toBe(vi_['cap.ledger.balance.at'].replace('{day}', '2026-06-01')));
-    await waitFor(() => expect(screen.getByTestId('balance').querySelector('[data-column="reserved"]')?.textContent).toContain('5.000.000.000 đồng'));
+    await waitFor(() => expect(screen.getByTestId('balance').querySelector('[data-column="reserved"]')?.textContent).toContain('5 tỷ đồng (5.000.000.000 đồng)'));
   });
 
   it('refuses before it asks an identifier that is not one and a day that does not exist', async () => {

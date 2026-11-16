@@ -1,3 +1,4 @@
+import { formatPercent } from '../../i18n/format';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
@@ -162,7 +163,7 @@ function LadderContent({ route }: ScreenProps) {
                 ) : (
                   <>
                     <KpiStrip>
-                      <KpiTile label={t('gov10.ladder.kpi.within', { minutes: urgent?.withinMinutes ?? 0 })} value={urgent?.sharePct === null || urgent === undefined ? t('gov10.ladder.kpi.none') : `${urgent.sharePct}%`} sub={t('gov10.ladder.kpi.withinSub', { count: urgent?.receiptedWithin ?? 0, total: urgent?.runs ?? 0 })} />
+                      <KpiTile label={t('gov10.ladder.kpi.within', { minutes: urgent?.withinMinutes ?? 0 })} value={urgent?.sharePct === null || urgent === undefined ? t('gov10.ladder.kpi.none') : formatPercent(urgent.sharePct)} sub={t('gov10.ladder.kpi.withinSub', { count: urgent?.receiptedWithin ?? 0, total: urgent?.runs ?? 0 })} />
                       <KpiTile label={t('gov10.ladder.kpi.median')} value={urgent?.medianMinutes === null || urgent === undefined ? t('gov10.ladder.kpi.none') : t('gov10.ladder.kpi.minutes', { minutes: urgent.medianMinutes })} />
                       <KpiTile label={t('gov10.ladder.kpi.escalated')} value={String(urgent?.escalated ?? 0)} tone={(urgent?.escalated ?? 0) > 0 ? 'warning' : 'default'} />
                       <KpiTile label={t('gov10.ladder.kpi.exhausted')} value={String(urgent?.exhausted ?? 0)} tone={(urgent?.exhausted ?? 0) > 0 ? 'danger' : 'default'} />

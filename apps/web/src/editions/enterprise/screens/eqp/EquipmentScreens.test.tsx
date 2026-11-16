@@ -98,7 +98,7 @@ describe('EquipmentDetailScreen (EQP-02)', () => {
     mountDetail(line(), READER);
     expect((await screen.findByTestId('fact-winner')).textContent).toContain('Contractor A');
     expect(screen.getByTestId('fact-contract').textContent).toContain('HD-01');
-    expect(screen.getByTestId('fact-paid').textContent).toContain('33.3%');
+    expect(screen.getByTestId('fact-paid').textContent).toContain('33,3%');
   });
 
   it('cancels a line only with a reason, and sends the version the person saw', async () => {

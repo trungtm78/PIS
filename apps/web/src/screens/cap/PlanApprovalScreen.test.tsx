@@ -55,12 +55,12 @@ describe('PlanApprovalScreen (CAP-10): the approval of a capital plan revision',
     // DA-01 goes from 10,000 to 8,500 million with 9,000 spent; DA-02 is dropped; DA-09 is new.
     expect(rowOf('DA-01').getAttribute('data-below')).toBe('true');
     expect(rowOf('DA-01').getAttribute('data-kind')).toBe('CHANGED');
-    expect(within(rowOf('DA-01')).getByTestId('delta').textContent).toBe('-1.500');
+    expect(within(rowOf('DA-01')).getByTestId('delta').textContent).toBe('-1,5 tỷ đồng (-1.500.000.000 đồng)');
     expect(rowOf('DA-02').getAttribute('data-kind')).toBe('DROPPED');
     expect(rowOf('DA-09').getAttribute('data-kind')).toBe('NEW');
-    expect(screen.getByTestId('total-previous').textContent).toBe('11.000');
-    expect(screen.getByTestId('total-next').textContent).toBe('10.500');
-    expect(screen.getByTestId('total-delta').textContent).toBe('-500');
+    expect(screen.getByTestId('total-previous').textContent).toBe('11 tỷ đồng (11.000.000.000 đồng)');
+    expect(screen.getByTestId('total-next').textContent).toBe('10,5 tỷ đồng (10.500.000.000 đồng)');
+    expect(screen.getByTestId('total-delta').textContent).toBe('-500 triệu đồng (-500.000.000 đồng)');
     expect(screen.getByTestId('below-count').textContent).toContain('1 dòng');
     // A reader sees no button of any step.
     expect(screen.queryByRole('button', { name: vi_['cap.approval.approve.action'] })).toBeNull();

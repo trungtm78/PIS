@@ -7,7 +7,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { InfoFormula, KpiTile, Money, SectionCard, StatusPill } from '../../ui';
 import type { InfoFormulaLabels } from '../../ui';
-import { FigureInfo, FlagPills, figureShown } from '../home/figure-components';
+import { FigureInfo, FlagPills, figureShown, isWholeDong } from '../home/figure-components';
 import { changeSentence } from '../home/gov-components';
 import type { Tile } from '../home/model';
 import {
@@ -29,6 +29,8 @@ import {
 } from './model';
 import type { Alert, Feed, Outlook, Policy, Rag, Row, Signal, Workspace } from './model';
 import './ban.css';
+import { formatPercent } from '../../i18n/format';
+import { fullMoney } from '../../i18n/money';
 
 type T = Translator['t'];
 
@@ -157,6 +159,7 @@ export function FigureTile({ tile }: { tile: Tile }) {
       <KpiTile
         label={label}
         value={figureShown(t, tile)}
+        valueTitle={tile.unit === 'VND' && isWholeDong(tile.displayValue) ? fullMoney(tile.displayValue) : undefined}
         sub={
           <span className="ban-figure__sub">
             <FigureInfo tile={tile} />
@@ -203,7 +206,7 @@ export function ReasonList({ signals }: { signals: readonly Signal[] }) {
         return (
           <li key={signal.reason} data-reason={signal.reason}>
             <span aria-hidden="true">{style.icon}</span> <strong>{label}</strong>
-            <span className="ban-muted"> {value === null ? t('ban.reason.noValue.text') : signal.unit === 'DAYS' ? t('ban.reason.days.text', { value, threshold: signal.threshold }) : signal.unit === 'PERCENT' ? t('ban.reason.percent.text', { value, threshold: signal.threshold }) : t('ban.reason.points.text', { value, threshold: signal.threshold })}</span>
+            <span className="ban-muted"> {value === null ? t('ban.reason.noValue.text') : signal.unit === 'DAYS' ? t('ban.reason.days.text', { value, threshold: signal.threshold }) : signal.unit === 'PERCENT' ? t('ban.reason.percent.text', { value: formatPercent(signal.value).replace('%', ''), threshold: formatPercent(signal.threshold).replace('%', '') }) : t('ban.reason.points.text', { value, threshold: signal.threshold })}</span>
           </li>
         );
       })}

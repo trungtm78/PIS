@@ -41,8 +41,8 @@ describe('AUD-08 ledger of recoveries and reconciliation with PAY', () => {
     expect(text('total-amount')).toBe('800.000.000');
     expect(text('total-recovered')).toBe('800.000.000');
     expect(text('total-remaining')).toBe('0');
-    expect(text('rate-money')).toBe(`100,00% ${vi_['aud.recovery.rate.parts'].replace('{numerator}', '800.000.000').replace('{denominator}', '800.000.000')}`);
-    expect(text('rate-count')).toContain('100,00%');
+    expect(text('rate-money')).toBe(`100% ${vi_['aud.recovery.rate.parts'].replace('{numerator}', '800.000.000').replace('{denominator}', '800.000.000')}`);
+    expect(text('rate-count')).toContain('100%');
     expect(text('rate-count')).toContain('(1 / 1)');
     expect(text('recovery-rule')).toBe(vi_['aud.recovery.rule.note']);
   });

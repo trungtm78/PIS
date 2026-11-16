@@ -60,18 +60,18 @@ describe('DisbursementScheduleScreen (CAP-08): the registration of the disbursem
     expect(h.client.readAll).toHaveBeenCalledWith('listDisbursementSchedules', { query: { project_id: PROJECT_A, plan_year: Number(YEAR), kind: 'REGISTERED', granularity: 'MONTH' } });
     // 800 million registered in October of the year, 300 million paid: 0,3750.
     const october = monthRow(10);
-    expect(within(october).getByTestId('registered').textContent).toBe('800');
-    expect(within(october).getByTestId('disbursed').textContent).toBe('300');
+    expect(within(october).getByTestId('registered').textContent).toBe('800 triệu đồng (800.000.000 đồng)');
+    expect(within(october).getByTestId('disbursed').textContent).toBe('300 triệu đồng (300.000.000 đồng)');
     expect(within(october).getByTestId('rate').getAttribute('data-rate')).toBe('0.3750');
-    expect(within(october).getByTestId('rate').textContent).toMatch(/^37,50\s?%$/);
-    expect(october.querySelector('td[data-bucket="CURRENT_YEAR"]')?.textContent).toBe('800');
+    expect(within(october).getByTestId('rate').textContent).toBe('37,5%');
+    expect(october.querySelector('td[data-bucket="CURRENT_YEAR"]')?.textContent).toBe('800 triệu đồng (800.000.000 đồng)');
     // The carried-over capital of November is in its own column; nothing paid, so 0 of 100.
-    expect(monthRow(11).querySelector('td[data-bucket="CARRYOVER"]')?.textContent).toBe('100');
+    expect(monthRow(11).querySelector('td[data-bucket="CARRYOVER"]')?.textContent).toBe('100 triệu đồng (100.000.000 đồng)');
     expect(within(monthRow(11)).getByTestId('rate').getAttribute('data-rate')).toBe('0.0000');
     // A month with no registration says so, and does not show 0 %.
     expect(within(monthRow(3)).getByTestId('rate').textContent).toBe(vi_['cap.schedule.rate.none.label']);
-    expect(screen.getByTestId('total-registered').textContent).toBe('900');
-    expect(screen.getByTestId('total-disbursed').textContent).toBe('300');
+    expect(screen.getByTestId('total-registered').textContent).toBe('900 triệu đồng (900.000.000 đồng)');
+    expect(screen.getByTestId('total-disbursed').textContent).toBe('300 triệu đồng (300.000.000 đồng)');
     expect(monthRow(13).querySelector('th')?.textContent).toBe(vi_['cap.schedule.month.adjustment.label']);
     expect(monthRow(1).querySelector('th')?.textContent).toBe('Tháng 1');
   });
@@ -114,7 +114,7 @@ describe('DisbursementScheduleScreen (CAP-08): the registration of the disbursem
     await ready();
     fill(vi_['cap.schedule.month.field.label'], '10');
     expect((screen.getByLabelText(vi_['cap.schedule.amount.label']) as HTMLInputElement).value).toBe('800');
-    expect(screen.getByTestId('current').textContent).toContain('800');
+    expect(screen.getByTestId('current').textContent).toContain('800 triệu đồng');
     expect(screen.getByTestId('current').textContent).toContain('phiên bản 1');
     fill(vi_['cap.schedule.amount.label'], '900');
     fill(vi_['cap.schedule.reason.label'], 'Đã ký phụ lục hợp đồng');

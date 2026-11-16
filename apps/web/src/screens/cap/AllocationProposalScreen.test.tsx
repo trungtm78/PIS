@@ -44,7 +44,7 @@ describe('AllocationProposalScreen (CAP-02): propose capital for a project', () 
     expect(within(screen.getByLabelText(vi_['cap.planChooser.label'])).getAllByRole('option').map((option) => option.textContent)).toEqual(['CP-2026 · 2026 · Nháp', 'TH-2026-2030 · 2026 - 2030 · Nháp']);
     expect(within(form().getByLabelText(vi_['cap.proposal.project.label'])).getAllByRole('option').map((option) => option.textContent)).toEqual([vi_['cap.form.choose.option'], 'DA-01 · Đường vành đai 3', 'DA-02 · Cầu Thủ Thiêm 4']);
     const sources = within(form().getByLabelText(vi_['cap.proposal.source.label'])).getAllByRole('option').map((option) => option.textContent);
-    expect(sources).toEqual([vi_['cap.form.choose.option'], 'NSTW-DTPT · 2026 · còn 4.000 triệu đồng', 'NSDP-DTPT · 2026 · còn 4.000 triệu đồng']);
+    expect(sources).toEqual([vi_['cap.form.choose.option'], 'NSTW-DTPT · 2026 · còn 4 tỷ đồng', 'NSDP-DTPT · 2026 · còn 4 tỷ đồng']);
   });
 
   it('shows the exact dong of the amount and what the source will have left, and refuses an amount the source cannot hold (UI-CAP-02, UAT-AC221)', async () => {

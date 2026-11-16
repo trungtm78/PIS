@@ -102,7 +102,7 @@ describe('PaymentListScreen (PAY-01): the payment requests', () => {
     const totals = document.querySelector('tfoot') as HTMLElement;
     expect(within(totals).getByText('3 tỷ đồng').getAttribute('title')).toBe('3.000.000.000 đồng');
     expect(screen.getByTestId('totals-note').textContent).toBe(message('w2pay.pay.list.totals.note', { standing: 1, total: 2 }));
-    expect(screen.getByRole('group', { name: vi_['ui.contextBar.label'] }).textContent).toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));
+    expect(screen.getByRole('group', { name: vi_['ui.contextBar.label'] }).textContent).not.toContain(message('ui.unitChip.label', { unit: message('w2pay.ctx.unit') }));
     cleanup();
     open(world({ payments: [payment(1)] }), { path: '/pay/pay-01?status=CANCELLED' });
     fireEvent.click(await screen.findByRole('button', { name: vi_['ui.dataTable.clearFilters'] }));

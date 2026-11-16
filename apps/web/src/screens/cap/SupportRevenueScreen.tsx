@@ -55,10 +55,10 @@ function SupportContent({ route }: ScreenProps) {
                     <th scope="col">{t('cap.support.column.decision')}</th>
                     <th scope="col">{t('cap.support.column.scope')}</th>
                     <th scope="col" className="cap-number">
-                      {t('cap.support.column.amount')}
+                      {t('cap.support.col.amount')}
                     </th>
                     <th scope="col" className="cap-number">
-                      {t('cap.support.column.allocated')}
+                      {t('cap.support.col.allocated')}
                     </th>
                   </tr>
                 </thead>

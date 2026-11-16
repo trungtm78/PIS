@@ -1,3 +1,4 @@
+import { formatPercent } from '../../../i18n/format';
 import { useState } from 'react';
 import { camel } from '../../mdm/catalogues';
 import type { FormEvent } from 'react';
@@ -15,7 +16,7 @@ import type { CapErrors, CapField, CapForm, CapPolicyView, ClassRow } from './mo
 
 const NEVER_EMPTY = (): boolean => false;
 const TONE: Readonly<Record<ClassRow['state'], Tone>> = { UNCAPPED: 'neutral', OK: 'success', NEAR: 'warning', OVER: 'danger' };
-const pctText = (value: number | null): string => (value === null ? '-' : `${value}%`);
+const pctText = (value: number | null): string => (value === null ? '-' : formatPercent(value));
 
 /**
  * ADM-30: the caps on the number and the size of the log classes (HT.06). A technical class over its cap is archived to a hashed file and then purged by the nightly run, never below its retention rule; the audit

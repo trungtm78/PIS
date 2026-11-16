@@ -1,3 +1,4 @@
+import { percentFigure } from '../percent-figure';
 import { ApiError } from '@machvon/api-client';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
@@ -282,7 +283,7 @@ function Coverage() {
         {data === undefined ? null : (
           <div className="alertgov-stack" data-testid="coverage">
             <RuleNote rule={data.rule} />
-            <p data-testid="coverage-summary">{data.summary.percent === null ? t('alertgov.cover.report.noPositions') : t('alertgov.cover.report.summary', { backed: data.summary.backedUp, total: data.summary.total, percent: data.summary.percent })}</p>
+            <p data-testid="coverage-summary">{data.summary.percent === null ? t('alertgov.cover.report.noPositions') : t('alertgov.cover.report.summary', { backed: data.summary.backedUp, total: data.summary.total, percent: percentFigure(data.summary.percent) })}</p>
             <DataTable<PositionRow> caption={t('alertgov.health.positions.caption')} columns={positions} rows={data.positions} rowKey={(row) => row.key} state={data.positions.length === 0 ? 'empty' : 'ready'} emptyKind="none" />
             <h3>{t('alertgov.cover.report.gaps')}</h3>
             <DataTable<GapRow> caption={t('alertgov.cover.report.gapsCaption')} columns={gaps} rows={data.gaps} rowKey={(row) => row.id} state={data.gaps.length === 0 ? 'empty' : 'ready'} emptyKind="none" />

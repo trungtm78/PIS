@@ -1,5 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import type { TrackedPackage } from '../procurement/model';
+import { formatPercent } from '../../../i18n/format';
 
 /** The permissions of BID-06 (x-permission of the operations in openapi.json); the server judges each call again, with the scope of the project and the full view of the proposal. */
 export const READ_PERMISSION = 'bid.ocr.read';
@@ -129,13 +130,13 @@ export function toUploadedCorrection(raw: unknown): UploadedCorrection | undefin
   return key === undefined ? undefined : { key };
 }
 
-/** A confidence such as `0.8525` as the percentage a person reads (`85.25%`), by the digits of the text: no float is made of it. */
+/** A confidence such as `0.8525` as the percentage a person reads (`85,25%`, written by the shared `formatPercent`), by the digits of the text: no float is made of it. */
 export function percentOf(confidence: string): string {
+  if (confidence === '') return formatPercent('0');
+  if (!/^\d+(?:\.\d+)?$/.test(confidence)) return confidence;
   const [integer = '0', fraction = ''] = confidence.split('.');
-  if (integer === '1') return '100%';
-  const digits = fraction.padEnd(4, '0');
-  const rest = digits.slice(2).replace(/0+$/, '');
-  return `${Number(digits.slice(0, 2))}${rest === '' ? '' : `.${rest}`}%`;
+  const digits = fraction.padEnd(2, '0');
+  return formatPercent(`${BigInt(integer + digits.slice(0, 2))}.${digits.slice(2) || '0'}`);
 }
 
 /** The threshold the server named as the percentage the screen shows; empty when the server named none. */

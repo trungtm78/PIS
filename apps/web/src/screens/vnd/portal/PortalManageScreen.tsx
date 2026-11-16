@@ -1,3 +1,4 @@
+import { formatPercent } from '../../../i18n/format';
 import { useState } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
@@ -104,7 +105,7 @@ function RequestsTab({ canManage, onAccept, onReturn, onCancel }: { canManage: b
                 </Fact>
                 <Fact label={t('vnp.manage.counts.inTime.label')} testId="count-in-time">
                   <span className="vnd-with-info">
-                    {page.in_time_pct === null ? t('vnp.manage.counts.none.text') : `${page.in_time_pct}%`}
+                    {page.in_time_pct === null ? t('vnp.manage.counts.none.text') : formatPercent(page.in_time_pct)}
                     <CountInfo name={t('vnp.manage.counts.inTime.label')} formula={t('vnp.manage.counts.inTime.formula')} source={t('vnp.manage.counts.inTime.source')} asOf={page.as_of} unverified />
                   </span>
                 </Fact>
@@ -231,7 +232,7 @@ function ReconfirmationsTab() {
               <dl className="vnd-facts" data-testid="reconfirm-counts">
                 <Fact label={t('vnp.manage.reconfirm.current.label')} testId="rc-current">
                   <span className="vnd-with-info">
-                    {page.current_pct === null ? t('vnp.manage.counts.none.text') : `${page.current_pct}%`}
+                    {page.current_pct === null ? t('vnp.manage.counts.none.text') : formatPercent(page.current_pct)}
                     <PolicyInfo name={t('vnp.manage.reconfirm.current.label')} policy={page.policy} />
                   </span>
                 </Fact>

@@ -1,5 +1,4 @@
 import { ApiError } from '@machvon/api-client';
-import { percentOfText } from '../../i18n/format';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { translator, useTranslation } from '../../i18n';
@@ -15,6 +14,7 @@ import { AnaFigureInfo, NaNote, UnverifiedNote } from './components';
 import { useMultiRanking, useRankingCommands } from './ranking-hooks';
 import { ANNOTATE_PERMISSION, COMPLAIN_PERMISSION, NOTES_PATH, RANKING_PATH } from './ranking-model';
 import type { MetricCode, MetricView, Quadrant, RankingReading, UnitRank } from './ranking-model';
+import { formatPercent, percentOfText } from '../../i18n/format';
 
 type T = Translator['t'];
 
@@ -269,7 +269,7 @@ function UnitRow({ unit, metrics, canAnnotate, canComplain, onAnnotate, onCompla
           <>
             {quadrantLabel(t, unit.pair.quadrant)}{' '}
             <span className="ana-caveat">
-              {t('ana.rank.pair.numbers', { rate: commaText(String(unit.pair.ratePct)), physical: commaText(String(unit.pair.physicalPct)) })}
+              {t('ana.rank.pair.numbers', { rate: formatPercent(unit.pair.ratePct).replace('%', ''), physical: formatPercent(unit.pair.physicalPct).replace('%', '') })}
             </span>
           </>
         )}

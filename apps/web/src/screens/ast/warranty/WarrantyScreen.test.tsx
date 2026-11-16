@@ -12,7 +12,6 @@ const OK = { operation_id: 'o', status: 'ACTIVE', resource_version: 1, resource_
 const refusal = (code: string, status = 422, extensions: Record<string, unknown> = {}) => new ApiError({ status, code, correlationId: 'c', extensions });
 const text = (key: string, params: Record<string, string | number> = {}): string =>
   Object.entries(params).reduce((message, [name, value]) => message.replace(`{${name}}`, String(value)), (vi_ as Record<string, string>)[key] ?? key);
-const amount = (value: bigint): string => new Intl.NumberFormat('vi').format(value);
 
 afterEach(() => {
   cleanup();
@@ -73,7 +72,8 @@ describe('WarrantyScreen (AST-04): the warranty and what is held back', () => {
     expect(within(running).getByTestId('left').textContent).toBe(text('ast.warranty.term.left', { days: daysLeft('2999-09-01', vietnamToday()) }));
     expect(within(running).queryByTestId('rule-waiting')).toBeNull();
     expect(within(running).getByTestId('guarantee').textContent).toBe(vi_['ast.warranty.guarantee.none']);
-    expect(within(running).getByTestId('retention').textContent).toBe(text('ctr.value.amount', { amount: amount(150000000n) }));
+    expect(within(running).getByTestId('retention').textContent).toContain('150 triệu đồng');
+    expect(within(running).getByTitle('150.000.000 đồng')).toBeTruthy();
     expect(within(running).getByTestId('claims').textContent).toBe(text('ast.warranty.claims.count', { open: 0, total: 0 }));
     expect(within(running).getByTestId('status').textContent).toBe(vi_['ast.warranty.status.active']);
     expect(within(running).queryByRole('button')).toBeNull();
@@ -82,7 +82,8 @@ describe('WarrantyScreen (AST-04): the warranty and what is held back', () => {
     expect(within(expired).getByTestId('left').textContent).toBe(vi_['ast.warranty.term.over']);
     expect(within(expired).getByTestId('rule-waiting').textContent).toBe(text('ast.warranty.rule.waiting', { months: 12, cxn: 'CXN-EXE-04' }));
     expect(within(expired).getByTestId('guarantee').textContent).toContain('Ngân hàng · BL-1');
-    expect(within(expired).getByTestId('guarantee').textContent).toContain(text('ctr.value.amount', { amount: amount(500000000n) }));
+    expect(within(expired).getByTestId('guarantee').textContent).toContain('500 triệu đồng');
+    expect(within(expired).getByTitle('500.000.000 đồng')).toBeTruthy();
     expect(within(expired).getByTestId('asset').textContent).toBe('AS-001 · Trạm bơm 1');
     expect(within(expired).getByTestId('claims').textContent).toBe(text('ast.warranty.claims.count', { open: 1, total: 2 }));
     expect(within(expired).getByTestId('status').textContent).toBe(vi_['ast.warranty.status.expired']);

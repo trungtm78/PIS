@@ -13,6 +13,7 @@ import { NodePanel } from './NodePanel';
 import { appliedCount, billions, filtersOf, fullDay, shortDay, treeIsEmpty, treeToView, vietnamDay, vietnamTime, withoutPeriod } from './model';
 import type { Filters, TreeWords } from './model';
 import './workflow.css';
+import { fullMoney } from '../../../i18n/money';
 
 /**
  * BID-27, "Progress by workflow" (PRC-1, docs/process-tree-design.md): the packages of the procurement as one tree of states with how many are in each, what is late, and how many moved between them in the period. A click opens the
@@ -114,7 +115,7 @@ function ProcessTreeContent({ route }: ScreenProps) {
         <KpiTile state={loading ? 'loading' : 'ready'} label={t('prc1.kpi.running.label')} value={kpi === undefined ? '' : String(kpi.running)} sub={<Figure kind="running" asOf={asOfDay} />} />
         <KpiTile state={loading ? 'loading' : 'ready'} tone={kpi !== undefined && kpi.late > 0 ? 'danger' : 'default'} label={t('prc1.kpi.late.label')} value={kpi === undefined ? '' : String(kpi.late)} sub={<Figure kind="late" asOf={asOfDay} />} />
         <KpiTile state={loading ? 'loading' : 'ready'} tone={kpi !== undefined && kpi.stalled > 0 ? 'warning' : 'default'} label={t('prc1.kpi.stalled.label')} value={kpi === undefined ? '' : String(kpi.stalled)} sub={<Figure kind="stalled" asOf={asOfDay} />} />
-        <KpiTile state={loading ? 'loading' : 'ready'} label={t('prc1.kpi.value.label')} value={data === undefined ? '' : billions(data.total.value_vnd, locale)} unit={t('prc1.unit.billion.name')} sub={<Figure kind="value" asOf={asOfDay} />} />
+        <KpiTile state={loading ? 'loading' : 'ready'} label={t('prc1.kpi.value.label')} value={data === undefined ? '' : billions(data.total.value_vnd, locale)} valueTitle={data === undefined ? undefined : fullMoney(data.total.value_vnd, locale)} unit={t('prc1.unit.billion.name')} sub={<Figure kind="value" asOf={asOfDay} />} />
         <KpiTile
           state={loading ? 'loading' : 'ready'}
           label={t('prc1.kpi.median.label')}

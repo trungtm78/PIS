@@ -73,7 +73,7 @@ describe('DIS-06 review and send', () => {
     expect(within(errors[2] as HTMLElement).queryByRole('link')).toBeNull();
     const warnings = within(screen.getByTestId('review-warnings')).getAllByRole('listitem');
     expect(warnings.map((item) => item.getAttribute('data-code'))).toEqual(['VOLUME_EXCEEDS_ALLOCATION', 'TREASURY_GAP', 'NEXT_MONTH_EMPTY_WITH_CAPITAL_LEFT']);
-    expect(warnings[0]?.textContent).toContain('203.8%');
+    expect(warnings[0]?.textContent).toContain('203,8%');
     expect(within(warnings[2] as HTMLElement).getByRole('link', { name: vi_['dis.review.fix.link'] }).getAttribute('href')).toBe(`/dis/dis-05?report=${REPORT}`);
   });
 

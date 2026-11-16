@@ -34,7 +34,7 @@ describe('BAN-02, the projects that need the head', () => {
     expect(first.querySelector('[data-reason="DELAYED"]')?.textContent).toContain('◷');
     expect(first.querySelector('[data-reason="DISBURSEMENT_FAR_BELOW_PLAN"]')?.textContent).toContain('▼');
     expect(first.textContent).toContain(word('ban.reason.days.text', { value: '75', threshold: 60 }));
-    expect(first.textContent).toContain(word('ban.reason.percent.text', { value: '30,00', threshold: 50 }));
+    expect(first.textContent).toContain(word('ban.reason.percent.text', { value: '30', threshold: 50 }));
     expect(within(first).getByText('123,46 tỷ đồng').getAttribute('title')).toBe('123.456.789.012 đồng');
     expect(within(first).getByText('72,50')).toBeTruthy();
     expect(within(first).getByText(word('ban.att.state.none'))).toBeTruthy();
@@ -51,7 +51,7 @@ describe('BAN-02, the projects that need the head', () => {
     const first = (await screen.findByText('DA-1')).closest('tr') as HTMLElement;
     expect(within(first).getByText('9.223.372.036,85 tỷ đồng').getAttribute('title')).toBe('9.223.372.036.854.775.809 đồng');
     expect(within(first).getAllByText(word('ban.common.noData.text')).length).toBeGreaterThanOrEqual(1);
-    expect(first.textContent).toContain(word('ban.att.rate.text', { rate: word('ban.common.noData.text'), expected: '64,00%' }));
+    expect(first.textContent).toContain(word('ban.att.rate.text', { rate: word('ban.common.noData.text'), expected: '64%' }));
   });
 
   it('offers a reader nothing to decide, and a head without the right to direct no directive', async () => {

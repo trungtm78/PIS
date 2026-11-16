@@ -1,9 +1,11 @@
+import { percentOfText } from '../../i18n/format';
+import { percentFigure } from '../percent-figure';
 import { ApiError } from '@machvon/api-client';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
-import { compactMoney } from '../../i18n/money';
+import { compactMoney, fullMoney } from '../../i18n/money';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -46,7 +48,7 @@ function ChangeTierContent({ route }: ScreenProps) {
           <p>{t('govb2.tier.subtitle')}</p>
         </div>
       </div>
-      <ContextBar items={[{ label: t('govb2.ctx.scope'), value: tenant?.name ?? t('govb2.ctx.scope.all') }, ...(view === undefined || view.code === null ? [] : [{ label: t('govb2.tier.ctx.change'), value: view.code }])]} unit={t('govb2.control.unit')} {...(view === undefined ? {} : { asOf: asOfText(view.asOf) })} />
+      <ContextBar items={[{ label: t('govb2.ctx.scope'), value: tenant?.name ?? t('govb2.ctx.scope.all') }, ...(view === undefined || view.code === null ? [] : [{ label: t('govb2.tier.ctx.change'), value: view.code }])]} {...(view === undefined ? {} : { asOf: asOfText(view.asOf) })} />
       {changeId === undefined ? (
         <p className="callout" data-testid="no-target">
           {t('govb2.tier.noTarget')}
@@ -76,11 +78,11 @@ function TierBody({ view, money, writable }: { view: ChangeTier; money: (value: 
     <>
       <KpiStrip label={t('govb2.tier.kpi.label')}>
         <KpiTile label={t('govb2.tier.kpi.tier')} value={t('govb2.tier.kpi.tier.value', { tier: view.tier })} tone={tierTone(view.tier)} sub={t('govb2.tier.kpi.tier.sub')} />
-        <KpiTile label={t('govb2.tier.kpi.cumulative')} value={view.cumulativePct === null ? t('govb2.tier.kpi.none') : `${view.cumulativePct}%`} tone={view.forcesAdjustment ? 'danger' : 'default'} sub={t('govb2.tier.kpi.cumulative.sub', { amount: short(view.cumulativeAfterVnd) })} />
-        <KpiTile label={t('govb2.tier.kpi.authority')} value={short(view.authorityAmountVnd)} sub={t('govb2.tier.kpi.authority.sub')} />
+        <KpiTile label={t('govb2.tier.kpi.cumulative')} value={view.cumulativePct === null ? t('govb2.tier.kpi.none') : percentOfText(view.cumulativePct)} tone={view.forcesAdjustment ? 'danger' : 'default'} sub={t('govb2.tier.kpi.cumulative.sub', { amount: short(view.cumulativeAfterVnd) })} />
+        <KpiTile label={t('govb2.tier.kpi.authority')} value={short(view.authorityAmountVnd)} valueTitle={fullMoney(view.authorityAmountVnd)} sub={t('govb2.tier.kpi.authority.sub')} />
       </KpiStrip>
       <p className="muted" data-testid="formula">
-        {t('govb2.tier.formula', { adjustment: view.policy.projectAdjustmentPct, source })}
+        {t('govb2.tier.formula', { adjustment: percentFigure(view.policy.projectAdjustmentPct), source })}
       </p>
 
       <SectionCard title={t('govb2.tier.funding.title')} unit={t('govb2.control.unit')} status={<StatusPill tone={!funding.needsCover || funding.covered ? 'success' : 'danger'}>{!funding.needsCover ? t('govb2.tier.funding.notNeeded') : funding.covered ? t('govb2.tier.funding.covered') : t('govb2.tier.funding.short')}</StatusPill>}>
@@ -108,12 +110,12 @@ function TierBody({ view, money, writable }: { view: ChangeTier; money: (value: 
       <SectionCard title={t('govb2.tier.check.title')} unit={t('govb2.control.unit')} status={view.check === null ? <StatusPill tone="neutral">{t('govb2.tier.check.none')}</StatusPill> : <StatusPill tone={view.check.status === 'CLEARED' ? 'success' : 'danger'}>{view.check.status === 'CLEARED' ? t('govb2.tier.check.cleared') : t('govb2.tier.check.required')}</StatusPill>}>
         {view.check === null ? (
           <p className="muted" data-testid="no-check">
-            {view.forcesAdjustment ? t('govb2.tier.check.notRaised') : t('govb2.tier.check.notCalledFor', { pct: view.policy.projectAdjustmentPct })}
+            {view.forcesAdjustment ? t('govb2.tier.check.notRaised') : t('govb2.tier.check.notCalledFor', { pct: percentFigure(view.policy.projectAdjustmentPct) })}
           </p>
         ) : (
           <dl className="gov4-facts" data-testid="check">
             <dt>{t('govb2.tier.check.cumulative')}</dt>
-            <dd>{`${view.check.cumulativePct}% / ${view.check.thresholdPct}%`}</dd>
+            <dd>{`${percentOfText(view.check.cumulativePct)} / ${percentOfText(view.check.thresholdPct)}`}</dd>
             <dt>{t('govb2.tier.check.audit')}</dt>
             <dd>{view.check.auditNotifiedAt === null ? t('govb2.tier.check.audit.no') : asOfText(view.check.auditNotifiedAt)}</dd>
             {view.check.basis === null ? null : (

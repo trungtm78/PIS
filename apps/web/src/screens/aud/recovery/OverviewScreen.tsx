@@ -4,7 +4,7 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { compactMoney } from '../../../i18n/money';
+import { compactMoney, fullMoney } from '../../../i18n/money';
 import { ContextBar, DataTable, KpiStrip, KpiTile, Money, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import '../aud.css';
@@ -68,7 +68,7 @@ function OverviewContent({ route }: ScreenProps) {
                   <KpiTile label={t('aud.overview.tile.overdue')} value={String(data.recommendationsOverdue)} tone={data.recommendationsOverdue > 0 ? 'danger' : 'default'} />
                 </div>
                 <div className="aud-tile" data-testid="tile-money">
-                  <KpiTile label={t('aud.overview.tile.moneyShort')} value={compactMoney(data.amountVnd)} tone="info" sub={t('aud.overview.tile.money.parts', { recovered: compactMoney(data.recoveredVnd), remaining: compactMoney(data.remainingVnd) })} />
+                  <KpiTile label={t('aud.overview.tile.moneyShort')} value={compactMoney(data.amountVnd)} valueTitle={fullMoney(data.amountVnd)} tone="info" sub={t('aud.overview.tile.money.parts', { recovered: compactMoney(data.recoveredVnd), remaining: compactMoney(data.remainingVnd) })} />
                 </div>
               </KpiStrip>
             </div>

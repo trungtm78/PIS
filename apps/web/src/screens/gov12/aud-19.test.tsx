@@ -52,7 +52,7 @@ describe('AUD-19, the gifts register', () => {
     expect(flags).toContain(word('gov12da.aud19.flag.review'));
     expect(flags).toContain(word('gov12da.aud19.flag.noKeep'));
     expect(screen.getByTestId(`outcome-${uuid(2)}`).textContent).toContain(word('gov12da.aud.outcome.returned'));
-    expect(screen.getByTestId('figure-keep').textContent).toBe('1.000.000');
+    expect(screen.getByTestId('figure-keep').textContent).toBe('1.000.000 đồng');
     fireEvent.click(screen.getByRole('button', { name: rx(word('gov12da.aud19.figure.keep')) }));
     const panel = await screen.findByRole('dialog', { name: word('gov12da.aud19.figure.keep') });
     expect(within(panel).getByText(word('gov12da.info.label.unverified'))).toBeTruthy();

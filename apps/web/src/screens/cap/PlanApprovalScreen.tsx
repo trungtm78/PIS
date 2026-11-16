@@ -163,7 +163,7 @@ function ImpactCard({ plan, base, impact }: ImpactProps) {
       ) : null}
       <div className="cap-scroll">
         <table className="table cap-table" aria-label={t('cap.approval.impact.table.aria', { code: plan.planCode })}>
-          <caption className="sr-only">{t('cap.approval.impact.table.caption')}</caption>
+          <caption className="sr-only">{t('cap.approval.impact.caption')}</caption>
           <thead>
             <tr>
               <th scope="col">{t('cap.approval.impact.column.project')}</th>

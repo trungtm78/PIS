@@ -1,3 +1,4 @@
+import { fullMoney } from '../../../i18n/money';
 import { useState } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
@@ -173,8 +174,8 @@ function GiftContent({ route }: ScreenProps) {
       {data === undefined ? null : (
         <div className="g12-figures">
           <Figure label={t('gov12da.aud19.figure.declareWithin')} value={t('gov12da.aud19.figure.days', { days: data.rule.declare_within_days })} topic="gift" asOf={asOf} rule={rule} testId="figure-declare" />
-          <Figure label={t('gov12da.aud19.figure.review')} value={dong(data.rule.review_over_vnd)} topic="gift" asOf={asOf} rule={rule} testId="figure-review" />
-          <Figure label={t('gov12da.aud19.figure.keep')} value={dong(data.rule.keep_up_to_vnd)} topic="gift" asOf={asOf} rule={rule} testId="figure-keep" />
+          <Figure label={t('gov12da.aud19.figure.review')} value={fullMoney(data.rule.review_over_vnd)} topic="gift" asOf={asOf} rule={rule} testId="figure-review" />
+          <Figure label={t('gov12da.aud19.figure.keep')} value={fullMoney(data.rule.keep_up_to_vnd)} topic="gift" asOf={asOf} rule={rule} testId="figure-keep" />
         </div>
       )}
       <div className="g12-filter">

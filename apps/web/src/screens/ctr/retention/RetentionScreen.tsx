@@ -12,6 +12,7 @@ import { blockerLabel, conditionLabel, statusLabel } from './labels';
 import type { HoldLine } from './model';
 import { ReleaseDialog } from './ReleaseDialog';
 import '../../qms/qms.css';
+import { compactMoney, fullMoney } from '../../../i18n/money';
 
 /**
  * CTR-21: the retention held back from the payments of a contract, by line of the BOQ (ST-CTR-010, CTR 3.5, BR-CTR-09). For each line it shows what is held, the condition of the release (the end of the
@@ -58,11 +59,11 @@ function RetentionContent({ route }: ScreenProps) {
             <>
               <div className="card" data-testid="totals">
                 <strong data-testid="contract">{t('ctr.retention.contract.label', { code: view.contract.code })}</strong>
-                <small className="sub qms-regime" data-testid="held-total">
-                  {t('ctr.retention.totals.held', { amount: money(view.contract.heldVnd) })}
+                <small className="sub qms-regime" data-testid="held-total" title={fullMoney(view.contract.heldVnd, locale)}>
+                  {t('ctr.retention.totals.held', { amount: compactMoney(view.contract.heldVnd, { locale }) })}
                 </small>
-                <small className="sub qms-regime" data-testid="released-total">
-                  {t('ctr.retention.totals.released', { amount: money(view.contract.releasedVnd) })}
+                <small className="sub qms-regime" data-testid="released-total" title={fullMoney(view.contract.releasedVnd, locale)}>
+                  {t('ctr.retention.totals.released', { amount: compactMoney(view.contract.releasedVnd, { locale }) })}
                 </small>
               </div>
               <div className="card">

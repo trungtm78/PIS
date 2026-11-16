@@ -56,9 +56,10 @@ describe('AssetScreen (AST-03): the asset dossier', () => {
     expect(within(registered).getByTestId('name').textContent).toBe('Trạm bơm 1');
     expect(within(registered).getByTestId('handover').textContent).toBe('BG-001 · HD-A-002');
     expect(within(registered).getByTestId('unit').textContent).toBe('Sở Giao thông');
-    expect(within(registered).getByTestId('value').textContent).toContain(text('ctr.value.amount', { amount: amount(3200000000n) }));
+    expect(within(registered).getByTestId('value').textContent).toContain('3,2 tỷ đồng');
+    expect(within(registered).getByTitle('3.200.000.000 đồng')).toBeTruthy();
     expect(within(registered).getByTestId('value').textContent).toContain(vi_['ast.asset.basis.contractValue']);
-    expect(within(registered).getByTestId('remaining').textContent).toBe(text('ast.asset.remaining.label', { left: amount(5000000000n), contract: amount(10000000000n) }));
+    expect(within(registered).getByTestId('remaining').textContent).toBe(text('ast.asset.remaining.label', { left: '5 tỷ đồng', contract: '10 tỷ đồng' }));
     expect(within(registered).getByTestId('external').textContent).toBe(vi_['ast.asset.external.manual']);
     expect(within(registered).getByTestId('status').textContent).toBe(vi_['ast.asset.status.registered']);
     const transferred = row(assetId(2));
