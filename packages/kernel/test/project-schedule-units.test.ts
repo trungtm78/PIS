@@ -2,8 +2,8 @@ import fc from 'fast-check';
 import { bandOf, deadlineBand, officialThresholds, policyThresholds, resolveBand } from '../src/deadline-band.ts';
 import type { BandPolicy, BandThresholds } from '../src/deadline-band.ts';
 import { parseProjectWorkflowTemplate, stepSpans } from '../src/project-workflow.ts';
-import { addMonths, bandZonesOf, overallDeadlineOf, scheduleProject, standardTimes, tasksFromTemplate } from '../src/project-schedule.ts';
-import type { PinnedCalendar, ScheduleDuration, ScheduleInput, ScheduleTask, ScheduledTask } from '../src/project-schedule.ts';
+import { addMonths, bandZonesOf, finishMovedLater, overallDeadlineOf, rescheduleProject, scheduleProject, standardTimes, tasksFromTemplate } from '../src/project-schedule.ts';
+import type { PinnedCalendar, ScheduleChange, ScheduleDuration, ScheduleInput, ScheduleTask, ScheduledTask } from '../src/project-schedule.ts';
 import type { WorkCalendarContent, WorkCalendarSource } from '../src/working-time.ts';
 
 /*
@@ -403,6 +403,21 @@ describe('defects found by the independent review of the lane (scheduler)', () =
     expect(dates(rolled, 'M')).toEqual(['2026-11-16', '2026-11-16']);
     const lagged = run([task('A', 3, { duration: limit(3, 'CALENDAR_DAY', false) }), { code: 'M', kind: 'MILESTONE', durationWorkingDays: 0, predecessors: [link('A', 'FS', 1)] }], { plannedStart: '2026-11-13' });
     expect(dates(lagged, 'M')).toEqual(['2026-11-16', '2026-11-16']);
+  });
+
+  it('3. a deadline that moves from Saturday to Sunday is a change, with a working-day shift of zero', () => {
+    const input = (days: number) => ({ tasks: [task('A', days, { duration: limit(days, 'CALENDAR_DAY', false) })], plannedStart: '2026-11-13', calendars: YEARS });
+    const before = scheduleProject(input(2));
+    expect(find(before, 'A').finish).toBe('2026-11-14');
+    const rescheduled = rescheduleProject({ before, input: input(3) });
+    expect(find(rescheduled.schedule, 'A').finish).toBe('2026-11-15');
+    expect(rescheduled.diff).toEqual([{ code: 'A', startShiftDays: 0, finishShiftDays: 0, floatChange: 0, becameCritical: false, becameNonCritical: false, stateChanged: false, finishCalendarShiftDays: 1 }]);
+    expect(finishMovedLater(rescheduled.diff[0] as ScheduleChange)).toBe(true);
+    // The other way round it is an earlier day, and a schedule that does not move has no change at all.
+    const back = rescheduleProject({ before: rescheduled.schedule, input: input(2) });
+    expect(back.diff[0]).toMatchObject({ finishShiftDays: 0, finishCalendarShiftDays: -1 });
+    expect(finishMovedLater(back.diff[0] as ScheduleChange)).toBe(false);
+    expect(rescheduleProject({ before, input: input(2) }).diff).toEqual([]);
   });
 
   it('no dated task has an undated predecessor anywhere in its chain', () => {

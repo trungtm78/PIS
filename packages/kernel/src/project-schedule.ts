@@ -644,7 +644,16 @@ export interface ScheduleChange {
   becameCritical: boolean;
   becameNonCritical: boolean;
   stateChanged: boolean;
+  /**
+   * Only on a task whose DAY moved while its working-day shift is 0 (a limit in calendar days that ends on a day nobody works: Saturday to Sunday): the calendar days the start or the finish moved, positive when later. The
+   * working-day shift stays the measure of the slots; this one says that the date itself is another day.
+   */
+  startCalendarShiftDays?: number;
+  finishCalendarShiftDays?: number;
 }
+
+/** Whether the finish of a task is a later day than before: by its working-day shift, or by the calendar when that shift is 0. */
+export const finishMovedLater = (change: Pick<ScheduleChange, 'finishShiftDays' | 'finishCalendarShiftDays'>): boolean => (change.finishShiftDays ?? 0) > 0 || (change.finishCalendarShiftDays ?? 0) > 0;
 
 /** What changed between two schedules of the same project, task by task, for the screen that previews a reschedule before it is applied. Tasks that did not change are not listed. */
 export function diffSchedules(before: ScheduleResult, after: ScheduleResult, calendars: readonly PinnedCalendar[]): ScheduleChange[] {
@@ -669,7 +678,12 @@ export function diffSchedules(before: ScheduleResult, after: ScheduleResult, cal
       becameNonCritical: was.critical && !now.critical,
       stateChanged: was.state !== now.state,
     };
-    if ((startShiftDays ?? 0) !== 0 || (finishShiftDays ?? 0) !== 0 || (floatChange ?? 0) !== 0 || change.becameCritical || change.becameNonCritical || change.stateChanged) changes.push(change);
+    const byCalendar = (left: string | null, right: string | null, slots: number | null): number => (left === null || right === null || slots !== 0 ? 0 : dayNumber(right) - dayNumber(left));
+    const startCalendar = byCalendar(was.start, now.start, startShiftDays);
+    const finishCalendar = byCalendar(was.finish, now.finish, finishShiftDays);
+    if (startCalendar !== 0) change.startCalendarShiftDays = startCalendar;
+    if (finishCalendar !== 0) change.finishCalendarShiftDays = finishCalendar;
+    if (startCalendar !== 0 || finishCalendar !== 0 || (startShiftDays ?? 0) !== 0 || (finishShiftDays ?? 0) !== 0 || (floatChange ?? 0) !== 0 || change.becameCritical || change.becameNonCritical || change.stateChanged) changes.push(change);
   }
   return changes;
 }
