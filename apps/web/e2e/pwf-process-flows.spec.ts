@@ -22,6 +22,7 @@ const PERSON = 'owner';
 const TEMPLATE = 'PUBLIC_INVESTMENT';
 const today = (): string => new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
 const unique = (prefix: string): string => `E2E-${prefix}-${Date.now().toString(36).toUpperCase()}`;
+const DAY = /\d{2}\/\d{2}\/\d{4}/;
 
 interface StoredTemplate {
   steps?: Array<{ code: string; name: string; phase: string; legal_basis?: unknown[] }>;
