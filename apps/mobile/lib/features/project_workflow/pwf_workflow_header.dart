@@ -96,11 +96,11 @@ class _Overall extends StatelessWidget {
     final PwfStepFacts facts = PwfStepFacts(bandTier: overall.bandTier, bandThresholds: row?.facts.bandThresholds);
     final String? slipText = slip == null ? null : (slip! > 0 ? context.t('mob.pwfs.head.slip', <String, Object>{'days': slip!}) : context.t('mob.pwfs.head.onTime'));
     return Padding(
-      padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s12, MachvonV2Space.s4, 0),
+      padding: const EdgeInsets.only(left: MachvonV2Space.s16, top: MachvonV2Space.s12, right: MachvonV2Space.s4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Padding(padding: const EdgeInsets.only(top: 2), child: ExcludeSemantics(child: Icon(Icons.star, size: 20, color: v2.palette.soonFg))),
+          Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: ExcludeSemantics(child: Icon(Icons.star, size: 20, color: v2.palette.soonFg))),
           const SizedBox(width: MachvonV2Space.s8),
           Expanded(
             child: Semantics(

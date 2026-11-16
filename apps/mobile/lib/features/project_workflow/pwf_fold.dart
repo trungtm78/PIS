@@ -9,7 +9,13 @@ import '../../core/theme/typography.dart';
 /// section is one button for a screen reader that says its title and whether it is open ("Mở Lịch sử", "Thu gọn Lịch sử"); the content is not built while it is folded, so a
 /// long screen of folds stays light. The person's choice is kept while the screen is open, through a refresh of its data.
 class PwfFold extends StatefulWidget {
-  const PwfFold({required this.title, required this.children, this.count, this.initiallyOpen = false, super.key});
+  const PwfFold({
+    required this.title,
+    required this.children,
+    this.count,
+    this.initiallyOpen = false,
+    super.key,
+  });
 
   final String title;
   final List<Widget> children;
@@ -38,45 +44,75 @@ class _PwfFoldState extends State<PwfFold> {
   Widget build(BuildContext context) {
     final MachvonV2 v2 = context.v2;
     final MachvonV2Text text = context.v2text;
-    final int? count = widget.count == null || widget.count == 0 ? null : widget.count;
-    final String name = count == null ? widget.title : '${widget.title}, $count';
-    return DecoratedBox(
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: v2.palette.line))),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Semantics(
-            container: true,
-            button: true,
-            expanded: _open,
-            label: _open ? context.t('mob.pwfs.task.fold.close', <String, Object>{'title': name}) : context.t('mob.pwfs.task.fold.open', <String, Object>{'title': name}),
-            onTap: _toggle,
-            excludeSemantics: true,
-            child: Material(
-              type: MaterialType.transparency,
-              child: InkWell(
-                onTap: _toggle,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: MachvonV2Size.touchMin),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s12),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(child: Text(widget.title, style: text.heading)),
-                        if (count != null) Padding(padding: const EdgeInsets.only(right: MachvonV2Space.s8), child: Text('$count', style: text.caption)),
-                        Icon(_open ? Icons.expand_less : Icons.expand_more, color: v2.palette.ink2),
-                      ],
+    final int? count = widget.count == null || widget.count == 0
+        ? null
+        : widget.count;
+    final String name = count == null
+        ? widget.title
+        : '${widget.title}, $count';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Semantics(
+              container: true,
+              button: true,
+              expanded: _open,
+              label: _open
+                  ? context.t('mob.pwfs.task.fold.close', <String, Object>{
+                      'title': name,
+                    })
+                  : context.t('mob.pwfs.task.fold.open', <String, Object>{
+                      'title': name,
+                    }),
+              onTap: _toggle,
+              excludeSemantics: true,
+              child: Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  onTap: _toggle,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: MachvonV2Size.touchMin,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: MachvonV2Space.s16,
+                        vertical: MachvonV2Space.s12,
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(widget.title, style: text.heading),
+                          ),
+                          if (count != null)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                right: MachvonV2Space.s8,
+                              ),
+                              child: Text('$count', style: text.caption),
+                            ),
+                          Icon(
+                            _open ? Icons.expand_less : Icons.expand_more,
+                            color: v2.palette.ink2,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          if (_open) ...widget.children,
-          if (_open) const SizedBox(height: MachvonV2Space.s8),
-        ],
-      ),
+            if (_open) ...widget.children,
+            if (_open) const SizedBox(height: MachvonV2Space.s8),
+          ],
+        ),
+        SizedBox(height: 1, child: ColoredBox(color: v2.palette.line)),
+      ],
     );
   }
 }

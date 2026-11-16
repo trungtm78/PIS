@@ -82,10 +82,10 @@ class PwfStepRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Expanded(child: Text(task.name, style: over ? text.body.copyWith(color: v2.palette.ink2) : text.bodyStrong)),
-            if (facts.isOverallDeadline) Padding(padding: const EdgeInsets.only(left: MachvonV2Space.s4, top: 2), child: Icon(Icons.star, size: 18, color: v2.palette.soonFg)),
+            if (facts.isOverallDeadline) Padding(padding: const EdgeInsets.only(left: MachvonV2Space.s4, top: MachvonV2Space.s4), child: Icon(Icons.star, size: 18, color: v2.palette.soonFg)),
           ],
         ),
-        if (unit != null || (holder != null && !unclaimed)) Padding(padding: const EdgeInsets.only(top: 2), child: Text(<String>[?unit, if (!unclaimed) ?holder].join(' · '), style: text.caption)),
+        if (unit != null || (holder != null && !unclaimed)) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(<String>[?unit, if (!unclaimed) ?holder].join(' · '), style: text.caption)),
         const SizedBox(height: MachvonV2Space.s4),
         Wrap(
           spacing: MachvonV2Space.s8,

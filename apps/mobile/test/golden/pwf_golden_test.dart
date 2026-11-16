@@ -8,6 +8,7 @@ import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/features/project_workflow/project_workflow_feature.dart' as pwf;
 
 import '../features/project_workflow/pwf_fixtures.dart';
+import '../features/project_workflow/pwf_step_fixtures.dart';
 import '../features/support/scripted_server.dart';
 import '../support/harness.dart';
 import '../support/offline_support.dart';
@@ -33,7 +34,29 @@ Future<void> _open(WidgetTester tester, ScriptedServer server, String screenId, 
   await tester.pump(const Duration(milliseconds: 300));
 }
 
-ScriptedServer _workflow() => ScriptedServer()..on('GET', '/projects/:id/workflow', (_) => workflowJson());
+/// The workflow of the step table (PWF-5): a unit on each step, one step nobody holds, the star of the whole file with its slip, a tier of the colour on each.
+Map<String, Object?> _stepTableWorkflow() {
+  final Map<String, Object?> base = workflowJson();
+  final List<Object?> tasks = <Object?>[
+    for (final Object? raw in base['tasks']! as List<Object?>)
+      <String, Object?>{
+        ...raw! as Map<String, Object?>,
+        ...switch ((raw as Map<String, Object?>)['id']) {
+          '7f3a0000-0000-4000-8000-000000000011' => stepFields(unit: 'Phòng Kế hoạch'),
+          '7f3a0000-0000-4000-8000-000000000012' => stepFields(tier: 'POLICY', unclaimed: true, overall: true, unit: 'Sở Xây dựng', withExtension: false),
+          '7f3a0000-0000-4000-8000-000000000013' => stepFields(tier: 'SYSTEM', unit: 'Phòng Kế hoạch', withExtension: false),
+          _ => <String, Object?>{},
+        },
+      },
+  ];
+  return <String, Object?>{...base, 'tasks': tasks, 'overall_deadline': overallJson(), 'can_propose_reschedule': true};
+}
+
+ScriptedServer _workflow() => ScriptedServer()
+  ..on('GET', '/projects/:id/workflow', (_) => _stepTableWorkflow())
+  ..on('GET', '/projects/:id/workflow/schedule', (_) => <String, Object?>{
+        'tasks': <Object?>[<String, Object?>{'task_code': 'T-12', 'driving_predecessor': null, 'finish_variance_days': 3}],
+      });
 ScriptedServer _mine() => ScriptedServer()..on('GET', '/me/project-tasks', (_) => myTasksJson());
 ScriptedServer _task() => ScriptedServer()..on('GET', '/project-tasks/:id', (_) => taskDetailJson(TaskState(), blockers: <Map<String, Object?>>[<String, Object?>{'code': 'CHECKLIST_ITEM_OPEN', 'subject': 'C1'}]));
 ScriptedServer _score() => ScriptedServer()..on('GET', '/me/staff-scores', (_) => scoresJson(items: <Map<String, Object?>>[scoreItem(adjusted: 85)]));
