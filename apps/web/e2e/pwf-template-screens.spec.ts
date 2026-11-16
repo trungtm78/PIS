@@ -100,3 +100,70 @@ test.describe('PWF-01 and PWF-02: layout, height and effort', () => {
     await page.screenshot({ path: join(SHOTS, '04-PWF-02-ten-steps-1440.png'), fullPage: true });
   });
 });
+
+test.describe('PWF-01 and PWF-02: the polish of the library rows and of the selects of the editor', () => {
+  test('the library rows are about 56 px high and the header about 40, with the state in one compact line of chips', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto(`/pwf/pwf-01?devUser=${PERSON}`);
+    await expect(page.locator('[data-screen-id="PWF-01"] h1')).toBeVisible();
+    const table = page.locator('.pwf-lib table').first();
+    await expect(table.locator('tbody tr').first()).toBeVisible();
+    const sizes = await table.evaluate((element) => ({
+      head: Math.round(element.querySelector('thead tr')?.getBoundingClientRect().height ?? 0),
+      rows: Array.from(element.querySelectorAll('tbody tr')).map((row) => Math.round(row.getBoundingClientRect().height)),
+      chipWords: Array.from(element.querySelectorAll('.pwf-lib-state .ui-pill')).map((chip) => Math.round(chip.getBoundingClientRect().height)),
+    }));
+    expect(sizes.head, `header ${sizes.head}px`).toBeLessThanOrEqual(48);
+    expect(Math.max(...sizes.rows), `rows ${sizes.rows.join(', ')}px`).toBeLessThanOrEqual(72);
+    // A chip is one line (about 22 px), never a column of words.
+    for (const height of sizes.chipWords) expect(height).toBeLessThanOrEqual(30);
+    await noSidewaysScroll(page);
+  });
+
+  test('the unit, role, anchor and unit-of-limit selects of the editor show their selected text in full at 1440 px', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto(`/pwf/pwf-02?code=PUBLIC_INVESTMENT&devUser=${PERSON}`);
+    await expect(page.getByTestId('steps-table')).toBeVisible();
+    const clipped = await page.getByTestId('steps-table').evaluate((root) => {
+      const canvas = document.createElement('canvas').getContext('2d');
+      if (canvas === null) return ['no canvas'];
+      const out: string[] = [];
+      for (const select of Array.from(root.querySelectorAll('select'))) {
+        const text = select.selectedOptions[0]?.textContent ?? '';
+        const style = getComputedStyle(select);
+        canvas.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        const room = select.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 18;
+        if (canvas.measureText(text).width > room) out.push(`${text} (${Math.round(canvas.measureText(text).width)} > ${Math.round(room)})`);
+      }
+      return out;
+    });
+    expect(clipped, 'selects whose text does not fit').toEqual([]);
+  });
+});
+
+test.describe('PWF-08 and ADM-07: the new screens at 1440 and 390 px', () => {
+  for (const width of [1440, 390]) {
+    test(`the default thresholds at ${width} px: no sideways scroll of the page, every box labelled`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto(`/pwf/pwf-08?devUser=${PERSON}`);
+      await expect(page.getByTestId('ladder-table')).toBeVisible();
+      await expect(page.getByTestId('step-bands')).toBeVisible();
+      await noSidewaysScroll(page);
+      const unlabelled = await page.evaluate(() => Array.from(document.querySelectorAll('main input:not([type=hidden]), main select, main textarea')).filter((control) => (control as HTMLInputElement).labels?.length === 0 && control.getAttribute('aria-label') === null && control.getAttribute('aria-labelledby') === null).length);
+      expect(unlabelled, 'controls without a label').toBe(0);
+      await page.screenshot({ path: join(SHOTS, `04-PWF-08-nguong-mac-dinh-${width}.png`), fullPage: true });
+    });
+
+    test(`the yearly work calendar at ${width} px: no sideways scroll of the page, every box labelled`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto(`/adm/adm-07?devUser=${PERSON}`);
+      await expect(page.getByTestId('year-editor')).toBeVisible();
+      await page.getByRole('button', { name: 'Nạp ngày lễ theo thông báo của năm' }).click();
+      await expect(page.getByTestId('special-table')).toBeVisible();
+      await noSidewaysScroll(page);
+      const unlabelled = await page.evaluate(() => Array.from(document.querySelectorAll('main input:not([type=hidden]), main select, main textarea')).filter((control) => (control as HTMLInputElement).labels?.length === 0 && control.getAttribute('aria-label') === null && control.getAttribute('aria-labelledby') === null).length);
+      expect(unlabelled, 'controls without a label').toBe(0);
+      await page.screenshot({ path: join(SHOTS, `05-ADM-07-lich-lam-viec-nam-${width}.png`), fullPage: true });
+    });
+  }
+});

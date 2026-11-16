@@ -191,7 +191,7 @@ function StateCell({ row }: { row: LibraryRow }) {
   const drafts = row.statusCounts.DRAFT;
   const waiting = row.statusCounts.SUBMITTED;
   return (
-    <span className="pwf-tpl-name">
+    <span className="pwf-lib-state">
       {row.force === 'RULE' ? (
         <StatusPill tone="success" icon="✔">
           {t('pwf.templates.lib.force.rule', { version: row.forceVersion })}
@@ -231,8 +231,10 @@ function LibraryTable({ rows, canEdit, usage, retireAllowed, onRetire }: TablePr
       render: (row) => (
         <span className="pwf-tpl-name">
           <strong>{row.summary?.name === '' || row.summary === null ? t('pwf.templates.lib.noName.text') : row.summary.name}</strong>
-          <span className="pwf-code">{row.code}</span>
-          {row.unverified ? <UnverifiedLabel /> : null}
+          <span className="pwf-lib-sub">
+            <span className="pwf-code">{row.code}</span>
+            {row.unverified ? <UnverifiedLabel /> : null}
+          </span>
         </span>
       ),
     },

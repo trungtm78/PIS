@@ -136,7 +136,7 @@ export function StepsTable(props: StepsTableProps) {
   let phaseNumber = 0;
   return (
     <div className="ui-table-scroll pwfx-scroll" role="region" aria-label={t('pwfx.table.region')} tabIndex={0} data-testid="steps-table">
-      <table className="ui-table pwfx-table">
+      <table className="ui-table pwfx-table" data-readonly={disabled ? 'true' : undefined}>
         <caption className="pwfx-sr">{t('pwfx.table.caption', { count: total })}</caption>
         <colgroup>
           <col className="pwfx-w-num" />

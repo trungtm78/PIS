@@ -150,28 +150,42 @@
   font-size: 12.5px;
 }
 .pwfx-w-num {
-  width: 58px;
+  width: 52px;
 }
 .pwfx-w-unit {
-  width: 130px;
+  width: 164px;
 }
 .pwfx-w-anchor {
-  width: 138px;
+  width: 156px;
 }
 .pwfx-w-limit {
-  width: 160px;
+  width: 176px;
 }
 .pwfx-w-bands {
-  width: 150px;
+  width: 138px;
 }
 .pwfx-w-basis {
-  width: 128px;
+  width: 116px;
 }
 .pwfx-w-dossier {
-  width: 86px;
+  width: 78px;
 }
 .pwfx-w-actions {
-  width: 98px;
+  width: 92px;
+}
+/* The version in force is only read: its boxes show their text and nothing that looks like a field that is switched off (no frame, no arrow, no dimming). */
+.ui-table.pwfx-table[data-readonly='true'] select:disabled,
+.ui-table.pwfx-table[data-readonly='true'] input:disabled:not([type='checkbox']) {
+  appearance: none;
+  -webkit-appearance: none;
+  border-color: transparent;
+  background: transparent;
+  color: var(--mv-color-ink);
+  -webkit-text-fill-color: var(--mv-color-ink);
+  opacity: 1;
+  padding-left: 0;
+  cursor: default;
+  text-overflow: ellipsis;
 }
 .pwfx-table th,
 .pwfx-table td {
@@ -305,6 +319,7 @@
 }
 .pwfx-unit select {
   width: 100%;
+  text-overflow: ellipsis;
 }
 .pwfx-unit__role {
   display: flex;

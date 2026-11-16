@@ -653,6 +653,20 @@ span.pwf-suggestion__why {
   align-items: flex-start;
   gap: 2px;
 }
+.pwf-lib .pwf-lib-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pwf-lib .pwf-lib-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+.pwf-lib .pwf-lib-state > * {
+  white-space: nowrap;
+}
 .pwf-resched tbody th {
   min-width: 240px;
 }
@@ -759,29 +773,49 @@ section[data-screen-id^='PWF-'] label:has(> input[type='radio']) {
   padding-right: 10px;
   overflow-wrap: anywhere;
 }
+.pwf-lib .ui-table .ui-table__head {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  line-height: 1.25;
+}
+.pwf-lib .ui-table td {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+/* Template, type, steps, total time, version and state, projects, unchecked grounds, last change, actions. */
 .pwf-lib .ui-table .ui-table__head:nth-child(1) {
-  width: 20%;
+  width: 17%;
 }
 .pwf-lib .ui-table .ui-table__head:nth-child(2) {
-  width: 14%;
+  width: 10%;
 }
 .pwf-lib .ui-table .ui-table__head:nth-child(3) {
-  width: 18%;
+  width: 6%;
 }
-.pwf-lib .ui-table .ui-table__head:nth-child(4),
-.pwf-lib .ui-table .ui-table__head:nth-child(6) {
-  width: 13%;
+.pwf-lib .ui-table .ui-table__head:nth-child(4) {
+  width: 8%;
 }
 .pwf-lib .ui-table .ui-table__head:nth-child(5) {
-  width: 11%;
+  width: 22%;
+}
+.pwf-lib .ui-table .ui-table__head:nth-child(6) {
+  width: 7%;
 }
 .pwf-lib .ui-table .ui-table__head:nth-child(7) {
-  width: 11%;
+  width: 9%;
+}
+.pwf-lib .ui-table .ui-table__head:nth-child(8) {
+  width: 8%;
+}
+.pwf-lib .ui-table .ui-table__head:nth-child(9) {
+  width: 13%;
 }
 .pwf-lib td:last-child .pwf-pills {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
   white-space: normal;
 }
 .pwf-lib td:last-child .ui-button {
