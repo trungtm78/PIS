@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
+import { percentsInText } from '../../../i18n/format';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { Money } from '../../../ui';
@@ -204,7 +205,7 @@ function LedgerContent({ route }: ScreenProps) {
                         {item.sourceRefId === null ? null : <span className="prj-code" title={item.sourceRefId}>{item.sourceRefId.slice(0, 8)}</span>}
                       </td>
                       <td>{item.reversalOfId === null ? NONE : <span className="prj-code">{t('cap.ledger.reversal.of', { id: item.reversalOfId })}</span>}</td>
-                      <td>{item.reason ?? NONE}</td>
+                      <td>{item.reason === null || item.reason === undefined ? NONE : percentsInText(item.reason)}</td>
                       <td>{item.postedBy}</td>
                     </tr>
                   ))}
