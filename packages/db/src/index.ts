@@ -1951,6 +1951,8 @@ export { PwfDeadlineReads } from './pwf-deadline-reads.ts';
 export type { BoardFilter as PwfBoardFilter } from './pwf-deadline-reads.ts';
 export { PwfBandPolicies, BAND_SOURCE as PWF_BAND_SOURCE } from './pwf-band-policies.ts';
 export type { BandPolicySet } from './pwf-band-policies.ts';
+export { bandExplanationOf, officialTaskBand, officialTaskLadder, stepLadderOf } from './pwf-task-band.ts';
+export type { BandExplanation as PwfBandExplanation, TaskBand as PwfTaskBand, TaskBandColumns as PwfTaskBandColumns, TaskBandSubject as PwfTaskBandSubject, TaskLadder as PwfTaskLadder } from './pwf-task-band.ts';
 export { PwfDeadlinePreferenceStore, hasPersonalLadder, personalThresholdsOf } from './pwf-deadline-preference.ts';
 export type { PreferenceReading, StoredPreference } from './pwf-deadline-preference.ts';
 export { workingDayOffset } from './pwf-horizon.ts';
