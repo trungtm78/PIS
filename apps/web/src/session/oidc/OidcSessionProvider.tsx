@@ -11,6 +11,7 @@ import { assuranceOfClaims } from './assurance';
 import { translator } from '../../i18n';
 import { SIGNED_OUT_PATH } from './signed-out-path';
 import { OidcError, buildAuthorizationRequest, buildEndSessionUrl, checkNonce, createLoginStore, discover, exchangeCode, parseCallback, refreshIdentity } from './client';
+import { forgetSessionMark, rememberSession } from './resume';
 import type { IdentityTokens, LoginStore, OidcConfig, OidcEndpoints } from './client';
 import type { RandomOctets } from './pkce';
 
@@ -193,6 +194,8 @@ export default function OidcSessionProvider({
    */
   const signOut = useCallback(() => {
     const idToken = identityRef.current?.token;
+    // A deliberate sign-out: the tab must not pick the session up again by itself (see resume.ts).
+    forgetSessionMark();
     forgetEverything();
     void endpointsOf()
       .then((endpoints) => {
@@ -206,6 +209,7 @@ export default function OidcSessionProvider({
     (tokens: IdentityTokens, previousRefresh?: string) => {
       const expiresAt = expiresAtMs(tokens.idToken) ?? now() + tokens.expiresIn * 1000;
       identityRef.current = { token: tokens.idToken, expiresAt, refreshToken: tokens.refreshToken ?? previousRefresh };
+      rememberSession();
       const person = userOf(payloadOf(tokens.idToken));
       setIdentity(person.identity);
       setUser(person.user);

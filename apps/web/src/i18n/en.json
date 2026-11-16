@@ -40951,5 +40951,7 @@
   "wfxbands.steps.col.open": "Open the process",
   "wfxbands.steps.open.label": "Open the process of the step {step}",
   "wfxbands.steps.open.action": "Open process",
-  "polish2.mytasks.noDetail.text": "You do not have permission to view the details of this task"
+  "polish2.mytasks.noDetail.text": "You do not have permission to view the details of this task",
+  "session.oidc.resuming.title": "Restoring your session",
+  "session.oidc.resuming.body": "You are being taken back to the page you were on. If the sign-in has ended, you will be asked for your user name and password."
 }

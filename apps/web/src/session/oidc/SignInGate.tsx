@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { VersionLabel } from '../../shell/NewVersionBar';
+import { takeResumeTurn } from './resume';
 import { useSignInAttempt } from './useSignInAttempt';
 
 /** The query mark the error page of the provider adds to its way back. */
@@ -30,6 +31,25 @@ export function SignInGate() {
     started.current = true;
     start({ returnTo: withoutFreshMark(location.pathname, location.search), prompt: 'login' });
   }, [fresh, start, location.pathname, location.search]);
+  // A reload forgets the identity held in the memory of the tab, not the session of the provider: when this tab held a session and was not signed out on purpose, the trip to the
+  // provider starts by itself (no password when its session lives; its own form when it does not), once per cooldown, and brings the person back to this address.
+  const [resuming] = useState(() => !fresh && takeResumeTurn());
+  const resumed = useRef(false);
+  useEffect(() => {
+    if (!resuming || resumed.current) return;
+    resumed.current = true;
+    start({ returnTo: withoutFreshMark(location.pathname, location.search) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, at the load
+  }, []);
+  if (resuming && !attempt.failed) {
+    return (
+      <div className="card statecard" role="status" data-testid="resuming">
+        <div className="stateicon" aria-hidden="true">◷</div>
+        <h1>{t('session.oidc.resuming.title')}</h1>
+        <p className="muted">{t('session.oidc.resuming.body')}</p>
+      </div>
+    );
+  }
   return (
     <div className="card statecard" role="alert">
       <div className="stateicon" aria-hidden="true">

@@ -43,3 +43,33 @@ describe('the sign-in gate', () => {
     expect(withoutFreshMark('/a', '')).toBe('/a');
   });
 });
+
+describe('picking the session up again after a reload', () => {
+  const MARK = 'pis.session.resume';
+
+  it('starts the trip to the provider by itself when this tab held a session, once, and shows that it is restoring', async () => {
+    window.sessionStorage.clear();
+    window.sessionStorage.setItem(MARK, '1');
+    const signIn = mount('/prj/prj-01?stage=IMPLEMENTATION');
+    await vi.waitFor(() => expect(signIn).toHaveBeenCalledTimes(1));
+    expect(signIn).toHaveBeenCalledWith({ returnTo: '/prj/prj-01?stage=IMPLEMENTATION' });
+    expect(screen.getByTestId('resuming')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: vi_['session.oidc.signIn.action'] })).toBeNull();
+  });
+
+  it('does not start a second trip within the cooldown (no loop) and falls back to the button', async () => {
+    window.sessionStorage.clear();
+    window.sessionStorage.setItem(MARK, '1');
+    window.sessionStorage.setItem('pis.session.resume.at', String(Date.now()));
+    const signIn = mount('/home/home-01');
+    expect(signIn).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: vi_['session.oidc.signIn.action'] })).toBeTruthy();
+  });
+
+  it('does nothing in a tab that never held a session, or whose person signed out on purpose', () => {
+    window.sessionStorage.clear();
+    const signIn = mount('/home/home-01');
+    expect(signIn).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: vi_['session.oidc.signIn.action'] })).toBeTruthy();
+  });
+});

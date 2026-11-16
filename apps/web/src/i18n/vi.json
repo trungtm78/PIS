@@ -40951,5 +40951,7 @@
   "wfxbands.steps.col.open": "Mở quy trình",
   "wfxbands.steps.open.label": "Mở quy trình của bước {step}",
   "wfxbands.steps.open.action": "Mở quy trình",
-  "polish2.mytasks.noDetail.text": "Bạn chưa có quyền xem chi tiết việc này"
+  "polish2.mytasks.noDetail.text": "Bạn chưa có quyền xem chi tiết việc này",
+  "session.oidc.resuming.title": "Đang khôi phục phiên làm việc",
+  "session.oidc.resuming.body": "Hệ thống đang đưa bạn trở lại đúng trang đang xem. Nếu phiên đăng nhập đã hết, bạn sẽ được hỏi tên đăng nhập và mật khẩu."
 }
