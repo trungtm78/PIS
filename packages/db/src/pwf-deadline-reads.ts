@@ -3,6 +3,8 @@ import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.t
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { bandColumnsOf, bandKeyOf, bandKeyValues, durationColumnsOf, durationViewOf, stepLadderOf } from './pwf-task-band.ts';
 import type { TaskBandColumns, TaskDurationColumns } from './pwf-task-band.ts';
+import { receivingColumnsOf, receivingUnitIdsOf, receivingViewOf, unitNamesOf } from './pwf-task-claim.ts';
+import type { TaskReceivingColumns } from './pwf-task-claim.ts';
 import { bandResolver } from './pwf-workflow-reads.ts';
 import type { BandResolver, BandView } from './pwf-workflow-reads.ts';
 import type { ScopeBuilder } from './scope-version.ts';
@@ -140,14 +142,15 @@ export class PwfDeadlineReads {
       if (!DAY.test(after.code)) throw invalid('cursor');
       parts.push(`(coalesce(t.committed_finish, ${bind(FAR_DAY)}::date), t.id) > (${bind(after.code)}::date, ${bind(after.id)}::uuid)`);
     }
-    const rows = await tx.query<{ id: string; task_code: string; name: string; project_id: string; project_code: string; project_name: string; phase_code: string; kind: 'TASK' | 'MILESTONE'; priority: GroupSql['priority']; status: string; due_date: string | null; forecast_finish: string | null; critical: boolean; sort_day: string; unit_path: string | null } & TaskBandColumns & TaskDurationColumns>(
-      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, p.name as project_name, t.phase_code, t.kind, t.priority, t.status, (t.state = 'CALENDAR_UNAVAILABLE') as u, t.committed_finish::text as due_date, case when t.planned_finish is distinct from t.committed_finish then t.planned_finish::text end as forecast_finish, t.critical, coalesce(t.committed_finish, date '${FAR_DAY}')::text as sort_day, ou.path as unit_path, ${bandColumnsOf('t')}, ${durationColumnsOf('t')}
+    const rows = await tx.query<{ id: string; task_code: string; name: string; project_id: string; project_code: string; project_name: string; phase_code: string; kind: 'TASK' | 'MILESTONE'; priority: GroupSql['priority']; status: string; due_date: string | null; forecast_finish: string | null; critical: boolean; sort_day: string; unit_path: string | null } & TaskBandColumns & TaskDurationColumns & TaskReceivingColumns>(
+      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, p.name as project_name, t.phase_code, t.kind, t.priority, t.status, (t.state = 'CALENDAR_UNAVAILABLE') as u, t.committed_finish::text as due_date, case when t.planned_finish is distinct from t.committed_finish then t.planned_finish::text end as forecast_finish, t.critical, coalesce(t.committed_finish, date '${FAR_DAY}')::text as sort_day, ou.path as unit_path, ${bandColumnsOf('t')}, ${durationColumnsOf('t')}, ${receivingColumnsOf('t')}
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
         where ${parts.join(' and ')} order by coalesce(t.committed_finish, date '${FAR_DAY}'), t.id limit ${bind(page.limit + 1)}`,
       params,
     );
     const shown = rows.slice(0, page.limit);
     const assignees = await this.assignees(tx, shown.map((row) => row.id), vietnamDateOf(now));
+    const unitNames = await unitNamesOf(tx, receivingUnitIdsOf(shown));
     const last = shown[shown.length - 1];
     return {
       items: shown.map((row) => {
@@ -170,6 +173,8 @@ export class PwfDeadlineReads {
         ...durationViewOf(row),
         critical: row.critical,
         assignee: assignees.get(row.id) ?? null,
+        // R71: the board lists tasks of the project only (never one left out); the assignee is the person responsible today.
+        ...receivingViewOf({ receiving_unit_id: row.receiving_unit_id, receiving_units: row.receiving_units, status: row.status, excluded: false }, unitNames, assignees.has(row.id)),
         };
       }),
       next: rows.length > shown.length && last !== undefined ? { code: last.sort_day, id: last.id } : null,

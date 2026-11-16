@@ -10,6 +10,7 @@ import { windowEdge } from './pwf-horizon.ts';
 import { bandColumnsOf, officialTaskBand, stepLadderOf, withinGreenLine } from './pwf-task-band.ts';
 import type { TaskBandColumns } from './pwf-task-band.ts';
 import type { BandPolicySet } from './pwf-band-policies.ts';
+import { responsibleHeldSql, unitGrantSql } from './pwf-task-claim.ts';
 
 /** How many days ahead a milestone at risk is shown. */
 const MILESTONE_AHEAD_DAYS = 90;
@@ -39,7 +40,60 @@ export class HomePwfSources {
     const due = await this.dueTasks(context);
     const milestones = await this.milestonesAtRisk(context);
     const lapsed = await this.lapsedLegalGrounds(context);
-    return [...due, ...milestones, ...lapsed];
+    const unclaimed = await this.unclaimedTasks(context);
+    return [...due, ...milestones, ...lapsed, ...unclaimed];
+  }
+
+  /**
+   * `PWF_TASK_UNCLAIMED` (PWF-5, R71; owner: the people of the unit that receives the task): a task of a running workflow that a unit receives, still open, tracked and in the project, for which the ledger of assignments names
+   * nobody responsible today. One item per task (`<task>:unclaimed`); it is read from the rows as they are, so it leaves the list in the very transaction that gives the task to somebody ("Nhận việc" or the ledger), is paused,
+   * done or cancelled. To be watched, and to be acted on from the day the task is planned to start (its official start, R49). In the view `mine` it is the work of the people of the receiving unit, by the rule of "Nhận việc"
+   * (`unitGrantSql`: a grant in force over that unit or a subtree that contains it, never the whole tenant); as everywhere, only inside the projects the reader may read (being named on a task opens no project). The read is
+   * bounded by the limit of a source and uses `project_task_receiving_unit_idx`.
+   */
+  private async unclaimedTasks(context: SourceContext): Promise<SourceRow[]> {
+    const params = new Params();
+    const today = params.add(context.today);
+    const visible = reach(params, context, {
+      source: 'PROJECT_TASK',
+      id: `(t.id::text || ':unclaimed')`,
+      tenant: 't',
+      responsible: [],
+      unit: false,
+      // The instant is a parameter only when the view needs it (a parameter no part of the statement mentions cannot be typed by the database).
+      mine: (me) => unitGrantSql({ me, at: `${params.add(context.now.toISOString())}::timestamptz`, tenant: 't.tenant_id', unitId: 'ru.id', unitPath: 'ru.path' }),
+    });
+    const rows = await context.tx.query<{ id: string; name: string; starts_on: string | null; unit_name: string; project_id: string; project_code: string; project_name: string | null }>(
+      `select t.id, t.name, coalesce(t.committed_start, t.planned_start)::text as starts_on, ru.name as unit_name, p.id as project_id, p.code as project_code, p.name as project_name
+         from machvon.project_task t
+         join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
+         join machvon.organization_unit ru on ru.tenant_id = t.tenant_id and ru.id = t.receiving_unit_id
+         ${PROJECT_JOINS('t', 't.project_id')}
+        where t.receiving_unit_id is not null and t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS', 'AWAITING_APPROVAL', 'ON_HOLD')
+          and not ${responsibleHeldSql('t', today)} and ${visible}
+        order by coalesce(t.committed_start, t.planned_start) nulls last, t.id limit ${SOURCE_LIMIT}`,
+      params.values,
+    );
+    return rows.map((row): SourceRow => {
+      const started = row.starts_on !== null && row.starts_on <= context.today;
+      const day = row.starts_on ?? context.today;
+      return {
+        ...base('PWF_TASK_UNCLAIMED'),
+        id: `${row.id}:unclaimed`,
+        dueOn: day,
+        originalDueOn: day,
+        // Names only: the task, the project and the unit, never a code.
+        title: message('home.source.pwf.unclaimed.title', { task: row.name }),
+        subtitle: message(started ? 'home.source.pwf.unclaimed.detail.started' : 'home.source.pwf.unclaimed.detail', { project: projectNamed(row), unit: row.unit_name, ...(started ? { date: day } : {}) }),
+        status: started ? 'DUE_TODAY' : 'DUE_SOON',
+        severity: severityOf('PROJECT_TASK', started ? 'UNCLAIMED_STARTED' : 'UNCLAIMED', context.rules),
+        lifecycle: 'NEW',
+        consequence: CONSEQUENCES.PWF_TASK_UNCLAIMED ?? null,
+        causeKey: `pwf-task-unclaimed:${row.id}`,
+        startedAt: started ? startOfDay(day) : null,
+        target: { screen: 'PWF-04', id: row.id },
+      };
+    });
   }
 
   /**

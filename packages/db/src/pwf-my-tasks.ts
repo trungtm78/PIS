@@ -6,6 +6,8 @@ import { PwfDeadlinePreferenceStore, hasPersonalLadder, personalThresholdsOf } f
 import { bandColumnsOf, bandExplanationOf, bandKeyOf, bandKeyValues, durationColumnsOf, durationViewOf, officialTaskBand, officialTaskLadder, stepLadderOf } from './pwf-task-band.ts';
 import type { TaskBandColumns, TaskDurationColumns } from './pwf-task-band.ts';
 import { bandViewOf } from './pwf-workflow-reads.ts';
+import { receivingColumnsOf, receivingUnitIdsOf, receivingViewOf, responsibleHeldSql, unitNamesOf } from './pwf-task-claim.ts';
+import type { TaskReceivingColumns } from './pwf-task-claim.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -34,7 +36,9 @@ export interface MyTaskFilter {
   dueBefore?: string | undefined;
 }
 
-interface MyTaskSql extends TaskBandColumns, TaskDurationColumns {
+interface MyTaskSql extends TaskBandColumns, TaskDurationColumns, TaskReceivingColumns {
+  /** Somebody is responsible for the task today (the person reads the tasks they answer for too). */
+  responsible_held: boolean;
   id: string;
   task_code: string;
   name: string;
@@ -128,7 +132,7 @@ export class PwfMyTaskReads {
     }
     if (page.after !== undefined) conditions.push(`(coalesce(t.committed_finish, date '${FAR_DAY}'), t.id) > (${pageBind(page.after.code)}::date, ${pageBind(page.after.id)}::uuid)`);
     const rows = await tx.query<MyTaskSql>(
-      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.status, t.committed_finish::text as due_date, case when t.planned_finish is distinct from t.committed_finish then t.planned_finish::text end as forecast_finish, t.kind, t.priority, t.phase_code, t.critical, t.version, ou.path as unit_path, ${bandColumnsOf('t')}, ${durationColumnsOf('t')},
+      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.status, t.committed_finish::text as due_date, case when t.planned_finish is distinct from t.committed_finish then t.planned_finish::text end as forecast_finish, t.kind, t.priority, t.phase_code, t.critical, t.version, ou.path as unit_path, ${bandColumnsOf('t')}, ${durationColumnsOf('t')}, ${receivingColumnsOf('t')}, ${responsibleHeldSql('t', day)} as responsible_held,
               coalesce(t.committed_finish, date '${FAR_DAY}')::text as sort_day
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
         where ${conditions.join(' and ')} order by coalesce(t.committed_finish, date '${FAR_DAY}'), t.id limit ${pageBind(page.limit + 1)}`,
@@ -153,6 +157,7 @@ export class PwfMyTaskReads {
       return { row, ladder, official: viewOf(resolved.official), personal: resolved.personal !== null && resolved.personalApplied ? viewOf(resolved.personal) : null };
     });
     const shown = listed;
+    const unitNames = await unitNamesOf(tx, receivingUnitIdsOf(shown.map((one) => one.row)));
     const last = shown[shown.length - 1];
     return {
       items: shown.map(({ row, ladder, official, personal: own }) => ({
@@ -168,6 +173,7 @@ export class PwfMyTaskReads {
         personal_band: own,
         ...bandExplanationOf(ladder),
         ...durationViewOf(row),
+        ...receivingViewOf({ ...row, excluded: false }, unitNames, row.responsible_held),
         critical: row.critical,
         version: row.version,
         finished_on: null,
@@ -202,7 +208,7 @@ export class PwfMyTaskReads {
     const conditions = [...where];
     if (page.after !== undefined) conditions.push(`(t.actual_finish, t.id) < (${bind(page.after.code)}::date, ${bind(page.after.id)}::uuid)`);
     const rows = await tx.query<MyTaskSql & { finished_on: string }>(
-      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.status, t.committed_finish::text as due_date, null::text as forecast_finish, t.kind, t.priority, t.phase_code, t.critical, t.version, ou.path as unit_path, ${bandColumnsOf('t')}, ${durationColumnsOf('t')},
+      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.status, t.committed_finish::text as due_date, null::text as forecast_finish, t.kind, t.priority, t.phase_code, t.critical, t.version, ou.path as unit_path, ${bandColumnsOf('t')}, ${durationColumnsOf('t')}, ${receivingColumnsOf('t')}, true as responsible_held,
               t.actual_finish::text as sort_day, t.actual_finish::text as finished_on
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
         where ${conditions.join(' and ')} order by t.actual_finish desc, t.id desc limit ${bind(page.limit + 1)}`,
@@ -210,6 +216,7 @@ export class PwfMyTaskReads {
     );
     const set = await this.policies.load(tx, today);
     const shown = rows.slice(0, page.limit);
+    const unitNames = await unitNamesOf(tx, receivingUnitIdsOf(shown));
     const last = shown[shown.length - 1];
     return {
       items: shown.map((row) => ({
@@ -225,6 +232,8 @@ export class PwfMyTaskReads {
         personal_band: null,
         ...bandExplanationOf(officialTaskLadder(set, { kind: row.kind, priority: row.priority, phaseCode: row.phase_code, unitPath: row.unit_path, step: stepLadderOf(row) })),
         ...durationViewOf(row),
+        // A finished task is never "unclaimed"; the unit that received it is still told.
+        ...receivingViewOf({ ...row, excluded: false }, unitNames, true),
         critical: row.critical,
         version: row.version,
         finished_on: row.finished_on,

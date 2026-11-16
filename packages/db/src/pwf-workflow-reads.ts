@@ -4,6 +4,8 @@ import { PwfAssignmentReads, legalBasisView } from './pwf-assignment.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
 import { bandExplanationOf, officialTaskBand, officialTaskLadder } from './pwf-task-band.ts';
 import type { BandExplanation, DurationView } from './pwf-task-band.ts';
+import { receivingUnitIdsOf, receivingViewOf, unitNamesOf } from './pwf-task-claim.ts';
+import type { ReceivingView } from './pwf-task-claim.ts';
 import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { SqlProjectWorkflowGate } from './pwf-gate.ts';
@@ -46,7 +48,7 @@ export function forecastOf(row: Pick<TaskRow, 'status' | 'plannedStart' | 'plann
   return { start: row.plannedStart === row.committedStart ? null : row.plannedStart, finish: row.plannedFinish === row.committedFinish ? null : row.plannedFinish };
 }
 
-export interface TaskListItem {
+export interface TaskListItem extends ReceivingView {
   id: string;
   task_code: string;
   name: string;
@@ -145,7 +147,10 @@ async function assigneesOf(tx: TenantTx, taskIds: readonly string[], today: stri
   return new Map(rows.map((row) => [row.task_id, { membership_id: row.membership_id, display_name: row.display_name ?? row.membership_id }]));
 }
 
-export const taskItemOf = (row: TaskRow, judged: JudgedBand, assignee: { membership_id: string; display_name: string } | undefined): TaskListItem => ({
+/** The names of the units that receive the tasks (R61), for `taskItemOf`. */
+export const receivingNamesOf = (tx: TenantTx, tasks: readonly TaskRow[]): Promise<Map<string, string>> => unitNamesOf(tx, receivingUnitIdsOf(tasks.map((one) => ({ receiving_unit_id: one.receivingUnitId, receiving_units: one.receivingUnits }))));
+
+export const taskItemOf = (row: TaskRow, judged: JudgedBand, assignee: { membership_id: string; display_name: string } | undefined, unitNames: ReadonlyMap<string, string> = new Map()): TaskListItem => ({
   id: row.id,
   task_code: row.code,
   name: row.name,
@@ -171,6 +176,8 @@ export const taskItemOf = (row: TaskRow, judged: JudgedBand, assignee: { members
   duration: row.duration === null ? null : { value: row.duration.value, unit: row.duration.unit, roll_to_working_day: row.duration.rollToWorkingDay },
   effective_working_days: row.effectiveWorkingDays,
   assignee: assignee ?? null,
+  // R71: the unit that receives the task and whether nobody has taken it (`assignee` is the person responsible today); a task no unit receives says none of it.
+  ...receivingViewOf({ receiving_unit_id: row.receivingUnitId, receiving_units: row.receivingUnits, status: row.status, excluded: row.excluded }, unitNames, assignee !== undefined),
   return_count: row.returnCount,
   version: row.version,
 });
@@ -218,7 +225,8 @@ export class PwfWorkflowReads {
     const resolver = await bandResolver(tx, this.calendars, now);
     const unit = await unitPathOfProject(tx, projectId);
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
-    const items = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id)));
+    const unitNames = await receivingNamesOf(tx, tasks);
+    const items = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id), unitNames));
     const gated = new Set(template.phases.flatMap((phase) => phase.gates));
     const gates = [];
     for (const target of pwfWorkflow.WORKFLOW_GATE_TARGETS) {
@@ -328,7 +336,8 @@ export class PwfWorkflowReads {
     const unit = await unitPathOfProject(tx, projectId);
     const tasks = await this.tasksOf(tx, row.id as string);
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
-    const all = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id)));
+    const unitNames = await receivingNamesOf(tx, tasks);
+    const all = tasks.map((one) => taskItemOf(one, resolver.explain(bandSubjectOf(one), unit), assignees.get(one.id), unitNames));
     const matching = all.filter(
       (item) =>
         (filter.phase === undefined || item.phase_code === filter.phase) &&

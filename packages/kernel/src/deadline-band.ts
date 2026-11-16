@@ -576,5 +576,7 @@ export function registerDeadlineBandRules(registry: RuleRegistry): void {
     PWF_TASK_DUE_SOON: { params: alertParams('TASK_ASSIGNEE', T.due_soon_action, T.due_soon_consequence, T.due_soon_why, 24, 'WATCH'), source: T.alert_source, asOf: AS_OF, legalStatus: 'VERIFIED' },
     PWF_TASK_OVERDUE: { params: alertParams('TASK_ASSIGNEE', T.overdue_action, T.overdue_consequence, T.overdue_why, 24, 'ACTION'), source: T.alert_source, asOf: AS_OF, legalStatus: 'VERIFIED' },
     PWF_MILESTONE_AT_RISK: { params: alertParams('PROJECT_MANAGER', T.milestone_action, T.milestone_consequence, T.milestone_why, 48, 'ACTION'), source: T.alert_source, asOf: AS_OF, legalStatus: 'VERIFIED' },
+    // R71: a task a unit receives that nobody is responsible for; the people of the unit take it ("Nhận việc") or its manager names someone in the ledger.
+    PWF_TASK_UNCLAIMED: { params: alertParams('RECEIVING_UNIT', T.unclaimed_action, T.unclaimed_consequence, T.unclaimed_why, 48, 'WATCH'), source: T.alert_source, asOf: AS_OF, legalStatus: 'VERIFIED' },
   });
 }

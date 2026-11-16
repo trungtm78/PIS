@@ -20,4 +20,7 @@ export const PWF_BAND_TEXT = {
   milestone_action: 'Xem công việc phía trước mốc, xử lý điểm nghẽn hoặc đề nghị dời mốc có lý do.',
   milestone_consequence: 'Mốc trễ làm trễ giai đoạn kế tiếp và có thể chặn lệnh chuyển giai đoạn của dự án.',
   milestone_why: 'Mốc của dự án cần người quản lý theo dõi trước khi trễ.',
+  unclaimed_action: 'Người của đơn vị nhận việc bấm "Nhận việc", hoặc người quản lý phân công một người trong sổ phân công.',
+  unclaimed_consequence: 'Công việc không có người chịu trách nhiệm thì không ai bắt đầu được, tới hạn sẽ trễ và kéo theo các công việc phía sau.',
+  unclaimed_why: 'Công việc giao cho đơn vị phải có một người nhận trước ngày bắt đầu theo kế hoạch.',
 } as const;

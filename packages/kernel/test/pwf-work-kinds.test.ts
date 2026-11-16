@@ -3,7 +3,7 @@ import type { WorkKind } from '../src/home-work';
 import { builtInCodes, builtInDefault, registerAllGovernanceRules } from '../src/governance-rules';
 import { message } from '../src/messages';
 
-const PWF_KINDS = ['PWF_TASK_DUE_SOON', 'PWF_TASK_OVERDUE', 'PWF_MILESTONE_AT_RISK', 'PWF_LEGAL_BASIS_LAPSED'] as const;
+const PWF_KINDS = ['PWF_TASK_DUE_SOON', 'PWF_TASK_OVERDUE', 'PWF_MILESTONE_AT_RISK', 'PWF_LEGAL_BASIS_LAPSED', 'PWF_TASK_UNCLAIMED'] as const;
 const entry = (kind: WorkKind) => ({ id: 'x', kind, dueOn: '2027-01-01', originalDueOn: '2027-01-01' });
 
 beforeAll(() => registerAllGovernanceRules());
@@ -51,5 +51,8 @@ describe('the kinds of work of the tasks of a workflow', () => {
     expect(message('home.source.pwf.legal.title', { document: '1/2020/ND-CP' })).toBe('Căn cứ pháp lý 1/2020/ND-CP đã hết hiệu lực');
     expect(message('home.source.pwf.legal.detail', { project: 'Đường tỉnh 12', date: '2026-01-01' })).toBe('Đường tỉnh 12 · hết hiệu lực từ 01/01/2026');
     expect(message('home.source.pwf.legal.detail.replaced', { project: 'Đường tỉnh 12', replacement: '2/2026/ND-CP' })).toBe('Đường tỉnh 12 · được thay bằng 2/2026/ND-CP');
+    expect(message('home.source.pwf.unclaimed.title', { task: 'Thẩm định hồ sơ' })).toBe('Thẩm định hồ sơ: chưa có người nhận');
+    expect(message('home.source.pwf.unclaimed.detail', { project: 'Đường tỉnh 12', unit: 'Sở Tài chính' })).toBe('Đường tỉnh 12 · đơn vị nhận: Sở Tài chính');
+    expect(message('home.source.pwf.unclaimed.detail.started', { project: 'Đường tỉnh 12', unit: 'Sở Tài chính', date: '2027-01-04' })).toBe('Đường tỉnh 12 · đơn vị nhận: Sở Tài chính · đã tới ngày bắt đầu 04/01/2027');
   });
 });

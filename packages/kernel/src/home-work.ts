@@ -119,6 +119,8 @@ export const WORK_KINDS = [
   'PWF_MILESTONE_AT_RISK',
   // The legal grounds of a project workflow (lane PWF-4, R45): a document a running workflow cites has lapsed or was replaced.
   'PWF_LEGAL_BASIS_LAPSED',
+  // The units that receive the tasks of a project workflow (lane PWF-5, R71): a task a unit receives that nobody has taken.
+  'PWF_TASK_UNCLAIMED',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
@@ -221,6 +223,7 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   PWF_MILESTONE_AT_RISK: 68,
   PWF_TASK_DUE_SOON: 69,
   PWF_LEGAL_BASIS_LAPSED: 70,
+  PWF_TASK_UNCLAIMED: 71,
 };
 
 export interface WorkItem {
