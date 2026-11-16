@@ -2,8 +2,8 @@ import fc from 'fast-check';
 import { bandOf, deadlineBand, officialThresholds, policyThresholds, resolveBand } from '../src/deadline-band.ts';
 import type { BandPolicy, BandThresholds } from '../src/deadline-band.ts';
 import { parseProjectWorkflowTemplate, stepSpans } from '../src/project-workflow.ts';
-import { addMonths, bandZonesOf, overallDeadlineOf, scheduleProject, standardTimes, tasksFromTemplate } from '../src/project-schedule.ts';
-import type { PinnedCalendar, ScheduleDuration, ScheduleInput, ScheduleTask, ScheduledTask } from '../src/project-schedule.ts';
+import { addMonths, bandZonesOf, finishMovedLater, overallDeadlineOf, rescheduleProject, scheduleProject, standardTimes, tasksFromTemplate } from '../src/project-schedule.ts';
+import type { PinnedCalendar, ScheduleChange, ScheduleDuration, ScheduleInput, ScheduleTask, ScheduledTask } from '../src/project-schedule.ts';
 import type { WorkCalendarContent, WorkCalendarSource } from '../src/working-time.ts';
 
 /*
@@ -352,6 +352,113 @@ describe('the zones of the colours of a deadline', () => {
         expect(deadlineBand({ dueOn, today, unit: 'WORKING', calendars: SOURCE, thresholds }).band).toBe(expected);
       }),
       { numRuns: 500 },
+    );
+  });
+});
+
+describe('defects found by the independent review of the lane (scheduler)', () => {
+  const ONLY_2026 = [pinned(2026)];
+
+  it('1. a successor of a limit the calendars cannot place is not dated from the nominal days', () => {
+    // Only 2026 is there. A starts on 1 December for one month: its real deadline is in January 2027, which nobody can count. B follows it for one working day: 22 nominal days after 1 December would be 31 December.
+    const result = run([task('A', 22, { duration: limit(1, 'MONTH', true) }), task('B', 1, { predecessors: [link('A')] })], { plannedStart: '2026-12-01', calendars: ONLY_2026 });
+    expect(find(result, 'A')).toMatchObject({ state: 'CALENDAR_UNAVAILABLE', start: null, finish: null, missingYear: 2027 });
+    expect(find(result, 'B')).toMatchObject({ state: 'CALENDAR_UNAVAILABLE', start: null, finish: null, missingYear: 2027 });
+    expect(find(result, 'B').findings).toEqual([{ code: 'CALENDAR_UNAVAILABLE', task: 'B', year: 2027 }]);
+    expect(result.projectFinish).toBeNull();
+  });
+
+  it('1b. the same holds through a milestone, a task left out and a finish-to-finish link', () => {
+    const result = run(
+      [
+        task('A', 22, { duration: limit(1, 'MONTH', true) }),
+        { code: 'M', kind: 'MILESTONE', durationWorkingDays: 0, predecessors: [link('A')] },
+        task('X', 2, { predecessors: [link('A')], excluded: true }),
+        task('C', 1, { predecessors: [link('M')] }),
+        task('D', 1, { predecessors: [link('X')] }),
+        task('E', 2, { predecessors: [link('A', 'FF')] }),
+        task('F', 3),
+      ],
+      { plannedStart: '2026-12-01', calendars: ONLY_2026 },
+    );
+    for (const code of ['A', 'M', 'C', 'D', 'E']) expect(find(result, code)).toMatchObject({ state: 'CALENDAR_UNAVAILABLE', finish: null });
+    expect(find(result, 'X').state).toBe('PASS_THROUGH');
+    expect(dates(result, 'F')).toEqual(['2026-12-01', '2026-12-03']);
+  });
+
+  it('2. a milestone and the late finish keep the calendar day a limit ends on when it does not roll', () => {
+    // A starts on Friday 13 November for three calendar days and does not roll: it ends on Sunday the 15th. The milestone that closes it is that Sunday, not the Friday of the last working slot.
+    const result = run([task('A', 3, { duration: limit(3, 'CALENDAR_DAY', false) }), { code: 'M', kind: 'MILESTONE', durationWorkingDays: 0, predecessors: [link('A')] }, task('B', 1, { predecessors: [link('A')] })], { plannedStart: '2026-11-13' });
+    expect(dates(result, 'A')).toEqual(['2026-11-13', '2026-11-15']);
+    expect(dates(result, 'M')).toEqual(['2026-11-15', '2026-11-15']);
+    expect(dates(result, 'B')).toEqual(['2026-11-16', '2026-11-16']);
+    const alone = run([task('A', 3, { duration: limit(3, 'CALENDAR_DAY', false) }), { code: 'M', kind: 'MILESTONE', durationWorkingDays: 0, predecessors: [link('A')] }], { plannedStart: '2026-11-13' });
+    expect(find(alone, 'A')).toMatchObject({ totalFloat: 0, lateStart: '2026-11-13', lateFinish: '2026-11-15', effectiveWorkingDays: 1 });
+    expect(find(alone, 'M')).toMatchObject({ start: '2026-11-15', finish: '2026-11-15', lateFinish: '2026-11-15', totalFloat: 0 });
+    expect(alone.projectFinish).toBe('2026-11-15');
+  });
+
+  it('2b. a milestone after a limit that rolls, or after a lag, is dated on its working day as before', () => {
+    const rolled = run([task('A', 3, { duration: limit(3, 'CALENDAR_DAY', true) }), { code: 'M', kind: 'MILESTONE', durationWorkingDays: 0, predecessors: [link('A')] }], { plannedStart: '2026-11-13' });
+    expect(dates(rolled, 'M')).toEqual(['2026-11-16', '2026-11-16']);
+    const lagged = run([task('A', 3, { duration: limit(3, 'CALENDAR_DAY', false) }), { code: 'M', kind: 'MILESTONE', durationWorkingDays: 0, predecessors: [link('A', 'FS', 1)] }], { plannedStart: '2026-11-13' });
+    expect(dates(lagged, 'M')).toEqual(['2026-11-16', '2026-11-16']);
+  });
+
+  it('3. a deadline that moves from Saturday to Sunday is a change, with a working-day shift of zero', () => {
+    const input = (days: number) => ({ tasks: [task('A', days, { duration: limit(days, 'CALENDAR_DAY', false) })], plannedStart: '2026-11-13', calendars: YEARS });
+    const before = scheduleProject(input(2));
+    expect(find(before, 'A').finish).toBe('2026-11-14');
+    const rescheduled = rescheduleProject({ before, input: input(3) });
+    expect(find(rescheduled.schedule, 'A').finish).toBe('2026-11-15');
+    expect(rescheduled.diff).toEqual([{ code: 'A', startShiftDays: 0, finishShiftDays: 0, floatChange: 0, becameCritical: false, becameNonCritical: false, stateChanged: false, finishCalendarShiftDays: 1 }]);
+    expect(finishMovedLater(rescheduled.diff[0] as ScheduleChange)).toBe(true);
+    // The other way round it is an earlier day, and a schedule that does not move has no change at all.
+    const back = rescheduleProject({ before: rescheduled.schedule, input: input(2) });
+    expect(back.diff[0]).toMatchObject({ finishShiftDays: 0, finishCalendarShiftDays: -1 });
+    expect(finishMovedLater(back.diff[0] as ScheduleChange)).toBe(false);
+    expect(rescheduleProject({ before, input: input(2) }).diff).toEqual([]);
+  });
+
+  it('no dated task has an undated predecessor anywhere in its chain', () => {
+    const UNITS = ['WORKING_DAY', 'CALENDAR_DAY', 'MONTH'] as const;
+    const KINDS = ['FS', 'SS', 'FF', 'SF'] as const;
+    const specs = fc.integer({ min: 1, max: 12 }).chain((count) =>
+      fc.record({
+        start: fc.integer({ min: 0, max: 58 }),
+        rows: fc.array(fc.record({ value: fc.integer({ min: 1, max: 30 }), unit: fc.constantFrom(...UNITS), roll: fc.boolean(), shape: fc.constantFrom('TASK', 'PLAIN', 'MILESTONE', 'EXCLUDED') }), { minLength: count, maxLength: count }),
+        links: fc.array(fc.array(fc.record({ from: fc.nat(), kind: fc.constantFrom(...KINDS), lag: fc.integer({ min: -3, max: 3 }) }), { maxLength: 3 }), { minLength: count, maxLength: count }),
+      }),
+    );
+    fc.assert(
+      fc.property(specs, (spec) => {
+        const tasks = spec.rows.map((row, index): ScheduleTask => {
+          const seen = new Set<string>();
+          const predecessors = (spec.links[index] ?? []).flatMap((raw) => {
+            if (index === 0) return [];
+            const target = `T${raw.from % index}`;
+            if (seen.has(`${target}:${raw.kind}`)) return [];
+            seen.add(`${target}:${raw.kind}`);
+            return [link(target, raw.kind, raw.lag)];
+          });
+          if (row.shape === 'MILESTONE') return { code: `T${index}`, kind: 'MILESTONE', durationWorkingDays: 0, predecessors };
+          const months = row.unit === 'MONTH' ? Math.min(row.value, 2) : row.value;
+          const base = task(`T${index}`, row.unit === 'MONTH' ? months * 22 : months, { predecessors, ...(row.shape === 'EXCLUDED' ? { excluded: true } : {}) });
+          return row.shape === 'PLAIN' ? base : { ...base, duration: limit(months, row.unit, row.roll) };
+        });
+        const result = scheduleProject({ tasks, plannedStart: new Date(Date.UTC(2026, 10, 2) + spec.start * 86_400_000).toISOString().slice(0, 10), calendars: ONLY_2026 });
+        const byCode = new Map(result.tasks.map((one) => [one.code, one] as const));
+        const undated = new Map<string, boolean>();
+        // In the order of the list every predecessor comes first: a task is cut off from the calendar when it is undated itself, or when it is a pass-through point behind one that is.
+        for (const one of tasks) {
+          const mine = byCode.get(one.code) as ScheduledTask;
+          const behind = one.predecessors.some((edge) => undated.get(edge.task) === true);
+          if (mine.state === 'SCHEDULED') expect(behind).toBe(false);
+          undated.set(one.code, mine.state === 'CALENDAR_UNAVAILABLE' || (mine.state === 'PASS_THROUGH' && behind));
+          if (mine.state === 'CALENDAR_UNAVAILABLE') expect([mine.start, mine.finish, mine.missingYear]).toEqual([null, null, 2027]);
+        }
+      }),
+      { numRuns: 400 },
     );
   });
 });

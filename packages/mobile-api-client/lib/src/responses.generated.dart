@@ -61018,6 +61018,8 @@ final class PwfReschedulePreviewResponseChangesItem implements ResponseModel {
     required this.becameNonCritical,
     required this.stateChanged,
     this.cause,
+    this.startCalendarShiftDays,
+    this.finishCalendarShiftDays,
     this.extra = const <String, Object?>{},
   });
 
@@ -61032,7 +61034,9 @@ final class PwfReschedulePreviewResponseChangesItem implements ResponseModel {
       becameNonCritical: requiredField(map, path, 'became_non_critical', asBool),
       stateChanged: requiredField(map, path, 'state_changed', asBool),
       cause: optionalField(map, path, 'cause', asString),
-      extra: unknownFields(map, path, const <String>{'task_code', 'start_shift_days', 'finish_shift_days', 'float_change', 'became_critical', 'became_non_critical', 'state_changed', 'cause'}, strict: true),
+      startCalendarShiftDays: optionalField(map, path, 'start_calendar_shift_days', asInt),
+      finishCalendarShiftDays: optionalField(map, path, 'finish_calendar_shift_days', asInt),
+      extra: unknownFields(map, path, const <String>{'task_code', 'start_shift_days', 'finish_shift_days', 'float_change', 'became_critical', 'became_non_critical', 'state_changed', 'cause', 'start_calendar_shift_days', 'finish_calendar_shift_days'}, strict: true),
     );
   }
 
@@ -61044,6 +61048,8 @@ final class PwfReschedulePreviewResponseChangesItem implements ResponseModel {
   final bool becameNonCritical;
   final bool stateChanged;
   final String? cause;
+  final int? startCalendarShiftDays;
+  final int? finishCalendarShiftDays;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61058,6 +61064,8 @@ final class PwfReschedulePreviewResponseChangesItem implements ResponseModel {
         'became_non_critical': becameNonCritical,
         'state_changed': stateChanged,
         if (cause != null) 'cause': cause,
+        if (startCalendarShiftDays != null) 'start_calendar_shift_days': startCalendarShiftDays,
+        if (finishCalendarShiftDays != null) 'finish_calendar_shift_days': finishCalendarShiftDays,
         ...extra,
       };
 }
