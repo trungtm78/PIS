@@ -21,7 +21,8 @@ jobs:
   gates:
     name: Protocol gates
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    # The product suite alone took 87 minutes on 2026-11-16 and the gates step was cut at 150; every check stays, the job gets room.
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
         with:
