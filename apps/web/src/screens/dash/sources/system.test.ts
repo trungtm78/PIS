@@ -20,8 +20,8 @@ interface World {
   workflows?: boolean;
   /** Operations that fail. */
   broken?: readonly string[];
-  /** What the province holds of tasks: directives over three meetings, and `perWorkflow` tasks (the first `done` of them finished) in each of the first `workflows` projects. None when absent. */
-  tasks?: { directives: number; workflows: number; perWorkflow: number; done: number };
+  /** What the province holds of tasks: directives over three meetings, and `perWorkflow` tasks (the first `done` of them finished) in each of the first `workflows` projects. The deadline board names the first `onBoard` projects (the ones that run a workflow when absent). None when absent. */
+  tasks?: { directives: number; workflows: number; perWorkflow: number; done: number; onBoard?: number };
 }
 
 const PHASES = [['PREPARATION', 'Chuẩn bị đầu tư: chủ trương'], ['FEASIBILITY', 'Chuẩn bị đầu tư: nghiên cứu khả thi và thẩm định'], ['APPROVAL', 'Quyết định đầu tư và kế hoạch vốn'], ['IMPLEMENTATION', 'Thực hiện đầu tư'], ['ACCEPTANCE', 'Nghiệm thu và bàn giao'], ['SETTLEMENT', 'Quyết toán và đánh giá']] as const;
@@ -59,7 +59,8 @@ function clientOf(world: World): { client: ApiClient; calls: string[] } {
       case 'listPeriodSnapshotLines': return projects.flatMap((project) => [{ project_id: project.id, fund_source_version_id: 'fs-tw', budget_level: 'CENTRAL', plan_total_vnd: dong(60) }, { project_id: project.id, fund_source_version_id: null, budget_level: 'LOCAL', plan_total_vnd: dong(40) }, { project_id: project.id, fund_source_version_id: 'fs-oda', budget_level: 'CENTRAL', plan_total_vnd: dong(20) }]);
       case 'listAppropriations': return [{ fund_source: { version_id: 'fs-tw', business_key: 'NSTW-DTPT' }, origin: 'PM_ASSIGNED', amount_vnd: dong(2000), status: 'PUBLISHED' }, { fund_source: { version_id: 'fs-oda', business_key: 'ODA-ONLEND' }, origin: 'CENTRAL_SUPPORT', amount_vnd: dong(500), status: 'PUBLISHED' }, { fund_source: { version_id: 'fs-grant', business_key: 'ODA-NONLEND' }, origin: 'CENTRAL_SUPPORT', amount_vnd: dong(400), status: 'PUBLISHED' }];
       case 'getDisbursementForecast': return { disbursed_vnd: dong(55), curve: Array.from({ length: 11 }, (_, m) => ({ month: m + 1, actual_cumulative_vnd: dong((m + 1) * 5), forecast_cumulative_vnd: null })) };
-      case 'getDeadlineBoard': return world.workflows === true ? [{ project_id: 'p-0', band: { overdue: true, remaining_days: -18 } }, { project_id: 'p-0', band: { overdue: true, remaining_days: -4 } }, ...['p-1', 'p-2', 'p-3', 'p-4'].map((id) => ({ project_id: id, band: { overdue: false, remaining_days: 6 } }))] : [];
+      // The board lists open tasks: one row of each project that runs a workflow in the worlds of tasks.
+      case 'getDeadlineBoard': return world.tasks !== undefined ? Array.from({ length: world.tasks.onBoard ?? held.workflows }, (_, i) => ({ project_id: `p-${i}`, band: { overdue: false, remaining_days: 6 } })) : world.workflows === true ? [{ project_id: 'p-0', band: { overdue: true, remaining_days: -18 } }, { project_id: 'p-0', band: { overdue: true, remaining_days: -4 } }, ...['p-1', 'p-2', 'p-3', 'p-4'].map((id) => ({ project_id: id, band: { overdue: false, remaining_days: 6 } }))] : [];
       case 'getProjectBaseline': return world.baselines ? { has_baseline: true, deviation: { finish_slip_days: 21 } } : { has_baseline: false, deviation: null };
       case 'listDirectives': return directives;
       case 'listSteeringMeetings': return [{ id: 'm-0', code: 'GB-0', meeting_type: 'MONTHLY', meeting_date: '2026-09-15' }, { id: 'm-1', code: 'GB-1', meeting_type: 'EXTRAORDINARY', meeting_date: '2026-09-22' }, { id: 'm-2', code: 'GB-2', meeting_type: 'QUARTERLY', meeting_date: '2026-09-29' }];
@@ -175,8 +176,9 @@ describe('what the tasks bundle is read from', () => {
     expect(input.tasks).toHaveLength(120);
     expect(input.tasks[0]).toEqual({ project_id: 'p-0', task_code: 'T0', name: 'Công việc 0', phase_code: 'PREPARATION', kind: 'TASK', status: 'DONE', excluded: false, tracked: true, planned_finish: '2026-10-30', late_days: 0, receiving_unit_id: 'u-1', actual_finish: '2026-10-28' });
     expect(input.tasks[6]).toMatchObject({ kind: 'MILESTONE', status: 'NOT_STARTED', late_days: 12, receiving_unit_id: 'u-1', actual_finish: null });
-    // One read of the workflow for each project, one list of tasks for each workflow, and the task in full for the finished ones only.
-    expect(count(calls, 'getProjectWorkflow')).toBe(10);
+    // One read of the workflow and one list of tasks for each project the deadline board names (the other five are not asked: each would answer 404), and the task in
+    // full for the finished ones only.
+    expect(count(calls, 'getProjectWorkflow')).toBe(5);
     expect(count(calls, 'listProjectTasks')).toBe(5);
     expect(count(calls, 'getProjectTask')).toBe(5 * 6);
   });
@@ -217,8 +219,14 @@ describe('what the tasks bundle is read from', () => {
 
     const noWorkflows = clientOf({ units: 5, perUnit: 2, baselines: true, tasks: { ...ENOUGH, workflows: 4 } });
     await expect(readTasksInput(noWorkflows.client, TODAY)).rejects.toThrow(/^4 projects run a workflow \(at least 5 are needed\)$/);
-    expect(count(noWorkflows.calls, 'getProjectWorkflow')).toBe(10);
+    expect(count(noWorkflows.calls, 'getProjectWorkflow')).toBe(0);
     expect(count(noWorkflows.calls, 'listProjectTasks')).toBe(0);
+
+    // A project the board names that answers 404 runs no workflow after all: it is asked once, and not counted.
+    const gone = clientOf({ units: 5, perUnit: 2, baselines: true, tasks: { ...ENOUGH, workflows: 4, onBoard: 5 } });
+    await expect(readTasksInput(gone.client, TODAY)).rejects.toThrow(/^4 projects run a workflow \(at least 5 are needed\)$/);
+    expect(count(gone.calls, 'getProjectWorkflow')).toBe(5);
+    expect(count(gone.calls, 'listProjectTasks')).toBe(0);
 
     const fewTasks = clientOf({ units: 5, perUnit: 2, baselines: true, tasks: { ...ENOUGH, perWorkflow: 19 } });
     await expect(readTasksInput(fewTasks.client, TODAY)).rejects.toThrow(/^95 project tasks are recorded \(at least 100 are needed\)$/);
@@ -235,6 +243,8 @@ describe('what the tasks bundle is read from', () => {
         if (operation === 'listSteeringMeetings') return [...items, { id: 'm-9' }];
         if (operation === 'get_resources_organization_unit') return [...items, { id: 'u-9' }];
         if (operation === 'get_resources_project') return [...items, { code: 'DA-KHONG-ID' }];
+        // A row of the board without a project, and one of a project the register does not have, find nothing.
+        if (operation === 'getDeadlineBoard') return [...items, { band: {} }, 'x', { project_id: 'p-99' }];
         if (operation === 'listProjectTasks') return [...items, { id: 't-x', task_code: 'TX' }, { id: 't-y', task_code: 'TY', name: 'Việc', phase_code: 'HANDOVER', status: 'IN_PROGRESS', band: { overdue: true, remaining_days: null } }];
         return items;
       },
@@ -261,6 +271,12 @@ describe('what the tasks bundle is read from', () => {
     const { client, calls } = clientOf({ units: 5, perUnit: 2, baselines: true, tasks: ENOUGH, broken: ['listProjectTasks'] });
     await expect(readTasksInput(client, TODAY)).rejects.toThrow(/^listProjectTasks failed$/);
     expect(count(calls, 'getProjectTask')).toBe(0);
+  });
+
+  it('fails when the deadline board cannot be read: the projects that run a workflow are not known', async () => {
+    const { client, calls } = clientOf({ units: 5, perUnit: 2, baselines: true, tasks: ENOUGH, broken: ['getDeadlineBoard'] });
+    await expect(readTasksInput(client, TODAY)).rejects.toThrow(/^getDeadlineBoard failed$/);
+    expect(count(calls, 'getProjectWorkflow')).toBe(0);
   });
 
   it('reads only an answer of 404 as a project without a workflow: any other failure of that read fails', async () => {
@@ -294,10 +310,11 @@ describe('the dashboard: the tasks bundle beside the capital bundle', () => {
   });
 
   it('leaves the tasks on the template, and reads none of them, while the capital tables are those of the template: the board keeps one clock', async () => {
-    const { client, calls } = clientOf({ units: 5, perUnit: 2, baselines: false, tasks: ENOUGH });
+    // One investor holds every project: the capital tables stay those of the template, though the province holds enough tasks.
+    const { client, calls } = clientOf({ units: 1, perUnit: 12, baselines: false, tasks: ENOUGH });
     const read = await readDashboard(client, TODAY);
     expect(read.notes).toHaveLength(2);
-    expect(read.notes[0]).toMatch(/^capital: 0 projects have a measure of delay/);
+    expect(read.notes[0]).toMatch(/^capital: 1 investor units/);
     expect(read.notes[1]).toBe('tasks: left on the template, whose clock the board keeps while the capital tables are those of the template');
     expect(new Set(Object.values(read.origins))).toEqual(new Set(['template']));
     expect(read.db.du_an).toHaveLength(45);
@@ -323,7 +340,7 @@ describe('the dashboard: the tasks bundle beside the capital bundle', () => {
     expect(referenceProblems(broken.db)).toEqual([]);
 
     // A read by project or by task that fails is a failure of the whole read of the tasks, and of nothing else.
-    for (const operation of ['getProjectWorkflow', 'listProjectTasks', 'getProjectTask']) {
+    for (const operation of ['getDeadlineBoard', 'getProjectWorkflow', 'listProjectTasks', 'getProjectTask']) {
       const read = await readDashboard(clientOf({ units: 5, perUnit: 2, baselines: true, tasks: ENOUGH, broken: [operation] }).client, TODAY);
       expect(read.notes).toEqual([`tasks: the system could not be read (${operation} failed)`]);
       expect(read.origins).toMatchObject({ du_an: 'system', don_vi: 'system', giai_ngan: 'system', moc_thoi_gian: 'system', nhiem_vu: 'template' });

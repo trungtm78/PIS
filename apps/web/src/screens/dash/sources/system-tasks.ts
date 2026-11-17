@@ -9,8 +9,8 @@ import type { SystemDirective, SystemMeeting, SystemPhase, SystemProjectTask, Sy
  * taken loosely typed, field by field, as `system.ts` takes them: an answer of another shape gives an absent value, which `tasksFromSystem` leaves out or counts as
  * "not enough", and never as a row.
  *
- * The reads go from the cheapest to the dearest (one list, then one read for each project, then one for each finished task), and stop as soon as what was read already
- * shows the bundle cannot replace the template's.
+ * The reads go from the cheapest to the dearest (the lists, then the reads for each project that runs a workflow, then one for each finished task), and stop as soon as
+ * what was read already shows the bundle cannot replace the template's.
  */
 const PAGE = { limit: 200 } as const;
 
@@ -32,8 +32,9 @@ export async function readTasksInput(apiClient: ApiClient, today: string): Promi
   // finished task) would be asked of the server for nothing every time the leader home opens.
   if (directives.length < TASKS_FLOOR.directives) throw new NotEnoughError(`${directives.length} directives are recorded (at least ${TASKS_FLOOR.directives} are needed)`);
 
-  const [meetingsRaw, unitsRaw, projectsRaw] = await Promise.all([
+  const [meetingsRaw, boardRaw, unitsRaw, projectsRaw] = await Promise.all([
     client.readAll('listSteeringMeetings', { query: PAGE }),
+    client.readAll('getDeadlineBoard', { query: PAGE }),
     client.readAll('get_resources_organization_unit'),
     client.readAll('get_resources_project'),
   ]);
@@ -50,10 +51,17 @@ export async function readTasksInput(apiClient: ApiClient, today: string): Promi
     return id === null || code === null ? [] : [{ id, code, investor_unit_id: text(project.investor_unit_id) }];
   });
 
-  // Which projects run a workflow, and the phases of it: a project without one answers 404. Any other failure is a failure of the read: counting the projects that answered
-  // would draw a part of the tasks as the whole.
+  // Which projects run a workflow: the ones the deadline board names. Asking every project for its workflow answers 404 for each one that has none (two projects in three
+  // on the live province), every time the leader home opens. The limit of the board: it lists open tasks only (tracked, not left out, neither finished nor cancelled, and
+  // its status filter cannot widen that), so a project whose tasks are all finished or cancelled is not found here and its tasks are not drawn.
+  const onBoard = new Set(boardRaw.map(record).flatMap((row) => text(row.project_id) ?? []));
+  const discovered = projects.filter((project) => onBoard.has(project.id));
+  if (discovered.length < TASKS_FLOOR.projectsWithTasks) throw new NotEnoughError(`${discovered.length} projects run a workflow (at least ${TASKS_FLOOR.projectsWithTasks} are needed)`);
+
+  // The phases of each workflow. A project the board named that answers 404 has none after all; any other failure is a failure of the read: counting the projects that
+  // answered would draw a part of the tasks as the whole.
   const phases: Record<string, SystemPhase[]> = {};
-  await inGroups(projects, async (project) => {
+  await inGroups(discovered, async (project) => {
     const workflow = record(await client.read('getProjectWorkflow', { path: { project_id: project.id } }).catch((error: unknown) => {
       if (record(error).status === 404) return undefined;
       throw error;
@@ -64,7 +72,7 @@ export async function readTasksInput(apiClient: ApiClient, today: string): Promi
       return code === null || name === null ? [] : [{ code, name }];
     });
   });
-  const running = projects.filter((project) => phases[project.id] !== undefined);
+  const running = discovered.filter((project) => phases[project.id] !== undefined);
   if (running.length < TASKS_FLOOR.projectsWithTasks) throw new NotEnoughError(`${running.length} projects run a workflow (at least ${TASKS_FLOOR.projectsWithTasks} are needed)`);
 
   const read = await inGroups(running, async (project) =>
