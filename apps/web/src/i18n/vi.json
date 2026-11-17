@@ -40953,5 +40953,11 @@
   "wfxbands.steps.open.action": "Mở quy trình",
   "polish2.mytasks.noDetail.text": "Bạn chưa có quyền xem chi tiết việc này",
   "session.oidc.resuming.title": "Đang khôi phục phiên làm việc",
-  "session.oidc.resuming.body": "Hệ thống đang đưa bạn trở lại đúng trang đang xem. Nếu phiên đăng nhập đã hết, bạn sẽ được hỏi tên đăng nhập và mật khẩu."
+  "session.oidc.resuming.body": "Hệ thống đang đưa bạn trở lại đúng trang đang xem. Nếu phiên đăng nhập đã hết, bạn sẽ được hỏi tên đăng nhập và mật khẩu.",
+  "home.dash.region.label": "Bảng điều hành đầu tư công",
+  "home.dash.full.label": "Xem toàn màn hình",
+  "home.dash.keys.hint": "Bấm tên trang ở chân bảng hoặc dùng phím mũi tên trái, phải để chuyển trang.",
+  "home.dash.loading.label": "Đang nạp số liệu của bảng điều hành…",
+  "home.dash.error.title": "Không nạp được số liệu của bảng điều hành.",
+  "home.dash.retry.label": "Thử lại"
 }

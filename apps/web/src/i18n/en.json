@@ -40953,5 +40953,11 @@
   "wfxbands.steps.open.action": "Open process",
   "polish2.mytasks.noDetail.text": "You do not have permission to view the details of this task",
   "session.oidc.resuming.title": "Restoring your session",
-  "session.oidc.resuming.body": "You are being taken back to the page you were on. If the sign-in has ended, you will be asked for your user name and password."
+  "session.oidc.resuming.body": "You are being taken back to the page you were on. If the sign-in has ended, you will be asked for your user name and password.",
+  "home.dash.region.label": "Steering dashboard",
+  "home.dash.full.label": "Show full screen",
+  "home.dash.keys.hint": "Use the page names at the bottom of the board, or the left and right arrow keys, to change page.",
+  "home.dash.loading.label": "Loading the figures of the dashboard…",
+  "home.dash.error.title": "The figures of the dashboard could not be loaded.",
+  "home.dash.retry.label": "Try again"
 }

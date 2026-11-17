@@ -1,0 +1,44 @@
+/* The frame of the dashboard inside the application; the pages themselves are styled by template/dash.css. */
+.dash9-screen {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.dash9-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dash9-hint {
+  font-size: 12px;
+  opacity: 0.75;
+}
+.dash9-host {
+  min-width: 0;
+  overflow-x: auto;
+  outline-offset: 2px;
+}
+.dash9-host:fullscreen {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: Canvas;
+}
+.dash9 {
+  position: relative;
+  overflow: hidden;
+}
+.dash9 .pg {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.dash9 [data-pg] {
+  cursor: pointer;
+}
+/* A capital with two marks (Ế, Ổ) is taller than the line the template gives the small upper-case labels, and the label hides what overflows: a taller line keeps the marks. */
+.dash9 .k .l {
+  line-height: 1.6;
+}
