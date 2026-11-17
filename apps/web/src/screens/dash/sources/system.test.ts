@@ -14,6 +14,8 @@ interface World {
   units: number;
   perUnit: number;
   baselines: boolean;
+  /** Five projects run a workflow; the first has two overdue tasks. */
+  workflows?: boolean;
   /** Operations that fail. */
   broken?: readonly string[];
 }
@@ -38,6 +40,7 @@ function clientOf(world: World): { client: ApiClient; calls: string[] } {
       case 'listPeriodSnapshotLines': return projects.flatMap((project) => [{ project_id: project.id, fund_source_version_id: 'fs-tw', budget_level: 'CENTRAL', plan_total_vnd: dong(60) }, { project_id: project.id, fund_source_version_id: null, budget_level: 'LOCAL', plan_total_vnd: dong(40) }, { project_id: project.id, fund_source_version_id: 'fs-oda', budget_level: 'CENTRAL', plan_total_vnd: dong(20) }]);
       case 'listAppropriations': return [{ fund_source: { version_id: 'fs-tw', business_key: 'NSTW-DTPT' }, origin: 'PM_ASSIGNED', amount_vnd: dong(2000), status: 'PUBLISHED' }, { fund_source: { version_id: 'fs-oda', business_key: 'ODA-ONLEND' }, origin: 'CENTRAL_SUPPORT', amount_vnd: dong(500), status: 'PUBLISHED' }];
       case 'getDisbursementForecast': return { disbursed_vnd: dong(55), curve: Array.from({ length: 11 }, (_, m) => ({ month: m + 1, actual_cumulative_vnd: dong((m + 1) * 5), forecast_cumulative_vnd: null })) };
+      case 'getDeadlineBoard': return world.workflows === true ? [{ project_id: 'p-0', band: { overdue: true, remaining_days: -18 } }, { project_id: 'p-0', band: { overdue: true, remaining_days: -4 } }, ...['p-1', 'p-2', 'p-3', 'p-4'].map((id) => ({ project_id: id, band: { overdue: false, remaining_days: 6 } }))] : [];
       case 'getProjectBaseline': return world.baselines ? { has_baseline: true, deviation: { finish_slip_days: 21 } } : { has_baseline: false, deviation: null };
       default: throw new Error(`unexpected operation ${operation}`);
     }
@@ -100,7 +103,17 @@ describe('the dashboard: real figures where there are enough, the template where
     const { client } = clientOf({ units: 5, perUnit: 2, baselines: false });
     const read = await readDashboard(client, TODAY);
     expect(new Set(Object.values(read.origins))).toEqual(new Set(['template']));
-    expect(read.notes.join(' | ')).toMatch(/0 projects have a baseline/);
+    expect(read.notes.join(' | ')).toMatch(/0 projects have a measure of delay/);
+  });
+
+  it('measures the delay of a project by its workflow when it has no baseline: the most overdue open task, and none overdue is on time', async () => {
+    const { client } = clientOf({ units: 5, perUnit: 2, baselines: false, workflows: true });
+    const read = await readDashboard(client, TODAY);
+    expect(read.notes).toEqual([]);
+    expect(read.origins.du_an).toBe('system');
+    const late = Object.fromEntries(read.db.du_an.map((project) => [project.ma, project.ngay_cham]));
+    expect(late['DA-DT205']).toBe(18);
+    expect(late['DA-TH012']).toBe(0);
   });
 
   it('keeps the template, and says so, when the system cannot be read', async () => {

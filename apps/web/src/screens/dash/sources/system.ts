@@ -83,7 +83,15 @@ export async function readCapitalInput(apiClient: ApiClient, today: string): Pro
     const points = list(forecast.curve).flatMap((point) => (typeof point.month === 'number' ? [{ month: point.month, actual_cumulative_vnd: text(point.actual_cumulative_vnd) }] : []));
     if (points.length > 0) curves[project.id] = points;
   });
+  // How far a project runs behind. A project with a workflow is measured by its work: the most overdue of its open tasks, in working days (none overdue is on time). A project
+  // with a baseline is measured against it, and that measure wins. A project with neither has no measure, and is not counted as on time.
   const delays: Record<string, number> = {};
+  for (const task of await client.readAll('getDeadlineBoard').catch(() => [] as unknown[])) {
+    const row = record(task); const projectId = text(row.project_id); const band = record(row.band);
+    if (projectId === null) continue;
+    const late = band.overdue === true && typeof band.remaining_days === 'number' ? Math.max(0, -band.remaining_days) : 0;
+    delays[projectId] = Math.max(delays[projectId] ?? 0, late);
+  }
   await inGroups(projects.filter((project) => STAGES_WITH_BASELINE.has(project.status)), async (project) => {
     const baseline = record(await client.read('getProjectBaseline', { path: { id: project.id } }).catch(() => undefined));
     const slip = record(baseline.deviation).finish_slip_days;

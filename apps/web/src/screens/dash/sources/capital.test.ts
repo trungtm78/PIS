@@ -90,7 +90,7 @@ describe('the capital bundle from the system', () => {
     const result = capitalFromSystem(province(1, 32, { baselines: 0 }), template.nguon_von, LAST_YEAR);
     expect(result.tables).toBeUndefined();
     expect(result.reasons.join(' | ')).toMatch(/1 investor units/);
-    expect(result.reasons.join(' | ')).toMatch(/0 projects have a baseline/);
+    expect(result.reasons.join(' | ')).toMatch(/0 projects have a measure of delay/);
   });
 
   it('stays on the template when the Treasury has no monthly series for most projects, or too few projects are planned', async () => {

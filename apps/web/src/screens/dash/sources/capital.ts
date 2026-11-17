@@ -33,7 +33,7 @@ export interface CapitalInput {
   appropriations: readonly SystemAppropriation[];
   /** The cumulative disbursement of each project by month, by project id; a project the Treasury has nothing for is absent. */
   curves: Readonly<Record<string, readonly SystemCurvePoint[]>>;
-  /** Days a project runs behind its baseline, by project id; a project without a baseline is absent. */
+  /** Days a project runs behind (its baseline, or the most overdue task of its workflow), by project id; a project with neither measure is absent. */
   delays: Readonly<Record<string, number>>;
 }
 
@@ -48,7 +48,7 @@ export interface CapitalResult {
 const MONTHS = 10;
 const MILLION = 1_000_000n;
 /** What a bundle needs before it replaces the template's: fewer would leave whole pages (the ranking of units, the heat map, the health matrix) with one row or none. */
-export const CAPITAL_FLOOR = { projectsWithPlan: 10, unitsWithPlan: 5, curveCoverage: 0.8, projectsWithBaseline: 5 } as const;
+export const CAPITAL_FLOOR = { projectsWithPlan: 10, unitsWithPlan: 5, curveCoverage: 0.8, projectsWithDelayMeasure: 5 } as const;
 
 const SOURCE_CODES = ['NSTW', 'NSDP', 'SUPPORT', 'ODAV'] as const;
 type SourceCode = (typeof SOURCE_CODES)[number];
@@ -168,7 +168,7 @@ export function capitalFromSystem(input: CapitalInput, templateSources: readonly
   if (withPlan < CAPITAL_FLOOR.projectsWithPlan) reasons.push(`${withPlan} projects have a capital plan (at least ${CAPITAL_FLOOR.projectsWithPlan} are needed)`);
   if (unitsWithPlan.size < CAPITAL_FLOOR.unitsWithPlan) reasons.push(`${unitsWithPlan.size} investor units hold the planned projects (at least ${CAPITAL_FLOOR.unitsWithPlan} are needed for the pages by unit)`);
   if (withPlan > 0 && withCurve / withPlan < CAPITAL_FLOOR.curveCoverage) reasons.push(`${withCurve} of ${withPlan} planned projects have a monthly disbursement series`);
-  if (withBaseline < CAPITAL_FLOOR.projectsWithBaseline) reasons.push(`${withBaseline} projects have a baseline to measure a delay against (at least ${CAPITAL_FLOOR.projectsWithBaseline} are needed for the health pages)`);
+  if (withBaseline < CAPITAL_FLOOR.projectsWithDelayMeasure) reasons.push(`${withBaseline} projects have a measure of delay, a baseline or a workflow (at least ${CAPITAL_FLOOR.projectsWithDelayMeasure} are needed for the health pages)`);
   if (reasons.length > 0) return { reasons };
 
   // The sources: what was assigned to the province, and what of it no project holds yet.
