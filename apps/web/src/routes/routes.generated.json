@@ -521,7 +521,7 @@
     {"id":"PWF-05","path":"/pwf/pwf-05","title":"Khởi tạo và tiếp nhận quy trình","kind":"form","area":"investment","module":"PWF","group":"Quy trình của dự án","role":"detail","parent":"PWF-03","req":"FR-PWF-05"},
     {"id":"PWF-06","path":"/pwf/pwf-06","title":"Xem trước và duyệt dời lịch","kind":"detail","area":"investment","module":"PWF","group":"Quy trình của dự án","role":"detail","parent":"PWF-03","req":"FR-PWF-06"},
     {"id":"PWF-16","path":"/pwf/pwf-16","title":"Sổ phân công","kind":"table","area":"investment","module":"PWF","group":"Quy trình của dự án","role":"detail","parent":"PWF-04","req":"FR-PWF-16"},
-    {"id":"PWF-07","path":"/pwf/pwf-07","title":"Bảng deadline toàn danh mục","kind":"dashboard","area":"investment","module":"PWF","group":"Hạn ba màu","role":"workspace","parent":null,"req":"FR-PWF-07"},
+    {"id":"PWF-07","path":"/pwf/pwf-07","title":"Bảng theo dõi hạn toàn danh mục","kind":"dashboard","area":"investment","module":"PWF","group":"Hạn ba màu","role":"workspace","parent":null,"req":"FR-PWF-07"},
     {"id":"PWF-08","path":"/pwf/pwf-08","title":"Chính sách ba màu","kind":"form","area":"investment","module":"PWF","group":"Hạn ba màu","role":"detail","parent":"PWF-07","req":"FR-PWF-08"},
     {"id":"PWF-09","path":"/pwf/pwf-09","title":"Bộ KPI quy trình","kind":"form","area":"investment","module":"PWF","group":"KPI và chính sách chấm điểm","role":"workspace","parent":null,"req":"FR-PWF-09"},
     {"id":"PWF-10","path":"/pwf/pwf-10","title":"Chính sách chấm điểm","kind":"form","area":"investment","module":"PWF","group":"KPI và chính sách chấm điểm","role":"detail","parent":"PWF-09","req":"FR-PWF-10"},

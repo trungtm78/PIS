@@ -275,7 +275,7 @@ describe('the personal deadline preference, my tasks and the reminders of the ta
       expect(workbook).toMatchObject({ status: 200, json: { row_count: red, content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' } });
       expect(Buffer.from(String(workbook.json.content_base64), 'base64').subarray(0, 2).toString('latin1')).toBe('PK');
       // The sheet is named in the language of the person, not "DIS-export" (the name is stored as text in the part of the workbook, which is small enough not to be compressed away from a search of the bytes of the zip).
-      expect(inflatedParts(Buffer.from(String(workbook.json.content_base64), 'base64')).some((part) => part.includes('<sheet name="Bảng deadline"'))).toBe(true);
+      expect(inflatedParts(Buffer.from(String(workbook.json.content_base64), 'base64')).some((part) => part.includes('<sheet name="Bảng theo dõi hạn"'))).toBe(true);
       const audits = await rows<{ diff: { rows: number; format: string; sha256: string } }>("select safe_diff as diff from machvon.audit_event where action = 'pwf.deadlines_exported' and actor_id = $1 order by occurred_at", [memberId(MANAGER)]);
       expect(audits.map((one) => [one.diff.rows, one.diff.format])).toEqual([[4, 'csv'], [4, 'csv'], [red, 'xlsx']]);
       expect(audits[0]?.diff.sha256).toBe(file.json.sha256);

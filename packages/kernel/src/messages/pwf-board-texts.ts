@@ -1,7 +1,7 @@
 /** The words of the file of the deadline board (PWF-07): a module (not the JSON catalogue) so that the web build never reads a file. The colour in the file is the official one only (R40). */
 export const PWF_BOARD_TEXT = {
-  export_title: 'Bảng deadline công việc dự án',
-  sheet_name: 'Bảng deadline',
+  export_title: 'Bảng theo dõi hạn công việc dự án',
+  sheet_name: 'Bảng theo dõi hạn',
   header_as_of: 'Ngày xuất',
   header_rows: 'Số việc',
   header_filters: 'Bộ lọc',

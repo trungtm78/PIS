@@ -14416,7 +14416,7 @@
     "id": "PWF-07",
     "module": "PWF",
     "moduleName": "Quy trình dự án, hạn ba màu và KPI",
-    "title": "Bảng deadline toàn danh mục",
+    "title": "Bảng theo dõi hạn toàn danh mục",
     "kind": "dashboard",
     "fields": [
       "Lọc theo màu, giai đoạn, người, đơn vị",

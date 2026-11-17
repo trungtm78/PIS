@@ -25,7 +25,7 @@ M2=0 · FP=0 · risk=HIGH
 | COV-ST-PWF-009 | AC/Requirement | ST-PWF-009: Cổng giai đoạn | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-06, TC-UAT-PWF-SEC-09, TC-UAT-PWF-REG-02, TC-UAT-PWF-REG-03 | ✅ |
 | COV-ST-PWF-010 | AC/Requirement | ST-PWF-010: Dời lịch có xem trước và duyệt | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-07, TC-UAT-PWF-NEG-05, TC-UAT-PWF-CON-01, TC-UAT-PWF-SEC-07 | ✅ |
 | COV-ST-PWF-011 | AC/Requirement | ST-PWF-011: Ngưỡng ba màu theo ngày | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-08, TC-UAT-PWF-BND-01, TC-UAT-PWF-BND-02, TC-UAT-PWF-BND-03, TC-UAT-PWF-BND-04, TC-UAT-PWF-BND-05, TC-UAT-PWF-BND-06, TC-UAT-PWF-BND-07, TC-UAT-PWF-NEG-10, TC-UAT-PWF-A11-01, TC-UAT-PWF-REG-01 | ✅ |
-| COV-ST-PWF-012 | AC/Requirement | ST-PWF-012: Bảng deadline toàn danh mục | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-09, TC-UAT-PWF-A11-01, TC-UAT-PWF-UX-01, TC-UAT-PWF-PERF-01, TC-UAT-PWF-BRD-01 | ✅ |
+| COV-ST-PWF-012 | AC/Requirement | ST-PWF-012: Bảng theo dõi hạn toàn danh mục | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-09, TC-UAT-PWF-A11-01, TC-UAT-PWF-UX-01, TC-UAT-PWF-PERF-01, TC-UAT-PWF-BRD-01 | ✅ |
 | COV-ST-PWF-013 | AC/Requirement | ST-PWF-013: Nhắc hạn đúng lúc, không trùng | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-IDM-02, TC-UAT-PWF-IDM-03, TC-UAT-PWF-OFF-01 | ✅ |
 | COV-ST-PWF-014 | AC/Requirement | ST-PWF-014: Nhắc sớm hơn cho riêng mình | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-09, TC-UAT-PWF-NEG-06 | ✅ |
 | COV-ST-PWF-015 | AC/Requirement | ST-PWF-015: Bộ KPI và chính sách chấm điểm | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-NEG-02, TC-UAT-PWF-KPI-01 | ✅ |
@@ -44,7 +44,7 @@ M2=0 · FP=0 · risk=HIGH
 | COV-FR-PWF-04 | AC/Requirement | FR-PWF-04: Chi tiết công việc | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-04) | TC-UI-PWF-04 | ✅ |
 | COV-FR-PWF-05 | AC/Requirement | FR-PWF-05: Khởi tạo và tiếp nhận workflow | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-05) | TC-UI-PWF-05 | ✅ |
 | COV-FR-PWF-06 | AC/Requirement | FR-PWF-06: Xem trước và duyệt dời lịch | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-06) | TC-UI-PWF-06 | ✅ |
-| COV-FR-PWF-07 | AC/Requirement | FR-PWF-07: Bảng deadline toàn danh mục | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-07) | TC-UI-PWF-07 | ✅ |
+| COV-FR-PWF-07 | AC/Requirement | FR-PWF-07: Bảng theo dõi hạn toàn danh mục | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-07) | TC-UI-PWF-07 | ✅ |
 | COV-FR-PWF-08 | AC/Requirement | FR-PWF-08: Chính sách ba màu | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-08) | TC-UI-PWF-08 | ✅ |
 | COV-FR-PWF-09 | AC/Requirement | FR-PWF-09: Bộ KPI workflow | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-09) | TC-UI-PWF-09 | ✅ |
 | COV-FR-PWF-10 | AC/Requirement | FR-PWF-10: Chính sách chấm điểm | Design/MACHVON_Design/03_Engineering/test_cases.json (ca UI-PWF-10) | TC-UI-PWF-10 | ✅ |

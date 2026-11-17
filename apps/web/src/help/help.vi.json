@@ -11873,7 +11873,7 @@
       "rule": "Chỉ thêm, không sửa. Tổng tỷ lệ cùng vai không quá 100. Khoảng chồng nhau bị chặn. Đổi người chia theo khoảng."
     },
     "PWF-07": {
-      "title": "Bảng deadline toàn danh mục",
+      "title": "Bảng theo dõi hạn toàn danh mục",
       "module": "PWF",
       "moduleName": "Quy trình dự án, hạn ba màu và KPI",
       "kind": "dashboard",
