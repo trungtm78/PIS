@@ -59,6 +59,7 @@ export default function DashboardScreen({ route }: ScreenProps) {
     host.current?.requestFullscreen?.()?.catch(() => undefined);
   };
 
+  // Where the tables came from is written on the board for whoever supports it (the reader sees no label: the owner's rule).
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title" className="dash9-screen">
       <h1 id="screen-title" className="ui-sr-only">
@@ -81,7 +82,7 @@ export default function DashboardScreen({ route }: ScreenProps) {
           </button>
         </div>
       ) : null}
-      <div ref={host} className="dash9-host" data-testid="dash9" role="region" aria-label={t('home.dash.region.label')} tabIndex={0} />
+      <div ref={host} className="dash9-host" data-testid="dash9" data-capital={data.data?.origins.du_an} data-notes={data.data?.notes.join(" | ")} role="region" aria-label={t('home.dash.region.label')} tabIndex={0} />
     </section>
   );
 }
