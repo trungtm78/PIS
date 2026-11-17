@@ -10,7 +10,8 @@
 #       A certificate of a private authority made on this host (browsers and the mobile application do NOT trust it until the authority certificate,
 #       state\private-ca.crt, is installed on the device). The fallback where Let's Encrypt cannot reach port 80.
 #
-# After a new certificate is in place nginx is told to read it (when the web container runs). No key leaves the host; nothing secret is printed.
+# After a new certificate is in place nginx is told to read it (when the web container runs), and the scheduled task MACHVON_CERT_RELOAD_TASK of the
+# environment file (another web server that serves the same name with these files) is started again. No key leaves the host; nothing secret is printed.
 param(
   [Parameter(Mandatory)][ValidateSet('acme', 'renew', 'private')][string]$Mode,
   [string]$HostName = '',
@@ -52,6 +53,19 @@ function Install-Certificate([string]$CertificatePem, [string]$KeyPem) {
     if ($web) {
       Invoke-Quiet { & docker exec $web 'C:\nginx\nginx.exe' -p 'C:\nginx' -s reload }
       if ($LASTEXITCODE -eq 0) { Say 'nginx reads the new certificate' } else { Say 'nginx was not reloaded: restart the web service (docker compose restart web)' }
+    }
+    # Another web server of this host that serves the same name with these files (a redirect of port 443 to this installation, for example) reads a
+    # certificate only when it starts: MACHVON_CERT_RELOAD_TASK names the scheduled task that runs it, and the task is started again. Unset: nothing else is touched.
+    $reloadTask = Get-Setting 'MACHVON_CERT_RELOAD_TASK'
+    if ($reloadTask -ne '') {
+      if (Get-ScheduledTask -TaskName $reloadTask -ErrorAction SilentlyContinue) {
+        Stop-ScheduledTask -TaskName $reloadTask
+        Start-Sleep -Seconds 2
+        Start-ScheduledTask -TaskName $reloadTask
+        Say "the scheduled task '$reloadTask' was started again, so that its web server reads the new certificate"
+      } else {
+        Say "MACHVON_CERT_RELOAD_TASK names '$reloadTask', but there is no such scheduled task: start that web server again by hand"
+      }
     }
   }
 }
