@@ -21,6 +21,10 @@ interface DashboardFixture {
   decisionReason: string;
   /** The code of the investor unit of each project, by project code. */
   investors: Record<string, string>;
+  /** The unit that holds the steering meetings, the note a finished directive is closed with, and the meetings with what each one directed. */
+  meetingUnit: string;
+  closeNote: string;
+  meetings: { ago: number; type: string; title: string; directives: { text: string; project: string; dueIn: number; close?: boolean }[] }[];
 }
 
 export async function seedClipDashboard(ctx: SeedContext): Promise<void> {
@@ -77,4 +81,84 @@ export async function seedClipDashboard(ctx: SeedContext): Promise<void> {
     ctx.record({ module: 'PRJ', screen: 'PRJ-20', kind: 'project-transfer', id: String(transfer.id), code, note: `investor unit ${unitCode}` });
   }
   ctx.record({ module: 'PRJ', screen: 'PRJ-20', kind: 'dashboard-investors', id: 'summary', code: 'dashboard', note: `${moved} projects given their investor unit, ${kept} left as they were` });
+  await seedDirectives(ctx, fixture, projects, unitByCode);
+}
+
+const PAPER_SYMBOL = 'BB-HT-CD-2026';
+
+/** The minutes that confirm the directives reported done (a directive closes on evidence): one letter of the incoming register, received once; its version is what the closure names. */
+async function closingPaper(ctx: SeedContext): Promise<string | undefined> {
+  const existing = (await ctx.list<Obj>(REQUESTER, '/incoming-documents')).find((letter) => letter.original_symbol === PAPER_SYMBOL);
+  if (existing !== undefined) {
+    // The register lists the letter without the version of its file: the letter in full carries it. Only when that cannot be read is the letter taken in again.
+    const detail = await ctx.attempt<Obj>(REQUESTER, 'GET', `/incoming-documents/${String(existing.id)}`);
+    const known = String(existing.version_id ?? existing.current_version_id ?? (detail.ok ? (detail.json.version_id ?? detail.json.current_version_id ?? (detail.json.document as Obj | undefined)?.current_version_id) : undefined) ?? '');
+    if (known !== '') return known;
+  }
+  const sent = await ctx.upload<{ file_object_key: string; file_sha256: string }>(REQUESTER, '/document-files', { filename: 'bb-ht-cd-2026.pdf', buffer: ctx.pdf('BAN CHI DAO', PAPER_SYMBOL, 'Bien ban xac nhan hoan thanh chi dao') });
+  if (!sent.ok) return undefined;
+  const received = await ctx.attempt<{ version_id: string }>(REQUESTER, 'POST', '/incoming-documents', {
+    title: 'Biên bản xác nhận hoàn thành các chỉ đạo giao ban', doc_type_code: 'QD', channel: 'UPLOAD', file_object_key: sent.json.file_object_key, file_sha256: sent.json.file_sha256,
+    original_symbol: PAPER_SYMBOL, original_issued_on: ctx.day(-1), sender_name: 'Ban chỉ đạo đầu tư công tỉnh',
+    ...(existing === undefined ? {} : { duplicate_override_reason: 'Nhập lại văn bản để lấy mã tham chiếu' }),
+  });
+  return received.ok ? String(received.json.version_id) : undefined;
+}
+
+/**
+ * The steering meetings of the year and what each one directed (DIR-01, DIR-03): the page of tasks and directives reads them. A directive is given to the investor unit of
+ * its project; some are closed, the others run or have passed their day. Idempotent by the title of the meeting and the text of the directive on its project.
+ */
+async function seedDirectives(ctx: SeedContext, fixture: DashboardFixture, projects: Obj[], unitByCode: { get(code: string): string | undefined }): Promise<void> {
+  const holder = unitByCode.get(fixture.meetingUnit);
+  if (holder === undefined) {
+    ctx.warn(`the unit ${fixture.meetingUnit} that holds the meetings is not a unit of the tenant`);
+    return;
+  }
+  const projectId = new Map(projects.map((project) => [String(project.code), String(project.id)]));
+  const meetings = new Map((await ctx.list<Obj>(REQUESTER, '/steering-meetings')).map((meeting) => [String(meeting.title), String(meeting.id)]));
+  // A directive is the one of its meeting: the same words on the same project at another meeting are another directive.
+  const directiveKey = (meeting: string, text: string, project: string): string => `${meeting}|${project}|${text}`;
+  const existing = new Map((await ctx.list<Obj>(REQUESTER, '/directives')).map((row) => [directiveKey(String((row.meeting as Obj | undefined)?.id), String(row.text), String((row.project as Obj | undefined)?.code)), row]));
+  let added = 0;
+  let closed = 0;
+  let evidence: string | undefined;
+  for (const meeting of fixture.meetings) {
+    let meetingId = meetings.get(meeting.title);
+    if (meetingId === undefined) {
+      const made = await ctx.attempt(REQUESTER, 'POST', '/steering-meetings', { meeting_date: ctx.day(-meeting.ago), meeting_type: meeting.type, title: meeting.title, unit_id: holder });
+      if (!made.ok) continue;
+      meetingId = String(made.json.resource_id);
+    }
+    for (const directive of meeting.directives) {
+      const project = projectId.get(directive.project);
+      const assignee = unitByCode.get(fixture.investors[directive.project] ?? '');
+      if (project === undefined || assignee === undefined) {
+        ctx.warn(`the directive of the project ${directive.project} names a project or a unit the tenant does not have`);
+        continue;
+      }
+      let row = existing.get(directiveKey(meetingId, directive.text, directive.project));
+      if (row === undefined) {
+        const made = await ctx.attempt(REQUESTER, 'POST', `/steering-meetings/${meetingId}/directives`, { scope_kind: 'PROJECT', project_id: project, text: directive.text, assignee_unit_id: assignee, due_on: ctx.day(directive.dueIn) });
+        if (!made.ok) continue;
+        row = { id: made.json.resource_id, version: made.json.resource_version, stored_status: 'OPEN' };
+        added += 1;
+      }
+      if (directive.close !== true || String(row.stored_status) === 'DONE' || String(row.status) === 'DONE') continue;
+      // Only the directive this group gave: one that was since given to another unit is somebody's work and stays open.
+      const given = (row.assignee_unit as Obj | undefined)?.id;
+      if (given !== undefined && String(given) !== assignee) continue;
+      // Whoever recorded the directive may not close it; the leader closes what the unit reported done, and where the leader does not see the project, the head of the tenant or of the unit does.
+      for (const person of ['owner', DECIDER, 'unitAdmin']) {
+        evidence ??= await closingPaper(ctx);
+        if (evidence === undefined) break;
+        const done = await ctx.attempt(person, 'POST', `/directives/${String(row.id)}/closure`, { note: fixture.closeNote, evidence_document_version_ids: [evidence] }, { version: Number(row.version) });
+        if (done.ok) {
+          closed += 1;
+          break;
+        }
+      }
+    }
+  }
+  ctx.record({ module: 'DIR', screen: 'DIR-03', kind: 'dashboard-directives', id: 'summary', code: 'dashboard', note: `${added} directives added, ${closed} closed` });
 }

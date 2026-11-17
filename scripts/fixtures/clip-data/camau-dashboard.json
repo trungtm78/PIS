@@ -49,5 +49,174 @@
     "DA-TT130": "CM-SNNMT",
     "DA-VH131": "CM-SVHTTDL",
     "DA-CN132": "CM-BQLDAXD"
-  }
+  },
+  "meetingUnit": "CM-STC",
+  "closeNote": "Đơn vị đã báo cáo kết quả thực hiện kèm hồ sơ; Ban chỉ đạo ghi nhận hoàn thành.",
+  "meetings": [
+    {
+      "ago": 160,
+      "type": "MONTHLY",
+      "title": "Giao ban đầu tư công tháng 6",
+      "directives": [
+        {
+          "text": "Hoàn thành thủ tục điều chỉnh thiết kế đoạn qua khu dân cư trước khi thi công",
+          "project": "DA-GT105",
+          "dueIn": -120,
+          "close": true
+        },
+        {
+          "text": "Rà soát tiến độ giải phóng mặt bằng, báo cáo danh sách hộ chưa bàn giao",
+          "project": "DA-GT106",
+          "dueIn": -110,
+          "close": true
+        },
+        {
+          "text": "Bổ sung hồ sơ thanh toán khối lượng hoàn thành quý II",
+          "project": "DA-NN103",
+          "dueIn": -115,
+          "close": true
+        }
+      ]
+    },
+    {
+      "ago": 128,
+      "type": "MONTHLY",
+      "title": "Giao ban đầu tư công tháng 7",
+      "directives": [
+        {
+          "text": "Lập kế hoạch giải ngân chi tiết theo tháng đến hết năm",
+          "project": "DA-YT109",
+          "dueIn": -95,
+          "close": true
+        },
+        {
+          "text": "Đẩy nhanh lựa chọn nhà thầu gói thầu thiết bị",
+          "project": "DA-GD110",
+          "dueIn": -90
+        },
+        {
+          "text": "Báo cáo nguyên nhân chậm khởi công và cam kết mốc mới",
+          "project": "DA-GT115",
+          "dueIn": -88
+        }
+      ]
+    },
+    {
+      "ago": 100,
+      "type": "QUARTERLY",
+      "title": "Sơ kết đầu tư công quý III",
+      "directives": [
+        {
+          "text": "Đề xuất phương án điều chuyển vốn từ dự án giải ngân chậm",
+          "project": "DA-NN121",
+          "dueIn": -70
+        },
+        {
+          "text": "Hoàn thiện hồ sơ quyết toán dự án hoàn thành",
+          "project": "DA-GD122",
+          "dueIn": -60,
+          "close": true
+        },
+        {
+          "text": "Hoàn thiện hồ sơ quyết toán dự án hoàn thành",
+          "project": "DA-YT123",
+          "dueIn": -58
+        },
+        {
+          "text": "Rà soát khối lượng dở dang, nghiệm thu thanh toán trước ngày 30 tháng 9",
+          "project": "DA-CN108",
+          "dueIn": -65,
+          "close": true
+        }
+      ]
+    },
+    {
+      "ago": 66,
+      "type": "MONTHLY",
+      "title": "Giao ban đầu tư công tháng 9",
+      "directives": [
+        {
+          "text": "Tháo gỡ vướng mắc nguồn vật liệu cát san lấp",
+          "project": "DA-GT107",
+          "dueIn": -40
+        },
+        {
+          "text": "Báo cáo tiến độ giải ngân vốn nước ngoài và kế hoạch rút vốn",
+          "project": "DA-MT101",
+          "dueIn": -35
+        },
+        {
+          "text": "Hoàn thành thẩm định thiết kế bản vẽ thi công",
+          "project": "DA-CN113",
+          "dueIn": -30
+        }
+      ]
+    },
+    {
+      "ago": 52,
+      "type": "SITE_VISIT",
+      "title": "Kiểm tra hiện trường các dự án kè chống sạt lở",
+      "directives": [
+        {
+          "text": "Bổ sung biện pháp bảo đảm an toàn thi công mùa mưa bão",
+          "project": "DA-MT102",
+          "dueIn": -28
+        },
+        {
+          "text": "Xử lý điểm sạt lở phát sinh, báo cáo khối lượng và kinh phí",
+          "project": "DA-MT125",
+          "dueIn": -20
+        }
+      ]
+    },
+    {
+      "ago": 20,
+      "type": "MONTHLY",
+      "title": "Giao ban đầu tư công tháng 11",
+      "directives": [
+        {
+          "text": "Cam kết tỷ lệ giải ngân đến ngày 31 tháng 12 theo từng dự án",
+          "project": "DA-NN104",
+          "dueIn": 5
+        },
+        {
+          "text": "Hoàn thành hồ sơ mời thầu gói xây lắp chính",
+          "project": "DA-VH119",
+          "dueIn": 8
+        },
+        {
+          "text": "Rà soát dự toán, trình phê duyệt điều chỉnh",
+          "project": "DA-YT117",
+          "dueIn": 12
+        },
+        {
+          "text": "Báo cáo tiến độ cấp mã số dự án và mở tài khoản tại Kho bạc",
+          "project": "DA-GD118",
+          "dueIn": 3
+        }
+      ]
+    },
+    {
+      "ago": 9,
+      "type": "EXTRAORDINARY",
+      "title": "Họp Ban chỉ đạo về các dự án có nguy cơ không giải ngân hết vốn",
+      "directives": [
+        {
+          "text": "Trình phương án cắt giảm, điều chuyển kế hoạch vốn năm 2026",
+          "project": "DA-GT115",
+          "dueIn": 6
+        },
+        {
+          "text": "Tăng ca, bổ sung mũi thi công để bù tiến độ",
+          "project": "DA-GT105",
+          "dueIn": 15
+        },
+        {
+          "text": "Làm việc với nhà tài trợ về gia hạn giải ngân",
+          "project": "DA-MT101",
+          "dueIn": 20
+        }
+      ]
+    }
+  ]
 }
