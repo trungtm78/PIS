@@ -16,9 +16,21 @@ export const text = (value: unknown): string | null => (typeof value === 'string
 export const list = (value: unknown): Raw[] => (Array.isArray(value) ? value.map(record) : []);
 const labelOf = (value: unknown): { label: string } | null => { const label = text(record(value).label); return label === null ? null : { label }; };
 
+/**
+ * The gateway of an installation lets one address ask about fifty times a second and answers 503 beyond that. The board asks a few hundred small reads when it opens,
+ * beside what the rest of the application asks: they go a few at a time, each group no sooner than GROUP_MS after the one before (at most forty a second).
+ */
+const GROUP_MS = import.meta.env.MODE === 'test' ? 0 : 150;
+const pause = (ms: number): Promise<void> => new Promise((resolve) => { setTimeout(resolve, ms); });
+
 export async function inGroups<T, R>(items: readonly T[], work: (item: T) => Promise<R>): Promise<R[]> {
   const done: R[] = [];
-  for (let from = 0; from < items.length; from += CONCURRENCY) done.push(...(await Promise.all(items.slice(from, from + CONCURRENCY).map(work))));
+  for (let from = 0; from < items.length; from += CONCURRENCY) {
+    const started = Date.now();
+    done.push(...(await Promise.all(items.slice(from, from + CONCURRENCY).map(work))));
+    const left = GROUP_MS - (Date.now() - started);
+    if (left > 0 && from + CONCURRENCY < items.length) await pause(left);
+  }
   return done;
 }
 
