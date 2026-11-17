@@ -47,8 +47,8 @@ export interface CapitalResult {
 
 const MONTHS = 10;
 const MILLION = 1_000_000n;
-/** What a bundle needs before it replaces the template's: fewer would leave whole pages (the ranking of units, the heat map, the health matrix) with one row or none. */
-export const CAPITAL_FLOOR = { projectsWithPlan: 10, unitsWithPlan: 5, curveCoverage: 0.8, projectsWithDelayMeasure: 5 } as const;
+/** What a bundle needs before it replaces the template's: fewer would leave whole pages (the ranking of units, the heat map, the health matrix) with one row or none. Half of the planned projects must have payments at the Treasury: a planned project that has not been paid anything yet is ordinary (it stands outside the ranking), a province where most have none has no Treasury feed. */
+export const CAPITAL_FLOOR = { projectsWithPlan: 10, unitsWithPlan: 5, curveCoverage: 0.5, projectsWithDelayMeasure: 5 } as const;
 
 const SOURCE_CODES = ['NSTW', 'NSDP', 'SUPPORT', 'ODAV'] as const;
 type SourceCode = (typeof SOURCE_CODES)[number];
