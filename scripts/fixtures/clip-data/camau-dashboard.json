@@ -218,5 +218,32 @@
         }
       ]
     }
-  ]
+  ],
+  "explanations": [
+    {
+      "project": "DA-MT102",
+      "trigger": "LOW_DISBURSEMENT",
+      "question": "Giải trình nguyên nhân giải ngân thấp so với kế hoạch và cam kết tiến độ đến hết năm",
+      "dueIn": 1
+    },
+    {
+      "project": "DA-NN104",
+      "trigger": "LOW_DISBURSEMENT",
+      "question": "Giải trình khối lượng thực hiện chưa được nghiệm thu, thanh toán",
+      "dueIn": 2
+    },
+    {
+      "project": "DA-GT105",
+      "trigger": "LOW_DISBURSEMENT",
+      "question": "Giải trình tiến độ giải phóng mặt bằng và phần vốn có nguy cơ không giải ngân hết",
+      "dueIn": 3
+    },
+    {
+      "project": "DA-GT115",
+      "trigger": "MILESTONE_DELAYED",
+      "question": "Giải trình lý do chậm khởi công so với mốc đã cam kết",
+      "dueIn": 4
+    }
+  ],
+  "explanationsNote": "Sản phẩm không nhận hạn giải trình trong quá khứ: hạn đặt 1 đến 4 ngày tới, sau đó các yêu cầu chưa trả lời tự thành quá hạn."
 }

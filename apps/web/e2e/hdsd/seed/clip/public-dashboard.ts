@@ -24,6 +24,8 @@ interface DashboardFixture {
   /** The unit that holds the steering meetings, the note a finished directive is closed with, and the meetings with what each one directed. */
   meetingUnit: string;
   closeNote: string;
+  /** What the leader asked a unit to explain and is still owed (PRJ: explanation requests), by project. */
+  explanations: { project: string; trigger: string; question: string; dueIn: number }[];
   meetings: { ago: number; type: string; title: string; directives: { text: string; project: string; dueIn: number; close?: boolean }[] }[];
 }
 
@@ -82,6 +84,29 @@ export async function seedClipDashboard(ctx: SeedContext): Promise<void> {
   }
   ctx.record({ module: 'PRJ', screen: 'PRJ-20', kind: 'dashboard-investors', id: 'summary', code: 'dashboard', note: `${moved} projects given their investor unit, ${kept} left as they were` });
   await seedDirectives(ctx, fixture, projects, unitByCode);
+  await seedExplanations(ctx, fixture, projects);
+}
+
+/**
+ * The explanations the leader asked for and has not been given: the page of pending decisions lists them. Asked of the project manager, as the base data does, by the
+ * leader (or the head of the tenant where the leader does not see the project). Idempotent by the project and the question.
+ */
+async function seedExplanations(ctx: SeedContext, fixture: DashboardFixture, projects: Obj[]): Promise<void> {
+  const projectId = new Map(projects.map((project) => [String(project.code), String(project.id)]));
+  const asked = new Set((await ctx.list<Obj>('owner', '/explanation-requests')).map((row) => `${String(row.project_id ?? (row.project as Obj | undefined)?.id)}|${String(row.question)}`));
+  let added = 0;
+  for (const ask of fixture.explanations) {
+    const project = projectId.get(ask.project);
+    if (project === undefined || asked.has(`${project}|${ask.question}`)) continue;
+    for (const person of [DECIDER, 'owner']) {
+      const made = await ctx.attempt(person, 'POST', '/explanation-requests', { subject_kind: 'PROJECT', project_id: project, trigger_code: ask.trigger, question: ask.question, requested_from_membership_id: ctx.person(REQUESTER).membershipId, due_at: `${ctx.day(ask.dueIn)}T10:00:00.000Z` });
+      if (made.ok) {
+        added += 1;
+        break;
+      }
+    }
+  }
+  ctx.record({ module: 'PRJ', kind: 'dashboard-explanations', id: 'summary', code: 'dashboard', note: `${added} explanations asked` });
 }
 
 const PAPER_SYMBOL = 'BB-HT-CD-2026';
