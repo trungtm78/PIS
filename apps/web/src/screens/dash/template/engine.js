@@ -105,9 +105,9 @@ const HOLDER = {};
     return { tree, byDocT, soonT, monthT, moc, today, ky, last, t, ly, tg, U, ps, unalloc, alloc, plan, disb, pm, monthly, fc, rate, yeTot, ts, tc, bySrc, bySector, byArea, reasons, units, queue, riskP, riskSum, nudges, alerts: A, need, pace, run, factor: run ? pace / run : null, shortP, gross, weeks, aging, groupsT, decomp, mx, muc_tieu,
       kb: sum(ps, (p) => p.kho_bac_sau_ky), kb7: sum(ps, (p) => p.kho_bac_7_ngay), scen: (k) => forecast(monthly, plan, ky, k) };
   }
-  const pc = (x) => (Math.round(x * 1000) / 10).toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  const sg = (x) => (x >= 0 ? '+' : '−') + Math.abs(Math.round(x * 10) / 10).toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  const ty = (m) => (Math.abs(m) >= 100000 ? Math.round(m / 1000).toLocaleString('vi-VN') : (Math.round(m / 100) / 10).toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
+  const pc = (x) => typeof x === 'number' && !Number.isFinite(x) ? '–' : (Math.round(x * 1000) / 10).toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const sg = (x) => typeof x === 'number' && !Number.isFinite(x) ? '–' : (x >= 0 ? '+' : '−') + Math.abs(Math.round(x * 10) / 10).toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const ty = (m) => typeof m === 'number' && !Number.isFinite(m) ? '–' : (Math.abs(m) >= 100000 ? Math.round(m / 1000).toLocaleString('vi-VN') : (Math.round(m / 100) / 10).toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
 
   /* ---------- Điều hành 360° ---------- */
   function gov(DB) {

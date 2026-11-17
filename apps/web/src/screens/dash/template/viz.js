@@ -4,8 +4,8 @@ export function createViz(d3, E, DB, host) {
 /* viz.js — các visual dùng chung (SVG bằng d3, một số bằng HTML) */
 const C = { b: '#2a78d6', o: '#eb6834', a: '#1baf7a', y: '#eda100', v: '#6250d6', ok: '#0ca30c', warn: '#fab219', bad: '#d03b3b', ink: '#252423', ink2: '#605e5c', mut: '#a19f9d', grid: '#e1dfdd', soft: '#f0efec', okT: '#bfe6bf', warnT: '#fde3a0', badT: '#f3bcbc', neu: '#d9d7d3', b100: '#cde2fb', b200: '#9ec5f4', b300: '#6da7ec', b550: '#1c5cab', tgt: '#b87400' };
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const n1 = (x) => (Math.round(x * 10) / 10).toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const n0 = (x) => Math.round(x).toLocaleString('vi-VN');
+const n1 = (x) => typeof x === 'number' && !Number.isFinite(x) ? '–' : (Math.round(x * 10) / 10).toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const n0 = (x) => typeof x === 'number' && !Number.isFinite(x) ? '–' : Math.round(x).toLocaleString('vi-VN');
 const ty = E.ty, pc = E.pc, sg = E.sg, sum = E.sum;
 const dm = (s) => s.slice(8, 10) + '/' + s.slice(5, 7);
 const RAGT = { G: C.okT, Y: C.warnT, R: C.badT }, RAGS = { G: C.ok, Y: '#c98500', R: C.bad }, RAGI = { G: '✓', Y: '●', R: '▲' }, RAGN = { G: 'Xanh', Y: 'Vàng', R: 'Đỏ' };
@@ -158,7 +158,7 @@ const STC = { done: C.ok, working: C.b, late: C.bad, review: C.v, new: C.warn, o
 const top3 = I.shortP.slice(0, 3); const lvN = (k) => I.alerts.filter((a) => a.level === k).length;
 const dOd = I.ts.filter((x) => x.dir && x.cat === 'OVERDUE').length; const soon = I.ts.filter((x) => x.soon);
 const mx = I.mx; const lateP = mx.filter((p) => p.td !== 'G'); const rr = mx.filter((p) => p.td === 'R' && p.gn === 'R');
-const ranked = I.units.filter((u) => u.rank).sort((a, b) => a.rank - b.rank); const withPlan = I.units.filter((u) => u.plan > 0);
+const ranked = I.units.filter((u) => u.rank).sort((a, b) => a.rank - b.rank); const NORANK = { rate: NaN, disb: NaN, plan: NaN, ten_ngan: '–' }; const withPlan = I.units.filter((u) => u.plan > 0);
 const short = (s) => s.replace('Ban QLDA công trình ', 'BQLDA ').replace('Ban QLDA ', 'BQLDA ').replace('Ban Quản lý ', 'BQL ').replace('Sở Văn hóa, Thể thao và Du lịch', 'Sở VH-TT-DL').replace('Sở Nông nghiệp và Môi trường', 'Sở NN & MT').replace('Sở Khoa học và Công nghệ', 'Sở KH & CN').replace('Sở Giáo dục và Đào tạo', 'Sở GD & ĐT');
 
 const PAGES = [];
@@ -195,7 +195,7 @@ PAGES.push({ name: 'Vốn & giải ngân', title: 'Vốn và giải ngân', mode
   { c: '11/13', r: 1, ...kpi('Vốn nước ngoài (vay lại)', pc(I.bySrc[3].rate), '%', `${pts((I.bySrc[3].rate - t) * 100)} so mục tiêu<br>dự báo cuối năm ${pc(I.bySrc[3].ye / I.bySrc[3].plan)}%`, '#c98500') },
   { c: '1/6', r: 2, title: 'Từ mục tiêu đến thực tế: nguồn vốn nào kéo hụt', sub: `Tỷ đồng · phần hụt (−) so mục tiêu tháng ${KY}, gồm vốn chưa phân bổ`, legend: lg([[C.bad, 'Hụt'], [C.ok, 'Vượt'], [C.b, 'Thực tế']]), draw: (el) => V.waterfall(el, wf.st, { min: wf.min }) },
   { c: '6/13', r: 2, title: 'Giải ngân theo nguồn vốn', sub: 'Số trong ngoặc: điểm phần trăm so mục tiêu tháng', legend: lg([['#e9e7e4', 'Kế hoạch'], [C.b, 'Đã giải ngân'], [C.b200, 'Dự báo cuối năm'], ['', 'Mục tiêu T' + KY, 'tk']]), draw: (el) => V.hbars(el, I.bySrc.map((s) => ({ label: s.ten, sub: `${s.n} dự án${s.chua_phan_bo ? ' · chưa phân bổ ' + ty(s.chua_phan_bo) + ' tỷ' : ''}`, bg: s.plan, fc: s.ye, v: s.disb, tick: s.plan * t, val: `<b>${ty(s.disb)}</b> / ${ty(s.plan)} tỷ · <b>${pc(s.rate)}%</b> <span class="${s.rate >= t ? 'pos' : 'neg'}">(${sg((s.rate - t) * 100)})</span> · dự báo ${pc(s.ye / s.plan)}%` })), { lw: 150, vw: 268 }) },
-  { c: '1/6', r: 3, title: 'Nhịp giải ngân từng tháng so với nhịp cần đạt', sub: 'Tỷ đồng mỗi tháng · T11, T12 là dự báo theo nhịp hiện tại', legend: lg([[C.b, 'Thực tế'], [C.b300, 'Dự báo']]), draw: (el) => V.cols(el, { cats: Array.from({ length: 12 }, (_, i) => 'T' + (i + 1)), fmt: (v) => n0(v / 1000), series: [{ name: 'gn', color: C.b, hatch: (i) => i >= KY, vals: [...I.monthly.slice(0, KY), I.fc[0].c - I.disb, I.fc[1].c - I.fc[0].c] }], refs: [{ v: I.pace, label: `Nhịp cần đạt ${ty(I.pace)} tỷ/tháng (để đạt 95% trong T12)`, color: C.bad, left: 1 }, { v: I.run, label: `Bình quân 3 tháng gần nhất ${ty(I.run)}`, color: C.ink2, left: 1 }], top: 20 }) },
+  { c: '1/6', r: 3, title: 'Nhịp giải ngân từng tháng so với nhịp cần đạt', sub: `Tỷ đồng mỗi tháng · ${KY === 10 ? 'T11, T12' : 'từ T' + (KY + 1)} là dự báo theo nhịp hiện tại`, legend: lg([[C.b, 'Thực tế'], [C.b300, 'Dự báo']]), draw: (el) => V.cols(el, { cats: Array.from({ length: 12 }, (_, i) => 'T' + (i + 1)), fmt: (v) => n0(v / 1000), series: [{ name: 'gn', color: C.b, hatch: (i) => i >= KY, vals: [...I.monthly.slice(0, KY), ...I.fc.slice(0, 12 - KY).map((f, i) => f.c - (i ? I.fc[i - 1].c : I.disb))] }], refs: [{ v: I.pace, label: `Nhịp cần đạt ${ty(I.pace)} tỷ/tháng (để đạt 95% trong T12)`, color: C.bad, left: 1 }, { v: I.run, label: `Bình quân 3 tháng gần nhất ${ty(I.run)}`, color: C.ink2, left: 1 }], top: 20 }) },
   { c: '6/13', r: 3, title: 'Bản đồ ô kế hoạch vốn theo dự án', sub: 'Ô to = kế hoạch lớn · màu = mức giải ngân so mục tiêu tháng', legend: lg([[C.okT, '✓ Đạt từ 90% mục tiêu'], [C.warnT, '● 60–90%'], [C.badT, '▲ Dưới 60%'], [C.neu, 'Chưa nộp số']]), draw: (el) => V.treemap(el, I.ps.filter((p) => p.plan).map((p) => ({ v: p.plan, fill: p.miss ? C.neu : RAGT[p.gn], big: p.miss ? 'chưa nộp' : pc(p.rate) + '%', name: p.ten, sub: ty(p.plan) + ' tỷ · ' + p.ma }))) },
 ] });
 /* ---------------- 3. Nguyên nhân & cơ cấu ---------------- */
@@ -254,8 +254,8 @@ const hc = (d) => (d <= -20 ? { bg: C.bad, fg: '#fff', b: 1 } : d <= -5 ? { bg: 
 PAGES.push({ name: 'Trách nhiệm đơn vị', title: 'Trách nhiệm đơn vị', mode: 'inv', rows: '84px 1.05fr 1fr', tiles: [
   { c: '1/3', r: 1, ...kpi('Đơn vị theo dõi', I.units.length, 'đơn vị', `${withPlan.length} đơn vị có kế hoạch vốn<br>${ranked.length} đơn vị đủ điều kiện xếp hạng`, C.b) },
   { c: '3/5', r: 1, ...kpi('Dưới mục tiêu tháng', ranked.filter((u) => u.rate < t).length, 'đơn vị', `trên ${ranked.length} đơn vị xếp hạng<br><b class="neg">${ranked.filter((u) => u.rate / t < 0.6).length} đơn vị dưới 60% mục tiêu</b>`, C.bad) },
-  { c: '5/7', r: 1, ...kpi('Dẫn đầu giải ngân', pc(ranked[0].rate), '%', `${esc(ranked[0].ten_ngan)}<br>${ty(ranked[0].disb)} / ${ty(ranked[0].plan)} tỷ`, C.ok) },
-  { c: '7/9', r: 1, ...kpi('Thấp nhất', pc(ranked[ranked.length - 1].rate), '%', `${esc(ranked[ranked.length - 1].ten_ngan)}<br>${ty(ranked[ranked.length - 1].disb)} / ${ty(ranked[ranked.length - 1].plan)} tỷ`, C.bad) },
+  { c: '5/7', r: 1, ...kpi('Dẫn đầu giải ngân', pc((ranked[0] || NORANK).rate), '%', `${esc((ranked[0] || NORANK).ten_ngan)}<br>${ty((ranked[0] || NORANK).disb)} / ${ty((ranked[0] || NORANK).plan)} tỷ`, C.ok) },
+  { c: '7/9', r: 1, ...kpi('Thấp nhất', pc((ranked[ranked.length - 1] || NORANK).rate), '%', `${esc((ranked[ranked.length - 1] || NORANK).ten_ngan)}<br>${ty((ranked[ranked.length - 1] || NORANK).disb)} / ${ty((ranked[ranked.length - 1] || NORANK).plan)} tỷ`, C.bad) },
   { c: '9/11', r: 1, ...kpi('Có nhiệm vụ quá hạn', I.units.filter((u) => u.c.OVERDUE).length, 'đơn vị', `nhiều nhất: ${esc(short(I.units.slice().sort((a, b) => b.c.OVERDUE - a.c.OVERDUE)[0].ten_ngan))}<br>(${I.units.slice().sort((a, b) => b.c.OVERDUE - a.c.OVERDUE)[0].c.OVERDUE} việc)`, '#c98500') },
   { c: '11/13', r: 1, ...kpi(`Chưa nộp số tháng ${KY}`, I.units.filter((u) => !u.da_nop_so).length, 'đơn vị', `${I.units.filter((u) => !u.da_nop_so).map((u) => esc(short(u.ten_ngan))).join('<br>')}`, C.mut) },
   { c: '1/8', r: 2, title: 'Lệch mục tiêu theo tháng của từng đơn vị', sub: 'Điểm % lũy kế so mục tiêu từng tháng · xếp theo tỷ lệ hiện tại · "?": chưa nộp số', legend: lg([[C.bad, 'Hụt từ 20'], ['#f3bcbc', 'Hụt 5–20'], [C.soft, 'Sát mục tiêu'], ['#b7d3f6', 'Vượt 5–20'], [C.b, 'Vượt từ 20']]), draw: (el) => V.heat(el, Array.from({ length: KY }, (_, i) => 'T' + (i + 1)), withPlan.slice().sort((a, b) => a.rate - b.rate).map((u) => ({ name: u.ten_ngan, cells: u.gaps.map((d, i) => (i === I.last - 1 && u.miss ? { bg: C.neu, t: '?' } : { ...hc(d), t: (d >= 0 ? '+' : '−') + Math.round(Math.abs(d)) })) })), { lw: 178 }) },
@@ -284,8 +284,8 @@ PAGES.push({ name: 'Đôn đốc 360°', title: 'Theo dõi và đôn đốc nhi�
   { c: '1/3', r: 1, ...kpi('Tổng nhiệm vụ gốc', G.c.total, 'nhiệm vụ', `${G.bySrc.map((s) => ({ TW: 'TW', TINH: 'Tỉnh', BCD: 'BCĐ' }[s.k]) + ' ' + s.r.total).join(' · ')}<br>giao xuống thành ${G.a.total} lượt thực hiện`, '#1b2a47') },
   { c: '3/5', r: 1, ...kpi('Đã hoàn thành', G.c.done, `· ${pc(G.c.done / G.c.total)}%`, `đúng hạn ${G.onR} · trễ hạn ${G.c.done - G.onR}<br>lượt giao: ${G.a.done}/${G.a.total} đã được chấp nhận`, C.ok) },
   { c: '5/7', r: 1, ...kpi('Đang thực hiện', G.c.total - G.c.done, `· ${pc(1 - G.c.done / G.c.total)}%`, `trong hạn ${G.c.working + G.c.review} · quá hạn ${G.c.late}<br>${G.c.review} nhiệm vụ chờ báo cáo cấp trên`, C.b) },
-  { c: '7/9', r: 1, ...kpi('Quá hạn', G.c.late, `· ${pc(G.c.late / G.c.total)}%`, `<b class="neg">cần đôn đốc ngay</b> · ${G.urgentLate} nhiệm vụ khẩn<br>trễ lâu nhất ${-G.diff(G.lateR[0].han_bao_cao)} ngày`, C.bad) },
-  { c: '9/11', r: 1, ...kpi('Sắp đến hạn trong 7 ngày', G.soonR.length, 'nhiệm vụ', `${G.monthR} nhiệm vụ có hạn trong tháng ${+G.today.slice(5, 7)}<br>gần nhất: còn ${G.diff(G.soonR[0].han_bao_cao)} ngày`, '#c98500') },
+  { c: '7/9', r: 1, ...kpi('Quá hạn', G.c.late, `· ${pc(G.c.late / G.c.total)}%`, `<b class="neg">cần đôn đốc ngay</b> · ${G.urgentLate} nhiệm vụ khẩn<br>trễ lâu nhất ${G.lateR.length ? -G.diff(G.lateR[0].han_bao_cao) : 0} ngày`, C.bad) },
+  { c: '9/11', r: 1, ...kpi('Sắp đến hạn trong 7 ngày', G.soonR.length, 'nhiệm vụ', `${G.monthR} nhiệm vụ có hạn trong tháng ${+G.today.slice(5, 7)}<br>gần nhất: còn ${G.soonR.length ? G.diff(G.soonR[0].han_bao_cao) : '–'} ngày`, '#c98500') },
   { c: '11/13', r: 1, ...kpi('Lượt giao xong đúng hạn', pc(G.onA / G.a.done), '%', `${G.onA}/${G.a.done} lượt đã chấp nhận<br>${G.a.done - G.onA} lượt hoàn thành trễ hạn`, C.a) },
   srcTile(G.bySrc[0], '1/5'), srcTile(G.bySrc[1], '5/9'), srcTile(G.bySrc[2], '9/13'),
   { c: '1/4', r: 3, title: 'Nhiệm vụ theo loại văn bản', sub: `${G.c.total}/${G.c.total} nhiệm vụ gốc trong phạm vi lọc`, draw: (el) => { el.innerHTML = `<div class="dc">${G.byDoc.map((d) => `<div class="c1"><div class="h"><span>${esc(d.name)}</span><span><b>${d.r.total}</b> <small>· HT ${pc(d.r.done / d.r.total)}%</small></span></div><div class="sk">${['done', 'working', 'review', 'late'].map((k) => (d.r[k] ? `<i style="width:${(d.r[k] / d.r.total) * 100}%;background:${STC[k]}"></i>` : '')).join('')}</div><div class="f">${d.r.done} hoàn thành · ${d.r.working} trong hạn · ${d.r.review} chờ báo cáo · <b class="neg">${d.r.late} quá hạn</b></div></div>`).join('')}</div>`; } },
@@ -323,6 +323,6 @@ function render(i) {
   <div class="ft">${PAGES.map((q, j) => `<span class="${j === i ? 'on' : ''}" data-pg="${j}" role="tab" tabindex="0" aria-selected="${j === i}">${q.name}</span>`).join('')}<span class="nt">Trang ${i + 1}/${PAGES.length}</span></div></div>`;
   p.tiles.forEach((q, j) => { if (q.draw) q.draw(host.querySelector('#b' + j)); });
 }
-return { render, count: PAGES.length, names: PAGES.map((p) => p.name) };
+return { render, count: PAGES.length, names: PAGES.map((p) => p.name), modes: PAGES.map((p) => p.mode) };
 
 }

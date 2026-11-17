@@ -28,6 +28,11 @@ db.moc_thoi_gian[0].ghi_chu = '';
 let engine = pick('function invest(DB');
 engine = must(engine, "if (typeof module !== 'undefined') module.exports = E; else root.E = E;", 'root.E = E;');
 engine = must(engine, "})(typeof window !== 'undefined' ? window : globalThis);", '})(HOLDER);');
+// The filters of the screen (template/filters.js) give the engine and the charts a part of the tables. The template was written for the whole of them: a figure with
+// nothing to divide by is written as a dash instead of "NaN", and the three figure tiles that read the first row of a list say a dash (or zero days) when the
+// list is empty. Nothing changes for tables that give every figure (an absent figure, null, is written as before).
+const SAFE = (name, head) => [`const ${name} = (${head}) => `, `const ${name} = (${head}) => typeof ${head} === 'number' && !Number.isFinite(${head}) ? '–' : `];
+for (const [name, head] of [['pc', 'x'], ['sg', 'x'], ['ty', 'm']]) engine = must(engine, ...SAFE(name, head));
 engine = `${HEADER('the engine (every figure of the pages, from the tables)')}/* eslint-disable */
 const HOLDER = {};\n${engine}\nexport const E = HOLDER.E;\n`;
 
@@ -42,7 +47,18 @@ viz = must(viz, ".replace(' (mô phỏng)', '')", '');
 viz = must(viz, '<span class="${j === i ? \'on\' : \'\'}">${q.name}</span>', '<span class="${j === i ? \'on\' : \'\'}" data-pg="${j}" role="tab" tabindex="0" aria-selected="${j === i}">${q.name}</span>');
 // The one field the template writes into the page without escaping it (the code of a root task).
 viz = must(viz, '<small>${x.r.ma} · ', '<small>${esc(x.r.ma)} · ');
-viz = must(viz, 'window.RENDER = render; window.NPAGES = PAGES.length; window.PNAMES = PAGES.map((p) => p.name);', 'return { render, count: PAGES.length, names: PAGES.map((p) => p.name) };');
+viz = must(viz, 'window.RENDER = render; window.NPAGES = PAGES.length; window.PNAMES = PAGES.map((p) => p.name);', 'return { render, count: PAGES.length, names: PAGES.map((p) => p.name), modes: PAGES.map((p) => p.mode) };');
+for (const name of ['n1', 'n0']) viz = must(viz, ...SAFE(name, 'x'));
+viz = must(viz, 'trễ lâu nhất ${-G.diff(G.lateR[0].han_bao_cao)} ngày', 'trễ lâu nhất ${G.lateR.length ? -G.diff(G.lateR[0].han_bao_cao) : 0} ngày');
+viz = must(viz, 'gần nhất: còn ${G.diff(G.soonR[0].han_bao_cao)} ngày', "gần nhất: còn ${G.soonR.length ? G.diff(G.soonR[0].han_bao_cao) : '–'} ngày");
+// No unit is ranked (none has both a plan and its figure of the period): the tiles of the first and the last of the ranking say a dash.
+viz = must(viz, 'const ranked = I.units.filter((u) => u.rank).sort((a, b) => a.rank - b.rank);', "const ranked = I.units.filter((u) => u.rank).sort((a, b) => a.rank - b.rank); const NORANK = { rate: NaN, disb: NaN, plan: NaN, ten_ngan: '–' };");
+viz = must(viz, 'ranked[0]', '(ranked[0] || NORANK)');
+viz = must(viz, 'ranked[ranked.length - 1]', '(ranked[ranked.length - 1] || NORANK)');
+// The chart of the monthly rhythm drew two forecast months after the closing month (October in the template). Read to an earlier month it draws the forecast of
+// every month from the next one to December; at the closing month of the template it draws what it drew.
+viz = must(viz, 'vals: [...I.monthly.slice(0, KY), I.fc[0].c - I.disb, I.fc[1].c - I.fc[0].c]', 'vals: [...I.monthly.slice(0, KY), ...I.fc.slice(0, 12 - KY).map((f, i) => f.c - (i ? I.fc[i - 1].c : I.disb))]');
+viz = must(viz, "sub: 'Tỷ đồng mỗi tháng · T11, T12 là dự báo theo nhịp hiện tại'", "sub: `Tỷ đồng mỗi tháng · ${KY === 10 ? 'T11, T12' : 'từ T' + (KY + 1)} là dự báo theo nhịp hiện tại`");
 if (/\b(document|window)\./.test(viz)) throw new Error('the charts of the template reach for the document or the window somewhere new: scope it to the host first');
 viz = `${HEADER('the charts and the nine pages')}/* eslint-disable */\nexport function createViz(d3, E, DB, host) {\n${viz}\n}\n`;
 
