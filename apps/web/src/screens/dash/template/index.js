@@ -1,12 +1,14 @@
 // Mounts the owner's dashboard (template/engine.js, template/viz.js: generated from the template, see scripts/dashboard/import-template.mjs) inside one element of a screen.
-// The template draws a page of 1280 x 720 and scales it to its window; here it scales to the width of its host, and to the whole screen while the host is shown full screen.
+// The template draws a page of 1280 wide and scales it to its window; here it scales to the width of its host, and to the whole screen while the host is shown full screen.
 import * as d3 from 'd3';
 import { E } from './engine.js';
 import { createViz } from './viz.js';
 import './dash.css';
+import './skin.css';
 
 const PAGE_WIDTH = 1280;
-const PAGE_HEIGHT = 720;
+// The page of the template is 720 high; inside the application it is given more height (template/skin.css), for the tabs at the top and the room between the tiles.
+const PAGE_HEIGHT = 800;
 /** Below this the figures cannot be read: a narrow host scrolls sideways inside its own box instead of shrinking further. */
 const MIN_SCALE = 0.6;
 
@@ -24,8 +26,9 @@ export function mountDashboard(host, db, options = {}) {
     const scale = full ? Math.min(window.innerWidth / PAGE_WIDTH, window.innerHeight / PAGE_HEIGHT) : Math.max(MIN_SCALE, (host.clientWidth || PAGE_WIDTH) / PAGE_WIDTH);
     page.style.transformOrigin = '0 0';
     page.style.transform = `scale(${scale})`;
-    stage.style.width = `${PAGE_WIDTH * scale}px`;
-    stage.style.height = `${PAGE_HEIGHT * scale}px`;
+    // Whole pixels, rounded down: a fraction of a pixel more than the host is wide would give the host a scroll bar.
+    stage.style.width = `${Math.floor(PAGE_WIDTH * scale)}px`;
+    stage.style.height = `${Math.floor(PAGE_HEIGHT * scale)}px`;
   };
   const go = (index, announce = true) => {
     current = Math.max(0, Math.min(viz.count - 1, index));
