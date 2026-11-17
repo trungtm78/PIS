@@ -30,7 +30,18 @@ export async function seedClipDashboard(ctx: SeedContext): Promise<void> {
     return;
   }
   const fixture = JSON.parse(readFileSync(FIXTURE, 'utf8')) as DashboardFixture;
-  const unitByCode = new Map((await ctx.list<Obj>(REQUESTER, '/resources/organization_unit')).map((unit) => [String(unit.code), String(unit.id)]));
+  // The seeds read the answers of the API in the words of the guide: a unit of this dataset that stands for a unit of the guide comes back under the code of the guide
+  // (plan.localize pairs a word of the guide with the word of the dataset), so a unit is looked up by its own code and by the code it stands for.
+  const pairs = (plan.localize as { pairs?: [string, string][] } | undefined)?.pairs ?? [];
+  const unitIds = new Map((await ctx.list<Obj>(REQUESTER, '/resources/organization_unit')).map((unit) => [String(unit.code), String(unit.id)]));
+  // The word of the dataset may be the whole code (CM-BQLDAXD) or a part of it (AN-XUYEN in CM-P-AN-XUYEN): every pair that occurs in the code is tried.
+  const unitByCode = {
+    get: (code: string): string | undefined => {
+      if (unitIds.has(code)) return unitIds.get(code);
+      for (const [guide, dataset] of pairs) if (dataset !== '' && code.includes(dataset) && unitIds.has(code.replace(dataset, guide))) return unitIds.get(code.replace(dataset, guide));
+      return undefined;
+    },
+  };
   const projects = await ctx.list<Obj>(REQUESTER, '/resources/project');
   const waiting = new Map((await ctx.list<Obj>(DECIDER, '/project-transfers', { status: 'REQUESTED' })).map((transfer) => [String((transfer.project as Obj | undefined)?.id), transfer]));
   let moved = 0;
