@@ -1,6 +1,10 @@
 # Installs or upgrades MACHVON on this Windows Server host from a build pack (scripts/onprem-windows-pack.mjs), with Windows containers.
 #
-#   powershell -ExecutionPolicy Bypass -File <pack>\infra\onprem-windows\host\install.ps1 -Pack <pack> [-KeepPack] [-SkipBackup] [-KeepDirectory]
+#   powershell -ExecutionPolicy Bypass -File <pack>\infra\onprem-windows\host\install.ps1 -Pack <pack> [-KeepPack] [-SkipBackup] [-KeepDirectory] [-Rehost]
+#
+# -Rehost moves an installation to the public address the pack was built for (another domain or port): the addresses of the environment file follow it,
+# and after step 6 the browser clients of the realm are pointed at it (keycloak-admin set-host). Get the certificate of the new name first
+# (certificate.ps1 -Mode acme -HostName <name> -WebRoot ...). Without -Rehost a pack of another address is refused, so that a wrong pack cannot move a server.
 #
 # The same command installs the first release and every later one. In order, stopping at the first step that fails; it can be run again:
 #   1 the pack is checked against its manifest and the images of the release are built on this host;
@@ -20,6 +24,7 @@ param(
   [switch]$KeepPack,
   [switch]$SkipBackup,
   [switch]$KeepDirectory,
+  [switch]$Rehost,
   [int]$WaitSeconds = 900
 )
 . (Join-Path $PSScriptRoot 'common.ps1')
@@ -53,8 +58,19 @@ if (-not (Test-Path $script:EnvFile)) {
   foreach ($name in $values.Keys) { $text = [regex]::Replace($text, "(?m)^$name=.*$", ("$name=" + $values[$name]).Replace('$', '$$')) }
   Write-TextFile $script:EnvFile $text
   Say "the environment file was created: $script:EnvFile"
-} elseif ((Get-Setting 'PUBLIC_HOST') -ne $manifest.publicHost -or (Get-Setting 'MACHVON_EDITION') -ne $manifest.edition) {
-  Fail ("the pack was built for " + $manifest.publicHost + " (" + $manifest.edition + ") but this installation is " + (Get-Setting 'PUBLIC_HOST') + " (" + (Get-Setting 'MACHVON_EDITION') + ")")
+} elseif ((Get-Setting 'MACHVON_EDITION') -ne $manifest.edition) {
+  Fail ("the pack was built for the " + $manifest.edition + " edition but this installation is the " + (Get-Setting 'MACHVON_EDITION') + " edition")
+} elseif ((Get-Setting 'PUBLIC_HOST') -ne $manifest.publicHost) {
+  $previousHost = Get-Setting 'PUBLIC_HOST'
+  if (-not $Rehost) { Fail ("the pack was built for " + $manifest.publicHost + " but this installation is " + $previousHost + " (add -Rehost to move the installation to the address of the pack)") }
+  # The control plane follows only when it shared the address of the tenants (the installation of one host); a control plane of its own address stays.
+  if ((Get-Setting 'CONTROL_HOST') -eq $previousHost) { Set-Setting 'CONTROL_HOST' $manifest.publicHost }
+  Set-Setting 'PUBLIC_HOST' $manifest.publicHost
+  Set-Setting 'PUBLIC_HOSTNAME' $hostName
+  Set-Setting 'WEB_HTTPS_PORT' $port
+  Say "the installation moves from $previousHost to $($manifest.publicHost)"
+} elseif ($Rehost) {
+  Say "-Rehost: the installation is already at $($manifest.publicHost); the clients of the realm are pointed at it once more"
 }
 
 Say '3/9 secret files and certificate'
@@ -111,6 +127,10 @@ if (-not $KeepDirectory -and (Get-Setting 'LDAP_URL') -match 'directory\.invalid
 }
 
 & (Join-Path $hostScripts 'keycloak-admin.ps1') apply-presentation
+if ($Rehost) {
+  Say "the sign-in of the realm returns to https://$($manifest.publicHost) now"
+  & (Join-Path $hostScripts 'keycloak-admin.ps1') set-host --tenant-host $manifest.publicHost --control-host (Get-Setting 'CONTROL_HOST')
+}
 if ((Get-Setting 'MACHVON_DEMO_SINGLE_FACTOR') -eq 'true') {
   Say 'DEMONSTRATION MODE (MACHVON_DEMO_SINGLE_FACTOR=true): people sign in with the password alone'
   & (Join-Path $hostScripts 'keycloak-admin.ps1') single-factor on

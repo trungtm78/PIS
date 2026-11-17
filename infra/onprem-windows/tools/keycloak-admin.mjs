@@ -167,6 +167,31 @@ export class KeycloakAdmin {
     return { requirement, defaultAction: required, released, clients, level };
   }
 
+  /**
+   * Points the browser clients at a new public address (the installation moved to another domain): their callback, their origin and where a sign-out may return.
+   * The realm is imported once, at the first start, with the address of that day; without this the sign-in of the new address is refused (invalid redirect_uri).
+   * `hosts` maps a clientId to `host[:port]`; a client that is not named keeps what it has, and so does every other setting of a client.
+   */
+  async setClientHosts(hosts) {
+    const { body: listed } = await this.call('GET', '/clients?max=500');
+    // Every client named must exist before any is written: a move is whole or not at all.
+    const targets = (listed ?? []).filter((client) => hosts[client.clientId] !== undefined);
+    const missing = Object.keys(hosts).filter((clientId) => !targets.some((client) => client.clientId === clientId));
+    if (missing.length > 0) throw new AdminError(`the realm has no client ${missing.join(', ')}`);
+    const changed = [];
+    for (const client of targets) {
+      const origin = `https://${hosts[client.clientId]}`;
+      await this.call('PUT', `/clients/${client.id}`, {
+        ...client,
+        redirectUris: [`${origin}/auth/callback`],
+        webOrigins: [origin],
+        attributes: { ...(client.attributes ?? {}), 'post.logout.redirect.uris': `${origin}/*` },
+      });
+      changed.push(client.clientId);
+    }
+    return changed;
+  }
+
   /** Sets the password of a person of the realm (not temporary); the other credentials of the person are kept. */
   async setPassword(username, password) {
     const { body: found } = await this.call('GET', `/users?exact=true&username=${encodeURIComponent(username)}`);
@@ -226,7 +251,7 @@ export function otpauthOf({ issuerName, username, secret }) {
 
 export async function main(argv, { env = process.env, log = (line) => process.stdout.write(`${line}\n`), fetch = globalThis.fetch, read = firstLine, readJson = (path) => (existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : undefined) } = {}) {
   const [command, ...rest] = argv;
-  const options = { username: { type: 'string' }, email: { type: 'string' }, 'first-name': { type: 'string' }, 'last-name': { type: 'string' }, 'password-file': { type: 'string' }, 'totp-secret-file': { type: 'string' }, 'realm-role': { type: 'string' }, file: { type: 'string' } };
+  const options = { username: { type: 'string' }, email: { type: 'string' }, 'first-name': { type: 'string' }, 'last-name': { type: 'string' }, 'password-file': { type: 'string' }, 'totp-secret-file': { type: 'string' }, 'realm-role': { type: 'string' }, file: { type: 'string' }, 'tenant-host': { type: 'string' }, 'control-host': { type: 'string' } };
   let values;
   let positionals;
   try {
@@ -299,7 +324,19 @@ export async function main(argv, { env = process.env, log = (line) => process.st
       );
       return 0;
     }
-    log('keycloak-admin: commands are disable-directory, enable-directory, create-user, delete-user, apply-presentation, single-factor');
+    if (command === 'set-host') {
+      const tenant = values['tenant-host'];
+      const control = values['control-host'] ?? tenant;
+      const valid = (host) => typeof host === 'string' && /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*(:\d{1,5})?$/i.test(host);
+      if (!valid(tenant) || !valid(control)) {
+        log('keycloak-admin: set-host takes --tenant-host host[:port] [--control-host host[:port]]');
+        return 2;
+      }
+      const changed = await admin.setClientHosts({ 'machvon-web': tenant, 'machvon-control': control });
+      log(`keycloak-admin: the sign-in of ${changed.join(', ')} now returns to https://${tenant} (control plane https://${control})`);
+      return 0;
+    }
+    log('keycloak-admin: commands are disable-directory, enable-directory, create-user, delete-user, apply-presentation, single-factor, set-host');
     return 2;
   } catch (error) {
     if (!(error instanceof AdminError)) throw error;
