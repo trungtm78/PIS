@@ -1,0 +1,35 @@
+/* ADV-01 to ADV-05, the explanatory pages of the advisory group. Tokens only; the kit (apps/web/src/ui) draws the cards and the status pill. */
+
+.adv-page { display: grid; gap: var(--mv-space-16); max-width: 1120px; }
+.adv-page .ui-section { margin-bottom: 0; }
+.adv-page svg { stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+.adv-head { display: flex; align-items: flex-start; gap: var(--mv-space-16); min-width: 0; }
+.adv-head > div { min-width: 0; }
+.adv-head h1 { margin: 0 0 var(--mv-space-8); overflow-wrap: anywhere; }
+.adv-head__icon { display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; flex: none; border-radius: var(--mv-radius-card); background: var(--mv-color-primary-soft); color: var(--mv-color-primary); border: 1px solid var(--mv-color-border); }
+.adv-head__icon svg { width: 32px; height: 32px; }
+.adv-status { margin: 0 0 var(--mv-space-12); }
+.adv-summary { margin: 0; max-width: 78ch; font-size: 16px; line-height: 1.6; color: var(--mv-color-ink); }
+.adv-callout { margin: 0; padding: var(--mv-space-12) var(--mv-space-16); }
+
+.adv-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--mv-space-16); align-items: start; }
+.adv-sections > .adv-wide { grid-column: 1 / -1; }
+.adv-list { display: grid; gap: var(--mv-space-8); margin: 0; padding-left: var(--mv-space-20); line-height: 1.6; }
+.adv-list li { overflow-wrap: anywhere; }
+
+.adv-plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--mv-space-12); margin: 0; padding: 0; list-style: none; }
+.adv-plan { display: grid; align-content: start; gap: var(--mv-space-8); padding: var(--mv-space-16); border: 1px solid var(--mv-color-border); border-top: 4px solid var(--mv-color-primary); border-radius: var(--mv-radius-control); background: var(--mv-color-surface2); min-width: 0; }
+.adv-plan h3 { margin: 0; font-size: 16px; font-weight: 700; color: var(--mv-color-ink); }
+.adv-plan p { margin: 0; line-height: 1.6; overflow-wrap: anywhere; }
+.adv-plan__fee { font-weight: 600; color: var(--mv-color-primary); }
+.adv-note { margin: var(--mv-space-12) 0 0; color: var(--mv-color-text-secondary); font-size: 14px; }
+.adv-text { margin: 0 0 var(--mv-space-8); line-height: 1.6; }
+.adv-text:last-child { margin-bottom: 0; }
+
+@media (max-width: 900px) {
+  .adv-sections, .adv-plans { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .adv-head { flex-direction: column; gap: var(--mv-space-12); }
+}

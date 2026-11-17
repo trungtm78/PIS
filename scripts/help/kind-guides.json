@@ -25,6 +25,7 @@
     "funding": "màn hình theo dõi nguồn vốn",
     "confirm": "màn hình xác nhận",
     "success": "màn hình thông báo kết quả",
+    "info": "trang giới thiệu chức năng sẽ triển khai",
     "ai": "màn hình trợ lý AI",
     "conversation": "màn hình hội thoại",
     "builder": "màn hình dựng cấu hình",
@@ -220,6 +221,13 @@
       "steps": [
         "Màn hình xác nhận thao tác đã hoàn tất và nêu mã tham chiếu.",
         "Dùng nút bên dưới để quay lại danh sách hoặc làm tiếp việc kế tiếp."
+      ]
+    },
+    "info": {
+      "steps": [
+        "Đọc nhãn Sẽ triển khai ở đầu trang: chức năng này chưa hoạt động, trang chỉ giới thiệu định hướng.",
+        "Đọc lần lượt các phần: chức năng dự kiến, dữ liệu sử dụng, cách hoạt động, phí dịch vụ nếu có và lợi ích.",
+        "Trang không có thao tác nào; khi chức năng được triển khai, hệ thống sẽ thông báo và hướng dẫn riêng."
       ]
     }
   }

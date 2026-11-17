@@ -73,6 +73,21 @@ describe('sidebar of "Xanh dầu điều hành"', () => {
     expect(current[0]?.closest('.sidebar-destination')).toHaveClass('destination-active');
   });
 
+  it('AC-ST-ADV-001-1: draws the icon of a shortcut that has one before its label, hidden from assistive technology, and none for the others', () => {
+    sidebar({ route: routeById('ADV-02') });
+    const nav = screen.getByRole('navigation', { name: vi_['shell.nav.main.label'] });
+    const group = within(nav).getByRole('link', { name: 'Cố vấn AI' });
+    expect(group.closest('.sidebar-destination')).toHaveClass('destination-active');
+    const items = [...nav.querySelectorAll('.sidebar-context a')];
+    expect(items.map((item) => item.textContent)).toEqual(['Cố vấn vốn bằng AI', 'Chuyên gia tài chính', 'Giải pháp chiến lược', 'Sửa đổi quy trình', 'Đào tạo quản lý']);
+    for (const item of items) expect(item.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(items[1]).toHaveAttribute('aria-current', 'page');
+    expect(items[1]).toHaveAttribute('href', '/adv/adv-02');
+    cleanup();
+    sidebar({ route: routeById('PRJ-01') });
+    expect(document.querySelectorAll('.sidebar-context a svg')).toHaveLength(0);
+  });
+
   it('shows a count badge on the destinations that have one, and none for 0 or a missing count', () => {
     sidebar({ counts: { 'HOME-02': 7, 'HOME-01': 0 }, unreadNotifications: 2 });
     const nav = screen.getByRole('navigation', { name: vi_['shell.nav.main.label'] });

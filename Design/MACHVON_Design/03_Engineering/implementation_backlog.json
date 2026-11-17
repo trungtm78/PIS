@@ -24256,5 +24256,177 @@
     "stories": [
       "ST-PWF-014"
     ]
+  },
+  {
+    "id": "BL-ADV-01",
+    "requirement": "FR-ADV-01",
+    "screen": "ADV-01",
+    "title": "Cố vấn điều hành vốn bằng AI",
+    "module": "ADV",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "AI/Core",
+    "dependencies": "CAP,DIS,PWF,DIR",
+    "fields": [
+      "Trạng thái Sẽ triển khai",
+      "Tóm tắt",
+      "Màn hình dự kiến (số liệu ví dụ)",
+      "Chức năng dự kiến",
+      "Dữ liệu sử dụng",
+      "Cách hoạt động",
+      "Gói dịch vụ và phí (Tiêu chuẩn miễn phí, Chuyên sâu, Cao cấp)",
+      "Lợi ích cho lãnh đạo tỉnh"
+    ],
+    "rule": "Trang giới thiệu đã có; chức năng cố vấn chưa được xây dựng. Ba gói: Tiêu chuẩn miễn phí; Chuyên sâu và Cao cấp là thuê bao hằng tháng, mức phí theo thỏa thuận khi triển khai. Trang chỉ giới thiệu chức năng sẽ triển khai, gồm hai thẻ: Màn hình dự kiến (bản phác họa, mọi con số là số liệu ví dụ và có dòng ghi rõ) và Giới thiệu (phần chữ, không có số liệu); không gọi dịch vụ, ô nhập và nút trong bản phác họa không gửi gì; trạng thái Sẽ triển khai luôn hiển thị bằng chữ; không nêu tên đối tác thật, không nêu mức phí.",
+    "test_ids": [
+      "UI-ADV-01"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ADV.md, màn hình trong screen_catalog; trang không có operation.",
+    "definition_of_done": "Trang giới thiệu hiển thị đủ các phần, trạng thái Sẽ triển khai bằng chữ, chữ ở cả hai bộ từ vi và en, kiểm tra accessibility và 390 px đạt; chức năng cố vấn thật là hạng mục riêng, chưa lập kế hoạch.",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-ADV-001"
+    ]
+  },
+  {
+    "id": "BL-ADV-02",
+    "requirement": "FR-ADV-02",
+    "screen": "ADV-02",
+    "title": "Cố vấn điều hành vốn bằng chuyên gia tài chính",
+    "module": "ADV",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "AI/Core",
+    "dependencies": "CAP,DIS,PWF,DIR",
+    "fields": [
+      "Trạng thái Sẽ triển khai",
+      "Tóm tắt",
+      "Màn hình dự kiến (số liệu ví dụ)",
+      "Chức năng dự kiến",
+      "Dữ liệu sử dụng",
+      "Cách hoạt động",
+      "Phí dịch vụ (thu gián tiếp qua đối tác)",
+      "Lợi ích cho lãnh đạo tỉnh"
+    ],
+    "rule": "Trang giới thiệu đã có; chức năng cố vấn chưa được xây dựng. Kết nối với chuyên gia tài chính, lãnh đạo ngân hàng và tập đoàn kinh tế; phí tư vấn thu gián tiếp qua đối tác kết nối. Trang chỉ giới thiệu chức năng sẽ triển khai, gồm hai thẻ: Màn hình dự kiến (bản phác họa, mọi con số là số liệu ví dụ và có dòng ghi rõ) và Giới thiệu (phần chữ, không có số liệu); không gọi dịch vụ, ô nhập và nút trong bản phác họa không gửi gì; trạng thái Sẽ triển khai luôn hiển thị bằng chữ; không nêu tên đối tác thật, không nêu mức phí.",
+    "test_ids": [
+      "UI-ADV-02"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ADV.md, màn hình trong screen_catalog; trang không có operation.",
+    "definition_of_done": "Trang giới thiệu hiển thị đủ các phần, trạng thái Sẽ triển khai bằng chữ, chữ ở cả hai bộ từ vi và en, kiểm tra accessibility và 390 px đạt; chức năng cố vấn thật là hạng mục riêng, chưa lập kế hoạch.",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-ADV-001"
+    ]
+  },
+  {
+    "id": "BL-ADV-03",
+    "requirement": "FR-ADV-03",
+    "screen": "ADV-03",
+    "title": "Cố vấn giải pháp chiến lược",
+    "module": "ADV",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "AI/Core",
+    "dependencies": "CAP,DIS,PWF,DIR",
+    "fields": [
+      "Trạng thái Sẽ triển khai",
+      "Tóm tắt",
+      "Màn hình dự kiến (số liệu ví dụ)",
+      "Chức năng dự kiến",
+      "Dữ liệu sử dụng",
+      "Cách hoạt động",
+      "Lợi ích cho lãnh đạo tỉnh"
+    ],
+    "rule": "Trang giới thiệu đã có; chức năng cố vấn chưa được xây dựng. Giải pháp chiến lược và dự thảo quyết định, chính sách cấp tỉnh nhằm thúc đẩy tăng trưởng và giữ hiệu quả các mục tiêu giải ngân của Đề án 57; hệ thống không tự ban hành văn bản. Trang chỉ giới thiệu chức năng sẽ triển khai, gồm hai thẻ: Màn hình dự kiến (bản phác họa, mọi con số là số liệu ví dụ và có dòng ghi rõ) và Giới thiệu (phần chữ, không có số liệu); không gọi dịch vụ, ô nhập và nút trong bản phác họa không gửi gì; trạng thái Sẽ triển khai luôn hiển thị bằng chữ; không nêu tên đối tác thật, không nêu mức phí.",
+    "test_ids": [
+      "UI-ADV-03"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ADV.md, màn hình trong screen_catalog; trang không có operation.",
+    "definition_of_done": "Trang giới thiệu hiển thị đủ các phần, trạng thái Sẽ triển khai bằng chữ, chữ ở cả hai bộ từ vi và en, kiểm tra accessibility và 390 px đạt; chức năng cố vấn thật là hạng mục riêng, chưa lập kế hoạch.",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-ADV-001"
+    ]
+  },
+  {
+    "id": "BL-ADV-04",
+    "requirement": "FR-ADV-04",
+    "screen": "ADV-04",
+    "title": "Cố vấn sửa đổi quy trình hiện hữu",
+    "module": "ADV",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "AI/Core",
+    "dependencies": "CAP,DIS,PWF,DIR",
+    "fields": [
+      "Trạng thái Sẽ triển khai",
+      "Tóm tắt",
+      "Màn hình dự kiến (số liệu ví dụ)",
+      "Chức năng dự kiến",
+      "Dữ liệu sử dụng",
+      "Cách hoạt động",
+      "Lợi ích cho lãnh đạo tỉnh"
+    ],
+    "rule": "Trang giới thiệu đã có; chức năng cố vấn chưa được xây dựng. Phạm vi là quy trình cấp tỉnh; quy trình chỉ thay đổi sau khi cấp có thẩm quyền phê duyệt. Trang chỉ giới thiệu chức năng sẽ triển khai, gồm hai thẻ: Màn hình dự kiến (bản phác họa, mọi con số là số liệu ví dụ và có dòng ghi rõ) và Giới thiệu (phần chữ, không có số liệu); không gọi dịch vụ, ô nhập và nút trong bản phác họa không gửi gì; trạng thái Sẽ triển khai luôn hiển thị bằng chữ; không nêu tên đối tác thật, không nêu mức phí.",
+    "test_ids": [
+      "UI-ADV-04"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ADV.md, màn hình trong screen_catalog; trang không có operation.",
+    "definition_of_done": "Trang giới thiệu hiển thị đủ các phần, trạng thái Sẽ triển khai bằng chữ, chữ ở cả hai bộ từ vi và en, kiểm tra accessibility và 390 px đạt; chức năng cố vấn thật là hạng mục riêng, chưa lập kế hoạch.",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-ADV-001"
+    ]
+  },
+  {
+    "id": "BL-ADV-05",
+    "requirement": "FR-ADV-05",
+    "screen": "ADV-05",
+    "title": "Cố vấn đào tạo chiến lược và quản lý",
+    "module": "ADV",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "AI/Core",
+    "dependencies": "CAP,DIS,PWF,DIR",
+    "fields": [
+      "Trạng thái Sẽ triển khai",
+      "Tóm tắt",
+      "Màn hình dự kiến (số liệu ví dụ)",
+      "Chức năng dự kiến",
+      "Dữ liệu sử dụng",
+      "Cách hoạt động",
+      "Lợi ích cho lãnh đạo tỉnh"
+    ],
+    "rule": "Trang giới thiệu đã có; chức năng cố vấn chưa được xây dựng. Đào tạo chiến lược và quản lý hiệu quả cho Ban chỉ đạo, các sở và phường, xã. Trang chỉ giới thiệu chức năng sẽ triển khai, gồm hai thẻ: Màn hình dự kiến (bản phác họa, mọi con số là số liệu ví dụ và có dòng ghi rõ) và Giới thiệu (phần chữ, không có số liệu); không gọi dịch vụ, ô nhập và nút trong bản phác họa không gửi gì; trạng thái Sẽ triển khai luôn hiển thị bằng chữ; không nêu tên đối tác thật, không nêu mức phí.",
+    "test_ids": [
+      "UI-ADV-05"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/ADV.md, màn hình trong screen_catalog; trang không có operation.",
+    "definition_of_done": "Trang giới thiệu hiển thị đủ các phần, trạng thái Sẽ triển khai bằng chữ, chữ ở cả hai bộ từ vi và en, kiểm tra accessibility và 390 px đạt; chức năng cố vấn thật là hạng mục riêng, chưa lập kế hoạch.",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-ADV-001"
+    ]
   }
 ]

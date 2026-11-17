@@ -7,12 +7,12 @@ import type { NavigationAccess } from './model';
 const model = buildNavigation(ARCHITECTURE, WEB_ROUTES, ALL_MODULES_VISIBLE);
 
 describe('buildNavigation for the real architecture file', () => {
-  it('has the personal destinations, seven quick modules and six library areas', () => {
+  it('has the personal destinations, eight quick modules and seven library areas', () => {
     expect(model.personal.map((link) => link.id)).toEqual(['HOME-01', 'HOME-02', 'NOT-01']);
     expect(model.personal.map((link) => link.expandable)).toEqual([false, false, true]);
-    expect(model.quick.map((link) => link.module)).toEqual(['PRJ', 'CAP', 'DIS', 'CTR', 'PAY', 'BID', 'BI']);
+    expect(model.quick.map((link) => link.module)).toEqual(['PRJ', 'CAP', 'DIS', 'CTR', 'PAY', 'BID', 'BI', 'ADV']);
     expect(model.quick.every((link) => link.expandable && link.id === `${link.module}-01`)).toBe(true);
-    expect(model.library.map((area) => area.id)).toEqual(['overview', 'investment', 'insights', 'engagement', 'data', 'admin']);
+    expect(model.library.map((area) => area.id)).toEqual(['overview', 'investment', 'insights', 'engagement', 'data', 'admin', 'advisory']);
   });
 
   it('lists every route of the table in the directory of its own module, in the group the table names', () => {
@@ -30,6 +30,26 @@ describe('buildNavigation for the real architecture file', () => {
     expect(shortcuts.map((shortcut) => shortcut.id)).toEqual(['PRJ-07', 'PRJ-04', 'PRJ-09', 'PRJ-12']);
     for (const shortcut of shortcuts) expect(WEB_ROUTES.find((route) => route.id === shortcut.id)?.path).toBe(shortcut.path);
     expect(shortcuts[0]?.label).toBe('Tiến độ & mốc');
+  });
+
+  it('AC-ST-ADV-001-1 / UI-ADV-01: offers the advisory group with its own icon, five shortcuts with an icon each, and its own library area', () => {
+    const quick = model.quick.find((link) => link.module === 'ADV');
+    expect(quick).toMatchObject({ id: 'ADV-01', label: { text: 'Cố vấn AI' }, icon: 'spark', path: '/adv/adv-01' });
+    const shortcuts = model.shortcuts.get('ADV') ?? [];
+    expect(shortcuts.map((shortcut) => [shortcut.id, shortcut.label, shortcut.icon])).toEqual([
+      ['ADV-01', 'Cố vấn vốn bằng AI', 'chip'],
+      ['ADV-02', 'Chuyên gia tài chính', 'expert'],
+      ['ADV-03', 'Giải pháp chiến lược', 'compass'],
+      ['ADV-04', 'Sửa đổi quy trình', 'flowEdit'],
+      ['ADV-05', 'Đào tạo quản lý', 'graduation'],
+    ]);
+    const area = model.library.find((entry) => entry.id === 'advisory');
+    expect(area).toMatchObject({ name: 'Cố vấn AI', icon: 'spark' });
+    expect(area?.modules.map((module) => module.code)).toEqual(['ADV']);
+    // A shortcut without an icon in the design data has none; an icon name the shell does not know is left out and the shortcut stays.
+    expect((model.shortcuts.get('PRJ') ?? []).every((shortcut) => shortcut.icon === undefined)).toBe(true);
+    const odd = buildNavigation({ ...ARCHITECTURE, contextualShortcuts: { ADV: [[1, 'A', 'no-such-icon']] } }, WEB_ROUTES, ALL_MODULES_VISIBLE);
+    expect(odd.shortcuts.get('ADV')).toEqual([{ id: 'ADV-01', label: 'A', path: '/adv/adv-01' }]);
   });
 
   it('lists the administration library modules separately and keeps them in their area of the full library', () => {

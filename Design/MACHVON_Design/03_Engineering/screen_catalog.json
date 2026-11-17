@@ -14717,5 +14717,117 @@
     "platform": "mobile",
     "req": "FR-MOB-82",
     "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "ADV-01",
+    "module": "ADV",
+    "moduleName": "Cố vấn AI",
+    "title": "Cố vấn điều hành vốn bằng AI",
+    "kind": "info",
+    "fields": [
+      "Trạng thái Sẽ triển khai",
+      "Tóm tắt",
+      "Màn hình dự kiến (số liệu ví dụ)",
+      "Chức năng dự kiến",
+      "Dữ liệu sử dụng",
+      "Cách hoạt động",
+      "Gói dịch vụ và phí (Tiêu chuẩn miễn phí, Chuyên sâu, Cao cấp)",
+      "Lợi ích cho lãnh đạo tỉnh"
+    ],
+    "role": "Mọi thành viên đã đăng nhập của đơn vị (trang giới thiệu, chỉ đọc)",
+    "rule": "Ba gói: Tiêu chuẩn miễn phí; Chuyên sâu và Cao cấp là thuê bao hằng tháng, mức phí theo thỏa thuận khi triển khai. Trang chỉ giới thiệu chức năng sẽ triển khai, gồm hai thẻ: Màn hình dự kiến (bản phác họa, mọi con số là số liệu ví dụ và có dòng ghi rõ) và Giới thiệu (phần chữ, không có số liệu); không gọi dịch vụ, ô nhập và nút trong bản phác họa không gửi gì; trạng thái Sẽ triển khai luôn hiển thị bằng chữ; không nêu tên đối tác thật, không nêu mức phí.",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-ADV-01",
+    "source": "Yêu cầu của chủ sản phẩm ngày 18/11/2026: nhóm thực đơn Cố vấn AI, mỗi mục một trang giới thiệu chức năng sẽ triển khai"
+  },
+  {
+    "id": "ADV-02",
+    "module": "ADV",
+    "moduleName": "Cố vấn AI",
+    "title": "Cố vấn điều hành vốn bằng chuyên gia tài chính",
+    "kind": "info",
+    "fields": [
+      "Trạng thái Sẽ triển khai",
+      "Tóm tắt",
+      "Màn hình dự kiến (số liệu ví dụ)",
+      "Chức năng dự kiến",
+      "Dữ liệu sử dụng",
+      "Cách hoạt động",
+      "Phí dịch vụ (thu gián tiếp qua đối tác)",
+      "Lợi ích cho lãnh đạo tỉnh"
+    ],
+    "role": "Mọi thành viên đã đăng nhập của đơn vị (trang giới thiệu, chỉ đọc)",
+    "rule": "Kết nối với chuyên gia tài chính, lãnh đạo ngân hàng và tập đoàn kinh tế; phí tư vấn thu gián tiếp qua đối tác kết nối. Trang chỉ giới thiệu chức năng sẽ triển khai, gồm hai thẻ: Màn hình dự kiến (bản phác họa, mọi con số là số liệu ví dụ và có dòng ghi rõ) và Giới thiệu (phần chữ, không có số liệu); không gọi dịch vụ, ô nhập và nút trong bản phác họa không gửi gì; trạng thái Sẽ triển khai luôn hiển thị bằng chữ; không nêu tên đối tác thật, không nêu mức phí.",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-ADV-02",
+    "source": "Yêu cầu của chủ sản phẩm ngày 18/11/2026: nhóm thực đơn Cố vấn AI, mỗi mục một trang giới thiệu chức năng sẽ triển khai"
+  },
+  {
+    "id": "ADV-03",
+    "module": "ADV",
+    "moduleName": "Cố vấn AI",
+    "title": "Cố vấn giải pháp chiến lược",
+    "kind": "info",
+    "fields": [
+      "Trạng thái Sẽ triển khai",
+      "Tóm tắt",
+      "Màn hình dự kiến (số liệu ví dụ)",
+      "Chức năng dự kiến",
+      "Dữ liệu sử dụng",
+      "Cách hoạt động",
+      "Lợi ích cho lãnh đạo tỉnh"
+    ],
+    "role": "Mọi thành viên đã đăng nhập của đơn vị (trang giới thiệu, chỉ đọc)",
+    "rule": "Giải pháp chiến lược và dự thảo quyết định, chính sách cấp tỉnh nhằm thúc đẩy tăng trưởng và giữ hiệu quả các mục tiêu giải ngân của Đề án 57; hệ thống không tự ban hành văn bản. Trang chỉ giới thiệu chức năng sẽ triển khai, gồm hai thẻ: Màn hình dự kiến (bản phác họa, mọi con số là số liệu ví dụ và có dòng ghi rõ) và Giới thiệu (phần chữ, không có số liệu); không gọi dịch vụ, ô nhập và nút trong bản phác họa không gửi gì; trạng thái Sẽ triển khai luôn hiển thị bằng chữ; không nêu tên đối tác thật, không nêu mức phí.",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-ADV-03",
+    "source": "Yêu cầu của chủ sản phẩm ngày 18/11/2026: nhóm thực đơn Cố vấn AI, mỗi mục một trang giới thiệu chức năng sẽ triển khai"
+  },
+  {
+    "id": "ADV-04",
+    "module": "ADV",
+    "moduleName": "Cố vấn AI",
+    "title": "Cố vấn sửa đổi quy trình hiện hữu",
+    "kind": "info",
+    "fields": [
+      "Trạng thái Sẽ triển khai",
+      "Tóm tắt",
+      "Màn hình dự kiến (số liệu ví dụ)",
+      "Chức năng dự kiến",
+      "Dữ liệu sử dụng",
+      "Cách hoạt động",
+      "Lợi ích cho lãnh đạo tỉnh"
+    ],
+    "role": "Mọi thành viên đã đăng nhập của đơn vị (trang giới thiệu, chỉ đọc)",
+    "rule": "Phạm vi là quy trình cấp tỉnh; quy trình chỉ thay đổi sau khi cấp có thẩm quyền phê duyệt. Trang chỉ giới thiệu chức năng sẽ triển khai, gồm hai thẻ: Màn hình dự kiến (bản phác họa, mọi con số là số liệu ví dụ và có dòng ghi rõ) và Giới thiệu (phần chữ, không có số liệu); không gọi dịch vụ, ô nhập và nút trong bản phác họa không gửi gì; trạng thái Sẽ triển khai luôn hiển thị bằng chữ; không nêu tên đối tác thật, không nêu mức phí.",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-ADV-04",
+    "source": "Yêu cầu của chủ sản phẩm ngày 18/11/2026: nhóm thực đơn Cố vấn AI, mỗi mục một trang giới thiệu chức năng sẽ triển khai"
+  },
+  {
+    "id": "ADV-05",
+    "module": "ADV",
+    "moduleName": "Cố vấn AI",
+    "title": "Cố vấn đào tạo chiến lược và quản lý",
+    "kind": "info",
+    "fields": [
+      "Trạng thái Sẽ triển khai",
+      "Tóm tắt",
+      "Màn hình dự kiến (số liệu ví dụ)",
+      "Chức năng dự kiến",
+      "Dữ liệu sử dụng",
+      "Cách hoạt động",
+      "Lợi ích cho lãnh đạo tỉnh"
+    ],
+    "role": "Mọi thành viên đã đăng nhập của đơn vị (trang giới thiệu, chỉ đọc)",
+    "rule": "Đào tạo chiến lược và quản lý hiệu quả cho Ban chỉ đạo, các sở và phường, xã. Trang chỉ giới thiệu chức năng sẽ triển khai, gồm hai thẻ: Màn hình dự kiến (bản phác họa, mọi con số là số liệu ví dụ và có dòng ghi rõ) và Giới thiệu (phần chữ, không có số liệu); không gọi dịch vụ, ô nhập và nút trong bản phác họa không gửi gì; trạng thái Sẽ triển khai luôn hiển thị bằng chữ; không nêu tên đối tác thật, không nêu mức phí.",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-ADV-05",
+    "source": "Yêu cầu của chủ sản phẩm ngày 18/11/2026: nhóm thực đơn Cố vấn AI, mỗi mục một trang giới thiệu chức năng sẽ triển khai"
   }
 ]

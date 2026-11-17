@@ -3,12 +3,12 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 611,
-    "webCatalog": 611,
-    "webModules": 40,
+    "webRoutes": 616,
+    "webCatalog": 616,
+    "webModules": 41,
     "mobileRoutes": 87,
     "mobileCatalog": 87,
-    "modulesTotal": 40
+    "modulesTotal": 41
   },
   "libraryGroups": [
     {
@@ -91,6 +91,14 @@
         "LLM",
         "SAS",
         "INT"
+      ]
+    },
+    {
+      "id": "advisory",
+      "name": "Cố vấn AI",
+      "icon": "spark",
+      "modules": [
+        "ADV"
       ]
     }
   ],
@@ -2665,6 +2673,39 @@
           }
         }
       ]
+    },
+    "ADV": {
+      "name": "Cố vấn AI",
+      "groups": [
+        {
+          "title": "Cố vấn điều hành vốn",
+          "description": "Cố vấn bằng AI và bằng chuyên gia tài chính (sẽ triển khai)",
+          "ids": [
+            1,
+            2
+          ],
+          "primary": [
+            1,
+            2
+          ],
+          "parents": {}
+        },
+        {
+          "title": "Chiến lược, quy trình và đào tạo",
+          "description": "Giải pháp chiến lược, sửa đổi quy trình cấp tỉnh và đào tạo quản lý (sẽ triển khai)",
+          "ids": [
+            3,
+            4,
+            5
+          ],
+          "primary": [
+            3,
+            4,
+            5
+          ],
+          "parents": {}
+        }
+      ]
     }
   },
   "quickModules": [
@@ -2702,6 +2743,11 @@
       "BI",
       "BI & báo cáo",
       "overview"
+    ],
+    [
+      "ADV",
+      "Cố vấn AI",
+      "spark"
     ]
   ],
   "contextualShortcuts": {
@@ -3158,6 +3204,33 @@
         11,
         "Bảng điểm của tôi"
       ]
+    ],
+    "ADV": [
+      [
+        1,
+        "Cố vấn vốn bằng AI",
+        "chip"
+      ],
+      [
+        2,
+        "Chuyên gia tài chính",
+        "expert"
+      ],
+      [
+        3,
+        "Giải pháp chiến lược",
+        "compass"
+      ],
+      [
+        4,
+        "Sửa đổi quy trình",
+        "flowEdit"
+      ],
+      [
+        5,
+        "Đào tạo quản lý",
+        "graduation"
+      ]
     ]
   },
   "moduleDescriptions": {
@@ -3200,7 +3273,8 @@
     "PWA": "Phê duyệt số liệu kỳ, bảng điều hành và theo dõi chỉ đạo trên điện thoại, cài đặt được và có thông báo đẩy.",
     "RML": "Lịch gửi email biểu mẫu đã phát hành tới các thành viên, kèm tệp phát hành, mã băm SHA-256 và nhật ký từng thư (chỉ bản doanh nghiệp).",
     "IPF": "Hồ sơ đầu tư của một dự án trong bản enterprise: loại dự án, cờ khởi công mới hoặc chuyển tiếp, mốc vòng đời so với danh mục, hồ sơ pháp lý theo loại và phần tách kế hoạch vốn theo Nghị quyết PVN và Quyết định của Tổng công ty.",
-    "PWF": "Mẫu quy trình theo loại dự án, lịch công việc có đường găng, cổng giai đoạn của dự án, hạn ba màu xanh vàng đỏ và sổ phân công."
+    "PWF": "Mẫu quy trình theo loại dự án, lịch công việc có đường găng, cổng giai đoạn của dự án, hạn ba màu xanh vàng đỏ và sổ phân công.",
+    "ADV": "Các chức năng cố vấn sẽ triển khai: điều hành vốn bằng AI, chuyên gia tài chính, giải pháp chiến lược, sửa đổi quy trình và đào tạo quản lý."
   },
   "adminLibraryModules": [
     "IAM",
@@ -9568,6 +9642,56 @@
       "group": "Chỉ đạo và cài đặt",
       "role": "detail",
       "parent": "PWA-07"
+    },
+    {
+      "id": "ADV-01",
+      "title": "Cố vấn điều hành vốn bằng AI",
+      "kind": "info",
+      "area": "advisory",
+      "module": "ADV",
+      "group": "Cố vấn điều hành vốn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADV-02",
+      "title": "Cố vấn điều hành vốn bằng chuyên gia tài chính",
+      "kind": "info",
+      "area": "advisory",
+      "module": "ADV",
+      "group": "Cố vấn điều hành vốn",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADV-03",
+      "title": "Cố vấn giải pháp chiến lược",
+      "kind": "info",
+      "area": "advisory",
+      "module": "ADV",
+      "group": "Chiến lược, quy trình và đào tạo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADV-04",
+      "title": "Cố vấn sửa đổi quy trình hiện hữu",
+      "kind": "info",
+      "area": "advisory",
+      "module": "ADV",
+      "group": "Chiến lược, quy trình và đào tạo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADV-05",
+      "title": "Cố vấn đào tạo chiến lược và quản lý",
+      "kind": "info",
+      "area": "advisory",
+      "module": "ADV",
+      "group": "Chiến lược, quy trình và đào tạo",
+      "role": "workspace",
+      "parent": null
     }
   ],
   "mobileRoutes": [

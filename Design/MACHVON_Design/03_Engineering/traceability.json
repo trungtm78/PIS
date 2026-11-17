@@ -13765,5 +13765,80 @@
       "UAT-PWF-09",
       "UAT-PWF-NEG-06"
     ]
+  },
+  {
+    "requirement": "FR-ADV-01",
+    "screen": "ADV-01",
+    "title": "Cố vấn điều hành vốn bằng AI",
+    "use_cases": [],
+    "source": "Yêu cầu của chủ sản phẩm ngày 18/11/2026: nhóm thực đơn Cố vấn AI, mỗi mục một trang giới thiệu chức năng sẽ triển khai",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/ADV.md §10–§11; 1 test (trang giới thiệu; chức năng cố vấn chưa xây dựng)",
+    "backlog_id": "BL-ADV-01",
+    "test_ids": [
+      "UI-ADV-01"
+    ]
+  },
+  {
+    "requirement": "FR-ADV-02",
+    "screen": "ADV-02",
+    "title": "Cố vấn điều hành vốn bằng chuyên gia tài chính",
+    "use_cases": [],
+    "source": "Yêu cầu của chủ sản phẩm ngày 18/11/2026: nhóm thực đơn Cố vấn AI, mỗi mục một trang giới thiệu chức năng sẽ triển khai",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/ADV.md §10–§11; 1 test (trang giới thiệu; chức năng cố vấn chưa xây dựng)",
+    "backlog_id": "BL-ADV-02",
+    "test_ids": [
+      "UI-ADV-02"
+    ]
+  },
+  {
+    "requirement": "FR-ADV-03",
+    "screen": "ADV-03",
+    "title": "Cố vấn giải pháp chiến lược",
+    "use_cases": [],
+    "source": "Yêu cầu của chủ sản phẩm ngày 18/11/2026: nhóm thực đơn Cố vấn AI, mỗi mục một trang giới thiệu chức năng sẽ triển khai",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/ADV.md §10–§11; 1 test (trang giới thiệu; chức năng cố vấn chưa xây dựng)",
+    "backlog_id": "BL-ADV-03",
+    "test_ids": [
+      "UI-ADV-03"
+    ]
+  },
+  {
+    "requirement": "FR-ADV-04",
+    "screen": "ADV-04",
+    "title": "Cố vấn sửa đổi quy trình hiện hữu",
+    "use_cases": [],
+    "source": "Yêu cầu của chủ sản phẩm ngày 18/11/2026: nhóm thực đơn Cố vấn AI, mỗi mục một trang giới thiệu chức năng sẽ triển khai",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/ADV.md §10–§11; 1 test (trang giới thiệu; chức năng cố vấn chưa xây dựng)",
+    "backlog_id": "BL-ADV-04",
+    "test_ids": [
+      "UI-ADV-04"
+    ]
+  },
+  {
+    "requirement": "FR-ADV-05",
+    "screen": "ADV-05",
+    "title": "Cố vấn đào tạo chiến lược và quản lý",
+    "use_cases": [],
+    "source": "Yêu cầu của chủ sản phẩm ngày 18/11/2026: nhóm thực đơn Cố vấn AI, mỗi mục một trang giới thiệu chức năng sẽ triển khai",
+    "phase": "P2",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/ADV.md §10–§11; 1 test (trang giới thiệu; chức năng cố vấn chưa xây dựng)",
+    "backlog_id": "BL-ADV-05",
+    "test_ids": [
+      "UI-ADV-05"
+    ]
   }
 ]

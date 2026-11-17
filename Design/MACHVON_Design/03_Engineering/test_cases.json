@@ -33623,5 +33623,95 @@
       "FR-PWF-05",
       "FR-PRJ-02"
     ]
+  },
+  {
+    "id": "UI-ADV-01",
+    "source": "FR-ADV-01",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, any signed-in member; route ADV-01 (AI advisory on capital steering), reached from the sidebar group \"Cố vấn AI\" and by its address",
+    "steps": [
+      "Open ADV-01 from the sidebar and by deep link; check the labelled parts: Trạng thái Sẽ triển khai; Tóm tắt; Màn hình dự kiến (số liệu ví dụ); Chức năng dự kiến; Dữ liệu sử dụng; Cách hoạt động; Gói dịch vụ và phí (Tiêu chuẩn miễn phí, Chuyên sâu, Cao cấp); Lợi ích cho lãnh đạo tỉnh",
+      "Read the page with a screen reader outline: one page title, one heading per section, the status said in words",
+      "Open the page at 1440 px and at 390 px"
+    ],
+    "expected": "The page says in words that the function will be deployed and does not work yet, every section has a heading and at least one line of text, the mockup tab carries the line that its figures are examples, nothing on the page sends or changes data, no real partner is named and no price is stated; 0 console errors and no horizontal overflow",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADV-01"
+    ]
+  },
+  {
+    "id": "UI-ADV-02",
+    "source": "FR-ADV-02",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, any signed-in member; route ADV-02 (Capital steering advisory by financial experts), reached from the sidebar group \"Cố vấn AI\" and by its address",
+    "steps": [
+      "Open ADV-02 from the sidebar and by deep link; check the labelled parts: Trạng thái Sẽ triển khai; Tóm tắt; Màn hình dự kiến (số liệu ví dụ); Chức năng dự kiến; Dữ liệu sử dụng; Cách hoạt động; Phí dịch vụ (thu gián tiếp qua đối tác); Lợi ích cho lãnh đạo tỉnh",
+      "Read the page with a screen reader outline: one page title, one heading per section, the status said in words",
+      "Open the page at 1440 px and at 390 px"
+    ],
+    "expected": "The page says in words that the function will be deployed and does not work yet, every section has a heading and at least one line of text, the mockup tab carries the line that its figures are examples, nothing on the page sends or changes data, no real partner is named and no price is stated; 0 console errors and no horizontal overflow",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADV-02"
+    ]
+  },
+  {
+    "id": "UI-ADV-03",
+    "source": "FR-ADV-03",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, any signed-in member; route ADV-03 (Strategic solutions advisory), reached from the sidebar group \"Cố vấn AI\" and by its address",
+    "steps": [
+      "Open ADV-03 from the sidebar and by deep link; check the labelled parts: Trạng thái Sẽ triển khai; Tóm tắt; Màn hình dự kiến (số liệu ví dụ); Chức năng dự kiến; Dữ liệu sử dụng; Cách hoạt động; Lợi ích cho lãnh đạo tỉnh",
+      "Read the page with a screen reader outline: one page title, one heading per section, the status said in words",
+      "Open the page at 1440 px and at 390 px"
+    ],
+    "expected": "The page says in words that the function will be deployed and does not work yet, every section has a heading and at least one line of text, the mockup tab carries the line that its figures are examples, nothing on the page sends or changes data, no real partner is named and no price is stated; 0 console errors and no horizontal overflow",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADV-03"
+    ]
+  },
+  {
+    "id": "UI-ADV-04",
+    "source": "FR-ADV-04",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, any signed-in member; route ADV-04 (Advisory on revising existing procedures), reached from the sidebar group \"Cố vấn AI\" and by its address",
+    "steps": [
+      "Open ADV-04 from the sidebar and by deep link; check the labelled parts: Trạng thái Sẽ triển khai; Tóm tắt; Màn hình dự kiến (số liệu ví dụ); Chức năng dự kiến; Dữ liệu sử dụng; Cách hoạt động; Lợi ích cho lãnh đạo tỉnh",
+      "Read the page with a screen reader outline: one page title, one heading per section, the status said in words",
+      "Open the page at 1440 px and at 390 px"
+    ],
+    "expected": "The page says in words that the function will be deployed and does not work yet, every section has a heading and at least one line of text, the mockup tab carries the line that its figures are examples, nothing on the page sends or changes data, no real partner is named and no price is stated; 0 console errors and no horizontal overflow",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADV-04"
+    ]
+  },
+  {
+    "id": "UI-ADV-05",
+    "source": "FR-ADV-05",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A, any signed-in member; route ADV-05 (Strategy and management training advisory), reached from the sidebar group \"Cố vấn AI\" and by its address",
+    "steps": [
+      "Open ADV-05 from the sidebar and by deep link; check the labelled parts: Trạng thái Sẽ triển khai; Tóm tắt; Màn hình dự kiến (số liệu ví dụ); Chức năng dự kiến; Dữ liệu sử dụng; Cách hoạt động; Lợi ích cho lãnh đạo tỉnh",
+      "Read the page with a screen reader outline: one page title, one heading per section, the status said in words",
+      "Open the page at 1440 px and at 390 px"
+    ],
+    "expected": "The page says in words that the function will be deployed and does not work yet, every section has a heading and at least one line of text, the mockup tab carries the line that its figures are examples, nothing on the page sends or changes data, no real partner is named and no price is stated; 0 console errors and no horizontal overflow",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADV-05"
+    ]
   }
 ]

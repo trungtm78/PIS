@@ -611,6 +611,11 @@
     {"id":"PWA-07","path":"/pwa/pwa-07","title":"Cài đặt ứng dụng cài đặt","kind":"form","area":"overview","module":"PWA","group":"Chỉ đạo và cài đặt","role":"workspace","parent":null,"req":"YCK.01"},
     {"id":"PWA-08","path":"/pwa/pwa-08","title":"Chi tiết số liệu bảng điều hành","kind":"detail","area":"overview","module":"PWA","group":"Bảng điều hành trên điện thoại","role":"detail","parent":"PWA-03","req":"YCK.01"},
     {"id":"PWA-09","path":"/pwa/pwa-09","title":"Tiến độ đấu thầu trên điện thoại","kind":"tree","area":"overview","module":"PWA","group":"Bảng điều hành trên điện thoại","role":"detail","parent":"PWA-03","req":"YCK.01"},
-    {"id":"PWA-10","path":"/pwa/pwa-10","title":"Cài đặt thông báo đẩy","kind":"form","area":"overview","module":"PWA","group":"Chỉ đạo và cài đặt","role":"detail","parent":"PWA-07","req":"YCK.01"}
+    {"id":"PWA-10","path":"/pwa/pwa-10","title":"Cài đặt thông báo đẩy","kind":"form","area":"overview","module":"PWA","group":"Chỉ đạo và cài đặt","role":"detail","parent":"PWA-07","req":"YCK.01"},
+    {"id":"ADV-01","path":"/adv/adv-01","title":"Cố vấn điều hành vốn bằng AI","kind":"info","area":"advisory","module":"ADV","group":"Cố vấn điều hành vốn","role":"workspace","parent":null,"req":"FR-ADV-01"},
+    {"id":"ADV-02","path":"/adv/adv-02","title":"Cố vấn điều hành vốn bằng chuyên gia tài chính","kind":"info","area":"advisory","module":"ADV","group":"Cố vấn điều hành vốn","role":"workspace","parent":null,"req":"FR-ADV-02"},
+    {"id":"ADV-03","path":"/adv/adv-03","title":"Cố vấn giải pháp chiến lược","kind":"info","area":"advisory","module":"ADV","group":"Chiến lược, quy trình và đào tạo","role":"workspace","parent":null,"req":"FR-ADV-03"},
+    {"id":"ADV-04","path":"/adv/adv-04","title":"Cố vấn sửa đổi quy trình hiện hữu","kind":"info","area":"advisory","module":"ADV","group":"Chiến lược, quy trình và đào tạo","role":"workspace","parent":null,"req":"FR-ADV-04"},
+    {"id":"ADV-05","path":"/adv/adv-05","title":"Cố vấn đào tạo chiến lược và quản lý","kind":"info","area":"advisory","module":"ADV","group":"Chiến lược, quy trình và đào tạo","role":"workspace","parent":null,"req":"FR-ADV-05"}
   ]
 }

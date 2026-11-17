@@ -40,6 +40,8 @@ export interface ShortcutLink {
   id: string;
   label: string;
   path: string;
+  /** The icon before the label, when the design data names one for the shortcut. */
+  icon?: IconName;
 }
 
 export interface LibraryModule {
@@ -164,10 +166,11 @@ export function buildNavigation(arch: NavArchitecture, routes: readonly WebRoute
   const shortcuts = new Map<string, ShortcutLink[]>();
   for (const [module, entries] of Object.entries(arch.contextualShortcuts)) {
     if (!visible(module)) continue;
-    const links = entries.flatMap(([number, label]) => {
+    const links = entries.flatMap(([number, label, icon]) => {
       const id = screenId(module, number);
       const path = linkTo(id);
-      return path === undefined ? [] : [{ id, label, path }];
+      // An icon name the shell does not know is left out; the shortcut stays.
+      return path === undefined ? [] : [{ id, label, path, ...(icon !== undefined && isIconName(icon) ? { icon } : {}) }];
     });
     shortcuts.set(module, links);
   }

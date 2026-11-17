@@ -21,7 +21,7 @@ describe('buildNavigation with the entries of an edition', () => {
 
   it('places the reporting chain after Giải ngân and keeps the relative order of the other modules', () => {
     const enterprise = buildNavigation(ARCHITECTURE, WEB_ROUTES, ALL_MODULES_VISIBLE, extension);
-    expect(enterprise.quick.map((link) => link.module)).toEqual(['PRJ', 'CAP', 'DIS', 'RPT', 'HPM', 'DIR', 'CTR', 'PAY', 'BID', 'BI']);
+    expect(enterprise.quick.map((link) => link.module)).toEqual(['PRJ', 'CAP', 'DIS', 'RPT', 'HPM', 'DIR', 'CTR', 'PAY', 'BID', 'BI', 'ADV']);
     expect(enterprise.quick.filter((link) => model.quick.some((base) => base.module === link.module)).map((link) => link.module)).toEqual(model.quick.map((link) => link.module));
     expect(enterprise.quick.find((link) => link.module === 'HPM')).toMatchObject({ id: 'HPM-01', path: '/hpm/hpm-01', expandable: true, covers: ['EBS'] });
     expect(enterprise.quick.find((link) => link.module === 'RPT')?.path).toBe('/rpt/rpt-01');
@@ -39,7 +39,7 @@ describe('buildNavigation with the entries of an edition', () => {
 
   it('shows an entry only to a session that may open the module, and drops a shortcut of a module it may not open', () => {
     const noHpm: NavigationAccess = { isModuleVisible: (module) => module !== 'HPM' };
-    expect(buildNavigation(ARCHITECTURE, WEB_ROUTES, noHpm, extension).quick.map((link) => link.module)).toEqual(['PRJ', 'CAP', 'DIS', 'RPT', 'DIR', 'CTR', 'PAY', 'BID', 'BI']);
+    expect(buildNavigation(ARCHITECTURE, WEB_ROUTES, noHpm, extension).quick.map((link) => link.module)).toEqual(['PRJ', 'CAP', 'DIS', 'RPT', 'DIR', 'CTR', 'PAY', 'BID', 'BI', 'ADV']);
     const noEbs: NavigationAccess = { isModuleVisible: (module) => module !== 'EBS' };
     expect(buildNavigation(ARCHITECTURE, WEB_ROUTES, noEbs, extension).shortcuts.get('HPM')?.map((shortcut) => shortcut.id)).toEqual(['HPM-01', 'HPM-02']);
   });

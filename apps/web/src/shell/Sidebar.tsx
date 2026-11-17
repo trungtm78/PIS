@@ -162,6 +162,7 @@ export function Sidebar(props: SidebarProps) {
           <div className="sidebar-context">
             {shortcuts.map((shortcut) => (
               <Link key={shortcut.id} to={shortcut.path} aria-current={route?.id === shortcut.id ? 'page' : undefined}>
+                {shortcut.icon === undefined ? null : <Icon name={shortcut.icon} />}
                 <span>{shortcut.label}</span>
               </Link>
             ))}

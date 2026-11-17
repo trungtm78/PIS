@@ -253,3 +253,9 @@ body {
   object-fit: contain;
   border-radius: 8px;
 }
+
+/* A shortcut of the sidebar may carry an icon (navigation_architecture.json): smaller than the icon of its destination, in the colour of its text. */
+.sidebar-context a svg {
+  width: 15px;
+  height: 15px;
+}

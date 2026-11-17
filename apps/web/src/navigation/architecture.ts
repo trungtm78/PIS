@@ -27,8 +27,8 @@ export interface NavArchitecture {
   modules: Record<string, ModuleEntry>;
   /** [module, label, icon] */
   quickModules: [string, string, string][];
-  /** module -> [screen number, title][] */
-  contextualShortcuts: Record<string, [number, string][]>;
+  /** module -> [screen number, title, icon?][]; the icon is optional and is drawn before the title of the shortcut. */
+  contextualShortcuts: Record<string, [number, string, string?][]>;
   moduleDescriptions: Record<string, string>;
   adminLibraryModules: string[];
 }

@@ -251,6 +251,12 @@
       "module": "PWF",
       "title": "Project workflow, three-colour deadlines, KPI and staff scoring",
       "goal": "Give every public investment project a workflow that is a versioned rule frozen at the start: stages and tasks with durations in working days, four dependency types, branches by project group and funding source, evidence and checklists, gates on the lifecycle commands of the project, a schedule with float and critical path, deadlines in green, yellow and red decided by a rule, reminders without duplicates, and KPI and staff scores that are computed from immutable results, shown to the person first, adjusted only with a second approver and never ranked across unequal samples."
+    },
+    {
+      "id": "EP-ADV",
+      "module": "ADV",
+      "title": "AI business advisory (announced, not built)",
+      "goal": "Tell every member which advisory functions the system will have: AI advisory on capital steering, advisory by financial experts, strategic solutions and draft provincial decisions, revision of existing procedures, and strategy and management training. Only the menu group and one explanatory page per function exist; the functions themselves are a later epic."
     }
   ],
   "features": [
@@ -1213,6 +1219,11 @@
       "id": "FT-PWF-09",
       "epic": "EP-PWF",
       "title": "Processing workflow kinds: steps, legal grounds, form revisions and the kind chosen at project registration (PRJ-02, PWF-01 to PWF-05, MOB-78, MOB-79)"
+    },
+    {
+      "id": "FT-ADV-01",
+      "epic": "EP-ADV",
+      "title": "Menu group \"Cố vấn AI\" and one explanatory page per advisory function"
     }
   ],
   "stories": [
@@ -62718,6 +62729,101 @@
             "UAT-PWF-PRC-08",
             "UAT-PWF-PRC-09",
             "UAT-PWF-PRC-10"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-ADV-001",
+      "epic": "EP-ADV",
+      "feature": "FT-ADV-01",
+      "module": "ADV",
+      "title": "Menu group \"Cố vấn AI\" with five explanatory pages that say the function will be deployed",
+      "narrative": "As a member of the province I can open the group \"Cố vấn AI\" in the sidebar and in the application library and read, for each of the five advisory functions, a page that says in words that the function will be deployed, what it is planned to do, which data of the system it would read, how it would work, how it would be paid for where a fee applies, and what a leader of the province gains, so that I know what the system will offer without mistaking the page for a working function.",
+      "release": "R3",
+      "screens": [
+        "ADV-01",
+        "ADV-02",
+        "ADV-03",
+        "ADV-04",
+        "ADV-05"
+      ],
+      "operations": [],
+      "tables": [],
+      "nfr": [],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-ADV-001-1",
+          "given": "A signed-in member of any role",
+          "when": "the sidebar and the application library are opened",
+          "then": "the group \"Cố vấn AI\" is there with its own icon, and under it the five items, each with its own icon, lead to ADV-01 to ADV-05",
+          "test_id": "UI-ADV-01"
+        },
+        {
+          "id": "AC-ST-ADV-001-2",
+          "given": "Each of the five pages",
+          "when": "it is opened",
+          "then": "it shows the words \"Sẽ triển khai\" with a note that the function is not in use yet, a summary, and the sections planned functions, data used, operating steps and benefits, each with at least one line; ADV-01 lists the three plans with the free one and the two paid by monthly subscription without a price, ADV-02 says the fee is paid through the partner; the first tab of every page is the mockup of the planned screen under the line \"Màn hình dự kiến, số liệu ví dụ\", the second tab is the explanation; no page sends anything, names a real partner or states a price",
+          "test_id": "UI-ADV-02"
+        },
+        {
+          "id": "AC-ST-ADV-001-UI",
+          "given": "ADV-01 to ADV-05 opened at 1440 px and 390 px",
+          "when": "the page is read",
+          "then": "one page title, one heading per section, no state by colour alone, 0 console errors and no horizontal overflow",
+          "test_id": "UI-ADV-03"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 3,
+          "max": 6
+        },
+        "confidence": "high",
+        "assumption": "Static pages from the catalogue of strings; no operation, no table, no permission."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-ADV-001-1",
+          "kind": "web",
+          "title": "Navigation group, quick entry with five shortcuts and their icons, routes ADV-01 to ADV-05",
+          "test_ids": [
+            "UI-ADV-01"
+          ]
+        },
+        {
+          "id": "TK-ADV-001-2",
+          "kind": "web",
+          "title": "One shared explanatory page drawn from a content object per function, with a mockup of the planned screen per function (example figures, shared small charts)",
+          "test_ids": [
+            "UI-ADV-02",
+            "UI-ADV-04",
+            "UI-ADV-05"
+          ]
+        },
+        {
+          "id": "TK-ADV-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for the five pages; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-ADV-001-4",
+          "kind": "qa",
+          "title": "Screen-contract tests of the five pages",
+          "test_ids": [
+            "UI-ADV-03"
           ]
         }
       ]

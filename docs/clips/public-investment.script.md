@@ -73,6 +73,7 @@ Bộ dữ liệu: `public` (docs/clip-data.md)
 | `clip-public-pwf-review` | RUN_VERIFIED |
 | `clip-public-pwf-running` | RUN_VERIFIED |
 | `clip-public-approvals` | RUN_VERIFIED |
+| `clip-public-dashboard` | WRITTEN_NOT_RUN |
 | `clip-public-phone-work` | RUN_VERIFIED |
 
 **Nhóm dữ liệu cần viết thêm (chưa có trong bộ dữ liệu)**

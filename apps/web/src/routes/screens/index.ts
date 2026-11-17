@@ -621,4 +621,10 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'PWF-12': () => import('../../screens/pwf/score/UnitScoreboardScreen'),
   'PWF-13': () => import('../../screens/pwf/score/ScoreDetailScreen'),
   'PWF-14': () => import('../../screens/pwf/score/PeriodScreen'),
+  // The advisory group ("Co van AI"): five explanatory pages of functions that will be deployed, drawn by one component from the content of the screen.
+  'ADV-01': () => import('../../screens/adv/AdvisoryScreen'),
+  'ADV-02': () => import('../../screens/adv/AdvisoryScreen'),
+  'ADV-03': () => import('../../screens/adv/AdvisoryScreen'),
+  'ADV-04': () => import('../../screens/adv/AdvisoryScreen'),
+  'ADV-05': () => import('../../screens/adv/AdvisoryScreen'),
 };

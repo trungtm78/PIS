@@ -42,7 +42,13 @@ Object.assign(workspaceSymbols,{
  pin:'<path d="m8 3 8 0-1 6 4 4v2H5v-2l4-4-1-6ZM12 15v7"/>',
  star:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
- help:'<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4m0 3h.01"/>'
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4m0 3h.01"/>',
+ spark:'<path d="M11 4l1.8 5.2L18 11l-5.2 1.8L11 18l-1.8-5.2L4 11l5.2-1.8L11 4Z"/><path d="M19 2v4m-2-2h4M19 17v4m-2-2h4"/>',
+ chip:'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4m6-4v4M9 18v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4"/><path d="m12 8.5 1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5Z"/>',
+ expert:'<circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/><path d="m12 14-1.5 3 1.5 3 1.5-3-1.5-3Z"/>',
+ compass:'<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/>',
+ flowEdit:'<rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="15" width="6" height="6" rx="1.5"/><path d="M6 9v6M9 6h5a3 3 0 0 1 3 3v1"/><path d="m13 20 .5-3 5.5-5.5 2.5 2.5-5.5 5.5-3 .5Z"/>',
+ graduation:'<path d="m2 9 10-5 10 5-10 5L2 9Z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5M22 9v6"/>'
 });
 const quickModules=[['PRJ','Dự án','investment'],['CAP','Kế hoạch vốn','wallet'],['DIS','Giải ngân','insights'],['CTR','Hợp đồng','agreement'],['PAY','Thanh toán','contract'],['BID','Nhà thầu','task'],['BI','BI & báo cáo','overview']];
 const contextualShortcuts={
