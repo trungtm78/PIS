@@ -3,10 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '../../api/ApiClientContext';
 import { useSession } from '../../session/SessionContext';
 import type { DashboardDb } from './db';
-import { assemble } from './sources/assemble';
+import { assemble, plainText } from './sources/assemble';
 import type { DashboardData, SystemTables } from './sources/assemble';
 import { capitalFromSystem } from './sources/capital';
 import { NotEnoughError, readCapitalInput } from './sources/system';
+import { readTasksInput } from './sources/system-tasks';
+import { tasksFromSystem } from './sources/tasks';
 import { loadTemplateDb } from './sources/template-db';
 
 export const dashKey = (tenantId: string | undefined, membershipId: string | undefined) => ['dash9', tenantId, membershipId] as const;
@@ -47,6 +49,32 @@ export async function readDashboard(client: ApiClient, today: string): Promise<D
     }
   } catch (error) {
     notes.push(error instanceof NotEnoughError ? `capital: ${error.message}` : `capital: the system could not be read (${error instanceof Error ? error.message : 'unknown error'})`);
+  }
+  // The tasks stand beside the capital tables in use (the system's when they were taken, the template's otherwise) and name their units and projects only. Whatever
+  // happens to this read, the capital bundle stays as it was decided above.
+  let tasks: SystemTables = {};
+  // The board has one clock (today, the period): the template's is a fixed day. Tasks read today are judged against today only, so they are taken when the clock is the
+  // system's, which comes with the capital tables.
+  if (system.moc_thoi_gian === undefined) notes.push('tasks: left on the template, whose clock the board keeps while the capital tables are those of the template');
+  else try {
+    const capital = system.don_vi !== undefined && system.du_an !== undefined ? { don_vi: system.don_vi, du_an: system.du_an } : template;
+    const found = tasksFromSystem({
+      ...(await readTasksInput(client, today)),
+      knownUnitCodes: new Set(capital.don_vi.map((unit) => plainText(unit.ma))),
+      knownProjectCodes: new Set(capital.du_an.map((project) => plainText(project.ma))),
+    });
+    if (found.rows === undefined) notes.push(`tasks: ${found.reasons.join('; ')}`);
+    else tasks = { nhiem_vu: found.rows };
+  } catch (error) {
+    notes.push(error instanceof NotEnoughError ? `tasks: ${error.message}` : `tasks: the system could not be read (${error instanceof Error ? error.message : 'unknown error'})`);
+  }
+  if (tasks.nhiem_vu !== undefined) {
+    try {
+      return { ...assemble(base, { ...system, ...tasks }), notes };
+    } catch (error) {
+      // Tasks that do not hold together with the other tables are not drawn: the template's are, beside the capital tables as decided.
+      notes.push(`tasks: ${error instanceof Error ? error.message : 'the tables do not hold together'}`);
+    }
   }
   try {
     return { ...assemble(base, system), notes };

@@ -10,13 +10,13 @@ import type { CapitalInput, SystemAppropriation, SystemCurvePoint, SystemLine, S
 const CONCURRENCY = 6;
 const STAGES_WITH_BASELINE = new Set(['IMPLEMENTATION', 'BUDGETED', 'SUSPENDED']);
 
-type Raw = Record<string, unknown>;
-const record = (value: unknown): Raw => (typeof value === 'object' && value !== null ? (value as Raw) : {});
-const text = (value: unknown): string | null => (typeof value === 'string' && value !== '' ? value : null);
-const list = (value: unknown): Raw[] => (Array.isArray(value) ? value.map(record) : []);
+export type Raw = Record<string, unknown>;
+export const record = (value: unknown): Raw => (typeof value === 'object' && value !== null ? (value as Raw) : {});
+export const text = (value: unknown): string | null => (typeof value === 'string' && value !== '' ? value : null);
+export const list = (value: unknown): Raw[] => (Array.isArray(value) ? value.map(record) : []);
 const labelOf = (value: unknown): { label: string } | null => { const label = text(record(value).label); return label === null ? null : { label }; };
 
-async function inGroups<T, R>(items: readonly T[], work: (item: T) => Promise<R>): Promise<R[]> {
+export async function inGroups<T, R>(items: readonly T[], work: (item: T) => Promise<R>): Promise<R[]> {
   const done: R[] = [];
   for (let from = 0; from < items.length; from += CONCURRENCY) done.push(...(await Promise.all(items.slice(from, from + CONCURRENCY).map(work))));
   return done;
@@ -26,7 +26,7 @@ async function inGroups<T, R>(items: readonly T[], work: (item: T) => Promise<R>
 export class NotEnoughError extends Error {}
 
 /** The answers are read through the operations by name; the typed client checks the names, the shapes are read here. */
-type LooseClient = { read(operation: string, input?: unknown): Promise<unknown>; readAll(operation: string, input?: unknown): Promise<unknown[]> };
+export type LooseClient = { read(operation: string, input?: unknown): Promise<unknown>; readAll(operation: string, input?: unknown): Promise<unknown[]> };
 
 export async function readCapitalInput(apiClient: ApiClient, today: string): Promise<CapitalInput> {
   const client = apiClient as unknown as LooseClient;
