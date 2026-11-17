@@ -350,6 +350,19 @@ export class ThemeStore {
     return toAsset(row);
   }
 
+  /**
+   * The logo of the theme in force of this tenant, for the tenant plane: the view `published_theme_logo` (V3080) holds only the logo the published
+   * version names and only once it is clean, so a member never reaches an asset row of a draft, an older version or another tenant.
+   */
+  async publishedLogo(tx: TenantTx, tenantId: string): Promise<Pick<ThemeAssetRow, 'id' | 'tenantId' | 'contentHash' | 'mime' | 'storageKey'> | undefined> {
+    const rows = await tx.query<{ id: string; tenant_id: string; content_hash: string; mime: string; storage_key: string }>(
+      'select id, tenant_id, content_hash, mime, storage_key from machvon.published_theme_logo where tenant_id = $1::uuid',
+      [tenantId],
+    );
+    const row = rows[0];
+    return row === undefined ? undefined : { id: row.id, tenantId: row.tenant_id, contentHash: row.content_hash, mime: row.mime, storageKey: row.storage_key };
+  }
+
   async findAsset(tx: TenantTx, tenantId: string, id: string): Promise<ThemeAssetRow | undefined> {
     const rows = await tx.query<AssetSqlRow>(
       `select id, tenant_id, content_hash, mime, size_bytes::text as size_bytes, storage_key, scan_status

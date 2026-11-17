@@ -570,6 +570,7 @@ export const OPERATIONS = {
   "getMyPublishedTheme": { method: "get", path: "/me/tenant/theme", versioned: false, stepUp: null, permission: "tenant.theme.read" },
   "getMyStaffScore": { method: "get", path: "/me/staff-scores", versioned: false, stepUp: null, permission: "staff_score.read_own" },
   "getMyTasks": { method: "get", path: "/me/project-tasks", versioned: false, stepUp: null, permission: "pwf.task.work" },
+  "getMyThemeLogo": { method: "get", path: "/me/tenant/theme/logo", versioned: false, stepUp: null, permission: "tenant.theme.read" },
   "getMyUsage": { method: "get", path: "/me/usage", versioned: false, stepUp: null, permission: "subscription.read" },
   "getMyWork": { method: "get", path: "/home/my-work", versioned: false, stepUp: null, permission: "home.read" },
   "getMyWorkCounts": { method: "get", path: "/home/my-work/counts", versioned: false, stepUp: null, permission: "home.read" },

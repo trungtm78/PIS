@@ -27,6 +27,36 @@ export function specOfPublishedTheme(version: PublishedTheme): TenantThemeSpec {
   return { themeId: version.hash, version: version.version, overlay };
 }
 
+type ThemeLogo = components['schemas']['TenantThemeLogo'];
+
+/**
+ * The logo of the theme in force of the selected tenant, as a data address for an image, or undefined while the tenant has none (the shell
+ * then shows the monogram). The file is private: it is read with the token of the session (getMyThemeLogo), once for each logo the published
+ * version names, and the read is keyed by the tenant and the membership like the theme itself.
+ */
+export function useTenantLogo(): string | undefined {
+  const { tenant, tenantToken } = useSession();
+  const client = useApiClient();
+  const signedIn = tenantToken !== undefined && tenant !== undefined;
+  const published = useQuery<PublishedTheme>({
+    queryKey: publishedThemeKey(tenant?.id, tenant?.membershipId),
+    queryFn: () => client.read('getMyPublishedTheme'),
+    enabled: signedIn,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const assetId = published.data?.config.logoAssetId ?? null;
+  const logo = useQuery<ThemeLogo>({
+    queryKey: ['tenant-logo', tenant?.id, tenant?.membershipId, assetId],
+    queryFn: () => client.read('getMyThemeLogo'),
+    enabled: signedIn && assetId !== null,
+    retry: false,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+  return assetId === null || logo.data === undefined ? undefined : `data:${logo.data.mime};base64,${logo.data.content_base64}`;
+}
+
 export interface PublishedThemeProviderProps {
   base: Tokens;
   children: ReactNode;

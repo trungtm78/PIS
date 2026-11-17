@@ -241328,6 +241328,63 @@
           "VALIDATION_FAILED"
         ]
       }
+    },
+    "/me/tenant/theme/logo": {
+      "get": {
+        "operationId": "getMyThemeLogo",
+        "summary": "Đọc logo của bản giao diện đang áp dụng của tenant trong phiên",
+        "tags": [
+          "TenantTheme"
+        ],
+        "x-permission": "tenant.theme.read",
+        "x-required-role": "AuthenticatedMembership",
+        "x-tenant-source": "verified session only",
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Logo của bản đang áp dụng",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantThemeLogo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role or scope denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tenant chưa có bản giao diện đang áp dụng, hoặc bản đó không có logo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -335269,6 +335326,35 @@
           }
         },
         "description": "Thư viện quy trình (PWF-01): mỗi loại quy trình đang được bao nhiêu dự án chạy. Chỉ đếm dự án trong phạm vi đọc pwf.read của người gọi; loại chưa có dự án nào không có dòng."
+      },
+      "TenantThemeLogo": {
+        "type": "object",
+        "description": "Logo của bản giao diện đang áp dụng của tenant trong phiên: tệp ảnh đã quét sạch, trả dưới dạng base64 để trình duyệt hiện mà không cần đường dẫn công khai",
+        "required": [
+          "content_hash",
+          "mime",
+          "content_base64"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "SHA-256 của tệp, dùng làm khóa bộ đệm"
+          },
+          "mime": {
+            "type": "string",
+            "enum": [
+              "image/png",
+              "image/jpeg",
+              "image/webp"
+            ]
+          },
+          "content_base64": {
+            "type": "string",
+            "maxLength": 1400000
+          }
+        }
       }
     }
   }

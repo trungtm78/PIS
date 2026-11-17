@@ -235,3 +235,21 @@ body {
   place-items: center;
   padding: 24px;
 }
+
+/* The logo of the theme in force of the tenant takes the place of the monogram in the card of the tenant: whole, on the surface colour, the tile a little larger. */
+.tenant-monogram:has(> .tenant-logo),
+[data-mv-tenant-theme] .tenant-monogram:has(> .tenant-logo) {
+  width: 44px;
+  height: 44px;
+  padding: 2px;
+  background: var(--mv-color-surface);
+  box-shadow: 0 0 0 1px var(--mv-color-border);
+}
+
+.tenant-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}

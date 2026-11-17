@@ -757,6 +757,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getMyPublishedTheme': TenantThemeVersionResponse.fromJson,
   'getMyStaffScore': MyStaffScorePageResponse.fromJson,
   'getMyTasks': PwfMyTaskPageResponse.fromJson,
+  'getMyThemeLogo': TenantThemeLogoResponse.fromJson,
   'getMyUsage': UsageSummaryResponse.fromJson,
   'getMyWork': asObject,
   'getMyWorkCounts': asObject,
@@ -72189,6 +72190,40 @@ final class TenantThemeDraftResponse implements ResponseModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'revision': revision,
         'config': config.toJson(),
+        ...extra,
+      };
+}
+
+final class TenantThemeLogoResponse implements ResponseModel {
+  const TenantThemeLogoResponse({
+    required this.contentHash,
+    required this.mime,
+    required this.contentBase64,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory TenantThemeLogoResponse.fromJson(Object? json, [String path = 'TenantThemeLogoResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return TenantThemeLogoResponse(
+      contentHash: requiredField(map, path, 'content_hash', asString),
+      mime: requiredField(map, path, 'mime', asString),
+      contentBase64: requiredField(map, path, 'content_base64', asString),
+      extra: unknownFields(map, path, const <String>{'content_hash', 'mime', 'content_base64'}, strict: true),
+    );
+  }
+
+  final String contentHash;
+  final String mime;
+  final String contentBase64;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'content_hash': contentHash,
+        'mime': mime,
+        'content_base64': contentBase64,
         ...extra,
       };
 }

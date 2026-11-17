@@ -12,7 +12,7 @@ import { ALL_MODULES_VISIBLE } from '../navigation/model';
 import { SessionContext } from '../session/SessionContext';
 import type { SessionTenant, SessionValue } from '../session/SessionContext';
 import { useMyPublishedTheme } from '../screens/sas/theme/hooks';
-import { PublishedThemeProvider, specOfPublishedTheme } from './PublishedThemeProvider';
+import { PublishedThemeProvider, specOfPublishedTheme, useTenantLogo } from './PublishedThemeProvider';
 import { useTheme } from './ThemeProvider';
 
 const CONFIG = {
@@ -171,5 +171,55 @@ describe('PublishedThemeProvider', () => {
     release(published(A.id, 'a'.repeat(64), 7, '#112233'));
     await waitFor(() => expect(screen.getByTestId('probe')).toHaveTextContent(`${'a'.repeat(64)}@7:false`));
     expect(screen.getByLabelText('note')).toHaveValue('draft');
+  });
+});
+
+function LogoProbe() {
+  const logo = useTenantLogo();
+  return <p data-testid="logo">{logo ?? 'monogram'}</p>;
+}
+
+describe('useTenantLogo', () => {
+  const token = { tenantToken: { expiresAt: Date.now() + 60_000 } };
+  const LOGO = { content_hash: 'f'.repeat(64), mime: 'image/png', content_base64: 'iVBORw0KGgo=' };
+
+  it('reads the logo the published theme names, with the session, and gives it as a data address for the image of the tenant card', async () => {
+    const read = vi.fn((operation: string) =>
+      Promise.resolve(operation === 'getMyThemeLogo' ? LOGO : { ...published(A.id, 'a'.repeat(64), 2, '#112233'), config: { ...CONFIG, logoAssetId: '00000000-0000-4000-8000-0000000000f1' } }),
+    );
+    render(
+      <Host read={read} session={token}>
+        <LogoProbe />
+      </Host>,
+    );
+    await waitFor(() => expect(screen.getByTestId('logo').textContent).toBe('data:image/png;base64,iVBORw0KGgo='));
+    expect(read.mock.calls.filter(([operation]) => operation === 'getMyThemeLogo')).toHaveLength(1);
+  });
+
+  it('keeps the monogram and never asks for a logo when the published theme names none', async () => {
+    const read = vi.fn((operation: string) => Promise.resolve(operation === 'getMyThemeLogo' ? LOGO : published(A.id, 'a'.repeat(64), 2, '#112233')));
+    render(
+      <Host read={read} session={token}>
+        <LogoProbe />
+      </Host>,
+    );
+    await waitFor(() => expect(read).toHaveBeenCalledWith('getMyPublishedTheme'));
+    expect(screen.getByTestId('logo').textContent).toBe('monogram');
+    expect(read).not.toHaveBeenCalledWith('getMyThemeLogo');
+  });
+
+  it('keeps the monogram when the logo cannot be read', async () => {
+    const read = vi.fn((operation: string) =>
+      operation === 'getMyThemeLogo'
+        ? Promise.reject(new ApiError({ status: 404, code: 'RESOURCE_NOT_FOUND' } as never))
+        : Promise.resolve({ ...published(A.id, 'a'.repeat(64), 2, '#112233'), config: { ...CONFIG, logoAssetId: '00000000-0000-4000-8000-0000000000f1' } }),
+    );
+    render(
+      <Host read={read} session={token}>
+        <LogoProbe />
+      </Host>,
+    );
+    await waitFor(() => expect(read).toHaveBeenCalledWith('getMyThemeLogo'));
+    expect(screen.getByTestId('logo').textContent).toBe('monogram');
   });
 });

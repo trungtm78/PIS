@@ -1714,6 +1714,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getMyTasks({Map<String, Object?>? query}) =>
       execute('getMyTasks', query: query);
 
+  Future<Object?> getMyThemeLogo({Map<String, Object?>? query}) =>
+      execute('getMyThemeLogo', query: query);
+
   Future<Object?> getMyUsage({Map<String, Object?>? query}) =>
       execute('getMyUsage', query: query);
 

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { QueryClientContext } from '@tanstack/react-query';
 import type { KeyboardEvent, RefObject } from 'react';
 import { Link } from 'react-router-dom';
 import { BrandMark } from '../brand/BrandMark';
@@ -6,6 +7,7 @@ import { useTranslation } from '../i18n';
 import type { NavLink, NavigationModel } from '../navigation/model';
 import type { WebRoute } from '../routes/types';
 import { useSession } from '../session/SessionContext';
+import { useTenantLogo } from '../theme/PublishedThemeProvider';
 import type { SessionTenant, SessionUser } from '../session/SessionContext';
 import { Icon } from './Icon';
 import { labelText } from './labels';
@@ -76,6 +78,17 @@ function trapTab(event: KeyboardEvent<HTMLElement>): void {
 }
 
 /** The single business sidebar of the prototype: tenant identity, personal links, modules, pinned screens, footer. */
+/** The mark of the tenant in its card: the logo of its theme in force when it has one (read with the session), the monogram otherwise and while the logo loads. */
+function TenantMark({ monogram }: { monogram: string }) {
+  // The logo is read through the query cache of the application; a shell drawn without one (a test of the shell alone) shows the monogram.
+  return useContext(QueryClientContext) === undefined ? <>{monogram}</> : <TenantLogo monogram={monogram} />;
+}
+
+function TenantLogo({ monogram }: { monogram: string }) {
+  const logo = useTenantLogo();
+  return logo === undefined ? <>{monogram}</> : <img className="tenant-logo" src={logo} alt="" />;
+}
+
 export function Sidebar(props: SidebarProps) {
   const { t } = useTranslation();
   const { signOut } = useSession();
@@ -189,7 +202,7 @@ export function Sidebar(props: SidebarProps) {
       <div className="tenant-identity workspace-card">
         {/* The name starts with the letters the link shows, so that the visible label is in the accessible name (WCAG 2.5.3). */}
         <Link to={props.homePath} className="tenant-monogram" aria-label={t('shell.tenant.home.label', { monogram: tenant?.monogram ?? '·', name: tenant?.name ?? '' })}>
-          {tenant?.monogram ?? '·'}
+          <TenantMark monogram={tenant?.monogram ?? '·'} />
           <span />
         </Link>
         <Link to={props.tenantChooserPath} className="tenant-name">

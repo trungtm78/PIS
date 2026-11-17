@@ -572,5 +572,26 @@ describe('tenant themes over HTTP (ST-SAS-005)', () => {
     it('answers 404 for a tenant that does not exist', async () => {
       expect((await upload('00000000-0000-4000-8000-0000000000ee', png())).status).toBe(404);
     });
+
+    it('gives a member the logo of the published theme of their own tenant as base64, never the logo of a draft or of another tenant (getMyThemeLogo)', async () => {
+      const a = await themedTenant();
+      const b = await themedTenant();
+      // The first version has no logo.
+      expect((await asMember(a.tenantId, a.memberId, '/me/tenant/theme/logo')).status).toBe(404);
+      const uploaded = await upload(a.tenantId, png());
+      const assetId = uploaded.json.assetId as string;
+      // A draft that names the logo is not the theme in force: still nothing to read.
+      expect((await putDraft(a.tenantId, themeWith({ logoAssetId: assetId }), '"0"')).status).toBe(200);
+      expect((await asMember(a.tenantId, a.memberId, '/me/tenant/theme/logo')).status).toBe(404);
+      // Published (reviewed by another administrator): the member reads exactly the bytes that were uploaded.
+      expect((await publishChange(a.tenantId, { logoAssetId: assetId }, 1, 2)).status).toBe(200);
+      const logo = await asMember(a.tenantId, a.memberId, '/me/tenant/theme/logo');
+      expect(logo.status).toBe(200);
+      expect(logo.json).toMatchObject({ content_hash: uploaded.json.contentHash, mime: 'image/png' });
+      expect(Buffer.from(String(logo.json.content_base64), 'base64').equals(pngOf(2048))).toBe(true);
+      // Another tenant has no logo, and its member cannot read the logo of A with a token of A.
+      expect((await asMember(b.tenantId, b.memberId, '/me/tenant/theme/logo')).status).toBe(404);
+      expect((await asMember(a.tenantId, b.memberId, '/me/tenant/theme/logo')).status).toBe(403);
+    });
   });
 });

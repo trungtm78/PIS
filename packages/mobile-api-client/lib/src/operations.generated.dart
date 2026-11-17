@@ -572,6 +572,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'getMyPublishedTheme': OperationDescriptor(method: 'GET', path: '/me/tenant/theme', versioned: false, stepUp: null, permission: 'tenant.theme.read'),
   'getMyStaffScore': OperationDescriptor(method: 'GET', path: '/me/staff-scores', versioned: false, stepUp: null, permission: 'staff_score.read_own'),
   'getMyTasks': OperationDescriptor(method: 'GET', path: '/me/project-tasks', versioned: false, stepUp: null, permission: 'pwf.task.work'),
+  'getMyThemeLogo': OperationDescriptor(method: 'GET', path: '/me/tenant/theme/logo', versioned: false, stepUp: null, permission: 'tenant.theme.read'),
   'getMyUsage': OperationDescriptor(method: 'GET', path: '/me/usage', versioned: false, stepUp: null, permission: 'subscription.read'),
   'getMyWork': OperationDescriptor(method: 'GET', path: '/home/my-work', versioned: false, stepUp: null, permission: 'home.read'),
   'getMyWorkCounts': OperationDescriptor(method: 'GET', path: '/home/my-work/counts', versioned: false, stepUp: null, permission: 'home.read'),
