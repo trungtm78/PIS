@@ -40,6 +40,7 @@ import { seedClipEnterpriseCapitalPrior } from './clip/enterprise-capital-prior.
 import { seedClipEnterpriseSnapshotPrior } from './clip/enterprise-snapshot-prior.ts';
 import { seedClipEnterpriseBi, seedClipEnterpriseCapital, seedClipEnterpriseCapitalAdjust, seedClipEnterpriseDocuments } from './clip/enterprise-more.ts';
 import { seedClipEnterpriseDirectives, seedMeetings, seedClipEnterpriseEbs, seedClipEnterpriseFunding, seedClipEnterpriseProjects } from './clip/enterprise.ts';
+import { seedClipDashboard } from './clip/public-dashboard.ts';
 import { seedClipDisbursement } from './clip/public-dis.ts';
 import { seedClipCommittee } from './clip/public-committee.ts';
 import { seedClipExtras } from './clip/public-extras.ts';
@@ -82,6 +83,7 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-public-pwf-review', seed: seedClipPwfReview },
   { name: 'clip-public-pwf-running', seed: seedClipPwfRunning },
   { name: 'clip-public-approvals', seed: seedClipPublicApprovals },
+  { name: 'clip-public-dashboard', seed: seedClipDashboard },
   { name: 'clip-public-phone-work', seed: seedClipPhoneWork },
   { name: 'clip-ent-projects', seed: seedClipEnterpriseProjects },
   { name: 'clip-ent-capital', seed: seedClipEnterpriseCapital },

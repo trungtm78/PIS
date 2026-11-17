@@ -18,7 +18,7 @@ export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
-  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-payments', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras', 'clip-public-contractor-portal', 'clip-public-pwf-review', 'clip-public-pwf-running', 'clip-public-approvals', 'clip-public-phone-work'],
+  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-payments', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras', 'clip-public-contractor-portal', 'clip-public-pwf-review', 'clip-public-pwf-running', 'clip-public-approvals', 'clip-public-dashboard', 'clip-public-phone-work'],
   enterprise: ENTERPRISE_GROUPS,
 };
 
@@ -49,6 +49,8 @@ export const DATASET_PHASES = {
     { clockDays: 0, groups: ['clip-public-pwf-running'] },
     // The approval inbox of the phone has a record waiting (MOB-23, MOB-24): the workflow of a business type no other scenario uses, and a response to a score of the period the group above locked.
     { clockDays: 0, groups: ['clip-public-approvals'] },
+    // The leader dashboard of the province reads the projects by investor unit: each project of the dataset of Cà Mau is given its investor unit by a transfer (another dataset has nothing to do here).
+    { clockDays: 0, groups: ['clip-public-dashboard'] },
     // The person who signs in on the phone holds tasks in progress of a project workflow (MOB-80, MOB-81; Maestro flow 40): the last group, it reads the projects the groups above made.
     { clockDays: 0, groups: ['clip-public-phone-work'] },
   ],
