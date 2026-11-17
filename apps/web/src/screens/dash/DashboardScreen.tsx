@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
@@ -29,33 +29,34 @@ export default function DashboardScreen({ route }: ScreenProps) {
   const first = useRef(page);
   first.current = page;
 
-  const onPage = useCallback(
-    (index: number) => {
-      setParams((before) => {
-        const next = new URLSearchParams(before);
-        next.set(PAGE_PARAM, String(index + 1));
-        return next;
-      });
-    },
-    [setParams],
-  );
+  // The board is mounted once for one database: what it calls when the reader changes page is read through a ref, because the setter of the address changes with every address.
+  const onPage = useRef<(index: number) => void>(() => undefined);
+  onPage.current = (index: number) => {
+    setParams((before) => {
+      const next = new URLSearchParams(before);
+      next.set(PAGE_PARAM, String(index + 1));
+      return next;
+    });
+  };
 
   const db = data.data?.db;
   useEffect(() => {
     if (host.current === null || db === undefined) return undefined;
-    const dashboard = mountDashboard(host.current, db, { page: first.current, onPage });
+    const dashboard = mountDashboard(host.current, db, { page: first.current, onPage: (index) => onPage.current(index) });
     mounted.current = dashboard;
     return () => {
       mounted.current = undefined;
       dashboard.dispose();
     };
-  }, [db, onPage]);
+  }, [db]);
   useEffect(() => {
     mounted.current?.go(page);
   }, [page]);
 
+  // A browser that cannot show an element full screen gets no button; one that refuses this time (no user gesture, a policy of the page) leaves the board as it was.
+  const canShowFull = typeof document !== 'undefined' && document.fullscreenEnabled === true;
   const showFull = () => {
-    void host.current?.requestFullscreen?.();
+    host.current?.requestFullscreen?.()?.catch(() => undefined);
   };
 
   return (
@@ -65,9 +66,11 @@ export default function DashboardScreen({ route }: ScreenProps) {
       </h1>
       <div className="dash9-bar">
         <span className="dash9-hint">{t('home.dash.keys.hint')}</span>
-        <button type="button" className="ui-button" onClick={showFull} disabled={db === undefined}>
-          {t('home.dash.full.label')}
-        </button>
+        {canShowFull ? (
+          <button type="button" className="ui-button" onClick={showFull} disabled={db === undefined}>
+            {t('home.dash.full.label')}
+          </button>
+        ) : null}
       </div>
       {data.isLoading ? <p role="status">{t('home.dash.loading.label')}</p> : null}
       {data.isError ? (

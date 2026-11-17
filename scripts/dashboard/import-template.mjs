@@ -40,6 +40,8 @@ viz = must(viz, ' · Số liệu minh họa</span>', '</span>');
 viz = must(viz, ' (ngưỡng minh họa theo mockup)', '');
 viz = must(viz, ".replace(' (mô phỏng)', '')", '');
 viz = must(viz, '<span class="${j === i ? \'on\' : \'\'}">${q.name}</span>', '<span class="${j === i ? \'on\' : \'\'}" data-pg="${j}" role="tab" tabindex="0" aria-selected="${j === i}">${q.name}</span>');
+// The one field the template writes into the page without escaping it (the code of a root task).
+viz = must(viz, '<small>${x.r.ma} · ', '<small>${esc(x.r.ma)} · ');
 viz = must(viz, 'window.RENDER = render; window.NPAGES = PAGES.length; window.PNAMES = PAGES.map((p) => p.name);', 'return { render, count: PAGES.length, names: PAGES.map((p) => p.name) };');
 if (/\b(document|window)\./.test(viz)) throw new Error('the charts of the template reach for the document or the window somewhere new: scope it to the host first');
 viz = `${HEADER('the charts and the nine pages')}/* eslint-disable */\nexport function createViz(d3, E, DB, host) {\n${viz}\n}\n`;

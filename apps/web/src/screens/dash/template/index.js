@@ -29,8 +29,11 @@ export function mountDashboard(host, db, options = {}) {
   };
   const go = (index, announce = true) => {
     current = Math.max(0, Math.min(viz.count - 1, index));
+    // Drawing a page replaces every element of the board, the focused tab included: the focus is put back on the tab of the page, or the arrow keys would stop reaching the board.
+    const focused = host.contains(document.activeElement);
     viz.render(current);
     fit();
+    if (focused) (stage.querySelector("[data-pg][aria-selected=\"true\"]") ?? host).focus({ preventScroll: true });
     if (announce) options.onPage?.(current);
   };
   const pageOf = (target) => { const tab = target instanceof Element ? target.closest('[data-pg]') : null; return tab === null ? undefined : Number(tab.getAttribute('data-pg')); };
