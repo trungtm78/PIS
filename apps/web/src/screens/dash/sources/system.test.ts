@@ -4,6 +4,7 @@ import { readDashboard } from '../hooks';
 import { E } from '../template/engine.js';
 import { referenceProblems } from './assemble';
 import { readCapitalInput } from './system';
+import { readSubmissionsInput } from './system-submissions';
 import { readTasksInput } from './system-tasks';
 
 const BN = 1_000_000_000;
@@ -22,7 +23,12 @@ interface World {
   broken?: readonly string[];
   /** What the province holds of tasks: directives over three meetings, and `perWorkflow` tasks (the first `done` of them finished) in each of the first `workflows` projects. The deadline board names the first `onBoard` projects (the ones that run a workflow when absent). None when absent. */
   tasks?: { directives: number; workflows: number; perWorkflow: number; done: number; onBoard?: number };
+  /** What waits on the desk of the leader: `explanations` requests owed since 10 November (beside one due later and one answered) and `papers` tasks that wait for a decision. None when absent. */
+  submissions?: { explanations: number; papers: number };
 }
+
+const NO_TASKS = 'tasks: 0 directives are recorded (at least 20 are needed)';
+const NO_SUBMISSIONS = 'submissions: 0 papers wait for a decision and 0 explanations are owed (at least 3 in all and 1 of each are needed)';
 
 const PHASES = [['PREPARATION', 'Chuẩn bị đầu tư: chủ trương'], ['FEASIBILITY', 'Chuẩn bị đầu tư: nghiên cứu khả thi và thẩm định'], ['APPROVAL', 'Quyết định đầu tư và kế hoạch vốn'], ['IMPLEMENTATION', 'Thực hiện đầu tư'], ['ACCEPTANCE', 'Nghiệm thu và bàn giao'], ['SETTLEMENT', 'Quyết toán và đánh giá']] as const;
 const OPEN_STATUSES = ['IN_PROGRESS', 'NOT_STARTED', 'AWAITING_APPROVAL', 'ON_HOLD', 'CANCELLED'] as const;
@@ -46,6 +52,18 @@ function clientOf(world: World): { client: ApiClient; calls: string[] } {
     id: `${projectId}-t${k}`, task_code: `T${k}`, name: `Công việc ${k}`, phase_code: PHASES[k % PHASES.length]?.[0], kind: k % 7 === 6 ? 'MILESTONE' : 'TASK', status: k < held.done ? 'DONE' : OPEN_STATUSES[k % OPEN_STATUSES.length],
     excluded: false, tracked: true, planned_finish: '2026-10-30', band: k < held.done ? { overdue: false, remaining_days: null } : { overdue: true, remaining_days: -12 }, receiving_unit_id: k % 2 === 0 ? 'u-1' : 'u-unknown',
   }));
+  // The requests as the list of the system gives them: about a project (no unit: the investor of the project owes the answer) or about a unit, overdue or still asked.
+  const request = (i: number, over: Record<string, unknown> = {}) => ({
+    id: `e-${i}`, subject_kind: i % 2 === 0 ? 'PROJECT' : 'UNIT', project: i % 2 === 0 ? { id: 'p-1', code: projectCodes[1], name: 'Dự án 1' } : null, unit: i % 2 === 0 ? null : { id: 'u-2', name: 'Đơn vị CM-BQLDANN' },
+    trigger_code: 'MANUAL', question: 'Giải trình tiến độ giải ngân thấp', requested_from_membership_id: 'm-1', due_at: '2026-11-10T10:00:00.000Z', original_due_at: '2026-11-10T10:00:00.000Z', response_text: null, responded_at: null,
+    is_late: false, status: i % 3 === 0 ? 'OVERDUE' : 'REQUESTED', created_at: '2026-11-03T02:00:00.000Z', ...over,
+  });
+  const requests = world.submissions === undefined ? [] : [...Array.from({ length: world.submissions.explanations }, (_, i) => request(i)), request(90, { status: 'REQUESTED', due_at: '2026-11-21T10:00:00.000Z' }), request(91, { status: 'RESPONDED', response_text: 'Đã giải trình' })];
+  // The tasks that wait, as the monitor of the workflows gives them: no summary of the record, the unit of the workflow, the moment the step says the decision is due.
+  const papers = Array.from({ length: world.submissions?.papers ?? 0 }, (_, i) => ({
+    id: `a-${i}`, workflow_instance_id: `w-${i}`, step_name: 'Lãnh đạo duyệt', assignee: { id: 'm-9', name: 'Lãnh đạo' }, due_at: '2026-11-19T10:00:00.000Z', status: 'Pending', business_type: i % 2 === 0 ? 'plan.publish' : 'report.accept',
+    resource: i % 2 === 0 ? { type: 'capital_plan', id: `cp-${i}` } : { type: 'project', id: 'p-2' }, created_at: '2026-11-12T02:00:00.000Z', submitted_at: '2026-11-11T18:30:00.000Z', instance: { id: `w-${i}`, unit_id: `u-${i % world.units}` }, overdue: false,
+  }));
   const answer = (operation: string, input: { path?: { id?: string; project_id?: string; task_id?: string }; query?: Record<string, string> } = {}): unknown => {
     calls.push(operation);
     if (world.broken?.includes(operation)) throw new Error(`${operation} failed`);
@@ -62,6 +80,9 @@ function clientOf(world: World): { client: ApiClient; calls: string[] } {
       // The board lists open tasks: one row of each project that runs a workflow in the worlds of tasks.
       case 'getDeadlineBoard': return world.tasks !== undefined ? Array.from({ length: world.tasks.onBoard ?? held.workflows }, (_, i) => ({ project_id: `p-${i}`, band: { overdue: false, remaining_days: 6 } })) : world.workflows === true ? [{ project_id: 'p-0', band: { overdue: true, remaining_days: -18 } }, { project_id: 'p-0', band: { overdue: true, remaining_days: -4 } }, ...['p-1', 'p-2', 'p-3', 'p-4'].map((id) => ({ project_id: id, band: { overdue: false, remaining_days: 6 } }))] : [];
       case 'getProjectBaseline': return world.baselines ? { has_baseline: true, deviation: { finish_slip_days: 21 } } : { has_baseline: false, deviation: null };
+      // The list keeps the requests of the status it is asked for.
+      case 'listExplanationRequests': return requests.filter((row) => input.query?.status === undefined || row.status === input.query.status);
+      case 'get_resources_approval_task': return papers;
       case 'listDirectives': return directives;
       case 'listSteeringMeetings': return [{ id: 'm-0', code: 'GB-0', meeting_type: 'MONTHLY', meeting_date: '2026-09-15' }, { id: 'm-1', code: 'GB-1', meeting_type: 'EXTRAORDINARY', meeting_date: '2026-09-22' }, { id: 'm-2', code: 'GB-2', meeting_type: 'QUARTERLY', meeting_date: '2026-09-29' }];
       case 'getProjectWorkflow': {
@@ -108,7 +129,7 @@ describe('the dashboard: real figures where there are enough, the template where
     const { client } = clientOf({ units: 5, perUnit: 2, baselines: true });
     const read = await readDashboard(client, TODAY);
     // This province records no directive: the tasks stay on the template, and the note says why.
-    expect(read.notes).toEqual(['tasks: 0 directives are recorded (at least 20 are needed)']);
+    expect(read.notes).toEqual([NO_TASKS, NO_SUBMISSIONS]);
     expect(read.origins).toMatchObject({ du_an: 'system', don_vi: 'system', giai_ngan: 'system', nguon_von: 'system', muc_tieu: 'system', moc_thoi_gian: 'system', nhiem_vu: 'template', ho_so_trinh: 'template', nv_goc: 'template', luot_giao: 'template' });
     expect(read.db.du_an).toHaveLength(10);
     expect(read.db.moc_thoi_gian[0]).toMatchObject({ hom_nay: TODAY, thang_chot: 10, ngay_chot_so: '2026-11-13', kho_bac_den: '2026-11-12' });
@@ -157,7 +178,7 @@ describe('the dashboard: real figures where there are enough, the template where
 
 const ENOUGH = { directives: 24, workflows: 5, perWorkflow: 24, done: 6 } as const;
 const count = (calls: readonly string[], operation: string): number => calls.filter((name) => name === operation).length;
-const TASK_READS = ['listDirectives', 'listSteeringMeetings', 'getProjectWorkflow', 'listProjectTasks', 'getProjectTask'];
+const TASK_READS = ['listDirectives', 'listSteeringMeetings', 'getProjectWorkflow', 'listProjectTasks', 'getProjectTask', 'listExplanationRequests', 'get_resources_approval_task'];
 type Loose = { read(operation: string, input?: unknown): Promise<unknown>; readAll(operation: string, input?: unknown): Promise<unknown[]> };
 
 describe('what the tasks bundle is read from', () => {
@@ -294,7 +315,7 @@ describe('the dashboard: the tasks bundle beside the capital bundle', () => {
   it('takes both bundles from the system when it holds enough of each, and the engine of the template draws them', async () => {
     const { client } = clientOf({ units: 5, perUnit: 2, baselines: true, tasks: ENOUGH });
     const read = await readDashboard(client, TODAY);
-    expect(read.notes).toEqual([]);
+    expect(read.notes).toEqual([NO_SUBMISSIONS]);
     expect(read.origins).toMatchObject({ du_an: 'system', don_vi: 'system', nhiem_vu: 'system', ho_so_trinh: 'template', nv_goc: 'template', luot_giao: 'template' });
     expect(read.db.nhiem_vu).toHaveLength(24 + 5 * 24);
     expect(referenceProblems(read.db)).toEqual([]);
@@ -313,8 +334,9 @@ describe('the dashboard: the tasks bundle beside the capital bundle', () => {
     // One investor holds every project: the capital tables stay those of the template, though the province holds enough tasks.
     const { client, calls } = clientOf({ units: 1, perUnit: 12, baselines: false, tasks: ENOUGH });
     const read = await readDashboard(client, TODAY);
-    expect(read.notes).toHaveLength(2);
+    expect(read.notes).toHaveLength(3);
     expect(read.notes[0]).toMatch(/^capital: 1 investor units/);
+    expect(read.notes[2]).toBe('submissions: left on the template, whose clock the board keeps while the capital tables are those of the template');
     expect(read.notes[1]).toBe('tasks: left on the template, whose clock the board keeps while the capital tables are those of the template');
     expect(new Set(Object.values(read.origins))).toEqual(new Set(['template']));
     expect(read.db.du_an).toHaveLength(45);
@@ -327,11 +349,11 @@ describe('the dashboard: the tasks bundle beside the capital bundle', () => {
 
   it('keeps the capital bundle of the system, and the tasks of the template, when the tasks are too few or cannot be read', async () => {
     const few = await readDashboard(clientOf({ units: 5, perUnit: 2, baselines: true, tasks: { ...ENOUGH, done: 0 } }).client, TODAY);
-    expect(few.notes).toEqual(['tasks: 12 finished rows carry the day they were finished (at least 20 are needed for the weekly rhythm)']);
+    expect(few.notes).toEqual(['tasks: 12 finished rows carry the day they were finished (at least 20 are needed for the weekly rhythm)', NO_SUBMISSIONS]);
     expect(few.origins).toMatchObject({ du_an: 'system', nhiem_vu: 'template' });
 
     const broken = await readDashboard(clientOf({ units: 5, perUnit: 2, baselines: true, tasks: ENOUGH, broken: ['listSteeringMeetings'] }).client, TODAY);
-    expect(broken.notes).toEqual(['tasks: the system could not be read (listSteeringMeetings failed)']);
+    expect(broken.notes).toEqual(['tasks: the system could not be read (listSteeringMeetings failed)', NO_SUBMISSIONS]);
     expect(broken.origins).toMatchObject({ du_an: 'system', giai_ngan: 'system', nhiem_vu: 'template' });
     expect(broken.db.du_an).toHaveLength(10);
     // The tasks of the template that still name a unit and a project of the system stand beside it, as before.
@@ -342,10 +364,123 @@ describe('the dashboard: the tasks bundle beside the capital bundle', () => {
     // A read by project or by task that fails is a failure of the whole read of the tasks, and of nothing else.
     for (const operation of ['getDeadlineBoard', 'getProjectWorkflow', 'listProjectTasks', 'getProjectTask']) {
       const read = await readDashboard(clientOf({ units: 5, perUnit: 2, baselines: true, tasks: ENOUGH, broken: [operation] }).client, TODAY);
-      expect(read.notes).toEqual([`tasks: the system could not be read (${operation} failed)`]);
+      expect(read.notes).toEqual([`tasks: the system could not be read (${operation} failed)`, NO_SUBMISSIONS]);
       expect(read.origins).toMatchObject({ du_an: 'system', don_vi: 'system', giai_ngan: 'system', moc_thoi_gian: 'system', nhiem_vu: 'template' });
       expect(read.db.du_an).toHaveLength(10);
       expect(referenceProblems(read.db)).toEqual([]);
+    }
+  });
+});
+
+const DESK = { explanations: 3, papers: 2 } as const;
+
+describe('what the submissions bundle is read from', () => {
+  it('reads the explanation requests and the tasks that wait for a decision, then the registers of units and projects', async () => {
+    const { client, calls } = clientOf({ units: 5, perUnit: 2, baselines: true, submissions: DESK });
+    const loose = client as unknown as Loose;
+    const asked: [string, unknown][] = [];
+    const watched = { read: loose.read, readAll: (operation: string, input?: unknown) => { asked.push([operation, input]); return loose.readAll(operation, input); } } as unknown as ApiClient;
+    const input = await readSubmissionsInput(watched, TODAY);
+    expect(input.today).toBe(TODAY);
+    // The request that was answered is not asked for: the three that are owed past their day and the one due later are.
+    expect(input.explanations).toHaveLength(4);
+    expect(input.explanations[0]).toEqual({ status: 'OVERDUE', project: { id: 'p-1', code: 'DA-TH012', name: 'Dự án 1' }, unit: null, question: 'Giải trình tiến độ giải ngân thấp', due_at: '2026-11-10T10:00:00.000Z' });
+    expect(input.explanations[1]).toMatchObject({ status: 'REQUESTED', project: null, unit: { id: 'u-2', name: 'Đơn vị CM-BQLDANN' } });
+    expect(input.approvals).toHaveLength(2);
+    expect(input.approvals[0]).toEqual({ status: 'Pending', business_type: 'plan.publish', step_name: 'Lãnh đạo duyệt', due_at: '2026-11-19T10:00:00.000Z', received_at: '2026-11-11T18:30:00.000Z', unit_id: 'u-0', resource: { type: 'capital_plan', id: 'cp-0' }, subject_name: null, project_code: null, unit_code: null });
+    expect(input.units).toHaveLength(6);
+    expect(input.projects[2]).toEqual({ id: 'p-2', code: 'DA-YT007', name: 'Dự án 2', investor_unit_id: 'u-2' });
+    // Only the tasks that wait for the reader's own decision, and the requests of the three statuses that are owed, each status by itself: the closed history is not read.
+    expect(asked.slice(0, 4)).toEqual([
+      ['get_resources_approval_task', { query: { limit: 200, status: 'Pending', mine: 'true' } }],
+      ['listExplanationRequests', { query: { limit: 200, status: 'OVERDUE' } }],
+      ['listExplanationRequests', { query: { limit: 200, status: 'REQUESTED' } }],
+      ['listExplanationRequests', { query: { limit: 200, status: 'RETURNED' } }],
+    ]);
+    expect(calls).toEqual(['get_resources_approval_task', 'listExplanationRequests', 'listExplanationRequests', 'listExplanationRequests', 'get_resources_organization_unit', 'get_resources_project']);
+  });
+
+  it('stops before the registers when nothing waits or what waits and what is owed are too few together', async () => {
+    // The request that is due later counts here as owed: the lists are judged roughly before the registers are read, and to the day afterwards.
+    for (const [desk, message] of [[{ explanations: 3, papers: 0 }, /^0 papers wait for a decision and 4 explanations are owed/], [{ explanations: 0, papers: 1 }, /^1 papers wait for a decision and 1 explanations are owed \(at least 3 in all and 1 of each are needed\)$/]] as const) {
+      const { client, calls } = clientOf({ units: 5, perUnit: 2, baselines: true, submissions: desk });
+      await expect(readSubmissionsInput(client, TODAY)).rejects.toThrow(message);
+      expect(calls).toEqual(['get_resources_approval_task', 'listExplanationRequests', 'listExplanationRequests', 'listExplanationRequests']);
+    }
+  });
+
+  it('leaves out an answer of another shape, takes what the owning module says of a record, and the day the task was made when the day it was sent is absent', async () => {
+    const loose = clientOf({ units: 5, perUnit: 2, baselines: true, submissions: DESK }).client as unknown as Loose;
+    const odd = {
+      read: loose.read,
+      readAll: async (operation: string, input?: unknown) => {
+        const items = await loose.readAll(operation, input);
+        if (operation === 'listExplanationRequests') return (input as { query: { status: string } }).query.status === 'RETURNED' ? [...items, 'x', { id: 'e-x' }, { status: 'RETURNED' }] : items;
+        if (operation === 'get_resources_approval_task') return [...items, 'x', { status: 'Pending' }, { status: 'Pending', business_type: 'document.review', created_at: '2026-11-14T02:00:00.000Z', resource: { type: 'document' }, summary: { subject: { name: 'Hồ sơ thiết kế' }, project: { id: 'p-3', code: 'DA-NN031', name: 'Dự án 3' }, unit: { id: 'u-3', code: 'CM-STC', name: null } } }];
+        if (operation === 'get_resources_organization_unit') return [...items, { id: 'u-9' }];
+        if (operation === 'get_resources_project') return [...items, { code: 'DA-KHONG-ID' }];
+        return items;
+      },
+    } as unknown as ApiClient;
+    const input = await readSubmissionsInput(odd, TODAY);
+    expect(input.explanations).toHaveLength(5);
+    expect(input.explanations[4]).toEqual({ status: 'RETURNED', project: null, unit: null, question: null, due_at: null });
+    expect(input.approvals).toHaveLength(3);
+    expect(input.approvals[2]).toEqual({ status: 'Pending', business_type: 'document.review', step_name: null, due_at: null, received_at: '2026-11-14T02:00:00.000Z', unit_id: null, resource: null, subject_name: 'Hồ sơ thiết kế', project_code: 'DA-NN031', unit_code: 'CM-STC' });
+    expect(input.units).toHaveLength(6);
+    expect(input.projects).toHaveLength(10);
+  });
+
+  it('fails when one of its lists cannot be read, were it the requests of one status only', async () => {
+    for (const operation of ['listExplanationRequests', 'get_resources_approval_task']) {
+      await expect(readSubmissionsInput(clientOf({ units: 5, perUnit: 2, baselines: true, submissions: DESK, broken: [operation] }).client, TODAY)).rejects.toThrow(`${operation} failed`);
+    }
+    const loose = clientOf({ units: 5, perUnit: 2, baselines: true, submissions: DESK }).client as unknown as Loose;
+    const down = { read: loose.read, readAll: (operation: string, input?: unknown) => (operation === 'listExplanationRequests' && (input as { query: { status: string } }).query.status === 'RETURNED' ? Promise.reject(new Error('the returned requests failed')) : loose.readAll(operation, input)) } as unknown as ApiClient;
+    await expect(readSubmissionsInput(down, TODAY)).rejects.toThrow('the returned requests failed');
+  });
+});
+
+describe('the dashboard: the submissions bundle beside the capital and the tasks bundles', () => {
+  it('takes the three bundles from the system when it holds enough of each, and the engine of the template draws them', async () => {
+    const { client } = clientOf({ units: 5, perUnit: 2, baselines: true, tasks: ENOUGH, submissions: DESK });
+    const read = await readDashboard(client, TODAY);
+    expect(read.notes).toEqual([]);
+    expect(read.origins).toMatchObject({ du_an: 'system', nhiem_vu: 'system', ho_so_trinh: 'system', nv_goc: 'template', luot_giao: 'template' });
+    expect(referenceProblems(read.db)).toEqual([]);
+    expect(read.db.ho_so_trinh).toEqual([
+      { ma: 'A1', loai: 'Tờ trình chờ duyệt', noi_dung: 'Ban hành kế hoạch vốn: Lãnh đạo duyệt', don_vi: 'CM-BQLDAGT', du_an: null, ngay_nhan: '2026-11-12', han: '2026-11-19' },
+      { ma: 'A2', loai: 'Tờ trình chờ duyệt', noi_dung: 'Tiếp nhận báo cáo: Dự án 2', don_vi: 'CM-BQLDAXD', du_an: 'DA-YT007', ngay_nhan: '2026-11-12', han: '2026-11-19' },
+      // A request about a project is owed by the investor of the project; one about a unit by that unit. The one due later and the one answered are not rows.
+      { ma: 'E1', loai: 'Giải trình', noi_dung: 'Giải trình: Dự án 1', don_vi: 'CM-BQLDAXD', du_an: 'DA-TH012', ngay_nhan: null, han: '2026-11-10' },
+      { ma: 'E2', loai: 'Giải trình', noi_dung: 'Giải trình: Đơn vị CM-BQLDANN', don_vi: 'CM-BQLDANN', du_an: null, ngay_nhan: null, han: '2026-11-10' },
+      { ma: 'E3', loai: 'Giải trình', noi_dung: 'Giải trình: Dự án 1', don_vi: 'CM-BQLDAXD', du_an: 'DA-TH012', ngay_nhan: null, han: '2026-11-10' },
+    ]);
+    const invest = E.invest(read.db) as unknown as { queue: { kind: string; late: number }[]; tc: { total: number } };
+    expect(invest.queue.map((row) => `${row.kind} ${row.late}`)).toEqual(['Chờ lãnh đạo duyệt 0', 'Chờ lãnh đạo duyệt 0', 'Giải trình quá hạn 5', 'Giải trình quá hạn 5', 'Giải trình quá hạn 5']);
+    expect(invest.tc.total).toBe(144);
+    expect(() => E.gov(read.db)).not.toThrow();
+  });
+
+  it('takes the submissions beside the tasks of the template, and keeps the capital and the tasks of the system when the submissions are too few or cannot be read', async () => {
+    const alone = await readDashboard(clientOf({ units: 5, perUnit: 2, baselines: true, submissions: DESK }).client, TODAY);
+    expect(alone.notes).toEqual([NO_TASKS]);
+    expect(alone.origins).toMatchObject({ du_an: 'system', nhiem_vu: 'template', ho_so_trinh: 'system' });
+    expect(alone.db.ho_so_trinh).toHaveLength(5);
+    expect(referenceProblems(alone.db)).toEqual([]);
+
+    const few = await readDashboard(clientOf({ units: 5, perUnit: 2, baselines: true, tasks: ENOUGH, submissions: { explanations: 1, papers: 1 } }).client, TODAY);
+    expect(few.notes).toEqual(['submissions: 2 papers and explanations wait (at least 3 are needed)']);
+    expect(few.origins).toMatchObject({ du_an: 'system', nhiem_vu: 'system', ho_so_trinh: 'template' });
+
+    for (const operation of ['listExplanationRequests', 'get_resources_approval_task']) {
+      const broken = await readDashboard(clientOf({ units: 5, perUnit: 2, baselines: true, tasks: ENOUGH, submissions: DESK, broken: [operation] }).client, TODAY);
+      expect(broken.notes).toEqual([`submissions: the system could not be read (${operation} failed)`]);
+      expect(broken.origins).toMatchObject({ du_an: 'system', giai_ngan: 'system', nhiem_vu: 'system', ho_so_trinh: 'template' });
+      expect(broken.db.nhiem_vu).toHaveLength(144);
+      // The papers of the template that still name a unit and a project of the system stand beside it, as before.
+      expect(broken.db.ho_so_trinh.length).toBeLessThan(7);
+      expect(referenceProblems(broken.db)).toEqual([]);
     }
   });
 });
