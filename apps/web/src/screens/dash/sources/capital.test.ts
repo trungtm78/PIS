@@ -44,6 +44,7 @@ function province(units: number, perUnit: number, options: { baselines?: number;
       { fund_source: SOURCES[0] ?? null, origin: 'PM_ASSIGNED', amount_vnd: dong(2000), status: 'PUBLISHED' },
       { fund_source: SOURCES[1] ?? null, origin: 'LOCAL_ADDED', amount_vnd: dong(1500), status: 'PUBLISHED' },
       { fund_source: SOURCES[2] ?? null, origin: 'CENTRAL_SUPPORT', amount_vnd: dong(500), status: 'PUBLISHED' },
+      { fund_source: { version_id: 'fs-ctmt', business_key: 'CTMTQG-DTTS' }, origin: 'CENTRAL_SUPPORT', amount_vnd: dong(300), status: 'PUBLISHED' },
       { fund_source: SOURCES[1] ?? null, origin: 'REVENUE_INCREASE', amount_vnd: dong(20), status: 'DRAFT' },
     ],
     curves, delays,
@@ -63,7 +64,7 @@ describe('the small rules of the capital bundle', () => {
     expect(sourceCodeOf('NSTW-DTPT', 'CENTRAL')).toBe('NSTW');
     expect(sourceCodeOf('NSDP-DTPT', 'LOCAL')).toBe('NSDP');
     expect(sourceCodeOf('ODA-ONLEND', 'CENTRAL')).toBe('ODAV');
-    expect(sourceCodeOf('ODA-NONLEND', 'CENTRAL')).toBe('ODAV');
+    expect(sourceCodeOf('ODA-NONLEND', 'CENTRAL')).toBe('SUPPORT');
     expect(sourceCodeOf('CTMTQG-DTTS', 'CENTRAL')).toBe('SUPPORT');
     // A line that names no source is read by the budget it is on.
     expect(sourceCodeOf(undefined, 'CENTRAL')).toBe('NSTW');
@@ -99,6 +100,27 @@ describe('the capital bundle from the system', () => {
     expect(capitalFromSystem(province(CAPITAL_FLOOR.unitsWithPlan, 1), template.nguon_von, LAST_YEAR).reasons.join(' | ')).toMatch(/projects have a capital plan/);
   });
 
+  it('calls the support of the centre a foreign grant when it is made of grants alone, and stays on the template without a foreign loan', async () => {
+    const template = await loadTemplateDb();
+    const input = province(6, 3);
+    const grant = { ...input, appropriations: [...input.appropriations.filter((row) => row.fund_source?.version_id !== 'fs-ctmt'), { fund_source: { version_id: 'fs-grant', business_key: 'ODA-NONLEND' }, origin: 'CENTRAL_SUPPORT', amount_vnd: dong(400), status: 'PUBLISHED' }] };
+    const sources = capitalFromSystem(grant, template.nguon_von, LAST_YEAR).tables?.nguon_von ?? [];
+    expect(sources.find((source) => source.ma === 'SUPPORT')).toMatchObject({ ten: 'Vốn nước ngoài (cấp phát)', ke_hoach: 400_000, chua_phan_bo: 400_000 });
+    const noLoan = { ...input, lines: input.lines.filter((line) => line.fund_source_version_id !== 'fs-oda'), appropriations: input.appropriations.filter((row) => row.fund_source?.version_id !== 'fs-oda') };
+    expect(capitalFromSystem(noLoan, template.nguon_von, LAST_YEAR).reasons.join(' | ')).toMatch(/no capital is planned on ODAV/);
+  });
+
+  it('reads a planned project the Treasury has paid nothing for as nothing paid, and as an absent figure when the snapshot names no Treasury day', async () => {
+    const template = await loadTemplateDb();
+    const input = province(6, 3);
+    const unpaid = { ...input, curves: Object.fromEntries(Object.entries(input.curves).filter(([id]) => id !== 'p-5-2')), unpaidProjectIds: new Set(['p-5-2']) };
+    const rowsOf = (tables: ReturnType<typeof capitalFromSystem>['tables']) => (tables?.giai_ngan ?? []).filter((row) => row.du_an === 'DA-52' && row.thang === 10).map((row) => row.so_tien);
+    expect(rowsOf(capitalFromSystem(unpaid, template.nguon_von, LAST_YEAR).tables)).toEqual([0, 0]);
+    expect(rowsOf(capitalFromSystem({ ...unpaid, treasuryCutoffDate: null }, template.nguon_von, LAST_YEAR).tables)).toEqual([null, null]);
+    // A read that failed is not an answer: the figure stays absent.
+    expect(rowsOf(capitalFromSystem({ ...unpaid, unpaidProjectIds: new Set<string>() }, template.nguon_von, LAST_YEAR).tables)).toEqual([null, null]);
+  });
+
   it('is taken from the system when it holds enough, and the engine draws it with totals that add up', async () => {
     const template = await loadTemplateDb();
     const input = province(6, 3);
@@ -114,12 +136,14 @@ describe('the capital bundle from the system', () => {
     expect(tables.du_an[0]).toMatchObject({ kh_NSTW: 60_000, kh_NSDP: 40_000, kh_ODAV: 50_000, giai_doan: 'Thực hiện', ngay_cham: 40, linh_vuc: 'Giao thông' });
     // Assigned 2.000 + 1.500 + 500 billion (the draft is not capital yet); what no project holds is the part not allocated.
     const bySource = Object.fromEntries(tables.nguon_von.map((source) => [source.ma, source]));
+    expect(bySource.SUPPORT).toMatchObject({ ten: 'Trung ương hỗ trợ có mục tiêu', ke_hoach: 300_000, chua_phan_bo: 300_000 });
     expect(bySource.NSTW).toMatchObject({ ke_hoach: 2_000_000, thu_tuong_giao: 2_000_000, chua_phan_bo: 2_000_000 - 18 * 60_000 });
     expect(bySource.NSDP).toMatchObject({ ke_hoach: 1_500_000, thu_tuong_giao: 0, chua_phan_bo: 1_500_000 - 18 * 40_000 });
     expect(bySource.ODAV).toMatchObject({ ke_hoach: 500_000, chua_phan_bo: 400_000 });
     // 5 billion a month for ten months for each project, shared over its sources: nothing is lost in the sharing.
     const paid = tables.giai_ngan.reduce((sum, row) => sum + (row.so_tien ?? 0), 0);
     expect(paid).toBe(18 * 10 * 5_000);
+    expect(tables.nguon_von.map((source) => source.ma)).toEqual(['NSTW', 'NSDP', 'SUPPORT', 'ODAV']);
     expect(tables.muc_tieu).toHaveLength(13);
     expect(tables.muc_tieu[9]).toEqual({ thang: 10, muc_tieu_pct: 90, cung_ky_pct: 55.8 });
 
@@ -130,7 +154,7 @@ describe('the capital bundle from the system', () => {
     expect(data.origins.nv_goc).toBe('template');
     const invest = E.invest(db) as unknown as { plan: number; disb: number; ps: unknown[]; units: { rank?: number }[]; ky: number };
     expect(invest.ky).toBe(10);
-    expect(invest.plan).toBe(4_000_000);
+    expect(invest.plan).toBe(4_300_000);
     expect(invest.disb).toBe(18 * 10 * 5_000);
     expect(invest.ps).toHaveLength(18);
     // The unit that has not filed stands outside the ranking; the other five are ranked.

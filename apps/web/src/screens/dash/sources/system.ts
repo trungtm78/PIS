@@ -77,9 +77,14 @@ export async function readCapitalInput(apiClient: ApiClient, today: string): Pro
   // The monthly series of every project that holds a plan, and the baseline of every project that is being carried out: one read each, a few at a time.
   const planned = new Set(lines.filter((line) => line.plan_total_vnd !== null && line.plan_total_vnd !== '0').map((line) => line.project_id));
   const curves: Record<string, SystemCurvePoint[]> = {};
+  const unpaidProjectIds = new Set<string>();
   await inGroups(projects.filter((project) => planned.has(project.id)), async (project) => {
     const forecast = record(await client.read('getDisbursementForecast', { query: { project_id: project.id, snapshot_id: snapshotId } }).catch(() => undefined));
-    if (text(forecast.disbursed_vnd) === null) return;
+    if (text(forecast.disbursed_vnd) === null) {
+      // The answer came and says the Treasury holds no payment of the project: not the same as a read that failed.
+      if (forecast.method === 'NO_TREASURY_DATA') unpaidProjectIds.add(project.id);
+      return;
+    }
     const points = list(forecast.curve).flatMap((point) => (typeof point.month === 'number' ? [{ month: point.month, actual_cumulative_vnd: text(point.actual_cumulative_vnd) }] : []));
     if (points.length > 0) curves[project.id] = points;
   });
@@ -89,7 +94,9 @@ export async function readCapitalInput(apiClient: ApiClient, today: string): Pro
   for (const task of await client.readAll('getDeadlineBoard').catch(() => [] as unknown[])) {
     const row = record(task); const projectId = text(row.project_id); const band = record(row.band);
     if (projectId === null) continue;
-    const late = band.overdue === true && typeof band.remaining_days === 'number' ? Math.max(0, -band.remaining_days) : 0;
+    // A task whose deadline cannot be told (no calendar, no date) measures nothing.
+    if (typeof band.remaining_days !== 'number') continue;
+    const late = band.overdue === true ? Math.max(0, -band.remaining_days) : 0;
     delays[projectId] = Math.max(delays[projectId] ?? 0, late);
   }
   await inGroups(projects.filter((project) => STAGES_WITH_BASELINE.has(project.status)), async (project) => {
@@ -101,5 +108,5 @@ export async function readCapitalInput(apiClient: ApiClient, today: string): Pro
   const targetCurve = list(record(workspace.policy).curve).flatMap((point) => (typeof point.month === 'number' && typeof point.cumulative_pct === 'number' ? [{ month: point.month, cumulative_pct: point.cumulative_pct }] : []));
   const notReportingUnitIds = new Set(list(workspace.units).flatMap((unit) => (unit.not_reporting === true ? (text(unit.unit_id) ?? []) : [])));
 
-  return { today, asOfDate, treasuryCutoffDate: text(center.treasury_cutoff_date), targetCurve, units, notReportingUnitIds, projects, lines, appropriations, curves, delays };
+  return { today, asOfDate, treasuryCutoffDate: text(center.treasury_cutoff_date), targetCurve, units, notReportingUnitIds, projects, lines, appropriations, curves, unpaidProjectIds, delays };
 }

@@ -61,6 +61,11 @@ export async function seedClipDashboard(ctx: SeedContext): Promise<void> {
     }
     const id = String(project.id);
     let transfer = waiting.get(id);
+    // A transfer left waiting is decided here only when it is this one: the investor unit, to the unit the dashboard names. Another one is somebody's request and is left alone.
+    if (transfer !== undefined && (String(transfer.transfer_scope) !== 'INVESTOR_UNIT' || String((transfer.to_unit as Obj | undefined)?.id) !== target)) {
+      ctx.warn(`the project ${code} has another transfer waiting: left as it is`);
+      continue;
+    }
     if (transfer === undefined) {
       const asked = await ctx.attempt(REQUESTER, 'POST', `/projects/${id}/transfers`, { to_unit_id: target, transfer_scope: 'INVESTOR_UNIT', effective_date: ctx.day(0), reason: fixture.reason }, { version: Number(project.version) });
       if (!asked.ok) continue;

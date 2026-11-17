@@ -33,6 +33,8 @@ export interface CapitalInput {
   appropriations: readonly SystemAppropriation[];
   /** The cumulative disbursement of each project by month, by project id; a project the Treasury has nothing for is absent. */
   curves: Readonly<Record<string, readonly SystemCurvePoint[]>>;
+  /** The planned projects the Treasury answered for and has paid nothing to (not the ones whose read failed). */
+  unpaidProjectIds?: ReadonlySet<string>;
   /** Days a project runs behind (its baseline, or the most overdue task of its workflow), by project id; a project with neither measure is absent. */
   delays: Readonly<Record<string, number>>;
 }
@@ -50,6 +52,7 @@ const MILLION = 1_000_000n;
 /** What a bundle needs before it replaces the template's: fewer would leave whole pages (the ranking of units, the heat map, the health matrix) with one row or none. Half of the planned projects must have payments at the Treasury: a planned project that has not been paid anything yet is ordinary (it stands outside the ranking), a province where most have none has no Treasury feed. */
 export const CAPITAL_FLOOR = { projectsWithPlan: 10, unitsWithPlan: 5, curveCoverage: 0.5, projectsWithDelayMeasure: 5 } as const;
 
+const GRANT_NAME = 'Vốn nước ngoài (cấp phát)';
 const SOURCE_CODES = ['NSTW', 'NSDP', 'SUPPORT', 'ODAV'] as const;
 type SourceCode = (typeof SOURCE_CODES)[number];
 const STAGE_NAME: Readonly<Record<string, string>> = {
@@ -70,7 +73,8 @@ export function millions(vnd: string | null | undefined): number | null {
 /** The four sources of the template: the system's sources are grouped into them by their business key (both kinds of foreign capital are the foreign source). */
 export function sourceCodeOf(businessKey: string | undefined, budgetLevel: string | null): SourceCode {
   const key = (businessKey ?? '').toUpperCase();
-  if (key.startsWith('ODA')) return 'ODAV';
+  // Foreign capital the centre lends on is the province's loan; foreign capital the centre grants reaches the province as targeted support of the central budget.
+  if (key.startsWith('ODA')) return key.includes('NONLEND') ? 'SUPPORT' : 'ODAV';
   if (key.startsWith('NSTW')) return 'NSTW';
   if (key.startsWith('NSDP')) return 'NSDP';
   if (key !== '' && key !== 'UNSPECIFIED') return 'SUPPORT';
@@ -151,8 +155,11 @@ export function capitalFromSystem(input: CapitalInput, templateSources: readonly
     const curve = input.curves[project.id];
     const sources = SOURCE_CODES.filter((code) => plan[code] > 0);
     if (curve === undefined) {
-      // The Treasury has nothing for the project: the months are absent (the engine then leaves the project out of the ranking), never zero.
-      for (const code of sources) for (let month = 1; month <= period; month += 1) giai_ngan.push({ du_an: project.code, nguon: code, thang: month, so_tien: month === period ? null : 0 });
+      // No monthly series. When the Treasury answered that it has paid nothing and the snapshot carries the day it was reconciled to, that is a figure: nothing paid up to that
+      // day (the headline of the province counts the project the same way). A read that failed, or a snapshot without that day, leaves the figure of the period absent, and
+      // the engine leaves the project out of the ranking.
+      const last = input.treasuryCutoffDate !== null && input.unpaidProjectIds?.has(project.id) === true ? 0 : null;
+      for (const code of sources) for (let month = 1; month <= period; month += 1) giai_ngan.push({ du_an: project.code, nguon: code, thang: month, so_tien: month === period ? last : 0 });
       continue;
     }
     withCurve += 1;
@@ -172,21 +179,29 @@ export function capitalFromSystem(input: CapitalInput, templateSources: readonly
   if (reasons.length > 0) return { reasons };
 
   // The sources: what was assigned to the province, and what of it no project holds yet.
+  const supportKeys = new Set<string>();
   const assigned: Record<SourceCode, number> = { NSTW: 0, NSDP: 0, SUPPORT: 0, ODAV: 0 };
   const byPrimeMinister: Record<SourceCode, number> = { NSTW: 0, NSDP: 0, SUPPORT: 0, ODAV: 0 };
   for (const appropriation of input.appropriations) {
     if (appropriation.status !== undefined && appropriation.status !== 'PUBLISHED') continue;
     const code = sourceCodeOf(appropriation.fund_source?.business_key, null);
+    if (code === 'SUPPORT') supportKeys.add((appropriation.fund_source?.business_key ?? '').toUpperCase());
     const amount = millions(appropriation.amount_vnd) ?? 0;
     assigned[code] += amount;
     if (appropriation.origin !== 'LOCAL_ADDED') byPrimeMinister[code] += amount;
   }
+  // The support of the centre is named by what it is made of: foreign grants alone are called that.
+  const grantOnly = supportKeys.size > 0 && [...supportKeys].every((key) => key.startsWith('ODA'));
   const allocated: Record<SourceCode, number> = { NSTW: 0, NSDP: 0, SUPPORT: 0, ODAV: 0 };
   for (const project of du_an) for (const code of SOURCE_CODES) allocated[code] += project[`kh_${code}`];
   const nguon_von: FundSourceRow[] = SOURCE_CODES.map((code) => {
     const plan = Math.max(assigned[code], allocated[code]);
-    return { ma: code, ten: templateSources.find((source) => source.ma === code)?.ten ?? code, thu_tuong_giao: Math.min(plan, byPrimeMinister[code]), ke_hoach: plan, chua_phan_bo: plan - allocated[code] };
+    const name = code === 'SUPPORT' && grantOnly ? GRANT_NAME : (templateSources.find((source) => source.ma === code)?.ten ?? code);
+    return { ma: code, ten: name, thu_tuong_giao: Math.min(plan, byPrimeMinister[code]), ke_hoach: plan, chua_phan_bo: plan - allocated[code] };
   });
+  // The template draws its four sources by their place and divides by the plan of each: a province that holds nothing of one of them keeps the tables of the template.
+  const empty = nguon_von.filter((source) => source.ke_hoach <= 0).map((source) => source.ma);
+  if (empty.length > 0) return { reasons: [`no capital is planned on ${empty.join(', ')} (the pages by source need all four)`] };
 
   const don_vi: UnitRow[] = input.units
     .filter((unit) => unit.parent_id !== null)
