@@ -31084,6 +31084,7 @@
       "operations": [
         "publishSystemTenantTheme",
         "getMyPublishedTheme",
+        "getMyThemeLogo",
         "getSystemTenantThemeDraft",
         "putSystemTenantThemeDraft",
         "listSystemTenantThemeVersions",
@@ -60484,6 +60485,7 @@
       "operations": [
         "getProjectTask",
         "startProjectTask",
+        "claimProjectTask",
         "attachProjectTaskEvidence",
         "completeProjectTaskChecklistItem",
         "completeProjectTask"
@@ -62623,6 +62625,7 @@
       "operations": [
         "createProject",
         "suggestProjectWorkflow",
+        "listProjectWorkflowTemplateUsage",
         "startProjectWorkflow",
         "adoptProjectWorkflow"
       ],
