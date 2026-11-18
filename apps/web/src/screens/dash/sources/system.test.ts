@@ -176,6 +176,21 @@ describe('the dashboard: real figures where there are enough, the template where
     }
   });
 
+  it('gives no board when the refusal comes later: in a read by project, in the lines of the snapshot although the register is too small, or in the directives', async () => {
+    const refuse = (world: World, name: string): ApiClient => {
+      const { client } = clientOf(world);
+      const loose = client as unknown as { read: (operation: string, input?: unknown) => Promise<unknown>; readAll: (operation: string, input?: unknown) => Promise<unknown[]> };
+      const no = (): Promise<never> => Promise.reject(Object.assign(new Error('SCOPE_DENIED'), { status: 403 }));
+      return { read: (operation: string, input?: unknown) => (operation === name ? no() : loose.read(operation, input)), readAll: (operation: string, input?: unknown) => (operation === name ? no() : loose.readAll(operation, input)) } as unknown as ApiClient;
+    };
+    const enough: World = { units: 5, perUnit: 2, baselines: true };
+    for (const name of ['getDisbursementForecast', 'getProjectBaseline', 'get_resources_project_id', 'getDeadlineBoard', 'listDirectives']) {
+      await expect(readDashboard(refuse(enough, name), TODAY), name).rejects.toBeInstanceOf(DashboardDeniedError);
+    }
+    // One investor holds every project: the bundle would be judged not enough, but the reader is refused the lines of the snapshot and gets no board.
+    await expect(readDashboard(refuse({ units: 1, perUnit: 12, baselines: false }, 'listPeriodSnapshotLines'), TODAY)).rejects.toBeInstanceOf(DashboardDeniedError);
+  });
+
   it('keeps the template, and says so, when the system cannot be read', async () => {
     const { client } = clientOf({ units: 5, perUnit: 2, baselines: true, broken: ['getCommitteeWorkspace'] });
     const read = await readDashboard(client, TODAY);

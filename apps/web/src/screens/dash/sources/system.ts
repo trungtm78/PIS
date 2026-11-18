@@ -34,6 +34,11 @@ export async function inGroups<T, R>(items: readonly T[], work: (item: T) => Pro
   return done;
 }
 
+/** The server refused the read: the reader is not signed in for it (401) or may not read it (403). */
+export const isDenied = (error: unknown): boolean => { const status = (error as { status?: unknown } | null)?.status; return status === 401 || status === 403; };
+/** For a read whose failure is tolerated (the figure is then absent): a refusal is never tolerated, it is the reader's right that is missing, not the figure. */
+export const absentUnlessDenied = (error: unknown): undefined => { if (isDenied(error)) throw error; return undefined; };
+
 /** The system was read and does not hold enough for the bundle: not a failure of the read. */
 export class NotEnoughError extends Error {}
 
@@ -60,23 +65,25 @@ export async function readCapitalInput(apiClient: ApiClient, today: string): Pro
     return id === null || code === null || name === null ? [] : [{ id, code, name, unit_type: text(unit.unit_type) ?? 'OTHER', parent_id: text(unit.parent_id) }];
   });
 
+  // Read before anything is judged: a reader refused these lines is refused the board, whatever the register of projects holds.
+  const lines: SystemLine[] = (await client.readAll('listPeriodSnapshotLines', { path: { id: snapshotId } })).map(record).flatMap((line) => {
+    const projectId = text(line.project_id);
+    return projectId === null ? [] : [{ project_id: projectId, fund_source_version_id: text(line.fund_source_version_id), budget_level: text(line.budget_level), plan_total_vnd: text(line.plan_total_vnd) }];
+  });
+
   // The register of projects already says how many investor units there are: with too few of them the bundle cannot replace the template's, and the hundred reads below (one
   // or more for each project) would be asked of the server for nothing every time the leader home opens.
   const investors = new Set(projectsRaw.map(record).flatMap((project) => text(project.investor_unit_id) ?? []));
   if (investors.size < CAPITAL_FLOOR.unitsWithPlan) throw new NotEnoughError(`${investors.size} investor units hold the projects (at least ${CAPITAL_FLOOR.unitsWithPlan} are needed for the pages by unit)`);
 
   const ids = projectsRaw.map(record).flatMap((project) => text(project.id) ?? []);
-  const details = await inGroups(ids, (id) => client.read('get_resources_project_id', { path: { id } }).catch(() => undefined));
+  const details = await inGroups(ids, (id) => client.read('get_resources_project_id', { path: { id } }).catch(absentUnlessDenied));
   const projects: SystemProject[] = details.map(record).flatMap((project) => {
     const id = text(project.id), code = text(project.code), name = text(project.name), status = text(project.status);
     if (id === null || code === null || name === null || status === null) return [];
     return [{ id, code, name, status, project_group: text(project.project_group), total_investment_vnd: text(project.total_investment_vnd), investor_unit_id: text(project.investor_unit_id), status_changed_at: text(project.status_changed_at), area: labelOf(project.area), sector: labelOf(project.sector) }];
   });
 
-  const lines: SystemLine[] = (await client.readAll('listPeriodSnapshotLines', { path: { id: snapshotId } })).map(record).flatMap((line) => {
-    const projectId = text(line.project_id);
-    return projectId === null ? [] : [{ project_id: projectId, fund_source_version_id: text(line.fund_source_version_id), budget_level: text(line.budget_level), plan_total_vnd: text(line.plan_total_vnd) }];
-  });
 
   const appropriations: SystemAppropriation[] = appropriationsRaw.map(record).flatMap((row) => {
     const amount = text(row.amount_vnd), origin = text(row.origin);
@@ -91,7 +98,7 @@ export async function readCapitalInput(apiClient: ApiClient, today: string): Pro
   const curves: Record<string, SystemCurvePoint[]> = {};
   const unpaidProjectIds = new Set<string>();
   await inGroups(projects.filter((project) => planned.has(project.id)), async (project) => {
-    const forecast = record(await client.read('getDisbursementForecast', { query: { project_id: project.id, snapshot_id: snapshotId } }).catch(() => undefined));
+    const forecast = record(await client.read('getDisbursementForecast', { query: { project_id: project.id, snapshot_id: snapshotId } }).catch(absentUnlessDenied));
     if (text(forecast.disbursed_vnd) === null) {
       // The answer came and says the Treasury holds no payment of the project: not the same as a read that failed.
       if (forecast.method === 'NO_TREASURY_DATA') unpaidProjectIds.add(project.id);
@@ -103,7 +110,7 @@ export async function readCapitalInput(apiClient: ApiClient, today: string): Pro
   // How far a project runs behind. A project with a workflow is measured by its work: the most overdue of its open tasks, in working days (none overdue is on time). A project
   // with a baseline is measured against it, and that measure wins. A project with neither has no measure, and is not counted as on time.
   const delays: Record<string, number> = {};
-  for (const task of await client.readAll('getDeadlineBoard').catch(() => [] as unknown[])) {
+  for (const task of await client.readAll('getDeadlineBoard').catch((error: unknown) => absentUnlessDenied(error) ?? ([] as unknown[]))) {
     const row = record(task); const projectId = text(row.project_id); const band = record(row.band);
     if (projectId === null) continue;
     // A task whose deadline cannot be told (no calendar, no date) measures nothing.
@@ -112,7 +119,7 @@ export async function readCapitalInput(apiClient: ApiClient, today: string): Pro
     delays[projectId] = Math.max(delays[projectId] ?? 0, late);
   }
   await inGroups(projects.filter((project) => STAGES_WITH_BASELINE.has(project.status)), async (project) => {
-    const baseline = record(await client.read('getProjectBaseline', { path: { id: project.id } }).catch(() => undefined));
+    const baseline = record(await client.read('getProjectBaseline', { path: { id: project.id } }).catch(absentUnlessDenied));
     const slip = record(baseline.deviation).finish_slip_days;
     if (baseline.has_baseline === true && typeof slip === 'number') delays[project.id] = slip;
   });

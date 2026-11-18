@@ -6,7 +6,7 @@ import type { DashboardDb } from './db';
 import { assemble, plainText } from './sources/assemble';
 import type { DashboardData, SystemTables } from './sources/assemble';
 import { capitalFromSystem } from './sources/capital';
-import { NotEnoughError, readCapitalInput } from './sources/system';
+import { isDenied, NotEnoughError, readCapitalInput } from './sources/system';
 import { submissionsFromSystem } from './sources/submissions';
 import { readSubmissionsInput } from './sources/system-submissions';
 import { readTasksInput } from './sources/system-tasks';
@@ -21,7 +21,6 @@ export class DashboardDeniedError extends Error {
     super('the reader may not read the figures of the board');
   }
 }
-const isDenied = (error: unknown): boolean => { const status = (error as { status?: unknown } | null)?.status; return status === 401 || status === 403; };
 
 /** The dashboard and what it was drawn from: `notes` say, bundle by bundle, why a bundle stayed on the tables of the template. */
 export interface DashboardRead extends DashboardData {
@@ -67,7 +66,12 @@ export async function readDashboard(client: ApiClient, today: string): Promise<D
   // the template's is a fixed day: what is read today is judged against today only, so these bundles are taken when the clock is the system's, which comes with the
   // capital tables. Whatever happens to one of these reads, the capital bundle and the other bundle stay as they were decided.
   const optional: [string, SystemTables][] = [];
-  const failed = (name: string, error: unknown): string => (error instanceof NotEnoughError ? `${name}: ${error.message}` : `${name}: the system could not be read (${error instanceof Error ? error.message : 'unknown error'})`);
+  // A refusal inside one of these reads refuses the board too: its page would otherwise be drawn from the rows of the template for a reader who may not read the real ones.
+  const failed = (name: string, error: unknown): string => {
+    if (isDenied(error)) throw new DashboardDeniedError();
+    return failedNote(name, error);
+  };
+  const failedNote = (name: string, error: unknown): string => (error instanceof NotEnoughError ? `${name}: ${error.message}` : `${name}: the system could not be read (${error instanceof Error ? error.message : 'unknown error'})`);
   if (system.moc_thoi_gian === undefined || system.don_vi === undefined || system.du_an === undefined) {
     for (const name of ['tasks', 'submissions']) notes.push(`${name}: left on the template, whose clock the board keeps while the capital tables are those of the template`);
   } else {
