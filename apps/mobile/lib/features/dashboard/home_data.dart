@@ -53,6 +53,10 @@ final class LeaderHomeData {
   final String? directivesError;
 }
 
+/// Whether the alerts of the home are those of the whole scope the reader manages (the home asks for `view=scope`), and not the reader's own: the scope
+/// was not refused, and the server does not say the answer is of the view `mine`. The block is then titled and counted as work of the scope.
+bool homeAlertsAreOfScope(LeaderHomeData home) => home.alerts != null && !home.scopeRefused && home.alerts!.view != 'mine';
+
 Future<({Object? value, ApiError? error})> _attempt(Future<Object?> Function() read) async {
   try {
     return (value: await read(), error: null);

@@ -1,7 +1,9 @@
 package vn.machvon.machvon_mobile
 
+import android.content.Intent
 import android.os.Build
 import android.os.Debug
+import android.util.Log
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -50,6 +52,29 @@ class MainActivity : FlutterFragmentActivity() {
                 else -> result.notImplemented()
             }
         }
+
+        // The sign-in runs in a browser tab that sits on top of this activity, in this task. A browser with Auth Tab closes the tab itself when the
+        // provider redirects; an older one (Custom Tabs only) leaves it there, because the activity that takes the redirect lives in a task of its
+        // own (`taskAffinity=""`, kept on purpose: no other application can put an activity into this task) and so cannot clear this one. Once the
+        // redirect has reached the application, it asks for its own activity again: everything above it in the task (the tab and the helper of the
+        // plugin) is cleared and this same instance comes back to the front. No new instance, no history flag, nothing of the session in the intent.
+        MethodChannel(messenger, APP_TASK_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "bringToFront" -> {
+                    try {
+                        startActivity(
+                            Intent(this, MainActivity::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                        )
+                        result.success(null)
+                    } catch (e: Exception) {
+                        Log.w(LOG_TAG, "bringToFront failed: ${e.javaClass.simpleName}")
+                        result.error("BRING_TO_FRONT_FAILED", e.javaClass.simpleName, null)
+                    }
+                }
+                else -> result.notImplemented()
+            }
+        }
     }
 
     private fun isRooted(): Boolean {
@@ -79,6 +104,8 @@ class MainActivity : FlutterFragmentActivity() {
     companion object {
         const val SECURE_WINDOW_CHANNEL = "vn.machvon/secure_window"
         const val DEVICE_INTEGRITY_CHANNEL = "vn.machvon/device_integrity"
+        const val APP_TASK_CHANNEL = "vn.machvon/app_task"
+        private const val LOG_TAG = "MachvonMain"
 
         private val SU_PATHS = listOf(
             "/system/bin/su",

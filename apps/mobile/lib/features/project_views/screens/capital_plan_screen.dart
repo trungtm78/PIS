@@ -97,6 +97,11 @@ class _PlanBody extends StatelessWidget {
               FactLine(label: context.t('mob.prj.capital.disbursed'), value: context.t('mob.prj.capital.disbursed.none'))
             else
               KpiTile(label: context.t('mob.prj.capital.disbursed'), value: moneyShortLabel(context, disbursed)),
+            // L6: this is what the payments recorded in the system add up to, not the disbursement the Treasury confirms (that one is the figure of the home).
+            Padding(
+              padding: const EdgeInsets.only(top: MachvonSpace.space4),
+              child: Text(context.t('mob.prj.capital.disbursed.note'), style: theme.textTheme.bodySmall),
+            ),
             if (plan.truncated) Text(context.t('mob.prj.capital.truncated'), style: theme.textTheme.bodySmall),
           ],
         ),
@@ -144,7 +149,7 @@ class _SourceCard extends StatelessWidget {
                   Text(context.t('mob.prj.capital.line', <String, Object>{'code': line.projectCode, 'name': line.projectName}), style: theme.textTheme.bodyLarge),
                   Text(
                     '${context.t('mob.prj.capital.allocated')}: ${moneyShortLabel(context, line.allocatedVnd)} · '
-                    '${context.t('mob.prj.capital.disbursed')}: ${line.disbursedVnd == null ? context.t('mob.prj.capital.disbursed.none') : moneyShortLabel(context, line.disbursedVnd)}',
+                    '${context.t('mob.prj.capital.disbursed.short')}: ${line.disbursedVnd == null ? context.t('mob.prj.capital.disbursed.none') : moneyShortLabel(context, line.disbursedVnd)}',
                     style: theme.textTheme.bodySmall,
                   ),
                 ],

@@ -126,17 +126,30 @@ final tenantApiClientProvider = Provider.family<MachvonApiClient, String>(
   ),
 );
 
+/// Whether a change of the session is a sign-out of a session that was open: signed in before, signed out now. An expired session is not one
+/// (its status is `expired`), and neither is the first state of a start (there is no state before it).
+bool signedOutOnPurpose(SessionSnapshot? previous, SessionSnapshot next) =>
+    previous?.status == SessionStatus.signedIn && next.status == SessionStatus.signedOut;
+
 /// The router. It is rebuilt only when the features change; a session change makes it re-evaluate the guard.
 final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
   final ValueNotifier<int> sessionChanges = ValueNotifier<int>(0);
-  ref.listen<SessionSnapshot>(sessionProvider, (SessionSnapshot? previous, SessionSnapshot next) => sessionChanges.value += 1);
-  ref.listen<ReleaseNotice>(releaseNoticeProvider, (ReleaseNotice? previous, ReleaseNotice next) => sessionChanges.value += 1);
+  final RouteTable table = ref.watch(routeTableProvider);
   final GoRouter router = buildRouter(
-    table: ref.watch(routeTableProvider),
+    table: table,
     guard: ref.watch(deepLinkGuardProvider),
     session: () => ref.read(sessionProvider),
     refreshListenable: sessionChanges,
   );
+  ref.listen<SessionSnapshot>(sessionProvider, (SessionSnapshot? previous, SessionSnapshot next) {
+    // A sign-out (the person chose it, or this device was revoked) ends the visit: the next sign-in, maybe of another person, starts at the home
+    // screen and not on the screen the sign-out was asked from. So the router goes to the sign-in itself, with no `return`; the guard would have
+    // carried the location left behind. A session that EXPIRED keeps its return (the guard sends it to MOB-44 with it), and so does a link opened
+    // cold while signed out: neither is this change of state.
+    if (signedOutOnPurpose(previous, next)) router.go(table.locationOf(kSignInScreenId));
+    sessionChanges.value += 1;
+  });
+  ref.listen<ReleaseNotice>(releaseNoticeProvider, (ReleaseNotice? previous, ReleaseNotice next) => sessionChanges.value += 1);
   ref.onDispose(() {
     router.dispose();
     sessionChanges.dispose();

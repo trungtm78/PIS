@@ -246,6 +246,9 @@ class FakeApi implements HttpTransport {
   /// used once.
   Completer<void>? selectHoldOnce;
 
+  /// What `getMyEffectiveAccess` answers; null answers 404 (a server that has not got it).
+  Map<String, Object?>? effectiveAccess;
+
   /// What the sessions and devices lists answer, the revocations received, and failures to script.
   final List<Map<String, Object?>> sessions = <Map<String, Object?>>[];
   final List<Map<String, Object?>> devices = <Map<String, Object?>>[];
@@ -387,6 +390,7 @@ class FakeApi implements HttpTransport {
       _markRevoked(id);
       return _json(200, <String, Object?>{'operation_id': '3f2b6c1e-0000-4000-8000-0000000000aa', 'status': 'Done', 'resource_version': 2});
     }
+    if (path == '/me/effective-access' && effectiveAccess != null) return _json(200, effectiveAccess);
     if (path == '/me/profile') {
       final Completer<void>? held = profileHoldOnce;
       profileHoldOnce = null;

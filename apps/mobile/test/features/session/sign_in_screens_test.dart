@@ -659,6 +659,70 @@ void main() {
       });
     });
   });
+
+  group('L3 where the next sign-in lands after the session ended', () {
+    testWidgets('after a sign-out the sign-in screen carries no return, and the next sign-in lands on the home screen', (WidgetTester tester) async {
+      world = World();
+      await world.service().signIn(kOidcConfig);
+      useDevice(tester, kDeviceSizes[1]);
+      final ProviderContainer container = await pumpSessionApp(tester, world, location: '/account');
+      expect(currentLocation(container), '/account');
+
+      // What the button of "Thiết bị và đăng xuất" does.
+      await tester.runAsync(() => container.read(authServiceProvider).signOut());
+      await tester.pumpAndSettle();
+      expect(container.read(sessionProvider).status, SessionStatus.signedOut);
+      expect(currentLocation(container), '/mob-02', reason: 'the place the sign-out was asked from is not kept');
+
+      await tapText(tester, 'Đăng nhập bằng SSO');
+      await tester.pumpAndSettle();
+      expect(container.read(sessionProvider).status, SessionStatus.signedIn);
+      expect(currentLocation(container), '/home');
+    });
+
+    testWidgets('a session that expired keeps the place: the next sign-in returns to it', (WidgetTester tester) async {
+      world = World();
+      await world.service().signIn(kOidcConfig);
+      useDevice(tester, kDeviceSizes[1]);
+      final ProviderContainer container = await pumpSessionApp(tester, world, location: '/account');
+
+      world.api.endAllSessions();
+      world.api.selectFailureStatus = 401;
+      container.read(authServiceProvider).noteResponse(401, 'SESSION_EXPIRED');
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), startsWith('/mob-44'));
+      expect(Uri.parse(currentLocation(container)).queryParameters['return'], '/account');
+
+      world.api.selectFailureStatus = 0;
+      await tapText(tester, 'Đăng nhập lại');
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/account');
+    });
+
+    testWidgets('a link opened cold while signed out keeps its return', (WidgetTester tester) async {
+      world = World();
+      useDevice(tester, kDeviceSizes[1]);
+      final ProviderContainer container = await pumpSessionApp(tester, world, location: '/approval');
+      expect(currentLocation(container), startsWith('/mob-02'));
+      expect(Uri.parse(currentLocation(container)).queryParameters['return'], '/approval');
+
+      await tapText(tester, 'Đăng nhập bằng SSO');
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/approval');
+    });
+
+    test('only an open session that is signed out counts: not the first state, not an expiry, not a sign-out after an expiry', () {
+      const SessionSnapshot open = SessionSnapshot(status: SessionStatus.signedIn, tenantId: 't', userId: 'u');
+      const SessionSnapshot expired = SessionSnapshot(status: SessionStatus.expired);
+      const SessionSnapshot out = SessionSnapshot.signedOut();
+      expect(signedOutOnPurpose(open, out), isTrue);
+      expect(signedOutOnPurpose(null, out), isFalse);
+      expect(signedOutOnPurpose(out, out), isFalse);
+      expect(signedOutOnPurpose(open, expired), isFalse);
+      expect(signedOutOnPurpose(expired, out), isFalse);
+      expect(signedOutOnPurpose(out, open), isFalse);
+    });
+  });
 }
 
 class _Pending extends SyncStatusNotifier {

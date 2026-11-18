@@ -70,6 +70,9 @@ void main() {
       expect(find.text('45,3%'), findsOneWidget, reason: 'the curve of today');
       expect(find.text('1.200 tỷ đồng'), findsOneWidget, reason: 'the plan');
       expect(find.text('494,4 tỷ đồng'), findsOneWidget, reason: 'disbursed');
+      // L6: the plan is the one of the closed period and the disbursement is the Treasury's; neither is the figure of the capital plan screen.
+      expect(find.text('Kế hoạch vốn (số chốt kỳ)'), findsOneWidget);
+      expect(find.text('Đã giải ngân (Kho bạc)'), findsOneWidget);
       expect(find.text('420 tỷ đồng'), findsOneWidget, reason: 'the same period of last year');
       expect(find.text('Từ 1.000 tỷ đồng đến 1.100 tỷ đồng (83,33% đến 91,67% kế hoạch)'), findsOneWidget, reason: 'the year-end band');
       expect(find.descendant(of: find.byType(CommitteeCard), matching: find.text('7')), findsOneWidget, reason: 'projects needing attention');
@@ -114,6 +117,8 @@ void main() {
       expect(find.text('Steering committee workspace'), findsOneWidget);
       expect(find.text('Amber: behind the expected curve'), findsOneWidget);
       expect(find.text('Gap to the expected curve'), findsOneWidget);
+      expect(find.text('Capital plan (closed period)'), findsOneWidget);
+      expect(find.text('Disbursed (Treasury)'), findsOneWidget);
       expect(find.text('-4.1 percentage points'), findsOneWidget);
       expect(find.text('Urgent'), findsOneWidget);
       expect(find.text('Reasons: Behind schedule, Stuck in a procedure'), findsOneWidget);
@@ -124,6 +129,8 @@ void main() {
       await _open(tester, _healthy());
 
       expect(find.text('Bảng điều hành Ban chỉ đạo'), findsOneWidget);
+      expect(find.text('Kế hoạch vốn (số chốt kỳ)'), findsOneWidget);
+      expect(find.text('Đã giải ngân (Kho bạc)'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });

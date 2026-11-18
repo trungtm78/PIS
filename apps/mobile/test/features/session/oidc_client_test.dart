@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_web_auth_2_platform_interface/flutter_web_auth_2_platform_interface.dart';
@@ -195,6 +196,90 @@ void main() {
       expect(await failureOf((String _, String __) async => throw PlatformException(code: 'CANCELED')), OidcFailure.browserCancelled);
       expect(await failureOf((String _, String __) async => throw PlatformException(code: 'EUNKNOWN')), OidcFailure.browserFailed);
       expect(await failureOf((String _, String __) async => 'http://[bad'), OidcFailure.callbackInvalid);
+    });
+  });
+
+  group('L1 the browser tab is dismissed once the redirect reached the application', () {
+    final FlutterWebAuth2Platform original = FlutterWebAuth2Platform.instance;
+    const MethodChannel channel = MethodChannel(kAppTaskChannel);
+    late List<MethodCall> calls;
+    Object? channelFailure;
+
+    setUp(() {
+      calls = <MethodCall>[];
+      channelFailure = null;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, (MethodCall call) async {
+        calls.add(call);
+        final Object? failure = channelFailure;
+        if (failure != null) throw failure;
+        return null;
+      });
+    });
+    tearDown(() {
+      FlutterWebAuth2Platform.instance = original;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+    });
+
+    SystemAuthorizationBrowser browserOn(TargetPlatform platform) =>
+        SystemAuthorizationBrowser(foreground: MethodChannelAppForeground(platform: platform));
+    Future<Uri> authorize(SystemAuthorizationBrowser browser) => browser.authorize(url: Uri.parse('https://idp.test/auth'), callbackScheme: 'vn.machvon.app');
+
+    test('on Android the application asks for its own task after the browser came back, and only then', () async {
+      final List<String> order = <String>[];
+      FlutterWebAuth2Platform.instance = _ScriptedWebAuth((String _, String __) async {
+        order.add('browser returned with ${calls.length} dismiss calls so far');
+        return 'vn.machvon.app:/oauth2redirect?code=c&state=s';
+      });
+      final Uri callback = await authorize(browserOn(TargetPlatform.android));
+      expect(order, <String>['browser returned with 0 dismiss calls so far'], reason: 'nothing is dismissed while the person is still in the browser');
+      expect(calls.map((MethodCall call) => call.method), <String>['bringToFront']);
+      expect(calls.single.arguments, isNull, reason: 'nothing of the session crosses the channel');
+      expect(callback.queryParameters['code'], 'c');
+    });
+
+    test('a cancel and a platform failure dismiss nothing: there is no tab left on top', () async {
+      for (final String code in <String>['CANCELED', 'NO_BROWSER', 'EUNKNOWN']) {
+        FlutterWebAuth2Platform.instance = _ScriptedWebAuth((String _, String __) async => throw PlatformException(code: code));
+        await _failure(authorize(browserOn(TargetPlatform.android)));
+      }
+      expect(calls, isEmpty);
+    });
+
+    test('an address that cannot be read still dismisses the tab the browser left, then fails as before', () async {
+      FlutterWebAuth2Platform.instance = _ScriptedWebAuth((String _, String __) async => 'http://[bad');
+      expect((await _failure(authorize(browserOn(TargetPlatform.android)))).failure, OidcFailure.callbackInvalid);
+      expect(calls.map((MethodCall call) => call.method), <String>['bringToFront']);
+    });
+
+    test('the sign-in never fails because the tab could not be dismissed', () async {
+      FlutterWebAuth2Platform.instance = _ScriptedWebAuth((String _, String __) async => 'vn.machvon.app:/oauth2redirect?code=c&state=s');
+      for (final Object failure in <Object>[PlatformException(code: 'BRING_TO_FRONT_FAILED'), StateError('no activity')]) {
+        channelFailure = failure;
+        expect((await authorize(browserOn(TargetPlatform.android))).queryParameters['code'], 'c');
+      }
+      expect(calls, hasLength(2));
+      // A build whose Android side does not know the channel yet (no handler at all) is the same: nothing is thrown.
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+      expect((await authorize(browserOn(TargetPlatform.android))).queryParameters['code'], 'c');
+    });
+
+    test('iOS and the other platforms are never asked', () async {
+      FlutterWebAuth2Platform.instance = _ScriptedWebAuth((String _, String __) async => 'vn.machvon.app:/oauth2redirect?code=c&state=s');
+      for (final TargetPlatform platform in <TargetPlatform>[TargetPlatform.iOS, TargetPlatform.windows, TargetPlatform.macOS, TargetPlatform.linux]) {
+        await authorize(browserOn(platform));
+      }
+      expect(calls, isEmpty);
+    });
+
+    test('the adapter of the application follows the platform it runs on', () async {
+      FlutterWebAuth2Platform.instance = _ScriptedWebAuth((String _, String __) async => 'vn.machvon.app:/oauth2redirect?code=c&state=s');
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        await authorize(const SystemAuthorizationBrowser());
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+      expect(calls.map((MethodCall call) => call.method), <String>['bringToFront']);
     });
   });
 

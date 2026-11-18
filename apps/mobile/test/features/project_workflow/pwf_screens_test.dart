@@ -307,7 +307,8 @@ void main() {
       expect(find.text('Việc trang một'), findsOneWidget);
       expect(find.text('Hiển thị 2 trên 2 việc'), findsOneWidget);
       expect(find.text('Tải thêm'), findsNothing);
-      expect(reads, 2);
+      // The first page, the second page once for the count of the head (L7b: it is over the whole list from the start) and once for the rows the person asked for.
+      expect(reads, 3);
     });
 
     testWidgets('a page asked for before the list was read again answers for a cursor that no longer exists: its list is not added to the new one, and its failure is not shown', (WidgetTester tester) async {

@@ -67,6 +67,7 @@ class AlertsPanel extends ConsumerStatefulWidget {
     this.allowAssign = true,
     this.showSeeAll = true,
     this.groupByDeadline = false,
+    this.scopeView = false,
     this.title,
     super.key,
   });
@@ -84,6 +85,10 @@ class AlertsPanel extends ConsumerStatefulWidget {
   final bool allowAssign;
   final bool showSeeAll;
   final bool groupByDeadline;
+
+  /// The alerts are those of the whole scope the reader manages, not the reader's own: what is not shown is then said to be "in the scope", never
+  /// "under Notifications" (that tab holds the person's own work, where most of these alerts are not).
+  final bool scopeView;
 
   /// The heading of the block; "Needs action now" when the screen gives none.
   final String? title;
@@ -299,7 +304,12 @@ class _AlertsPanelState extends ConsumerState<AlertsPanel> {
           if (counted && feed.items.length > widget.limit || (counted && feed.truncated))
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s4),
-              child: Text(context.t('mob.alert.list.more.note', <String, Object>{'count': feed.counts.total > widget.limit ? feed.counts.total - widget.limit : feed.items.length - widget.limit}), style: text.caption),
+              child: Builder(
+                builder: (BuildContext context) {
+                  final Map<String, Object> rest = <String, Object>{'count': feed.counts.total > widget.limit ? feed.counts.total - widget.limit : feed.items.length - widget.limit};
+                  return Text(widget.scopeView ? context.t('mob.alert.list.more.scope', rest) : context.t('mob.alert.list.more.note', rest), style: text.caption);
+                },
+              ),
             ),
         ],
       ),

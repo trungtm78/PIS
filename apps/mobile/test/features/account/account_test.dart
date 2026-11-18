@@ -18,10 +18,12 @@ import 'package:machvon_mobile/core/widgets/app_scaffold.dart' show LargeTitleHe
 import 'package:machvon_mobile/core/widgets/bottom_nav.dart' show AppBottomNav;
 import 'package:machvon_mobile/core/widgets/nav_row.dart' show SwitchRow;
 import 'package:machvon_mobile/features/account/account_feature.dart' as account;
+import 'package:machvon_mobile/features/account/account_role.dart';
 import 'package:machvon_mobile/features/account/deadline_thresholds.dart';
 import 'package:machvon_mobile/features/permissions/permission_providers.dart';
 import 'package:machvon_mobile/features/permissions/permission_service.dart';
 import 'package:machvon_mobile/features/phone_search/phone_search_feature.dart' as phone_search;
+import 'package:machvon_mobile/features/read_support/clock.dart';
 import 'package:machvon_mobile/features/release/app_info.dart';
 import 'package:machvon_mobile/features/session/auth/auth_service.dart';
 import 'package:machvon_mobile/features/session/auth/identity_api.dart';
@@ -259,8 +261,8 @@ void main() {
   group('AC-ST-MOB-008-3 AC-ST-MOB-008-6 UAT-AC102 UI-MOB-49 devices and revocation', () {
     void seed(World w) {
       w.api.sessions.addAll(<Map<String, Object?>>[
-        <String, Object?>{'id': 's-1', 'current': true, 'assurance_level': 'aal1', 'user_agent_summary': 'MACHVON Android 14', 'created_at': '2026-11-01T00:00:00Z', 'last_seen_at': '2026-11-03T01:00:00Z', 'device': <String, Object?>{'id': 'd-this'}},
-        <String, Object?>{'id': 's-2', 'current': false, 'assurance_level': 'aal1', 'user_agent_summary': 'MACHVON iOS 17', 'created_at': '2026-10-01T00:00:00Z', 'last_seen_at': '2026-11-02T01:00:00Z', 'device': null},
+        <String, Object?>{'id': 's-1', 'current': true, 'assurance_level': 'aal1', 'user_agent_summary': 'Dart/3.9 (dart:io)', 'created_at': '2026-11-01T00:00:00Z', 'last_seen_at': '2026-11-03T01:00:00Z', 'device': <String, Object?>{'id': 'd-this'}},
+        <String, Object?>{'id': 's-2', 'current': false, 'assurance_level': 'aal1', 'user_agent_summary': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36', 'created_at': '2026-10-01T00:00:00Z', 'last_seen_at': '2026-11-02T01:00:00Z', 'device': null},
       ]);
       w.api.devices.addAll(<Map<String, Object?>>[
         <String, Object?>{'id': 'd-this', 'platform': 'android', 'device_public_id': 'device-public-aaaa1111', 'last_seen_at': '2026-11-03T01:00:00Z', 'revoked_at': null, 'status': 'ACTIVE'},
@@ -276,7 +278,13 @@ void main() {
       await _pumpAccount(tester, world, location: '/account/mob-49');
 
       expect(find.text('Phiên đang mở'), findsOneWidget);
-      expect(find.text('MACHVON Android 14'), findsOneWidget);
+      // L4: a session is named by what opened it, never by its raw user-agent; the one of this phone is first.
+      expect(find.text('Ứng dụng điện thoại'), findsOneWidget);
+      expect(find.text('Trình duyệt Chrome trên Windows'), findsOneWidget);
+      expect(find.textContaining('Mozilla'), findsNothing);
+      expect(find.textContaining('Dart/'), findsNothing);
+      expect(tester.getTopLeft(find.text('Ứng dụng điện thoại')).dy, lessThan(tester.getTopLeft(find.text('Trình duyệt Chrome trên Windows')).dy));
+      expect(find.textContaining('Xem thêm'), findsNothing, reason: 'two sessions need no fold');
       expect(find.text('Phiên này · Hoạt động gần nhất: 03/11/2026 08:00'), findsOneWidget);
       expect(find.textContaining('Máy này'), findsOneWidget);
       expect(find.textContaining('Đã thu hồi'), findsOneWidget);
@@ -294,6 +302,64 @@ void main() {
       expect(((jsonDecode(call.body!) as Map<String, Object?>)['reason']! as String).length, greaterThanOrEqualTo(10));
       expect(call.headers['idempotency-key'], hasLength(greaterThanOrEqualTo(16)));
       expect(find.text('Đã thu hồi thiết bị.'), findsOneWidget);
+    });
+
+    testWidgets('L4 with 64 sessions the sign-out is in sight without a scroll, on every device; the list is this session and the five latest until "Xem thêm"', (WidgetTester tester) async {
+      for (final Size size in kDeviceSizes) {
+        useDevice(tester, size);
+        world = World();
+        world.api.sessions.addAll(<Map<String, Object?>>[
+          for (int index = 0; index < 63; index += 1)
+            <String, Object?>{
+              'id': 's-$index',
+              'current': false,
+              'assurance_level': 'aal1',
+              'user_agent_summary': index.isEven ? 'node' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+              'created_at': '2026-10-01T00:00:00Z',
+              'last_seen_at': DateTime.utc(2026, 11, 1).add(Duration(hours: index)).toIso8601String(),
+              'device': null,
+            },
+          <String, Object?>{'id': 's-this', 'current': true, 'assurance_level': 'aal1', 'user_agent_summary': 'Dart/3.9 (dart:io)', 'created_at': '2026-11-01T00:00:00Z', 'last_seen_at': '2026-11-03T01:00:00Z', 'device': null},
+        ]);
+        await world.service().signIn(kOidcConfig);
+        await _pumpAccount(tester, world, location: '/account/mob-49');
+        final String where = '${size.width.toInt()}x${size.height.toInt()}';
+
+        final Finder signOut = find.widgetWithText(FilledButton, 'Đăng xuất');
+        expect(signOut.hitTestable(), findsOneWidget, reason: 'in sight and tappable with nothing scrolled, $where');
+        expect(tester.getRect(signOut).bottom, lessThanOrEqualTo(size.height), reason: where);
+        expect(tester.getRect(signOut).top, greaterThan(size.height / 2), reason: 'at the foot of the screen, $where');
+
+        // The count is of all of them; the rows are this session first and the five latest of the others.
+        expect(find.bySemanticsLabel('Phiên đang mở, 64'), findsOneWidget, reason: where);
+        expect(find.text('Ứng dụng điện thoại'), findsOneWidget, reason: where);
+        expect(find.textContaining('Phiên này'), findsOneWidget, reason: where);
+        expect(find.text('Dịch vụ hệ thống'), findsNWidgets(3), reason: where);
+        expect(find.text('Trình duyệt Chrome trên Windows'), findsNWidgets(2), reason: where);
+        expect(find.textContaining('Hoạt động gần nhất: 03/11/2026 21:00'), findsOneWidget, reason: 'the latest of the others (62 hours after 01/11 00:00 UTC), $where');
+        expect(tester.getTopLeft(find.text('Ứng dụng điện thoại')).dy, lessThan(tester.getTopLeft(find.text('Dịch vụ hệ thống').first).dy), reason: where);
+
+        await tester.ensureVisible(find.text('Xem thêm 58 phiên'));
+        await tester.tap(find.text('Xem thêm 58 phiên'));
+        await tester.pumpAndSettle();
+        expect(find.textContaining('Xem thêm'), findsNothing, reason: where);
+        expect(find.text('Dịch vụ hệ thống', skipOffstage: false), findsNWidgets(32), reason: where);
+        expect(find.text('Trình duyệt Chrome trên Windows', skipOffstage: false), findsNWidgets(31), reason: where);
+        expect(signOut.hitTestable(), findsOneWidget, reason: 'still in sight with all 64 drawn, $where');
+        expect(tester.takeException(), isNull, reason: where);
+        world.dispose();
+      }
+      world = World();
+    });
+
+    testWidgets('L4 the sign-out stays in sight while the lists load and when they fail', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[0]);
+      world = World();
+      await world.service().signIn(kOidcConfig);
+      world.api.listFailureStatus = 500;
+      await _pumpAccount(tester, world, location: '/account/mob-49');
+      expect(find.text('Chưa thể tải dữ liệu'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Đăng xuất').hitTestable(), findsOneWidget);
     });
 
     testWidgets('a revocation whose answer is lost is repeated with the same key, and the server executes it once', (WidgetTester tester) async {
@@ -644,7 +710,9 @@ void main() {
       expect(find.text('Ana'), findsOneWidget);
       expect(find.text('Email: a***@example.vn'), findsOneWidget);
       expect(find.text('UBND Minh Hà'), findsOneWidget);
-      expect(find.text('Vai trò: LEADER'), findsOneWidget);
+      // L5: the type of the membership is said as a type; with no role known (this server answers none) no role is claimed.
+      expect(find.text('Loại thành viên: LEADER'), findsOneWidget);
+      expect(find.textContaining('Vai trò:'), findsNothing);
       expect(find.text('Bị chặn trong cài đặt của máy'), findsOneWidget);
       await tester.ensureVisible(find.textContaining('Phiên bản ứng dụng'));
       expect(find.text('Phiên bản ứng dụng: 1.4.0+27'), findsOneWidget);
@@ -672,8 +740,137 @@ void main() {
 
       expect(find.text('Đạm Phú Mỹ'), findsOneWidget);
       expect(find.text('Hà Giang'), findsNothing);
-      expect(find.text('Vai trò: Cán bộ của tổ chức'), findsOneWidget);
-      expect(find.text('Vai trò: STAFF'), findsNothing);
+      expect(find.text('Loại thành viên: Cán bộ của tổ chức'), findsOneWidget);
+      expect(find.textContaining('STAFF'), findsNothing);
+    });
+
+    testWidgets('L5 the role is the highest one in force the server says the person holds, and the type of the membership is a second line', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[0]);
+      world = World(memberships: <String, List<FakeMembership>>{'sub-ana': <FakeMembership>[const FakeMembership('tenant-a', 'UBND Minh Hà', 'm-a1', 'STAFF')]});
+      Map<String, Object?> grant(String code, String name, int rank, {String state = 'ACTIVE'}) =>
+          <String, Object?>{'id': 'g-$code', 'role_code': code, 'role_name': name, 'rank': rank, 'state': state, 'scope_kind': 'TENANT', 'permissions': <Object?>[]};
+      world.api.effectiveAccess = <String, Object?>{
+        'membership_id': 'm-a1',
+        'scope_version': 1,
+        'grants': <Object?>[grant('STAFF_MEMBER', 'iam.role.staff_member', 10), grant('LEADER', 'iam.role.leader', 60), grant('TENANT_OWNER', 'iam.role.tenant_owner', 100, state: 'EXPIRED')],
+      };
+      final ProviderContainer container = await _signedIn(tester, world, location: '/account');
+
+      expect(find.text('Vai trò: Lãnh đạo'), findsOneWidget, reason: 'the highest role in force, in words');
+      expect(find.text('Loại thành viên: Cán bộ của tổ chức'), findsOneWidget);
+      expect(tester.getTopLeft(find.text('Vai trò: Lãnh đạo')).dy, lessThan(tester.getTopLeft(find.text('Loại thành viên: Cán bộ của tổ chức')).dy));
+      expect(find.textContaining('iam.role'), findsNothing);
+      expect(tester.takeException(), isNull, reason: 'both lines fit at 360 dp');
+
+      container.read(localeProvider.notifier).select(const Locale('en'));
+      await tester.pumpAndSettle();
+      expect(find.text('Role: Leader'), findsOneWidget);
+      expect(find.text('Membership type: Staff of the organisation'), findsOneWidget);
+    });
+
+    testWidgets('L5 a role revoked between two visits is not shown on the second visit, nor after the application resumes', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[1]);
+      world = World();
+      Map<String, Object?> access(List<Object?> grants) => <String, Object?>{'membership_id': 'm-a1', 'scope_version': 1, 'grants': grants};
+      final Map<String, Object?> leader = <String, Object?>{'id': 'g-1', 'role_code': 'LEADER', 'role_name': 'iam.role.leader', 'rank': 60, 'state': 'ACTIVE', 'scope_kind': 'TENANT', 'permissions': <Object?>[], 'effective_until': null};
+      final Map<String, Object?> staff = <String, Object?>{...leader, 'id': 'g-2', 'role_code': 'STAFF_MEMBER', 'role_name': 'iam.role.staff_member', 'rank': 10};
+      world.api.effectiveAccess = access(<Object?>[leader, staff]);
+      final ProviderContainer container = await _signedIn(tester, world, location: '/account');
+      expect(find.text('Vai trò: Lãnh đạo'), findsOneWidget);
+      int reads() => world.api.calls.where((HttpCall call) => call.url.path.endsWith('/me/effective-access')).length;
+      final int first = reads();
+
+      // The role is taken away on the server while the person is on another tab.
+      world.api.effectiveAccess = access(<Object?>[staff]);
+      container.read(routerProvider).go('/home');
+      await tester.pumpAndSettle();
+      expect(reads(), first, reason: 'nothing is read while the tab is out of view');
+      container.read(routerProvider).go('/account');
+      await tester.pumpAndSettle();
+      expect(reads(), first + 1, reason: 'the visit reads the access again');
+      expect(find.text('Vai trò: Lãnh đạo'), findsNothing);
+      expect(find.text('Vai trò: Cán bộ, nhân viên'), findsOneWidget);
+
+      // The last role goes while the application is in the background.
+      world.api.effectiveAccess = access(<Object?>[]);
+      for (final AppLifecycleState state in <AppLifecycleState>[AppLifecycleState.inactive, AppLifecycleState.hidden, AppLifecycleState.paused, AppLifecycleState.hidden, AppLifecycleState.inactive, AppLifecycleState.resumed]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Vai trò:'), findsNothing);
+      expect(find.text('Loại thành viên: LEADER'), findsOneWidget, reason: 'the type of the membership stays');
+
+      // A screen opened over the tab and closed again is a visit too.
+      world.api.effectiveAccess = access(<Object?>[leader]);
+      container.read(routerProvider).go('/account/mob-49');
+      await tester.pumpAndSettle();
+      container.read(routerProvider).go('/account');
+      await tester.pumpAndSettle();
+      expect(find.text('Vai trò: Lãnh đạo'), findsOneWidget);
+    });
+
+    testWidgets('L5 a grant whose end has passed is not shown, even when the server still lists it as in force', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[1]);
+      world = World();
+      Map<String, Object?> grant(String code, int rank, String? until) =>
+          <String, Object?>{'id': 'g-$code', 'role_code': code, 'role_name': '', 'rank': rank, 'state': 'ACTIVE', 'scope_kind': 'TENANT', 'permissions': <Object?>[], 'effective_until': until};
+      world.api.effectiveAccess = <String, Object?>{
+        'membership_id': 'm-a1',
+        'scope_version': 1,
+        'grants': <Object?>[grant('LEADER', 60, '2026-11-03T00:00:00Z'), grant('AUDITOR', 20, '2026-11-03T00:10:00Z'), grant('MEMBER', 5, null)],
+      };
+      DateTime now = DateTime.utc(2026, 11, 2);
+      final ProviderContainer container = await _signedIn(tester, world, location: '/account', overrides: <Override>[clockProvider.overrideWithValue(() => now)]);
+      expect(find.text('Vai trò: Lãnh đạo'), findsOneWidget, reason: 'still inside its window');
+
+      // The end of the leader grant passes with no new read: the next time the screen is drawn the role is the next one in force.
+      final int reads = world.api.calls.length;
+      now = DateTime.utc(2026, 11, 3, 0, 5);
+      container.read(localeProvider.notifier).select(const Locale('en'));
+      await tester.pumpAndSettle();
+      expect(find.text('Role: Auditor'), findsOneWidget);
+      expect(find.text('Role: Leader'), findsNothing);
+      expect(world.api.calls.where((HttpCall call) => call.url.path.endsWith('/me/effective-access')).length, world.api.calls.sublist(0, reads).where((HttpCall call) => call.url.path.endsWith('/me/effective-access')).length, reason: 'judged at render time, not by a new read');
+
+      now = DateTime.utc(2026, 11, 4);
+      container.read(localeProvider.notifier).select(const Locale('vi'));
+      await tester.pumpAndSettle();
+      expect(find.text('Vai trò: Thành viên'), findsOneWidget, reason: 'a grant with no end stays');
+    });
+
+    test('L5 the grants are read with their end, and the highest in force is judged at the instant asked', () {
+      final List<HeldGrant> grants = heldGrantsOf(<String, Object?>{
+        'grants': <Object?>[
+          <String, Object?>{'role_code': 'LEADER', 'role_name': 'x', 'rank': 60, 'state': 'ACTIVE', 'effective_until': '2026-11-03T00:00:00Z'},
+          <String, Object?>{'role_code': 'TENANT_OWNER', 'rank': 100, 'state': 'EXPIRED', 'effective_until': '2026-01-01T00:00:00Z'},
+          <String, Object?>{'role_code': 'UNIT_ADMIN', 'rank': 70, 'state': 'ACTIVE', 'effective_until': 'not a day'},
+          <String, Object?>{'role_code': 'MEMBER', 'rank': 5, 'state': 'ACTIVE'},
+          <String, Object?>{'rank': 90, 'state': 'ACTIVE'},
+          'not a grant',
+        ],
+      })!;
+      expect(grants.map((HeldGrant grant) => grant.code), <String>['LEADER', 'MEMBER'], reason: 'only what the server says is in force, with an end that can be read');
+      expect(grants.first.effectiveUntil, DateTime.utc(2026, 11, 3));
+      expect(grants.last.effectiveUntil, isNull);
+      expect(highestRoleOf(grants, DateTime.utc(2026, 11, 2))?.code, 'LEADER');
+      expect(highestRoleOf(grants, DateTime.utc(2026, 11, 3))?.code, 'MEMBER', reason: 'the end itself is outside the window, as on the server');
+      expect(highestRoleOf(const <HeldGrant>[], DateTime.utc(2026)), isNull);
+      expect(heldGrantsOf(null), isNull);
+      expect(heldGrantsOf(<String, Object?>{'grants': 'none'}), isNull);
+    });
+
+    testWidgets('L5 a role of the organisation shows the name the organisation gave it', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[1]);
+      world = World();
+      world.api.effectiveAccess = <String, Object?>{
+        'membership_id': 'm-a1',
+        'scope_version': 1,
+        'grants': <Object?>[
+          <String, Object?>{'id': 'g-1', 'role_code': 'CUSTOM_17', 'role_name': 'Chuyên viên Ban quản lý dự án (phần 2)', 'rank': 30, 'state': 'ACTIVE', 'scope_kind': 'UNIT_ONLY', 'permissions': <Object?>[]},
+        ],
+      };
+      await _signedIn(tester, world, location: '/account');
+      expect(find.text('Vai trò: Chuyên viên Ban quản lý dự án'), findsOneWidget);
     });
 
     testWidgets('AC-ST-MOB-040-3 NAV-01 the rows lead to the tenant switch, the devices, the send queue (MOB-41), the offline settings (MOB-43), the help and the push state', (WidgetTester tester) async {

@@ -20,6 +20,7 @@ import '../../../core/widgets/nav_row.dart';
 import '../../../core/widgets/work_row.dart';
 import '../../permissions/permission_providers.dart';
 import '../../permissions/permission_service.dart';
+import '../../read_support/clock.dart';
 import '../../read_support/widgets.dart'
     show MachvonTone, ScreenFrame, StatusPill;
 import '../../release/app_info.dart';
@@ -28,6 +29,7 @@ import '../../session/auth/identity_api.dart';
 import '../../session/membership_label.dart';
 import '../../session/session_providers.dart';
 import '../account_providers.dart';
+import '../account_role.dart';
 import '../deadline_preview.dart';
 import '../deadline_thresholds.dart';
 
@@ -60,6 +62,38 @@ class AccountScreen extends ConsumerStatefulWidget {
 class _AccountScreenState extends ConsumerState<AccountScreen> {
   bool _biometricFailed = false;
   bool _biometricUnavailable = false;
+
+  // The role is read again when the application resumes and when this tab comes back into view (from another tab, or from a screen opened over
+  // it): a role revoked meanwhile must not be shown from the answer of the first visit.
+  late final AppLifecycleListener _lifecycle = AppLifecycleListener(onResume: _refreshRole);
+  late final GoRouter _router = ref.read(routerProvider);
+  late final String _here = ref.read(routeTableProvider).locationOf('MOB-47');
+  bool _inView = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle;
+    _router.routerDelegate.addListener(_onRoute);
+  }
+
+  @override
+  void dispose() {
+    _router.routerDelegate.removeListener(_onRoute);
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  void _refreshRole() {
+    if (mounted) ref.invalidate(myRoleProvider);
+  }
+
+  void _onRoute() {
+    if (!mounted) return;
+    final bool inView = _router.state.uri.path == _here;
+    if (inView && !_inView) _refreshRole();
+    _inView = inView;
+  }
 
   Future<void> _setBiometric(bool enabled) async {
     final AuthService service = ref.read(authServiceProvider);
@@ -108,6 +142,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     String location(String screenId) =>
         ref.read(routeTableProvider).locationOf(screenId);
     final UserProfileResponse? person = profile.asData?.value;
+    // L5: the role is the one the server says the person holds; the type of the membership (staff, guest contractor) is not a role and is said as what it is.
+    // Judged at the moment the screen is drawn: a grant whose end has passed since the read is not a role any more.
+    final List<HeldGrant>? grants = ref.watch(myRoleProvider).asData?.value;
+    final HeldRole? held = grants == null ? null : highestRoleOf(grants, ref.watch(clockProvider)());
+    final String? role = held == null ? null : roleNameOf(held, context.t);
     return ScreenFrame(
       root: true,
       title: context.t('mob.account.title.text'),
@@ -117,6 +156,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         onRetry: () {
           ref.invalidate(myProfileProvider);
           ref.invalidate(myMembershipsProvider);
+          ref.invalidate(myRoleProvider);
         },
         // A short screen of a few groups: one scroll view that builds everything, so a row below the fold is in the tree for a screen reader and a test.
         child: SingleChildScrollView(
@@ -157,10 +197,17 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       current?.tenantName ?? session.tenantId ?? '',
                       style: text.bodyStrong,
                     ),
-                    if (current != null)
+                    if (role != null)
                       Text(
                         context.t('mob.account.role.label', <String, Object>{
-                          'role': membershipTypeLabel(
+                          'role': role,
+                        }),
+                        style: text.caption,
+                      ),
+                    if (current != null)
+                      Text(
+                        context.t('mob.account.memberType.label', <String, Object>{
+                          'type': membershipTypeLabel(
                             context,
                             current.membershipType,
                           ),

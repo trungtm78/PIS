@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/services.dart' show PlatformException;
+import 'package:flutter/foundation.dart' show TargetPlatform, debugPrint, defaultTargetPlatform;
+import 'package:flutter/services.dart' show MethodChannel, PlatformException;
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 
@@ -148,14 +149,57 @@ abstract interface class AuthorizationBrowser {
   Future<Uri> authorize({required Uri url, required String callbackScheme});
 }
 
+/// The name of the channel the Android side listens on (`MainActivity.kt`) for the task of the application.
+const String kAppTaskChannel = 'vn.machvon/app_task';
+
+/// Puts the application back in front of the browser tab the sign-in ran in.
+///
+/// A browser with Auth Tab closes its tab when the provider redirects. An older one (Custom Tabs only, such as Chrome 124) leaves the tab on top of the
+/// application although the redirect was delivered: the person would have to close it by hand to see that they are signed in.
+abstract interface class AppForeground {
+  /// Asks the platform to bring the application to the front. It never throws: the sign-in does not depend on it.
+  Future<void> bringToFront();
+}
+
+/// The [AppForeground] through a method channel, `bringToFront` with no argument. Only Android has the defect and the platform side; elsewhere
+/// (iOS closes its own session sheet, the host of a test has no platform) nothing is asked.
+final class MethodChannelAppForeground implements AppForeground {
+  const MethodChannelAppForeground({MethodChannel channel = const MethodChannel(kAppTaskChannel), TargetPlatform? platform})
+      : _channel = channel,
+        _platform = platform;
+
+  final MethodChannel _channel;
+  final TargetPlatform? _platform;
+
+  @override
+  Future<void> bringToFront() async {
+    if ((_platform ?? defaultTargetPlatform) != TargetPlatform.android) return;
+    try {
+      await _channel.invokeMethod<void>('bringToFront');
+    } on Object catch (error) {
+      // Never a reason to fail the sign-in: the tokens are already on their way, and the person can still close the tab by hand. The type of
+      // the failure only, nothing of the session.
+      debugPrint('sign-in: the browser tab could not be dismissed (${error.runtimeType})');
+    }
+  }
+}
+
 /// The [AuthorizationBrowser] on `flutter_web_auth_2`.
+///
+/// When the browser came back with an address, the application is brought to the front ([AppForeground]) before the address is read, so a tab the
+/// browser left open is cleared whether or not the address is then accepted. When the browser did NOT come back with one, nothing is asked: a cancel
+/// is the person closing the tab or returning to the application (the plugin reports it when the application is in front again), and a platform
+/// failure means no tab was opened, so in both cases there is no tab left to dismiss.
 final class SystemAuthorizationBrowser implements AuthorizationBrowser {
-  const SystemAuthorizationBrowser();
+  const SystemAuthorizationBrowser({AppForeground foreground = const MethodChannelAppForeground()}) : _foreground = foreground;
+
+  final AppForeground _foreground;
 
   @override
   Future<Uri> authorize({required Uri url, required String callbackScheme}) async {
     try {
       final String callback = await FlutterWebAuth2.authenticate(url: url.toString(), callbackUrlScheme: callbackScheme);
+      await _foreground.bringToFront();
       return Uri.parse(callback);
     } on PlatformException catch (error) {
       throw OidcException(error.code == 'CANCELED' ? OidcFailure.browserCancelled : OidcFailure.browserFailed);

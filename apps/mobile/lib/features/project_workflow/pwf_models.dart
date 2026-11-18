@@ -463,6 +463,35 @@ final class PwfMyTasks {
   final int? doneWindowDays;
 }
 
+/// How many of the person's tasks are still theirs to do, by colour: red (late or due), yellow (due soon) and green (time left).
+typedef PwfTodoBands = ({int red, int yellow, int green});
+
+/// The three figures "to do by band" of [tasks], the same wherever they are shown (the block of the home and the head of "Việc của tôi", L7b).
+///
+/// A task counts while the person still has to act on it: one that is finished or cancelled does not, and neither does one that waits for another
+/// person's approval (it has a tab of its own). The colour is the one of the person's own level where they set one ([personal], the view "Việc của
+/// tôi" opens with) and the official one otherwise; a task with no colour (far, no due day, calendar unknown) is in none of the three.
+PwfTodoBands pwfTodoByBand(Iterable<PwfMyTask> tasks, {bool personal = true}) {
+  int red = 0;
+  int yellow = 0;
+  int green = 0;
+  for (final PwfMyTask task in tasks) {
+    if (task.status == PwfTaskStatus.done || task.status == PwfTaskStatus.cancelled || task.status == PwfTaskStatus.awaitingApproval) continue;
+    switch ((personal ? task.own : task.official).kind) {
+      case PwfBandKind.red:
+        red += 1;
+      case PwfBandKind.yellow:
+        yellow += 1;
+      case PwfBandKind.green:
+        green += 1;
+      case PwfBandKind.none:
+      case PwfBandKind.unknown:
+        break;
+    }
+  }
+  return (red: red, yellow: yellow, green: green);
+}
+
 PwfMyTasks? parsePwfMyTasks(Object? raw) {
   final Json? record = asRecord(raw);
   final String? asOf = filled(record?['as_of']);

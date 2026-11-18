@@ -121,12 +121,12 @@ void main() {
 
       final double band = tester.getTopLeft(find.text('Tổng quan')).dy;
       final double context = tester.getTopLeft(find.textContaining('Số liệu tại 31/10/2026')).dy;
-      final double alerts = tester.getTopLeft(find.text('Cần bạn quyết định')).dy;
+      final double alerts = tester.getTopLeft(find.text('Việc trong phạm vi quản lý')).dy;
       final double figures = tester.getTopLeft(find.text('Số liệu và công thức')).dy;
       final double shortcuts = tester.getTopLeft(find.text('Lối tắt')).dy;
       expect(<double>[band, context, alerts, figures, shortcuts], orderedEquals(<double>[band, context, alerts, figures, shortcuts]..sort()));
 
-      expect(find.textContaining('Toàn bộ phạm vi · 2 dự án · Số liệu tại 31/10/2026'), findsOneWidget, reason: 'one line of context, said once');
+      expect(find.textContaining('Toàn bộ phạm vi · 2 dự án có kế hoạch vốn trong số chốt · Số liệu tại 31/10/2026'), findsOneWidget, reason: 'one line of context, said once; the count is of the projects of the closed figures (L7c)');
       expect(find.byType(AlertRow), findsNWidgets(3));
       final double first = tester.getTopLeft(find.text('Báo cáo tuần 44: 3 chủ đầu tư quá hạn')).dy;
       final double second = tester.getTopLeft(find.text('Vướng mắc giải phóng mặt bằng')).dy;
@@ -134,7 +134,10 @@ void main() {
       expect(first, lessThan(second));
       expect(second, lessThan(third));
       expect(find.text('Giấy phép DA-DT205 sắp hết hạn'), findsNothing, reason: 'the fourth is not on the home');
-      expect(find.textContaining('Còn 1 việc nữa'), findsOneWidget);
+      // L7a: the alerts of the scope are not all the reader's own: the block is not titled "yours", and the rest is not said to be under the personal tab.
+      expect(find.text('Cần bạn quyết định'), findsNothing);
+      expect(find.text('Còn 1 việc nữa trong phạm vi quản lý.'), findsOneWidget);
+      expect(find.textContaining('xem trong mục Thông báo'), findsNothing);
       expect(find.text('Khẩn 1 · Cần xử lý 2 · Theo dõi 1'), findsOneWidget, reason: 'the tally is words, not chips that look like buttons');
 
       final Uri read = server.callsTo('GET', '/home/my-work').single.url;
@@ -148,8 +151,8 @@ void main() {
       final ScriptedServer server = ScriptedServer();
       _healthy(server);
       await _open(tester, server, '/home');
-      final SemanticsData heading = tester.getSemantics(find.text('Cần bạn quyết định')).getSemanticsData();
-      expect(heading.label, 'Cần bạn quyết định');
+      final SemanticsData heading = tester.getSemantics(find.text('Việc trong phạm vi quản lý')).getSemanticsData();
+      expect(heading.label, 'Việc trong phạm vi quản lý');
       expect(heading.flagsCollection.isHeader, isTrue);
       semantics.dispose();
     });
@@ -491,14 +494,19 @@ void main() {
               body: jsonEncode(<String, Object?>{'type': 'about:blank', 'title': 'SCOPE_DENIED', 'status': 403, 'code': 'SCOPE_DENIED'}),
             );
           }
-          return FakeTransport.json(200, alertWork(_alerts.take(1).toList(), view: 'mine'));
+          return FakeTransport.json(200, alertWork(_alerts, view: 'mine'));
         });
       await _open(tester, server, '/home');
+
+      // L7a: these are the reader's own, so the block keeps "yours" and the rest is where the person's own work is.
+      expect(find.text('Cần bạn quyết định'), findsOneWidget);
+      expect(find.text('Việc trong phạm vi quản lý'), findsNothing);
+      expect(find.text('Còn 1 việc nữa, xem trong mục Thông báo.'), findsOneWidget);
 
       expect(server.callsTo('GET', '/home/my-work').map((HttpCall call) => call.url.queryParameters['view']), <String?>['scope', 'mine']);
       expect(find.text('Bạn không được xem toàn phạm vi nên đây là việc của riêng bạn.'), findsOneWidget);
       expect(find.text('Thử lại'), findsNothing);
-      expect(find.text('Giấy phép DA-DT205 sắp hết hạn'), findsOneWidget);
+      expect(find.text('Báo cáo tuần 44: 3 chủ đầu tư quá hạn'), findsOneWidget);
     });
 
     testWidgets('offline: the copy is read only, says when it was last synced, offers no act and says the figures are old', (WidgetTester tester) async {
@@ -537,7 +545,7 @@ void main() {
         open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/home'),
         script: StateScript(
           healthy: _healthy,
-          content: find.text('Cần bạn quyết định'),
+          content: find.text('Việc trong phạm vi quản lý'),
           empty: (ScriptedServer server) {
             server
               ..refuse('GET', '/home/command-center', 404, 'RESOURCE_NOT_FOUND')

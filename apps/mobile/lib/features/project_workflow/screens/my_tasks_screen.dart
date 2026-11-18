@@ -22,6 +22,7 @@ import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
 import '../pwf_models.dart';
 import '../pwf_step_words.dart';
+import '../pwf_todo_read.dart';
 import '../pwf_widgets.dart';
 
 /// MOB-80: "Việc của tôi": the tasks of the person by deadline. The colours are the ones of the person's own settings, each row says so ("theo cài đặt
@@ -96,6 +97,10 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
   /// longer exists, and its answer, success or failure, must change nothing.
   int _generation = 0;
 
+  /// The figures of the head over every page of the list (L7b), from the reader the block of the home uses; null until it was read, and for a copy kept
+  /// on the device (the head then counts the rows it has, with a "+" when the list goes on).
+  PwfTodoCount? _todo;
+
   /// What the person finished lately (R51): a list of its own, read from the server with `status=DONE` when its tab is first opened and in pages after that. Null until it was read.
   List<PwfMyTask>? _done;
   int _doneTotal = 0;
@@ -114,6 +119,16 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
     _cursor = widget.first.nextCursor;
     // Lane fix11: what the person finished is read with the screen, when the server can be asked, so that the tab says its count before it is opened (it used to have a count only once opened).
     if (widget.canLoadMore) WidgetsBinding.instance.addPostFrameCallback((_) => _loadDone());
+    if (widget.canLoadMore) _readTodo();
+  }
+
+  /// Counts the head over the whole list: the first page the screen already holds and the pages after it. The list itself still reads its pages when
+  /// the person asks for more.
+  Future<void> _readTodo() async {
+    final int generation = _generation;
+    final PwfTodoCount count = await readPwfTodo(widget.first, pwfTaskPages(ref.read(apiClientProvider)));
+    if (!mounted || generation != _generation) return;
+    setState(() => _todo = count);
   }
 
   @override
@@ -125,6 +140,8 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
       _cursor = widget.first.nextCursor;
       _failure = null;
       _loading = false;
+      _todo = null;
+      if (widget.canLoadMore) _readTodo();
       // The list was read again: what was finished is read again with it, at once when its tab is the one shown.
       _done = null;
       _doneCursor = null;
@@ -211,7 +228,10 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
     // What is over is not in the open list (the server keeps it to what is still open): it is the list of its own that the third tab reads.
     final List<PwfMyTask> over = _done ?? const <PwfMyTask>[];
     final int todoCount = all.length - waiting.length - groups[PwfGroup.done]!.length;
-    int inGroups(List<PwfGroup> which) => which.fold<int>(0, (int sum, PwfGroup group) => sum + groups[group]!.where((PwfMyTask task) => task.status != PwfTaskStatus.awaitingApproval).length);
+    // The same three figures as the block of the home (L7b): one function counts both.
+    final PwfTodoBands todo = _todo?.of(personal: personal) ?? pwfTodoByBand(all, personal: personal);
+    // Until the whole list was counted, the rows in hand are counted; a list that goes on past them is "at least" that many.
+    final bool todoMore = _todo?.more ?? _cursor != null;
     final int tab = _tab.clamp(0, 2);
     return ListView(
       padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + MachvonV2Size.rowMinHeight + MachvonV2Space.s32),
@@ -219,9 +239,9 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
         // The main figures first: what is still to do, by band.
         StatStrip(
           cells: <StatCell>[
-            StatCell(value: '${inGroups(const <PwfGroup>[PwfGroup.late, PwfGroup.due])}', label: context.t('mob.pwf6.home.red'), band: DeadlineBand.late, bandInline: true),
-            StatCell(value: '${inGroups(const <PwfGroup>[PwfGroup.soon])}', label: context.t('mob.pwf6.home.yellow'), band: DeadlineBand.soon, bandInline: true),
-            StatCell(value: '${inGroups(const <PwfGroup>[PwfGroup.ok])}', label: context.t('mob.pwf6.home.green'), band: DeadlineBand.ok, bandInline: true),
+            StatCell(value: pwfTodoFigure(todo.red, more: todoMore), label: context.t('mob.pwf6.home.red'), band: DeadlineBand.late, bandInline: true),
+            StatCell(value: pwfTodoFigure(todo.yellow, more: todoMore), label: context.t('mob.pwf6.home.yellow'), band: DeadlineBand.soon, bandInline: true),
+            StatCell(value: pwfTodoFigure(todo.green, more: todoMore), label: context.t('mob.pwf6.home.green'), band: DeadlineBand.ok, bandInline: true),
           ],
         ),
         UnderlineTabs(

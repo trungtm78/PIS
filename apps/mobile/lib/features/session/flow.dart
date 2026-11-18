@@ -30,14 +30,19 @@ class FlowNotifier extends Notifier<FlowState> {
   FlowState build() => const FlowState();
 
   /// Runs [action]; returns its result, or null when it failed, was already running, or the person cancelled the browser.
+  ///
+  /// The screen that owns the flow can go while [action] runs (a sign-out or a sign-in moves the router, and an auto-dispose provider goes with its
+  /// screen): the notifier is then disposed, and neither branch touches its state or reads another provider through it. The result of an action
+  /// that succeeded is still returned; a failure nobody is left to show is dropped.
   Future<T?> run<T>(Future<T> Function() action) async {
     if (state.busy) return null;
     state = const FlowState(state: ScreenState.loading);
     try {
       final T result = await action();
-      state = const FlowState();
+      if (ref.mounted) state = const FlowState();
       return result;
     } on Object catch (error) {
+      if (!ref.mounted) return null;
       final ProblemView? problem = problemOfAuthFailure(error, ref.read(reachabilityProvider));
       state = problem == null ? const FlowState() : FlowState(state: problem.state, problem: problem);
       return null;

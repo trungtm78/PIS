@@ -9,6 +9,7 @@ import '../../core/state/screen_state.dart';
 import '../session/auth/identity_api.dart';
 import '../session/flow.dart';
 import '../session/session_providers.dart';
+import 'account_role.dart';
 
 /// A failure of a provider is shown with its code and the person retries; Riverpod's automatic retry would hide it.
 Duration? noAutomaticRetry(int count, Object error) => null;
@@ -23,6 +24,19 @@ final FutureProvider<UserProfileResponse> myProfileProvider =
           .execute('getMyProfile');
       return decodeAnswer('getMyProfile', json)! as UserProfileResponse;
     });
+
+/// The grants in force of the person, from the access the server says they hold (`getMyEffectiveAccess`, the read the home already makes to lay
+/// itself out). The account names the highest of them, at the moment it is drawn (`highestRoleOf`). It is one line of the account, so it never fails
+/// the screen: when it cannot be read there is none and the line is left out (an ended session is noticed by the transport of the session, as for
+/// every call). A role can be taken away while the phone is in a pocket: the account reads this again each time it comes back into view and each
+/// time the application resumes, so a role that was revoked is not shown from an old answer.
+final FutureProvider<List<HeldGrant>> myRoleProvider = FutureProvider.autoDispose<List<HeldGrant>>(retry: noAutomaticRetry, (Ref ref) async {
+  try {
+    return heldGrantsOf(await ref.watch(apiClientProvider).getMyEffectiveAccess()) ?? const <HeldGrant>[];
+  } on Object {
+    return const <HeldGrant>[];
+  }
+});
 
 /// Every membership of the person, for the account line and the tenant switcher.
 final FutureProvider<List<MembershipChoice>> myMembershipsProvider =

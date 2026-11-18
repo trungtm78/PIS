@@ -43,9 +43,33 @@ void main() {
       expect(find.text('trong đó CTMTQG 40 triệu đồng'), findsNWidgets(2), reason: 'the total and the NSTW source');
       expect(find.text('Nguồn: Nguồn NSTW'), findsOneWidget);
       expect(find.text('Giải ngân: 100 triệu đồng'), findsNothing);
-      expect(find.textContaining('Chưa có số liệu giải ngân'), findsWidgets);
+      expect(find.textContaining('Chưa có số liệu'), findsWidgets);
+      // L6: the amount is what the payments recorded in the system add up to; it is not called the disbursement (the Treasury figure of the home), and one line says where that one is.
+      expect(find.text('Đã thanh toán qua hệ thống'), findsNWidgets(3), reason: 'the total and the two sources');
+      expect(find.text('Số giải ngân theo Kho bạc xem ở Trang chủ.'), findsOneWidget);
+      expect(find.textContaining('Đã thanh toán: 100 triệu đồng'), findsOneWidget, reason: 'the short label on the line of a project');
+      expect(find.text('Giải ngân'), findsNothing);
+      expect(find.textContaining('Giải ngân:'), findsNothing);
       expect(find.textContaining('460'), findsNothing);
       expect(find.byType(TextField), findsNothing, reason: 'amounts are read-only reference data');
+    });
+
+    testWidgets('L6 the labels fit a 360 dp phone, at the largest text too, and say the same in English', (WidgetTester tester) async {
+      for (final double scale in <double>[1.0, 2.0]) {
+        useDevice(tester, const Size(360, 6000), textScale: scale);
+        final ScriptedServer server = ScriptedServer();
+        healthy(server);
+        await _open(tester, server, '/projects/mob-12');
+        expect(find.text('Đã thanh toán qua hệ thống'), findsNWidgets(3), reason: 'at $scale');
+        expect(tester.takeException(), isNull, reason: 'no overflow at $scale');
+      }
+      useDevice(tester, const Size(360, 6000));
+      final ScriptedServer server = ScriptedServer();
+      healthy(server);
+      await pumpWithServer(tester, features: <MobileFeature>[project_views.feature], server: server, location: '/projects/mob-12', locale: const Locale('en'));
+      expect(find.text('Paid through the system'), findsNWidgets(3));
+      expect(find.text('The Treasury disbursement figure is on the Home tab.'), findsOneWidget);
+      expect(find.textContaining('Paid: 100 million'), findsOneWidget);
     });
 
     testWidgets('a plan named in the address is opened, and the reader can switch to another published plan', (WidgetTester tester) async {

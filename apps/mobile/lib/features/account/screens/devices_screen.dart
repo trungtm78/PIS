@@ -11,6 +11,7 @@ import '../../../core/navigation/feature.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
 import '../../../core/state/state_card.dart';
+import '../../../core/widgets/action_bar.dart';
 import '../../../core/widgets/work_row.dart';
 import '../../notification_inbox/push_registration.dart' show pushSignOutProvider;
 import '../../read_support/widgets.dart' show ScreenFrame;
@@ -18,12 +19,15 @@ import '../../session/auth/auth_service.dart';
 import '../../session/flow.dart';
 import '../../session/session_providers.dart';
 import '../account_providers.dart';
+import '../session_name.dart';
 
 final NotifierProvider<FlowNotifier, FlowState> devicesFlowProvider =
     NotifierProvider.autoDispose<FlowNotifier, FlowState>(FlowNotifier.new);
 
 /// MOB-49: the open sessions and the registered devices of the person, the revocation of a device, and the sign-out of this
-/// phone with the purge of its local data. Revoking a device ends its session (401 `SESSION_EXPIRED` on its next call), deletes
+/// phone with the purge of its local data. The sign-out is the bar at the foot of the screen, in sight however long the lists are (L4: a person
+/// with 64 sessions had to scroll past all of them to find it); a session is named by what opened it (a browser and its system, the phone
+/// application, a service), the one of this phone first, and the others are the five latest until the person asks for more. Revoking a device ends its session (401 `SESSION_EXPIRED` on its next call), deletes
 /// its local database on its next contact and stops its push notifications; revoking this phone signs it out here at once.
 Widget buildDevicesScreen(BuildContext context, ScreenContext screen) =>
     const DevicesScreen();
@@ -37,6 +41,7 @@ class DevicesScreen extends ConsumerStatefulWidget {
 
 class _DevicesScreenState extends ConsumerState<DevicesScreen> {
   String? _revokedMessage;
+  bool _allSessions = false;
   Future<void> Function()? _lastIntention;
 
   Future<void> _revoke(DeviceRow device, {required bool thisPhone}) async {
@@ -196,8 +201,14 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
     final DevicesView? data = view.asData?.value;
     final bool empty =
         data != null && data.sessions.isEmpty && data.devices.isEmpty;
+    final List<SessionRow> ordered = orderedSessions(data?.sessions ?? const <SessionRow>[]);
+    final List<SessionRow> shown = visibleSessions(ordered, all: _allSessions);
     return ScreenFrame(
       title: context.t('mob.devices.title.text'),
+      // Outside the list and outside its states: the way out of the session is there while the lists load, when they fail and however long they are.
+      bottomBar: ActionBar(
+        primary: ActionBarButton(label: context.t('mob.devices.signOut.action'), icon: Icons.logout, onPressed: flow.busy ? null : _signOut),
+      ),
       body: StateBoundary(
           state: state,
           problem: flow.problem ?? loaded.problem,
@@ -220,13 +231,25 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
                   )
                 else if (data != null) ...<Widget>[
                   GroupHeader(title: context.t('mob.devices.sessions.title'), count: data.sessions.length),
-                  for (final SessionRow row in data.sessions)
+                  for (final SessionRow row in shown)
                     WorkRow(
-                      title: row.summary.isEmpty ? row.id : row.summary,
+                      // What opened the session, in words; never the raw user-agent.
+                      title: sessionName(sessionClientOf(row.summary), context.t),
                       subtitle: <String>[
                         if (row.current) context.t('mob.devices.current.label'),
                         if (row.lastSeenAt != null) context.t('mob.devices.lastSeen.label', <String, Object>{'date': _date(row.lastSeenAt!)}),
                       ].join(' · '),
+                    ),
+                  if (shown.length < ordered.length)
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space8),
+                        child: TextButton(
+                          onPressed: () => setState(() => _allSessions = true),
+                          child: Text(context.t('mob.devices.sessions.more', <String, Object>{'count': ordered.length - shown.length})),
+                        ),
+                      ),
                     ),
                   GroupHeader(title: context.t('mob.devices.devices.title'), count: data.devices.length),
                   for (final DeviceRow device in data.devices)
@@ -239,14 +262,6 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
                       ),
                     ),
                 ],
-                const SizedBox(height: MachvonSpace.space24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
-                  child: FilledButton.tonal(
-                    onPressed: _signOut,
-                    child: Text(context.t('mob.devices.signOut.action')),
-                  ),
-                ),
               ],
             ),
           ),

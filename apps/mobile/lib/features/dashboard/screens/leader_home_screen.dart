@@ -102,6 +102,7 @@ class _HomeBody extends StatelessWidget {
     final LeaderHomeData home = loaded.value;
     final CommandCenter? center = home.center;
     final ({Tile pm, Tile total})? pair = center?.ratePair;
+    final bool scopeView = homeAlertsAreOfScope(home);
     return ListView(
       padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
@@ -120,7 +121,9 @@ class _HomeBody extends StatelessWidget {
           feed: home.alerts,
           errorCode: home.alertsError,
           onReload: onRetry,
-          title: context.t('mob.home.decide.title'),
+          // L7a: the alerts of the whole scope are not all the reader's to decide; only the reader's own (the scope refused) are "yours".
+          title: scopeView ? context.t('mob.home.scope.title') : context.t('mob.home.decide.title'),
+          scopeView: scopeView,
           readOnly: loaded.fromCache,
           stale: loaded.fromCache && loaded.stale,
           fetchedAt: loaded.fetchedAt,
