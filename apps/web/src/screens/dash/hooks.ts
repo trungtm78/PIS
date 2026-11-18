@@ -15,6 +15,14 @@ import { loadTemplateDb } from './sources/template-db';
 
 export const dashKey = (tenantId: string | undefined, membershipId: string | undefined) => ['dash9', tenantId, membershipId] as const;
 
+/** The reader is not allowed one of the reads the board is drawn from (the server answered 401 or 403). */
+export class DashboardDeniedError extends Error {
+  constructor() {
+    super('the reader may not read the figures of the board');
+  }
+}
+const isDenied = (error: unknown): boolean => { const status = (error as { status?: unknown } | null)?.status; return status === 401 || status === 403; };
+
 /** The dashboard and what it was drawn from: `notes` say, bundle by bundle, why a bundle stayed on the tables of the template. */
 export interface DashboardRead extends DashboardData {
   readonly notes: readonly string[];
@@ -50,6 +58,9 @@ export async function readDashboard(client: ApiClient, today: string): Promise<D
       base = fitTemplate(template, capital.tables);
     }
   } catch (error) {
+    // The reader may not read the figures of the province: the tables of the template are not shown in their place. A reader who lacks the right must not be given a
+    // board of figures at all, least of all one that is not the province's.
+    if (isDenied(error)) throw new DashboardDeniedError();
     notes.push(error instanceof NotEnoughError ? `capital: ${error.message}` : `capital: the system could not be read (${error instanceof Error ? error.message : 'unknown error'})`);
   }
   // The tasks and the submissions stand beside the capital tables of the system and name their units and projects only. The board has one clock (today, the period) and

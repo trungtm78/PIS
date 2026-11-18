@@ -174,6 +174,12 @@ describe('HOME-01, the leader home', () => {
     await waitFor(() => expect(screen.queryByTestId('dash9')).not.toBeNull());
   });
 
+  it('is the executive overview for a reader of Cà Mau the server refuses the figures of the province: no board of template figures in their place', async () => {
+    mount(<HomeLandingScreen route={ROUTE} />, harness(() => Object.assign(new Error('SCOPE_DENIED'), { status: 403 })), { tenant: CA_MAU });
+    await waitFor(() => expect(document.querySelector('[data-screen-id="HOME-01"]:not(.dash9-screen)')).not.toBeNull());
+    expect(screen.queryByTestId('dash9')).toBeNull();
+  });
+
   it('stays the executive overview for every other tenant', async () => {
     mount(<HomeLandingScreen route={ROUTE} />, harness(() => ({})));
     await waitFor(() => expect(document.querySelector('[data-screen-id="HOME-01"]')).not.toBeNull());

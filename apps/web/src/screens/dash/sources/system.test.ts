@@ -1,6 +1,6 @@
 import type { ApiClient } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
-import { readDashboard } from '../hooks';
+import { DashboardDeniedError, readDashboard } from '../hooks';
 import { E } from '../template/engine.js';
 import { referenceProblems } from './assemble';
 import { readCapitalInput } from './system';
@@ -165,6 +165,15 @@ describe('the dashboard: real figures where there are enough, the template where
     const late = Object.fromEntries(read.db.du_an.map((project) => [project.ma, project.ngay_cham]));
     expect(late['DA-DT205']).toBe(18);
     expect(late['DA-TH012']).toBe(0);
+  });
+
+  it('gives no board at all to a reader the server refuses the figures of the province: neither the tables of the system nor those of the template', async () => {
+    for (const status of [401, 403]) {
+      const { client } = clientOf({ units: 5, perUnit: 2, baselines: true });
+      const loose = client as unknown as { read: (operation: string, input?: unknown) => Promise<unknown>; readAll: (operation: string, input?: unknown) => Promise<unknown[]> };
+      const refused = { read: loose.read, readAll: (operation: string, input?: unknown) => (operation === 'listAppropriations' ? Promise.reject(Object.assign(new Error('SCOPE_DENIED'), { status })) : loose.readAll(operation, input)) } as unknown as ApiClient;
+      await expect(readDashboard(refused, TODAY)).rejects.toBeInstanceOf(DashboardDeniedError);
+    }
   });
 
   it('keeps the template, and says so, when the system cannot be read', async () => {

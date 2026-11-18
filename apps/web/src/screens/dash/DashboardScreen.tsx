@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
-import { useDashboardData } from './hooks';
+import OverviewScreen from '../home/OverviewScreen';
+import { DashboardDeniedError, useDashboardData } from './hooks';
 import { mountDashboard } from './template/index.js';
 import type { MountedDashboard } from './template/index.js';
 import './screen.css';
@@ -58,6 +59,9 @@ export default function DashboardScreen({ route }: ScreenProps) {
   const showFull = () => {
     host.current?.requestFullscreen?.()?.catch(() => undefined);
   };
+
+  // A reader the server refuses the figures of the province gets the executive overview, which shows what that reader may see and says what it may not.
+  if (data.error instanceof DashboardDeniedError) return <OverviewScreen route={route} />;
 
   // Where the tables came from is written on the board for whoever supports it (the reader sees no label: the owner's rule).
   return (
