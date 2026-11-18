@@ -138,6 +138,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'getMyEntitlements',
         'getMyFeatureFlags',
         'getMyPublishedTheme',
+        'getMyThemeLogo',
         'getTenantEntitlements',
         'get_resources_audit_event',
         'get_resources_audit_event_id',
