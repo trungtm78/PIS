@@ -20,7 +20,7 @@ import '../../../core/widgets/tap_target.dart';
 import '../../../core/widgets/underline_tabs.dart';
 import '../../../core/widgets/work_row.dart';
 import '../../dashboard/alert_badge.dart';
-import '../../dashboard/alerts.dart' show AlertCounts;
+import '../../dashboard/alerts.dart' show AlertCounts, alertViewParameter, alertViewScope;
 import '../../dashboard/widgets/alerts_section.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
@@ -40,17 +40,24 @@ const int inboxPageSize = 50;
 /// "Việc cần xử lý" (the alerts of the person, the full list that the home leads to with "See all"). Opening a row opens its detail (MOB-33);
 /// a push that was only delivered marks nothing read. The number unread is the badge of the Notifications tab. The screen also registers
 /// this device for push (a device without a token is simply not registered and keeps its inbox).
-Widget buildNotificationInboxScreen(BuildContext context, ScreenContext screen) => NotificationInboxScreen(initialTab: screen.queryParameters[inboxTabParameter] == inboxTabWork ? 1 : 0);
+Widget buildNotificationInboxScreen(BuildContext context, ScreenContext screen) => NotificationInboxScreen(
+      initialTab: screen.queryParameters[inboxTabParameter] == inboxTabWork ? 1 : 0,
+      scope: screen.queryParameters[alertViewParameter] == alertViewScope,
+    );
 
 /// The query parameter that opens the inbox on its second tab, the alerts of the person: the "See all" of the home leads there.
 const String inboxTabParameter = 'tab';
 const String inboxTabWork = 'work';
 
 class NotificationInboxScreen extends ConsumerStatefulWidget {
-  const NotificationInboxScreen({this.initialTab = 0, super.key});
+  const NotificationInboxScreen({this.initialTab = 0, this.scope = false, super.key});
 
   /// 0 the events, 1 the alerts of the person.
   final int initialTab;
+
+  /// The second tab shows the work of the whole scope the reader manages (`view=scope`), where the "See all" of the leader home leads; false is the
+  /// reader's own work.
+  final bool scope;
 
   @override
   ConsumerState<NotificationInboxScreen> createState() => _NotificationInboxScreenState();
@@ -59,12 +66,19 @@ class NotificationInboxScreen extends ConsumerStatefulWidget {
 class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScreen> {
   NotificationFilter _filter = const NotificationFilter();
   late int _tab = widget.initialTab;
+  late bool _scope = widget.scope;
+
+  /// The choice between the reader's own work and the work of the scope is offered once the scope was asked for (a leader came from the home); a
+  /// person who never asked for it keeps the one list they have always had.
+  late bool _scopeOffered = widget.scope;
 
   // The inbox keeps its state while another tab is open, so a link to the other tab arrives as a new parameter of the same screen: follow it.
   @override
   void didUpdateWidget(NotificationInboxScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialTab != widget.initialTab) _tab = widget.initialTab;
+    if (oldWidget.scope != widget.scope) _scope = widget.scope;
+    if (widget.scope) _scopeOffered = true;
   }
 
   @override
@@ -97,7 +111,8 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
             // The tab is part of the location, so a later link to the other tab is a change of the location and not a repeat of it.
             onChanged: (int index) {
               setState(() => _tab = index);
-              openScreen(context, 'MOB-32', query: index == 1 ? const <String, String>{inboxTabParameter: inboxTabWork} : const <String, String>{});
+              // The view the person chose for the work tab is carried in the location of the Events tab too, so coming back finds it.
+              openScreen(context, 'MOB-32', query: _inboxQuery(work: index == 1, scope: _scope));
             },
           ),
           // Both tabs stay mounted: the alerts are read once and keep their place while the person looks at the events.
@@ -119,7 +134,18 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
                     return _InboxBody(list: list, filter: _filter, onFilter: (NotificationFilter next) => setState(() => _filter = next));
                   },
                 ),
-                const SingleChildScrollView(child: AlertsSection()),
+                SingleChildScrollView(
+                  child: AlertsSection(
+                    scope: _scope,
+                    // The view is part of the location, as the tab is: a later link to the other view is a change of the location.
+                    onScope: _scopeOffered
+                        ? (bool scope) {
+                            setState(() => _scope = scope);
+                            openScreen(context, 'MOB-32', query: _inboxQuery(work: true, scope: scope));
+                          }
+                        : null,
+                  ),
+                ),
               ],
             ),
           ),
@@ -128,6 +154,11 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
     );
   }
 }
+
+/// The query of a location of the inbox: which tab is shown, and whether the work tab is of the scope. The view is kept apart from the tab: on the
+/// Events tab it still says which list of work the person chose, and a location without it is the reader's own work.
+Map<String, String> _inboxQuery({required bool work, required bool scope}) =>
+    <String, String>{if (work) inboxTabParameter: inboxTabWork, if (scope) alertViewParameter: alertViewScope};
 
 /// The notifications of the member, a page at a time, to the end or to the limit of pages.
 Future<Object?> readNotifications(MachvonApiClient client) async {

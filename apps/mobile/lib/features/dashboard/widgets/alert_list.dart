@@ -257,7 +257,11 @@ class _AlertsPanelState extends ConsumerState<AlertsPanel> {
                 // A node of its own: the heading flag would otherwise merge the texts of the panel into one heading (UAT 2026-11-13).
                 Expanded(child: Semantics(container: true, header: true, child: Text(widget.title ?? context.t('mob.alert.list.title.label'), style: text.heading))),
                 if (counted && widget.showSeeAll && !feed.isEmpty)
-                  TextButton(onPressed: () => openScreen(context, 'MOB-32', query: const <String, String>{'tab': 'work'}), child: Text(context.t('mob.alert.list.seeAll.action'))),
+                  TextButton(
+                    // The whole list is the list of what the block shows: the work of the scope for a block of the scope, the person's own otherwise.
+                    onPressed: () => openScreen(context, 'MOB-32', query: <String, String>{'tab': 'work', if (widget.scopeView) alertViewParameter: alertViewScope}),
+                    child: Text(context.t('mob.alert.list.seeAll.action')),
+                  ),
               ],
             ),
           ),

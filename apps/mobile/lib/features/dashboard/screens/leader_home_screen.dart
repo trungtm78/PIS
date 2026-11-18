@@ -72,6 +72,8 @@ class _LeaderHomeScreenState extends ConsumerState<LeaderHomeScreen> {
         // R53: for an officer the tab is "today's work": its parts read for themselves, so this read has no day of its own to say.
         asOf: (LeaderHomeData home) => home.center?.asOfDate ?? home.alerts?.asOf,
         emptyOnCodes: const <String>{'RESOURCE_NOT_FOUND'},
+        // L8: the day the figures are of stands at the end of the line; cut to one line it lost its year, or was not seen at all.
+        contextWraps: true,
         contextParts: (Loaded<LeaderHomeData> loaded) {
           final CommandCenter? center = loaded.value.center;
           if (center == null) return const <String>[];

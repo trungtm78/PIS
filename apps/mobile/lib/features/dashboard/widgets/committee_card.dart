@@ -238,7 +238,10 @@ class _Body extends StatelessWidget {
     final CommitteeFigure? gap = workspace.figure(committeeGapMetric);
     // A colour is only said when the figure it comes from is given: a gap held back as not certified has no colour either.
     final CommitteeRag rag = gap != null && gap.hasValue ? province.rag : CommitteeRag.noData;
-    return Column(
+    final bool unverifiedOnce = committeeUnverifiedOnce(workspace);
+    return CommitteeUnverifiedOnce(
+      once: unverifiedOnce,
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Text(context.t('mob.home.committee.asOf.text', <String, Object>{'day': asOfLabel(workspace.asOf), 'year': workspace.fiscalYear}), style: theme.textTheme.bodySmall),
@@ -249,6 +252,7 @@ class _Body extends StatelessWidget {
           ),
         const SizedBox(height: MachvonSpace.space8),
         CommitteeRagLine(rag: rag),
+        if (unverifiedOnce) const CommitteeUnverifiedNote(),
         CommitteeFigureRow(figure: workspace.figure(committeeRateMetric), label: context.t('mob.home.committee.label.rate'), headline: true),
         CommitteeFigureRow(figure: gap, label: context.t('mob.home.committee.label.gap'), signed: true),
         FactLine(label: context.t('mob.home.committee.label.expected'), value: context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(province.expectedPct, AppStrings.of(context).language)})),
@@ -265,6 +269,7 @@ class _Body extends StatelessWidget {
         const Divider(),
         _AlertList(alerts: workspace.alerts),
       ],
+      ),
     );
   }
 }
@@ -365,7 +370,62 @@ class CommitteeFigureRow extends StatelessWidget {
   }
 }
 
+/// The figures of the block of the committee, each a row with its own flags.
+const List<String> _rowMetrics = <String>[
+  committeeRateMetric,
+  committeeGapMetric,
+  committeePlanMetric,
+  committeeDisbursedMetric,
+  committeeLastYearMetric,
+  committeeAttentionMetric,
+  committeeUnitsMetric,
+  committeeDirectivesMetric,
+];
+
+const String _unverifiedFlag = 'UNVERIFIED_DEFINITION';
+
+/// Whether "the definition is not confirmed" is said ONCE for the block instead of under each figure (L8: the same line stood under all eight):
+/// only when every figure the block has carries the flag, and there is more than one. When only some carry it, each of those keeps its own line,
+/// because the line then tells the figures apart.
+bool committeeUnverifiedOnce(CommitteeWorkspace workspace) {
+  int given = 0;
+  for (final String metric in _rowMetrics) {
+    final CommitteeFigure? figure = workspace.figure(metric);
+    if (figure == null) continue;
+    if (!figure.flags.contains(_unverifiedFlag)) return false;
+    given += 1;
+  }
+  return given > 1;
+}
+
+/// Tells the rows under it that the unconfirmed definition is said once for the block (see [committeeUnverifiedOnce]), so they do not say it again.
+class CommitteeUnverifiedOnce extends InheritedWidget {
+  const CommitteeUnverifiedOnce({required this.once, required super.child, super.key});
+
+  final bool once;
+
+  static bool of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<CommitteeUnverifiedOnce>()?.once ?? false;
+
+  @override
+  bool updateShouldNotify(CommitteeUnverifiedOnce oldWidget) => oldWidget.once != once;
+}
+
+/// The one line that says the definitions of the figures of the block are not confirmed. It is never left out when they are not: it only stands
+/// once, at the head of the figures, instead of under each of them.
+class CommitteeUnverifiedNote extends StatelessWidget {
+  const CommitteeUnverifiedNote({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MachvonSpace.space4),
+      child: Semantics(container: true, child: Text(context.t('mob.home.committee.unverified.note'), style: Theme.of(context).textTheme.bodySmall)),
+    );
+  }
+}
+
 List<String> _flagWords(BuildContext context, CommitteeFigure? figure) {
+  final bool saidOnce = CommitteeUnverifiedOnce.of(context);
   final List<String> words = <String>[];
   for (final String flag in figure?.flags ?? const <String>[]) {
     switch (flag) {
@@ -373,8 +433,8 @@ List<String> _flagWords(BuildContext context, CommitteeFigure? figure) {
         words.add(context.t('mob.home.flag.stale.text'));
       case 'PARTIAL_COVERAGE':
         words.add(context.t('mob.home.flag.partial.text'));
-      case 'UNVERIFIED_DEFINITION':
-        words.add(context.t('mob.home.flag.unverified.text'));
+      case _unverifiedFlag:
+        if (!saidOnce) words.add(context.t('mob.home.flag.unverified.text'));
     }
   }
   return words;

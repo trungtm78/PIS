@@ -55,6 +55,7 @@ class DataView<T> extends ConsumerStatefulWidget {
     this.scopeLabel,
     this.closingLabel,
     this.contextParts,
+    this.contextWraps = false,
     this.emptyBody,
     super.key,
   }) : assert((builder == null) != (contextBuilder == null), 'give the builder or the contextBuilder, not both and not neither');
@@ -96,6 +97,9 @@ class DataView<T> extends ConsumerStatefulWidget {
   /// More pieces of the context line, worded from the data once it is read (the scope of a figure is known only then); they come after the
   /// scope and the closing date and before the freshness.
   final List<String> Function(Loaded<T> data)? contextParts;
+
+  /// The line of context is drawn whole, on as many lines as it needs (see `ContextLine.wrap`).
+  final bool contextWraps;
   final Widget Function(BuildContext context, Loaded<T> data)? builder;
 
   /// The same as [builder] for a screen that places the line of context itself, inside its scroll (under a command band): the line is
@@ -162,11 +166,14 @@ class _DataViewState<T> extends ConsumerState<DataView<T>> {
     final String? Function(T value)? asOfOf = widget.asOf;
     final Stopwatch waited = Stopwatch()..start();
     try {
-      final Object? raw = await widget.read(ref.read(apiClientProvider));
+      final Object? answer = await widget.read(ref.read(apiClientProvider));
+      // An answer that was fetched before this read asked for it keeps the moment it was fetched: the screen never says "just now" of it.
+      final Object? raw = answer is FetchedEarlier ? answer.raw : answer;
+      final DateTime? earlier = answer is FetchedEarlier ? answer.fetchedAt : null;
       final T? value = parse(raw);
       if (value == null) throw const ContractMismatch('response', 'does not hold what the screen needs');
       ref.read(telemetryProvider).recordListLoaded(waited.elapsed);
-      final DateTime fetchedAt = now();
+      final DateTime fetchedAt = earlier ?? now();
       final String? asOf = asOfOf?.call(value);
       // A read that was replaced by a newer one writes nothing: its answer is not the copy of the key that is on screen, and it
       // may be older than the copy the newer read has just written.
@@ -256,6 +263,7 @@ class _DataViewState<T> extends ConsumerState<DataView<T>> {
         scope: widget.scopeLabel,
         closing: widget.closingLabel,
         extra: widget.contextParts?.call(data) ?? const <String>[],
+        wrap: widget.contextWraps,
       );
 
   @override
@@ -300,12 +308,21 @@ class _RefreshingBar extends StatelessWidget {
   }
 }
 
+/// What a `read` of a [DataView] returns when the answer was fetched earlier by somebody else and handed over (the count of a tab that reads the
+/// same list before the tab is opened): the answer, and the moment the phone really got it. The view shows and stores it with that moment.
+final class FetchedEarlier {
+  const FetchedEarlier(this.raw, this.fetchedAt);
+
+  final Object? raw;
+  final DateTime fetchedAt;
+}
+
 /// The one line of context of a screen that reads (design B "ContextLine"): the scope the figures describe, their closing date, where
 /// the data came from and the moment it describes, in one line that opens on a tap. A copy kept on the device says so, says the amounts are reference data that
 /// cannot be edited, and says when it is out of date ("Stale figures"). Never says the data is the newest. It does not repeat the
 /// offline notice of the shell: with the shell strip up, the saved copy is named by its moment only.
 class FreshnessBar extends ConsumerWidget {
-  const FreshnessBar({required this.data, required this.ttl, this.onRefresh, this.scope, this.closing, this.extra = const <String>[], super.key});
+  const FreshnessBar({required this.data, required this.ttl, this.onRefresh, this.scope, this.closing, this.extra = const <String>[], this.wrap = false, super.key});
 
   final Loaded<Object?> data;
   final Duration ttl;
@@ -313,6 +330,7 @@ class FreshnessBar extends ConsumerWidget {
   final String? scope;
   final String? closing;
   final List<String> extra;
+  final bool wrap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -341,6 +359,7 @@ class FreshnessBar extends ConsumerWidget {
       stale: stale,
       onRefresh: onRefresh,
       refreshLabel: context.t('mob.read.refresh.action'),
+      wrap: wrap,
     );
   }
 }

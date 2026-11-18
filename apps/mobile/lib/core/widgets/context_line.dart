@@ -11,10 +11,14 @@ import 'tap_target.dart';
 /// a seventh of the height of the screen. When the figures are stale a warning icon and the words say so; the line is a live region, so
 /// the change is announced.
 class ContextLine extends StatefulWidget {
-  const ContextLine({required this.parts, this.stale = false, this.onRefresh, this.refreshLabel, super.key});
+  const ContextLine({required this.parts, this.stale = false, this.onRefresh, this.refreshLabel, this.wrap = false, super.key});
 
   /// The pieces of the line, already worded: "Whole company", "Closed 30/10/2026", "Updated 08:00".
   final List<String> parts;
+
+  /// The line is drawn whole on as many lines as it needs, instead of one line that is cut and opens on a tap. For a screen whose line carries a
+  /// piece the reader must not miss at its end (the day the figures are of, on the home of a leader).
+  final bool wrap;
 
   /// Shows the "Stale figures" notice with its icon.
   final bool stale;
@@ -37,7 +41,7 @@ class _ContextLineState extends State<ContextLine> {
     final MachvonV2 v2 = context.v2;
     final MachvonV2Text text = context.v2text;
     final String line = widget.parts.join(' · ');
-    final bool large = largeText(context);
+    final bool large = widget.wrap || largeText(context);
     final Widget words = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[

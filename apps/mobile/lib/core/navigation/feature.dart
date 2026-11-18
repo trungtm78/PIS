@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show WidgetRef;
 import 'package:go_router/go_router.dart';
 
 import '../l10n/string_table.dart';
@@ -72,10 +73,16 @@ final class MobileFeature {
     this.locationRules = const <LocationRule>[],
     this.conflictAdapters = const <String, ConflictAdapter>{},
     this.conflictScreens = const <String, ConflictScreenOf>{},
+    this.onShell,
   });
 
   /// The directory name of the feature.
   final String id;
+
+  /// What the feature starts when the five tabs come up, and keeps while they are up: a count for the number on its tab, read before the tab is
+  /// first opened. The shell calls it in its build with its own `ref` (so a `ref.listen` here lives as long as the shell); the shell knows nothing
+  /// of what is started.
+  final void Function(WidgetRef ref)? onShell;
   final List<ScreenSpec> screens;
 
   /// The strings of the feature; its keys start with the module prefix, both languages carry the same keys.

@@ -35,6 +35,15 @@ void main() {
       expect(find.byType(FilledButton), findsNothing, reason: 'the dashboard only reads');
     });
 
+    testWidgets('L8 figures whose definitions are all unconfirmed say so once above the figures, not under each', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      server.on('GET', '/committee/workspace', (_) => committeeWorkspace(figures: committeeFigures(flags: <String>['UNVERIFIED_DEFINITION'])));
+      await _open(tester, server);
+      expect(find.text('Định nghĩa của các chỉ tiêu dưới đây chưa được xác nhận.'), findsOneWidget);
+      expect(find.text('Định nghĩa chưa được xác nhận'), findsNothing);
+    });
+
     testWidgets('figures the server flags as stale are announced above the figures', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();

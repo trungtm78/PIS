@@ -84,10 +84,14 @@ class _BodyState extends State<_Body> {
         if (workspace.feedEmpty)
           SectionCard(title: context.t('mob.home.committee.title.text'), children: <Widget>[Semantics(liveRegion: true, container: true, child: Text(context.t('mob.home.committee.empty.text')))])
         else ...<Widget>[
-        SectionCard(
+        // L8: when every figure carries "the definition is not confirmed", it is said once here and not under each of them.
+        CommitteeUnverifiedOnce(
+          once: committeeUnverifiedOnce(workspace),
+          child: SectionCard(
           title: context.t('mob.home.committee.title.text'),
           children: <Widget>[
             CommitteeRagLine(rag: rag),
+            if (committeeUnverifiedOnce(workspace)) const CommitteeUnverifiedNote(),
             CommitteeFigureRow(figure: workspace.figure(committeeRateMetric), label: context.t('mob.home.committee.label.rate'), headline: true),
             CommitteeFigureRow(figure: gap, label: context.t('mob.home.committee.label.gap'), signed: true),
             FactLine(label: context.t('mob.home.committee.label.expected'), value: context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(province.expectedPct, AppStrings.of(context).language)})),
@@ -100,6 +104,7 @@ class _BodyState extends State<_Body> {
             CommitteeFigureRow(figure: workspace.figure(committeeUnitsMetric), label: context.t('mob.home.committee.label.units')),
             CommitteeFigureRow(figure: workspace.figure(committeeDirectivesMetric), label: context.t('mob.home.committee.label.directives')),
           ],
+          ),
         ),
         SectionCard(
           title: context.t('mob.ban.dim.title'),

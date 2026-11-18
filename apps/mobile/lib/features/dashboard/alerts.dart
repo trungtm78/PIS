@@ -404,6 +404,11 @@ AlertCounts? parseAlertCounts(Object? raw) {
   return AlertCounts(urgent: count(counts['urgent']), action: count(counts['action']), watch: count(counts['watch']));
 }
 
+/// The query parameter of the list of alerts (MOB-32, tab "work") that asks for the work of the whole scope the reader manages instead of their own:
+/// the "See all" of the block of the scope on the leader home leads there.
+const String alertViewParameter = 'view';
+const String alertViewScope = 'scope';
+
 /// The page size of the alert list on the home and in the inbox.
 const int alertPageSize = 20;
 

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -145,6 +145,22 @@ void main() {
     });
 
     // The device flow 20 and the cold-start script wait for this heading by its whole text, and a screen reader jumps to it by heading.
+    testWidgets('L8 the line of context is read whole at 360 dp and at 200 percent text: the day of the figures is never cut', (WidgetTester tester) async {
+      for (final double scale in <double>[1.0, 2.0]) {
+        useDevice(tester, Size(360, scale == 1.0 ? 2600 : 5200), textScale: scale);
+        final ScriptedServer server = ScriptedServer();
+        _healthy(server);
+        await _open(tester, server, '/home');
+        final Finder line = find.textContaining('Số liệu tại 31/10/2026');
+        expect(line, findsOneWidget, reason: 'at $scale');
+        expect(tester.widget<Text>(line).maxLines, isNull, reason: 'not held to one line, at $scale');
+        final RenderParagraph drawn = tester.renderObject<RenderParagraph>(find.descendant(of: line, matching: find.byType(RichText)));
+        expect(drawn.didExceedMaxLines, isFalse, reason: 'nothing of it is cut, at $scale');
+        expect(drawn.size.height, greaterThan(drawn.getFullHeightForCaret(const TextPosition(offset: 0)) * 1.5), reason: 'it takes the lines it needs, at $scale');
+        expect(tester.takeException(), isNull, reason: 'no overflow at $scale');
+      }
+    });
+
     testWidgets('the heading of the alerts is a heading node of its own, with no other text in it', (WidgetTester tester) async {
       final SemanticsHandle semantics = tester.ensureSemantics();
       useDevice(tester, kTallDevice);

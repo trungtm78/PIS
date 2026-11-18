@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../di/providers.dart' show featuresProvider;
 import '../l10n/app_strings.dart';
 import '../state/status_banners.dart';
 import '../widgets/bottom_nav.dart';
+import 'feature.dart';
 import 'route_catalogue.dart';
 import 'tab_badges.dart';
 
@@ -34,6 +36,10 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // What a feature keeps going while the tabs are up (the count on its tab) starts here, with the shell, not with the first visit to the tab.
+    for (final MobileFeature feature in ref.watch(featuresProvider)) {
+      feature.onShell?.call(ref);
+    }
     final Map<AppTab, int> badges = ref.watch(tabBadgeProvider);
     final bool onHome = navigationShell.currentIndex == AppTab.home.index;
     return PopScope(

@@ -18,8 +18,7 @@ import '../../../core/widgets/work_row.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
-import '../../read_support/paged.dart';
-import '../../read_support/wire.dart';
+import '../approval_badge.dart';
 import '../approval_models.dart';
 import '../approval_support.dart';
 import '../pending_decisions.dart';
@@ -51,7 +50,8 @@ class _ApprovalInboxScreenState extends ConsumerState<ApprovalInboxScreen> {
       body: DataView<ApprovalInbox>(
         cacheKey: 'approvals.inbox',
         reloadKey: ref.watch(approvalsChangedProvider),
-        read: _read,
+        // The first read is the answer the badge of the tab asked for when the shell came up (L9), while it is fresh; otherwise the server is asked.
+        read: (MachvonApiClient client) => ref.read(approvalBadgeProvider.notifier).readForInbox(client),
         parse: parseApprovalInbox,
         asOf: (ApprovalInbox inbox) => inbox.asOf,
         isEmpty: (ApprovalInbox inbox) => inbox.waitingCount == 0 && !inbox.pendingUnavailable,
@@ -66,35 +66,6 @@ class _ApprovalInboxScreenState extends ConsumerState<ApprovalInboxScreen> {
         },
       ),
     );
-  }
-
-  /// The tasks given to the person that still wait, then the names of the units (best effort: a unit the reader may not read
-  /// is left without a name, and a lost connection fails the read so that the copy is shown).
-  static Future<Object?> _read(MachvonApiClient client) async {
-    final Json tasks = await readMerged(client, 'get_resources_approval_task', query: <String, Object?>{'mine': 'true', 'status': 'Pending', 'limit': 200});
-    Json? units;
-    try {
-      units = await readMerged(client, 'get_resources_organization_unit', query: <String, Object?>{'limit': 200});
-    } on ApiError catch (error) {
-      if (error.code == networkErrorCode) rethrow;
-    }
-    // The records of the modules that wait for the person outside the engine (PWF 20.9). A source that cannot be read is named, never shown as "nothing waits"; a lost connection fails the read so that the copy is shown.
-    Object? pending;
-    bool pendingUnavailable = false;
-    try {
-      pending = await client.listMyPendingDecisions();
-    } on ApiError catch (error) {
-      if (error.code == networkErrorCode) rethrow;
-      pendingUnavailable = true;
-    }
-    final Json? pendingBody = asRecord(pending);
-    return <String, Object?>{
-      'items': tasks['items'],
-      'as_of': tasks['as_of'],
-      'units': units,
-      'pending': pendingBody?['items'] ?? const <Object?>[],
-      'pending_unavailable': pendingUnavailable || (listOf(pendingBody?['unavailable_sources']).isNotEmpty),
-    };
   }
 }
 

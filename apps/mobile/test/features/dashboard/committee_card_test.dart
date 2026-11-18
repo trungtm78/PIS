@@ -314,6 +314,50 @@ void main() {
       expect(find.text('Số liệu cũ'), findsNothing);
     });
 
+    testWidgets('L8 when every figure carries "definition not confirmed" it is said once for the block, not under each figure, and every "i" stays', (WidgetTester tester) async {
+      useDevice(tester, const Size(390, 6000));
+      await _open(tester, _healthy());
+      final int infoButtons = tester.widgetList(find.descendant(of: find.byType(CommitteeCard), matching: find.byType(FigureInfoButton))).length;
+      await _open(tester, _healthy(workspace: committeeWorkspace(figures: committeeFigures(flags: <String>['UNVERIFIED_DEFINITION']))));
+      final Finder card = find.byType(CommitteeCard);
+      expect(find.descendant(of: card, matching: find.text('Định nghĩa của các chỉ tiêu dưới đây chưa được xác nhận.')), findsOneWidget, reason: 'the fact is never hidden');
+      expect(find.descendant(of: card, matching: find.text('Định nghĩa chưa được xác nhận')), findsNothing, reason: 'it used to stand under each of the eight figures');
+      expect(tester.getTopLeft(find.text('Định nghĩa của các chỉ tiêu dưới đây chưa được xác nhận.')).dy, lessThan(tester.getTopLeft(find.text('41,2%')).dy), reason: 'above the figures it is about');
+      expect(infoButtons, greaterThanOrEqualTo(8));
+      expect(find.descendant(of: card, matching: find.byType(FigureInfoButton)), findsNWidgets(infoButtons), reason: 'each figure keeps its own explanation');
+    });
+
+    testWidgets('L8 a second flag stays on its figure, and at 360 dp with the largest text the one note still fits', (WidgetTester tester) async {
+      useDevice(tester, const Size(360, 9000), textScale: 2.0);
+      await _open(tester, _healthy(workspace: committeeWorkspace(figures: committeeFigures(flags: <String>['UNVERIFIED_DEFINITION', 'PARTIAL_COVERAGE']))));
+      final Finder card = find.byType(CommitteeCard);
+      expect(find.descendant(of: card, matching: find.text('Định nghĩa của các chỉ tiêu dưới đây chưa được xác nhận.')), findsOneWidget);
+      expect(find.descendant(of: card, matching: find.text('Định nghĩa chưa được xác nhận')), findsNothing);
+      expect(find.descendant(of: card, matching: find.text('Mới phủ một phần dữ liệu')), findsWidgets, reason: 'what tells the figures apart is still said on each');
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('L8 when only some figures are unconfirmed each of them says so itself, and there is no line for the block', (WidgetTester tester) async {
+      useDevice(tester, const Size(390, 6000));
+      final List<Map<String, Object?>> figures = committeeFigures();
+      for (final Map<String, Object?> figure in figures) {
+        if (figure['metric_code'] == 'COMMITTEE_PLAN_TOTAL' || figure['metric_code'] == 'COMMITTEE_DISBURSED') figure['flags'] = <String>['UNVERIFIED_DEFINITION'];
+      }
+      await _open(tester, _healthy(workspace: committeeWorkspace(figures: figures)));
+      final Finder card = find.byType(CommitteeCard);
+      expect(find.descendant(of: card, matching: find.text('Định nghĩa chưa được xác nhận')), findsNWidgets(2));
+      expect(find.descendant(of: card, matching: find.textContaining('Định nghĩa của các chỉ tiêu dưới đây')), findsNothing);
+    });
+
+    testWidgets('L8 the words of the note in English, and no note when no figure is flagged', (WidgetTester tester) async {
+      useDevice(tester, const Size(390, 6000));
+      await _open(tester, _healthy(workspace: committeeWorkspace(figures: committeeFigures(flags: <String>['UNVERIFIED_DEFINITION']))), locale: const Locale('en'));
+      expect(find.text('The definitions of the figures below are not confirmed yet.'), findsOneWidget);
+      expect(find.text('Definition not yet confirmed'), findsNothing);
+      await _open(tester, _healthy(), locale: const Locale('en'));
+      expect(find.textContaining('not confirmed'), findsNothing);
+    });
+
     testWidgets('fresh figures carry no stale marker', (WidgetTester tester) async {
       useDevice(tester, const Size(390, 6000));
       await _open(tester, _healthy());
