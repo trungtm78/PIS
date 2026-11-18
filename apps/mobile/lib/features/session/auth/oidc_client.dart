@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart' show TargetPlatform, debugPrint, defaultTargetPlatform;
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/services.dart' show MethodChannel, PlatformException;
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
@@ -176,10 +176,9 @@ final class MethodChannelAppForeground implements AppForeground {
     if ((_platform ?? defaultTargetPlatform) != TargetPlatform.android) return;
     try {
       await _channel.invokeMethod<void>('bringToFront');
-    } on Object catch (error) {
-      // Never a reason to fail the sign-in: the tokens are already on their way, and the person can still close the tab by hand. The type of
-      // the failure only, nothing of the session.
-      debugPrint('sign-in: the browser tab could not be dismissed (${error.runtimeType})');
+    } on Object {
+      // Never a reason to fail the sign-in: the tokens are already on their way, and the person can still close the tab by hand. Nothing is
+      // written to a log (no source of the application writes to one).
     }
   }
 }
