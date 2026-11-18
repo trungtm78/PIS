@@ -1,4 +1,12 @@
-STATUS: IN_PROGRESS
+STATUS: BLOCKED
+
+## BLOCKED (2026-11-19): chờ ba quyết định của chủ sở hữu; không còn việc nào tự làm được
+1. Vấn đề chính xác: ba việc cần chủ sở hữu quyết, vì thay đổi phân quyền hoặc dữ liệu của bản demo đang chạy (điều kiện dừng §8c, không phải lỗi kỹ thuật): (a) vai Trưởng Ban chỉ đạo (COMMITTEE_HEAD) cố ý không có quyền đọc dữ liệu tài chính (packages/db/src/system-roles.ts, có test khẳng định) nên không thấy dashboard vốn; (b) nạp khoản chi Kho bạc cho 13 dự án chưa giải ngân và chốt lại kỳ sẽ đổi số trên mọi màn và làm lệch clip; (c) bật duyệt nhiều bước cho báo cáo (quy tắc APPROVAL_WORKFLOW_DEFINITION chế độ STAGED) để có tờ trình thật là đổi cấu hình quản trị của bản demo.
+2. Đã thử/đã làm: kiểm 10 tài khoản demo × 9 màn trên server 1.0.39 (không lỗi); CI xanh toàn bộ ở 57fa1d183; đọc mã để xác định (a) là chủ ý thiết kế; (b) và (c) chưa làm vì không thể hoàn tác nếu muốn trở lại số cũ.
+3. Đề xuất: (a) giữ nguyên, Trưởng Ban dùng bảng điều hành riêng của Ban chỉ đạo; (b) và (c) để sau buổi demo.
+4. Câu hỏi đóng: với từng việc (a), (b), (c), bạn chọn "làm" hay "chưa"?
+Việc của người, không chặn tôi: nghe lại giọng đọc clip; thử APK 19/11 trên điện thoại thật; cân nhắc đổi mật khẩu demo dùng chung.
+
 
 ## 2026-11-17 (đêm): HOTFIX dashboard điều hành Cà Mau theo mẫu của chủ sở hữu (`Design/Requirments/Dashbroad_Final/dashboard-ca-mau.html`, 11 trang 1280×720, d3 v7)
 - Quyết định của chủ sở hữu: dashboard thay màn Tổng quan (HOME-01) của tổ chức tỉnh Cà Mau, bản public; không hiện nhãn "Dữ liệu minh họa"; phần nào hệ thống có đủ dữ liệu hợp lý thì lấy số thật, không đủ thì dùng số mô phỏng của mẫu; xong đưa lên server.
