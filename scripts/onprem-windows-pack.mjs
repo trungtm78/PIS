@@ -272,10 +272,25 @@ function copyInfra({ out, edition }) {
   copyIdentity({ out, edition });
 }
 
+/** The authorship-and-recipient notice written to the pack root when a customer or a copyright owner is named. Plain text, so an operator reads it without a tool. */
+export function noticeText({ customer, copyright, builtAt, version, edition }) {
+  const lines = [];
+  if (copyright) lines.push(`Bản quyền © ${new Date(builtAt).getUTCFullYear()} ${copyright}. Giữ mọi quyền.`, `Copyright © ${new Date(builtAt).getUTCFullYear()} ${copyright}. All rights reserved.`, '');
+  lines.push(
+    'Phần mềm này được giao để sử dụng theo thỏa thuận cấp phép. Không được sao chép, phân phối lại,',
+    'dịch ngược hay sử dụng ngoài phạm vi đã thỏa thuận. This software is licensed, not sold.',
+    '',
+    `Bản giao / build: ${version} (${edition})`,
+  );
+  if (customer) lines.push(`Giao cho / licensed to: ${customer}`);
+  lines.push(`Đóng gói lúc / built at: ${builtAt}`, '');
+  return `${lines.join('\n')}`;
+}
+
 export async function main(argv, { log = console.log } = {}) {
   let values;
   try {
-    ({ values } = parseArgs({ args: argv, options: { version: { type: 'string' }, 'public-origin': { type: 'string' }, edition: { type: 'string', default: 'public' }, out: { type: 'string' } }, allowPositionals: false }));
+    ({ values } = parseArgs({ args: argv, options: { version: { type: 'string' }, 'public-origin': { type: 'string' }, edition: { type: 'string', default: 'public' }, out: { type: 'string' }, customer: { type: 'string' }, copyright: { type: 'string' } }, allowPositionals: false }));
   } catch (error) {
     log(String(error.message));
     return 2;
@@ -304,7 +319,12 @@ export async function main(argv, { log = console.log } = {}) {
   const counts = buildApi({ out, transformSync });
   copyInfra({ out, edition: values.edition });
   writeFileSync(join(out, 'VERSION'), `${values.version}\n`);
-  const manifest = { version: values.version, edition: values.edition, publicOrigin: origin.origin, publicHost: origin.host, platform: `${process.platform}-${process.arch}`, node: process.version, files: manifestOf(out) };
+  // The mark of authorship and of the recipient: who the pack is for (`--customer`) and who owns the work (`--copyright`), with the moment it was built. It names the
+  // recipient of each pack, so a copy that leaves its installation can be traced to the recipient it was built for; it does not restrict what the recipient can do.
+  const builtAt = new Date().toISOString();
+  const watermark = { customer: values.customer ?? null, copyright: values.copyright ?? null, builtAt };
+  if (values.customer !== undefined || values.copyright !== undefined) writeFileSync(join(out, 'NOTICE.txt'), noticeText({ ...watermark, version: values.version, edition: values.edition }));
+  const manifest = { version: values.version, edition: values.edition, publicOrigin: origin.origin, publicHost: origin.host, platform: `${process.platform}-${process.arch}`, node: process.version, ...watermark, files: manifestOf(out) };
   writeFileSync(join(out, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   log(`onprem-windows-pack: ${counts.compiled} sources compiled, ${counts.copied} files copied, ${Object.keys(manifest.files).length} files in the manifest: ${out}`);
   return 0;

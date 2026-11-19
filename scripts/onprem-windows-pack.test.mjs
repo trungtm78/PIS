@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { COMPILE_OPTIONS, EDITION_IDENTITY, RESOLVE_LOADER, compileSource, copyIdentity, isCompiled, isShipped, main, manifestOf, parseOrigin, shipTree, windowsNginx } from './onprem-windows-pack.mjs';
+import { COMPILE_OPTIONS, EDITION_IDENTITY, RESOLVE_LOADER, compileSource, copyIdentity, isCompiled, isShipped, main, noticeText, manifestOf, parseOrigin, shipTree, windowsNginx } from './onprem-windows-pack.mjs';
 import { loadSecretFiles } from '../infra/onprem-windows/docker/secret-files.mjs';
 import { inputProblems, newPassword, readInvitations } from '../infra/onprem-windows/tools/first-accounts.mjs';
 import { AdminError, KeycloakAdmin, PRESENTATION_FIELDS, SECOND_FACTOR, base32, main as keycloakAdmin, newTotpSecret, otpauthOf, productLabel } from '../infra/onprem-windows/tools/keycloak-admin.mjs';
@@ -371,6 +371,17 @@ test('the realm file of the product still asks every member for the second facto
   const compose = readFileSync(join(REPO_ROOT, 'infra', 'onprem-windows', 'compose', 'compose.yaml'), 'utf8');
   assert.match(compose, /MACHVON_DEMO_SINGLE_FACTOR: \$\{MACHVON_DEMO_SINGLE_FACTOR:-false\}/);
   assert.match(readFileSync(join(REPO_ROOT, 'infra', 'onprem-windows', 'compose', 'env.template'), 'utf8'), /^MACHVON_DEMO_SINGLE_FACTOR=false$/m);
+});
+
+test('noticeText carries the copyright owner, the recipient of the pack and the build moment', () => {
+  const t = noticeText({ customer: 'DEMO_MV_2026', copyright: 'Thân Minh Trung', builtAt: '2026-11-19T10:00:00.000Z', version: '1.0.40', edition: 'public' });
+  assert.match(t, /Bản quyền © 2026 Thân Minh Trung/u);
+  assert.match(t, /Copyright © 2026 Thân Minh Trung\. All rights reserved\./u);
+  assert.match(t, /dịch ngược hay sử dụng ngoài phạm vi/u);
+  assert.match(t, /Giao cho \/ licensed to: DEMO_MV_2026/u);
+  assert.match(t, /Bản giao \/ build: 1\.0\.40 \(public\)/u);
+  // No owner named: the licence text still stands, the copyright line is left out.
+  assert.doesNotMatch(noticeText({ customer: 'X', copyright: null, builtAt: '2026-11-19T10:00:00.000Z', version: '1.0.0', edition: 'public' }), /Bản quyền ©/u);
 });
 
 test('productLabel is the display name of the presentation of the release, or the code name where the release carries none', () => {
